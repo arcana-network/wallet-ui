@@ -1,26 +1,43 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="wallet_container">
+    <div class="wallet_body"></div>
+    <WalletFooter />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import WalletFooter from "./components/footer.vue";
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  name: "App",
+  components: { WalletFooter },
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.wallet_container {
+  width: 360px;
+  height: 494px;
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  background: linear-gradient(
+    324.81deg,
+    #d6d8d9 14.65%,
+    rgba(232, 232, 232, 0.36) 92.36%
+  );
+}
+
+.wallet_body {
+  width: 328px;
+  height: 402px;
+  margin: 0 auto;
+
+  background: #f9f9f9;
+  box-shadow: 4px 5px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
 }
 </style>
