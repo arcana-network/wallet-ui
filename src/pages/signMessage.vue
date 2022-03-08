@@ -9,13 +9,17 @@
         DropBox.com requests your permission to perform the following action:
       </p>
       <p class="sign_message-text">Upload of XYZ.jpg</p>
-      <button class="sign_message-view_info">
+      <button
+        class="sign_message-view_info"
+        v-on:click="showAdvancedInfo = !showAdvancedInfo"
+      >
         View Advanced Information
         <img
           class="sign_message-arrow_icon"
           src="../assets/images/arrow_icon.png"
         />
       </button>
+      <SignMessageAdvancedInfo v-if="showAdvancedInfo" />
     </div>
     <div class="sign_message-footer">
       <p class="sign_message-info_text">
@@ -34,8 +38,17 @@
 </template>
 
 <script>
+import SignMessageAdvancedInfo from "../components/signMessageAdvancedInfo.vue";
 export default {
   name: "SignMessage",
+  components: {
+    SignMessageAdvancedInfo,
+  },
+  data() {
+    return {
+      showAdvancedInfo: false,
+    };
+  },
 };
 </script>
 
@@ -45,6 +58,8 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+
+  overflow: auto;
 }
 
 .sign_message-body {
