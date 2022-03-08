@@ -1,23 +1,26 @@
 <template>
   <div class="wallet_container">
-    <div class="wallet_body"></div>
+    <div class="wallet_body">
+      <SignIn />
+    </div>
     <WalletFooter />
   </div>
 </template>
 
 <script>
 import WalletFooter from "./components/footer.vue";
+import SignIn from "./pages/signIn.vue";
 
 export default {
   name: "App",
-  components: { WalletFooter },
+  components: { SignIn, WalletFooter },
 };
 </script>
 
 <style>
 .wallet_container {
   width: 360px;
-  height: 494px;
+  height: 488px;
   padding: 16px;
 
   display: flex;
