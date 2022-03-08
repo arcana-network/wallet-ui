@@ -1,7 +1,7 @@
 <template>
   <div class="wallet_container">
     <div class="wallet_body">
-      <SignIn />
+      <SignMessage />
     </div>
     <WalletFooter />
   </div>
@@ -9,11 +9,12 @@
 
 <script>
 import WalletFooter from "./components/footer.vue";
-import SignIn from "./pages/signIn.vue";
+// import SignIn from "./pages/signIn.vue";
+import SignMessage from "./pages/signMessage.vue";
 
 export default {
   name: "App",
-  components: { SignIn, WalletFooter },
+  components: { /* SignIn, */ SignMessage, WalletFooter },
 };
 </script>
 
