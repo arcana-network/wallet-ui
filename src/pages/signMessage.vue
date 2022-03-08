@@ -16,6 +16,7 @@
         View Advanced Information
         <img
           class="sign_message-arrow_icon"
+          :class="{ arrow_up: showAdvancedInfo }"
           src="../assets/images/arrow_icon.png"
         />
       </button>
@@ -146,6 +147,7 @@ export default {
 .sign_message-arrow_icon {
   width: 7px;
   margin-left: 6px;
+  transition: all 0.5s;
 }
 
 .sign_message-button_container {
@@ -165,6 +167,12 @@ export default {
   text-transform: uppercase;
 }
 
+.sign_message_button-reject:hover,
+.sign_message_button-approve:hover {
+  transform: scale(1.05, 1.05);
+  transition: all 0.5s;
+}
+
 .sign_message_button-reject {
   margin-right: 5px;
 }
@@ -174,5 +182,9 @@ export default {
   background-color: #101010;
   text-transform: uppercase;
   color: #f7f7f7;
+}
+
+.arrow_up {
+  transform: rotate(180deg);
 }
 </style>
