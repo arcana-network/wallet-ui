@@ -2,7 +2,7 @@
   <div class="wallet_signin-container">
     <div class="wallet_signin-body">
       <div class="wallet_signin_title-desc">
-        <p class="wallet_signin-title">Welcome</p>
+        <h1 class="wallet_signin-title">Welcome</h1>
         <p class="wallet_signin-desc">
           We’ll email you a magic link for a password-free sign in.
         </p>
