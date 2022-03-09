@@ -31,10 +31,7 @@ export default {
 }
 
 .wallet_signin-oauth-text {
-  font-style: normal;
-  font-weight: normal;
   font-size: 10px;
-  line-height: 13px;
 }
 
 .wallet_signin-oauth-icon {

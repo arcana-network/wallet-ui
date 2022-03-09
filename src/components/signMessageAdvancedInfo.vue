@@ -70,7 +70,6 @@ export default {
 }
 
 .sign_message-advanced_info_label {
-  font-style: normal;
   font-weight: 600;
   font-size: 12px;
   margin: 0;
@@ -78,7 +77,6 @@ export default {
 }
 
 .sign_message-advanced_info_value {
-  font-weight: normal;
   font-size: 10px;
   color: #932a9b;
   margin: 0;

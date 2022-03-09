@@ -11,8 +11,6 @@ export default {
 <style>
 .wallet_footer {
   text-align: center;
-  font-style: normal;
-  font-weight: normal;
   font-size: 12px;
   line-height: 15px;
 }

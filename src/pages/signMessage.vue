@@ -133,7 +133,6 @@ export default {
 }
 
 .sign_message-info_text {
-  font-weight: normal;
   font-size: 10px;
 
   display: flex;
