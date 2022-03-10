@@ -67,11 +67,13 @@ export default {
   display: flex;
   flex-direction: column;
   flex: 1;
+  padding-bottom: 15px;
 }
 
 .sign_message-footer {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   height: 70px;
 }
@@ -79,15 +81,13 @@ export default {
 .sign_message-title_container {
   display: flex;
   align-items: baseline;
+  margin-bottom: 15px;
 }
 
 .sign_message-title {
   font-weight: 600;
   font-size: 20px;
-
   margin: 0;
-
-  color: #101010;
   flex: 1;
 }
 
@@ -101,8 +101,9 @@ export default {
 }
 
 .sign_message-permission {
-  font-weight: normal;
+  font-weight: 400;
   font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .sign_message-text {
@@ -116,6 +117,7 @@ export default {
     inset 1px 1px 2px rgba(174, 174, 192, 0.2);
 
   text-align: center;
+  margin-bottom: 15px;
 }
 
 .sign_message-view_info {
@@ -129,7 +131,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 15px;
 }
 
 .sign_message-info_text {
