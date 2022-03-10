@@ -25,6 +25,14 @@ export default {
 
 body {
   font-family: "Sora", sans-serif;
+  color: #101010;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: transparent;
 }
 
 .wallet_container {
