@@ -26,6 +26,7 @@ export default {
 body {
   font-family: "Sora", sans-serif;
   color: #101010;
+  line-height: 1.5;
 }
 
 button {
