@@ -21,6 +21,12 @@ export default {
 </script>
 
 <style>
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=swap");
+
+body {
+  font-family: "Sora", sans-serif;
+}
+
 .wallet_container {
   width: 360px;
   height: 488px;
