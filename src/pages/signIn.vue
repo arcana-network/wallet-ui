@@ -60,6 +60,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
 }
 
 .wallet_signin_title-desc {
@@ -74,41 +75,42 @@ export default {
   font-weight: 600;
   font-size: 20px;
   text-align: center;
-  color: #101010;
 }
 
 .wallet_signin-desc {
+  font-weight: 400;
   font-size: 14px;
   text-align: center;
-  color: #101010;
 }
 
 .wallet_signin-input_container {
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-bottom: 30px;
 }
 
 .wallet_signin-input_label {
+  font-weight: 400;
   font-size: 14px;
-  color: #101010;
+  margin-left: 15px;
+  margin-bottom: 10px;
 }
 
 .wallet_signin-input_field {
   height: 45px;
-  margin: 10px 0px;
   padding: 0px 16px;
   background: #eeeeee;
   box-shadow: inset -1px -1px 1px rgba(255, 255, 255, 0.7),
     inset 1px 1px 2px rgba(174, 174, 192, 0.2);
   border-radius: 10px;
+  font-weight: 400;
   font-size: 14px;
-  color: #101010;
 }
 
 .wallet_signin-button {
   width: 100%;
-  height: 38px;
+  height: 40px;
   color: #f7f7f7;
   background: #101010;
   border-radius: 10px;
@@ -125,9 +127,6 @@ export default {
 }
 
 .wallet_signin-signup-cta {
-  background: transparent;
-  border: none;
-  outline: none;
   font-weight: bold;
   font-size: 12px;
   text-decoration-line: underline;

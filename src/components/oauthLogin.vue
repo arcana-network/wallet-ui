@@ -1,18 +1,24 @@
 <template>
   <div class="wallet_signin-oauth-container">
-    <p class="wallet_signin-oauth-text">sign in with</p>
-    <img
-      class="wallet_signin-oauth-icon"
-      src="../assets/images/google_icon.png"
-    />
-    <img
-      class="wallet_signin-oauth-icon"
-      src="../assets/images/twitter_icon.png"
-    />
-    <img
-      class="wallet_signin-oauth-icon"
-      src="../assets/images/github_icon.png"
-    />
+    <p class="wallet_signin-oauth-text">Or sign in with</p>
+    <button>
+      <img
+        class="wallet_signin-oauth-icon"
+        src="../assets/images/google_icon.png"
+      />
+    </button>
+    <button>
+      <img
+        class="wallet_signin-oauth-icon"
+        src="../assets/images/twitter_icon.png"
+      />
+    </button>
+    <button>
+      <img
+        class="wallet_signin-oauth-icon"
+        src="../assets/images/github_icon.png"
+      />
+    </button>
   </div>
 </template>
 
@@ -32,6 +38,7 @@ export default {
 
 .wallet_signin-oauth-text {
   font-size: 10px;
+  font-weight: 400;
 }
 
 .wallet_signin-oauth-icon {

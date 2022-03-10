@@ -38,7 +38,7 @@ button {
 
 .wallet_container {
   width: 360px;
-  height: 488px;
+  height: 490px;
   padding: 16px;
 
   display: flex;
@@ -53,8 +53,8 @@ button {
 }
 
 .wallet_body {
-  width: 328px;
-  height: 402px;
+  width: 330px;
+  height: 400px;
   margin: 0 auto;
 
   background: #f9f9f9;
