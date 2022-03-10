@@ -8,7 +8,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .wallet_footer {
   text-align: center;
   font-weight: 400;

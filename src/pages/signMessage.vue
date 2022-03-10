@@ -53,7 +53,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .sign_message-container {
   padding: 20px 15px;
   height: 100%;

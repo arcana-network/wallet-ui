@@ -28,7 +28,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .wallet_signin-oauth-container {
   display: flex;
   justify-content: space-around;

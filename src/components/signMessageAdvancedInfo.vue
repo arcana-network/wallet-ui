@@ -56,7 +56,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .sign_message-advanced_info {
   width: 298px;
   height: 292px;

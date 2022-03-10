@@ -36,7 +36,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .wallet_signin-container {
   height: 100%;
   padding: 20px 15px;
