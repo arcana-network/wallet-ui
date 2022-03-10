@@ -10,9 +10,9 @@
 <script>
 import "modern-css-reset";
 
-import WalletFooter from "./components/footer.vue";
-// import SignIn from "./pages/signIn.vue";
-import SignMessage from "./pages/signMessage.vue";
+import WalletFooter from "@/components/footer.vue";
+import SignIn from "@/pages/signIn.vue";
+// import SignMessage from "@/pages/signMessage.vue";
 
 export default {
   name: "App",

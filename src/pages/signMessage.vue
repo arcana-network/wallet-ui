@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import SignMessageAdvancedInfo from "../components/signMessageAdvancedInfo.vue";
+import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
 export default {
   name: "SignMessage",
   components: {

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import oAuthLogin from "../components/oauthLogin.vue";
+import oAuthLogin from "@/components/oauthLogin.vue";
 
 export default {
   name: "SignIn",
