@@ -107,15 +107,13 @@ export default {
 }
 
 .sign_message-text {
-  background: #eeeeee;
+  background: var(--input-box-bg-color);
   font-weight: 600;
   font-size: 16px;
   padding: 30px 30px;
-  color: #101010;
+  color: var(--color);
   border-radius: 10px;
-  box-shadow: inset -1px -1px 1px rgba(255, 255, 255, 0.7),
-    inset 1px 1px 2px rgba(174, 174, 192, 0.2);
-
+  box-shadow: var(--input-box-box-shadow);
   text-align: center;
   margin-bottom: 15px;
 }
@@ -123,21 +121,17 @@ export default {
 .sign_message-view_info {
   font-weight: 600;
   font-size: 10px;
-
-  border: none;
-  outline: none;
-
-  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 15px;
+  color: var(--color);
 }
 
 .sign_message-info_text {
   font-size: 10px;
-
   display: flex;
+  color: var(--color);
 }
 
 .sign_message-info_icon {
@@ -148,6 +142,7 @@ export default {
 
 .sign_message-arrow_icon {
   width: 7px;
+  height: 3px;
   margin-left: 6px;
   transition: all 0.5s;
 }
@@ -177,13 +172,15 @@ export default {
 
 .sign_message_button-reject {
   margin-right: 5px;
+  border-color: var(--outlined-button-border-color);
+  color: var(--outlined-button-fg-color);
 }
 
 .sign_message_button-approve {
   margin-left: 5px;
-  background-color: #101010;
+  background-color: var(--filled-button-bg-color);
   text-transform: uppercase;
-  color: #f7f7f7;
+  color: var(--filled-button-fg-color);
 }
 
 .arrow_up {

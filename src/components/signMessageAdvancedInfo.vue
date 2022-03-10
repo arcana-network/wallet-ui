@@ -52,10 +52,8 @@ export default {
   width: 298px;
   height: 292px;
   padding: 20px 15px;
-  background: #eeeeee;
-  box-shadow: inset -1px -1px 1px rgba(255, 255, 255, 0.7),
-    inset 1px 1px 2px rgba(174, 174, 192, 0.2);
-  border-radius: 10px;
+  background: var(--input-box-bg-color);
+  box-shadow: var(--input-box-box-shadow);
 
   overflow: auto;
 }
