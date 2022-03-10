@@ -1,58 +1,49 @@
 <template>
   <div class="sign_message-advanced_info">
     <div class="sign_message-advanced_info-container">
-      <p class="sign_message-advanced_info_label">Smart Contract</p>
-      <p class="sign_message-advanced_info_value">0x4b56326328723819829</p>
+      <VJsonViewer :value="smartContract"></VJsonViewer>
     </div>
     <div class="sign_message-advanced_info-container">
       <p class="sign_message-advanced_info_label">Domain</p>
       <div>
-        <p class="sign_message-advanced_info_value">
-          <span>Domain:</span>
-          <span>Object {name: “DropBox.com”, verif...</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Name:</span> <span>“DropxBox.com”</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>VerifyingContract:</span> <span>“0x4b56326328723819829</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Version:</span> <span>“1”</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Salt:</span> <span>“aa029182729jasbnu3i21291209aaerebc</span>
-        </p>
+        <VJsonViewer :value="domain"></VJsonViewer>
       </div>
     </div>
     <div class="sign_message-advanced_info-container">
       <p class="sign_message-advanced_info_label">Message</p>
       <div>
-        <p class="sign_message-advanced_info_value">
-          <span>Message:</span>
-          <span>Object {name: “DropBox.com”, verif...</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>OrderHash:</span> <span>“DropxBox.com”</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Amount:</span> <span>“0”</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Address:</span>
-          <span>“aa029182729jasbnu3i21291209aaerebc</span>
-        </p>
-        <p class="sign_message-advanced_info_value">
-          <span>Nonce:</span> <span>“1”</span>
-        </p>
+        <VJsonViewer :value="message"></VJsonViewer>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import VJsonViewer from "./VJsonViewer.vue";
 export default {
   name: "SignMessageAdvancedInfo",
+  data() {
+    return {
+      domain: {
+        Domain: { name: "DropBox.com" },
+        Name: "DropxBox.com",
+        VerifyingContract: "0x4b56326328723819829",
+        Version: "1",
+        Salt: "aa029182729jasbnu3i21291209aaerebc",
+      },
+      message: {
+        Message: { orderHash: "DropBox.com" },
+        OrderHash: "0x4b56326328723819829",
+        Amount: 0,
+        Address: "0x4b32632872381982928723819829",
+        Nonce: 1,
+      },
+      smartContract: {
+        SmartContract: "0x4b56326328723819829",
+      },
+    };
+  },
+  components: { VJsonViewer },
 };
 </script>
 
