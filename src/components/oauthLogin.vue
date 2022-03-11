@@ -4,19 +4,19 @@
     <button>
       <img
         class="wallet_signin-oauth-icon"
-        src="../assets/images/google_icon.png"
+        src="../assets/images/google-icon.png"
       />
     </button>
     <button>
       <img
         class="wallet_signin-oauth-icon"
-        src="../assets/images/twitter_icon.png"
+        src="../assets/images/twitter-icon.png"
       />
     </button>
     <button>
       <img
         class="wallet_signin-oauth-icon"
-        src="../assets/images/github_icon.png"
+        src="../assets/images/github-icon.png"
       />
     </button>
   </div>

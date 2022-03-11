@@ -17,7 +17,7 @@
         <img
           class="sign_message-arrow_icon"
           :class="{ arrow_up: showAdvancedInfo }"
-          src="../assets/images/arrow_icon.png"
+          src="../assets/images/arrow-icon.png"
         />
       </button>
       <SignMessageAdvancedInfo v-if="showAdvancedInfo" />
@@ -27,7 +27,7 @@
         You are not going to be charged!
         <img
           class="sign_message-info_icon"
-          src="../assets/images/info_icon.png"
+          src="../assets/images/info-icon.png"
         />
       </p>
       <div class="sign_message-button_container">
