@@ -52,8 +52,8 @@ export default {
   width: 298px;
   height: 292px;
   padding: 20px 15px;
-  background: var(--input-box-bg-color);
-  box-shadow: var(--input-box-box-shadow);
+  background: var(--debossed-box-color);
+  box-shadow: var(--debossed-shadow);
 
   overflow: auto;
 }

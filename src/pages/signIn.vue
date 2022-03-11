@@ -100,8 +100,9 @@ export default {
 .wallet_signin-input_field {
   height: 45px;
   padding: 0px 16px;
-  background: var(--input-box-bg-color);
-  box-shadow: var(--input-box-box-shadow);
+  border: none;
+  background: var(--debossed-box-color);
+  box-shadow: var(--debossed-shadow);
   border-radius: 10px;
   font-weight: 400;
   font-size: 14px;
@@ -110,7 +111,7 @@ export default {
 .wallet_signin-button {
   width: 100%;
   height: 40px;
-  background: #101010;
+  background: var(--filled-button-bg-color);
   border-radius: 10px;
   color: var(--filled-button-fg-color);
   font-weight: 600;
@@ -128,5 +129,6 @@ export default {
   font-size: 12px;
   text-decoration-line: underline;
   text-transform: uppercase;
+  color: var(--fg-color);
 }
 </style>

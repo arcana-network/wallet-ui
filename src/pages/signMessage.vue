@@ -107,13 +107,13 @@ export default {
 }
 
 .sign_message-text {
-  background: var(--input-box-bg-color);
+  background: var(--debossed-box-color);
   font-weight: 600;
   font-size: 16px;
   padding: 30px 30px;
-  color: var(--color);
+  color: var(--fg-color);
   border-radius: 10px;
-  box-shadow: var(--input-box-box-shadow);
+  box-shadow: var(--debossed-shadow);
   text-align: center;
   margin-bottom: 15px;
 }
@@ -125,13 +125,13 @@ export default {
   justify-content: center;
   align-items: center;
   margin-bottom: 15px;
-  color: var(--color);
+  color: var(--fg-color);
 }
 
 .sign_message-info_text {
   font-size: 10px;
   display: flex;
-  color: var(--color);
+  color: var(--fg-color);
 }
 
 .sign_message-info_icon {
