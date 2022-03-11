@@ -21,7 +21,7 @@ export default {
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block");
 
 :root {
   --color: #101010;
