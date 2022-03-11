@@ -8,6 +8,8 @@
 </template>
 
 <script>
+import "@/assets/css/reset.css";
+
 import WalletFooter from "@/components/footer.vue";
 import SignIn from "@/pages/signIn.vue";
 // import SignMessage from "@/pages/signMessage.vue";
