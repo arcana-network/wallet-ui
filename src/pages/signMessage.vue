@@ -21,6 +21,7 @@ const showAdvancedInfo = ref(false);
         v-on:click="showAdvancedInfo = !showAdvancedInfo"
       >
         View Advanced Information
+        <!--Todo: use theme var to change arrow icon (dark or light) -->
         <img
           class="sign_message-arrow_icon"
           :class="{ arrow_up: showAdvancedInfo }"
@@ -32,6 +33,7 @@ const showAdvancedInfo = ref(false);
     <div class="sign_message-footer">
       <p class="sign_message-info_text">
         You are not going to be charged!
+        <!--Todo: use theme var to change info icon (dark or light) -->
         <img
           class="sign_message-info_icon"
           src="../assets/images/info-icon.png"

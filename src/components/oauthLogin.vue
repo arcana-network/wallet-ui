@@ -15,6 +15,7 @@
         src="../assets/images/twitter-icon.png"
       />
     </button>
+    <!--Todo: use theme var to change github icon (dark or light) -->
     <button>
       <img
         class="wallet_signin-oauth-icon"
