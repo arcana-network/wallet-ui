@@ -112,6 +112,11 @@ import OauthLogin from "@/components/OauthLogin.vue";
   text-transform: uppercase;
 }
 
+.wallet_signin-button:hover {
+  transform: scale(1.05, 1.15);
+  transition: all 0.5s;
+}
+
 .wallet_signin-signup-text {
   font-weight: 600;
   font-size: 12px;
