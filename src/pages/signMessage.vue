@@ -1,3 +1,10 @@
+<script setup>
+import { ref } from "vue";
+import SignMessageAdvancedInfo from "@/components/SignMessageAdvancedInfo.vue";
+
+const showAdvancedInfo = ref(false);
+</script>
+
 <template>
   <div class="sign_message-container">
     <div class="sign_message-body">
@@ -37,21 +44,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
-export default {
-  name: "SignMessage",
-  components: {
-    SignMessageAdvancedInfo,
-  },
-  data() {
-    return {
-      showAdvancedInfo: false,
-    };
-  },
-};
-</script>
 
 <style scoped>
 .sign_message-container {

@@ -1,12 +1,8 @@
+<script setup></script>
+
 <template>
   <footer class="wallet_footer">Powered by Arcana</footer>
 </template>
-
-<script>
-export default {
-  name: "WalletFooter",
-};
-</script>
 
 <style scoped>
 .wallet_footer {

@@ -1,3 +1,7 @@
+<script setup>
+import OauthLogin from "@/components/OauthLogin.vue";
+</script>
+
 <template>
   <div class="wallet_signin-container">
     <div class="wallet_signin-body">
@@ -17,24 +21,13 @@
       <button class="wallet_signin-button">Send magic link</button>
     </div>
     <div class="wallet_signin-footer">
-      <oAuthLogin />
+      <OauthLogin />
       <p class="wallet_signin-signup-text">
         New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
       </p>
     </div>
   </div>
 </template>
-
-<script>
-import oAuthLogin from "@/components/oauthLogin.vue";
-
-export default {
-  name: "SignIn",
-  components: {
-    oAuthLogin,
-  },
-};
-</script>
 
 <style scoped>
 .wallet_signin-container {

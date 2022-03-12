@@ -1,3 +1,5 @@
+<script setup></script>
+
 <template>
   <div class="wallet_signin-oauth-container">
     <p class="wallet_signin-oauth-text">Or sign in with</p>
@@ -21,12 +23,6 @@
     </button>
   </div>
 </template>
-
-<script>
-export default {
-  name: "oAuthLogin",
-};
-</script>
 
 <style scoped>
 .wallet_signin-oauth-container {

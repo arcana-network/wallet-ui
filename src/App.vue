@@ -1,24 +1,20 @@
+<script setup>
+import "@/assets/css/reset.css";
+
+import WalletFooter from "@/components/AppFooter.vue";
+// import SignIn from "@/pages/signIn.vue";
+import SignMessage from "@/pages/signMessage.vue";
+</script>
+
 <template>
-  <div class="wallet_container">
+  <div class="wallet_container light-mode">
     <div class="wallet_body">
+      <!-- <SignIn /> -->
       <SignMessage />
     </div>
     <WalletFooter />
   </div>
 </template>
-
-<script>
-import "@/assets/css/reset.css";
-
-import WalletFooter from "@/components/footer.vue";
-import SignIn from "@/pages/signIn.vue";
-// import SignMessage from "@/pages/signMessage.vue";
-
-export default {
-  name: "App",
-  components: { /* SignIn, */ SignMessage, WalletFooter },
-};
-</script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block");
