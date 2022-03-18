@@ -1,3 +1,5 @@
+// Todo: Find a better place for these functions
+
 export function isLoggedIn() {
   return false;
 }
