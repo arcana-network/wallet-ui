@@ -2,8 +2,23 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-import SignIn from "@/pages/SignIn.vue";
-// import SignMessage from "@/pages/SignMessage.vue";
+// import SignIn from "@/pages/SignIn.vue";
+import SignMessage from "@/pages/signMessage.vue";
+
+import iframeCommunication from "../src/utils/iframeCommunication";
+
+function isLoggedIn() {
+  return false;
+}
+
+function sendRequest(request) {
+  if (!isLoggedIn()) {
+    return { message: "Not Authorised" };
+  }
+  console.log("request:", request);
+}
+
+iframeCommunication({ isLoggedIn, sendRequest });
 </script>
 
 <template>
