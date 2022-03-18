@@ -5,20 +5,12 @@ import WalletFooter from "@/components/AppFooter.vue";
 // import SignIn from "@/pages/SignIn.vue";
 import SignMessage from "@/pages/signMessage.vue";
 
-import iframeCommunication from "../src/utils/iframeCommunication";
+import { createParentConnection } from "@/utils/createParentConnection";
+import { isLoggedIn, getSendRequestFn } from "@/utils/misc";
 
-function isLoggedIn() {
-  return false;
-}
+const sendRequest = getSendRequestFn(isLoggedIn);
 
-function sendRequest(request) {
-  if (!isLoggedIn()) {
-    return { message: "Not Authorised" };
-  }
-  console.log("request:", request);
-}
-
-iframeCommunication({ isLoggedIn, sendRequest });
+createParentConnection({ isLoggedIn, sendRequest });
 </script>
 
 <template>
