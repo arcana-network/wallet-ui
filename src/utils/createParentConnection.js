@@ -1,6 +1,6 @@
 import { connectToParent } from "penpal";
 
-export default function (methods) {
+export function createParentConnection(methods) {
   return connectToParent({
     methods,
     debug: true,
