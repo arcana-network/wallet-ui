@@ -1,5 +1,18 @@
 <script setup>
-import OauthLogin from "@/components/OauthLogin.vue";
+import OauthLogin from "@/components/oauthLogin.vue";
+import { getAuthProvider } from "@/utils/getAuthProvider";
+
+const authProvider = getAuthProvider("535");
+
+async function onClickOfOauth(type) {
+  console.log(type, "onClickOfOauth");
+  console.log(authProvider.isLoggedIn(), "isLoggedin");
+  const availableLogins = await authProvider.getAvailableLogins();
+  if (!availableLogins.includes(type)) {
+    alert("Chosen login is not configured");
+  }
+  await authProvider.loginWithSocial(type);
+}
 </script>
 
 <template>
@@ -21,7 +34,7 @@ import OauthLogin from "@/components/OauthLogin.vue";
       <button class="wallet_signin-button">Send magic link</button>
     </div>
     <div class="wallet_signin-footer">
-      <OauthLogin />
+      <OauthLogin :onClick="onClickOfOauth" />
       <p class="wallet_signin-signup-text">
         New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
       </p>
