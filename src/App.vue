@@ -2,8 +2,15 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-import SignIn from "@/pages/SignIn.vue";
-// import SignMessage from "@/pages/SignMessage.vue";
+// import SignIn from "@/pages/SignIn.vue";
+import SignMessage from "@/pages/signMessage.vue";
+
+import { createParentConnection } from "@/utils/createParentConnection";
+import { isLoggedIn, getSendRequestFn } from "@/utils/misc";
+
+const sendRequest = getSendRequestFn(isLoggedIn);
+
+createParentConnection({ isLoggedIn, sendRequest });
 </script>
 
 <template>
