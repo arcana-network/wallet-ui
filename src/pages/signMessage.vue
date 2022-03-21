@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import SignMessageAdvancedInfo from "@/components/SignMessageAdvancedInfo.vue";
+import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
 
 const showAdvancedInfo = ref(false);
 </script>

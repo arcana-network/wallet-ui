@@ -2,7 +2,7 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-import SignIn from "@/pages/SignIn.vue";
+import SignIn from "@/pages/signIn.vue";
 // import SignMessage from "@/pages/SignMessage.vue";
 </script>
 
