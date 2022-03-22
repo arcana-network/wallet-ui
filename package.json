@@ -10,6 +10,7 @@
   "dependencies": {
     "@arcana/auth": "https://testnet-dev.s3.ap-south-1.amazonaws.com/arcana-auth-0.0.9.tgz",
     "core-js": "^3.8.3",
+    "penpal": "^6.2.2",
     "vue": "^3.2.13",
     "vue-json-viewer": "^3.0.4",
     "vue-router": "^4.0.14"
