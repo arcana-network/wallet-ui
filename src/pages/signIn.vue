@@ -1,17 +1,24 @@
 <script setup>
 import OauthLogin from "@/components/oauthLogin.vue";
 import { getAuthProvider } from "@/utils/getAuthProvider";
+import { useRoute } from "vue-router";
 
-const authProvider = getAuthProvider("535");
+const route = useRoute();
+
+const {
+  params: { appId },
+} = route;
+
+const authProvider = getAuthProvider(`${appId}`);
 
 async function onClickOfOauth(type) {
-  console.log(type, "onClickOfOauth");
-  console.log(authProvider.isLoggedIn(), "isLoggedin");
-  const availableLogins = await authProvider.getAvailableLogins();
-  if (!availableLogins.includes(type)) {
-    alert("Chosen login is not configured");
+  if (!authProvider.isLoggedIn()) {
+    const availableLogins = await authProvider.getAvailableLogins();
+    if (!availableLogins.includes(type)) {
+      alert("Chosen login is not configured");
+    }
+    await authProvider.loginWithSocial(type);
   }
-  await authProvider.loginWithSocial(type);
 }
 </script>
 
