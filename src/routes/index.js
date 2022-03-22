@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import SignIn from "../pages/signIn.vue";
 import SignMessage from "../pages/signMessage.vue";
 import LoginRedirect from "../pages/loginRedirect.vue";
+import HomePage from "../pages/homePage.vue";
 
 const routes = [
   {
@@ -11,6 +12,10 @@ const routes = [
   {
     path: "/redirect",
     component: LoginRedirect,
+  },
+  {
+    path: "/home",
+    component: HomePage,
   },
   {
     path: "/:appId/wallet",
