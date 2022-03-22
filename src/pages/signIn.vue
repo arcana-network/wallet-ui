@@ -1,9 +1,10 @@
 <script setup>
 import OauthLogin from "@/components/oauthLogin.vue";
 import { getAuthProvider } from "@/utils/getAuthProvider";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 
 const {
   params: { appId },
@@ -18,6 +19,7 @@ async function onClickOfOauth(type) {
       alert("Chosen login is not configured");
     }
     await authProvider.loginWithSocial(type);
+    router.push("/home");
   }
 }
 </script>
