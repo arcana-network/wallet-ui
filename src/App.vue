@@ -2,15 +2,12 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-import SignIn from "@/pages/signIn.vue";
-// import SignMessage from "@/pages/SignMessage.vue";
 </script>
 
 <template>
   <div class="wallet_container light-mode">
     <div class="wallet_body">
-      <!-- <SignIn /> -->
-      <SignMessage />
+      <router-view></router-view>
     </div>
     <WalletFooter />
   </div>
