@@ -1,12 +1,8 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineEmits } from "vue";
 import { SocialLoginType } from "@arcana/auth";
 
-const props = defineProps({
-  onClick: {
-    type: Function,
-  },
-});
+const emits = defineEmits(["oauthClick"]);
 
 const oauthLoginList = [
   {
@@ -30,7 +26,7 @@ const oauthLoginList = [
     <button
       v-for="oauth in oauthLoginList"
       :key="oauth.value"
-      @click="props.onClick(oauth.value)"
+      @click="emits('oauthClick', oauth.value)"
     >
       <img class="wallet_signin-oauth-icon" :src="oauth.iconPath" />
     </button>

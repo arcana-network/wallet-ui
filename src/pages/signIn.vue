@@ -43,7 +43,7 @@ async function onClickOfOauth(type) {
       <button class="wallet_signin-button">Send magic link</button>
     </div>
     <div class="wallet_signin-footer">
-      <OauthLogin :onClick="onClickOfOauth" />
+      <OauthLogin @oauthClick="onClickOfOauth" />
       <p class="wallet_signin-signup-text">
         New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
       </p>
