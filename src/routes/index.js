@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-import SignIn from "../pages/signIn.vue";
-import SignMessage from "../pages/signMessage.vue";
-import LoginRedirect from "../pages/loginRedirect.vue";
-import HomePage from "../pages/homePage.vue";
+import SignIn from "@/pages/signIn.vue";
+import SignMessage from "@/pages/signMessage.vue";
+import LoginRedirect from "@/pages/loginRedirect.vue";
+import HomePage from "@/pages/homePage.vue";
 
 const routes = [
   {
@@ -14,7 +14,7 @@ const routes = [
     component: LoginRedirect,
   },
   {
-    path: "/home",
+    path: "/",
     component: HomePage,
   },
   {

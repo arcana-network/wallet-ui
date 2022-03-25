@@ -22,7 +22,7 @@ async function handleOauth(type) {
       alert("Chosen login is not configured");
     }
     await authProvider.loginWithSocial(type);
-    router.push("/home");
+    router.push("/");
   }
 }
 </script>
