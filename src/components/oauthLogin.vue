@@ -1,5 +1,4 @@
 <script setup>
-import { defineEmits } from "vue";
 import { SocialLoginType } from "@arcana/auth";
 
 const emits = defineEmits(["oauthClick"]);
