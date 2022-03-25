@@ -1,26 +1,33 @@
-<script setup></script>
+<script setup>
+import { SocialLoginType } from "@arcana/auth";
+
+const emits = defineEmits(["oauthClick"]);
+
+const oauthLoginList = [
+  {
+    value: SocialLoginType.google,
+    iconPath: require("@/assets/images/google-icon.png"),
+  },
+  {
+    value: SocialLoginType.twitter,
+    iconPath: require("@/assets/images/twitter-icon.png"),
+  },
+  {
+    value: SocialLoginType.github,
+    iconPath: require("@/assets/images/github-icon.png"),
+  },
+];
+</script>
 
 <template>
   <div class="wallet_signin-oauth-container">
     <p class="wallet_signin-oauth-text">Or sign in with</p>
-    <button>
-      <img
-        class="wallet_signin-oauth-icon"
-        src="../assets/images/google-icon.png"
-      />
-    </button>
-    <button>
-      <img
-        class="wallet_signin-oauth-icon"
-        src="../assets/images/twitter-icon.png"
-      />
-    </button>
-    <!--Todo: use theme var to change github icon (dark or light) -->
-    <button>
-      <img
-        class="wallet_signin-oauth-icon"
-        src="../assets/images/github-icon.png"
-      />
+    <button
+      v-for="oauth in oauthLoginList"
+      :key="oauth.value"
+      @click="emits('oauthClick', oauth.value)"
+    >
+      <img class="wallet_signin-oauth-icon" :src="oauth.iconPath" />
     </button>
   </div>
 </template>

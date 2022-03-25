@@ -2,9 +2,6 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-// import SignIn from "@/pages/SignIn.vue";
-import SignMessage from "@/pages/signMessage.vue";
-
 import { createParentConnection } from "@/utils/createParentConnection";
 import { isLoggedIn, getSendRequestFn } from "@/utils/misc";
 
@@ -16,8 +13,7 @@ createParentConnection({ isLoggedIn, sendRequest });
 <template>
   <div class="wallet_container light-mode">
     <div class="wallet_body">
-      <!-- <SignIn /> -->
-      <SignMessage />
+      <RouterView />
     </div>
     <WalletFooter />
   </div>
