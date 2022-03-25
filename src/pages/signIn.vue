@@ -1,18 +1,21 @@
 <script setup>
 import OauthLogin from "@/components/oauthLogin.vue";
 import { getAuthProvider } from "@/utils/getAuthProvider";
+import { toRefs } from "@vue/reactivity";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 
 const {
-  params: { appId },
-} = route;
+  params: {
+    value: { appId },
+  },
+} = toRefs(route);
 
 const authProvider = getAuthProvider(`${appId}`);
 
-async function onClickOfOauth(type) {
+async function handleOauth(type) {
   if (!authProvider.isLoggedIn()) {
     const availableLogins = await authProvider.getAvailableLogins();
     if (!availableLogins.includes(type)) {
@@ -43,7 +46,7 @@ async function onClickOfOauth(type) {
       <button class="wallet_signin-button">Send magic link</button>
     </div>
     <div class="wallet_signin-footer">
-      <OauthLogin @oauthClick="onClickOfOauth" />
+      <OauthLogin @oauthClick="handleOauth" />
       <p class="wallet_signin-signup-text">
         New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
       </p>
