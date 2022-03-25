@@ -13,7 +13,7 @@ createParentConnection({ isLoggedIn, sendRequest });
 <template>
   <div class="wallet_container light-mode">
     <div class="wallet_body">
-      <router-view></router-view>
+      <RouterView />
     </div>
     <WalletFooter />
   </div>
