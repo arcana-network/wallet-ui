@@ -2,12 +2,39 @@
 import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
-import { createParentConnection } from "@/utils/createParentConnection";
-import { isLoggedIn, getSendRequestFn } from "@/utils/misc";
+import { useUserStore } from "@/store/user";
+import { watch } from "@vue/runtime-core";
+import { connectToParent } from "penpal";
+import { getSendRequestFn, handleRequest } from "@/utils/requestManagement";
 
-const sendRequest = getSendRequestFn(isLoggedIn);
+const user = useUserStore();
 
-createParentConnection({ isLoggedIn, sendRequest });
+const connectionWithoutLogin = connectToParent({
+  methods: {
+    isLoggedIn: () => user.isLoggedIn,
+  },
+});
+
+function connectionToParentAfterLogin(/*privateKey*/) {
+  const sendRequest = getSendRequestFn(
+    handleRequest /*, new Keeper(privateKey) */
+  );
+  connectToParent({
+    methods: {
+      sendRequest,
+    },
+  });
+}
+
+watch(
+  () => user.isLoggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      connectionWithoutLogin.destroy();
+      connectionToParentAfterLogin();
+    }
+  }
+);
 </script>
 
 <template>
