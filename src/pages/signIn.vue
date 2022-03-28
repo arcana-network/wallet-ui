@@ -7,7 +7,7 @@ import { useUserStore } from "@/store/user";
 
 const route = useRoute();
 const router = useRouter();
-const user = toRefs(useUserStore());
+const user = useUserStore();
 
 const {
   params: {
@@ -19,19 +19,11 @@ const authProvider = getAuthProvider(`${appId}`);
 
 async function handleOauth(type) {
   try {
-    if (!authProvider.isLoggedIn()) {
-      const availableLogins = await authProvider.getAvailableLogins();
-      if (!availableLogins.includes(type)) {
-        alert("Chosen login is not configured");
-      }
-      await authProvider.loginWithSocial(type);
-      user.setLoginStatus = authProvider.isLoggedIn();
-      user.setInfo = authProvider.getUserInfo();
-      router.push("/");
-    }
+    await user.handleLogin(authProvider, type);
+    router.push("/");
   } catch (error) {
     console.log(error);
-    user.setLoginStatus = authProvider.isLoggedIn();
+    user.$reset(); // resets user store if login fails
   }
 }
 </script>

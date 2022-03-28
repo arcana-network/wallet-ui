@@ -4,14 +4,13 @@ export const useUserStore = defineStore("user", {
   state: () => ({
     isLoggedIn: false,
     info: {},
-    appId: null,
   }),
   actions: {
-    setLoginStatus(status) {
-      this.isLoggedIn = status;
-    },
-    setInfo(info) {
-      this.info = info;
+    async handleLogin(authProvider, loginType) {
+      if (authProvider.isLoggedIn()) return;
+      await authProvider.loginWithSocial(loginType);
+      this.isLoggedIn = authProvider.isLoggedIn();
+      this.info = authProvider.getUserInfo();
     },
   },
 });
