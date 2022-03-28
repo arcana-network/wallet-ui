@@ -6,7 +6,12 @@ export const useUserStore = defineStore("user", {
     info: {},
     appId: null,
   }),
-  getters: {
-    isLoggedIn: (state) => state.isUserLoggedIn,
+  actions: {
+    setLoginStatus(status) {
+      this.isLoggedIn = status;
+    },
+    setInfo(info) {
+      this.info = info;
+    },
   },
 });
