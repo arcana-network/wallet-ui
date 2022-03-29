@@ -9,7 +9,12 @@
   },
   "dependencies": {
     "@arcana/auth": "https://testnet-dev.s3.ap-south-1.amazonaws.com/arcana-auth-0.0.9.tgz",
+    "@ethereumjs/tx": "^3.5.1",
     "core-js": "^3.8.3",
+    "eth-crypto": "^2.2.0",
+    "eth-sig-util": "^3.0.1",
+    "ether": "^0.0.9",
+    "ethereumjs-util": "^7.1.4",
     "penpal": "^6.2.2",
     "pinia": "^2.0.12",
     "vue": "^3.2.13",
