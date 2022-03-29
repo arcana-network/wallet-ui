@@ -1,12 +1,15 @@
 // Todo: Find a better place for these functions
 
-export function getSendRequestFn(handleRequest) {
+export function getSendRequestFn(handleRequest, keeper) {
   return function sendRequest(request) {
-    return handleRequest(request);
+    return handleRequest(request, keeper);
   };
 }
 
-export function handleRequest(request) {
-  console.log("request", request);
-  return { message: "request received" };
+export function handleRequest(request, keeper) {
+  if (keeper.isPermissionRequired(request.method)) {
+    console.log("permission required");
+  } else {
+    console.log("permission not required");
+  }
 }
