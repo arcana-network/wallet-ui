@@ -3,9 +3,11 @@ import OauthLogin from "@/components/oauthLogin.vue";
 import { getAuthProvider } from "@/utils/getAuthProvider";
 import { toRefs } from "@vue/reactivity";
 import { useRoute, useRouter } from "vue-router";
+import { useUserStore } from "@/store/user";
 
 const route = useRoute();
 const router = useRouter();
+const user = useUserStore();
 
 const {
   params: {
@@ -16,13 +18,12 @@ const {
 const authProvider = getAuthProvider(`${appId}`);
 
 async function handleOauth(type) {
-  if (!authProvider.isLoggedIn()) {
-    const availableLogins = await authProvider.getAvailableLogins();
-    if (!availableLogins.includes(type)) {
-      alert("Chosen login is not configured");
-    }
-    await authProvider.loginWithSocial(type);
+  try {
+    await user.handleLogin(authProvider, type);
     router.push("/");
+  } catch (error) {
+    console.log(error);
+    user.$reset(); // resets user store if login fails
   }
 }
 </script>
