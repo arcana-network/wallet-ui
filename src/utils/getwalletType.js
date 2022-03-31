@@ -11,14 +11,14 @@ const getContract = (rpcUrl, appAddress) => {
 
 const getAppAddress = async (id) => {
   const addressResponse = await fetch(
-    `${process.env.WALLET_GATEWAY}/get-address/?id=${id}`
+    `${process.env.VUE_APP_WALLET_GATEWAY}/get-address/?id=${id}`
   );
   return (await addressResponse.json()).address;
 };
 
 export const getWalletType = async (
   appId,
-  rpcUrl = process.env.WALLET_RPCURL
+  rpcUrl = process.env.VUE_APP_WALLET_RPCURL
 ) => {
   const appAddress = await getAppAddress(appId);
   if (!appAddress) {
