@@ -11,11 +11,7 @@ const router = useRouter();
 const user = useUserStore();
 const app = useAppStore();
 
-const {
-  params: {
-    value: { appId },
-  },
-} = toRefs(route);
+const { appId } = toRefs(route.params.value);
 
 app.setAppId(appId);
 const authProvider = getAuthProvider(`${appId}`);
