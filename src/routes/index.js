@@ -18,7 +18,7 @@ const routes = [
     component: HomePage,
   },
   {
-    path: "/:appId/wallet",
+    path: "/wallet",
     component: SignMessage,
   },
 ];
