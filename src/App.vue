@@ -11,6 +11,7 @@ import { permissions } from "@/utils/callPermissionsConfig";
 import { getWalletType } from "@/utils/getwalletType";
 import { useAppStore } from "@/store/app";
 import { useRouter } from "vue-router";
+import { AccountHandler } from "@/utils/accountHandler";
 
 const user = useUserStore();
 const app = toRefs(useAppStore());
@@ -39,8 +40,18 @@ watch(
       connectionWithoutLogin.destroy();
       const appId = app.id.value;
       const walletType = await getWalletType(appId);
-      const keeper = new Keeper(privateKey, permissions, walletType);
-      await connectionToParentAfterLogin(keeper, router).promise;
+      const accountHandler = new AccountHandler(privateKey);
+      const keeper = new Keeper(
+        privateKey,
+        permissions,
+        walletType,
+        accountHandler
+      );
+      const connectionToParent = await connectionToParentAfterLogin(
+        keeper,
+        router
+      ).promise;
+      keeper.setConnection(connectionToParent);
     }
   },
   { deep: true }
