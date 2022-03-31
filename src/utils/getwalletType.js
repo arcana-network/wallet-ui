@@ -11,14 +11,14 @@ const getContract = (rpcUrl, appAddress) => {
 
 const getAppAddress = async (id) => {
   const addressResponse = await fetch(
-    "https://gateway02.arcana.network/get-address/?id=" + id
+    `${process.env.WALLET_GATEWAY}/get-address/?id=${id}`
   );
   return (await addressResponse.json()).address;
 };
 
 export const getWalletType = async (
   appId,
-  rpcUrl = "https://blockchain-dev.arcana.network/"
+  rpcUrl = process.env.WALLET_RPCURL
 ) => {
   const appAddress = await getAppAddress(appId);
   if (!appAddress) {
