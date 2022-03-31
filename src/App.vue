@@ -3,16 +3,18 @@ import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
 import { useUserStore } from "@/store/user";
-import { toRefs, watch } from "@vue/runtime-core";
+import { toRefs, watch } from "vue";
 import { connectToParent } from "penpal";
 import { getSendRequestFn, handleRequest } from "@/utils/requestManagement";
 import { Keeper } from "@/utils/keeper";
 import { permissions } from "@/utils/callPermissionsConfig";
 import { getWalletType } from "@/utils/getwalletType";
 import { useAppStore } from "@/store/app";
+import { useRouter } from "vue-router";
 
 const user = useUserStore();
 const app = toRefs(useAppStore());
+const router = useRouter();
 
 const connectionWithoutLogin = connectToParent({
   methods: {
@@ -20,8 +22,8 @@ const connectionWithoutLogin = connectToParent({
   },
 });
 
-function connectionToParentAfterLogin(keeper) {
-  const sendRequest = getSendRequestFn(handleRequest, keeper);
+function connectionToParentAfterLogin(keeper, router) {
+  const sendRequest = getSendRequestFn(handleRequest, keeper, router);
   return connectToParent({
     methods: {
       sendRequest,
@@ -30,20 +32,18 @@ function connectionToParentAfterLogin(keeper) {
 }
 
 watch(
-  [() => user.isLoggedIn, () => user.privateKey],
-  [
-    (isLoggedIn) => {
-      if (isLoggedIn) {
-        connectionWithoutLogin.destroy();
-      }
-    },
-    async (privateKey) => {
+  user,
+  async (newValue) => {
+    const { privateKey, isLoggedIn } = newValue;
+    if (isLoggedIn) {
+      connectionWithoutLogin.destroy();
       const appId = app.id.value;
       const walletType = await getWalletType(appId);
       const keeper = new Keeper(privateKey, permissions, walletType);
-      await connectionToParentAfterLogin(keeper).promise;
-    },
-  ]
+      await connectionToParentAfterLogin(keeper, router).promise;
+    }
+  },
+  { deep: true }
 );
 </script>
 
