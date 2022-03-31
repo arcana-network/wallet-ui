@@ -6,7 +6,7 @@ export function getSendRequestFn(handleRequest, keeper, router) {
   };
 }
 
-export function handleRequest(request, keeper) {
-  const response = keeper.handleRequest(request);
+export async function handleRequest(request, keeper) {
+  const response = await keeper.handleRequest(request);
   keeper.reply(request.method, response);
 }
