@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { stripHexPrefix, privateToPublic } from "ethereumjs-util";
 
 export class AccountHandler {
   constructor(privateKey) {
@@ -26,5 +27,13 @@ export class AccountHandler {
     return this.wallets.find(
       (w) => w.address.toUpperCase() === address.toUpperCase()
     );
+  }
+
+  getPublicKey(address) {
+    const wallet = this.getWallet(address);
+    const pub = privateToPublic(
+      Buffer.from(stripHexPrefix(wallet.privateKey), "hex")
+    );
+    return pub.toString("hex");
   }
 }
