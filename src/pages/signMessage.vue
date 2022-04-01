@@ -1,6 +1,25 @@
 <script setup>
 import { ref } from "vue";
 import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
+import { useRouter } from "vue-router";
+import { useRequestStore } from "@/store/request";
+import { methodAndAction } from "@/utils/method";
+
+const router = useRouter();
+const requestStore = useRequestStore();
+const { method, params } = requestStore.currentRequest;
+
+const action = methodAndAction[method];
+
+const onApproveClick = () => {
+  requestStore.approveRequest();
+  router.back();
+};
+
+const onRejectClick = () => {
+  requestStore.rejectRequest();
+  router.back();
+};
 
 const showAdvancedInfo = ref(false);
 </script>
@@ -15,7 +34,7 @@ const showAdvancedInfo = ref(false);
       <p class="sign_message-permission">
         DropBox.com requests your permission to perform the following action:
       </p>
-      <p class="sign_message-text">Upload of XYZ.jpg</p>
+      <p class="sign_message-text">{{ action }}</p>
       <button
         class="sign_message-view_info"
         v-on:click="showAdvancedInfo = !showAdvancedInfo"
@@ -28,7 +47,7 @@ const showAdvancedInfo = ref(false);
           src="../assets/images/arrow-icon.png"
         />
       </button>
-      <SignMessageAdvancedInfo v-if="showAdvancedInfo" />
+      <SignMessageAdvancedInfo v-if="showAdvancedInfo" :info="params" />
     </div>
     <div class="sign_message-footer">
       <p class="sign_message-info_text">
@@ -40,8 +59,12 @@ const showAdvancedInfo = ref(false);
         />
       </p>
       <div class="sign_message-button_container">
-        <button class="sign_message_button-reject">Reject</button>
-        <button class="sign_message_button-approve">Approve</button>
+        <button class="sign_message_button-reject" @click="onRejectClick">
+          Reject
+        </button>
+        <button class="sign_message_button-approve" @click="onApproveClick">
+          Approve
+        </button>
       </div>
     </div>
   </div>
