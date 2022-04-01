@@ -3,19 +3,10 @@ import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
 import { useUserStore } from "@/store/user";
-import { toRefs, watch } from "vue";
+import { watch } from "vue";
 import { connectToParent } from "penpal";
-import { getSendRequestFn, handleRequest } from "@/utils/requestManagement";
-import { Keeper } from "@/utils/keeper";
-import { permissions } from "@/utils/callPermissionsConfig";
-import { getWalletType } from "@/utils/getwalletType";
-import { useAppStore } from "@/store/app";
-import { useRouter } from "vue-router";
-import { AccountHandler } from "@/utils/accountHandler";
 
 const user = useUserStore();
-const app = toRefs(useAppStore());
-const router = useRouter();
 
 const connectionWithoutLogin = connectToParent({
   methods: {
@@ -23,38 +14,13 @@ const connectionWithoutLogin = connectToParent({
   },
 });
 
-function connectionToParentAfterLogin(keeper, router) {
-  const sendRequest = getSendRequestFn(handleRequest, keeper, router);
-  return connectToParent({
-    methods: {
-      sendRequest,
-    },
-  });
-}
-
 watch(
-  user,
-  async (newValue) => {
-    const { privateKey, isLoggedIn } = newValue;
+  () => user.isLoggedIn,
+  async (isLoggedIn) => {
     if (isLoggedIn) {
       connectionWithoutLogin.destroy();
-      const appId = app.id.value;
-      const walletType = await getWalletType(appId);
-      const accountHandler = new AccountHandler(privateKey);
-      const keeper = new Keeper(
-        privateKey,
-        permissions,
-        walletType,
-        accountHandler
-      );
-      const connectionToParent = await connectionToParentAfterLogin(
-        keeper,
-        router
-      ).promise;
-      keeper.setConnection(connectionToParent);
     }
-  },
-  { deep: true }
+  }
 );
 </script>
 
