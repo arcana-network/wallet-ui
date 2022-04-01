@@ -7,6 +7,13 @@ export const useRequestStore = defineStore("request", {
     isPermissionRequired: false,
     permissionStatus: "none", // "none", "approved", "rejected"
   }),
+  getters: {
+    allowRequest(state) {
+      return (
+        !state.isPermissionRequired || state.permissionStatus === "approved"
+      );
+    },
+  },
   actions: {
     setRequest(request, isPermissionRequired) {
       this.currentRequest = request;
