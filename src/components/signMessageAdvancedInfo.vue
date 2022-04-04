@@ -23,6 +23,7 @@ defineProps({
   box-shadow: var(--debossed-shadow);
 
   overflow: auto;
+  border-radius: 10px;
 }
 
 .sign_message-advanced_info_label {
