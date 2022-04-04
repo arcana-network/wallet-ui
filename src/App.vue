@@ -16,7 +16,7 @@ const connectionWithoutLogin = connectToParent({
 
 watch(
   () => user.isLoggedIn,
-  async (isLoggedIn) => {
+  (isLoggedIn) => {
     if (isLoggedIn) {
       connectionWithoutLogin.destroy();
     }
