@@ -5,7 +5,19 @@ export const useUserStore = defineStore("user", {
     isLoggedIn: false,
     info: null,
     privateKey: null,
+    walletAddress: null,
   }),
+  getters: {
+    walletAddressShrinked({ walletAddress }) {
+      const walletAddressLength = walletAddress && walletAddress.length;
+      return (
+        walletAddress &&
+        `${walletAddress.slice(1, 7)}....${walletAddress.slice(
+          walletAddressLength - 7
+        )}`
+      );
+    },
+  },
   actions: {
     async handleLogin(authProvider, loginType) {
       if (authProvider.isLoggedIn()) return;
@@ -14,6 +26,9 @@ export const useUserStore = defineStore("user", {
       const { privateKey, userInfo } = authProvider.getUserInfo();
       this.privateKey = privateKey;
       this.info = userInfo;
+    },
+    setWalletAddress(walletAddress) {
+      this.walletAddress = walletAddress;
     },
   },
 });
