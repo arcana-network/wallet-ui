@@ -35,6 +35,35 @@ export class Keeper {
           request.params[1]
         );
         return response;
+      case "personal_sign":
+        response.result = await this.accountHandler.requestPersonalSign(
+          request.params[1],
+          request.params[0]
+        );
+        return response;
+      case "send_transaction":
+        response.result = await this.accountHandler.requestSendTransaction(
+          request.params
+        );
+        return response;
+      case "eth_decrypt":
+        response.result = await this.accountHandler.requestDecryption(
+          request.params[0],
+          request.params[1]
+        );
+        return response;
+      case "eth_signTransaction":
+        response.result = await this.accountHandler.requestSignTransaction(
+          request.params[0],
+          request.params[0].from
+        );
+        return response;
+      case "eth_signTypedData_v4":
+        response.result = await this.accountHandler.requestSignTypedMessage(
+          request.params[1],
+          request.params[0]
+        );
+        return response;
       default:
         return;
     }
