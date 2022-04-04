@@ -3,13 +3,19 @@ import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
 import { useUserStore } from "@/store/user";
-import { toRefs, watch } from "vue";
+import { reactive, toRefs, watch } from "vue";
 import { connectToParent } from "penpal";
 import { useAppStore } from "@/store/app";
+import { useImagesStore } from "@/store/images";
+import { getImages } from "@/config/images";
 
 const user = useUserStore();
 const app = useAppStore();
+const imagesStore = useImagesStore();
 const { theme } = toRefs(app);
+const state = reactive({
+  showLoader: false,
+});
 
 const connectionWithoutLogin = connectToParent({
   methods: {
@@ -18,10 +24,12 @@ const connectionWithoutLogin = connectToParent({
 });
 
 async function getAppTheme() {
+  state.showLoader = true;
   const connectionInstance = await connectionWithoutLogin.promise;
-  console.log(connectionInstance, "connectionInstance");
   const { theme } = await connectionInstance.getThemeConfig();
+  imagesStore.setImages(getImages(theme));
   app.setTheme(theme);
+  state.showLoader = false;
 }
 
 watch(
@@ -37,9 +45,13 @@ getAppTheme();
 </script>
 
 <template>
+  <div v-if="state.showLoader">
+    <p>Please wait....</p>
+  </div>
   <div
     class="wallet_container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+    v-else
   >
     <div class="wallet_body">
       <RouterView />

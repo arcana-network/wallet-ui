@@ -4,10 +4,12 @@ import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
 import { useRouter } from "vue-router";
 import { useRequestStore } from "@/store/request";
 import { methodAndAction } from "@/utils/method";
+import { useImagesStore } from "@/store/images";
 
 const router = useRouter();
 const requestStore = useRequestStore();
 const { method, params } = requestStore.currentRequest;
+const { images } = useImagesStore();
 
 const action = methodAndAction[method];
 
@@ -44,7 +46,7 @@ const showAdvancedInfo = ref(false);
         <img
           class="sign_message-arrow_icon"
           :class="{ arrow_up: showAdvancedInfo }"
-          src="../assets/images/arrow-icon.png"
+          :src="images.arrowIcon"
         />
       </button>
       <SignMessageAdvancedInfo v-if="showAdvancedInfo" :info="params" />
@@ -53,10 +55,7 @@ const showAdvancedInfo = ref(false);
       <p class="sign_message-info_text">
         You are not going to be charged!
         <!--Todo: use theme var to change info icon (dark or light) -->
-        <img
-          class="sign_message-info_icon"
-          src="../assets/images/info-icon.png"
-        />
+        <img class="sign_message-info_icon" :src="images.infoIcon" />
       </p>
       <div class="sign_message-button_container">
         <button class="sign_message_button-reject" @click="onRejectClick">

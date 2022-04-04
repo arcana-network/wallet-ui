@@ -1,11 +1,12 @@
 <script setup>
-const profileIcon = require("@/assets/images/profile-icon.png");
+import { useImagesStore } from "@/store/images";
+const { images } = useImagesStore();
 </script>
 
 <template>
   <footer class="wallet_footer">
     <p>Powered by Arcana</p>
-    <img :src="profileIcon" alt="profile-icon" />
+    <img :src="images.profileIcon" alt="profile-icon" />
   </footer>
 </template>
 
