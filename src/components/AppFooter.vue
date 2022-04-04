@@ -1,12 +1,18 @@
 <script setup>
 import { useImagesStore } from "@/store/images";
+import { useUserStore } from "@/store/user";
+import { toRefs } from "vue";
+
+const { isLoggedIn } = toRefs(useUserStore());
 const { images } = useImagesStore();
 </script>
 
 <template>
   <footer class="wallet_footer">
     <p>Powered by Arcana</p>
-    <img :src="images.profileIcon" alt="profile-icon" />
+    <router-link to="/" v-show="isLoggedIn">
+      <img :src="images.profileIcon" alt="profile-icon" />
+    </router-link>
   </footer>
 </template>
 
