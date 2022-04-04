@@ -1,13 +1,21 @@
-<script setup></script>
+<script setup>
+const profileIcon = require("@/assets/images/profile-icon.png");
+</script>
 
 <template>
-  <footer class="wallet_footer">Powered by Arcana</footer>
+  <footer class="wallet_footer">
+    <p>Powered by Arcana</p>
+    <img :src="profileIcon" alt="profile-icon" />
+  </footer>
 </template>
 
 <style scoped>
 .wallet_footer {
-  text-align: center;
   font-weight: 400;
   font-size: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 </style>
