@@ -10,12 +10,14 @@ import { useAppStore } from "@/store/app";
 import { useRouter } from "vue-router";
 import { useRequestStore } from "@/store/request";
 import { toRefs } from "vue";
+import { useToast } from "vue-toastification";
 
 const copyIcon = require("@/assets/images/copy-icon.png");
 const user = useUserStore();
 const app = useAppStore();
 const requestStore = useRequestStore();
 const router = useRouter();
+const toast = useToast();
 
 const {
   info: { email, name },
@@ -57,6 +59,11 @@ function onCopyClick() {
   walletAddressEl.setAttribute("type", "text");
   walletAddressEl.select();
   document.execCommand("copy");
+  try {
+    toast.success("Wallet address copied");
+  } catch (e) {
+    toast.error("Failed to copy wallet address");
+  }
   walletAddressEl.setAttribute("type", "hidden");
   window.getSelection().removeAllRanges();
 }
