@@ -3,16 +3,26 @@ import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
 import { useUserStore } from "@/store/user";
-import { watch } from "vue";
+import { toRefs, watch } from "vue";
 import { connectToParent } from "penpal";
+import { useAppStore } from "@/store/app";
 
 const user = useUserStore();
+const app = useAppStore();
+const { theme } = toRefs(app);
 
 const connectionWithoutLogin = connectToParent({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
   },
 });
+
+async function getAppTheme() {
+  const connectionInstance = await connectionWithoutLogin.promise;
+  console.log(connectionInstance, "connectionInstance");
+  const { theme } = await connectionInstance.getThemeConfig();
+  app.setTheme(theme);
+}
 
 watch(
   () => user.isLoggedIn,
@@ -22,10 +32,15 @@ watch(
     }
   }
 );
+
+getAppTheme();
 </script>
 
 <template>
-  <div class="wallet_container light-mode">
+  <div
+    class="wallet_container"
+    :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+  >
     <div class="wallet_body">
       <RouterView />
     </div>
