@@ -1,5 +1,11 @@
 import { ethers } from "ethers";
-import { stripHexPrefix, privateToPublic } from "ethereumjs-util";
+import {
+  stripHexPrefix,
+  privateToPublic,
+  ecsign,
+  setLengthLeft,
+} from "ethereumjs-util";
+import { concatSig } from "eth-sig-util";
 
 export class AccountHandler {
   constructor(privateKey) {
@@ -35,5 +41,20 @@ export class AccountHandler {
       Buffer.from(stripHexPrefix(wallet.privateKey), "hex")
     );
     return pub.toString("hex");
+  }
+
+  async requestSign(address, msg) {
+    try {
+      const wallet = this.getWallet(address);
+      const signature = ecsign(
+        setLengthLeft(Buffer.from(stripHexPrefix(msg), "hex"), 32),
+        Buffer.from(stripHexPrefix(wallet.privateKey), "hex")
+      );
+      const rawMessageSig = concatSig(signature.v, signature.r, signature.s);
+      return rawMessageSig;
+    } catch (e) {
+      console.log({ e });
+      return Promise.reject(e);
+    }
   }
 }
