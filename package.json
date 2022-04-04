@@ -22,7 +22,8 @@
     "stream": "^0.0.2",
     "vue": "^3.2.13",
     "vue-json-viewer": "^3.0.4",
-    "vue-router": "^4.0.14"
+    "vue-router": "^4.0.14",
+    "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
