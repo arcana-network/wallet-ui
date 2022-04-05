@@ -19,6 +19,7 @@ export const useRequestStore = defineStore("request", {
       this.currentRequest = request;
       this.isPermissionRequired = isPermissionRequired;
       this.pendingStatus = "pending";
+      this.permissionStatus = "none";
     },
     approveRequest() {
       this.permissionStatus = "approved";
