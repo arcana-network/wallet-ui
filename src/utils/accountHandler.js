@@ -90,7 +90,7 @@ export class AccountHandler {
     try {
       const wallet = this.getWallet(address);
       const parsedCipher = cipher.parse(ciphertext);
-      const decryptedMessage = decryptWithPrivateKey(
+      const decryptedMessage = await decryptWithPrivateKey(
         wallet.privateKey,
         parsedCipher
       );
