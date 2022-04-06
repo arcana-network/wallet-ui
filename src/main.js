@@ -7,6 +7,9 @@ import { Buffer } from "buffer";
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+import FloatingVue from "floating-vue";
+import "floating-vue/dist/style.css";
+
 const toastOptions = {
   timeout: 2500,
   closeOnClick: false,
@@ -28,6 +31,7 @@ walletApp
   .use(JsonViewer)
   .use(router)
   .use(Toast, toastOptions)
+  .use(FloatingVue)
   .use(createPinia());
 
 walletApp.mount("#app");
