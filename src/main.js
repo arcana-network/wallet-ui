@@ -8,9 +8,9 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
 const toastOptions = {
-  timeout: 5000,
+  timeout: 2500,
   closeOnClick: false,
-  pauseOnFocusLoss: true,
+  pauseOnFocusLoss: false,
   pauseOnHover: true,
   draggable: false,
   draggablePercent: 0.6,
