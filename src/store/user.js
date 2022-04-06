@@ -27,6 +27,10 @@ export const useUserStore = defineStore("user", {
       this.privateKey = privateKey;
       this.info = userInfo;
     },
+    async handleLogout(authProvider) {
+      await authProvider.logout();
+      this.$reset();
+    },
     setWalletAddress(walletAddress) {
       this.walletAddress = walletAddress;
     },

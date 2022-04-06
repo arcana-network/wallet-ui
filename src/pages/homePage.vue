@@ -16,6 +16,7 @@ import { useRequestStore } from "@/store/request";
 import { toRefs } from "vue";
 import { useToast } from "vue-toastification";
 import { useImagesStore } from "@/store/images";
+import { getAuthProvider } from "@/utils/getAuthProvider";
 
 const user = useUserStore();
 const app = useAppStore();
@@ -30,6 +31,7 @@ const {
 } = user;
 const { walletAddressShrinked, walletAddress } = toRefs(user);
 const { id: appId } = app;
+const authProvider = getAuthProvider(`${appId}`);
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId);
@@ -73,7 +75,12 @@ function onCopyClick() {
   window.getSelection().removeAllRanges();
 }
 
-function onDoneClick() {
+async function onLogoutClick() {
+  await user.handleLogout(authProvider);
+  router.push(`/${appId}/login`);
+}
+
+function onCloseClick() {
   router.push("/signMessage");
 }
 </script>
@@ -106,8 +113,11 @@ function onDoneClick() {
       </div>
     </div>
     <div class="wallet_home-footer">
-      <button class="wallet_home-footer_button" @click="onDoneClick">
-        Done
+      <button class="wallet_home-footer_button-outline" @click="onLogoutClick">
+        Logout
+      </button>
+      <button class="wallet_home-footer_button-filled" @click="onCloseClick">
+        Close
       </button>
     </div>
   </div>
@@ -171,13 +181,24 @@ function onDoneClick() {
 
 .wallet_home-footer {
   width: 100%;
+  display: flex;
 }
 
-.wallet_home-footer_button {
-  width: 100%;
+.wallet_home-footer_button-outline {
+  flex: 1;
+  border: 2px solid;
+  border-color: var(--outlined-button-border-color);
+  color: var(--outlined-button-fg-color);
+  margin-right: 5px;
+  border-radius: 10px;
+}
+
+.wallet_home-footer_button-filled {
+  flex: 1;
   background-color: var(--filled-button-bg-color);
   color: var(--filled-button-fg-color);
   height: 40px;
   border-radius: 10px;
+  margin-left: 5px;
 }
 </style>
