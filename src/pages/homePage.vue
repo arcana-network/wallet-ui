@@ -1,6 +1,10 @@
 <script setup>
 import { connectToParent } from "penpal";
-import { getSendRequestFn, handleRequest } from "@/utils/requestManagement";
+import {
+  getSendRequestFn,
+  handleRequest,
+  watchRequestQueue,
+} from "@/utils/requestManagement";
 import { Keeper } from "@/utils/keeper";
 import { permissions } from "@/utils/callPermissionsConfig";
 import { getWalletType } from "@/utils/getwalletType";
@@ -38,7 +42,7 @@ async function connectionToParent() {
     walletType,
     accountHandler
   );
-
+  watchRequestQueue(requestStore, keeper);
   const sendRequest = getSendRequestFn(
     handleRequest,
     keeper,
