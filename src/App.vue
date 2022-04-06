@@ -145,4 +145,17 @@ button {
   box-shadow: 4px 5px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
 }
+
+.v-popper--theme-tooltip {
+  background-color: #101010;
+}
+
+.v-popper__inner {
+  width: 230px;
+  height: 110px;
+  font-weight: 400;
+  font-size: 10px;
+  background-color: #101010;
+  color: #f9f9f9;
+}
 </style>

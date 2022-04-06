@@ -5,13 +5,12 @@ import SignMessageNoRequests from "@/components/signMessageNoRequests.vue";
 import { useRequestStore } from "@/store/request";
 import { methodAndAction } from "@/utils/method";
 import { useImagesStore } from "@/store/images";
+import { chargeInfo } from "@/utils/chargeInfo";
 
 const requestStore = useRequestStore();
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore);
 const { images } = useImagesStore();
-
-console.log(pendingRequestsForApproval.value, "pendingRequestsForApproval");
 
 const onApproveClick = (requestID) => {
   requestStore.approveRequest(requestID);
@@ -59,7 +58,9 @@ const showAdvancedInfo = ref(false);
       <div class="sign_message-footer">
         <p class="sign_message-info_text">
           You are not going to be charged!
-          <img class="sign_message-info_icon" :src="images.infoIcon" />
+          <button v-tooltip="chargeInfo">
+            <img class="sign_message-info_icon" :src="images.infoIcon" />
+          </button>
         </p>
         <div class="sign_message-button_container">
           <button
