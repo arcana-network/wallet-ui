@@ -2,30 +2,38 @@ import { defineStore } from "pinia";
 
 export const useRequestStore = defineStore("request", {
   state: () => ({
-    currentRequest: null,
-    pendingStatus: "none", // "none", "pending", "fulfilled"
-    isPermissionRequired: false,
-    permissionStatus: "none", // "none", "approved", "rejected"
+    pendingRequests: {},
+    processQueue: [],
   }),
   getters: {
-    allowRequest(state) {
-      return (
-        !state.isPermissionRequired || state.permissionStatus === "approved"
-      );
+    pendingRequestsForApproval(state) {
+      return Object.values(state.pendingRequests).map((item) => item.request);
+    },
+    areRequestsPendingForApproval(state) {
+      const requests = Object.values(state.pendingRequests);
+      return requests.length > 0;
     },
   },
   actions: {
-    setRequest(request, isPermissionRequired) {
-      this.currentRequest = request;
-      this.isPermissionRequired = isPermissionRequired;
-      this.pendingStatus = "pending";
-      this.permissionStatus = "none";
+    addRequests(request, isPermissionRequired) {
+      if (isPermissionRequired) {
+        this.pendingRequests[request.id] = {
+          request,
+          isPermissionGranted: false,
+        };
+      } else {
+        this.processQueue.push({ request, isPermissionGranted: true });
+      }
     },
-    approveRequest() {
-      this.permissionStatus = "approved";
+    approveRequest(requestId) {
+      this.pendingRequests[requestId].isPermissionGranted = true;
+      this.processQueue.push(this.pendingRequests[requestId]);
+      delete this.pendingRequests[requestId];
     },
-    rejectRequest() {
-      this.permissionStatus = "rejected";
+    rejectRequest(requestId) {
+      this.pendingRequests[requestId].isPermissionGranted = false;
+      this.processQueue.push(this.pendingRequests[requestId]);
+      delete this.pendingRequests[requestId];
     },
   },
 });
