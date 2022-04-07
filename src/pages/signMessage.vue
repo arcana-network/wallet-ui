@@ -1,53 +1,92 @@
 <script setup>
-import { ref } from "vue";
+import { ref, toRefs } from "vue";
 import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
+import SignMessageNoRequests from "@/components/signMessageNoRequests.vue";
+import { useRequestStore } from "@/store/request";
+import { methodAndAction } from "@/utils/method";
+import { useImagesStore } from "@/store/images";
+import { chargeInfo } from "@/utils/chargeInfo";
+
+const requestStore = useRequestStore();
+const { pendingRequestsForApproval, areRequestsPendingForApproval } =
+  toRefs(requestStore);
+const { images } = useImagesStore();
+
+const onApproveClick = (requestID) => {
+  requestStore.approveRequest(requestID);
+};
+
+const onRejectClick = (requestID) => {
+  requestStore.rejectRequest(requestID);
+};
 
 const showAdvancedInfo = ref(false);
 </script>
 
 <template>
-  <div class="sign_message-container">
-    <div class="sign_message-body">
-      <div class="sign_message-title_container">
-        <h1 class="sign_message-title">Sign Message</h1>
-        <time class="sign_message-datetime">27 Jul 21, 7:21 pm</time>
+  <div class="sign_messages-container" v-if="areRequestsPendingForApproval">
+    <div
+      class="sign_message-container"
+      v-for="request in pendingRequestsForApproval"
+      :key="request.id"
+    >
+      <div class="sign_message-body">
+        <div class="sign_message-title_container">
+          <h1 class="sign_message-title">Sign Message</h1>
+          <time class="sign_message-datetime">27 Jul 21, 7:21 pm</time>
+        </div>
+        <p class="sign_message-permission">
+          DropBox.com requests your permission to perform the following action:
+        </p>
+        <p class="sign_message-text">{{ methodAndAction[request.method] }}</p>
+        <button
+          class="sign_message-view_info"
+          v-on:click="showAdvancedInfo = !showAdvancedInfo"
+        >
+          View Advanced Information
+          <img
+            class="sign_message-arrow_icon"
+            :class="{ arrow_up: showAdvancedInfo }"
+            :src="images.arrowIcon"
+          />
+        </button>
+        <SignMessageAdvancedInfo
+          v-if="showAdvancedInfo"
+          :info="request.params"
+        />
       </div>
-      <p class="sign_message-permission">
-        DropBox.com requests your permission to perform the following action:
-      </p>
-      <p class="sign_message-text">Upload of XYZ.jpg</p>
-      <button
-        class="sign_message-view_info"
-        v-on:click="showAdvancedInfo = !showAdvancedInfo"
-      >
-        View Advanced Information
-        <!--Todo: use theme var to change arrow icon (dark or light) -->
-        <img
-          class="sign_message-arrow_icon"
-          :class="{ arrow_up: showAdvancedInfo }"
-          src="../assets/images/arrow-icon.png"
-        />
-      </button>
-      <SignMessageAdvancedInfo v-if="showAdvancedInfo" />
-    </div>
-    <div class="sign_message-footer">
-      <p class="sign_message-info_text">
-        You are not going to be charged!
-        <!--Todo: use theme var to change info icon (dark or light) -->
-        <img
-          class="sign_message-info_icon"
-          src="../assets/images/info-icon.png"
-        />
-      </p>
-      <div class="sign_message-button_container">
-        <button class="sign_message_button-reject">Reject</button>
-        <button class="sign_message_button-approve">Approve</button>
+      <div class="sign_message-footer">
+        <p class="sign_message-info_text">
+          You are not going to be charged!
+          <button v-tooltip="chargeInfo">
+            <img class="sign_message-info_icon" :src="images.infoIcon" />
+          </button>
+        </p>
+        <div class="sign_message-button_container">
+          <button
+            class="sign_message_button-reject"
+            @click="onRejectClick(request.id)"
+          >
+            Reject
+          </button>
+          <button
+            class="sign_message_button-approve"
+            @click="onApproveClick(request.id)"
+          >
+            Approve
+          </button>
+        </div>
       </div>
     </div>
   </div>
+  <SignMessageNoRequests v-else />
 </template>
 
 <style scoped>
+.sign_messages-container {
+  overflow: hidden;
+  height: 100%;
+}
 .sign_message-container {
   padding: 20px 15px;
   height: 100%;

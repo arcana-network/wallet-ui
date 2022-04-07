@@ -3,11 +3,17 @@ import "@/assets/css/reset.css";
 
 import WalletFooter from "@/components/AppFooter.vue";
 import { useUserStore } from "@/store/user";
-import { watch } from "@vue/runtime-core";
+import { toRefs, watch } from "vue";
 import { connectToParent } from "penpal";
-import { getSendRequestFn, handleRequest } from "@/utils/requestManagement";
+import { useAppStore } from "@/store/app";
+import { useImagesStore } from "@/store/images";
+import { getImages } from "@/config/images";
 
 const user = useUserStore();
+const app = useAppStore();
+const imagesStore = useImagesStore();
+const { theme } = toRefs(app);
+imagesStore.setImages(getImages("dark"));
 
 const connectionWithoutLogin = connectToParent({
   methods: {
@@ -15,15 +21,11 @@ const connectionWithoutLogin = connectToParent({
   },
 });
 
-function connectionToParentAfterLogin(/*privateKey*/) {
-  const sendRequest = getSendRequestFn(
-    handleRequest /*, new Keeper(privateKey) */
-  );
-  connectToParent({
-    methods: {
-      sendRequest,
-    },
-  });
+async function getAppTheme() {
+  const connectionInstance = await connectionWithoutLogin.promise;
+  const { theme } = await connectionInstance.getThemeConfig();
+  imagesStore.setImages(getImages(theme));
+  app.setTheme(theme);
 }
 
 watch(
@@ -31,14 +33,18 @@ watch(
   (isLoggedIn) => {
     if (isLoggedIn) {
       connectionWithoutLogin.destroy();
-      connectionToParentAfterLogin();
     }
   }
 );
+
+getAppTheme();
 </script>
 
 <template>
-  <div class="wallet_container light-mode">
+  <div
+    class="wallet_container"
+    :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+  >
     <div class="wallet_body">
       <RouterView />
     </div>
@@ -138,5 +144,18 @@ button {
   background: var(--content-bg-color);
   box-shadow: 4px 5px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
+}
+
+.v-popper--theme-tooltip {
+  background-color: #101010;
+}
+
+.v-popper__inner {
+  width: 230px;
+  height: 110px;
+  font-weight: 400;
+  font-size: 10px;
+  background-color: #101010;
+  color: #f9f9f9;
 }
 </style>

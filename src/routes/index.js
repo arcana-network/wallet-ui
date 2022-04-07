@@ -18,7 +18,8 @@ const routes = [
     component: HomePage,
   },
   {
-    path: "/:appId/wallet",
+    name: "signMessage",
+    path: "/signMessage",
     component: SignMessage,
   },
 ];

@@ -1,13 +1,15 @@
 <script setup>
 import OauthLogin from "@/components/oauthLogin.vue";
 import { getAuthProvider } from "@/utils/getAuthProvider";
-import { toRefs } from "@vue/reactivity";
+import { toRefs } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/user";
+import { useAppStore } from "@/store/app";
 
 const route = useRoute();
 const router = useRouter();
 const user = useUserStore();
+const app = useAppStore();
 
 const {
   params: {
@@ -15,6 +17,7 @@ const {
   },
 } = toRefs(route);
 
+app.setAppId(appId);
 const authProvider = getAuthProvider(`${appId}`);
 
 async function handleOauth(type) {
