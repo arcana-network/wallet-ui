@@ -23,6 +23,7 @@
     "pinia": "^2.0.12",
     "stream-browserify": "^3.0.0",
     "vue": "^3.2.13",
+    "vue-class-component": "^8.0.0-0",
     "vue-json-viewer": "^3.0.4",
     "vue-router": "^4.0.14",
     "vue-toastification": "^2.0.0-rc.5"
@@ -30,13 +31,18 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "@vue/eslint-config-typescript": "^9.1.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "node-sass": "^7.0.1",
-    "sass-loader": "^12.6.0"
+    "sass-loader": "^12.6.0",
+    "typescript": "~4.5.5"
   },
   "eslintConfig": {
     "root": true,
@@ -46,10 +52,11 @@
     },
     "extends": [
       "plugin:vue/vue3-essential",
-      "eslint:recommended"
+      "eslint:recommended",
+      "@vue/typescript"
     ],
     "parserOptions": {
-      "parser": "@babel/eslint-parser"
+      "parser": "@typescript-eslint/parser"
     },
     "rules": {}
   },
