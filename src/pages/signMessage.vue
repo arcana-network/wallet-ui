@@ -165,6 +165,7 @@ const showAdvancedInfo = ref(false);
   font-size: 10px;
   display: flex;
   color: var(--fg-color);
+  margin-bottom: 20px;
 }
 
 .sign_message-info_icon {
@@ -195,6 +196,7 @@ const showAdvancedInfo = ref(false);
   border: 2px solid #101010;
   border-radius: 10px;
   text-transform: uppercase;
+  height: 40px;
 }
 
 .sign_message_button-reject:hover,
