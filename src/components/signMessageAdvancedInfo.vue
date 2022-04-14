@@ -17,7 +17,7 @@ defineProps({
 <style scoped>
 .sign_message-advanced_info {
   width: 298px;
-  height: 292px;
+  max-height: 292px;
   padding: 20px 15px;
   background: var(--debossed-box-color);
   box-shadow: var(--debossed-shadow);
