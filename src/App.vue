@@ -6,14 +6,10 @@ import { useUserStore } from "@/store/user";
 import { toRefs, watch } from "vue";
 import { connectToParent } from "penpal";
 import { useAppStore } from "@/store/app";
-import { useImagesStore } from "@/store/images";
-import { getImages } from "@/config/images";
 
 const user = useUserStore();
 const app = useAppStore();
-const imagesStore = useImagesStore();
 const { theme } = toRefs(app);
-imagesStore.setImages(getImages("dark"));
 
 const connectionWithoutLogin = connectToParent({
   methods: {
@@ -24,7 +20,6 @@ const connectionWithoutLogin = connectToParent({
 async function getAppTheme() {
   const connectionInstance = await connectionWithoutLogin.promise;
   const { theme } = await connectionInstance.getThemeConfig();
-  imagesStore.setImages(getImages(theme));
   app.setTheme(theme);
 }
 
