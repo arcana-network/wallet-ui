@@ -1,9 +1,8 @@
 <script setup>
-import { useImagesStore } from "@/store/images";
 import { useUserStore } from "@/store/user";
+import { getImage } from "@/utils/getImage";
 
 const userStore = useUserStore();
-const { images } = useImagesStore();
 </script>
 
 <template>
@@ -11,7 +10,7 @@ const { images } = useImagesStore();
     <div class="footer__poweredby-container">
       <p class="footer__poweredby-text">Powered by</p>
       <a href="https://arcana.network/" target="_blank">
-        <img class="footer__poweredby-img" :src="images.arcanaLogo" />
+        <img class="footer__poweredby-img" :src="getImage('arcana-logo')" />
       </a>
     </div>
     <router-link
@@ -19,7 +18,7 @@ const { images } = useImagesStore();
       class="footer__profileicon-link"
       v-show="userStore.isLoggedIn"
     >
-      <img :src="images.profileIcon" alt="profile-icon" />
+      <img :src="getImage('profile-icon')" alt="profile-icon" />
     </router-link>
   </footer>
 </template>
