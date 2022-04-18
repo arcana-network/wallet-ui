@@ -1,7 +1,8 @@
 <script setup>
 import { useUserStore } from "@/store/user";
-import { getImage } from "@/utils/getImage";
+import { useImage } from "@/utils/useImage";
 
+const getImage = useImage();
 const userStore = useUserStore();
 </script>
 

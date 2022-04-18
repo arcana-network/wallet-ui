@@ -1,5 +1,7 @@
 <script setup>
-import { getImage } from "@/utils/getImage";
+import { useImage } from "@/utils/useImage";
+
+const getImage = useImage();
 </script>
 
 <template>

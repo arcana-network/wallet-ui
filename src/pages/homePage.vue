@@ -16,7 +16,9 @@ import { useRequestStore } from "@/store/request";
 import { toRefs } from "vue";
 import { useToast } from "vue-toastification";
 import { getAuthProvider } from "@/utils/getAuthProvider";
-import { getImage } from "@/utils/getImage"
+import { useImage } from "@/utils/useImage";
+
+const getImage = useImage();
 
 const user = useUserStore();
 const app = useAppStore();

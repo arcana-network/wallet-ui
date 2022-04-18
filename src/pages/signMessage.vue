@@ -4,9 +4,10 @@ import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
 import SignMessageNoRequests from "@/components/signMessageNoRequests.vue";
 import { useRequestStore } from "@/store/request";
 import { methodAndAction } from "@/utils/method";
-import { getImage } from "@/utils/getImage";
+import { useImage } from "@/utils/useImage";
 import { chargeInfo } from "@/utils/chargeInfo";
 
+const getImage = useImage();
 const requestStore = useRequestStore();
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore);
