@@ -4,13 +4,13 @@ import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
 import SignMessageNoRequests from "@/components/signMessageNoRequests.vue";
 import { useRequestStore } from "@/store/request";
 import { methodAndAction } from "@/utils/method";
-import { useImagesStore } from "@/store/images";
+import { useImage } from "@/utils/useImage";
 import { chargeInfo } from "@/utils/chargeInfo";
 
+const getImage = useImage();
 const requestStore = useRequestStore();
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore);
-const { images } = useImagesStore();
 
 const onApproveClick = (requestID) => {
   requestStore.approveRequest(requestID);
@@ -47,7 +47,7 @@ const showAdvancedInfo = ref(false);
           <img
             class="sign_message-arrow_icon"
             :class="{ arrow_up: showAdvancedInfo }"
-            :src="images.arrowIcon"
+            :src="getImage('arrow-icon')"
           />
         </button>
         <SignMessageAdvancedInfo
@@ -59,7 +59,7 @@ const showAdvancedInfo = ref(false);
         <p class="sign_message-info_text">
           You are not going to be charged!
           <button v-tooltip="chargeInfo">
-            <img class="sign_message-info_icon" :src="images.infoIcon" />
+            <img class="sign_message-info_icon" :src="getImage('info-icon')" />
           </button>
         </p>
         <div class="sign_message-button_container">

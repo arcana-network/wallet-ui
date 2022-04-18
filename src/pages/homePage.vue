@@ -15,15 +15,16 @@ import { useRouter } from "vue-router";
 import { useRequestStore } from "@/store/request";
 import { toRefs } from "vue";
 import { useToast } from "vue-toastification";
-import { useImagesStore } from "@/store/images";
 import { getAuthProvider } from "@/utils/getAuthProvider";
+import { useImage } from "@/utils/useImage";
+
+const getImage = useImage();
 
 const user = useUserStore();
 const app = useAppStore();
 const requestStore = useRequestStore();
 const router = useRouter();
 const toast = useToast();
-const { images } = useImagesStore();
 
 const {
   info: { email, name },
@@ -104,7 +105,7 @@ function onCloseClick() {
           <input type="hidden" id="wallet-address" :value="walletAddress" />
           <button @click.stop.prevent="onCopyClick">
             <img
-              :src="images.copyIcon"
+              :src="getImage('copy-icon')"
               alt="copy icon"
               class="wallet_home-body-copy-icon"
             />
