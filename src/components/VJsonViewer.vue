@@ -1,12 +1,12 @@
-<template>
-  <json-viewer :value="props.value" theme="json-viewer"></json-viewer>
-</template>
-
 <script setup>
 const props = defineProps({
   value: JSON,
-});
+})
 </script>
+
+<template>
+  <json-viewer :value="props.value" theme="json-viewer"></json-viewer>
+</template>
 
 <style lang="scss">
 .json-viewer {

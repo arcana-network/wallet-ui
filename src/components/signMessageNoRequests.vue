@@ -1,12 +1,16 @@
 <script setup>
-import { useImage } from "@/utils/useImage";
+import { useImage } from '@/utils/useImage'
 
-const getImage = useImage();
+const getImage = useImage()
 </script>
 
 <template>
   <div class="no-requests_container">
-    <img :src="getImage('green-tick')" alt="Tick Icon" class="no-requests_img" />
+    <img
+      :src="getImage('green-tick')"
+      alt="Tick Icon"
+      class="no-requests_img"
+    />
     <p class="no-requests_text">No Pending Requests!</p>
   </div>
 </template>

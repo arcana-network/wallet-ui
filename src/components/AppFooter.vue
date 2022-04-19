@@ -1,9 +1,9 @@
 <script setup>
-import { useUserStore } from "@/store/user";
-import { useImage } from "@/utils/useImage";
+import { useUserStore } from '@/store/user'
+import { useImage } from '@/utils/useImage'
 
-const getImage = useImage();
-const userStore = useUserStore();
+const getImage = useImage()
+const userStore = useUserStore()
 </script>
 
 <template>
@@ -15,9 +15,9 @@ const userStore = useUserStore();
       </a>
     </div>
     <router-link
+      v-show="userStore.isLoggedIn"
       to="/"
       class="footer__profileicon-link"
-      v-show="userStore.isLoggedIn"
     >
       <img :src="getImage('profile-icon')" alt="profile-icon" />
     </router-link>

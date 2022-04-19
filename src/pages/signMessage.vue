@@ -1,34 +1,35 @@
 <script setup>
-import { ref, toRefs } from "vue";
-import SignMessageAdvancedInfo from "@/components/signMessageAdvancedInfo.vue";
-import SignMessageNoRequests from "@/components/signMessageNoRequests.vue";
-import { useRequestStore } from "@/store/request";
-import { methodAndAction } from "@/utils/method";
-import { useImage } from "@/utils/useImage";
-import { chargeInfo } from "@/utils/chargeInfo";
+import { ref, toRefs } from 'vue'
 
-const getImage = useImage();
-const requestStore = useRequestStore();
+import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
+import { useRequestStore } from '@/store/request'
+import { chargeInfo } from '@/utils/chargeInfo'
+import { methodAndAction } from '@/utils/method'
+import { useImage } from '@/utils/useImage'
+
+const getImage = useImage()
+const requestStore = useRequestStore()
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
-  toRefs(requestStore);
+  toRefs(requestStore)
 
 const onApproveClick = (requestID) => {
-  requestStore.approveRequest(requestID);
-};
+  requestStore.approveRequest(requestID)
+}
 
 const onRejectClick = (requestID) => {
-  requestStore.rejectRequest(requestID);
-};
+  requestStore.rejectRequest(requestID)
+}
 
-const showAdvancedInfo = ref(false);
+const showAdvancedInfo = ref(false)
 </script>
 
 <template>
-  <div class="sign_messages-container" v-if="areRequestsPendingForApproval">
+  <div v-if="areRequestsPendingForApproval" class="sign_messages-container">
     <div
-      class="sign_message-container"
       v-for="request in pendingRequestsForApproval"
       :key="request.id"
+      class="sign_message-container"
     >
       <div class="sign_message-body">
         <div class="sign_message-title_container">
@@ -41,7 +42,7 @@ const showAdvancedInfo = ref(false);
         <p class="sign_message-text">{{ methodAndAction[request.method] }}</p>
         <button
           class="sign_message-view_info"
-          v-on:click="showAdvancedInfo = !showAdvancedInfo"
+          @click="showAdvancedInfo = !showAdvancedInfo"
         >
           View Advanced Information
           <img

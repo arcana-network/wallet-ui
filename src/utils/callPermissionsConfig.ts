@@ -7,4 +7,4 @@ export const permissions = {
   eth_sendTransaction: true,
   eth_accounts: false,
   eth_getEncryptionPublicKey: false,
-};
+}

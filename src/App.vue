@@ -1,38 +1,39 @@
 <script setup>
-import "@/assets/css/reset.css";
+import '@/assets/css/reset.css'
 
-import WalletFooter from "@/components/AppFooter.vue";
-import { useUserStore } from "@/store/user";
-import { toRefs, watch } from "vue";
-import { connectToParent } from "penpal";
-import { useAppStore } from "@/store/app";
+import { connectToParent } from 'penpal'
+import { toRefs, watch } from 'vue'
 
-const user = useUserStore();
-const app = useAppStore();
-const { theme } = toRefs(app);
+import WalletFooter from '@/components/AppFooter.vue'
+import { useAppStore } from '@/store/app'
+import { useUserStore } from '@/store/user'
+
+const user = useUserStore()
+const app = useAppStore()
+const { theme } = toRefs(app)
 
 const connectionWithoutLogin = connectToParent({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
   },
-});
+})
 
 async function getAppTheme() {
-  const connectionInstance = await connectionWithoutLogin.promise;
-  const { theme } = await connectionInstance.getThemeConfig();
-  app.setTheme(theme);
+  const connectionInstance = await connectionWithoutLogin.promise
+  const { theme } = await connectionInstance.getThemeConfig()
+  app.setTheme(theme)
 }
 
 watch(
   () => user.isLoggedIn,
   (isLoggedIn) => {
     if (isLoggedIn) {
-      connectionWithoutLogin.destroy();
+      connectionWithoutLogin.destroy()
     }
   }
-);
+)
 
-getAppTheme();
+getAppTheme()
 </script>
 
 <template>
@@ -48,7 +49,7 @@ getAppTheme();
 </template>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block");
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block');
 
 :root {
   --color-light: #f9f9f9;
@@ -105,7 +106,7 @@ getAppTheme();
 }
 
 body {
-  font-family: "Sora", sans-serif;
+  font-family: 'Sora', sans-serif;
   line-height: 1.5;
 }
 

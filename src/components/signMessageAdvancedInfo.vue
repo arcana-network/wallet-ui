@@ -1,9 +1,12 @@
 <script setup>
-import VJsonViewer from "./VJsonViewer.vue";
+import VJsonViewer from '@/components/VJsonViewer.vue'
 
 defineProps({
-  info: Object,
-});
+  info: {
+    type: Object,
+    required: true,
+  },
+})
 </script>
 
 <template>

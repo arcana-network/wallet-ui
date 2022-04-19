@@ -1,32 +1,33 @@
 <script setup>
-import OauthLogin from "@/components/oauthLogin.vue";
-import { getAuthProvider } from "@/utils/getAuthProvider";
-import { toRefs } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/store/user";
-import { useAppStore } from "@/store/app";
+import { toRefs } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute();
-const router = useRouter();
-const user = useUserStore();
-const app = useAppStore();
+import OauthLogin from '@/components/oauthLogin.vue'
+import { useAppStore } from '@/store/app'
+import { useUserStore } from '@/store/user'
+import { getAuthProvider } from '@/utils/getAuthProvider'
+
+const route = useRoute()
+const router = useRouter()
+const user = useUserStore()
+const app = useAppStore()
 
 const {
   params: {
     value: { appId },
   },
-} = toRefs(route);
+} = toRefs(route)
 
-app.setAppId(appId);
-const authProvider = getAuthProvider(`${appId}`);
+app.setAppId(appId)
+const authProvider = getAuthProvider(`${appId}`)
 
 async function handleOauth(type) {
   try {
-    await user.handleLogin(authProvider, type);
-    router.push("/");
+    await user.handleLogin(authProvider, type)
+    router.push('/')
   } catch (error) {
-    console.log(error);
-    user.$reset(); // resets user store if login fails
+    console.log(error)
+    user.$reset() // resets user store if login fails
   }
 }
 </script>
@@ -50,7 +51,7 @@ async function handleOauth(type) {
       <button class="wallet_signin-button">Send magic link</button>
     </div>
     <div class="wallet_signin-footer">
-      <OauthLogin @oauthClick="handleOauth" />
+      <OauthLogin @oauth-click="handleOauth" />
       <p class="wallet_signin-signup-text">
         New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
       </p>

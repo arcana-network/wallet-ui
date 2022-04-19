@@ -1,24 +1,25 @@
 <script setup>
-import { SocialLoginType } from "@arcana/auth";
-import { useImage } from "@/utils/useImage";
+import { SocialLoginType } from '@arcana/auth'
 
-const getImage = useImage();
-const emits = defineEmits(["oauthClick"]);
+import { useImage } from '@/utils/useImage'
+
+const getImage = useImage()
+const emits = defineEmits(['oauthClick'])
 
 const oauthLoginList = [
   {
     value: SocialLoginType.google,
-    iconPath: getImage("google-icon"),
+    iconPath: getImage('google-icon'),
   },
   {
     value: SocialLoginType.twitter,
-    iconPath: getImage("twitter-icon"),
+    iconPath: getImage('twitter-icon'),
   },
   {
     value: SocialLoginType.github,
-    iconPath: getImage("github-icon"),
+    iconPath: getImage('github-icon'),
   },
-];
+]
 </script>
 
 <template>
