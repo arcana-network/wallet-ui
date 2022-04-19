@@ -18,7 +18,7 @@ const getAppAddress = async (id) => {
 
 export const getWalletType = async (
   appId,
-  rpcUrl = process.env.VUE_APP_WALLET_RPCURL
+  rpcUrl = process.env.VUE_APP_WALLET_RPC_URL
 ) => {
   const appAddress = await getAppAddress(appId);
   if (!appAddress) {
