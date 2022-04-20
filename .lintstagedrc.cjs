@@ -6,6 +6,7 @@ module.exports = {
     'npm run lint:prettier',
   ],
   '*.scss': ['npm run lint:stylelint', 'npm run lint:prettier'],
+  '*.md': ['npm run lint:markdownlint', 'npm run lint:prettier'],
   'package.json': ['npm run lint:prettier'],
   '!(package)*.json': ['npm run lint:prettier -- --parser json'],
 }
