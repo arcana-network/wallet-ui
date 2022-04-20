@@ -1,11 +1,9 @@
 <script setup>
-import { AuthProvider } from "@arcana/auth";
+import { AuthProvider } from '@arcana/auth'
 
-AuthProvider.handleRedirectPage("*");
+AuthProvider.handleRedirectPage('*')
 </script>
 
 <template>
   <div>Please wait...</div>
 </template>
-
-<style></style>

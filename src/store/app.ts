@@ -1,16 +1,16 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
-export const useAppStore = defineStore("app", {
+export const useAppStore = defineStore('app', {
   state: () => ({
     id: null,
-    theme: "light",
+    theme: 'light',
   }),
   actions: {
     setAppId(id) {
-      this.id = id;
+      this.id = id
     },
     setTheme(theme) {
-      this.theme = theme;
+      this.theme = theme
     },
   },
-});
+})

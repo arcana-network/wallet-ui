@@ -1,123 +1,119 @@
 <script setup>
-import { connectToParent } from "penpal";
+import { connectToParent } from 'penpal'
+import { toRefs } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+
+import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
+import { permissions } from '@/utils/callPermissionsConfig'
+import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getWalletType } from '@/utils/getwalletType'
+import { Keeper } from '@/utils/keeper'
 import {
   getSendRequestFn,
   handleRequest,
   watchRequestQueue,
-} from "@/utils/requestManagement";
-import { Keeper } from "@/utils/keeper";
-import { permissions } from "@/utils/callPermissionsConfig";
-import { getWalletType } from "@/utils/getwalletType";
-import { AccountHandler } from "@/utils/accountHandler";
-import { useUserStore } from "@/store/user";
-import { useAppStore } from "@/store/app";
-import { useRouter } from "vue-router";
-import { useRequestStore } from "@/store/request";
-import { toRefs } from "vue";
-import { useToast } from "vue-toastification";
-import { getAuthProvider } from "@/utils/getAuthProvider";
-import { useImage } from "@/utils/useImage";
+} from '@/utils/requestManagement'
+import { useImage } from '@/utils/useImage'
 
-const getImage = useImage();
+const getImage = useImage()
 
-const user = useUserStore();
-const app = useAppStore();
-const requestStore = useRequestStore();
-const router = useRouter();
-const toast = useToast();
+const user = useUserStore()
+const app = useAppStore()
+const requestStore = useRequestStore()
+const router = useRouter()
+const toast = useToast()
 
 const {
   info: { email, name },
   privateKey,
-} = user;
-const { walletAddressShrinked, walletAddress } = toRefs(user);
-const { id: appId } = app;
-const authProvider = getAuthProvider(`${appId}`);
+} = user
+const { walletAddressShrinked, walletAddress } = toRefs(user)
+const { id: appId } = app
+const authProvider = getAuthProvider(`${appId}`)
 
 async function connectionToParent() {
-  const walletType = await getWalletType(appId);
-  const accountHandler = new AccountHandler(privateKey);
-  const walletAddress = accountHandler.getAccounts()[0];
-  user.setWalletAddress(walletAddress);
-  const keeper = new Keeper(
-    privateKey,
-    permissions,
-    walletType,
-    accountHandler
-  );
-  watchRequestQueue(requestStore, keeper);
+  const walletType = await getWalletType(appId)
+  const accountHandler = new AccountHandler(privateKey)
+  const walletAddress = accountHandler.getAccounts()[0]
+  user.setWalletAddress(walletAddress)
+  const keeper = new Keeper(privateKey, permissions, walletType, accountHandler)
+  watchRequestQueue(requestStore, keeper)
   const sendRequest = getSendRequestFn(
     handleRequest,
     keeper,
     router,
     requestStore
-  );
+  )
   const connectionInstance = await connectToParent({
     methods: {
       sendRequest,
     },
-  }).promise;
-  keeper.setConnection(connectionInstance);
+  }).promise
+  keeper.setConnection(connectionInstance)
 }
 
-connectionToParent();
+connectionToParent()
 
 function onCopyClick() {
-  const walletAddressEl = document.getElementById("wallet-address");
-  walletAddressEl.setAttribute("type", "text");
-  walletAddressEl.select();
-  document.execCommand("copy");
+  const walletAddressEl = document.getElementById('wallet-address')
+  walletAddressEl.setAttribute('type', 'text')
+  walletAddressEl.select()
+  document.execCommand('copy')
   try {
-    toast.success("Wallet address copied");
+    toast.success('Wallet address copied')
   } catch (e) {
-    toast.error("Failed to copy wallet address");
+    toast.error('Failed to copy wallet address')
   }
-  walletAddressEl.setAttribute("type", "hidden");
-  window.getSelection().removeAllRanges();
+  walletAddressEl.setAttribute('type', 'hidden')
+  window.getSelection().removeAllRanges()
 }
 
 async function onLogoutClick() {
-  await user.handleLogout(authProvider);
-  router.push(`/${appId}/login`);
+  await user.handleLogout(authProvider)
+  router.push(`/${appId}/login`)
 }
 
 function onCloseClick() {
-  router.push("/signMessage");
+  router.push('/signMessage')
 }
 </script>
 
 <template>
-  <div class="wallet_home-container">
-    <h1 class="wallet_home-title">Welcome</h1>
-    <div class="wallet_home-body_container">
-      <div class="wallet_home-body-content">
-        <p class="wallet_home-body-content_label">Name</p>
-        <p class="wallet_home-body-content_value">{{ name }}</p>
+  <div class="wallet__home-container">
+    <h1 class="wallet__home-title">Welcome</h1>
+    <div class="wallet__home-body-container">
+      <div class="wallet__home-body-content">
+        <p class="wallet__home-body-content-label">Name</p>
+        <p class="wallet__home-body-content-value">{{ name }}</p>
       </div>
-      <div class="wallet_home-body-content">
-        <p class="wallet_home-body-content_label">Email ID</p>
-        <p class="wallet_home-body-content_value">{{ email }}</p>
+      <div class="wallet__home-body-content">
+        <p class="wallet__home-body-content-label">Email ID</p>
+        <p class="wallet__home-body-content-value">{{ email }}</p>
       </div>
-      <div class="wallet_home-body-content">
-        <p class="wallet_home-body-content_label">Wallet Address</p>
-        <p class="wallet_home-body-content_value">
+      <div class="wallet__home-body-content">
+        <p class="wallet__home-body-content-label">Wallet Address</p>
+        <p class="wallet__home-body-content-value">
           <span>{{ walletAddressShrinked }}</span>
-          <input type="hidden" id="wallet-address" :value="walletAddress" />
+          <input id="wallet-address" type="hidden" :value="walletAddress" />
           <button @click.stop.prevent="onCopyClick">
             <img
               :src="getImage('copy-icon')"
               alt="copy icon"
-              class="wallet_home-body-copy-icon"
+              class="wallet__home-body-copy-icon"
             />
           </button>
         </p>
       </div>
     </div>
     <div class="wallet_home-footer">
-      <button class="wallet_home-footer_button-outline" @click="onLogoutClick">
+      <button class="wallet__home-footer-button-outline" @click="onLogoutClick">
         Logout
       </button>
-      <button class="wallet_home-footer_button-filled" @click="onCloseClick">
+      <button class="wallet__home-footer-button-filled" @click="onCloseClick">
         Close
       </button>
     </div>
@@ -125,81 +121,81 @@ function onCloseClick() {
 </template>
 
 <style>
-.wallet_home-container {
-  height: 100%;
-  padding: 20px 15px;
+.wallet__home-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  height: 100%;
+  padding: 20px 15px;
 }
 
-.wallet_home-title {
-  font-weight: 600;
-  font-size: 20px;
-  text-align: left;
+.wallet__home-title {
   width: 100%;
   margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: left;
 }
 
-.wallet_home-body_container {
+.wallet__home-body-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  background: var(--debossed-box-color);
-  padding: 20px 20px;
+  height: 100%;
+  padding: 20px;
+  margin-bottom: 15px;
   color: var(--fg-color);
+  text-align: center;
+  text-align: left;
+  background: var(--debossed-box-color);
   border-radius: 10px;
   box-shadow: var(--debossed-shadow);
-  text-align: center;
-  margin-bottom: 15px;
-  height: 100%;
-  text-align: left;
 }
 
-.wallet_home-body_container > * {
+.wallet__home-body-container > * {
   margin-bottom: 20px;
 }
 
-.wallet_home-body-content_label {
-  font-weight: 400;
-  font-size: 12px;
+.wallet__home-body-content-label {
   margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 400;
 }
 
-.wallet_home-body-content_value {
-  font-weight: 400;
-  font-size: 16px;
+.wallet__home-body-content-value {
   display: flex;
   align-items: center;
+  font-size: 16px;
+  font-weight: 400;
 }
 
-.wallet_home-body-copy-icon {
+.wallet__home-body-copy-icon {
   width: 16px;
   height: 16px;
   margin-left: 12px;
 }
 
-.wallet_home-footer {
-  width: 100%;
+.wallet__home-footer {
   display: flex;
+  width: 100%;
 }
 
-.wallet_home-footer_button-outline {
+.wallet__home-footer-button-outline {
   flex: 1;
+  margin-right: 5px;
+  color: var(--outlined-button-fg-color);
   border: 2px solid;
   border-color: var(--outlined-button-border-color);
-  color: var(--outlined-button-fg-color);
-  margin-right: 5px;
   border-radius: 10px;
 }
 
-.wallet_home-footer_button-filled {
+.wallet__home-footer-button-filled {
   flex: 1;
-  background-color: var(--filled-button-bg-color);
-  color: var(--filled-button-fg-color);
   height: 40px;
-  border-radius: 10px;
   margin-left: 5px;
+  color: var(--filled-button-fg-color);
+  background-color: var(--filled-button-bg-color);
+  border-radius: 10px;
 }
 </style>

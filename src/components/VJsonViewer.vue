@@ -1,18 +1,18 @@
+<script setup>
+const props = defineProps({
+  value: JSON,
+})
+</script>
+
 <template>
   <json-viewer :value="props.value" theme="json-viewer"></json-viewer>
 </template>
 
-<script setup>
-const props = defineProps({
-  value: JSON,
-});
-</script>
-
 <style lang="scss">
 .json-viewer {
-  background: transparent;
-  font-weight: 400;
   font-size: 10px;
+  font-weight: 400;
+  background: transparent;
 
   .jv-code {
     padding: 0;

@@ -1,35 +1,37 @@
 // Todo: Find a better place for these functions
 
-export function getSendRequestFn(handleRequest, keeper, router, requestStore) {
+function getSendRequestFn(handleRequest, keeper, router, requestStore) {
   return function sendRequest(request) {
-    return handleRequest(request, keeper, router, requestStore);
-  };
+    return handleRequest(request, keeper, router, requestStore)
+  }
 }
 
-export function watchRequestQueue(store, keeper) {
+function watchRequestQueue(store, keeper) {
   store.$subscribe((mutation, state) => {
-    const { processQueue } = state;
+    const { processQueue } = state
     while (processQueue.length > 0) {
-      const request = processQueue.shift();
-      processRequest(request, keeper);
+      const request = processQueue.shift()
+      processRequest(request, keeper)
     }
-  });
+  })
 }
 
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    const response = await keeper.handleRequest(request);
-    keeper.reply(request.method, response);
+    const response = await keeper.handleRequest(request)
+    keeper.reply(request.method, response)
   } else {
     keeper.reply(request.method, {
-      error: "user_deny",
+      error: 'user_deny',
       result: null,
       id: request.id,
-    });
+    })
   }
 }
 
-export async function handleRequest(request, keeper, router, requestStore) {
-  const isPermissionRequired = keeper.isPermissionRequired(request.method);
-  requestStore.addRequests(request, isPermissionRequired);
+async function handleRequest(request, keeper, router, requestStore) {
+  const isPermissionRequired = keeper.isPermissionRequired(request.method)
+  requestStore.addRequests(request, isPermissionRequired)
 }
+
+export { getSendRequestFn, watchRequestQueue, handleRequest }

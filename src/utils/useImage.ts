@@ -1,16 +1,15 @@
-import { Theme } from "@/types";
-import { useAppStore } from "@/store/app";
+import { useAppStore } from '@/store/app'
 
-const THEME_NEUTRAL_IMAGES = ["google-icon", "green-tick", "twitter-icon"];
+const THEME_NEUTRAL_IMAGES = ['google-icon', 'green-tick', 'twitter-icon']
 
 export function useImage() {
-  const appStore = useAppStore();
+  const appStore = useAppStore()
 
-  return function getImage(imageName: string, theme: Theme): string {
+  return function getImage(imageName: string): string {
     if (THEME_NEUTRAL_IMAGES.includes(imageName)) {
-      return require(`@/assets/images/${imageName}.png`);
+      return require(`@/assets/images/${imageName}.png`)
     } else {
-      return require(`@/assets/images/${imageName}-${appStore.theme}-mode.png`);
+      return require(`@/assets/images/${imageName}-${appStore.theme}-mode.png`)
     }
-  };
+  }
 }

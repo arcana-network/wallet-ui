@@ -1,46 +1,41 @@
 <script setup>
-import VJsonViewer from "./VJsonViewer.vue";
+import VJsonViewer from '@/components/VJsonViewer.vue'
 
 defineProps({
-  info: Object,
-});
+  info: {
+    type: Object,
+    required: true,
+  },
+})
 </script>
 
 <template>
-  <div class="sign_message-advanced_info">
-    <div class="sign_message-advanced_info-container">
+  <div class="sign__message-advanced-info">
+    <div class="sign__message-advanced-info-container">
       <VJsonViewer :value="info"></VJsonViewer>
     </div>
   </div>
 </template>
 
 <style scoped>
-.sign_message-advanced_info {
+.sign__message-advanced-info {
   width: 298px;
   max-height: 292px;
   padding: 20px 15px;
-  background: var(--debossed-box-color);
-  box-shadow: var(--debossed-shadow);
-
   overflow: auto;
+  background: var(--debossed-box-color);
   border-radius: 10px;
+  box-shadow: var(--debossed-shadow);
 }
 
-.sign_message-advanced_info_label {
-  font-weight: 600;
-  font-size: 12px;
+.sign__message-advanced-info-label {
   margin: 0;
   margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.sign_message-advanced_info_value {
-  font-size: 10px;
-  color: #932a9b;
-  margin: 0;
-  margin-bottom: 4px;
-}
-
-.sign_message-advanced_info-container {
+.sign__message-advanced-info-container {
   margin-bottom: 10px;
 }
 </style>

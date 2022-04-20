@@ -1,161 +1,163 @@
 <script setup>
-import OauthLogin from "@/components/oauthLogin.vue";
-import { getAuthProvider } from "@/utils/getAuthProvider";
-import { toRefs } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/store/user";
-import { useAppStore } from "@/store/app";
+import { toRefs } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute();
-const router = useRouter();
-const user = useUserStore();
-const app = useAppStore();
+import OauthLogin from '@/components/oauthLogin.vue'
+import { useAppStore } from '@/store/app'
+import { useUserStore } from '@/store/user'
+import { getAuthProvider } from '@/utils/getAuthProvider'
+
+const route = useRoute()
+const router = useRouter()
+const user = useUserStore()
+const app = useAppStore()
 
 const {
   params: {
     value: { appId },
   },
-} = toRefs(route);
+} = toRefs(route)
 
-app.setAppId(appId);
-const authProvider = getAuthProvider(`${appId}`);
+app.setAppId(appId)
+const authProvider = getAuthProvider(`${appId}`)
 
 async function handleOauth(type) {
   try {
-    await user.handleLogin(authProvider, type);
-    router.push("/");
+    await user.handleLogin(authProvider, type)
+    router.push('/')
   } catch (error) {
-    console.log(error);
-    user.$reset(); // resets user store if login fails
+    console.log(error)
+    user.$reset() // resets user store if login fails
   }
 }
 </script>
 
 <template>
-  <div class="wallet_signin-container">
-    <div class="wallet_signin-body">
-      <div class="wallet_signin_title-desc">
-        <h1 class="wallet_signin-title">Welcome</h1>
-        <p class="wallet_signin-desc">
+  <div class="wallet__signin-container">
+    <div class="wallet__signin-body">
+      <div class="wallet__signin-title-desc">
+        <h1 class="wallet__signin-title">Welcome</h1>
+        <p class="wallet__signin-desc">
           We’ll email you a magic link for a password-free sign in.
         </p>
       </div>
-      <div class="wallet_signin-input_container">
-        <label class="wallet_signin-input_label">Email</label>
+      <div class="wallet__signin-input-container">
+        <label class="wallet__signin-input-label">Email</label>
         <input
-          class="wallet_signin-input_field"
+          class="wallet__signin-input-field"
           placeholder="someone@example.com"
         />
       </div>
       <button class="wallet_signin-button">Send link</button>
     </div>
-    <div class="wallet_signin-footer">
-      <OauthLogin @oauthClick="handleOauth" />
-      <p class="wallet_signin-signup-text">
-        New to Arcana? <button class="wallet_signin-signup-cta">Sign Up</button>
+    <div class="wallet__signin-footer">
+      <OauthLogin @oauth-click="handleOauth" />
+      <p class="wallet__signin-signup-text">
+        New to Arcana?
+        <button class="wallet__signin-signup-cta">Sign Up</button>
       </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.wallet_signin-container {
-  height: 100%;
-  padding: 20px 15px;
+.wallet__signin-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
+  height: 100%;
+  padding: 20px 15px;
 }
 
-.wallet_signin-body {
-  flex: 1;
+.wallet__signin-body {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.wallet_signin-footer {
+.wallet__signin-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   height: 62px;
   margin-top: 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
 }
 
-.wallet_signin_title-desc {
-  height: 76px;
-  margin-bottom: 20px;
+.wallet__signin-title-desc {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  height: 76px;
+  margin-bottom: 20px;
 }
 
-.wallet_signin-title {
-  font-weight: 600;
+.wallet__signin-title {
   font-size: 20px;
+  font-weight: 600;
   text-align: center;
 }
 
-.wallet_signin-desc {
-  font-weight: 400;
+.wallet__signin-desc {
   font-size: 14px;
+  font-weight: 400;
   text-align: center;
 }
 
-.wallet_signin-input_container {
+.wallet__signin-input-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   margin-bottom: 30px;
 }
 
-.wallet_signin-input_label {
-  font-weight: 400;
-  font-size: 14px;
-  margin-left: 15px;
+.wallet__signin-input-label {
   margin-bottom: 10px;
-}
-
-.wallet_signin-input_field {
-  height: 45px;
-  padding: 0px 16px;
-  border: none;
-  background: var(--debossed-box-color);
-  box-shadow: var(--debossed-shadow);
-  border-radius: 10px;
-  font-weight: 400;
+  margin-left: 15px;
   font-size: 14px;
+  font-weight: 400;
 }
 
-.wallet_signin-button {
+.wallet__signin-input-field {
+  height: 45px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 400;
+  background: var(--debossed-box-color);
+  border: none;
+  border-radius: 10px;
+  box-shadow: var(--debossed-shadow);
+}
+
+.wallet__signin-button {
   width: 100%;
   height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--filled-button-fg-color);
+  text-transform: uppercase;
   background: var(--filled-button-bg-color);
   border-radius: 10px;
-  color: var(--filled-button-fg-color);
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: uppercase;
 }
 
-.wallet_signin-button:hover {
-  transform: scale(1.05, 1.15);
+.wallet__signin-button:hover {
   transition: all 0.5s;
+  transform: scale(1.05, 1.15);
 }
 
-.wallet_signin-signup-text {
+.wallet__signin-signup-text {
+  font-size: 12px;
   font-weight: 600;
-  font-size: 12px;
 }
 
-.wallet_signin-signup-cta {
-  font-weight: bold;
+.wallet__signin-signup-cta {
   font-size: 12px;
+  font-weight: bold;
+  color: var(--fg-color);
   text-decoration-line: underline;
   text-transform: uppercase;
-  color: var(--fg-color);
 }
 </style>
