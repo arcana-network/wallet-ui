@@ -1,12 +1,25 @@
 import { defineStore } from 'pinia'
 
+import type { Request } from '@/models/Request'
+
+type PendingRequest = {
+  request: Request
+  isPermissionGranted: boolean
+}
+
+type RequestState = {
+  pendingRequests: { [key: string]: PendingRequest }
+  processQueue: PendingRequest[]
+}
+
 export const useRequestStore = defineStore('request', {
-  state: () => ({
-    pendingRequests: {},
-    processQueue: [],
-  }),
+  state: () =>
+    ({
+      pendingRequests: {},
+      processQueue: [],
+    } as RequestState),
   getters: {
-    pendingRequestsForApproval(state) {
+    pendingRequestsForApproval(state: RequestState): Request[] {
       return Object.values(state.pendingRequests).map((item) => item.request)
     },
     areRequestsPendingForApproval(state) {

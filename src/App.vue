@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { connectToParent } from 'penpal'
 import { toRefs, watch } from 'vue'
 
 import WalletFooter from '@/components/AppFooter.vue'
+import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 
@@ -10,7 +11,7 @@ const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
 
-const connectionWithoutLogin = connectToParent({
+const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
   },
