@@ -63,22 +63,6 @@
     "stylelint-selector-bem-pattern": "^2.1.1",
     "typescript": "~4.5.5"
   },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true,
-      "vue/setup-compiler-macros": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended",
-      "@vue/typescript"
-    ],
-    "parserOptions": {
-      "parser": "@typescript-eslint/parser"
-    },
-    "rules": {}
-  },
   "browserslist": [
     "> 1%",
     "last 2 versions",
