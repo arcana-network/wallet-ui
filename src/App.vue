@@ -1,6 +1,4 @@
 <script setup>
-import '@/assets/css/reset.css'
-
 import { connectToParent } from 'penpal'
 import { toRefs, watch } from 'vue'
 
@@ -50,6 +48,7 @@ getAppTheme()
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block');
+@import '@/assets/css/reset.css';
 
 :root {
   --color-light: #f9f9f9;
