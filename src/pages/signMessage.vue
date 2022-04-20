@@ -25,29 +25,29 @@ const showAdvancedInfo = ref(false)
 </script>
 
 <template>
-  <div v-if="areRequestsPendingForApproval" class="sign_messages-container">
+  <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
     <div
       v-for="request in pendingRequestsForApproval"
       :key="request.id"
-      class="sign_message-container"
+      class="sign__message-container"
     >
-      <div class="sign_message-body">
-        <div class="sign_message-title_container">
-          <h1 class="sign_message-title">Sign Message</h1>
-          <time class="sign_message-datetime">27 Jul 21, 7:21 pm</time>
+      <div class="sign__message-body">
+        <div class="sign__message-title-container">
+          <h1 class="sign__message-title">Sign Message</h1>
+          <time class="sign__message-datetime">27 Jul 21, 7:21 pm</time>
         </div>
-        <p class="sign_message-permission">
+        <p class="sign__message-permission">
           DropBox.com requests your permission to perform the following action:
         </p>
-        <p class="sign_message-text">{{ methodAndAction[request.method] }}</p>
+        <p class="sign__message-text">{{ methodAndAction[request.method] }}</p>
         <button
-          class="sign_message-view_info"
+          class="sign__message-view-info"
           @click="showAdvancedInfo = !showAdvancedInfo"
         >
           View Advanced Information
           <img
-            class="sign_message-arrow_icon"
-            :class="{ arrow_up: showAdvancedInfo }"
+            class="sign__message-arrow-icon"
+            :class="{ arrow__up: showAdvancedInfo }"
             :src="getImage('arrow-icon')"
           />
         </button>
@@ -56,22 +56,22 @@ const showAdvancedInfo = ref(false)
           :info="request.params"
         />
       </div>
-      <div class="sign_message-footer">
-        <p class="sign_message-info_text">
+      <div class="sign__message-footer">
+        <p class="sign__message-info-text">
           You are not going to be charged!
           <button v-tooltip="chargeInfo">
-            <img class="sign_message-info_icon" :src="getImage('info-icon')" />
+            <img class="sign__message-info-icon" :src="getImage('info-icon')" />
           </button>
         </p>
-        <div class="sign_message-button_container">
+        <div class="sign__message-button-container">
           <button
-            class="sign_message_button-reject"
+            class="sign__message-button-reject"
             @click="onRejectClick(request.id)"
           >
             Reject
           </button>
           <button
-            class="sign_message_button-approve"
+            class="sign__message-button-approve"
             @click="onApproveClick(request.id)"
           >
             Approve
@@ -84,142 +84,141 @@ const showAdvancedInfo = ref(false)
 </template>
 
 <style scoped>
-.sign_messages-container {
+.sign__messages-container {
+  height: 100%;
   overflow: hidden;
-  height: 100%;
 }
-.sign_message-container {
-  padding: 20px 15px;
-  height: 100%;
+
+.sign__message-container {
   display: flex;
   flex-direction: column;
-
+  height: 100%;
+  padding: 20px 15px;
   overflow: auto;
 }
 
-.sign_message-body {
+.sign__message-body {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
   padding-bottom: 15px;
 }
 
-.sign_message-footer {
+.sign__message-footer {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   height: 70px;
 }
 
-.sign_message-title_container {
+.sign__message-title-container {
   display: flex;
   align-items: baseline;
   margin-bottom: 15px;
 }
 
-.sign_message-title {
-  font-weight: 600;
-  font-size: 20px;
-  margin: 0;
+.sign__message-title {
   flex: 1;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
 }
 
-.sign_message-datetime {
-  font-weight: 300;
-  font-size: 12px;
-
-  color: #8d8d8d;
+.sign__message-datetime {
   flex: 1;
+  font-size: 12px;
+  font-weight: 300;
+  color: #8d8d8d;
   text-align: right;
 }
 
-.sign_message-permission {
-  font-weight: 400;
-  font-size: 14px;
+.sign__message-permission {
   margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
-.sign_message-text {
-  background: var(--debossed-box-color);
-  font-weight: 600;
+.sign__message-text {
+  padding: 30px;
+  margin-bottom: 15px;
   font-size: 16px;
-  padding: 30px 30px;
+  font-weight: 600;
   color: var(--fg-color);
+  text-align: center;
+  background: var(--debossed-box-color);
   border-radius: 10px;
   box-shadow: var(--debossed-shadow);
-  text-align: center;
-  margin-bottom: 15px;
 }
 
-.sign_message-view_info {
-  font-weight: 600;
-  font-size: 10px;
+.sign__message-view-info {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   margin-bottom: 15px;
-  color: var(--fg-color);
-}
-
-.sign_message-info_text {
   font-size: 10px;
-  display: flex;
+  font-weight: 600;
   color: var(--fg-color);
-  margin-bottom: 20px;
 }
 
-.sign_message-info_icon {
-  height: 12.5px;
+.sign__message-info-text {
+  display: flex;
+  margin-bottom: 20px;
+  font-size: 10px;
+  color: var(--fg-color);
+}
+
+.sign__message-info-icon {
   width: 12.5px;
+  height: 12.5px;
   margin-left: 6px;
 }
 
-.sign_message-arrow_icon {
+.sign__message-arrow-icon {
   width: 7px;
   height: 3px;
   margin-left: 6px;
   transition: all 0.5s;
 }
 
-.sign_message-button_container {
-  width: 100%;
+.sign__message-button-container {
   display: flex;
   justify-content: space-around;
+  width: 100%;
 }
 
-.sign_message_button-reject,
-.sign_message_button-approve {
+.sign__message-button-reject,
+.sign__message-button-approve {
   flex: 1;
-  font-weight: 600;
-  font-size: 14px;
+  height: 40px;
   padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
   border: 2px solid #101010;
   border-radius: 10px;
-  text-transform: uppercase;
-  height: 40px;
 }
 
-.sign_message_button-reject:hover,
-.sign_message_button-approve:hover {
-  transform: scale(1.05, 1.05);
-  transition: all 0.5s;
-}
-
-.sign_message_button-reject {
+.sign__message-button-reject {
   margin-right: 5px;
-  border-color: var(--outlined-button-border-color);
   color: var(--outlined-button-fg-color);
+  border-color: var(--outlined-button-border-color);
 }
 
-.sign_message_button-approve {
+.sign__message-button-approve {
   margin-left: 5px;
-  background-color: var(--filled-button-bg-color);
-  text-transform: uppercase;
   color: var(--filled-button-fg-color);
+  text-transform: uppercase;
+  background-color: var(--filled-button-bg-color);
 }
 
-.arrow_up {
+.sign__message-button-reject:hover,
+.sign__message-button-approve:hover {
+  transition: all 0.5s;
+  transform: scale(1.05, 1.05);
+}
+
+.arrow__up {
   transform: rotate(180deg);
 }
 </style>

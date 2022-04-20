@@ -5,18 +5,18 @@ const getImage = useImage()
 </script>
 
 <template>
-  <div class="no-requests_container">
+  <div class="no-requests__container">
     <img
       :src="getImage('green-tick')"
       alt="Tick Icon"
-      class="no-requests_img"
+      class="no-requests__img"
     />
-    <p class="no-requests_text">No Pending Requests!</p>
+    <p class="no-requests__text">No Pending Requests!</p>
   </div>
 </template>
 
 <style scoped>
-.no-requests_container {
+.no-requests__container {
   display: flex;
   flex-direction: column;
   align-content: center;
@@ -24,17 +24,16 @@ const getImage = useImage()
   height: 100%;
 }
 
-.no-requests_img {
-  height: 40px;
+.no-requests__img {
   width: 40px;
+  height: 40px;
   margin: 0 auto;
-
   margin-bottom: 20px;
 }
 
-.no-requests_text {
-  font-weight: 600;
+.no-requests__text {
   font-size: 20px;
+  font-weight: 600;
   text-align: center;
 }
 </style>

@@ -23,32 +23,32 @@ const oauthLoginList = [
 </script>
 
 <template>
-  <div class="wallet_signin-oauth-container">
-    <p class="wallet_signin-oauth-text">Or sign in with</p>
+  <div class="wallet__signin-oauth-container">
+    <p class="wallet__signin-oauth-text">Or sign in with</p>
     <button
       v-for="oauth in oauthLoginList"
       :key="oauth.value"
       @click="emits('oauthClick', oauth.value)"
     >
-      <img class="wallet_signin-oauth-icon" :src="oauth.iconPath" />
+      <img class="wallet__signin-oauth-icon" :src="oauth.iconPath" />
     </button>
   </div>
 </template>
 
 <style scoped>
-.wallet_signin-oauth-container {
+.wallet__signin-oauth-container {
   display: flex;
-  justify-content: space-around;
   align-items: center;
+  justify-content: space-around;
   width: 200px;
 }
 
-.wallet_signin-oauth-text {
+.wallet__signin-oauth-text {
   font-size: 10px;
   font-weight: 400;
 }
 
-.wallet_signin-oauth-icon {
+.wallet__signin-oauth-icon {
   width: 24px;
   height: 24px;
 }

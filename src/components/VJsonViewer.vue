@@ -10,9 +10,9 @@ const props = defineProps({
 
 <style lang="scss">
 .json-viewer {
-  background: transparent;
-  font-weight: 400;
   font-size: 10px;
+  font-weight: 400;
+  background: transparent;
 
   .jv-code {
     padding: 0;

@@ -26,18 +26,17 @@ const userStore = useUserStore()
 
 <style scoped>
 .footer {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  position: relative;
 }
 
 .footer__poweredby-container {
-  flex: 1;
   display: flex;
-  justify-content: center;
+  flex: 1;
   align-items: center;
+  justify-content: center;
 }
 
 .footer__poweredby-container * + * {
@@ -45,17 +44,17 @@ const userStore = useUserStore()
 }
 
 .footer__poweredby-text {
-  font-weight: 400;
   font-size: 12px;
+  font-weight: 400;
 }
 
 .footer__poweredby-img {
-  height: 15px;
   width: 60px;
+  height: 15px;
 }
 
 .footer__profileicon-link {
   position: absolute;
-  right: 0px;
+  right: 0;
 }
 </style>
