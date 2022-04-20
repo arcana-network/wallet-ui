@@ -48,7 +48,7 @@ async function handleOauth(type) {
           placeholder="someone@example.com"
         />
       </div>
-      <button class="wallet__signin-button">Send magic link</button>
+      <button class="wallet_signin-button">Send link</button>
     </div>
     <div class="wallet__signin-footer">
       <OauthLogin @oauth-click="handleOauth" />
