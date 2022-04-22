@@ -26,7 +26,6 @@ async function handleOauth(type) {
     await user.handleLogin(authProvider, type)
     router.push('/')
   } catch (error) {
-    console.log(error)
     user.$reset() // resets user store if login fails
   }
 }
