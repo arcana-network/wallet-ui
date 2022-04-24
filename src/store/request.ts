@@ -15,10 +15,11 @@ export const useRequestStore = defineStore('request', {
     },
   },
   actions: {
-    addRequests(request, isPermissionRequired) {
+    addRequests(request, isPermissionRequired, receivedTime) {
       if (isPermissionRequired) {
         this.pendingRequests[request.id] = {
           request,
+          receivedTime,
           isPermissionGranted: false,
         }
       } else {
