@@ -12,7 +12,7 @@ export const useUserStore = defineStore('user', {
       const walletAddressLength = walletAddress && walletAddress.length
       return (
         walletAddress &&
-        `${walletAddress.slice(1, 7)}....${walletAddress.slice(
+        `${walletAddress.slice(0, 7)}....${walletAddress.slice(
           walletAddressLength - 7
         )}`
       )
