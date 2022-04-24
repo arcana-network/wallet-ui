@@ -67,7 +67,7 @@ async function handleOauth(type) {
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  padding: 20px 15px;
+  padding: var(--p-500) var(--p-400);
 }
 
 .wallet__signin-body {
@@ -95,14 +95,14 @@ async function handleOauth(type) {
   margin-bottom: 20px;
 }
 
-.wallet__signin-title {
-  font-size: 20px;
+.signin__title {
+  font-size: var(--fs-500);
   font-weight: 600;
   text-align: center;
 }
 
-.wallet__signin-desc {
-  font-size: 14px;
+.signin__desc {
+  font-size: var(--fs-350);
   font-weight: 400;
   text-align: center;
 }
@@ -117,15 +117,16 @@ async function handleOauth(type) {
 .wallet__signin-input-label {
   margin-bottom: 10px;
   margin-left: 15px;
-  font-size: 14px;
+  font-size: var(--fs-300);
   font-weight: 400;
 }
 
 .wallet__signin-input-field {
   height: 45px;
-  padding: 0 16px;
-  font-size: 14px;
+  padding: 0 var(--p-400);
+  font-size: var(--fs-350);
   font-weight: 400;
+  color: var(--fg-color);
   background: var(--debossed-box-color);
   border: none;
   border-radius: 10px;
@@ -134,8 +135,7 @@ async function handleOauth(type) {
 
 .wallet__signin-button {
   width: 100%;
-  height: 40px;
-  font-size: 14px;
+  font-size: var(--fs-350);
   font-weight: 600;
   color: var(--filled-button-fg-color);
   text-transform: uppercase;
@@ -148,8 +148,8 @@ async function handleOauth(type) {
   transform: scale(1.05, 1.15);
 }
 
-.wallet__signin-signup-text {
-  font-size: 12px;
+.signin__signup-text {
+  font-size: var(--fs-300);
   font-weight: 600;
 }
 

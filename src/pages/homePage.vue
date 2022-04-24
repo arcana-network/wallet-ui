@@ -127,13 +127,12 @@ function onCloseClick() {
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  padding: 20px 15px;
+  padding: var(--p-500) var(--p-400);
 }
 
 .wallet__home-title {
   width: 100%;
-  margin-bottom: 15px;
-  font-size: 20px;
+  font-size: var(--fs-500);
   font-weight: 600;
   text-align: left;
 }
@@ -143,8 +142,7 @@ function onCloseClick() {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 20px;
-  margin-bottom: 15px;
+  padding: var(--p-400);
   color: var(--fg-color);
   text-align: center;
   text-align: left;
@@ -159,14 +157,14 @@ function onCloseClick() {
 
 .wallet__home-body-content-label {
   margin-bottom: 4px;
-  font-size: 12px;
+  font-size: var(--fs-300);
   font-weight: 400;
 }
 
 .wallet__home-body-content-value {
   display: flex;
   align-items: center;
-  font-size: 16px;
+  font-size: var(--fs-400);
   font-weight: 400;
 }
 
@@ -179,6 +177,7 @@ function onCloseClick() {
 .wallet__home-footer {
   display: flex;
   width: 100%;
+  font-size: var(--fs-350);
 }
 
 .wallet__home-footer-button-outline {

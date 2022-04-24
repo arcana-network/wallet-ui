@@ -44,7 +44,7 @@ const userStore = useUserStore()
 }
 
 .footer__poweredby-text {
-  font-size: 12px;
+  font-size: var(--fs-300);
   font-weight: 400;
 }
 

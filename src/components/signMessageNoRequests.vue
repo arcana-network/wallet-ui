@@ -32,7 +32,7 @@ const getImage = useImage()
 }
 
 .no-requests__text {
-  font-size: 20px;
+  font-size: var(--fs-500);
   font-weight: 600;
   text-align: center;
 }
