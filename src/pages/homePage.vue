@@ -83,45 +83,45 @@ function onCloseClick() {
 </script>
 
 <template>
-  <div class="wallet__home-container">
-    <h1 class="wallet__home-title">Welcome</h1>
-    <div class="wallet__home-body-container">
-      <div class="wallet__home-body-content">
-        <p class="wallet__home-body-content-label">Name</p>
-        <p class="wallet__home-body-content-value">{{ name }}</p>
+  <div class="home__container flow-container">
+    <h1 class="home__title">Welcome</h1>
+    <div class="home__body-container flow-element">
+      <div class="home__body-content">
+        <p class="home__body-content-label">Name</p>
+        <p class="home__body-content-value">{{ name }}</p>
       </div>
-      <div class="wallet__home-body-content">
-        <p class="wallet__home-body-content-label">Email ID</p>
-        <p class="wallet__home-body-content-value">{{ email }}</p>
+      <div class="home__body-content">
+        <p class="home__body-content-label">Email ID</p>
+        <p class="home__body-content-value">{{ email }}</p>
       </div>
-      <div class="wallet__home-body-content">
-        <p class="wallet__home-body-content-label">Wallet Address</p>
-        <p class="wallet__home-body-content-value">
+      <div class="home__body-content">
+        <p class="home__body-content-label">Wallet Address</p>
+        <p class="home__body-content-value">
           <span>{{ walletAddressShrinked }}</span>
           <input id="wallet-address" type="hidden" :value="walletAddress" />
           <button @click.stop.prevent="onCopyClick">
             <img
               :src="getImage('copy-icon')"
               alt="copy icon"
-              class="wallet__home-body-copy-icon"
+              class="home__body-copy-icon"
             />
           </button>
         </p>
       </div>
     </div>
-    <div class="wallet_home-footer">
-      <button class="wallet__home-footer-button-outline" @click="onLogoutClick">
+    <div class="home__footer">
+      <button class="home__footer-button-outline" @click="onLogoutClick">
         Logout
       </button>
-      <button class="wallet__home-footer-button-filled" @click="onCloseClick">
+      <button class="home__footer-button-filled" @click="onCloseClick">
         Close
       </button>
     </div>
   </div>
 </template>
 
-<style>
-.wallet__home-container {
+<style scoped>
+.home__container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -130,14 +130,14 @@ function onCloseClick() {
   padding: var(--p-500) var(--p-400);
 }
 
-.wallet__home-title {
+.home__title {
   width: 100%;
   font-size: var(--fs-500);
   font-weight: 600;
   text-align: left;
 }
 
-.wallet__home-body-container {
+.home__body-container {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -151,36 +151,32 @@ function onCloseClick() {
   box-shadow: var(--debossed-shadow);
 }
 
-.wallet__home-body-container > * {
-  margin-bottom: 20px;
-}
-
-.wallet__home-body-content-label {
+.home__body-content-label {
   margin-bottom: 4px;
   font-size: var(--fs-300);
   font-weight: 400;
 }
 
-.wallet__home-body-content-value {
+.home__body-content-value {
   display: flex;
   align-items: center;
   font-size: var(--fs-400);
   font-weight: 400;
 }
 
-.wallet__home-body-copy-icon {
+.home__body-copy-icon {
   width: 16px;
   height: 16px;
   margin-left: 12px;
 }
 
-.wallet__home-footer {
+.home__footer {
   display: flex;
   width: 100%;
   font-size: var(--fs-350);
 }
 
-.wallet__home-footer-button-outline {
+.home__footer-button-outline {
   flex: 1;
   margin-right: 5px;
   color: var(--outlined-button-fg-color);
@@ -189,9 +185,8 @@ function onCloseClick() {
   border-radius: 10px;
 }
 
-.wallet__home-footer-button-filled {
+.home__footer-button-filled {
   flex: 1;
-  height: 40px;
   margin-left: 5px;
   color: var(--filled-button-fg-color);
   background-color: var(--filled-button-bg-color);

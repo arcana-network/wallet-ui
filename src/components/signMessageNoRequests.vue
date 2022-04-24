@@ -22,6 +22,8 @@ const getImage = useImage()
   align-content: center;
   justify-content: center;
   height: 100%;
+  background-color: var(--container-bg-color);
+  box-shadow: none;
 }
 
 .no-requests__img {

@@ -52,4 +52,11 @@ const oauthLoginList = [
   width: 24px;
   height: 24px;
 }
+
+@media (max-width: 235px) {
+  .wallet__signin-oauth-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
 </style>

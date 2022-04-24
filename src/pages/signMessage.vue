@@ -31,7 +31,7 @@ const showAdvancedInfo = ref(false)
       :key="request.id"
       class="sign__message-container"
     >
-      <div class="sign__message-body">
+      <div class="sign__message-body flow-element">
         <div class="sign__message-title-container">
           <h1 class="sign__message-title">Sign Message</h1>
           <time class="sign__message-datetime">27 Jul 21, 7:21 pm</time>
@@ -101,7 +101,6 @@ const showAdvancedInfo = ref(false)
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-bottom: 15px;
 }
 
 .sign__message-footer {
@@ -109,13 +108,11 @@ const showAdvancedInfo = ref(false)
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
 }
 
 .sign__message-title-container {
   display: flex;
   align-items: baseline;
-  margin-bottom: 15px;
 }
 
 .sign__message-title {
@@ -139,6 +136,9 @@ const showAdvancedInfo = ref(false)
 }
 
 .sign__message-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 80px;
   font-size: var(--fs-400);
   font-weight: 600;
@@ -216,5 +216,11 @@ const showAdvancedInfo = ref(false)
 
 .arrow__up {
   transform: rotate(180deg);
+}
+
+@media (max-width: 235px) {
+  .sign__message-text {
+    height: 40px;
+  }
 }
 </style>

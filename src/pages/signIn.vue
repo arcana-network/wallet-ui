@@ -33,66 +33,58 @@ async function handleOauth(type) {
 </script>
 
 <template>
-  <div class="wallet__signin-container">
-    <div class="wallet__signin-body">
-      <div class="wallet__signin-title-desc">
-        <h1 class="wallet__signin-title">Welcome</h1>
-        <p class="wallet__signin-desc">
+  <div class="signin__container">
+    <div class="signin__body flow-container">
+      <div class="signin__title-desc flow-element">
+        <h1 class="signin__title">Welcome</h1>
+        <p class="signin__desc">
           We’ll email you a magic link for a password-free sign in.
         </p>
       </div>
-      <div class="wallet__signin-input-container">
-        <label class="wallet__signin-input-label">Email</label>
-        <input
-          class="wallet__signin-input-field"
-          placeholder="someone@example.com"
-        />
+      <div class="signin__input-container flow-element">
+        <label class="signin__input-label">Email</label>
+        <input class="signin__input-field" placeholder="someone@example.com" />
       </div>
-      <button class="wallet_signin-button">Send link</button>
+      <button class="signin__button">Send link</button>
     </div>
-    <div class="wallet__signin-footer">
+    <div class="signin__footer">
       <OauthLogin @oauth-click="handleOauth" />
-      <p class="wallet__signin-signup-text">
-        New to Arcana?
-        <button class="wallet__signin-signup-cta">Sign Up</button>
-      </p>
     </div>
   </div>
 </template>
 
 <style scoped>
-.wallet__signin-container {
+.signin__container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   height: 100%;
   padding: var(--p-500) var(--p-400);
 }
 
-.wallet__signin-body {
+.signin__container > *:not(:first-child) {
+  margin-top: 80px;
+}
+
+.signin__body {
   display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.wallet__signin-footer {
+.signin__footer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 62px;
-  margin-top: 60px;
 }
 
-.wallet__signin-title-desc {
+.signin__title-desc {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 76px;
-  margin-bottom: 20px;
 }
 
 .signin__title {
@@ -107,21 +99,19 @@ async function handleOauth(type) {
   text-align: center;
 }
 
-.wallet__signin-input-container {
+.signin__input-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 30px;
 }
 
-.wallet__signin-input-label {
-  margin-bottom: 10px;
+.signin__input-label {
   margin-left: 15px;
   font-size: var(--fs-300);
   font-weight: 400;
 }
 
-.wallet__signin-input-field {
+.signin__input-field {
   height: 45px;
   padding: 0 var(--p-400);
   font-size: var(--fs-350);
@@ -130,10 +120,11 @@ async function handleOauth(type) {
   background: var(--debossed-box-color);
   border: none;
   border-radius: 10px;
+  outline: none;
   box-shadow: var(--debossed-shadow);
 }
 
-.wallet__signin-button {
+.signin__button {
   width: 100%;
   font-size: var(--fs-350);
   font-weight: 600;
@@ -143,21 +134,14 @@ async function handleOauth(type) {
   border-radius: 10px;
 }
 
-.wallet__signin-button:hover {
+.signin__button:hover {
   transition: all 0.5s;
   transform: scale(1.05, 1.15);
 }
 
-.signin__signup-text {
-  font-size: var(--fs-300);
-  font-weight: 600;
-}
-
-.wallet__signin-signup-cta {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--fg-color);
-  text-decoration-line: underline;
-  text-transform: uppercase;
+@media (max-width: 235px) {
+  .signin__container > *:not(:first-child) {
+    margin-top: 30px;
+  }
 }
 </style>
