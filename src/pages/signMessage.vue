@@ -1,4 +1,5 @@
 <script setup>
+import dayjs from 'dayjs'
 import { ref, toRefs } from 'vue'
 
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
@@ -34,7 +35,9 @@ const showAdvancedInfo = ref(false)
       <div class="sign__message-body">
         <div class="sign__message-title-container">
           <h1 class="sign__message-title">Sign Message</h1>
-          <time class="sign__message-datetime">27 Jul 21, 7:21 pm</time>
+          <time class="sign__message-datetime">{{
+            dayjs(request.receivedTime).format('DD MMM YY, hh:mm a')
+          }}</time>
         </div>
         <p class="sign__message-permission">
           DropBox.com requests your permission to perform the following action:

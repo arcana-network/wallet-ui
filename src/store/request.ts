@@ -7,7 +7,10 @@ export const useRequestStore = defineStore('request', {
   }),
   getters: {
     pendingRequestsForApproval(state) {
-      return Object.values(state.pendingRequests).map((item) => item.request)
+      return Object.values(state.pendingRequests).map((item) => ({
+        ...item.request,
+        receivedTime: item.receivedTime,
+      }))
     },
     areRequestsPendingForApproval(state) {
       const requests = Object.values(state.pendingRequests)
