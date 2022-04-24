@@ -36,10 +36,10 @@ getAppTheme()
 
 <template>
   <div
-    class="wallet_container"
+    class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <div class="wallet_body">
+    <div class="wallet__body">
       <RouterView />
     </div>
     <WalletFooter />
@@ -68,12 +68,45 @@ getAppTheme()
     inset 1px 1px 2px rgb(174 174 192 / 20%);
   --box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
     inset 5px 5px 10px rgb(11 11 11 / 50%);
-  --debossed-light-color: #eee;
+  --debossed-light-color: #eeeeee;
   --debossed-dark-color: #161616;
   --debossed-box-shadow-light: inset -1px -1px 1px rgb(255 255 255 / 70%),
     inset 1px 1px 2px rgb(174 174 192 / 20%);
   --debossed-box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
     inset 5px 5px 10px rgb(11 11 11 / 50%);
+  --fs-500: 20px;
+  --fs-550: 18px;
+  --fs-400: 16px;
+  --fs-350: 14px;
+  --fs-300: 12px;
+  --fs-250: 10px;
+  --p-500: 20px;
+  --p-450: 18px;
+  --p-400: 16px;
+  --p-350: 14px;
+  --p-300: 12px;
+  --p-250: 10px;
+  --flow-space-container: 30px;
+  --flow-space-element: 20px;
+}
+
+@media (max-width: 235px) {
+  :root {
+    --fs-500: 16px;
+    --fs-450: 14px;
+    --fs-400: 12px;
+    --fs-350: 10px;
+    --fs-300: 8px;
+    --fs-250: 6px;
+    --p-500: 16px;
+    --p-550: 14px;
+    --p-400: 12px;
+    --p-350: 10px;
+    --p-300: 8px;
+    --p-250: 6px;
+    --flow-space-container: 15px;
+    --flow-space-element: 10px;
+  }
 }
 
 .light-mode {
@@ -104,7 +137,11 @@ getAppTheme()
 
 body {
   font-family: Sora, sans-serif;
-  line-height: 1.5;
+  height: 100vh;
+}
+
+#app {
+  height: 100%;
 }
 
 button {
@@ -113,26 +150,44 @@ button {
   background: transparent;
   border: none;
   outline: none;
+  height: 40px;
+}
+
+@media (max-width: 235px) {
+  button {
+    height: 30px;
+  }
+}
+
+.flow-container > *:not(:first-child) {
+  margin-top: var(--flow-space-container);
+}
+
+.flow-element > *:not(:first-child) {
+  margin-top: var(--flow-space-element);
 }
 
 .wallet__container {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 360px;
-  height: 490px;
-  padding: 16px;
+  height: 100%;
+  padding: var(--p-400);
   color: var(--fg-color);
   background: var(--container-bg-color);
+  overflow: hidden;
+}
+
+.wallet__container > * + * {
+  margin-top: 10px;
 }
 
 .wallet__body {
-  width: 330px;
-  height: 400px;
-  margin: 0 auto;
+  flex: 1;
   background: var(--content-bg-color);
   border-radius: 10px;
   box-shadow: 4px 5px 4px rgb(0 0 0 / 25%);
+  overflow: auto;
 }
 
 .v-popper--theme-tooltip {
@@ -142,7 +197,7 @@ button {
 .v-popper__inner {
   width: 230px;
   height: 110px;
-  font-size: 10px;
+  font-size: var(--fs-300);
   font-weight: 400;
   color: #f9f9f9;
   background-color: #101010;
