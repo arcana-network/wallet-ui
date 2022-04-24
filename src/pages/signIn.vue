@@ -52,10 +52,6 @@ async function handleOauth(type) {
     </div>
     <div class="wallet__signin-footer">
       <OauthLogin @oauth-click="handleOauth" />
-      <p class="wallet__signin-signup-text">
-        New to Arcana?
-        <button class="wallet__signin-signup-cta">Sign Up</button>
-      </p>
     </div>
   </div>
 </template>
