@@ -7,7 +7,10 @@ const userStore = useUserStore()
 </script>
 
 <template>
-  <footer class="footer">
+  <footer
+    class="footer"
+    :class="{ 'footer--space-between': userStore.isLoggedIn }"
+  >
     <div class="footer__poweredby-container">
       <p class="footer__poweredby-text">Powered by</p>
       <a href="https://arcana.network/" target="_blank">
@@ -15,11 +18,15 @@ const userStore = useUserStore()
       </a>
     </div>
     <router-link
-      v-show="userStore.isLoggedIn"
+      v-if="userStore.isLoggedIn"
       to="/"
       class="footer__profileicon-link"
     >
-      <img :src="getImage('profile-icon')" alt="profile-icon" />
+      <img
+        :src="getImage('profile-icon')"
+        alt="profile-icon"
+        class="footer__profileicon-img"
+      />
     </router-link>
   </footer>
 </template>
@@ -29,12 +36,12 @@ const userStore = useUserStore()
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  height: 20px;
 }
 
 .footer__poweredby-container {
   display: flex;
-  flex: 1;
   align-items: center;
   justify-content: center;
 }
@@ -44,7 +51,7 @@ const userStore = useUserStore()
 }
 
 .footer__poweredby-text {
-  font-size: 12px;
+  font-size: var(--fs-300);
   font-weight: 400;
 }
 
@@ -53,8 +60,12 @@ const userStore = useUserStore()
   height: 15px;
 }
 
-.footer__profileicon-link {
-  position: absolute;
-  right: 0;
+.footer__profileicon-img {
+  width: 20px;
+  height: 20px;
+}
+
+.footer--space-between {
+  justify-content: space-between;
 }
 </style>

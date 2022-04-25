@@ -22,6 +22,8 @@ const getImage = useImage()
   align-content: center;
   justify-content: center;
   height: 100%;
+  background-color: var(--container-bg-color);
+  box-shadow: none;
 }
 
 .no-requests__img {
@@ -32,7 +34,7 @@ const getImage = useImage()
 }
 
 .no-requests__text {
-  font-size: 20px;
+  font-size: var(--fs-500);
   font-weight: 600;
   text-align: center;
 }
