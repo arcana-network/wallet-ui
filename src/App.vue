@@ -1,20 +1,35 @@
 <script setup>
 import { connectToParent } from 'penpal'
 import { toRefs, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
+const router = useRouter()
 
 const connectionWithoutLogin = connectToParent({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
+    triggerLogin: handleLoginRequest,
   },
 })
+
+async function handleLoginRequest(type) {
+  const authProvider = getAuthProvider(`${app.id}`)
+  try {
+    await user.handleLogin(authProvider, type)
+    router.push('/')
+  } catch (error) {
+    console.log(error)
+    user.$reset() // resets user store if login fails
+  }
+}
 
 async function getAppTheme() {
   const connectionInstance = await connectionWithoutLogin.promise
