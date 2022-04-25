@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
-import { toRefs, watch } from 'vue'
+import { toRefs, watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -13,6 +13,7 @@ const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
 const router = useRouter()
+const isLoading = ref(false)
 
 const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
   methods: {
@@ -34,8 +35,10 @@ async function handleLoginRequest(type) {
 
 async function getAppTheme() {
   const connectionInstance = await connectionWithoutLogin.promise
+  isLoading.value = true
   const { theme } = await connectionInstance.getThemeConfig()
   app.setTheme(theme)
+  isLoading.value = false
 }
 
 watch(
@@ -51,7 +54,10 @@ getAppTheme()
 </script>
 
 <template>
+  <div v-if="isLoading">loading...</div>
+  <!-- TODO: Replace it with loading indicator -->
   <div
+    v-else
     class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
