@@ -20,13 +20,10 @@ export const useRequestStore = defineStore('request', {
       processQueue: [],
     } as RequestState),
   getters: {
-    pendingRequestsForApproval(state) {
-      return Object.values(state.pendingRequests).map((item) => ({
-        ...item.request,
-        receivedTime: item.receivedTime,
-      }))
+    pendingRequestsForApproval({ pendingRequests }): PendingRequest[] {
+      return Object.values(pendingRequests)
     },
-    areRequestsPendingForApproval(state: RequestState) {
+    areRequestsPendingForApproval(state: RequestState): boolean {
       const requests = Object.values(state.pendingRequests)
       return requests.length > 0
     },
@@ -36,7 +33,7 @@ export const useRequestStore = defineStore('request', {
       request: Request,
       isPermissionRequired: boolean,
       receivedTime: Date
-    ) {
+    ): void {
       if (isPermissionRequired) {
         this.pendingRequests[request.id] = {
           request,
@@ -47,12 +44,12 @@ export const useRequestStore = defineStore('request', {
         this.processQueue.push({ request, isPermissionGranted: true })
       }
     },
-    approveRequest(requestId: string) {
+    approveRequest(requestId: string): void {
       this.pendingRequests[requestId].isPermissionGranted = true
       this.processQueue.push(this.pendingRequests[requestId])
       delete this.pendingRequests[requestId]
     },
-    rejectRequest(requestId: string) {
+    rejectRequest(requestId: string): void {
       this.pendingRequests[requestId].isPermissionGranted = false
       this.processQueue.push(this.pendingRequests[requestId])
       delete this.pendingRequests[requestId]
