@@ -18,10 +18,8 @@ import {
 } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
-import type { Wallet } from '@/models/Wallet'
-
 export class AccountHandler {
-  wallets: Wallet[]
+  wallets: ethers.Wallet[]
   privateKey: string
   provider: ethers.providers.JsonRpcProvider
 

@@ -28,8 +28,8 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async handleLogin(
-      authProvider: Auth,
-      loginType: LoginTypes
+      authProvider: AuthProvider,
+      loginType: LoginType
     ): Promise<void> {
       if (authProvider.isLoggedIn()) return
       await authProvider.loginWithSocial(loginType)
@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
       this.privateKey = privateKey
       this.info = userInfo
     },
-    async handleLogout(authProvider: Auth): Promise<void> {
+    async handleLogout(authProvider: AuthProvider): Promise<void> {
       await authProvider.logout()
       this.$reset()
     },

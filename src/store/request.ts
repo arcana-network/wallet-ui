@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { Request } from '@/models/Request'
+import type { Request } from '@/models/Connection'
 
 type PendingRequest = {
   request: Request
@@ -22,13 +22,13 @@ export const useRequestStore = defineStore('request', {
     pendingRequestsForApproval(state: RequestState): Request[] {
       return Object.values(state.pendingRequests).map((item) => item.request)
     },
-    areRequestsPendingForApproval(state) {
+    areRequestsPendingForApproval(state: RequestState) {
       const requests = Object.values(state.pendingRequests)
       return requests.length > 0
     },
   },
   actions: {
-    addRequests(request, isPermissionRequired) {
+    addRequests(request: Request, isPermissionRequired: boolean) {
       if (isPermissionRequired) {
         this.pendingRequests[request.id] = {
           request,
@@ -38,12 +38,12 @@ export const useRequestStore = defineStore('request', {
         this.processQueue.push({ request, isPermissionGranted: true })
       }
     },
-    approveRequest(requestId) {
+    approveRequest(requestId: string) {
       this.pendingRequests[requestId].isPermissionGranted = true
       this.processQueue.push(this.pendingRequests[requestId])
       delete this.pendingRequests[requestId]
     },
-    rejectRequest(requestId) {
+    rejectRequest(requestId: string) {
       this.pendingRequests[requestId].isPermissionGranted = false
       this.processQueue.push(this.pendingRequests[requestId])
       delete this.pendingRequests[requestId]

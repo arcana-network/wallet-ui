@@ -1,6 +1,10 @@
-import type { ParentConnectionApi } from '@/models/Connection'
-import type { PERMISSIONS, RequestMethod, Request } from '@/models/Request'
-import type { Response } from '@/models/Response'
+import type {
+  ParentConnectionApi,
+  PERMISSIONS,
+  RequestMethod,
+  Request,
+  Response,
+} from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
 
 export class Keeper {
