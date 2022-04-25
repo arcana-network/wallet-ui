@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()

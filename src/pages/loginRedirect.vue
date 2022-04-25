@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { AuthProvider } from '@arcana/auth'
 
 AuthProvider.handleRedirectPage('*')
