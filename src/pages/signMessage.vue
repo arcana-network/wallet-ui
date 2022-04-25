@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { ref, toRefs } from 'vue'
 
+import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useRequestStore } from '@/store/request'
@@ -28,21 +28,21 @@ const showAdvancedInfo = ref(false)
 <template>
   <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
     <div
-      v-for="request in pendingRequestsForApproval"
-      :key="request.id"
+      v-for="pendingRequest in pendingRequestsForApproval"
+      :key="pendingRequest.request.id"
       class="sign__message-container"
     >
       <div class="sign__message-body flow-element">
         <div class="sign__message-title-container">
           <h1 class="sign__message-title">Sign Message</h1>
-          <time class="sign__message-datetime">{{
-            dayjs(request.receivedTime).format('DD MMM YY, hh:mm a')
-          }}</time>
+          <DateTime :datetime="pendingRequest.receivedTime" />
         </div>
         <p class="sign__message-permission">
           DropBox.com requests your permission to perform the following action:
         </p>
-        <p class="sign__message-text">{{ methodAndAction[request.method] }}</p>
+        <p class="sign__message-text">
+          {{ methodAndAction[pendingRequest.request.method] }}
+        </p>
         <button
           class="sign__message-view-info"
           @click="showAdvancedInfo = !showAdvancedInfo"
@@ -56,7 +56,7 @@ const showAdvancedInfo = ref(false)
         </button>
         <SignMessageAdvancedInfo
           v-if="showAdvancedInfo"
-          :info="request.params"
+          :info="pendingRequest.request.params"
         />
       </div>
       <div class="sign__message-footer">
@@ -69,13 +69,13 @@ const showAdvancedInfo = ref(false)
         <div class="sign__message-button-container">
           <button
             class="sign__message-button-reject"
-            @click="onRejectClick(request.id)"
+            @click="onRejectClick(pendingRequest.request.id)"
           >
             Reject
           </button>
           <button
             class="sign__message-button-approve"
-            @click="onApproveClick(request.id)"
+            @click="onApproveClick(pendingRequest.request.id)"
           >
             Approve
           </button>
@@ -123,14 +123,6 @@ const showAdvancedInfo = ref(false)
   margin: 0;
   font-size: var(--fs-450);
   font-weight: 600;
-}
-
-.sign__message-datetime {
-  flex: 1;
-  font-size: var(--fs-300);
-  font-weight: 300;
-  color: #8d8d8d;
-  text-align: right;
 }
 
 .sign__message-permission {
