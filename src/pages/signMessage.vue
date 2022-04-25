@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref, toRefs } from 'vue'
 
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'

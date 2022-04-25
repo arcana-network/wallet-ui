@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { connectToParent } from 'penpal'
 import { toRefs, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
+import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -13,7 +14,7 @@ const app = useAppStore()
 const { theme } = toRefs(app)
 const router = useRouter()
 
-const connectionWithoutLogin = connectToParent({
+const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
     triggerLogin: handleLoginRequest,
@@ -21,7 +22,7 @@ const connectionWithoutLogin = connectToParent({
 })
 
 async function handleLoginRequest(type) {
-  const authProvider = getAuthProvider(`${app.id}`)
+  const authProvider = getAuthProvider(app.id)
   try {
     await user.handleLogin(authProvider, type)
     router.push('/')
@@ -83,7 +84,7 @@ getAppTheme()
     inset 1px 1px 2px rgb(174 174 192 / 20%);
   --box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
     inset 5px 5px 10px rgb(11 11 11 / 50%);
-  --debossed-light-color: #eeeeee;
+  --debossed-light-color: #eee;
   --debossed-dark-color: #161616;
   --debossed-box-shadow-light: inset -1px -1px 1px rgb(255 255 255 / 70%),
     inset 1px 1px 2px rgb(174 174 192 / 20%);
@@ -151,8 +152,8 @@ getAppTheme()
 }
 
 body {
-  font-family: Sora, sans-serif;
   height: 100vh;
+  font-family: Sora, sans-serif;
 }
 
 #app {
@@ -160,18 +161,34 @@ body {
 }
 
 button {
+  height: 40px;
+
   /* TODO: Brainstrom on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
   cursor: pointer;
   background: transparent;
   border: none;
   outline: none;
-  height: 40px;
 }
 
 @media (max-width: 235px) {
   button {
     height: 30px;
   }
+}
+
+.wallet__container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  padding: var(--p-400);
+  overflow: hidden;
+  color: var(--fg-color);
+  background: var(--container-bg-color);
+}
+
+.wallet__container > * + * {
+  margin-top: 10px;
 }
 
 .flow-container > *:not(:first-child) {
@@ -182,27 +199,12 @@ button {
   margin-top: var(--flow-space-element);
 }
 
-.wallet__container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  height: 100%;
-  padding: var(--p-400);
-  color: var(--fg-color);
-  background: var(--container-bg-color);
-  overflow: hidden;
-}
-
-.wallet__container > * + * {
-  margin-top: 10px;
-}
-
 .wallet__body {
   flex: 1;
+  overflow: auto;
   background: var(--content-bg-color);
   border-radius: 10px;
   box-shadow: 4px 5px 4px rgb(0 0 0 / 25%);
-  overflow: auto;
 }
 
 .v-popper--theme-tooltip {

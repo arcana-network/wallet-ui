@@ -1,25 +1,36 @@
+import { AuthProvider } from '@arcana/auth'
+import type { LoginType, UserInfo } from '@arcana/auth/types/types'
 import { defineStore } from 'pinia'
 
+type UserState = {
+  isLoggedIn: boolean
+  info: UserInfo
+  privateKey: string
+  walletAddress: string
+}
+
 export const useUserStore = defineStore('user', {
-  state: () => ({
-    isLoggedIn: false,
-    info: null,
-    privateKey: null,
-    walletAddress: null,
-  }),
+  state: () =>
+    ({
+      isLoggedIn: false,
+      info: {},
+      privateKey: '',
+      walletAddress: '',
+    } as UserState),
   getters: {
-    walletAddressShrinked({ walletAddress }) {
-      const walletAddressLength = walletAddress && walletAddress.length
-      return (
-        walletAddress &&
-        `${walletAddress.slice(1, 7)}....${walletAddress.slice(
-          walletAddressLength - 7
-        )}`
-      )
+    walletAddressShrinked(state: UserState): string {
+      const { walletAddress } = state
+      const walletAddressLength = walletAddress.length
+      return `${walletAddress.slice(1, 7)}....${walletAddress.slice(
+        walletAddressLength - 7
+      )}`
     },
   },
   actions: {
-    async handleLogin(authProvider, loginType) {
+    async handleLogin(
+      authProvider: AuthProvider,
+      loginType: LoginType
+    ): Promise<void> {
       if (authProvider.isLoggedIn()) return
       await authProvider.loginWithSocial(loginType)
       this.isLoggedIn = authProvider.isLoggedIn()
@@ -27,11 +38,11 @@ export const useUserStore = defineStore('user', {
       this.privateKey = privateKey
       this.info = userInfo
     },
-    async handleLogout(authProvider) {
+    async handleLogout(authProvider: AuthProvider): Promise<void> {
       await authProvider.logout()
       this.$reset()
     },
-    setWalletAddress(walletAddress) {
+    setWalletAddress(walletAddress: string): void {
       this.walletAddress = walletAddress
     },
   },

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { SocialLoginType } from '@arcana/auth'
 
 import { useImage } from '@/utils/useImage'
