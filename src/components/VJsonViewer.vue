@@ -1,11 +1,14 @@
-<script setup>
-const props = defineProps({
-  value: JSON,
+<script setup lang="ts">
+defineProps({
+  value: {
+    type: Object,
+    required: true,
+  },
 })
 </script>
 
 <template>
-  <json-viewer :value="props.value" theme="json-viewer"></json-viewer>
+  <json-viewer :value="value" theme="json-viewer"></json-viewer>
 </template>
 
 <style lang="scss">

@@ -22,7 +22,6 @@ export const getWalletType = async (
 ) => {
   const appAddress = await getAppAddress(appId)
   if (!appAddress) {
-    console.log('App address not found')
     return null
   }
   const contract = getContract(rpcUrl, appAddress)
@@ -30,7 +29,6 @@ export const getWalletType = async (
     const res = await contract.functions.walletType()
     return res[0].toNumber()
   } catch (e) {
-    console.log({ e })
     return null
   }
 }

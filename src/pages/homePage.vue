@@ -1,9 +1,10 @@
-<script setup>
+<script setup lang="ts">
 import { connectToParent } from 'penpal'
 import { toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
@@ -33,7 +34,7 @@ const {
 } = user
 const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = app
-const authProvider = getAuthProvider(`${appId}`)
+const authProvider = getAuthProvider(appId)
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
@@ -48,7 +49,7 @@ async function connectionToParent() {
     router,
     requestStore
   )
-  const connectionInstance = await connectToParent({
+  const connectionInstance = await connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
     },
@@ -60,10 +61,10 @@ connectionToParent()
 
 function onCopyClick() {
   const walletAddressEl = document.getElementById('wallet-address')
-  walletAddressEl.setAttribute('type', 'text')
-  walletAddressEl.select()
-  document.execCommand('copy')
   try {
+    walletAddressEl.setAttribute('type', 'text')
+    walletAddressEl.select()
+    document.execCommand('copy')
     toast.success('Wallet address copied')
   } catch (e) {
     toast.error('Failed to copy wallet address')

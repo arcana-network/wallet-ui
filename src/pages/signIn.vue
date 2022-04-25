@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -18,15 +18,14 @@ const {
   },
 } = toRefs(route)
 
-app.setAppId(appId)
-const authProvider = getAuthProvider(`${appId}`)
+app.setAppId(`${appId}`)
+const authProvider = getAuthProvider(appId)
 
 async function handleOauth(type) {
   try {
     await user.handleLogin(authProvider, type)
     router.push('/')
   } catch (error) {
-    console.log(error)
     user.$reset() // resets user store if login fails
   }
 }

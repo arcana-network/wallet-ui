@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { Transaction } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -16,7 +19,11 @@ import {
 import { ethers } from 'ethers'
 
 export class AccountHandler {
-  constructor(privateKey) {
+  wallets: ethers.Wallet[]
+  privateKey: string
+  provider: ethers.providers.JsonRpcProvider
+
+  constructor(privateKey: string) {
     this.wallets = []
     this.privateKey = privateKey
     this.provider = new ethers.providers.JsonRpcProvider(
@@ -25,7 +32,7 @@ export class AccountHandler {
     this.addWallet(privateKey)
   }
 
-  addWallet(privateKey) {
+  addWallet(privateKey: string): void {
     const wallet = new ethers.Wallet(privateKey)
     if (this.wallets.find((w) => w.address === wallet.address)) {
       return
@@ -33,105 +40,134 @@ export class AccountHandler {
     this.wallets.push(wallet)
   }
 
-  getAccounts() {
+  getAccounts(): string[] {
     return this.wallets.map((w) => w.address)
   }
 
-  getWallet(address) {
+  getWallet(address: string): Wallet | undefined {
     return this.wallets.find(
       (w) => w.address.toUpperCase() === address.toUpperCase()
     )
   }
 
-  getPublicKey(address) {
+  getPublicKey(address: string): string {
     const wallet = this.getWallet(address)
-    const pub = privateToPublic(
-      Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-    )
-    return pub.toString('hex')
-  }
-
-  async requestSign(address, msg) {
-    try {
-      const wallet = this.getWallet(address)
-      const signature = ecsign(
-        setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+    if (wallet) {
+      const pub = privateToPublic(
         Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
       )
-      const rawMessageSig = concatSig(signature.v, signature.r, signature.s)
-      return rawMessageSig
-    } catch (e) {
-      console.log({ e })
-      return Promise.reject(e)
+      return pub.toString('hex')
+    } else {
+      throw new Error('No Wallet found for the provided address')
     }
   }
 
-  async requestPersonalSign(address, msg) {
+  async requestSign(address: string, msg: string): Promise<string> {
     try {
       const wallet = this.getWallet(address)
-      const signature = personalSign(
-        setLengthLeft(Buffer.from(stripHexPrefix(msg), 'utf8'), 32),
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-      )
-      return signature
-    } catch (e) {
-      return Promise.reject(e)
-    }
-  }
-
-  async requestSendTransaction(data, address) {
-    const wallet = this.getWallet(address)
-    const signer = wallet.connect(this.provider)
-    const tx = await signer.sendTransaction(data)
-    return tx.hash
-  }
-
-  async requestDecryption(ciphertext, address) {
-    try {
-      const wallet = this.getWallet(address)
-      const parsedCipher = cipher.parse(ciphertext)
-      const decryptedMessage = await decryptWithPrivateKey(
-        wallet.privateKey,
-        parsedCipher
-      )
-      return decryptedMessage
+      if (wallet) {
+        const signature = ecsign(
+          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+        )
+        const rawMessageSig = concatSig(
+          signature.v as unknown as Buffer,
+          signature.r,
+          signature.s
+        )
+        return rawMessageSig
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
     } catch (e) {
       return Promise.reject(e)
     }
   }
 
-  async requestSignTransaction(txData, address) {
+  async requestPersonalSign(address: string, msg: string) {
     try {
       const wallet = this.getWallet(address)
-      const transaction = Transaction.fromTxData(
-        {
+      if (wallet) {
+        const signature = personalSign(
+          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'utf8'), 32),
+          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+        )
+        return signature
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
+  async requestSendTransaction(data, address: string) {
+    try {
+      const wallet = this.getWallet(address)
+      if (wallet) {
+        const signer = wallet.connect(this.provider)
+        const tx = await signer.sendTransaction(data)
+        return tx.hash
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
+    } catch (e) {
+      return e
+    }
+  }
+
+  async requestDecryption(ciphertext: string, address: string) {
+    try {
+      const wallet = this.getWallet(address)
+      if (wallet) {
+        const parsedCipher = cipher.parse(ciphertext)
+        const decryptedMessage = await decryptWithPrivateKey(
+          wallet.privateKey,
+          parsedCipher
+        )
+        return decryptedMessage
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
+  async requestSignTransaction(txData, address: string) {
+    try {
+      const wallet = this.getWallet(address)
+      if (wallet) {
+        const transaction = Transaction.fromTxData({
           ...txData,
           value: new BN(txData.value, 10),
           gasPrice: new BN(txData.gasPrice, 10),
           gas: new BN(txData.gas, 10),
-        },
-        { chainId: this.provider.network.chainId }
-      )
-      const tx = transaction.sign(
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-      )
-      const raw = bufferToHex(tx.serialize())
-      return { raw, tx: tx.toJSON() }
+        })
+        const tx = transaction.sign(
+          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+        )
+        const raw = bufferToHex(tx.serialize())
+        return { raw, tx: tx.toJSON() }
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
     } catch (e) {
-      console.log({ e })
       return Promise.reject(e)
     }
   }
 
-  async requestSignTypedMessage(data, address) {
+  async requestSignTypedMessage(data, address: string) {
     const wallet = this.getWallet(address)
-
-    const parsedData = JSON.parse(data)
-    console.log({ parsedData })
-    const signature = signTypedDataV4(
-      Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-      { data: parsedData }
-    )
-    return signature
+    if (wallet) {
+      const parsedData = JSON.parse(data)
+      const signature = signTypedDataV4(
+        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        { data: parsedData }
+      )
+      return signature
+    } else {
+      throw new Error('No Wallet found for the provided address')
+    }
   }
 }
