@@ -44,12 +44,19 @@ const oauthLoginList = [
 }
 
 .wallet__signin-oauth-text {
-  font-size: 10px;
+  font-size: var(--fs-300);
   font-weight: 400;
 }
 
 .wallet__signin-oauth-icon {
   width: 24px;
   height: 24px;
+}
+
+@media (max-width: 235px) {
+  .wallet__signin-oauth-icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 </style>

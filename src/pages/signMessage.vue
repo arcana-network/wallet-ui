@@ -32,7 +32,7 @@ const showAdvancedInfo = ref(false)
       :key="request.id"
       class="sign__message-container"
     >
-      <div class="sign__message-body">
+      <div class="sign__message-body flow-element">
         <div class="sign__message-title-container">
           <h1 class="sign__message-title">Sign Message</h1>
           <time class="sign__message-datetime">{{
@@ -96,7 +96,7 @@ const showAdvancedInfo = ref(false)
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px 15px;
+  padding: var(--p-400);
   overflow: auto;
 }
 
@@ -104,7 +104,6 @@ const showAdvancedInfo = ref(false)
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding-bottom: 15px;
 }
 
 .sign__message-footer {
@@ -112,40 +111,39 @@ const showAdvancedInfo = ref(false)
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
 }
 
 .sign__message-title-container {
   display: flex;
   align-items: baseline;
-  margin-bottom: 15px;
 }
 
 .sign__message-title {
   flex: 1;
   margin: 0;
-  font-size: 20px;
+  font-size: var(--fs-450);
   font-weight: 600;
 }
 
 .sign__message-datetime {
   flex: 1;
-  font-size: 12px;
+  font-size: var(--fs-300);
   font-weight: 300;
   color: #8d8d8d;
   text-align: right;
 }
 
 .sign__message-permission {
-  margin-bottom: 20px;
-  font-size: 14px;
+  font-size: var(--fs-350);
   font-weight: 400;
 }
 
 .sign__message-text {
-  padding: 30px;
-  margin-bottom: 15px;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  font-size: var(--fs-400);
   font-weight: 600;
   color: var(--fg-color);
   text-align: center;
@@ -158,16 +156,15 @@ const showAdvancedInfo = ref(false)
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 15px;
-  font-size: 10px;
+  font-size: var(--fs-300);
   font-weight: 600;
   color: var(--fg-color);
 }
 
 .sign__message-info-text {
   display: flex;
-  margin-bottom: 20px;
-  font-size: 10px;
+  align-items: center;
+  font-size: var(--fs-300);
   color: var(--fg-color);
 }
 
@@ -193,9 +190,8 @@ const showAdvancedInfo = ref(false)
 .sign__message-button-reject,
 .sign__message-button-approve {
   flex: 1;
-  height: 40px;
-  padding: 10px;
-  font-size: 14px;
+  padding: var(--p-250);
+  font-size: var(--fs-350);
   font-weight: 600;
   text-transform: uppercase;
   border: 2px solid #101010;
@@ -223,5 +219,11 @@ const showAdvancedInfo = ref(false)
 
 .arrow__up {
   transform: rotate(180deg);
+}
+
+@media (max-width: 235px) {
+  .sign__message-text {
+    height: 40px;
+  }
 }
 </style>
