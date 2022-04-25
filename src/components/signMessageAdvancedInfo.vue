@@ -19,9 +19,8 @@ defineProps({
 
 <style scoped>
 .sign__message-advanced-info {
-  width: 298px;
-  max-height: 292px;
-  padding: 20px 15px;
+  max-height: 300px;
+  padding: var(--p-500) var(--p-400);
   overflow: auto;
   background: var(--debossed-box-color);
   border-radius: 10px;
@@ -31,7 +30,7 @@ defineProps({
 .sign__message-advanced-info-label {
   margin: 0;
   margin-bottom: 5px;
-  font-size: 12px;
+  font-size: var(--fs-300);
   font-weight: 600;
 }
 
