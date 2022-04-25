@@ -1,8 +1,7 @@
 import { AuthProvider } from '@arcana/auth'
+import type { InitParams } from '@arcana/auth/types/types'
 
-import type { InitParams } from '@/models/AuthProvider'
-
-export function getAuthProvider(appId) {
+export function getAuthProvider(appId): AuthProvider {
   return new AuthProvider({
     appId: appId,
     redirectUri: `${window.location.origin}/redirect`,

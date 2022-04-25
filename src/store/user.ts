@@ -1,6 +1,6 @@
+import { AuthProvider } from '@arcana/auth'
+import type { LoginType, UserInfo } from '@arcana/auth/types/types'
 import { defineStore } from 'pinia'
-
-import type { UserInfo, LoginTypes, Auth } from '@/models/User'
 
 type UserState = {
   isLoggedIn: boolean
