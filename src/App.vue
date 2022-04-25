@@ -55,6 +55,7 @@ getAppTheme()
 
 <template>
   <div v-if="isLoading">loading...</div>
+  <!-- TODO: Replace it with loading indicator -->
   <div
     v-else
     class="wallet__container"
