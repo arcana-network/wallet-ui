@@ -33,7 +33,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 
 async function handleRequest(request, keeper, router, requestStore) {
   const isPermissionRequired = keeper.isPermissionRequired(request.method)
-  requestStore.addRequests(request, isPermissionRequired, Date())
+  requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
 export { getSendRequestFn, watchRequestQueue, handleRequest }
