@@ -7,7 +7,7 @@ const getImage = useImage()
 <template>
   <div class="no-requests__container">
     <img
-      :src="getImage('green-tick')"
+      :src="getImage('no-pending-req-illustration')"
       alt="Tick Icon"
       class="no-requests__img"
     />
@@ -27,8 +27,8 @@ const getImage = useImage()
 }
 
 .no-requests__img {
-  width: 40px;
-  height: 40px;
+  width: 100px;
+  height: 120px;
   margin: 0 auto;
   margin-bottom: 20px;
 }
