@@ -6,12 +6,13 @@ import type {
   Response,
 } from '@src/models/Connection'
 import { AccountHandler } from '@src/utils/accountHandler'
+import { AsyncMethodReturns } from 'penpal'
 
 export class Keeper {
   permissions: typeof PERMISSIONS
   accountHandler: AccountHandler
   walletType: number
-  connection: ParentConnectionApi | null
+  connection: Promise<AsyncMethodReturns<ParentConnectionApi>> | null
 
   constructor(privateKey, permissions, walletType, accountHandler) {
     this.permissions = permissions
@@ -24,12 +25,17 @@ export class Keeper {
     return this.walletType <= 1 && this.permissions[method]
   }
 
-  setConnection(connection: ParentConnectionApi): void {
+  setConnection(
+    connection: Promise<AsyncMethodReturns<ParentConnectionApi>>
+  ): void {
     this.connection = connection
   }
 
   async reply(method: RequestMethod, response: Response): Promise<void> {
-    this.connection?.onMethodResponse(method, response)
+    if (this.connection) {
+      const c = await this.connection
+      c.onMethodResponse(method, response)
+    }
   }
 
   async handleRequest(request: Request) {

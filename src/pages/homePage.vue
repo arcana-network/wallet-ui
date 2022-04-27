@@ -48,7 +48,7 @@ async function connectionToParent() {
     router,
     requestStore
   )
-  const connectionInstance = await connectToParent<ParentConnectionApi>({
+  const connectionInstance = connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
     },
