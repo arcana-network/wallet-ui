@@ -8,7 +8,9 @@ function getSendRequestFn(handleRequest, keeper, router, requestStore) {
 
 function watchRequestQueue(store, keeper) {
   store.$subscribe((mutation, state) => {
-    const { processQueue } = state
+    const { processQueue, pendingRequests } = state
+    const pendingRequestCount = Object.values(pendingRequests).length
+    keeper.connection.sendPendingRequestCount(pendingRequestCount)
     while (processQueue.length > 0) {
       const request = processQueue.shift()
       processRequest(request, keeper)
@@ -31,7 +33,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 
 async function handleRequest(request, keeper, router, requestStore) {
   const isPermissionRequired = keeper.isPermissionRequired(request.method)
-  requestStore.addRequests(request, isPermissionRequired)
+  requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
 export { getSendRequestFn, watchRequestQueue, handleRequest }
