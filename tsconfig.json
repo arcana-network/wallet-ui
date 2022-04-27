@@ -16,9 +16,10 @@
     "baseUrl": ".",
     "noImplicitAny": false,
     "skipDefaultLibCheck": false,
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "jest"],
     "paths": {
-      "@/*": ["src/*"]
+      "@src/*": ["src/*"],
+      "@tests/*": ["tests/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

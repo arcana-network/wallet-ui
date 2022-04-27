@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import SignMessageAdvancedInfo from '@src/components/signMessageAdvancedInfo.vue'
+import SignMessageNoRequests from '@src/components/signMessageNoRequests.vue'
+import { useRequestStore } from '@src/store/request'
+import { chargeInfo } from '@src/utils/chargeInfo'
+import { methodAndAction } from '@src/utils/method'
+import { useImage } from '@src/utils/useImage'
 import { ref, toRefs } from 'vue'
-
-import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
-import { useRequestStore } from '@/store/request'
-import { chargeInfo } from '@/utils/chargeInfo'
-import { methodAndAction } from '@/utils/method'
-import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const requestStore = useRequestStore()

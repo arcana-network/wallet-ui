@@ -1,4 +1,4 @@
-import { useAppStore } from '@/store/app'
+import { useAppStore } from '@src/store/app'
 
 const THEME_NEUTRAL_IMAGES = ['google-icon', 'green-tick', 'twitter-icon']
 

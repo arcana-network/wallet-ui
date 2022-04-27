@@ -1,4 +1,4 @@
-import type { ThemeConfig } from '@/models/Theme'
+import type { ThemeConfig } from '@src/models/Theme'
 
 type RequestMethod =
   | 'eth_sign'

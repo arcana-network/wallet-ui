@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import OauthLogin from '@src/components/oauthLogin.vue'
+import { useAppStore } from '@src/store/app'
+import { useUserStore } from '@src/store/user'
+import { getAuthProvider } from '@src/utils/getAuthProvider'
 import { toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-import OauthLogin from '@/components/oauthLogin.vue'
-import { useAppStore } from '@/store/app'
-import { useUserStore } from '@/store/user'
-import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const route = useRoute()
 const router = useRouter()

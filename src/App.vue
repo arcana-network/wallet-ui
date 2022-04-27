@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import WalletFooter from '@src/components/AppFooter.vue'
+import type { ParentConnectionApi } from '@src/models/Connection'
+import { useAppStore } from '@src/store/app'
+import { useUserStore } from '@src/store/user'
+import { getAuthProvider } from '@src/utils/getAuthProvider'
 import { connectToParent } from 'penpal'
 import { toRefs, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
-import WalletFooter from '@/components/AppFooter.vue'
-import type { ParentConnectionApi } from '@/models/Connection'
-import { useAppStore } from '@/store/app'
-import { useUserStore } from '@/store/user'
-import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
 const app = useAppStore()

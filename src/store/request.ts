@@ -1,6 +1,5 @@
+import type { Request } from '@src/models/Connection'
 import { defineStore } from 'pinia'
-
-import type { Request } from '@/models/Connection'
 
 type PendingRequest = {
   request: Request

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useUserStore } from '@/store/user'
-import { useImage } from '@/utils/useImage'
+import { useUserStore } from '@src/store/user'
+import { useImage } from '@src/utils/useImage'
 
 const getImage = useImage()
 const userStore = useUserStore()

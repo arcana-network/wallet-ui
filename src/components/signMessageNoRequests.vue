@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useImage } from '@/utils/useImage'
+import { useImage } from '@src/utils/useImage'
 
 const getImage = useImage()
 </script>

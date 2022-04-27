@@ -1,6 +1,5 @@
+import type { Theme } from '@src/models/Theme'
 import { defineStore } from 'pinia'
-
-import type { Theme } from '@/models/Theme'
 
 type AppState = {
   id: string | null

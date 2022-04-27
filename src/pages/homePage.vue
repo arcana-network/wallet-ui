@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { connectToParent } from 'penpal'
-import { toRefs } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
-
-import type { ParentConnectionApi } from '@/models/Connection'
-import { useAppStore } from '@/store/app'
-import { useRequestStore } from '@/store/request'
-import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
-import { permissions } from '@/utils/callPermissionsConfig'
-import { getAuthProvider } from '@/utils/getAuthProvider'
-import { getWalletType } from '@/utils/getwalletType'
-import { Keeper } from '@/utils/keeper'
+import type { ParentConnectionApi } from '@src/models/Connection'
+import { useAppStore } from '@src/store/app'
+import { useRequestStore } from '@src/store/request'
+import { useUserStore } from '@src/store/user'
+import { AccountHandler } from '@src/utils/accountHandler'
+import { permissions } from '@src/utils/callPermissionsConfig'
+import { getAuthProvider } from '@src/utils/getAuthProvider'
+import { getWalletType } from '@src/utils/getwalletType'
+import { Keeper } from '@src/utils/keeper'
 import {
   getSendRequestFn,
   handleRequest,
   watchRequestQueue,
-} from '@/utils/requestManagement'
-import { useImage } from '@/utils/useImage'
+} from '@src/utils/requestManagement'
+import { useImage } from '@src/utils/useImage'
+import { connectToParent } from 'penpal'
+import { toRefs } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const getImage = useImage()
 

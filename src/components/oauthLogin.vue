@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { SocialLoginType } from '@arcana/auth'
-
-import { useImage } from '@/utils/useImage'
+import { useImage } from '@src/utils/useImage'
 
 const getImage = useImage()
 const emits = defineEmits(['oauthClick'])

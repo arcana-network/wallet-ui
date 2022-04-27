@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VJsonViewer from '@/components/VJsonViewer.vue'
+import VJsonViewer from '@src/components/VJsonViewer.vue'
 
 defineProps({
   info: {

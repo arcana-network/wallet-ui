@@ -4,8 +4,8 @@ import type {
   RequestMethod,
   Request,
   Response,
-} from '@/models/Connection'
-import { AccountHandler } from '@/utils/accountHandler'
+} from '@src/models/Connection'
+import { AccountHandler } from '@src/utils/accountHandler'
 
 export class Keeper {
   permissions: typeof PERMISSIONS
