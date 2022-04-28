@@ -7,9 +7,9 @@ export function useImage() {
 
   return function getImage(imageName: string): string {
     if (THEME_NEUTRAL_IMAGES.includes(imageName)) {
-      return require(`@/assets/images/${imageName}.png`)
+      return require(`@src/assets/images/${imageName}.png`)
     } else {
-      return require(`@/assets/images/${imageName}-${appStore.theme}-mode.png`)
+      return require(`@src/assets/images/${imageName}-${appStore.theme}-mode.png`)
     }
   }
 }

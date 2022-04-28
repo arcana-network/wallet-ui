@@ -1,12 +1,13 @@
 import { Buffer } from 'buffer'
 
-import App from '@src/App.vue'
 import { router } from '@src/routes/index'
 import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import JsonViewer from 'vue-json-viewer'
 import Toast from 'vue-toastification'
+
+import App from '@/App.vue'
 
 import 'floating-vue/dist/style.css'
 import 'vue-toastification/dist/index.css'
