@@ -11,14 +11,14 @@ const getContract = (rpcUrl, appAddress) => {
 
 const getAppAddress = async (id) => {
   const addressResponse = await fetch(
-    `${process.env.VUE_APP_WALLET_GATEWAY}/get-address/?id=${id}`
+    `${import.meta.env.VITE_WALLET_GATEWAY}/get-address/?id=${id}`
   )
   return (await addressResponse.json()).address
 }
 
 export const getWalletType = async (
   appId,
-  rpcUrl = process.env.VUE_APP_WALLET_RPC_URL
+  rpcUrl = import.meta.env.VITE_WALLET_RPC_URL
 ) => {
   const appAddress = await getAppAddress(appId)
   if (!appAddress) {

@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "noImplicitAny": false,
     "skipDefaultLibCheck": false,
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "vite/client"],
     "paths": {
       "@/*": ["src/*"]
     },

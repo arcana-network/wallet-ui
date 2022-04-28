@@ -27,7 +27,7 @@ export class AccountHandler {
     this.wallets = []
     this.privateKey = privateKey
     this.provider = new ethers.providers.JsonRpcProvider(
-      process.env.VUE_APP_WALLET_RPC_URL
+      import.meta.env.VITE_WALLET_RPC_URL
     )
     this.addWallet(privateKey)
   }
