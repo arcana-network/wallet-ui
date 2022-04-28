@@ -13,6 +13,7 @@ const accountHandlerExpectedData = {
     '0x7af640ac97db71e4383ba565f967742f6df45544bf96d9d0f6387500056792b94cbdaf79f0d87434691a064debf676fde5d98bbcd525969821824a381eec105d1c',
   signedTypedMessage:
     '0x7c86b24efae6852cb5b41b2ae87c786b29d33356d0523cbaac1a1e901385b9367838c3d2674e65c234ede9eede1140c6225303be0a11ae862bad3156e5064fc41b',
+  plaintext: 'testing plaintext!',
 }
 const signedMessageData = JSON.stringify({
   domain: {
@@ -70,6 +71,8 @@ const signedMessageData = JSON.stringify({
 const sampleMessages = {
   signedMessageData,
   messageData: 'testing123',
+  ciphertext:
+    'bb7af90090f7254409801c43186ec252036cf75748098be8e3382a5cc49ecaaa967c664447cb346589e91465db79e865d40da3eb10335bab2082e85fbff0055d646aa2d23d6e83797130f05ecb30b2aea41d7965554c6933be1a3301a8c932382e679ba9b66188ce751b1bb4e819b9c45b',
 }
 
 export { accountHandlerTestData, sampleMessages, accountHandlerExpectedData }

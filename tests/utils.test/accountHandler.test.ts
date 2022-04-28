@@ -42,4 +42,11 @@ describe('AccountHandler tests', () => {
     )
     expect(sig).toBe(accountHandlerExpectedData.signedTypedMessage)
   })
+  test('returns expected decrypt', async () => {
+    const sig = await accountHandler.requestDecryption(
+      sampleMessages.ciphertext,
+      accountHandlerTestData.address
+    )
+    expect(sig).toBe(accountHandlerExpectedData.plaintext)
+  })
 })
