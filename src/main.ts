@@ -1,5 +1,3 @@
-import { Buffer } from 'buffer'
-
 import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
@@ -24,8 +22,6 @@ const toastOptions = {
   icon: true,
   rtl: false,
 }
-
-window.Buffer = Buffer
 
 const walletApp = createApp(App)
 
