@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { SocialLoginType } from '@arcana/auth'
+import { SocialLoginType as SocialLogins } from '@arcana/auth'
+import type { SocialLoginType } from '@arcana/auth'
 
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 
-const props = defineProps({
-  availableLogins: {
-    type: Array,
-    required: true,
-  },
-})
+interface Props {
+  availableLogins: SocialLoginType[]
+}
+
+const props = defineProps<Props>()
 
 const oauthLoginList = props.availableLogins.map((login) => ({
-  value: SocialLoginType[login],
+  value: SocialLogins[login],
   iconPath: getImage(`${login}-icon`),
 }))
 
