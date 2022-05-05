@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SocialLoginType } from '@arcana/auth'
 import { toRefs, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,7 +13,7 @@ const route = useRoute()
 const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
-const availableLogins: Ref<string[]> = ref([])
+const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isFetchingavailableLogins: Ref<boolean> = ref(false)
 
 const {
