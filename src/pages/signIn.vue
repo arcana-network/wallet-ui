@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { toRefs } from 'vue'
+import { toRefs, onMounted, ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
@@ -11,6 +12,8 @@ const route = useRoute()
 const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
+const availableLogins: Ref<string[]> = ref([])
+const isFetchingavailableLogins: Ref<boolean> = ref(false)
 
 const {
   params: {
@@ -20,6 +23,16 @@ const {
 
 app.setAppId(`${appId}`)
 const authProvider = getAuthProvider(appId)
+
+onMounted(async () => {
+  fetchAvailableLogins()
+})
+
+async function fetchAvailableLogins() {
+  isFetchingavailableLogins.value = true
+  availableLogins.value = await authProvider.getAvailableLogins()
+  isFetchingavailableLogins.value = false
+}
 
 async function handleOauth(type) {
   try {
@@ -47,7 +60,17 @@ async function handleOauth(type) {
       <button class="signin__button">Send link</button>
     </div>
     <div class="signin__footer">
-      <OauthLogin @oauth-click="handleOauth" />
+      <p v-if="isFetchingavailableLogins" class="signin__footer-text">
+        Loading Configured Social Logins...
+      </p>
+      <div v-else>
+        <OauthLogin
+          v-if="availableLogins.length"
+          :available-logins="availableLogins"
+          @oauth-click="handleOauth"
+        />
+        <p v-else class="signin__footer-text">No Logins Configured</p>
+      </div>
     </div>
   </div>
 </template>
@@ -78,6 +101,11 @@ async function handleOauth(type) {
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  height: 25px;
+}
+
+.signin__footer-text {
+  font-size: var(--fs-300);
 }
 
 .signin__title-desc {
