@@ -14,7 +14,7 @@ const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
-const isFetchingavailableLogins: Ref<boolean> = ref(false)
+const isFetchingAvailableLogins: Ref<boolean> = ref(false)
 
 const {
   params: {
@@ -30,9 +30,9 @@ onMounted(async () => {
 })
 
 async function fetchAvailableLogins() {
-  isFetchingavailableLogins.value = true
+  isFetchingAvailableLogins.value = true
   availableLogins.value = await authProvider.getAvailableLogins()
-  isFetchingavailableLogins.value = false
+  isFetchingAvailableLogins.value = false
 }
 
 async function handleOauth(type) {
