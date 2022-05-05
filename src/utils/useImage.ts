@@ -1,6 +1,13 @@
 import { useAppStore } from '@/store/app'
 
-const THEME_NEUTRAL_IMAGES = ['google-icon', 'green-tick', 'twitter-icon']
+const THEME_NEUTRAL_IMAGES = [
+  'google-icon',
+  'green-tick',
+  'twitter-icon',
+  'twitch-icon',
+  'reddit-icon',
+  'discord-icon',
+]
 
 export function useImage() {
   const appStore = useAppStore()
