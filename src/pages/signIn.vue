@@ -16,6 +16,10 @@ const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isFetchingAvailableLogins: Ref<boolean> = ref(false)
 
+const LOGINS_FETCHING_LOADING_TEXT = 'Loading Configured Social Logins...'
+const LOGINS_FETCHING_ERROR_TEXT = `No logins configured. If you are the app admin, please configure login
+providers on the developer dashboard.`
+
 const {
   params: {
     value: { appId },
@@ -61,8 +65,8 @@ async function handleOauth(type) {
       <button class="signin__button">Send link</button>
     </div>
     <div class="signin__footer">
-      <p v-if="isFetchingavailableLogins" class="signin__footer-text">
-        Loading Configured Social Logins...
+      <p v-if="isFetchingAvailableLogins" class="signin__footer-text-loading">
+        {{ LOGINS_FETCHING_LOADING_TEXT }}
       </p>
       <div v-else>
         <OauthLogin
@@ -70,7 +74,9 @@ async function handleOauth(type) {
           :available-logins="availableLogins"
           @oauth-click="handleOauth"
         />
-        <p v-else class="signin__footer-text">No Logins Configured</p>
+        <p v-else class="signin__footer-text-error">
+          {{ LOGINS_FETCHING_ERROR_TEXT }}
+        </p>
       </div>
     </div>
   </div>
@@ -105,8 +111,13 @@ async function handleOauth(type) {
   height: 25px;
 }
 
-.signin__footer-text {
+.signin__footer-text-loading {
   font-size: var(--fs-300);
+}
+
+.signin__footer-text-error {
+  font-size: var(--fs-250);
+  text-align: center;
 }
 
 .signin__title-desc {
