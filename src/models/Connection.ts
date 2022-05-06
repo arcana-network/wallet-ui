@@ -34,6 +34,7 @@ function requirePermission(request: Request): boolean {
 type Response = {
   id: number
   result: unknown
+  error?: string
 }
 
 type ParentConnectionApi = {
