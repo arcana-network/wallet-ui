@@ -8,7 +8,7 @@ function getSendRequestFn(handleRequest, keeper, router, requestStore) {
 }
 
 function watchRequestQueue(store, keeper) {
-  store.$subscribe((mutation, state) => {
+  store.$subscribe((_, state) => {
     const { processQueue, pendingRequests } = state
     const pendingRequestCount = Object.values(pendingRequests).length
     keeper.connection.sendPendingRequestCount(pendingRequestCount)
