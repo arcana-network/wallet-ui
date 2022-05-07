@@ -1,9 +1,9 @@
 // Todo: Find a better place for these functions
 import { requirePermission } from '@/models/Connection'
 
-function getSendRequestFn(handleRequest, keeper, router, requestStore) {
+function getSendRequestFn(handleRequest, requestStore) {
   return function sendRequest(request) {
-    return handleRequest(request, keeper, router, requestStore)
+    return handleRequest(request, requestStore)
   }
 }
 
