@@ -1,4 +1,5 @@
 // Todo: Find a better place for these functions
+import { requirePermission } from '@/models/Connection'
 
 function getSendRequestFn(handleRequest, keeper, router, requestStore) {
   return function sendRequest(request) {
@@ -31,8 +32,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
   }
 }
 
-async function handleRequest(request, keeper, router, requestStore) {
-  const isPermissionRequired = keeper.isPermissionRequired(request.method)
+async function handleRequest(request, requestStore) {
+  const isPermissionRequired = requirePermission(request)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
