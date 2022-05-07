@@ -11,26 +11,26 @@ defineProps({
   <json-viewer :value="value" theme="json-viewer"></json-viewer>
 </template>
 
-<style lang="scss">
+<style>
 .json-viewer {
   font-size: var(--fs-300);
   font-weight: 400;
   background: transparent;
+}
 
-  .jv-code {
-    padding: 0;
-  }
+.json-viewer .jv-code {
+  padding: 0;
+}
 
-  .jv-key {
-    color: #932a9b;
-  }
+.json-viewer .jv-key {
+  color: #932a9b;
+}
 
-  .jv-push {
-    color: #c9302c;
-  }
+.json-viewer .jv-push {
+  color: #c9302c;
+}
 
-  .jv-string {
-    word-break: break-all;
-  }
+.json-viewer .jv-string {
+  word-break: break-all;
 }
 </style>
