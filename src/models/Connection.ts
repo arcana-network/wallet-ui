@@ -15,8 +15,8 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   personal_sign: true,
   eth_decrypt: true,
   eth_signTypedData_v4: true,
-  eth_signTransaction: true,
-  eth_sendTransaction: true,
+  eth_signTransaction: false,
+  eth_sendTransaction: false,
   eth_accounts: false,
   eth_getEncryptionPublicKey: false,
 })
