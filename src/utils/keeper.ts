@@ -6,6 +6,8 @@ import type {
 } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
 
+const NOT_SUPPORTED_TEXT = 'operation_not_supported'
+
 export class Keeper {
   accountHandler: AccountHandler
   walletType: number
@@ -51,10 +53,7 @@ export class Keeper {
         )
         return response
       case 'eth_sendTransaction':
-        response.result = await this.accountHandler.requestSendTransaction(
-          request.params[0],
-          request.params[1]
-        )
+        response.error = NOT_SUPPORTED_TEXT
         return response
       case 'eth_decrypt':
         response.result = await this.accountHandler.requestDecryption(
@@ -63,10 +62,7 @@ export class Keeper {
         )
         return response
       case 'eth_signTransaction':
-        response.result = await this.accountHandler.requestSignTransaction(
-          request.params[0],
-          request.params[1]
-        )
+        response.error = NOT_SUPPORTED_TEXT
         return response
       case 'eth_signTypedData_v4':
         response.result = await this.accountHandler.requestSignTypedMessage(
