@@ -41,14 +41,9 @@ async function connectionToParent() {
   const accountHandler = new AccountHandler(privateKey)
   const walletAddress = accountHandler.getAccounts()[0]
   user.setWalletAddress(walletAddress)
-  const keeper = new Keeper(privateKey, permissions, walletType, accountHandler)
+  const keeper = new Keeper(walletType, accountHandler)
   watchRequestQueue(requestStore, keeper)
-  const sendRequest = getSendRequestFn(
-    handleRequest,
-    keeper,
-    router,
-    requestStore
-  )
+  const sendRequest = getSendRequestFn(handleRequest, requestStore)
   const connectionInstance = await connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
