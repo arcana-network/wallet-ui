@@ -1,6 +1,5 @@
 import type {
   ParentConnectionApi,
-  PERMISSIONS,
   RequestMethod,
   Request,
   Response,
@@ -8,20 +7,14 @@ import type {
 import { AccountHandler } from '@/utils/accountHandler'
 
 export class Keeper {
-  permissions: typeof PERMISSIONS
   accountHandler: AccountHandler
   walletType: number
   connection: ParentConnectionApi | null
 
-  constructor(privateKey, permissions, walletType, accountHandler) {
-    this.permissions = permissions
+  constructor(walletType, accountHandler) {
     this.walletType = walletType
     this.accountHandler = accountHandler
     this.connection = null
-  }
-
-  isPermissionRequired(method: RequestMethod) {
-    return this.walletType <= 1 && this.permissions[method]
   }
 
   setConnection(connection: ParentConnectionApi): void {
