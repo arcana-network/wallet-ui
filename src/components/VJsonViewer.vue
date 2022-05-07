@@ -28,5 +28,9 @@ defineProps({
   .jv-push {
     color: #c9302c;
   }
+
+  .jv-string {
+    word-break: break-all;
+  }
 }
 </style>
