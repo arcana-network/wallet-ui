@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SocialLoginType } from '@arcana/auth'
+import type { AuthProvider, SocialLoginType } from '@arcana/auth'
 import { toRefs, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -25,17 +25,20 @@ const {
   },
 } = toRefs(route)
 
+onMounted(init)
+
 app.setAppId(`${appId}`)
-const authProvider = getAuthProvider(appId)
+let authProvider: AuthProvider | null = null
 
-onMounted(async () => {
-  fetchAvailableLogins()
-})
-
-async function fetchAvailableLogins() {
+async function fetchAvailableLogins(authProvider: AuthProvider) {
   isFetchingAvailableLogins.value = true
   availableLogins.value = await authProvider.getAvailableLogins()
   isFetchingAvailableLogins.value = false
+}
+
+async function init() {
+  authProvider = await getAuthProvider(`${appId}`)
+  fetchAvailableLogins(authProvider)
 }
 
 async function handleOauth(type) {
