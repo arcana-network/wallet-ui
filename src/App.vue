@@ -58,7 +58,7 @@ async function init() {
 
     if (isLoggedIn) router.push('/')
 
-    if (!route.path.includes('redirect') && !isLoggedIn) {
+    if (route.path.includes('login')) {
       const themeConfig = await getAppTheme(connectionInstance)
       sessionStorage.setItem('theme', themeConfig.theme)
 
