@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
-import { toRefs, watch, ref } from 'vue'
+import { toRefs, ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -18,7 +18,9 @@ const route = useRoute()
 const isLoading = ref(false)
 const toast = useToast()
 
-const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
+onMounted(init)
+
+const connectionToParent = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
     triggerSocialLogin: handleSocialLoginRequest,
@@ -42,29 +44,26 @@ async function getAppTheme(connectionInstance) {
 async function init() {
   isLoading.value = true
   try {
-    const connectionInstance = await connectionWithoutLogin.promise
+    const connectionInstance = await connectionToParent.promise
     const { appId } = route.params
-    const userInfo = JSON.parse(sessionStorage.getItem('info') || '{}')
+    const userInfo = JSON.parse(sessionStorage.getItem('userinfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
     const theme = sessionStorage.getItem('theme')
 
     app.setAppId(`${appId}`)
     app.setTheme(theme)
 
-    if (isLoggedIn) {
-      router.push('/')
-      user.setUserInfo(userInfo)
-      user.setLoginStatus(true)
-    } else {
-      user.setUserInfo({ privateKey: '', userInfo: {} })
-      user.setLoginStatus(false)
-    }
+    user.setUserInfo(userInfo)
+    user.setLoginStatus(true)
+
+    if (isLoggedIn) router.push('/')
 
     if (!route.path.includes('redirect') && !isLoggedIn) {
       const themeConfig = await getAppTheme(connectionInstance)
       sessionStorage.setItem('theme', themeConfig.theme)
-      const url = await connectionInstance.getParentUrl()
-      app.setParentUrl(url)
+
+      const parentAppUrl = await connectionInstance.getParentUrl()
+      localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } catch (e) {
     toast.error('Something went Wrong')
@@ -72,17 +71,6 @@ async function init() {
     isLoading.value = false
   }
 }
-
-watch(
-  () => user.isLoggedIn,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      connectionWithoutLogin.destroy()
-    }
-  }
-)
-
-init()
 </script>
 
 <template>
