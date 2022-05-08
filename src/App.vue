@@ -46,7 +46,7 @@ async function init() {
   try {
     const connectionInstance = await connectionToParent.promise
     const { appId } = route.params
-    const userInfo = JSON.parse(sessionStorage.getItem('userinfo') || '{}')
+    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
     const theme = sessionStorage.getItem('theme')
 

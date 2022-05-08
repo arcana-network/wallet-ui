@@ -16,7 +16,7 @@ async function init() {
 
   if (authProvider.isLoggedIn()) {
     const info = authProvider.getUserInfo()
-    sessionStorage.setItem('userinfo', JSON.stringify(info))
+    sessionStorage.setItem('userInfo', JSON.stringify(info))
     sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
   }
 
