@@ -6,9 +6,9 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
-export function getAuthProvider(appId): AuthProvider {
+export async function getAuthProvider(appId): Promise<AuthProvider> {
   if (!authProvider) {
-    authProvider = new AuthProvider({
+    authProvider = await AuthProvider.init({
       appId: appId,
       redirectUri: `https://wallet-verify.netlify.app/verify/${appId}/`,
       network: AUTH_NETWORK,
