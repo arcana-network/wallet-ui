@@ -2,7 +2,7 @@
 import type { SocialLoginType } from '@arcana/auth'
 import { toRefs, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
 import { useAppStore } from '@/store/app'
@@ -10,7 +10,6 @@ import { useUserStore } from '@/store/user'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const route = useRoute()
-const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
@@ -40,9 +39,10 @@ async function fetchAvailableLogins() {
 }
 
 async function handleOauth(type) {
+  const parentAppUrl = app.parentAppUrl || ''
+  authProvider.params.autoRedirect = true
   try {
-    await user.handleLogin(authProvider, type)
-    router.push('/')
+    return await user.handleLogin(authProvider, type, parentAppUrl)
   } catch (error) {
     user.$reset() // resets user store if login fails
   }
