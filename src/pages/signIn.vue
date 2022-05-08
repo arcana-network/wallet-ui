@@ -42,10 +42,9 @@ async function init() {
 }
 
 async function handleOauth(type) {
-  const parentAppUrl = app.parentAppUrl || ''
   authProvider.params.autoRedirect = true
   try {
-    return await user.handleLogin(authProvider, type, parentAppUrl)
+    return await user.handleLogin(authProvider, type)
   } catch (error) {
     user.$reset() // resets user store if login fails
   }
