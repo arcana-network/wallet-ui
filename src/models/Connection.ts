@@ -41,7 +41,7 @@ type ParentConnectionApi = {
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
-  redirect(parentUrl: string | null): Promise<void>
+  redirect(parentAppUrl: string | null): Promise<void>
 }
 
 export { requirePermission, PERMISSIONS }
