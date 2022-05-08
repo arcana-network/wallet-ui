@@ -25,10 +25,10 @@ const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
   },
 })
 
-async function handleSocialLoginRequest(type, parentAppUrl) {
-  const authProvider = getAuthProvider(app.id)
+async function handleSocialLoginRequest(type) {
+  const authProvider = await getAuthProvider(app.id)
   try {
-    return await user.handleLogin(authProvider, type, parentAppUrl)
+    return await user.handleLogin(authProvider, type)
   } catch (error) {
     console.log(error)
     user.$reset() // resets user store if login fails
