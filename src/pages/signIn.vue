@@ -38,7 +38,7 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 
 async function init() {
   authProvider = await getAuthProvider(`${appId}`)
-  fetchAvailableLogins(authProvider)
+  await fetchAvailableLogins(authProvider)
 }
 
 async function handleOauth(type) {
