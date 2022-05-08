@@ -5,6 +5,7 @@ import type { Theme } from '@/models/Theme'
 type AppState = {
   id: string | null
   theme: Theme
+  parentAppUrl: string | null
 }
 
 export const useAppStore = defineStore('app', {
@@ -12,6 +13,7 @@ export const useAppStore = defineStore('app', {
     ({
       id: null,
       theme: 'light',
+      parentAppUrl: null,
     } as AppState),
   actions: {
     setAppId(id: string): void {
@@ -19,6 +21,9 @@ export const useAppStore = defineStore('app', {
     },
     setTheme(theme: Theme): void {
       this.theme = theme
+    },
+    setParentUrl(url: string): void {
+      this.parentAppUrl = url
     },
   },
 })
