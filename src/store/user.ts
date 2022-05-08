@@ -29,10 +29,8 @@ export const useUserStore = defineStore('user', {
   actions: {
     async handleLogin(
       authProvider: AuthProvider,
-      loginType: LoginType,
-      parentAppUrl: string
+      loginType: LoginType
     ): Promise<void | string> {
-      localStorage.setItem('parentAppUrl', parentAppUrl)
       return await authProvider.loginWithSocial(loginType)
     },
     setUserInfo({ privateKey, userInfo }) {
