@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
 import { toRefs, watch, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -13,32 +14,63 @@ const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
 const router = useRouter()
+const route = useRoute()
 const isLoading = ref(false)
+const toast = useToast()
 
 const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
-    triggerLogin: handleLoginRequest,
+    triggerSocialLogin: handleSocialLoginRequest,
   },
 })
 
-async function handleLoginRequest(type) {
+async function handleSocialLoginRequest(type, parentAppUrl) {
   const authProvider = getAuthProvider(app.id)
   try {
-    await user.handleLogin(authProvider, type)
-    router.push('/')
+    return await user.handleLogin(authProvider, type, parentAppUrl)
   } catch (error) {
     console.log(error)
     user.$reset() // resets user store if login fails
   }
 }
 
-async function getAppTheme() {
-  const connectionInstance = await connectionWithoutLogin.promise
+async function getAppTheme(connectionInstance) {
+  return await connectionInstance.getThemeConfig()
+}
+
+async function init() {
   isLoading.value = true
-  const { theme } = await connectionInstance.getThemeConfig()
-  app.setTheme(theme)
-  isLoading.value = false
+  try {
+    const connectionInstance = await connectionWithoutLogin.promise
+    const { appId } = route.params
+    const userInfo = JSON.parse(sessionStorage.getItem('info') || '{}')
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn')
+    const theme = sessionStorage.getItem('theme')
+
+    app.setAppId(`${appId}`)
+    app.setTheme(theme)
+
+    if (isLoggedIn) {
+      router.push('/')
+      user.setUserInfo(userInfo)
+      user.setLoginStatus(true)
+    } else {
+      user.setUserInfo({ privateKey: '', userInfo: {} })
+      user.setLoginStatus(false)
+    }
+
+    if (!route.path.includes('redirect') && !isLoggedIn) {
+      const themeConfig = await getAppTheme(connectionInstance)
+      sessionStorage.setItem('theme', themeConfig.theme)
+      const url = await connectionInstance.getParentUrl()
+      app.setParentUrl(url)
+    }
+  } catch (e) {
+    toast.error('Something went Wrong')
+  } finally {
+    isLoading.value = false
+  }
 }
 
 watch(
@@ -50,7 +82,7 @@ watch(
   }
 )
 
-getAppTheme()
+init()
 </script>
 
 <template>
