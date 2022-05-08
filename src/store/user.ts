@@ -39,6 +39,9 @@ export const useUserStore = defineStore('user', {
       this.privateKey = privateKey
       this.info = userInfo
     },
+    setLoginStatus(status: boolean) {
+      this.isLoggedIn = status
+    },
     async handleLogout(authProvider: AuthProvider): Promise<void> {
       await authProvider.logout()
       this.$reset()
