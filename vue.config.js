@@ -16,5 +16,7 @@ module.exports = defineConfig({
         Buffer: ["buffer", "Buffer"],
       }),
     ],
+    devServer: {
+      webSocketServer: 'sockjs',
   },
 });
