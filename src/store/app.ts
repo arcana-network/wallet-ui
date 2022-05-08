@@ -19,7 +19,7 @@ export const useAppStore = defineStore('app', {
     setAppId(id: string): void {
       this.id = id
     },
-    setTheme(theme: Theme): void {
+    setTheme(theme: Theme = 'dark'): void {
       this.theme = theme
     },
     setParentUrl(url: string): void {
