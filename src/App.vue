@@ -30,7 +30,7 @@ const connectionToParent = connectToParent<ParentConnectionApi>({
 async function handleSocialLoginRequest(type) {
   const authProvider = await getAuthProvider(app.id)
   try {
-    return await user.handleLogin(authProvider, type)
+    return await user.handleSocialLogin(authProvider, type)
   } catch (error) {
     console.log(error)
     user.$reset() // resets user store if login fails

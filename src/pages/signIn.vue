@@ -41,10 +41,10 @@ async function init() {
   await fetchAvailableLogins(authProvider)
 }
 
-async function handleOauth(type) {
+async function handleSocialLoginRequest(type) {
   authProvider.params.autoRedirect = true
   try {
-    return await user.handleLogin(authProvider, type)
+    return await user.handleSocialLogin(authProvider, type)
   } catch (error) {
     user.$reset() // resets user store if login fails
   }

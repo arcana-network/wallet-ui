@@ -27,7 +27,7 @@ export const useUserStore = defineStore('user', {
     },
   },
   actions: {
-    async handleLogin(
+    async handleSocialLogin(
       authProvider: AuthProvider,
       loginType: LoginType
     ): Promise<void | string> {
