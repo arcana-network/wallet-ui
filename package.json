@@ -17,7 +17,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@arcana/auth": "https://testnet-dev.s3.ap-south-1.amazonaws.com/arcana-auth-0.0.9.tgz",
+    "@arcana/auth": "^0.0.9-beta4",
     "@ethereumjs/tx": "^3.4.0",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
