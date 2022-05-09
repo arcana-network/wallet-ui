@@ -37,12 +37,11 @@ async function handleSocialLoginRequest(type) {
 async function handlePasswordlessLoginRequest(email) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    console.log(isEmailValid, 'isEmailValid-handlePasswordlessLoginRequest')
     const authProvider = await getAuthProvider(app.id)
-    const status = await user.handlePasswordlessLogin(authProvider, email, {
-      withUI: false,
+    authProvider.params.autoRedirect = true
+    await user.handlePasswordlessLogin(authProvider, email, {
+      withUI: true,
     })
-    if (status.success) toast.info(`Please check email of ${email}`)
   }
 }
 
