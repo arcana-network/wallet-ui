@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
-import { toRefs } from 'vue'
+import { toRefs, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -10,6 +10,7 @@ import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import getPublicKey from '@/utils/getPublicKey'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
 import {
@@ -34,6 +35,8 @@ const {
 const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = app
 
+onMounted(connectionToParent)
+
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
   const accountHandler = new AccountHandler(privateKey)
@@ -45,12 +48,16 @@ async function connectionToParent() {
   const connectionInstance = await connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
+      getPublicKey: handleGetPublickey,
     },
   }).promise
   keeper.setConnection(connectionInstance)
 }
 
-connectionToParent()
+async function handleGetPublickey(id, verifier) {
+  const authProvider = await getAuthProvider(app.id)
+  return await getPublicKey(authProvider, id, verifier)
+}
 
 function onCopyClick() {
   const walletAddressEl = document.getElementById('wallet-address')

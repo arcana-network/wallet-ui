@@ -10,6 +10,7 @@ import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import getPublicKey from '@/utils/getPublicKey'
 
 const user = useUserStore()
 const app = useAppStore()
@@ -26,12 +27,18 @@ const connectionToParent = connectToParent<ParentConnectionApi>({
     isLoggedIn: () => user.isLoggedIn,
     triggerSocialLogin: handleSocialLoginRequest,
     triggerPasswordlessLogin: handlePasswordlessLoginRequest,
+    getPublicKey: handleGetPublickey,
   },
 })
 
 async function handleSocialLoginRequest(type) {
   const authProvider = await getAuthProvider(app.id)
   return await user.handleSocialLogin(authProvider, type)
+}
+
+async function handleGetPublickey(id, verifier) {
+  const authProvider = await getAuthProvider(app.id)
+  return await getPublicKey(authProvider, id, verifier)
 }
 
 async function handlePasswordlessLoginRequest(email) {
