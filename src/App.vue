@@ -8,6 +8,7 @@ import WalletFooter from '@/components/AppFooter.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
@@ -24,16 +25,24 @@ const connectionToParent = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
     triggerSocialLogin: handleSocialLoginRequest,
+    triggerPasswordlessLogin: handlePasswordlessLoginRequest,
   },
 })
 
 async function handleSocialLoginRequest(type) {
   const authProvider = await getAuthProvider(app.id)
-  try {
-    return await user.handleSocialLogin(authProvider, type)
-  } catch (error) {
-    console.log(error)
-    user.$reset() // resets user store if login fails
+  return await user.handleSocialLogin(authProvider, type)
+}
+
+async function handlePasswordlessLoginRequest(email) {
+  const isEmailValid = await emailScheme.isValid(email)
+  if (isEmailValid) {
+    console.log(isEmailValid, 'isEmailValid-handlePasswordlessLoginRequest')
+    const authProvider = await getAuthProvider(app.id)
+    const status = await user.handlePasswordlessLogin(authProvider, email, {
+      withUI: false,
+    })
+    if (status.success) toast.info(`Please check email of ${email}`)
   }
 }
 

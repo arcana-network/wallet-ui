@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { AuthProvider, SocialLoginType } from '@arcana/auth'
-import { toRefs, onMounted, ref } from 'vue'
+import { toRefs, onMounted, ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const route = useRoute()
@@ -14,6 +15,12 @@ const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isFetchingAvailableLogins: Ref<boolean> = ref(false)
+
+const userEmailInput = ref('')
+
+const disableSendLinkBtn = computed(() => {
+  return userEmailInput.value.length === 0
+})
 
 const LOGINS_FETCHING_LOADING_TEXT = 'Loading Configured Social Logins...'
 const LOGINS_FETCHING_ERROR_TEXT = `No logins configured. If you are the app admin, please configure login
@@ -49,6 +56,16 @@ async function handleSocialLoginRequest(type) {
     user.$reset() // resets user store if login fails
   }
 }
+
+async function onSendLinkClick() {
+  const isEmailValid = await emailScheme.isValid(userEmailInput.value)
+  if (isEmailValid) {
+    authProvider.params.autoRedirect = true
+    await user.handlePasswordlessLogin(authProvider, userEmailInput.value, {
+      withUI: true,
+    })
+  }
+}
 </script>
 
 <template>
@@ -62,9 +79,21 @@ async function handleSocialLoginRequest(type) {
       </div>
       <div class="signin__input-container flow-element">
         <label class="signin__input-label">Email</label>
-        <input class="signin__input-field" placeholder="someone@example.com" />
+        <input
+          v-model="userEmailInput"
+          type="email"
+          class="signin__input-field"
+          placeholder="someone@example.com"
+        />
       </div>
-      <button class="signin__button">Send link</button>
+      <button
+        class="signin__button"
+        :class="{ 'signin__button--disabled': disableSendLinkBtn }"
+        :disabled="disableSendLinkBtn"
+        @click="onSendLinkClick"
+      >
+        Send link
+      </button>
     </div>
     <div class="signin__footer">
       <p v-if="isFetchingAvailableLogins" class="signin__footer-text-loading">
@@ -178,6 +207,16 @@ async function handleSocialLoginRequest(type) {
 .signin__button:hover {
   transition: all 0.5s;
   transform: scale(1.05, 1.15);
+}
+
+.signin__button--disabled {
+  cursor: not-allowed;
+  background: var(--button-bg-disabled);
+  transform: none;
+}
+
+.signin__button--disabled:hover {
+  transform: none;
 }
 
 @media (max-width: 235px) {
