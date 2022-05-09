@@ -12,6 +12,10 @@ type UserState = {
   walletAddress: string
 }
 
+type PasswordLessLoginOptions = {
+  withUI: boolean
+}
+
 export const useUserStore = defineStore('user', {
   state: () =>
     ({
@@ -38,9 +42,10 @@ export const useUserStore = defineStore('user', {
     },
     async handlePasswordlessLogin(
       authProvider: AuthProvider,
-      email: string
+      email: string,
+      options: PasswordLessLoginOptions
     ): Promise<void | string> {
-      return await authProvider.loginWithOtp(email, { withUI: false })
+      return await authProvider.loginWithOtp(email, options)
     },
     setUserInfo({ privateKey, userInfo }) {
       this.privateKey = privateKey
