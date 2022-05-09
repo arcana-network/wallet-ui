@@ -36,6 +36,12 @@ export const useUserStore = defineStore('user', {
     ): Promise<void | string> {
       return await authProvider.loginWithSocial(loginType)
     },
+    async handlePasswordlessLogin(
+      authProvider: AuthProvider,
+      email: string
+    ): Promise<void | string> {
+      return await authProvider.loginWithOtp(email, { withUI: false })
+    },
     setUserInfo({ privateKey, userInfo }) {
       this.privateKey = privateKey
       this.info = userInfo
