@@ -8,6 +8,7 @@ import WalletFooter from '@/components/AppFooter.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
@@ -24,16 +25,23 @@ const connectionToParent = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
     triggerSocialLogin: handleSocialLoginRequest,
+    triggerPasswordlessLogin: handlePasswordlessLoginRequest,
   },
 })
 
 async function handleSocialLoginRequest(type) {
   const authProvider = await getAuthProvider(app.id)
-  try {
-    return await user.handleSocialLogin(authProvider, type)
-  } catch (error) {
-    console.log(error)
-    user.$reset() // resets user store if login fails
+  return await user.handleSocialLogin(authProvider, type)
+}
+
+async function handlePasswordlessLoginRequest(email) {
+  const isEmailValid = await emailScheme.isValid(email)
+  if (isEmailValid) {
+    const authProvider = await getAuthProvider(app.id)
+    authProvider.params.autoRedirect = true
+    await user.handlePasswordlessLogin(authProvider, email, {
+      withUI: true,
+    })
   }
 }
 
@@ -48,7 +56,7 @@ async function init() {
     const { appId } = route.params
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
-    const theme = sessionStorage.getItem('theme')
+    const theme = localStorage.getItem('theme')
 
     app.setAppId(`${appId}`)
     app.setTheme(theme)
@@ -60,7 +68,7 @@ async function init() {
 
     if (route.path.includes('login')) {
       const themeConfig = await getAppTheme(connectionInstance)
-      sessionStorage.setItem('theme', themeConfig.theme)
+      localStorage.setItem('theme', themeConfig.theme)
 
       const parentAppUrl = await connectionInstance.getParentUrl()
       localStorage.setItem('parentAppUrl', parentAppUrl)
@@ -95,6 +103,8 @@ async function init() {
 :root {
   --color-light: #f9f9f9;
   --color-dark: #101010;
+  --color-light-disabled: #f9f9f9af;
+  --color-dark-disabled: #101010af;
   --color-gradient-light: linear-gradient(
     324.81deg,
     #d6d8d9 14.65%,
@@ -162,6 +172,7 @@ async function init() {
   --filled-button-fg-color: var(--color-light);
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
+  --button-bg-disabled: var(--color-dark-disabled);
 }
 
 .dark-mode {
@@ -175,6 +186,7 @@ async function init() {
   --filled-button-fg-color: var(--color-dark);
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
+  --button-bg-disabled: var(--color-light-disabled);
 }
 
 body {

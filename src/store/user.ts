@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { AuthProvider } from '@arcana/auth'
 import type { LoginType, UserInfo } from '@arcana/auth/types/types'
 import { defineStore } from 'pinia'
@@ -7,6 +10,10 @@ type UserState = {
   info: UserInfo
   privateKey: string
   walletAddress: string
+}
+
+type PasswordLessLoginOptions = {
+  withUI: boolean
 }
 
 export const useUserStore = defineStore('user', {
@@ -32,6 +39,13 @@ export const useUserStore = defineStore('user', {
       loginType: LoginType
     ): Promise<void | string> {
       return await authProvider.loginWithSocial(loginType)
+    },
+    async handlePasswordlessLogin(
+      authProvider: AuthProvider,
+      email: string,
+      options: PasswordLessLoginOptions
+    ): Promise<void | string> {
+      return await authProvider.loginWithOtp(email, options)
     },
     setUserInfo({ privateKey, userInfo }) {
       this.privateKey = privateKey
