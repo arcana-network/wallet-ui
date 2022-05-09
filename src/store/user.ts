@@ -27,19 +27,23 @@ export const useUserStore = defineStore('user', {
     },
   },
   actions: {
-    async handleLogin(
+    async handleSocialLogin(
       authProvider: AuthProvider,
       loginType: LoginType
-    ): Promise<void> {
-      if (authProvider.isLoggedIn()) return
-      await authProvider.loginWithSocial(loginType)
-      this.isLoggedIn = authProvider.isLoggedIn()
-      const { privateKey, userInfo } = authProvider.getUserInfo()
+    ): Promise<void | string> {
+      return await authProvider.loginWithSocial(loginType)
+    },
+    setUserInfo({ privateKey, userInfo }) {
       this.privateKey = privateKey
       this.info = userInfo
     },
+    setLoginStatus(status: boolean) {
+      this.isLoggedIn = status
+    },
     async handleLogout(authProvider: AuthProvider): Promise<void> {
       await authProvider.logout()
+      sessionStorage.removeItem('userInfo')
+      sessionStorage.removeItem('isLoggedIn')
       this.$reset()
     },
     setWalletAddress(walletAddress: string): void {

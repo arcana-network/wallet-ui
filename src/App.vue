@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
-import { toRefs, watch, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { toRefs, ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -13,44 +14,63 @@ const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
 const router = useRouter()
+const route = useRoute()
 const isLoading = ref(false)
+const toast = useToast()
 
-const connectionWithoutLogin = connectToParent<ParentConnectionApi>({
+onMounted(init)
+
+const connectionToParent = connectToParent<ParentConnectionApi>({
   methods: {
     isLoggedIn: () => user.isLoggedIn,
-    triggerLogin: handleLoginRequest,
+    triggerSocialLogin: handleSocialLoginRequest,
   },
 })
 
-async function handleLoginRequest(type) {
-  const authProvider = getAuthProvider(app.id)
+async function handleSocialLoginRequest(type) {
+  const authProvider = await getAuthProvider(app.id)
   try {
-    await user.handleLogin(authProvider, type)
-    router.push('/')
+    return await user.handleSocialLogin(authProvider, type)
   } catch (error) {
     console.log(error)
     user.$reset() // resets user store if login fails
   }
 }
 
-async function getAppTheme() {
-  const connectionInstance = await connectionWithoutLogin.promise
-  isLoading.value = true
-  const { theme } = await connectionInstance.getThemeConfig()
-  app.setTheme(theme)
-  isLoading.value = false
+async function getAppTheme(connectionInstance) {
+  return await connectionInstance.getThemeConfig()
 }
 
-watch(
-  () => user.isLoggedIn,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      connectionWithoutLogin.destroy()
-    }
-  }
-)
+async function init() {
+  isLoading.value = true
+  try {
+    const connectionInstance = await connectionToParent.promise
+    const { appId } = route.params
+    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn')
+    const theme = sessionStorage.getItem('theme')
 
-getAppTheme()
+    app.setAppId(`${appId}`)
+    app.setTheme(theme)
+
+    user.setUserInfo(userInfo)
+    user.setLoginStatus(true)
+
+    if (isLoggedIn) router.push('/')
+
+    if (route.path.includes('login')) {
+      const themeConfig = await getAppTheme(connectionInstance)
+      sessionStorage.setItem('theme', themeConfig.theme)
+
+      const parentAppUrl = await connectionInstance.getParentUrl()
+      localStorage.setItem('parentAppUrl', parentAppUrl)
+    }
+  } catch (e) {
+    toast.error('Something went Wrong')
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>

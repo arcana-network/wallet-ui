@@ -34,7 +34,6 @@ const {
 } = user
 const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = app
-const authProvider = getAuthProvider(appId)
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
@@ -74,6 +73,7 @@ function onCopyClick() {
 }
 
 async function onLogoutClick() {
+  const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   router.push(`/${appId}/login`)
 }

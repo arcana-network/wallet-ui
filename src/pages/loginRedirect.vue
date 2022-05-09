@@ -1,7 +1,30 @@
 <script setup lang="ts">
-import { AuthProvider } from '@arcana/auth'
+import { connectToParent } from 'penpal'
+import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
-AuthProvider.handleRedirectPage('*')
+import type { ParentConnectionApi } from '@/models/Connection'
+import { getAuthProvider } from '@/utils/getAuthProvider'
+
+const route = useRoute()
+const { appId } = route.params
+
+onMounted(init)
+
+async function init() {
+  const authProvider = await getAuthProvider(`${appId}`)
+
+  if (authProvider.isLoggedIn()) {
+    const info = authProvider.getUserInfo()
+    sessionStorage.setItem('userInfo', JSON.stringify(info))
+    sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+  }
+
+  const parentAppUrl = localStorage.getItem('parentAppUrl')
+  const connectionToParent = await connectToParent<ParentConnectionApi>({})
+    .promise
+  connectionToParent.redirect(parentAppUrl)
+}
 </script>
 
 <template>

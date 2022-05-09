@@ -11,7 +11,7 @@ const routes = [
     component: SignIn,
   },
   {
-    path: '/redirect',
+    path: '/:appId/redirect/',
     component: LoginRedirect,
   },
   {
