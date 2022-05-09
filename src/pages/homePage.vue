@@ -10,7 +10,6 @@ import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import getPublicKey from '@/utils/getPublicKey'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
 import {
@@ -48,15 +47,15 @@ async function connectionToParent() {
   const connectionInstance = await connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
-      getPublicKey: handleGetPublickey,
+      getPublicKey: handleGetPublicKey,
     },
   }).promise
   keeper.setConnection(connectionInstance)
 }
 
-async function handleGetPublickey(id, verifier) {
+async function handleGetPublicKey(id, verifier) {
   const authProvider = await getAuthProvider(app.id)
-  return await getPublicKey(authProvider, id, verifier)
+  return await authProvider.getPublicKey({ id, verifier })
 }
 
 function onCopyClick() {
