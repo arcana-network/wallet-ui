@@ -65,12 +65,13 @@ async function init() {
     const theme = localStorage.getItem('theme')
 
     app.setAppId(`${appId}`)
-    app.setTheme(theme)
+    if (theme) app.setTheme(theme)
 
-    user.setUserInfo(userInfo)
-    user.setLoginStatus(true)
-
-    if (isLoggedIn) router.push('/')
+    if (isLoggedIn) {
+      user.setUserInfo(userInfo)
+      user.setLoginStatus(true)
+      router.push('/')
+    }
 
     if (route.path.includes('login')) {
       const themeConfig = await getAppTheme(connectionInstance)
