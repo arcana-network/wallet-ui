@@ -41,6 +41,8 @@ type ParentConnectionApi = {
   getThemeConfig(): ThemeConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
+  getParentUrl(): string
+  redirect(parentAppUrl: string | null): Promise<void>
 }
 
 export { requirePermission, PERMISSIONS }

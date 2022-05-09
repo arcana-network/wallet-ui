@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { SocialLoginType } from '@arcana/auth'
+import type { AuthProvider, SocialLoginType } from '@arcana/auth'
 import { toRefs, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
 import { useAppStore } from '@/store/app'
@@ -10,7 +10,6 @@ import { useUserStore } from '@/store/user'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const route = useRoute()
-const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
@@ -26,23 +25,26 @@ const {
   },
 } = toRefs(route)
 
+onMounted(init)
+
 app.setAppId(`${appId}`)
-const authProvider = getAuthProvider(appId)
+let authProvider: AuthProvider | null = null
 
-onMounted(async () => {
-  fetchAvailableLogins()
-})
-
-async function fetchAvailableLogins() {
+async function fetchAvailableLogins(authProvider: AuthProvider) {
   isFetchingAvailableLogins.value = true
   availableLogins.value = await authProvider.getAvailableLogins()
   isFetchingAvailableLogins.value = false
 }
 
-async function handleOauth(type) {
+async function init() {
+  authProvider = await getAuthProvider(`${appId}`)
+  await fetchAvailableLogins(authProvider)
+}
+
+async function handleSocialLoginRequest(type) {
+  authProvider.params.autoRedirect = true
   try {
-    await user.handleLogin(authProvider, type)
-    router.push('/')
+    return await user.handleSocialLogin(authProvider, type)
   } catch (error) {
     user.$reset() // resets user store if login fails
   }
