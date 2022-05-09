@@ -95,6 +95,8 @@ async function init() {
 :root {
   --color-light: #f9f9f9;
   --color-dark: #101010;
+  --color-light-disabled: #f9f9f9af;
+  --color-dark-disabled: #101010af;
   --color-gradient-light: linear-gradient(
     324.81deg,
     #d6d8d9 14.65%,
@@ -162,6 +164,7 @@ async function init() {
   --filled-button-fg-color: var(--color-light);
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
+  --button-bg-disabled: var(--color-dark-disabled);
 }
 
 .dark-mode {
@@ -175,6 +178,7 @@ async function init() {
   --filled-button-fg-color: var(--color-dark);
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
+  --button-bg-disabled: var(--color-light-disabled);
 }
 
 body {
