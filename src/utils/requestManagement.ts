@@ -1,13 +1,14 @@
 // Todo: Find a better place for these functions
+import { requirePermission } from '@/models/Connection'
 
-function getSendRequestFn(handleRequest, keeper, router, requestStore) {
+function getSendRequestFn(handleRequest, requestStore) {
   return function sendRequest(request) {
-    return handleRequest(request, keeper, router, requestStore)
+    return handleRequest(request, requestStore)
   }
 }
 
 function watchRequestQueue(store, keeper) {
-  store.$subscribe((mutation, state) => {
+  store.$subscribe((_, state) => {
     const { processQueue, pendingRequests } = state
     const pendingRequestCount = Object.values(pendingRequests).length
     keeper.connection.sendPendingRequestCount(pendingRequestCount)
@@ -31,8 +32,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
   }
 }
 
-async function handleRequest(request, keeper, router, requestStore) {
-  const isPermissionRequired = keeper.isPermissionRequired(request.method)
+async function handleRequest(request, requestStore) {
+  const isPermissionRequired = requirePermission(request)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 

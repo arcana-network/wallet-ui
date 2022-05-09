@@ -1,27 +1,22 @@
 import type {
   ParentConnectionApi,
-  PERMISSIONS,
   RequestMethod,
   Request,
   Response,
 } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
 
+const NOT_SUPPORTED_TEXT = 'operation_not_supported'
+
 export class Keeper {
-  permissions: typeof PERMISSIONS
   accountHandler: AccountHandler
   walletType: number
   connection: ParentConnectionApi | null
 
-  constructor(privateKey, permissions, walletType, accountHandler) {
-    this.permissions = permissions
+  constructor(walletType, accountHandler) {
     this.walletType = walletType
     this.accountHandler = accountHandler
     this.connection = null
-  }
-
-  isPermissionRequired(method: RequestMethod) {
-    return this.walletType <= 1 && this.permissions[method]
   }
 
   setConnection(connection: ParentConnectionApi): void {
@@ -58,10 +53,7 @@ export class Keeper {
         )
         return response
       case 'eth_sendTransaction':
-        response.result = await this.accountHandler.requestSendTransaction(
-          request.params[0],
-          request.params[1]
-        )
+        response.error = NOT_SUPPORTED_TEXT
         return response
       case 'eth_decrypt':
         response.result = await this.accountHandler.requestDecryption(
@@ -70,10 +62,7 @@ export class Keeper {
         )
         return response
       case 'eth_signTransaction':
-        response.result = await this.accountHandler.requestSignTransaction(
-          request.params[0],
-          request.params[1]
-        )
+        response.error = NOT_SUPPORTED_TEXT
         return response
       case 'eth_signTypedData_v4':
         response.result = await this.accountHandler.requestSignTypedMessage(
