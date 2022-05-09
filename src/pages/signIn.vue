@@ -74,7 +74,7 @@ async function handleSocialLoginRequest(type) {
         <OauthLogin
           v-if="availableLogins.length"
           :available-logins="availableLogins"
-          @oauth-click="handleOauth"
+          @oauth-click="handleSocialLoginRequest"
         />
         <p v-else class="signin__footer-text-error">
           {{ LOGINS_FETCHING_ERROR_TEXT }}

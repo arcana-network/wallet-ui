@@ -9,7 +9,6 @@ import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
-import { permissions } from '@/utils/callPermissionsConfig'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
@@ -40,14 +39,9 @@ async function connectionToParent() {
   const accountHandler = new AccountHandler(privateKey)
   const walletAddress = accountHandler.getAccounts()[0]
   user.setWalletAddress(walletAddress)
-  const keeper = new Keeper(privateKey, permissions, walletType, accountHandler)
+  const keeper = new Keeper(walletType, accountHandler)
   watchRequestQueue(requestStore, keeper)
-  const sendRequest = getSendRequestFn(
-    handleRequest,
-    keeper,
-    router,
-    requestStore
-  )
+  const sendRequest = getSendRequestFn(handleRequest, requestStore)
   const connectionInstance = await connectToParent<ParentConnectionApi>({
     methods: {
       sendRequest,
