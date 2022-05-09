@@ -48,7 +48,7 @@ async function init() {
     const { appId } = route.params
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
-    const theme = sessionStorage.getItem('theme')
+    const theme = localStorage.getItem('theme')
 
     app.setAppId(`${appId}`)
     app.setTheme(theme)
@@ -60,7 +60,7 @@ async function init() {
 
     if (route.path.includes('login')) {
       const themeConfig = await getAppTheme(connectionInstance)
-      sessionStorage.setItem('theme', themeConfig.theme)
+      localStorage.setItem('theme', themeConfig.theme)
 
       const parentAppUrl = await connectionInstance.getParentUrl()
       localStorage.setItem('parentAppUrl', parentAppUrl)
