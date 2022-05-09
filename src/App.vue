@@ -26,12 +26,18 @@ const connectionToParent = connectToParent<ParentConnectionApi>({
     isLoggedIn: () => user.isLoggedIn,
     triggerSocialLogin: handleSocialLoginRequest,
     triggerPasswordlessLogin: handlePasswordlessLoginRequest,
+    getPublicKey: handleGetPublicKey,
   },
 })
 
 async function handleSocialLoginRequest(type) {
   const authProvider = await getAuthProvider(app.id)
   return await user.handleSocialLogin(authProvider, type)
+}
+
+async function handleGetPublicKey(id, verifier) {
+  const authProvider = await getAuthProvider(app.id)
+  return await authProvider.getPublicKey({ id, verifier })
 }
 
 async function handlePasswordlessLoginRequest(email) {
