@@ -70,7 +70,7 @@ async function init() {
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      router.push('/')
+      return router.push('/')
     }
 
     if (route.path.includes('login')) {
