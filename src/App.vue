@@ -1,64 +1,22 @@
 <script setup lang="ts">
-import { connectToParent } from 'penpal'
 import { toRefs, ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useToast } from 'vue-toastification'
+import { useRoute } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
-import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
-import emailScheme from '@/utils/emailSheme'
-import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
-const router = useRouter()
 const route = useRoute()
 const isLoading = ref(false)
-const toast = useToast()
 
 onMounted(init)
 
-const connectionToParent = connectToParent<ParentConnectionApi>({
-  methods: {
-    isLoggedIn: () => user.isLoggedIn,
-    triggerSocialLogin: handleSocialLoginRequest,
-    triggerPasswordlessLogin: handlePasswordlessLoginRequest,
-    getPublicKey: handleGetPublicKey,
-  },
-})
-
-async function handleSocialLoginRequest(type) {
-  const authProvider = await getAuthProvider(app.id)
-  return await user.handleSocialLogin(authProvider, type)
-}
-
-async function handleGetPublicKey(id, verifier) {
-  const authProvider = await getAuthProvider(app.id)
-  return await authProvider.getPublicKey({ id, verifier })
-}
-
-async function handlePasswordlessLoginRequest(email) {
-  const isEmailValid = await emailScheme.isValid(email)
-  if (isEmailValid) {
-    const authProvider = await getAuthProvider(app.id)
-    authProvider.params.autoRedirect = true
-    await user.handlePasswordlessLogin(authProvider, email, {
-      withUI: true,
-    })
-  }
-}
-
-async function getAppTheme(connectionInstance) {
-  return await connectionInstance.getThemeConfig()
-}
-
-async function init() {
+function init() {
   isLoading.value = true
   try {
-    const connectionInstance = await connectionToParent.promise
     const { appId } = route.params
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
@@ -70,18 +28,8 @@ async function init() {
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      return router.push('/')
     }
-
-    if (route.path.includes('login')) {
-      const themeConfig = await getAppTheme(connectionInstance)
-      localStorage.setItem('theme', themeConfig.theme)
-
-      const parentAppUrl = await connectionInstance.getParentUrl()
-      localStorage.setItem('parentAppUrl', parentAppUrl)
-    }
-  } catch (e) {
-    toast.error('Something went Wrong')
+    isLoading.value = false
   } finally {
     isLoading.value = false
   }
