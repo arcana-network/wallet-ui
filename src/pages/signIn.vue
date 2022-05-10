@@ -85,7 +85,7 @@ async function init() {
 }
 
 async function handleSocialLoginRequest(type, from: LoginRequestOriginType) {
-  authProvider.params.autoRedirect = from === 'wallet' ? true : false
+  authProvider.params.autoRedirect = from === 'wallet'
   return await user.handleSocialLogin(authProvider, type)
 }
 
@@ -101,7 +101,7 @@ async function handlePasswordlessLoginRequest(
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
     const authProvider = await getAuthProvider(app.id)
-    authProvider.params.autoRedirect = from === 'wallet' ? true : false
+    authProvider.params.autoRedirect = from === 'wallet'
     await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
     })
