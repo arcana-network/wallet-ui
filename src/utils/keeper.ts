@@ -1,3 +1,5 @@
+import type { AsyncMethodReturns } from 'penpal'
+
 import type {
   ParentConnectionApi,
   RequestMethod,
@@ -11,7 +13,7 @@ const NOT_SUPPORTED_TEXT = 'operation_not_supported'
 export class Keeper {
   accountHandler: AccountHandler
   walletType: number
-  connection: ParentConnectionApi | null
+  connection: AsyncMethodReturns<ParentConnectionApi> | null
 
   constructor(walletType, accountHandler) {
     this.walletType = walletType
@@ -19,7 +21,7 @@ export class Keeper {
     this.connection = null
   }
 
-  setConnection(connection: ParentConnectionApi): void {
+  setConnection(connection: AsyncMethodReturns<ParentConnectionApi>): void {
     this.connection = connection
   }
 

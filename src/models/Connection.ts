@@ -37,12 +37,17 @@ type Response = {
   error?: string
 }
 
+type ProviderConnectInfo = {
+  chainId: string
+}
+
 type ParentConnectionApi = {
   getThemeConfig(): ThemeConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
   redirect(parentAppUrl: string | null): Promise<void>
+  onEvent(event: string, chain: ProviderConnectInfo): void
 }
 
 export { requirePermission, PERMISSIONS }

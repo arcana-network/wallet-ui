@@ -2,19 +2,22 @@
 import type { AuthProvider, SocialLoginType } from '@arcana/auth'
 import { toRefs, onMounted, ref, computed } from 'vue'
 import type { Ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const route = useRoute()
+const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
-const isFetchingAvailableLogins: Ref<boolean> = ref(false)
+const isLoading: Ref<boolean> = ref(false)
+type LoginRequestOrigin = 'parent' | 'wallet'
 
 const userEmailInput = ref('')
 
@@ -22,7 +25,6 @@ const disableSendLinkBtn = computed(() => {
   return userEmailInput.value.length === 0
 })
 
-const LOGINS_FETCHING_LOADING_TEXT = 'Loading Configured Social Logins...'
 const LOGINS_FETCHING_ERROR_TEXT = `No logins configured. If you are the app admin, please configure login
 providers on the developer dashboard.`
 
@@ -32,44 +34,82 @@ const {
   },
 } = toRefs(route)
 
+const penpalMethods = {
+  isLoggedIn: () => user.isLoggedIn,
+  triggerSocialLogin: (type) => handleSocialLoginRequest(type, 'parent'),
+  triggerPasswordlessLogin: (email) =>
+    handlePasswordlessLoginRequest(email, 'parent'),
+  getPublicKey: handleGetPublicKey,
+}
+
 onMounted(init)
 
-app.setAppId(`${appId}`)
 let authProvider: AuthProvider | null = null
 
 async function fetchAvailableLogins(authProvider: AuthProvider) {
-  isFetchingAvailableLogins.value = true
-  availableLogins.value = await authProvider.getAvailableLogins()
-  isFetchingAvailableLogins.value = false
+  return await authProvider.getAvailableLogins()
+}
+
+async function getAppTheme(connectionInstance) {
+  return await connectionInstance.getThemeConfig()
 }
 
 async function init() {
-  authProvider = await getAuthProvider(`${appId}`)
-  await fetchAvailableLogins(authProvider)
-}
-
-async function handleSocialLoginRequest(type) {
-  authProvider.params.autoRedirect = true
+  isLoading.value = true
   try {
-    return await user.handleSocialLogin(authProvider, type)
-  } catch (error) {
-    user.$reset() // resets user store if login fails
+    app.setAppId(`${appId}`)
+
+    authProvider = await getAuthProvider(`${appId}`)
+
+    availableLogins.value = await fetchAvailableLogins(authProvider)
+
+    const connectionToParent = await createParentConnection({
+      ...penpalMethods,
+    }).promise
+
+    const themeConfig = await getAppTheme(connectionToParent)
+    localStorage.setItem('theme', themeConfig.theme)
+
+    const parentAppUrl = await connectionToParent.getParentUrl()
+    localStorage.setItem('parentAppUrl', parentAppUrl)
+
+    if (user.isLoggedIn) router.push('/')
+  } finally {
+    isLoading.value = false
   }
 }
 
-async function onSendLinkClick() {
-  const isEmailValid = await emailScheme.isValid(userEmailInput.value)
+async function handleSocialLoginRequest(type, from: LoginRequestOrigin) {
+  authProvider.params.autoRedirect = from === 'wallet'
+  return await user.handleSocialLogin(authProvider, type)
+}
+
+async function handleGetPublicKey(id, verifier) {
+  const authProvider = await getAuthProvider(app.id)
+  return await authProvider.getPublicKey({ id, verifier })
+}
+
+async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
+  const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    authProvider.params.autoRedirect = true
-    await user.handlePasswordlessLogin(authProvider, userEmailInput.value, {
+    const authProvider = await getAuthProvider(app.id)
+    authProvider.params.autoRedirect = from === 'wallet'
+    await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
     })
   }
 }
+
+async function onSendLinkClick() {
+  handlePasswordlessLoginRequest(userEmailInput.value, 'wallet')
+}
 </script>
 
 <template>
-  <div class="signin__container">
+  <div v-if="isLoading" class="signin__loader">
+    <p>Loading...</p>
+  </div>
+  <div v-else class="signin__container">
     <div class="signin__body flow-container">
       <div class="signin__title-desc flow-element">
         <h1 class="signin__title">Welcome</h1>
@@ -96,14 +136,11 @@ async function onSendLinkClick() {
       </button>
     </div>
     <div class="signin__footer">
-      <p v-if="isFetchingAvailableLogins" class="signin__footer-text-loading">
-        {{ LOGINS_FETCHING_LOADING_TEXT }}
-      </p>
-      <div v-else>
+      <div>
         <OauthLogin
           v-if="availableLogins.length"
           :available-logins="availableLogins"
-          @oauth-click="handleSocialLoginRequest"
+          @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
         />
         <p v-else class="signin__footer-text-error">
           {{ LOGINS_FETCHING_ERROR_TEXT }}
@@ -120,6 +157,13 @@ async function onSendLinkClick() {
   align-items: center;
   height: 100%;
   padding: var(--p-500) var(--p-400);
+}
+
+.signin__loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .signin__container > *:not(:first-child) {

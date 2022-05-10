@@ -50,6 +50,14 @@ export class AccountHandler {
     )
   }
 
+  async getChainId() {
+    if (this.provider.network) {
+      return this.provider.network.chainId
+    }
+    return await this.provider.detectNetwork((network) => network.chainId)
+      .chainId
+  }
+
   getPublicKey(address: string): string {
     const wallet = this.getWallet(address)
     if (wallet) {
