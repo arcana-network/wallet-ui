@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { connectToParent } from 'penpal'
 import { toRefs, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
-import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
@@ -38,23 +37,32 @@ onMounted(connectionToParent)
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
+
   const accountHandler = new AccountHandler(privateKey)
+
   const walletAddress = accountHandler.getAccounts()[0]
   user.setWalletAddress(walletAddress)
+
   const keeper = new Keeper(walletType, accountHandler)
+
   watchRequestQueue(requestStore, keeper)
+
   const sendRequest = getSendRequestFn(handleRequest, requestStore)
-  const connectionInstance = await connectToParent<ParentConnectionApi>({
-    methods: {
-      sendRequest,
-      getPublicKey: handleGetPublicKey,
-    },
+
+  const connectionInstance = await createParentConnection({
+    sendRequest,
+    getPublicKey: handleGetPublicKey,
+    triggerLogout: logout,
   }).promise
+
+  const chainId = await accountHandler.getChainId()
+  connectionInstance.onEvent('connect', { chainId })
+
   keeper.setConnection(connectionInstance)
 }
 
 async function handleGetPublicKey(id, verifier) {
-  const authProvider = await getAuthProvider(app.id)
+  const authProvider = await getAuthProvider(appId)
   return await authProvider.getPublicKey({ id, verifier })
 }
 
@@ -72,7 +80,7 @@ function onCopyClick() {
   window.getSelection().removeAllRanges()
 }
 
-async function onLogoutClick() {
+async function logout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   router.push(`/${appId}/login`)
@@ -111,7 +119,7 @@ function onCloseClick() {
       </div>
     </div>
     <div class="home__footer">
-      <button class="home__footer-button-outline" @click="onLogoutClick">
+      <button class="home__footer-button-outline" @click="logout">
         Logout
       </button>
       <button class="home__footer-button-filled" @click="onCloseClick">
