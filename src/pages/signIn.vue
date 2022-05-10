@@ -17,11 +17,7 @@ const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
-type LoginRequestOriginType = 'parent' | 'wallet'
-const LoginRequestOrigin = {
-  PARENT: 'parent',
-  WALLET: 'wallet',
-}
+type LoginRequestOrigin = 'parent' | 'wallet'
 
 const userEmailInput = ref('')
 
@@ -40,10 +36,9 @@ const {
 
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
-  triggerSocialLogin: (type) =>
-    handleSocialLoginRequest(type, LoginRequestOrigin.PARENT),
+  triggerSocialLogin: (type) => handleSocialLoginRequest(type, 'parent'),
   triggerPasswordlessLogin: (email) =>
-    handlePasswordlessLoginRequest(email, LoginRequestOrigin.PARENT),
+    handlePasswordlessLoginRequest(email, 'parent'),
   getPublicKey: handleGetPublicKey,
 }
 
@@ -84,7 +79,7 @@ async function init() {
   }
 }
 
-async function handleSocialLoginRequest(type, from: LoginRequestOriginType) {
+async function handleSocialLoginRequest(type, from: LoginRequestOrigin) {
   authProvider.params.autoRedirect = from === 'wallet'
   return await user.handleSocialLogin(authProvider, type)
 }
@@ -94,10 +89,7 @@ async function handleGetPublicKey(id, verifier) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
-async function handlePasswordlessLoginRequest(
-  email,
-  from: LoginRequestOriginType
-) {
+async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
     const authProvider = await getAuthProvider(app.id)
