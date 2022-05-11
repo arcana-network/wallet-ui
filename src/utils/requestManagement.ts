@@ -7,11 +7,12 @@ function getSendRequestFn(handleRequest, requestStore) {
   }
 }
 
-function watchRequestQueue(store, keeper) {
+async function watchRequestQueue(store, keeper) {
+  const connectionInstance = await keeper.connection.promise
   store.$subscribe((_, state) => {
     const { processQueue, pendingRequests } = state
     const pendingRequestCount = Object.values(pendingRequests).length
-    keeper.connection.sendPendingRequestCount(pendingRequestCount)
+    connectionInstance.sendPendingRequestCount(pendingRequestCount)
     while (processQueue.length > 0) {
       const request = processQueue.shift()
       processRequest(request, keeper)
