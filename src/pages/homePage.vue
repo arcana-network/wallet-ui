@@ -88,7 +88,7 @@ async function handleLogout() {
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
-  parentConnectionInstance?.onEvent('disconnect', null)
+  parentConnectionInstance?.onEvent('disconnect')
   parentConnection?.destroy()
   router.push(`/${appId}/login`)
 }
