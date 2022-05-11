@@ -38,7 +38,7 @@ type Response = {
 }
 
 type ProviderConnectInfo = {
-  chainId: string
+  chainId: string | number
 }
 
 type ParentConnectionApi = {

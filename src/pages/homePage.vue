@@ -50,6 +50,7 @@ async function connectionToParent() {
   const sendRequest = getSendRequestFn(handleRequest, requestStore)
 
   const connectionInstance = await createParentConnection({
+    isLoggedIn: () => user.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: logout,

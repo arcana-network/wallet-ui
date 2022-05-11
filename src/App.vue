@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { toRefs, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
@@ -9,7 +8,6 @@ import { useUserStore } from '@/store/user'
 const user = useUserStore()
 const app = useAppStore()
 const { theme } = toRefs(app)
-const route = useRoute()
 const isLoading = ref(false)
 
 onMounted(init)
@@ -17,19 +15,16 @@ onMounted(init)
 function init() {
   isLoading.value = true
   try {
-    const { appId } = route.params
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
     const theme = localStorage.getItem('theme')
 
-    app.setAppId(`${appId}`)
     if (theme) app.setTheme(theme)
 
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
     }
-    isLoading.value = false
   } finally {
     isLoading.value = false
   }
