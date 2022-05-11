@@ -56,10 +56,10 @@ async function connectionToParent() {
     triggerLogout: logout,
   }).promise
 
+  keeper.setConnection(connectionInstance)
+
   const chainId = await accountHandler.getChainId()
   connectionInstance.onEvent('connect', { chainId })
-
-  keeper.setConnection(connectionInstance)
 }
 
 async function handleGetPublicKey(id, verifier) {
