@@ -63,17 +63,20 @@ async function init() {
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    const connectionToParent = await createParentConnection({
-      ...penpalMethods,
-    }).promise
+    if (user.isLoggedIn) {
+      router.push('/')
+    } else {
+      const connectionToParent = await createParentConnection({
+        ...penpalMethods,
+      }).promise
 
-    const themeConfig = await getAppTheme(connectionToParent)
-    localStorage.setItem('theme', themeConfig.theme)
+      const { theme } = await getAppTheme(connectionToParent)
+      localStorage.setItem('theme', theme)
+      app.setTheme(theme)
 
-    const parentAppUrl = await connectionToParent.getParentUrl()
-    localStorage.setItem('parentAppUrl', parentAppUrl)
-
-    if (user.isLoggedIn) router.push('/')
+      const parentAppUrl = await connectionToParent.getParentUrl()
+      localStorage.setItem('parentAppUrl', parentAppUrl)
+    }
   } finally {
     isLoading.value = false
   }
