@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { Connection } from 'penpal'
 import { toRefs, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
@@ -32,6 +34,7 @@ const {
 } = user
 const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = app
+let parentConnection: Connection<ParentConnectionApi> | null = null
 
 onMounted(connectionToParent)
 
@@ -45,21 +48,21 @@ async function connectionToParent() {
 
   const keeper = new Keeper(walletType, accountHandler)
 
-  watchRequestQueue(requestStore, keeper)
-
   const sendRequest = getSendRequestFn(handleRequest, requestStore)
 
-  const connectionInstance = await createParentConnection({
+  parentConnection = createParentConnection({
     isLoggedIn: () => user.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
-    triggerLogout: logout,
-  }).promise
+    triggerLogout: handleLogout,
+  })
 
-  keeper.setConnection(connectionInstance)
+  keeper.setConnection(parentConnection)
+  watchRequestQueue(requestStore, keeper)
 
   const chainId = await accountHandler.getChainId()
-  connectionInstance.onEvent('connect', { chainId })
+  const parentConnectionInstance = await parentConnection.promise
+  parentConnectionInstance.onEvent('connect', { chainId })
 }
 
 async function handleGetPublicKey(id, verifier) {
@@ -81,9 +84,12 @@ function onCopyClick() {
   window.getSelection().removeAllRanges()
 }
 
-async function logout() {
+async function handleLogout() {
+  const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
+  parentConnectionInstance?.onEvent('disconnect')
+  parentConnection?.destroy()
   router.push(`/${appId}/login`)
 }
 
@@ -120,7 +126,7 @@ function onCloseClick() {
       </div>
     </div>
     <div class="home__footer">
-      <button class="home__footer-button-outline" @click="logout">
+      <button class="home__footer-button-outline" @click="handleLogout">
         Logout
       </button>
       <button class="home__footer-button-filled" @click="onCloseClick">

@@ -47,7 +47,7 @@ type ParentConnectionApi = {
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
   redirect(parentAppUrl: string | null): Promise<void>
-  onEvent(event: string, chain: ProviderConnectInfo): void
+  onEvent(event: string, chain?: ProviderConnectInfo): void
 }
 
 export { requirePermission, PERMISSIONS }
