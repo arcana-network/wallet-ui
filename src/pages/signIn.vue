@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { AuthProvider, SocialLoginType } from '@arcana/auth'
-import { toRefs, onMounted, ref, computed } from 'vue'
+import type { Connection } from 'penpal'
+import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import OauthLogin from '@/components/oauthLogin.vue'
+import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { createParentConnection } from '@/utils/createParentConnection'
@@ -18,6 +20,7 @@ const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
 type LoginRequestOrigin = 'parent' | 'wallet'
+let parentConnection: Connection<ParentConnectionApi> | null = null
 
 const userEmailInput = ref('')
 
@@ -44,13 +47,18 @@ const penpalMethods = {
 
 onMounted(init)
 
+onUnmounted(() => {
+  parentConnection?.destroy()
+})
+
 let authProvider: AuthProvider | null = null
 
 async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-async function getAppTheme(connectionInstance) {
+async function getAppTheme(connection) {
+  const connectionInstance = await connection.promise
   return await connectionInstance.getThemeConfig()
 }
 
@@ -66,15 +74,15 @@ async function init() {
     if (user.isLoggedIn) {
       router.push('/')
     } else {
-      const connectionToParent = await createParentConnection({
+      parentConnection = createParentConnection({
         ...penpalMethods,
-      }).promise
+      })
 
-      const { theme } = await getAppTheme(connectionToParent)
+      const { theme } = await getAppTheme(parentConnection)
       localStorage.setItem('theme', theme)
       app.setTheme(theme)
 
-      const parentAppUrl = await connectionToParent.getParentUrl()
+      const parentAppUrl = await (await parentConnection.promise).getParentUrl()
       localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
