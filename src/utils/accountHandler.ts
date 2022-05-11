@@ -51,10 +51,8 @@ export class AccountHandler {
   }
 
   async getChainId() {
-    if (this.provider.network) {
-      return this.provider.network.chainId
-    }
-    return await this.provider.detectNetwork((network) => network.chainId)
+    if (this.provider.network) return this.provider.network.chainId
+    return (await this.provider.detectNetwork((network) => network.chainId))
       .chainId
   }
 
