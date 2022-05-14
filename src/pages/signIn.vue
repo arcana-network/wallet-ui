@@ -57,11 +57,6 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-async function getAppTheme(connection) {
-  const connectionInstance = await connection.promise
-  return await connectionInstance.getThemeConfig()
-}
-
 async function init() {
   isLoading.value = true
   try {
@@ -78,11 +73,19 @@ async function init() {
         ...penpalMethods,
       })
 
-      const { theme } = await getAppTheme(parentConnection)
-      localStorage.setItem('theme', theme)
-      app.setTheme(theme)
+      const parentConnectionInstance = await parentConnection.promise
 
-      const parentAppUrl = await (await parentConnection.promise).getParentUrl()
+      const {
+        themeConfig: { theme },
+        name: appName,
+      } = await parentConnectionInstance.getAppConfig()
+
+      localStorage.setItem('theme', theme)
+      localStorage.setItem('appName', appName)
+      app.setTheme(theme)
+      app.setName(appName)
+
+      const parentAppUrl = await parentConnectionInstance.getParentUrl()
       localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
