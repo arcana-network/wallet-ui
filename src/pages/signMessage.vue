@@ -4,6 +4,7 @@ import { ref, toRefs } from 'vue'
 import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { chargeInfo } from '@/utils/chargeInfo'
 import { methodAndAction } from '@/utils/method'
@@ -11,6 +12,7 @@ import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const requestStore = useRequestStore()
+const appStore = useAppStore()
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore)
 
@@ -38,7 +40,8 @@ const showAdvancedInfo = ref(false)
           <DateTime :datetime="pendingRequest.receivedTime" />
         </div>
         <p class="sign__message-permission">
-          DropBox.com requests your permission to perform the following action:
+          {{ appStore.name }} requests your permission to perform the following
+          action:
         </p>
         <p class="sign__message-text">
           {{ methodAndAction[pendingRequest.request.method] }}
