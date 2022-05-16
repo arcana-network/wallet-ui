@@ -12,7 +12,6 @@ import {
   stripHexPrefix,
   privateToPublic,
   ecsign,
-  setLengthLeft,
   BN,
   bufferToHex,
 } from 'ethereumjs-util'
@@ -73,7 +72,7 @@ export class AccountHandler {
       const wallet = this.getWallet(address)
       if (wallet) {
         const signature = ecsign(
-          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+          Buffer.from(stripHexPrefix(msg), 'hex'),
           Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
         )
         const rawMessageSig = concatSig(
@@ -95,8 +94,8 @@ export class AccountHandler {
       const wallet = this.getWallet(address)
       if (wallet) {
         const signature = personalSign(
-          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'utf8'), 32),
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+          { data: msg }
         )
         return signature
       } else {
