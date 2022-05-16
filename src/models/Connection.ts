@@ -1,4 +1,4 @@
-import type { ThemeConfig } from '@/models/Theme'
+import { IAppConfig } from '@arcana/wallet'
 
 type RequestMethod =
   | 'eth_sign'
@@ -42,7 +42,7 @@ type ProviderConnectInfo = {
 }
 
 type ParentConnectionApi = {
-  getThemeConfig(): ThemeConfig
+  getAppConfig(): IAppConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string

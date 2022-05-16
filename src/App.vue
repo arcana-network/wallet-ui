@@ -18,8 +18,10 @@ function init() {
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
     const theme = localStorage.getItem('theme')
+    const appName = localStorage.getItem('appName')
 
     if (theme) app.setTheme(theme)
+    if (appName) app.setName(appName)
 
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
