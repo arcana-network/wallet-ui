@@ -55,6 +55,7 @@ async function connectionToParent() {
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
+    getUserInfo: () => JSON.stringify(user.info),
   })
 
   keeper.setConnection(parentConnection)
