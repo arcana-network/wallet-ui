@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
 import { toRefs, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -97,6 +97,10 @@ async function handleLogout() {
 function onCloseClick() {
   router.push('/signMessage')
 }
+
+onBeforeRouteLeave((to) => {
+  if (to.path.includes('login')) parentConnection?.destroy()
+})
 </script>
 
 <template>
