@@ -1,4 +1,4 @@
-import { IAppConfig } from '@arcana/wallet'
+import { IAppConfig, AppMode } from '@arcana/wallet'
 
 type RequestMethod =
   | 'eth_sign'
@@ -48,6 +48,7 @@ type ParentConnectionApi = {
   getParentUrl(): string
   redirect(parentAppUrl: string | null): Promise<void>
   onEvent(event: string, chain?: ProviderConnectInfo): void
+  getAppMode(): Promise<AppMode>
 }
 
 export { requirePermission, PERMISSIONS }
