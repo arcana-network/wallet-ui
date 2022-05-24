@@ -1,3 +1,4 @@
+import { AppMode } from '@arcana/wallet'
 import { defineStore } from 'pinia'
 
 import type { Theme } from '@/models/Theme'
@@ -7,6 +8,7 @@ type AppState = {
   name: string
   theme: Theme
   parentAppUrl: string | null
+  appMode: AppMode
 }
 
 export const useAppStore = defineStore('app', {
@@ -28,6 +30,9 @@ export const useAppStore = defineStore('app', {
     },
     setParentUrl(url: string): void {
       this.parentAppUrl = url
+    },
+    setAppMode(appMode: AppMode): void {
+      this.appMode = appMode
     },
   },
 })
