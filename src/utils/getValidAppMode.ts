@@ -5,7 +5,7 @@ enum WalletType {
   UI = 1,
 }
 
-const ModeWalletTypeRelation = {
+const WALLET_TYPE_APP_MODE_MAPPINGS = {
   [WalletType.UI]: [AppMode.Widget, AppMode.Full],
   [WalletType.NoUI]: [AppMode.NoUI],
 }
@@ -16,7 +16,7 @@ const DEFAULT_APP_MODE = {
 }
 
 function getValidAppMode(walletType: WalletType, appMode?: AppMode): AppMode {
-  const allowedModes = ModeWalletTypeRelation[walletType]
+  const allowedModes = WALLET_TYPE_APP_MODE_MAPPINGS[walletType]
   if (appMode === undefined) return allowedModes[0]
   return allowedModes.includes(appMode) ? appMode : DEFAULT_APP_MODE[walletType]
 }
