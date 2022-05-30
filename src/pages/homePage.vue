@@ -65,8 +65,8 @@ async function connectionToParent() {
   const chainId = await accountHandler.getChainId()
   const parentConnectionInstance = await parentConnection.promise
   const appModeFromParent = await parentConnectionInstance.getAppMode()
-  const appMode = getAppMode(walletType, appModeFromParent)
-  appStore.setAppMode(appMode)
+  const validAppMode = getAppMode(walletType, appModeFromParent)
+  appStore.setAppMode(validAppMode)
 
   parentConnectionInstance.onEvent('connect', { chainId })
 }

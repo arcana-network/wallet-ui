@@ -8,7 +8,7 @@ type AppState = {
   name: string
   theme: Theme
   parentAppUrl: string | null
-  appMode: AppMode
+  validAppMode: AppMode
 }
 
 export const useAppStore = defineStore('app', {
@@ -31,8 +31,8 @@ export const useAppStore = defineStore('app', {
     setParentUrl(url: string): void {
       this.parentAppUrl = url
     },
-    setAppMode(appMode: AppMode): void {
-      this.appMode = appMode
+    setAppMode(validAppMode: AppMode): void {
+      this.validAppMode = validAppMode
     },
   },
 })
