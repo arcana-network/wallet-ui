@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@arcana/auth": "^0.0.9-beta4",
-    "@arcana/wallet": "^0.0.3",
+    "@arcana/wallet": "^0.0.5-beta1",
     "@ethereumjs/tx": "^3.4.0",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",

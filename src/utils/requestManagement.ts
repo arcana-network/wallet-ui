@@ -1,9 +1,9 @@
 // Todo: Find a better place for these functions
 import { requirePermission } from '@/models/Connection'
 
-function getSendRequestFn(handleRequest, requestStore) {
+function getSendRequestFn(handleRequest, requestStore, appStore) {
   return function sendRequest(request) {
-    return handleRequest(request, requestStore)
+    return handleRequest(request, requestStore, appStore)
   }
 }
 
@@ -33,8 +33,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
   }
 }
 
-async function handleRequest(request, requestStore) {
-  const isPermissionRequired = requirePermission(request)
+async function handleRequest(request, requestStore, appStore) {
+  const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
