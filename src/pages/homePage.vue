@@ -10,6 +10,7 @@ import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
+import getAppMode from '@/utils/getAppMode'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
@@ -63,7 +64,8 @@ async function connectionToParent() {
 
   const chainId = await accountHandler.getChainId()
   const parentConnectionInstance = await parentConnection.promise
-  const appMode = await parentConnectionInstance.getAppMode()
+  const appModeFromParent = await parentConnectionInstance.getAppMode()
+  const appMode = getAppMode(walletType, appModeFromParent)
   appStore.setAppMode(appMode)
 
   parentConnectionInstance.onEvent('connect', { chainId })
