@@ -34,7 +34,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 }
 
 async function handleRequest(request, requestStore, appStore) {
-  const isPermissionRequired = requirePermission(request, appStore.appMode)
+  const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
