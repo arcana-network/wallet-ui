@@ -10,13 +10,16 @@ const ModeWalletTypeRelation = {
   [WalletType.NoUI]: [AppMode.NoUI],
 }
 
-function getAppMode(w: WalletType, a: AppMode | undefined): AppMode {
-  const allowedModes = ModeWalletTypeRelation[w]
-  if (a !== undefined) {
-    if (!allowedModes.includes(a)) {
+function getAppMode(
+  walletType: WalletType,
+  appMode: AppMode | undefined
+): AppMode {
+  const allowedModes = ModeWalletTypeRelation[walletType]
+  if (appMode !== undefined) {
+    if (!allowedModes.includes(appMode)) {
       return allowedModes[0]
     }
-    return a
+    return appMode
   } else {
     return allowedModes[0]
   }
