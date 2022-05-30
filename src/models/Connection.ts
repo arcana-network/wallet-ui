@@ -27,7 +27,9 @@ type Request = {
   params: string[]
 }
 
-function requirePermission(request: Request): boolean {
+function requirePermission(request: Request, appMode: AppMode): boolean {
+  const isNoUIMode = appMode === AppMode.NoUI
+  if (isNoUIMode) return false
   return PERMISSIONS[request.method]
 }
 

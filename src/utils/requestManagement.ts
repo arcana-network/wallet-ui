@@ -1,6 +1,4 @@
 // Todo: Find a better place for these functions
-import { AppMode } from '@arcana/wallet'
-
 import { requirePermission } from '@/models/Connection'
 
 function getSendRequestFn(handleRequest, requestStore, appStore) {
@@ -36,8 +34,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 }
 
 async function handleRequest(request, requestStore, appStore) {
-  const isNoUIMode = appStore.appMode === AppMode.NoUI
-  const isPermissionRequired = isNoUIMode ? false : requirePermission(request)
+  const isPermissionRequired = requirePermission(request, appStore.appMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
