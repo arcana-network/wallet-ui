@@ -32,7 +32,7 @@ async function init() {
   }
 }
 
-function reportError(errorMessage) {
+async function reportError(errorMessage) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
