@@ -19,7 +19,7 @@ async function init() {
       sessionStorage.setItem('userInfo', JSON.stringify(info))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
     } else {
-      reportError('Could not login, please try again')
+      await reportError('Could not login, please try again')
       return
     }
 
