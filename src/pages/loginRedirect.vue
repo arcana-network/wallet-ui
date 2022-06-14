@@ -36,7 +36,8 @@ async function reportError(errorMessage) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
-  return connectionToParent.error(errorMessage)
+  await connectionToParent.error(errorMessage)
+  return
 }
 </script>
 
