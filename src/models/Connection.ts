@@ -42,16 +42,26 @@ type ProviderConnectInfo = {
   chainId: string | number
 }
 
+type RedirectParentConnectionApi = {
+  redirect(parentAppUrl: string | null): Promise<void>
+  error(errorMessage: string): Promise<void>
+}
+
 type ParentConnectionApi = {
   getAppConfig(): IAppConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
-  redirect(parentAppUrl: string | null): Promise<void>
   onEvent(event: string, chain?: ProviderConnectInfo): void
   getAppMode(): Promise<AppMode>
 }
 
 export { requirePermission, PERMISSIONS }
 
-export type { ParentConnectionApi, Request, RequestMethod, Response }
+export type {
+  RedirectParentConnectionApi,
+  ParentConnectionApi,
+  Request,
+  RequestMethod,
+  Response,
+}
