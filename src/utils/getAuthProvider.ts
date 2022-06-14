@@ -1,5 +1,5 @@
-import { AuthProvider } from '@arcana/auth'
-import type { InitParams } from '@arcana/auth/types/types'
+import { AuthProvider } from '@arcana/auth-core'
+import type { InitParams } from '@arcana/auth-core/types/types'
 
 const AUTH_NETWORK = process.env
   .VUE_APP_ARCANA_AUTH_NETWORK as InitParams['network']

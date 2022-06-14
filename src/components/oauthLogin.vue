@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SocialLoginType } from '@arcana/auth'
+import { SocialLoginType } from '@arcana/auth-core'
 
 import { useImage } from '@/utils/useImage'
 
