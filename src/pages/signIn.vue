@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AuthProvider, SocialLoginType } from '@arcana/auth'
+import type { AuthProvider, SocialLoginType } from '@arcana/auth-core'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'

@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { AuthProvider } from '@arcana/auth'
-import type { LoginType, UserInfo } from '@arcana/auth/types/types'
+import { AuthProvider } from '@arcana/auth-core'
+import type { LoginType, UserInfo } from '@arcana/auth-core/types/types'
 import { defineStore } from 'pinia'
 
 type UserState = {
