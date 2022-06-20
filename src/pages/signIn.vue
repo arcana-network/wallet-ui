@@ -108,7 +108,7 @@ async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
   if (isEmailValid) {
     const authProvider = await getAuthProvider(app.id)
     authProvider.params.autoRedirect = from === 'wallet'
-    await user.handlePasswordlessLogin(authProvider, email, {
+    return await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
     })
   }
