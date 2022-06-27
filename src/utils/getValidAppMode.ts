@@ -1,4 +1,4 @@
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@arcana/wallet'
 
 enum WalletType {
   NoUI = 0,
