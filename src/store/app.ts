@@ -1,4 +1,4 @@
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@arcana/wallet'
 import { defineStore } from 'pinia'
 
 import type { Theme } from '@/models/Theme'
