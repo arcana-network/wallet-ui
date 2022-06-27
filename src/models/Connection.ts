@@ -1,4 +1,4 @@
-import { IAppConfig, AppMode } from '@arcana/wallet'
+import { AppConfig, AppMode } from '@arcana/auth'
 
 type RequestMethod =
   | 'eth_sign'
@@ -48,7 +48,7 @@ type RedirectParentConnectionApi = {
 }
 
 type ParentConnectionApi = {
-  getAppConfig(): IAppConfig
+  getAppConfig(): AppConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
