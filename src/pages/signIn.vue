@@ -128,7 +128,7 @@ async function onSendLinkClick() {
       <div class="signin__title-desc flow-element">
         <h1 class="signin__title">Welcome</h1>
         <p class="signin__desc">
-          We’ll email you a magic link for a password-free sign in.
+          We’ll email you a login link for a password-free sign in.
         </p>
       </div>
       <div class="signin__input-container flow-element">
