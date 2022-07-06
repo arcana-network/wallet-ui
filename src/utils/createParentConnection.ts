@@ -1,10 +1,22 @@
 import { connectToParent } from 'penpal'
 
-import { ParentConnectionApi } from '@/models/Connection'
+import {
+  ParentConnectionApi,
+  InitParentConnectionApi,
+} from '@/models/Connection'
 
-export function createParentConnection(methods) {
+function createParentConnection(methods) {
   return connectToParent<ParentConnectionApi>({
     methods,
     debug: true,
   })
 }
+
+function createInitParentConnection(methods) {
+  return connectToParent<InitParentConnectionApi>({
+    methods,
+    debug: true,
+  })
+}
+
+export { createInitParentConnection, createParentConnection }

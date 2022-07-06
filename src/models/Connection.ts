@@ -1,4 +1,5 @@
 import { AppConfig, AppMode } from '@arcana/auth'
+import type { SocialLoginType } from '@arcana/auth-core'
 
 type RequestMethod =
   | 'eth_sign'
@@ -54,6 +55,12 @@ type ParentConnectionApi = {
   getParentUrl(): string
   onEvent(event: string, chain?: ProviderConnectInfo): void
   getAppMode(): Promise<AppMode>
+  triggerSocialLogin(type: SocialLoginType): void
+  triggerPasswordlessLogin(email: string): void
+}
+type InitParentConnectionApi = {
+  getParentUrl(): string
+  error(e: string): void
 }
 
 export { requirePermission, PERMISSIONS }
@@ -61,6 +68,7 @@ export { requirePermission, PERMISSIONS }
 export type {
   RedirectParentConnectionApi,
   ParentConnectionApi,
+  InitParentConnectionApi,
   Request,
   RequestMethod,
   Response,
