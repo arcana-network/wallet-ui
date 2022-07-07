@@ -1,5 +1,7 @@
 import { Buffer } from 'buffer'
 
+import { BrowserTracing } from '@sentry/tracing'
+import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
 import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
@@ -28,6 +30,31 @@ const toastOptions = {
 window.Buffer = Buffer
 
 const walletApp = createApp(App)
+
+function getSentryConfig() {
+  if (process.env.NODE_ENV === 'production') {
+    return {
+      dsn: process.env.VUE_APP_SENTRY_DSN,
+      tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
+    }
+  }
+  return {
+    dsn: undefined,
+    tracingOrigins: undefined,
+  }
+}
+
+SentryInit({
+  app: walletApp,
+  dsn: getSentryConfig().dsn,
+  integrations: [
+    new BrowserTracing({
+      routingInstrumentation: vueRouterInstrumentation(router),
+      tracingOrigins: getSentryConfig().tracingOrigins,
+    }),
+  ],
+  tracesSampleRate: 1.0,
+})
 
 walletApp
   .use(JsonViewer)
