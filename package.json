@@ -17,9 +17,11 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@arcana/auth": "^0.0.9-beta.13",
-    "@arcana/auth-core": "^0.0.3-beta2",
+    "@arcana/auth": "^0.1.0",
+    "@arcana/auth-core": "^0.1.1",
     "@ethereumjs/tx": "^3.4.0",
+    "@sentry/tracing": "^7.5.1",
+    "@sentry/vue": "^7.5.1",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "core-js": "^3.8.3",
