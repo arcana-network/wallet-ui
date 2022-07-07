@@ -19,5 +19,10 @@ module.exports = defineConfig({
     devServer: {
       webSocketServer: 'sockjs',
     },
+    devtool: 'source-map',
+    output: {
+      filename: '[name].js',
+      sourceMapFilename: '[name].js.map',
+    },
   },
 })
