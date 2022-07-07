@@ -5,6 +5,7 @@ import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
 import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
 import Toast from 'vue-toastification'
 
@@ -62,5 +63,11 @@ walletApp
   .use(Toast, toastOptions)
   .use(FloatingVue)
   .use(createPinia())
+
+if (process.env.NODE_ENV === 'production') {
+  walletApp.use(VueGtag, {
+    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
+  })
+}
 
 walletApp.mount('#app')
