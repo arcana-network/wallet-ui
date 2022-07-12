@@ -126,9 +126,10 @@ async function onSendLinkClick() {
   <div v-else class="signin__container">
     <div class="signin__body flow-container">
       <div class="signin__title-desc flow-element">
-        <h1 class="signin__title">Welcome</h1>
+        <h1 class="signin__title">Welcome!</h1>
         <p class="signin__desc">
-          We’ll email you a login link for a password-free sign in.
+          You will receive a login link in your email for a password-less
+          sign-in.
         </p>
       </div>
       <div class="signin__input-container flow-element">
