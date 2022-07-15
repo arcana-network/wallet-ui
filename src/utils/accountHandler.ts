@@ -32,6 +32,18 @@ export class AccountHandler {
     this.addWallet(privateKey)
   }
 
+  getDefaultAccountDetails(): { address: string; publicKey: string } {
+    const wallet = this.wallets[0]
+    if (wallet) {
+      const details = {
+        address: wallet.address,
+        publicKey: wallet.publicKey,
+      }
+      return details
+    }
+    return null
+  }
+
   addWallet(privateKey: string): void {
     const wallet = new ethers.Wallet(privateKey)
     if (this.wallets.find((w) => w.address === wallet.address)) {
