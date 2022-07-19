@@ -51,7 +51,7 @@ async function connectionToParent() {
 
   const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
 
-  const accountDetails = accountHandler.getDefaultAccountDetails()
+  const accountDetails = accountHandler.getAccount()
 
   parentConnection = createParentConnection({
     isLoggedIn: () => user.isLoggedIn,

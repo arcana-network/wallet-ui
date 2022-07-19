@@ -25,7 +25,7 @@ export class AccountHandler {
     )
   }
 
-  getDefaultAccountDetails(): { address: string; publicKey: string } {
+  getAccount(): { address: string; publicKey: string } {
     const { address, publicKey } = this.wallet
     return { address, publicKey }
   }
