@@ -16,7 +16,6 @@ const route = useRoute()
 const user = useUserStore()
 const app = useAppStore()
 const isLoading: Ref<boolean> = ref(false)
-type LoginRequestOrigin = 'parent' | 'wallet'
 let parentConnection: Connection<InitParentConnectionApi> | null = null
 
 const {

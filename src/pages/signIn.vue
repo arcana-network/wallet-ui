@@ -38,8 +38,8 @@ const {
 
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
-  isLoginAvailable: (type: SocialLoginType) =>
-    availableLogins.value.includes(type),
+  isLoginAvailable: (kind: SocialLoginType) =>
+    availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
 }
 
@@ -88,9 +88,9 @@ async function init() {
   }
 }
 
-async function handleSocialLoginRequest(type) {
+async function handleSocialLoginRequest(kind: SocialLoginType) {
   const c = await parentConnection?.promise
-  c?.triggerSocialLogin(type)
+  c?.triggerSocialLogin(kind)
 }
 
 async function handleGetPublicKey(id, verifier) {

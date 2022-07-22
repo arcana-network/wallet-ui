@@ -77,17 +77,22 @@ async function handleGetPublicKey(id, verifier) {
 }
 
 function onCopyClick() {
-  const walletAddressEl = document.getElementById('wallet-address')
-  try {
-    walletAddressEl.setAttribute('type', 'text')
-    walletAddressEl.select()
-    document.execCommand('copy')
-    toast.success('Wallet address copied')
-  } catch (e) {
-    toast.error('Failed to copy wallet address')
+  const walletAddressEl = document.getElementById(
+    'wallet-address'
+  ) as HTMLInputElement | null
+
+  if (walletAddressEl) {
+    try {
+      walletAddressEl.setAttribute('type', 'text')
+      walletAddressEl.select()
+      document.execCommand('copy')
+      toast.success('Wallet address copied')
+    } catch (e) {
+      toast.error('Failed to copy wallet address')
+    }
+    walletAddressEl.setAttribute('type', 'hidden')
   }
-  walletAddressEl.setAttribute('type', 'hidden')
-  window.getSelection().removeAllRanges()
+  window.getSelection()?.removeAllRanges()
 }
 
 async function handleLogout() {
