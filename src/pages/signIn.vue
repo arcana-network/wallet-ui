@@ -117,6 +117,10 @@ async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
 async function onSendLinkClick() {
   handlePasswordlessLoginRequest(userEmailInput.value, 'wallet')
 }
+
+function onEnterPress() {
+  if (userEmailInput.value.length) onSendLinkClick()
+}
 </script>
 
 <template>
@@ -139,6 +143,8 @@ async function onSendLinkClick() {
           type="email"
           class="signin__input-field"
           placeholder="someone@example.com"
+          required
+          @keyup.enter="onEnterPress"
         />
       </div>
       <button
