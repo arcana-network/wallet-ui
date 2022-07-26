@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AuthProvider, SocialLoginType } from '@arcana/auth'
+import type { AuthProvider, SocialLoginType } from '@arcana/auth-core'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -57,11 +57,6 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-async function getAppTheme(connection) {
-  const connectionInstance = await connection.promise
-  return await connectionInstance.getThemeConfig()
-}
-
 async function init() {
   isLoading.value = true
   try {
@@ -78,11 +73,19 @@ async function init() {
         ...penpalMethods,
       })
 
-      const { theme } = await getAppTheme(parentConnection)
-      localStorage.setItem('theme', theme)
-      app.setTheme(theme)
+      const parentConnectionInstance = await parentConnection.promise
 
-      const parentAppUrl = await (await parentConnection.promise).getParentUrl()
+      const {
+        themeConfig: { theme },
+        name: appName,
+      } = await parentConnectionInstance.getAppConfig()
+
+      localStorage.setItem('theme', theme)
+      localStorage.setItem('appName', appName)
+      app.setTheme(theme)
+      app.setName(appName)
+
+      const parentAppUrl = await parentConnectionInstance.getParentUrl()
       localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
@@ -105,7 +108,7 @@ async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
   if (isEmailValid) {
     const authProvider = await getAuthProvider(app.id)
     authProvider.params.autoRedirect = from === 'wallet'
-    await user.handlePasswordlessLogin(authProvider, email, {
+    return await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
     })
   }
@@ -123,9 +126,10 @@ async function onSendLinkClick() {
   <div v-else class="signin__container">
     <div class="signin__body flow-container">
       <div class="signin__title-desc flow-element">
-        <h1 class="signin__title">Welcome</h1>
+        <h1 class="signin__title">Welcome!</h1>
         <p class="signin__desc">
-          We’ll email you a magic link for a password-free sign in.
+          You will receive a login link in your email for a password-less
+          sign-in.
         </p>
       </div>
       <div class="signin__input-container flow-element">

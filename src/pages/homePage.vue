@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
 import { toRefs, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -11,6 +11,7 @@ import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
 import {
@@ -23,7 +24,7 @@ import { useImage } from '@/utils/useImage'
 const getImage = useImage()
 
 const user = useUserStore()
-const app = useAppStore()
+const appStore = useAppStore()
 const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
@@ -33,7 +34,7 @@ const {
   privateKey,
 } = user
 const { walletAddressShrinked, walletAddress } = toRefs(user)
-const { id: appId } = app
+const { id: appId } = appStore
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 onMounted(connectionToParent)
@@ -48,13 +49,14 @@ async function connectionToParent() {
 
   const keeper = new Keeper(walletType, accountHandler)
 
-  const sendRequest = getSendRequestFn(handleRequest, requestStore)
+  const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
 
   parentConnection = createParentConnection({
     isLoggedIn: () => user.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
+    getUserInfo: () => JSON.stringify(user.info),
   })
 
   keeper.setConnection(parentConnection)
@@ -62,6 +64,10 @@ async function connectionToParent() {
 
   const chainId = await accountHandler.getChainId()
   const parentConnectionInstance = await parentConnection.promise
+  const appModeFromParent = await parentConnectionInstance.getAppMode()
+  const validAppMode = getValidAppMode(walletType, appModeFromParent)
+  appStore.setAppMode(validAppMode)
+
   parentConnectionInstance.onEvent('connect', { chainId })
 }
 
@@ -89,13 +95,16 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
-  parentConnection?.destroy()
   router.push(`/${appId}/login`)
 }
 
 function onCloseClick() {
   router.push('/signMessage')
 }
+
+onBeforeRouteLeave((to) => {
+  if (to.path.includes('login')) parentConnection?.destroy()
+})
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-import type { ThemeConfig } from '@/models/Theme'
+import { AppConfig, AppMode } from '@arcana/auth'
 
 type RequestMethod =
   | 'eth_sign'
@@ -27,7 +27,8 @@ type Request = {
   params: string[]
 }
 
-function requirePermission(request: Request): boolean {
+function requirePermission(request: Request, appMode: AppMode): boolean {
+  if (appMode === AppMode.NoUI) return false
   return PERMISSIONS[request.method]
 }
 
@@ -41,15 +42,26 @@ type ProviderConnectInfo = {
   chainId: string | number
 }
 
+type RedirectParentConnectionApi = {
+  redirect(parentAppUrl: string | null): Promise<void>
+  error(errorMessage: string): Promise<void>
+}
+
 type ParentConnectionApi = {
-  getThemeConfig(): ThemeConfig
+  getAppConfig(): AppConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
-  redirect(parentAppUrl: string | null): Promise<void>
   onEvent(event: string, chain?: ProviderConnectInfo): void
+  getAppMode(): Promise<AppMode>
 }
 
 export { requirePermission, PERMISSIONS }
 
-export type { ParentConnectionApi, Request, RequestMethod, Response }
+export type {
+  RedirectParentConnectionApi,
+  ParentConnectionApi,
+  Request,
+  RequestMethod,
+  Response,
+}

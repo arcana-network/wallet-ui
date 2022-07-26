@@ -1,8 +1,11 @@
 import { Buffer } from 'buffer'
 
+import { BrowserTracing } from '@sentry/tracing'
+import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
 import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
 import Toast from 'vue-toastification'
 
@@ -29,11 +32,42 @@ window.Buffer = Buffer
 
 const walletApp = createApp(App)
 
+function getSentryConfig() {
+  if (process.env.NODE_ENV === 'production') {
+    return {
+      dsn: process.env.VUE_APP_SENTRY_DSN,
+      tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
+    }
+  }
+  return {
+    dsn: undefined,
+    tracingOrigins: undefined,
+  }
+}
+
+SentryInit({
+  app: walletApp,
+  dsn: getSentryConfig().dsn,
+  integrations: [
+    new BrowserTracing({
+      routingInstrumentation: vueRouterInstrumentation(router),
+      tracingOrigins: getSentryConfig().tracingOrigins,
+    }),
+  ],
+  tracesSampleRate: 1.0,
+})
+
 walletApp
   .use(JsonViewer)
   .use(router)
   .use(Toast, toastOptions)
   .use(FloatingVue)
   .use(createPinia())
+
+if (process.env.NODE_ENV === 'production') {
+  walletApp.use(VueGtag, {
+    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
+  })
+}
 
 walletApp.mount('#app')
