@@ -23,6 +23,7 @@ type LoginRequestOrigin = 'parent' | 'wallet'
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 const userEmailInput = ref('')
+const passwordlessForm = ref(null)
 
 const disableSendLinkBtn = computed(() => {
   return userEmailInput.value.length === 0
@@ -119,7 +120,7 @@ async function handleSubmit() {
 }
 
 function onEnterPress() {
-  if (userEmailInput.value.length) handleSubmit()
+  if (passwordlessForm.value.email.checkValidity()) handleSubmit()
 }
 </script>
 
@@ -137,12 +138,14 @@ function onEnterPress() {
         </p>
       </div>
       <form
+        ref="passwordlessForm"
         class="signin__input-container flow-element"
         @submit.prevent="handleSubmit"
       >
         <label class="signin__input-label">Email</label>
         <input
           v-model="userEmailInput"
+          name="email"
           type="email"
           class="signin__input-field"
           placeholder="someone@example.com"
