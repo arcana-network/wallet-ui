@@ -136,7 +136,10 @@ function onEnterPress() {
           sign-in.
         </p>
       </div>
-      <div class="signin__input-container flow-element">
+      <form
+        class="signin__input-container flow-element"
+        @submit.prevent="onSendLinkClick"
+      >
         <label class="signin__input-label">Email</label>
         <input
           v-model="userEmailInput"
@@ -146,15 +149,15 @@ function onEnterPress() {
           required
           @keyup.enter="onEnterPress"
         />
-      </div>
-      <button
-        class="signin__button"
-        :class="{ 'signin__button--disabled': disableSendLinkBtn }"
-        :disabled="disableSendLinkBtn"
-        @click="onSendLinkClick"
-      >
-        Send link
-      </button>
+        <input
+          type="submit"
+          value="Send Link"
+          class="signin__button"
+          :class="{ 'signin__button--disabled': disableSendLinkBtn }"
+          :disabled="disableSendLinkBtn"
+          @click="onSendLinkClick"
+        />
+      </form>
     </div>
     <div class="signin__footer">
       <div>
@@ -236,6 +239,7 @@ function onEnterPress() {
 
 .signin__input-container {
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
 }
@@ -261,11 +265,13 @@ function onEnterPress() {
 
 .signin__button {
   width: 100%;
+  height: 2.25rem;
   font-size: var(--fs-350);
   font-weight: 600;
   color: var(--filled-button-fg-color);
   text-transform: uppercase;
   background: var(--filled-button-bg-color);
+  border: none;
   border-radius: 10px;
 }
 
@@ -287,6 +293,10 @@ function onEnterPress() {
 @media (max-width: 235px) {
   .signin__container > *:not(:first-child) {
     margin-top: 30px;
+  }
+
+  .signin__button {
+    height: 1.75rem;
   }
 }
 </style>
