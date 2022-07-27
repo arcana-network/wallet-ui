@@ -51,12 +51,14 @@ async function connectionToParent() {
 
   const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
 
+  const accountDetails = accountHandler.getAccount()
+
   parentConnection = createParentConnection({
     isLoggedIn: () => user.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
-    getUserInfo: () => JSON.stringify(user.info),
+    getUserInfo: () => ({ ...user.info, ...accountDetails }),
   })
 
   keeper.setConnection(parentConnection)

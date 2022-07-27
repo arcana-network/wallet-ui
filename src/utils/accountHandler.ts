@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import { Transaction } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -10,7 +7,6 @@ import {
 } from 'eth-sig-util'
 import {
   stripHexPrefix,
-  privateToPublic,
   ecsign,
   BN,
   bufferToHex,
@@ -19,50 +15,41 @@ import {
 import { ethers } from 'ethers'
 
 export class AccountHandler {
-  wallets: ethers.Wallet[]
-  privateKey: string
+  wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
   constructor(privateKey: string) {
-    this.wallets = []
-    this.privateKey = privateKey
+    this.wallet = new ethers.Wallet(privateKey)
     this.provider = new ethers.providers.JsonRpcProvider(
       process.env.VUE_APP_WALLET_RPC_URL
     )
-    this.addWallet(privateKey)
   }
 
-  addWallet(privateKey: string): void {
-    const wallet = new ethers.Wallet(privateKey)
-    if (this.wallets.find((w) => w.address === wallet.address)) {
-      return
-    }
-    this.wallets.push(wallet)
+  getAccount(): { address: string; publicKey: string } {
+    const { address, publicKey } = this.wallet
+    return { address, publicKey }
   }
 
   getAccounts(): string[] {
-    return this.wallets.map((w) => w.address)
+    return [this.wallet.address]
   }
 
-  getWallet(address: string): Wallet | undefined {
-    return this.wallets.find(
-      (w) => w.address.toUpperCase() === address.toUpperCase()
-    )
+  getWallet(address: string): ethers.Wallet | undefined {
+    if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
+      return this.wallet
+    }
+    return undefined
   }
 
   async getChainId() {
     if (this.provider.network) return this.provider.network.chainId
-    return (await this.provider.detectNetwork((network) => network.chainId))
-      .chainId
+    return (await this.provider.detectNetwork()).chainId
   }
 
   getPublicKey(address: string): string {
     const wallet = this.getWallet(address)
     if (wallet) {
-      const pub = privateToPublic(
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-      )
-      return pub.toString('hex')
+      return this.wallet.publicKey
     } else {
       throw new Error('No Wallet found for the provided address')
     }
