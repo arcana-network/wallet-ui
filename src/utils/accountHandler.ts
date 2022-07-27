@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 
-import { Transaction } from '@ethereumjs/tx'
+import { Transaction, TxData } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
@@ -44,7 +44,7 @@ export class AccountHandler {
     return this.wallets.map((w) => w.address)
   }
 
-  getWallet(address: string): Wallet | undefined {
+  getWallet(address: string): ethers.Wallet | undefined {
     return this.wallets.find(
       (w) => w.address.toUpperCase() === address.toUpperCase()
     )
@@ -107,9 +107,9 @@ export class AccountHandler {
     }
   }
 
-  async requestSendTransaction(data, address: string) {
+  async requestSendTransaction(data: TxData) {
     try {
-      const wallet = this.getWallet(address)
+      const wallet = this.getWallet(data.from)
       if (wallet) {
         const signer = wallet.connect(this.provider)
         const tx = await signer.sendTransaction(data)
@@ -140,9 +140,9 @@ export class AccountHandler {
     }
   }
 
-  async requestSignTransaction(txData, address: string) {
+  async requestSignTransaction(txData: TxData) {
     try {
-      const wallet = this.getWallet(address)
+      const wallet = this.getWallet(txData.from)
       if (wallet) {
         const transaction = Transaction.fromTxData({
           ...txData,
@@ -163,7 +163,7 @@ export class AccountHandler {
     }
   }
 
-  async requestSignTypedMessage(data, address: string) {
+  async requestSignTypedMessage(data: string, address: string) {
     const wallet = this.getWallet(address)
     if (wallet) {
       const parsedData = JSON.parse(data)

@@ -21,13 +21,16 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   eth_getEncryptionPublicKey: false,
 })
 
-type Request = {
+type Request<T> = {
   id: number
   method: RequestMethod
-  params: string[]
+  params: T
 }
 
-function requirePermission(request: Request, appMode: AppMode): boolean {
+function requirePermission(
+  request: Request<unknown>,
+  appMode: AppMode
+): boolean {
   if (appMode === AppMode.NoUI) return false
   return PERMISSIONS[request.method]
 }
