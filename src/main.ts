@@ -2,7 +2,6 @@ import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
-import FloatingVue from 'floating-vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
@@ -12,7 +11,6 @@ import Toast from 'vue-toastification'
 import App from '@/App.vue'
 import { router } from '@/routes/index'
 
-import 'floating-vue/dist/style.css'
 import 'vue-toastification/dist/index.css'
 
 const toastOptions = {
@@ -61,7 +59,6 @@ walletApp
   .use(JsonViewer)
   .use(router)
   .use(Toast, toastOptions)
-  .use(FloatingVue)
   .use(createPinia())
 
 if (process.env.NODE_ENV === 'production') {
