@@ -113,7 +113,7 @@ onBeforeRouteLeave((to) => {
   <div class="home__container flow-container">
     <h1 class="home__title">Welcome</h1>
     <div class="home__body-container flow-element">
-      <div class="home__body-content">
+      <div v-if="name" class="home__body-content">
         <p class="home__body-content-label">Name</p>
         <p class="home__body-content-value">{{ name }}</p>
       </div>

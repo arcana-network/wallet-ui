@@ -18,15 +18,15 @@ defineProps({
   background: transparent;
 
   .jv-code {
-    padding: 0;
+    padding: 0 !important;
   }
 
   .jv-key {
-    color: #932a9b;
+    color: var(--fg-color);
   }
 
   .jv-push {
-    color: #c9302c;
+    color: var(--fg-color);
   }
 
   .jv-string {
