@@ -114,12 +114,12 @@ async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
   }
 }
 
-async function onSendLinkClick() {
+async function handleSubmit() {
   handlePasswordlessLoginRequest(userEmailInput.value, 'wallet')
 }
 
 function onEnterPress() {
-  if (userEmailInput.value.length) onSendLinkClick()
+  if (userEmailInput.value.length) handleSubmit()
 }
 </script>
 
@@ -138,7 +138,7 @@ function onEnterPress() {
       </div>
       <form
         class="signin__input-container flow-element"
-        @submit.prevent="onSendLinkClick"
+        @submit.prevent="handleSubmit"
       >
         <label class="signin__input-label">Email</label>
         <input
@@ -155,7 +155,6 @@ function onEnterPress() {
           class="signin__button"
           :class="{ 'signin__button--disabled': disableSendLinkBtn }"
           :disabled="disableSendLinkBtn"
-          @click="onSendLinkClick"
         />
       </form>
     </div>
