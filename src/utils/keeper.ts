@@ -9,6 +9,10 @@ import type {
 } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
 
+interface TransactionData extends TxData {
+  from: string
+}
+
 export class Keeper {
   accountHandler: AccountHandler
   walletType: number
@@ -58,7 +62,7 @@ export class Keeper {
         return response
       case 'eth_sendTransaction':
         response.result = await this.accountHandler.requestSendTransaction(
-          (request.params as TxData[])[0]
+          (request.params as TransactionData[])[0]
         )
         return response
       case 'eth_decrypt':
@@ -69,7 +73,7 @@ export class Keeper {
         return response
       case 'eth_signTransaction':
         response.result = await this.accountHandler.requestSignTransaction(
-          (request.params as TxData[])[0]
+          (request.params as TransactionData[])[0]
         )
         return response
       case 'eth_signTypedData_v4':
