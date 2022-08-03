@@ -51,12 +51,14 @@ async function connectionToParent() {
 
   const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
 
+  const accountDetails = accountHandler.getAccount()
+
   parentConnection = createParentConnection({
     isLoggedIn: () => user.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
-    getUserInfo: () => JSON.stringify(user.info),
+    getUserInfo: () => ({ ...user.info, ...accountDetails }),
   })
 
   keeper.setConnection(parentConnection)
@@ -100,7 +102,9 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
-  router.push(`/${appId}/login`)
+  setTimeout(() => {
+    router.push(`/${appId}/login`)
+  })
 }
 
 function onCloseClick() {
@@ -116,7 +120,7 @@ onBeforeRouteLeave((to) => {
   <div class="home__container flow-container">
     <h1 class="home__title">Welcome</h1>
     <div class="home__body-container flow-element">
-      <div class="home__body-content">
+      <div v-if="name" class="home__body-content">
         <p class="home__body-content-label">Name</p>
         <p class="home__body-content-value">{{ name }}</p>
       </div>

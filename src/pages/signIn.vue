@@ -22,6 +22,7 @@ const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 const userEmailInput = ref('')
+const passwordlessForm = ref(null)
 
 const disableSendLinkBtn = computed(() => {
   return userEmailInput.value.length === 0
@@ -98,7 +99,7 @@ async function handleGetPublicKey(id, verifier) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
-async function handlePasswordlessLoginRequest(email) {
+async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
     const c = await parentConnection?.promise
@@ -107,8 +108,12 @@ async function handlePasswordlessLoginRequest(email) {
   }
 }
 
-async function onSendLinkClick() {
+async function handleSubmit() {
   handlePasswordlessLoginRequest(userEmailInput.value)
+}
+
+function onEnterPress() {
+  if (passwordlessForm.value.email.checkValidity()) handleSubmit()
 }
 </script>
 
@@ -119,28 +124,35 @@ async function onSendLinkClick() {
   <div v-else class="signin__container">
     <div class="signin__body flow-container">
       <div class="signin__title-desc flow-element">
-        <h1 class="signin__title">Welcome</h1>
+        <h1 class="signin__title">Welcome!</h1>
         <p class="signin__desc">
-          We’ll email you a login link for a password-free sign in.
+          You will receive a login link in your email for a password-less
+          sign-in.
         </p>
       </div>
-      <div class="signin__input-container flow-element">
+      <form
+        ref="passwordlessForm"
+        class="signin__input-container flow-element"
+        @submit.prevent="handleSubmit"
+      >
         <label class="signin__input-label">Email</label>
         <input
           v-model="userEmailInput"
+          name="email"
           type="email"
           class="signin__input-field"
           placeholder="someone@example.com"
+          required
+          @keyup.enter="onEnterPress"
         />
-      </div>
-      <button
-        class="signin__button"
-        :class="{ 'signin__button--disabled': disableSendLinkBtn }"
-        :disabled="disableSendLinkBtn"
-        @click="onSendLinkClick"
-      >
-        Send link
-      </button>
+        <input
+          type="submit"
+          value="Send Link"
+          class="signin__button"
+          :class="{ 'signin__button--disabled': disableSendLinkBtn }"
+          :disabled="disableSendLinkBtn"
+        />
+      </form>
     </div>
     <div class="signin__footer">
       <div>
@@ -222,6 +234,7 @@ async function onSendLinkClick() {
 
 .signin__input-container {
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
 }
@@ -247,11 +260,13 @@ async function onSendLinkClick() {
 
 .signin__button {
   width: 100%;
+  height: 2.25rem;
   font-size: var(--fs-350);
   font-weight: 600;
   color: var(--filled-button-fg-color);
   text-transform: uppercase;
   background: var(--filled-button-bg-color);
+  border: none;
   border-radius: 10px;
 }
 
@@ -273,6 +288,10 @@ async function onSendLinkClick() {
 @media (max-width: 235px) {
   .signin__container > *:not(:first-child) {
     margin-top: 30px;
+  }
+
+  .signin__button {
+    height: 1.75rem;
   }
 }
 </style>

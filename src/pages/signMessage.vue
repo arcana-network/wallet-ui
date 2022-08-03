@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, toRefs } from 'vue'
+import Popper from 'vue3-popper'
 
+import ChargeInfo from '@/components/ChargeInfo.vue'
 import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
-import { chargeInfo } from '@/utils/chargeInfo'
 import { methodAndAction } from '@/utils/method'
 import { useImage } from '@/utils/useImage'
 
@@ -65,9 +66,15 @@ const showAdvancedInfo = ref(false)
       <div class="sign__message-footer">
         <p class="sign__message-info-text">
           You are not going to be charged!
-          <button v-tooltip="chargeInfo">
-            <img class="sign__message-info-icon" :src="getImage('info-icon')" />
-          </button>
+          <Popper arrow hover>
+            <button>
+              <img
+                class="sign__message-info-icon"
+                :src="getImage('info-icon')"
+              />
+            </button>
+            <template #content> <ChargeInfo /> </template>
+          </Popper>
         </p>
         <div class="sign__message-button-container">
           <button

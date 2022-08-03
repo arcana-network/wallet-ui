@@ -16,6 +16,7 @@ export async function getAuthProvider(appId): Promise<AuthProvider> {
       network: AUTH_NETWORK,
       flow: 'redirect',
       autoRedirect: false,
+      debug: true,
     })
   }
   return authProvider
