@@ -19,7 +19,6 @@ const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
-type LoginRequestOrigin = 'parent' | 'wallet'
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 const userEmailInput = ref('')
@@ -40,9 +39,8 @@ const {
 
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
-  triggerSocialLogin: (type) => handleSocialLoginRequest(type, 'parent'),
-  triggerPasswordlessLogin: (email) =>
-    handlePasswordlessLoginRequest(email, 'parent'),
+  isLoginAvailable: (kind: SocialLoginType) =>
+    availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
 }
 
@@ -85,18 +83,15 @@ async function init() {
       localStorage.setItem('appName', appName)
       app.setTheme(theme)
       app.setName(appName)
-
-      const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
     isLoading.value = false
   }
 }
 
-async function handleSocialLoginRequest(type, from: LoginRequestOrigin) {
-  authProvider.params.autoRedirect = from === 'wallet'
-  return await user.handleSocialLogin(authProvider, type)
+async function handleSocialLoginRequest(kind: SocialLoginType) {
+  const c = await parentConnection?.promise
+  c?.triggerSocialLogin(kind)
 }
 
 async function handleGetPublicKey(id, verifier) {
@@ -104,19 +99,17 @@ async function handleGetPublicKey(id, verifier) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
-async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
+async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    const authProvider = await getAuthProvider(app.id)
-    authProvider.params.autoRedirect = from === 'wallet'
-    return await user.handlePasswordlessLogin(authProvider, email, {
-      withUI: true,
-    })
+    const c = await parentConnection?.promise
+    c?.triggerPasswordlessLogin(email)
+    return
   }
 }
 
 async function handleSubmit() {
-  handlePasswordlessLoginRequest(userEmailInput.value, 'wallet')
+  handlePasswordlessLoginRequest(userEmailInput.value)
 }
 
 function onEnterPress() {
