@@ -11,10 +11,12 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const oauthLoginList = props.availableLogins.map((login) => ({
-  value: SocialLoginType[login],
-  iconPath: getImage(`${login}-icon`),
-}))
+const oauthLoginList = props.availableLogins
+  .filter((login) => login !== 'passwordless')
+  .map((login) => ({
+    value: SocialLoginType[login],
+    iconPath: getImage(`${login}-icon`),
+  }))
 
 const emits = defineEmits(['oauthClick'])
 </script>
