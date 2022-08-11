@@ -8,6 +8,7 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
+import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
 import { useImage } from '@/utils/useImage'
 
@@ -60,7 +61,12 @@ const showAdvancedInfo = ref(false)
         </button>
         <SignMessageAdvancedInfo
           v-if="showAdvancedInfo"
-          :info="pendingRequest.request.params"
+          :info="
+            advancedInfo(
+              pendingRequest.request.method,
+              pendingRequest.request.params
+            )
+          "
         />
       </div>
       <div class="sign__message-footer">
