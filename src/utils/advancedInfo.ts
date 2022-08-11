@@ -3,7 +3,6 @@ export const advancedInfo = (method: string, params: string | string[]) => {
 
   if (method == 'eth_sign') {
     const jsonData = JSON.parse(params[1])
-    console.log(jsonData)
     if (jsonData.domain.name == 'Arcana Forwarder') {
       data = `
         ACCOUNT ADDRESS
