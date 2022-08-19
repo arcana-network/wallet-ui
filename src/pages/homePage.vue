@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
+import { storeToRefs } from 'pinia'
 import { toRefs, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -30,6 +31,7 @@ const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
 const rpcStore = useRpcStore()
+const { rpcConfig } = storeToRefs(rpcStore)
 
 const {
   info: { email, name },
@@ -138,6 +140,10 @@ onBeforeRouteLeave((to) => {
       <div class="home__body-content">
         <p class="home__body-content-label">Email ID</p>
         <p class="home__body-content-value">{{ email }}</p>
+      </div>
+      <div class="home__body-content">
+        <p class="home__body-content-label">Network</p>
+        <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
       </div>
       <div class="home__body-content">
         <p class="home__body-content-label">Wallet Address</p>
