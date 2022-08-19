@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { ref, toRefs } from 'vue'
 import Popper from 'vue3-popper'
 
@@ -17,7 +18,7 @@ const getImage = useImage()
 const requestStore = useRequestStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
-const { rpcConfig } = rpcStore
+const { rpcConfig } = storeToRefs(rpcStore)
 
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore)
