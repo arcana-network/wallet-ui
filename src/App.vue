@@ -55,6 +55,7 @@ function init() {
 :root {
   --color-light: #f9f9f9;
   --color-dark: #101010;
+  --color-philippine-gray: #8d8d8d;
   --color-light-disabled: #f9f9f9af;
   --color-dark-disabled: #101010af;
   --color-gradient-light: linear-gradient(
@@ -115,6 +116,7 @@ function init() {
 
 .light-mode {
   --fg-color: var(--color-dark);
+  --fg-color-secondary: var(--color-philippine-gray);
   --bg-gradient: var(--color-gradient-light);
   --content-bg-color: var(--color-light);
   --container-bg-color: var(--color-gradient-light);
@@ -129,6 +131,7 @@ function init() {
 
 .dark-mode {
   --fg-color: var(--color-light);
+  --fg-color-secondary: var(--color-philippine-gray);
   --bg-gradient: var(--color-gradient-dark);
   --content-bg-color: var(--color-gradient-dark);
   --container-bg-color: var(--color-dark);

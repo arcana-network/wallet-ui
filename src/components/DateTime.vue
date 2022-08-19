@@ -19,7 +19,7 @@ const DATE_FORMAT = 'DD MMM YY, hh:mm a'
 .datetime {
   font-size: var(--fs-300);
   font-weight: 300;
-  color: #8d8d8d;
+  color: var(--fg-color-secondary);
   text-align: right;
 }
 </style>

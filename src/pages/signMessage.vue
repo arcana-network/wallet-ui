@@ -232,7 +232,7 @@ const showAdvancedInfo = ref(false)
 .sign__message-network-name-label {
   font-size: var(--fs-250);
   font-weight: 600;
-  color: #8d8d8d;
+  color: var(--fg-color-secondary);
 }
 
 .sign__message-network-name-value {
