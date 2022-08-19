@@ -7,6 +7,7 @@ import { useToast } from 'vue-toastification'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
@@ -28,6 +29,7 @@ const appStore = useAppStore()
 const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
+const rpcStore = useRpcStore()
 
 const {
   info: { email, name },
@@ -37,7 +39,10 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
-onMounted(connectionToParent)
+onMounted(async () => {
+  await connectionToParent()
+  await getRpcConfig()
+})
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
@@ -71,6 +76,12 @@ async function connectionToParent() {
   appStore.setAppMode(validAppMode)
 
   parentConnectionInstance.onEvent('connect', { chainId })
+}
+
+async function getRpcConfig() {
+  const parentConnectionInstance = await parentConnection.promise
+  const rpcConfig = await parentConnectionInstance.getRpcConfig()
+  rpcStore.setRpcConfig(rpcConfig)
 }
 
 async function handleGetPublicKey(id, verifier) {
