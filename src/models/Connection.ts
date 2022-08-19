@@ -1,4 +1,4 @@
-import { AppConfig, AppMode } from '@arcana/auth'
+import { AppConfig, AppMode, RpcConfig } from '@arcana/auth'
 import type { SocialLoginType } from '@arcana/auth-core'
 
 type RequestMethod =
@@ -50,6 +50,7 @@ type RedirectParentConnectionApi = {
 
 type ParentConnectionApi = {
   getAppConfig(): AppConfig
+  getRpcConfig(): RpcConfig
   onMethodResponse(method: RequestMethod, response: Response): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
