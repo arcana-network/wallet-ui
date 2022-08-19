@@ -12,7 +12,7 @@ export const useRpcStore = defineStore('rpcStore', {
     } as RpcConfigState),
 
   actions: {
-    setRpcConfig(rpcConfig): void {
+    setRpcConfig(rpcConfig: RpcConfig): void {
       this.rpcConfig = rpcConfig
     },
   },
