@@ -8,6 +8,7 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
 import { useImage } from '@/utils/useImage'
@@ -15,6 +16,9 @@ import { useImage } from '@/utils/useImage'
 const getImage = useImage()
 const requestStore = useRequestStore()
 const appStore = useAppStore()
+const rpcStore = useRpcStore()
+const { rpcConfig } = rpcStore
+
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore)
 
@@ -45,6 +49,12 @@ const showAdvancedInfo = ref(false)
           {{ appStore.name }} requests your permission to perform the following
           action:
         </p>
+        <div>
+          <p class="sign__message-network-name-label">Network</p>
+          <p class="sign__message-network-name-value">
+            {{ rpcConfig.chainName }}
+          </p>
+        </div>
         <p class="sign__message-text">
           {{ methodAndAction[pendingRequest.request.method] }}
         </p>
@@ -217,6 +227,16 @@ const showAdvancedInfo = ref(false)
   color: var(--filled-button-fg-color);
   text-transform: uppercase;
   background-color: var(--filled-button-bg-color);
+}
+
+.sign__message-network-name-label {
+  font-size: var(--fs-250);
+  font-weight: 600;
+  color: #8d8d8d;
+}
+
+.sign__message-network-name-value {
+  font-size: var(--fs-400);
 }
 
 .sign__message-button-reject:hover,
