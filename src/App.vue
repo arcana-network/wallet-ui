@@ -4,6 +4,7 @@ import { toRefs, ref, onMounted } from 'vue'
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import '@/index.css'
 
 const user = useUserStore()
 const app = useAppStore()
