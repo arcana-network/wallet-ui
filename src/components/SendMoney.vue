@@ -1,5 +1,12 @@
 <script setup lang="ts">
 const emits = defineEmits(['cancel'])
+
+defineProps({
+  chainName: {
+    type: String,
+    required: true,
+  },
+})
 </script>
 
 <template>
@@ -15,7 +22,7 @@ const emits = defineEmits(['cancel'])
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">Ethereum</p>
+      <p class="text-base sm:text-sm">{{ chainName }}</p>
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>

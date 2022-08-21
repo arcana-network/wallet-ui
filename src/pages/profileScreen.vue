@@ -73,6 +73,10 @@ async function getWalletBalance() {
     </div>
   </div>
   <ModalFullScreen v-if="showModal">
-    <SendMoney v-if="showSendMoney" @cancel="showSendMoney = false" />
+    <SendMoney
+      v-if="showSendMoney"
+      :chain-name="rpcStore.rpcConfig.chainName"
+      @cancel="showSendMoney = false"
+    />
   </ModalFullScreen>
 </template>
