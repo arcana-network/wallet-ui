@@ -4,10 +4,10 @@ const emits = defineEmits(['cancel'])
 
 <template>
   <div
-    class="container space-y-5 rounded-lg overflow-auto h-full p-4 flex flex-col justify-between"
+    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full p-4 flex flex-col justify-between"
   >
     <div class="space-y-1">
-      <p class="text-xl">Send Tokens</p>
+      <p class="text-xl sm:text-sm">Send Tokens</p>
       <p class="text-xs text-zinc-400">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
@@ -15,20 +15,20 @@ const emits = defineEmits(['cancel'])
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base">Ethereum</p>
+      <p class="text-base sm:text-sm">Ethereum</p>
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
       <input
         type="text"
-        class="text-base dark:bg-gradient-dark bg-gradient-light w-full p-3 rounded-lg shadow-inner"
+        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg shadow-inner"
       />
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Amount</p>
       <input
         type="text"
-        class="text-base dark:bg-gradient-dark bg-gradient-light w-full p-3 rounded-lg"
+        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
       />
     </div>
     <div class="space-y-1">
@@ -38,7 +38,7 @@ const emits = defineEmits(['cancel'])
       </p>
       <input
         type="text"
-        class="text-base dark:bg-gradient-dark bg-gradient-light w-full p-3 rounded-lg"
+        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
       />
     </div>
     <div class="flex space-x-3">
