@@ -22,6 +22,7 @@ const emits = defineEmits(['cancel'])
       <input
         type="text"
         class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg shadow-inner"
+        placeholder="6yhjtikn7...."
       />
     </div>
     <div class="space-y-1">
@@ -29,6 +30,7 @@ const emits = defineEmits(['cancel'])
       <input
         type="text"
         class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
+        placeholder="Ex: 0.5 ETH"
       />
     </div>
     <div class="space-y-1">
@@ -39,6 +41,7 @@ const emits = defineEmits(['cancel'])
       <input
         type="text"
         class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
+        placeholder="Ex: $3.50"
       />
     </div>
     <div class="flex space-x-3">
