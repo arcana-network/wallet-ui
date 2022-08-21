@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .glow-light {
+    box-shadow: 0px 0px 12px 4px rgb(0 133 255),
+      inset 5px 5px 10px rgb(240 240 240 / 50%),
+      inset -50px 49px 29px 22px rgb(234 234 234 / 84%);
+  }
+
+  .glow-dark {
+    box-shadow: 0px 0px 12px 4px rgba(247, 247, 247, 0.3),
+      inset 5px 5px 10px rgba(11, 11, 11, 0.5),
+      inset -50px 49px 29px 22px rgba(28, 28, 28, 0.84);
+  }
+
+  .bg-gradient-light {
+    background: linear-gradient(141.48deg, #eee -4.56%, #eee 135.63%);
+  }
+
+  .bg-gradient-dark {
+    background: linear-gradient(141.48deg, #161616 -4.56%, #151515 135.63%);
+  }
+}
