@@ -11,7 +11,7 @@ defineProps({
 
 <template>
   <div
-    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full p-4 flex flex-col justify-between"
+    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full p-4 sm:p-2 flex flex-col justify-between"
   >
     <div class="space-y-1">
       <p class="text-xl sm:text-sm">Send Tokens</p>
