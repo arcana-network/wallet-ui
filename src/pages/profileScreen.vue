@@ -31,9 +31,11 @@ async function getWalletBalance() {
 </script>
 
 <template>
-  <div class="px-4 py-5 h-full flex flex-col justify-between space-y-5">
+  <div
+    class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
+  >
     <div class="flex flex-col justify-center items-center space-y-2">
-      <p class="text-xl">{{ userStore.info.name }}</p>
+      <p class="text-xl sm:text-sm">{{ userStore.info.name }}</p>
       <div class="flex items-center space-x-1">
         <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
         <button class="h-3">
@@ -44,16 +46,16 @@ async function getWalletBalance() {
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
       <p
-        class="text-base rounded-lg p-3 bg-gradient-light dark:bg-gradient-dark"
+        class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient-light dark:bg-gradient-dark"
       >
         {{ rpcStore.rpcConfig.chainName }}
       </p>
     </div>
     <div
-      class="w-36 h-36 rounded-full mx-auto flex flex-col justify-center items-center glow-light bg-gradient-light dark:glow-dark dark:bg-gradient-dark"
+      class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow-light bg-gradient-light dark:glow-dark dark:bg-gradient-dark"
     >
-      <p class="text-sm">Total Balance</p>
-      <p class="text-2xl">{{ walletBalance }}</p>
+      <p class="text-sm sm:text-xs">Total Balance</p>
+      <p class="text-2xl sm:text-base">{{ walletBalance }}</p>
     </div>
     <div class="flex space-x-3">
       <button
