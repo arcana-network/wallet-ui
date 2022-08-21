@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted } from 'vue'
+import { toRefs, ref, onMounted, watch } from 'vue'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
@@ -12,6 +12,13 @@ const { theme } = toRefs(app)
 const isLoading = ref(false)
 
 onMounted(init)
+
+watch(theme, setThemeAttribute)
+
+function setThemeAttribute(value) {
+  const htmlEl = document.getElementsByTagName('html')[0]
+  if (value === 'dark') htmlEl.classList.add(value)
+}
 
 function init() {
   isLoading.value = true
