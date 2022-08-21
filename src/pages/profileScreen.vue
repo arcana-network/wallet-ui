@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
+import ModalFullScreen from '@/components/ModalFullScreen.vue'
+import SendMoney from '@/components/SendMoney.vue'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -10,6 +12,12 @@ const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
+const showSendMoney = ref(false)
+const showReceiveMoney = ref(false)
+
+const showModal = computed(() => {
+  return showSendMoney.value || showReceiveMoney.value
+})
 
 onMounted(getWalletBalance)
 
@@ -50,14 +58,19 @@ async function getWalletBalance() {
     <div class="flex space-x-3">
       <button
         class="text-sm rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
+        @click="showSendMoney = true"
       >
         Send
       </button>
       <button
         class="text-sm rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+        @click="showReceiveMoney = true"
       >
         Receive
       </button>
     </div>
   </div>
+  <ModalFullScreen v-if="showModal">
+    <SendMoney v-if="showSendMoney" @cancel="showSendMoney = false" />
+  </ModalFullScreen>
 </template>
