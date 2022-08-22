@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -10,6 +11,7 @@ const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
+const toast = useToast()
 
 onMounted(getWalletBalance)
 
@@ -19,6 +21,15 @@ async function getWalletBalance() {
     userStore.walletAddress
   )
   walletBalance.value = balance.toString()
+}
+
+async function copyToClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    toast.success('Wallet address copied')
+  } catch (err) {
+    toast.error('Failed to copy wallet address')
+  }
 }
 </script>
 
@@ -30,7 +41,7 @@ async function getWalletBalance() {
       <p class="text-xl sm:text-sm">{{ userStore.info.name }}</p>
       <div class="flex items-center space-x-1">
         <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
-        <button class="h-3">
+        <button class="h-3" @click="copyToClipboard(userStore.walletAddress)">
           <img :src="getImage('copy-icon')" alt="copy icon" class="h-full" />
         </button>
       </div>
