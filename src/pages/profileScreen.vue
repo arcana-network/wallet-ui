@@ -50,14 +50,12 @@ async function copyToClipboard(value: string) {
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p
-        class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient-light dark:bg-gradient-dark"
-      >
+      <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
         {{ rpcStore.rpcConfig.chainName }}
       </p>
     </div>
     <div
-      class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow-light bg-gradient-light dark:glow-dark dark:bg-gradient-dark"
+      class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
       <p class="text-2xl sm:text-base">{{ walletBalance }}</p>
