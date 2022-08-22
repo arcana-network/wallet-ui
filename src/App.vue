@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted } from 'vue'
+import { toRefs, ref, onMounted, watch } from 'vue'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
@@ -13,6 +13,11 @@ const isLoading = ref(false)
 
 onMounted(init)
 
+function setThemeAttribute(value) {
+  const htmlEl = document.getElementsByTagName('html')[0]
+  if (value === 'dark') htmlEl.classList.add(value)
+}
+
 function init() {
   isLoading.value = true
   try {
@@ -21,7 +26,10 @@ function init() {
     const theme = localStorage.getItem('theme')
     const appName = localStorage.getItem('appName')
 
-    if (theme) app.setTheme(theme)
+    if (theme) {
+      app.setTheme(theme)
+      setThemeAttribute(theme)
+    }
     if (appName) app.setName(appName)
 
     if (isLoggedIn) {
