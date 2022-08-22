@@ -13,8 +13,6 @@ const isLoading = ref(false)
 
 onMounted(init)
 
-watch(theme, setThemeAttribute)
-
 function setThemeAttribute(value) {
   const htmlEl = document.getElementsByTagName('html')[0]
   if (value === 'dark') htmlEl.classList.add(value)
@@ -28,7 +26,10 @@ function init() {
     const theme = localStorage.getItem('theme')
     const appName = localStorage.getItem('appName')
 
-    if (theme) app.setTheme(theme)
+    if (theme) {
+      app.setTheme(theme)
+      setThemeAttribute(theme)
+    }
     if (appName) app.setName(appName)
 
     if (isLoggedIn) {
