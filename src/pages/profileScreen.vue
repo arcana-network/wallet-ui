@@ -58,7 +58,10 @@ async function copyToClipboard(value: string) {
       class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
-      <p class="text-2xl sm:text-base">{{ walletBalance }}</p>
+      <div class="flex text-2xl sm:text-base space-x-1">
+        <p>{{ walletBalance }}</p>
+        <p>{{ rpcStore.currency }}</p>
+      </div>
     </div>
     <div class="flex space-x-3">
       <button
