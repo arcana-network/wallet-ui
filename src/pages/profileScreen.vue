@@ -1,19 +1,48 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { getExchangeRate } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
+
+const EXCHANGE_RATE_CURRENCY = 'USD'
 
 const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
 const toast = useToast()
+const exchangeRate = ref(null)
+const { rpcConfig, currency } = storeToRefs(rpcStore)
 
 onMounted(getWalletBalance)
+
+onMounted(getCurrencyExchangeRate)
+
+async function getCurrencyExchangeRate() {
+  try {
+    if (currency.value) {
+      const {
+        data: { data },
+      } = await getExchangeRate(currency.value)
+      exchangeRate.value = data.rates[EXCHANGE_RATE_CURRENCY]
+    }
+  } catch (err) {
+    console.error(err)
+    exchangeRate.value = null
+  }
+}
+
+const totalAmountInUSD = computed(() => {
+  if (exchangeRate.value) {
+    return Number(walletBalance.value) * exchangeRate.value
+  }
+  return ''
+})
 
 async function getWalletBalance() {
   const accountHandler = new AccountHandler(userStore.privateKey)
@@ -51,16 +80,19 @@ async function copyToClipboard(value: string) {
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
       <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-        {{ rpcStore.rpcConfig.chainName }}
+        {{ rpcConfig.chainName }}
       </p>
     </div>
     <div
       class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
+      <div v-if="exchangeRate" class="flex text-2xl sm:text-base space-x-1">
+        <p>{{ `$ ${totalAmountInUSD}` }}</p>
+      </div>
       <div class="flex text-2xl sm:text-base space-x-1">
         <p>{{ walletBalance }}</p>
-        <p>{{ rpcStore.currency }}</p>
+        <p>{{ currency }}</p>
       </div>
     </div>
     <div class="flex space-x-3">
