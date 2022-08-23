@@ -88,7 +88,7 @@ async function copyToClipboard(value: string) {
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
       <div v-if="exchangeRate" class="flex text-2xl sm:text-base space-x-1">
-        <p>{{ `$ ${totalAmountInUSD}` }}</p>
+        <p>{{ `$${totalAmountInUSD}` }}</p>
       </div>
       <div class="flex text-2xl sm:text-base space-x-1">
         <p>{{ walletBalance }}</p>
