@@ -84,15 +84,23 @@ async function copyToClipboard(value: string) {
       </p>
     </div>
     <div
-      class="w-36 h-36 sm:w-24 sm:h-24 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient"
+      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient space-y-2 sm:space-y-0"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
-      <div v-if="exchangeRate" class="flex text-2xl sm:text-base space-x-1">
-        <p>{{ `$${totalAmountInUSD}` }}</p>
+      <div v-if="exchangeRate" class="space-y-2 sm:space-y-0">
+        <p class="text-2xl sm:text-base text-center">
+          {{ `$${totalAmountInUSD}` }}
+        </p>
+        <div class="flex text-zinc-400 text-sm space-x-1">
+          <p>{{ walletBalance }}</p>
+          <p>{{ currency }}</p>
+        </div>
       </div>
-      <div class="flex text-2xl sm:text-base space-x-1">
-        <p>{{ walletBalance }}</p>
-        <p>{{ currency }}</p>
+      <div v-else>
+        <div class="flex text-2xl sm:text-base space-x-1">
+          <p>{{ walletBalance }}</p>
+          <p>{{ currency }}</p>
+        </div>
       </div>
     </div>
     <div class="flex space-x-3">
