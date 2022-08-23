@@ -28,7 +28,9 @@ async function init() {
       await connectToParent<RedirectParentConnectionApi>({}).promise
     connectionToParent.redirect(parentAppUrl)
   } catch (e) {
-    await reportError(e.message)
+    if (e instanceof Error) {
+      await reportError(e.message)
+    }
   }
 }
 

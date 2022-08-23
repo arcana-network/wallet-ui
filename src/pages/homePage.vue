@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
+import { storeToRefs } from 'pinia'
 import { toRefs, onMounted } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -7,6 +8,7 @@ import { useToast } from 'vue-toastification'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
@@ -28,6 +30,8 @@ const appStore = useAppStore()
 const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
+const rpcStore = useRpcStore()
+const { rpcConfig } = storeToRefs(rpcStore)
 
 const {
   info: { email, name },
@@ -37,7 +41,10 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
-onMounted(connectionToParent)
+onMounted(async () => {
+  await connectionToParent()
+  await getRpcConfig()
+})
 
 async function connectionToParent() {
   const walletType = await getWalletType(appId)
@@ -73,23 +80,34 @@ async function connectionToParent() {
   parentConnectionInstance.onEvent('connect', { chainId })
 }
 
+async function getRpcConfig() {
+  const parentConnectionInstance = await parentConnection.promise
+  const rpcConfig = await parentConnectionInstance.getRpcConfig()
+  rpcStore.setRpcConfig(rpcConfig)
+}
+
 async function handleGetPublicKey(id, verifier) {
   const authProvider = await getAuthProvider(appId)
   return await authProvider.getPublicKey({ id, verifier })
 }
 
 function onCopyClick() {
-  const walletAddressEl = document.getElementById('wallet-address')
-  try {
-    walletAddressEl.setAttribute('type', 'text')
-    walletAddressEl.select()
-    document.execCommand('copy')
-    toast.success('Wallet address copied')
-  } catch (e) {
-    toast.error('Failed to copy wallet address')
+  const walletAddressEl = document.getElementById(
+    'wallet-address'
+  ) as HTMLInputElement | null
+
+  if (walletAddressEl) {
+    try {
+      walletAddressEl.setAttribute('type', 'text')
+      walletAddressEl.select()
+      document.execCommand('copy')
+      toast.success('Wallet address copied')
+    } catch (e) {
+      toast.error('Failed to copy wallet address')
+    }
+    walletAddressEl.setAttribute('type', 'hidden')
   }
-  walletAddressEl.setAttribute('type', 'hidden')
-  window.getSelection().removeAllRanges()
+  window.getSelection()?.removeAllRanges()
 }
 
 async function handleLogout() {
@@ -97,7 +115,9 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
-  router.push(`/${appId}/login`)
+  setTimeout(() => {
+    router.push(`/${appId}/login`)
+  })
 }
 
 function onCloseClick() {
@@ -120,6 +140,10 @@ onBeforeRouteLeave((to) => {
       <div class="home__body-content">
         <p class="home__body-content-label">Email ID</p>
         <p class="home__body-content-value">{{ email }}</p>
+      </div>
+      <div class="home__body-content">
+        <p class="home__body-content-label">Network</p>
+        <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
       </div>
       <div class="home__body-content">
         <p class="home__body-content-label">Wallet Address</p>

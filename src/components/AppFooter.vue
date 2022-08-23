@@ -11,6 +11,17 @@ const userStore = useUserStore()
     class="footer"
     :class="{ 'footer--space-between': userStore.isLoggedIn }"
   >
+    <router-link
+      v-if="userStore.isLoggedIn"
+      to="/profileScreen"
+      class="footer__profileicon-link"
+    >
+      <img
+        :src="getImage('home-icon')"
+        alt="home-icon"
+        class="footer__profileicon-img"
+      />
+    </router-link>
     <div class="footer__poweredby-container">
       <p class="footer__poweredby-text">Powered by</p>
       <a href="https://arcana.network/" target="_blank">

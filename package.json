@@ -17,8 +17,8 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@arcana/auth": "^0.1.0",
-    "@arcana/auth-core": "^0.1.4",
+    "@arcana/auth": "^0.1.2-beta.6",
+    "@arcana/auth-core": "^0.1.5-beta.1",
     "@ethereumjs/tx": "^3.4.0",
     "@sentry/tracing": "^7.5.1",
     "@sentry/vue": "^7.5.1",
@@ -54,6 +54,7 @@
     "@vue/cli-service": "~5.0.0",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^9.1.0",
+    "autoprefixer": "^10.4.8",
     "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-vue": "^8.0.3",
@@ -62,6 +63,7 @@
     "markdownlint-cli": "^0.31.1",
     "node-sass": "^7.0.1",
     "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.16",
     "prettier": "^2.6.2",
     "sass-loader": "^12.6.0",
     "stylelint": "^14.7.1",
@@ -69,6 +71,7 @@
     "stylelint-config-recess-order": "^3.0.0",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-config-standard-vue": "^1.0.0",
+    "tailwindcss": "^3.1.8",
     "typescript": "~4.5.5"
   },
   "browserslist": [
