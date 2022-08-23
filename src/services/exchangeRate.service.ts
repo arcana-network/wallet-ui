@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios'
 
+type CurrencySymbol = 'BTC' | 'USD' | 'ETH' | 'XAR' | 'MATIC'
+
 const URL = 'https://api.coinbase.com/v2/exchange-rates'
 const TOO_MANY_REQUESTS_CODE = 429
 
@@ -8,9 +10,9 @@ const service = axios.create({
 })
 
 async function getExchangeRate(
-  fromCurrencySymbol: string,
-  toCurrencySymbol: string
-) {
+  fromCurrencySymbol: CurrencySymbol,
+  toCurrencySymbol: CurrencySymbol
+): Promise<number | null> {
   try {
     const {
       data: { data },
@@ -25,4 +27,5 @@ async function getExchangeRate(
   }
 }
 
+export type { CurrencySymbol }
 export { getExchangeRate }

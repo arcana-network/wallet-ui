@@ -2,22 +2,24 @@
 import { AxiosError } from 'axios'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
+import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { getExchangeRate } from '@/services/exchangeRate.service'
+import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
 
-const EXCHANGE_RATE_CURRENCY = 'USD'
+const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
 const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
 const toast = useToast()
-const exchangeRate = ref(null)
+const exchangeRate: Ref<number | null> = ref(null)
 const { rpcConfig, currency } = storeToRefs(rpcStore)
 
 onMounted(async () => {
