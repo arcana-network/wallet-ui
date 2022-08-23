@@ -11,7 +11,6 @@ import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY = 'USD'
-const TOO_MANY_REQUESTS_CODE = 429
 
 const getImage = useImage()
 const userStore = useUserStore()
@@ -29,16 +28,12 @@ onMounted(async () => {
 async function getCurrencyExchangeRate() {
   try {
     if (currency.value) {
-      exchangeRate.value = await getExchangeRate(
-        currency.value,
-        EXCHANGE_RATE_CURRENCY
-      )
+      const rate = await getExchangeRate(currency.value, EXCHANGE_RATE_CURRENCY)
+      if (rate) exchangeRate.value = rate
     }
   } catch (err: AxiosError) {
     console.error(err)
-    if (err.response.status === TOO_MANY_REQUESTS_CODE) {
-      exchangeRate.value = null
-    }
+    exchangeRate.value = null
   }
 }
 
