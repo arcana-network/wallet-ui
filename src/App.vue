@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted } from 'vue'
+import { toRefs, ref, onMounted, watch } from 'vue'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import { useAppStore } from '@/store/app'
