@@ -6,8 +6,14 @@ const service = axios.create({
   baseURL: URL,
 })
 
-function getExchangeRate(currencySymbol: string) {
-  return service.get('', { params: { currency: currencySymbol } })
+async function getExchangeRate(
+  fromCurrencySymbol: string,
+  toCurrencySymbol: string
+) {
+  const {
+    data: { data },
+  } = await service.get('', { params: { currency: fromCurrencySymbol } })
+  return data.rates[toCurrencySymbol]
 }
 
 export { getExchangeRate }

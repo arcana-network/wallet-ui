@@ -29,10 +29,10 @@ onMounted(async () => {
 async function getCurrencyExchangeRate() {
   try {
     if (currency.value) {
-      const {
-        data: { data },
-      } = await getExchangeRate(currency.value)
-      exchangeRate.value = data.rates[EXCHANGE_RATE_CURRENCY]
+      exchangeRate.value = await getExchangeRate(
+        currency.value,
+        EXCHANGE_RATE_CURRENCY
+      )
     }
   } catch (err: AxiosError) {
     console.error(err)
