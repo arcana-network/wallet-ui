@@ -19,9 +19,10 @@ const toast = useToast()
 const exchangeRate = ref(null)
 const { rpcConfig, currency } = storeToRefs(rpcStore)
 
-onMounted(getWalletBalance)
-
-onMounted(getCurrencyExchangeRate)
+onMounted(async () => {
+  await getWalletBalance()
+  await getCurrencyExchangeRate()
+})
 
 async function getCurrencyExchangeRate() {
   try {
