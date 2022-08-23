@@ -8,14 +8,14 @@ import {
 function createParentConnection(methods) {
   return connectToParent<ParentConnectionApi>({
     methods,
-    debug: true,
+    debug: false,
   })
 }
 
 function createInitParentConnection(methods) {
   return connectToParent<InitParentConnectionApi>({
     methods,
-    debug: true,
+    debug: false,
   })
 }
 
