@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AxiosError } from 'axios'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -10,6 +11,7 @@ import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY = 'USD'
+const TOO_MANY_REQUESTS_CODE = 429
 
 const getImage = useImage()
 const userStore = useUserStore()
@@ -32,9 +34,11 @@ async function getCurrencyExchangeRate() {
       } = await getExchangeRate(currency.value)
       exchangeRate.value = data.rates[EXCHANGE_RATE_CURRENCY]
     }
-  } catch (err) {
+  } catch (err: AxiosError) {
     console.error(err)
-    exchangeRate.value = null
+    if (err.response.status === TOO_MANY_REQUESTS_CODE) {
+      exchangeRate.value = null
+    }
   }
 }
 
