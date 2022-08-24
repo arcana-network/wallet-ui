@@ -30,8 +30,8 @@ async function sendTokens() {
   try {
     const payload = {
       to: `0x${senderWalletAddress.value}`,
-      value: ethers.utils.parseEther(`${amount.value}`),
-      gasPrice: ethers.utils.parseEther(`${gasPrice.value}`),
+      value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
+      gasPrice: gasPrice.value,
       from: walletAddress,
     }
     console.log({ payload })
