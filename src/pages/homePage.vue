@@ -130,9 +130,9 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div class="home__container flow-container">
+  <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
     <h1 class="home__title">Welcome</h1>
-    <div class="home__body-container flow-element">
+    <div class="home__body-container space-y-4 sm:space-y-2">
       <div v-if="name" class="home__body-content">
         <p class="home__body-content-label">Name</p>
         <p class="home__body-content-value">{{ name }}</p>
@@ -178,7 +178,6 @@ onBeforeRouteLeave((to) => {
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  padding: var(--p-500) var(--p-400);
 }
 
 .home__title {
@@ -203,7 +202,6 @@ onBeforeRouteLeave((to) => {
 }
 
 .home__body-content-label {
-  margin-bottom: 4px;
   font-size: var(--fs-300);
   font-weight: 400;
 }

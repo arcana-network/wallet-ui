@@ -13,7 +13,7 @@ const userStore = useUserStore()
   >
     <router-link
       v-if="userStore.isLoggedIn"
-      to="/profileScreen"
+      to="/"
       class="footer__profileicon-link"
     >
       <img
@@ -30,7 +30,7 @@ const userStore = useUserStore()
     </div>
     <router-link
       v-if="userStore.isLoggedIn"
-      to="/"
+      to="/profileScreen"
       class="footer__profileicon-link"
     >
       <img
