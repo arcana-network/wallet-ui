@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { Request } from '@/models/Connection'
 
 type PendingRequest = {
-  request: Request
+  request: Request<unknown>
   receivedTime?: Date
   isPermissionGranted: boolean
 }
@@ -30,7 +30,7 @@ export const useRequestStore = defineStore('request', {
   },
   actions: {
     addRequests(
-      request: Request,
+      request: Request<unknown>,
       isPermissionRequired: boolean,
       receivedTime: Date
     ): void {

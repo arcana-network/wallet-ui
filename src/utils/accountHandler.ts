@@ -1,4 +1,4 @@
-import { Transaction } from '@ethereumjs/tx'
+import { Transaction, TxData } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
@@ -8,11 +8,14 @@ import {
 import {
   stripHexPrefix,
   ecsign,
-  BN,
   bufferToHex,
   setLengthLeft,
 } from 'ethereumjs-util'
 import { ethers } from 'ethers'
+
+interface TransactionData extends TxData {
+  from: string
+}
 
 export class AccountHandler {
   wallet: ethers.Wallet
@@ -94,12 +97,12 @@ export class AccountHandler {
     }
   }
 
-  async requestSendTransaction(data, address: string) {
+  async requestSendTransaction(data: TransactionData) {
     try {
-      const wallet = this.getWallet(address)
+      const wallet = this.getWallet(data.from)
       if (wallet) {
-        const signer = wallet.connect(this.provider)
-        const tx = await signer.sendTransaction(data)
+        const signature = await this.requestSignTransaction(data)
+        const tx = await this.provider.sendTransaction(signature.raw)
         return tx.hash
       } else {
         throw new Error('No Wallet found for the provided address')
@@ -127,15 +130,12 @@ export class AccountHandler {
     }
   }
 
-  async requestSignTransaction(txData, address: string) {
+  async requestSignTransaction(txData: TransactionData) {
     try {
-      const wallet = this.getWallet(address)
+      const wallet = this.getWallet(txData.from)
       if (wallet) {
         const transaction = Transaction.fromTxData({
           ...txData,
-          value: new BN(txData.value, 10),
-          gasPrice: new BN(txData.gasPrice, 10),
-          gas: new BN(txData.gas, 10),
         })
         const tx = transaction.sign(
           Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
@@ -150,7 +150,7 @@ export class AccountHandler {
     }
   }
 
-  async requestSignTypedMessage(data, address: string) {
+  async requestSignTypedMessage(data: string, address: string) {
     const wallet = this.getWallet(address)
     if (wallet) {
       const parsedData = JSON.parse(data)
