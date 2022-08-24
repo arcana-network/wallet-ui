@@ -4,6 +4,8 @@ import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import ModalFullScreen from '@/components/ModalFullScreen.vue'
+import SendMoney from '@/components/SendMoney.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
