@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { AxiosError } from 'axios'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
@@ -39,7 +38,7 @@ async function getCurrencyExchangeRate() {
       const rate = await getExchangeRate(currency.value, EXCHANGE_RATE_CURRENCY)
       if (rate) exchangeRate.value = rate
     }
-  } catch (err: AxiosError) {
+  } catch (err) {
     console.error(err)
     exchangeRate.value = null
   }
