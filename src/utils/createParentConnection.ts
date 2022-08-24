@@ -8,14 +8,14 @@ import {
 function createParentConnection(methods) {
   return connectToParent<ParentConnectionApi>({
     methods,
-    debug: true,
+    debug: process.env.VUE_APP_ENABLE_PENPAL_DEBUG === 'true',
   })
 }
 
 function createInitParentConnection(methods) {
   return connectToParent<InitParentConnectionApi>({
     methods,
-    debug: true,
+    debug: process.env.VUE_APP_ENABLE_PENPAL_DEBUG === 'true',
   })
 }
 

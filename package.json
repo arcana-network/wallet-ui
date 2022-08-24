@@ -17,12 +17,13 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@arcana/auth": "^0.1.2-beta.4",
+    "@arcana/auth": "^0.1.2-beta.6",
     "@arcana/auth-core": "^0.1.5-beta.1",
     "@ethereumjs/tx": "^3.4.0",
     "@sentry/tracing": "^7.5.1",
     "@sentry/vue": "^7.5.1",
     "assert": "^2.0.0",
+    "axios": "^0.27.2",
     "buffer": "^6.0.3",
     "core-js": "^3.8.3",
     "crypto-browserify": "^3.12.0",
