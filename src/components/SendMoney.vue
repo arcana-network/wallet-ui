@@ -1,4 +1,22 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
+import { onMounted, ref } from 'vue'
+
+import { getGasPrice } from '@/services/gasPrice.service'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
+
+const senderWalletAddress = ref(null)
+const amount = ref(null)
+const gasPrice = ref(null)
+const userStore = useUserStore()
+
+const { walletAddress, privateKey } = userStore
+
+onMounted(async () => {
+  gasPrice.value = await getGasPrice()
+})
+
 const emits = defineEmits(['cancel'])
 
 defineProps({
@@ -7,6 +25,23 @@ defineProps({
     required: true,
   },
 })
+
+async function sendTokens() {
+  try {
+    const payload = {
+      to: `0x${senderWalletAddress.value}`,
+      value: ethers.utils.parseEther(`${amount.value}`),
+      gasPrice: ethers.utils.parseEther(`${gasPrice.value}`),
+      from: walletAddress,
+    }
+    console.log({ payload })
+    const accountHandler = new AccountHandler(privateKey)
+    const response = await accountHandler.requestSendTransaction(payload)
+    console.log({ response })
+  } catch (err) {
+    console.log({ err })
+  }
+}
 </script>
 
 <template>
