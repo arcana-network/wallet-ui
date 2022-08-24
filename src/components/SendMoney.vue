@@ -11,7 +11,7 @@ defineProps({
 
 <template>
   <div
-    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full p-4 sm:p-2 flex flex-col justify-between"
+    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full min-w-full p-4 sm:p-2 flex flex-col justify-between"
   >
     <div class="space-y-1">
       <p class="text-xl sm:text-sm">Send Tokens</p>
@@ -28,7 +28,7 @@ defineProps({
       <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
       <input
         type="text"
-        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg shadow-inner"
+        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg shadow-inner"
         placeholder="6yhjtikn7...."
       />
     </div>
@@ -36,7 +36,7 @@ defineProps({
       <p class="text-xs text-zinc-400">Amount</p>
       <input
         type="text"
-        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
+        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg"
         placeholder="Ex: 0.5 ETH"
       />
     </div>
@@ -47,7 +47,7 @@ defineProps({
       </p>
       <input
         type="text"
-        class="text-base sm:text-sm dark:bg-gradient-dark bg-gradient-light w-full p-3 sm:p-1 rounded-lg"
+        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg"
         placeholder="Ex: $3.50"
       />
     </div>
