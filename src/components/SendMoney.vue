@@ -11,7 +11,7 @@ defineProps({
 
 <template>
   <div
-    class="container space-y-5 sm:space-y-3 rounded-lg overflow-auto h-full min-w-full p-4 sm:p-2 flex flex-col justify-between"
+    class="container space-y-4 sm:space-y-3 rounded-lg overflow-auto h-full min-w-full p-3 sm:p-2 flex flex-col justify-between"
   >
     <div class="space-y-1">
       <p class="text-xl sm:text-sm">Send Tokens</p>
@@ -24,46 +24,60 @@ defineProps({
       <p class="text-xs text-zinc-400">Network</p>
       <p class="text-base sm:text-sm">{{ chainName }}</p>
     </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
-      <input
-        type="text"
-        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg shadow-inner"
-        placeholder="6yhjtikn7...."
-      />
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Amount</p>
-      <input
-        type="text"
-        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg"
-        placeholder="Ex: 0.5 ETH"
-      />
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Gas Fees</p>
-      <p class="text-xs text-zinc-400">
-        Fees paid to validators and refer Polygon Gastation for recent prices
-      </p>
-      <input
-        type="text"
-        class="text-base sm:text-sm bg-gradient w-full p-3 sm:p-1 rounded-lg"
-        placeholder="Ex: $3.50"
-      />
-    </div>
-    <div class="flex space-x-3">
-      <button
-        class="text-sm rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-        @click="emits('cancel')"
-      >
-        Cancel
-      </button>
-      <button
-        class="text-sm rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
-      >
-        Send
-      </button>
-    </div>
+    <form class="space-y-4 sm:space-y-3" @submit.prevent="sendTokens">
+      <div class="space-y-1">
+        <label class="text-xs text-zinc-400" for="recipientWalletAddress"
+          >Recipient’s Wallet Address</label
+        >
+        <input
+          id="recipientWalletAddress"
+          v-model="senderWalletAddress"
+          required
+          type="text"
+          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
+          placeholder="6yhjtikn7...."
+        />
+      </div>
+      <div class="space-y-1">
+        <label class="text-xs text-zinc-400" for="amount">Amount</label>
+        <input
+          id="amount"
+          v-model="amount"
+          required
+          type="number"
+          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none appearance-none"
+          placeholder="Ex: 0.5 ETH"
+        />
+      </div>
+      <div class="space-y-1">
+        <label class="text-xs text-zinc-400" for="gasPrice">Gas Price</label>
+        <p class="text-xs text-zinc-400">
+          Fees paid to validators and refer Polygon Gastation for recent prices
+        </p>
+        <input
+          id="gasPrice"
+          v-model="gasPrice"
+          required
+          type="text"
+          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
+          placeholder="Ex: $3.50"
+        />
+      </div>
+      <div class="flex space-x-3">
+        <button
+          class="text-sm rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+          @click="emits('cancel')"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="text-sm rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
+        >
+          Send
+        </button>
+      </div>
+    </form>
   </div>
 </template>
 
