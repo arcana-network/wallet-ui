@@ -17,7 +17,7 @@ onMounted(async () => {
   gasPrice.value = await getGasPrice()
 })
 
-const emits = defineEmits(['cancel'])
+const emits = defineEmits(['close'])
 
 defineProps({
   chainName: {
@@ -101,7 +101,7 @@ async function sendTokens() {
       <div class="flex space-x-3">
         <button
           class="text-sm rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-          @click="emits('cancel')"
+          @click="emits('close')"
         >
           Cancel
         </button>
