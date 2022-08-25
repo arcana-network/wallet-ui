@@ -1,4 +1,4 @@
-import Common, { Chain } from '@ethereumjs/common'
+import Common from '@ethereumjs/common'
 import { Transaction, TxData } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -109,7 +109,7 @@ export class AccountHandler {
         throw new Error('No Wallet found for the provided address')
       }
     } catch (e) {
-      return e
+      return Promise.reject(e)
     }
   }
 
