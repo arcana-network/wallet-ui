@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
 import { onMounted, ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import { getGasPrice } from '@/services/gasPrice.service'
 import { useUserStore } from '@/store/user'
@@ -10,6 +11,11 @@ const senderWalletAddress = ref(null)
 const amount = ref(null)
 const gasPrice = ref(null)
 const userStore = useUserStore()
+const loader = ref({
+  show: false,
+  message: '',
+})
+const toast = useToast()
 
 const { walletAddress, privateKey } = userStore
 
@@ -26,7 +32,18 @@ defineProps({
   },
 })
 
+function showLoader(message) {
+  loader.value.show = true
+  loader.value.message = message
+}
+
+function hideLoader() {
+  loader.value.show = false
+  loader.value.message = ''
+}
+
 async function sendTokens() {
+  showLoader('Sending tokens...')
   try {
     const payload = {
       to: `0x${senderWalletAddress.value}`,
@@ -34,18 +51,23 @@ async function sendTokens() {
       gasPrice: gasPrice.value,
       from: walletAddress,
     }
-    console.log({ payload })
     const accountHandler = new AccountHandler(privateKey)
-    const response = await accountHandler.requestSendTransaction(payload)
-    console.log({ response })
-  } catch (err) {
-    console.log({ err })
+    await accountHandler.requestSendTransaction(payload)
+    emits('close')
+  } catch (err: object) {
+    if (err && err.reason) {
+      toast.error(err.reason)
+    }
+  } finally {
+    hideLoader()
   }
 }
 </script>
 
 <template>
+  <p v-if="loader.show">{{ loader.message }}</p>
   <div
+    v-else
     class="container space-y-4 sm:space-y-3 rounded-lg overflow-auto h-full min-w-full p-3 sm:p-2 flex flex-col justify-between"
   >
     <div class="space-y-1">
