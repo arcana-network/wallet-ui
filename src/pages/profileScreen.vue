@@ -132,7 +132,7 @@ async function copyToClipboard(value: string) {
     <SendMoney
       v-if="showSendMoney"
       :chain-name="rpcStore.rpcConfig.chainName"
-      @cancel="showSendMoney = false"
+      @close="showSendMoney = false"
     />
   </ModalFullScreen>
 </template>
