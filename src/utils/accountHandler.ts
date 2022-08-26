@@ -1,3 +1,4 @@
+import Common from '@ethereumjs/common'
 import { Transaction, TxData } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -134,9 +135,16 @@ export class AccountHandler {
     try {
       const wallet = this.getWallet(txData.from)
       if (wallet) {
-        const transaction = Transaction.fromTxData({
-          ...txData,
-        })
+        const chainId = await this.getChainId()
+        const nonce = await this.provider.getTransactionCount(wallet.address)
+        const transaction = Transaction.fromTxData(
+          {
+            nonce,
+            ...txData,
+            gasLimit: 21000,
+          },
+          { common: Common.custom({ chainId }) }
+        )
         const tx = transaction.sign(
           Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
         )
