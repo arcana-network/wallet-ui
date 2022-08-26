@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
+import { storeToRefs } from 'pinia'
 import { onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -17,7 +18,7 @@ const loader = ref({
 })
 const toast = useToast()
 
-const { walletAddress, privateKey } = userStore
+const { walletAddress, privateKey } = storeToRefs(userStore)
 
 onMounted(async () => {
   gasPrice.value = await getGasPrice()
