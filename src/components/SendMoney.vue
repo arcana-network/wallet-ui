@@ -8,6 +8,15 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 
+const emits = defineEmits(['close'])
+
+defineProps({
+  chainName: {
+    type: String,
+    required: true,
+  },
+})
+
 const senderWalletAddress = ref(null)
 const amount = ref(null)
 const gasPrice = ref(null)
@@ -22,15 +31,6 @@ const { walletAddress, privateKey } = storeToRefs(userStore)
 
 onMounted(async () => {
   gasPrice.value = await getGasPrice()
-})
-
-const emits = defineEmits(['close'])
-
-defineProps({
-  chainName: {
-    type: String,
-    required: true,
-  },
 })
 
 function showLoader(message) {
