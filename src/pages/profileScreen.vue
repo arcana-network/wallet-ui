@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import ModalFullScreen from '@/components/ModalFullScreen.vue'
+import Modal from '@/components/Modal.vue'
 import SendMoney from '@/components/SendMoney.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
@@ -133,11 +133,11 @@ async function copyToClipboard(value: string) {
       </button>
     </div>
   </div>
-  <ModalFullScreen v-if="showModal">
+  <Modal v-if="showModal">
     <SendMoney
       v-if="showSendMoney"
       :chain-name="rpcStore.rpcConfig.chainName"
       @close="onCloseClickSendToken"
     />
-  </ModalFullScreen>
+  </Modal>
 </template>
