@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import Modal from '@/components/Modal.vue'
+import Modal from '@/components/ModalComponent.vue'
 import SendMoney from '@/components/SendMoney.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
