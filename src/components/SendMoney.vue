@@ -93,7 +93,7 @@ async function sendTokens() {
           required
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="6yhjtikn7...."
+          placeholder="6yhjtikn7..."
         />
       </div>
       <div class="space-y-1">
