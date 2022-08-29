@@ -23,11 +23,11 @@ const walletBalance = ref('')
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
 const { rpcConfig, currency } = storeToRefs(rpcStore)
-const showSendMoney = ref(false)
-const showReceiveMoney = ref(false)
+const showSendMoneyModal = ref(false)
+const showReceiveMoneyModal = ref(false)
 
 const showModal = computed(() => {
-  return showSendMoney.value || showReceiveMoney.value
+  return showSendMoneyModal.value || showReceiveMoneyModal.value
 })
 
 onMounted(async () => {
@@ -36,7 +36,7 @@ onMounted(async () => {
 })
 
 function onCloseClickSendToken() {
-  showSendMoney.value = false
+  showSendMoneyModal.value = false
   getWalletBalance()
 }
 
@@ -121,13 +121,13 @@ async function copyToClipboard(value: string) {
     <div class="flex space-x-3">
       <button
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
-        @click="showSendMoney = true"
+        @click="showSendMoneyModal = true"
       >
         Send
       </button>
       <button
         class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-        @click="showReceiveMoney = true"
+        @click="showReceiveMoneyModal = true"
       >
         Receive
       </button>
@@ -135,7 +135,7 @@ async function copyToClipboard(value: string) {
   </div>
   <Modal v-if="showModal">
     <SendMoney
-      v-if="showSendMoney"
+      v-if="showSendMoneyModal"
       :chain-name="rpcStore.rpcConfig.chainName"
       @close="onCloseClickSendToken"
     />
