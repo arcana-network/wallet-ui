@@ -34,6 +34,7 @@
     "ethers": "^5.5.2",
     "penpal": "^6.2.2",
     "pinia": "^2.0.12",
+    "qrious": "^4.0.2",
     "stream-browserify": "^3.0.0",
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",
