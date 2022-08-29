@@ -6,6 +6,7 @@ import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import Modal from '@/components/ModalComponent.vue'
+import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendMoney from '@/components/SendMoney.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
@@ -133,6 +134,11 @@ async function copyToClipboard(value: string) {
   <Modal v-if="showModal">
     <SendMoney
       v-if="showModal === 'send'"
+      :chain-name="rpcStore.rpcConfig.chainName"
+      @close="handleSendTokenModalClose"
+    />
+    <ReceiveTokens
+      v-if="showModal === 'receive'"
       :chain-name="rpcStore.rpcConfig.chainName"
       @close="handleSendTokenModalClose"
     />
