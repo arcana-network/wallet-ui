@@ -32,7 +32,7 @@ onMounted(async () => {
   await getCurrencyExchangeRate()
 })
 
-function onCloseClickSendToken() {
+function handleSendTokenModalClose() {
   showModal.value = false
   getWalletBalance()
 }
@@ -134,7 +134,7 @@ async function copyToClipboard(value: string) {
     <SendMoney
       v-if="showModal === 'send'"
       :chain-name="rpcStore.rpcConfig.chainName"
-      @close="onCloseClickSendToken"
+      @close="handleSendTokenModalClose"
     />
   </Modal>
 </template>
