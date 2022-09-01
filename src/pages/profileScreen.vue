@@ -5,7 +5,6 @@ import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import Modal from '@/components/ModalComponent.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
@@ -123,5 +122,4 @@ async function copyToClipboard(value: string) {
       </button>
     </div>
   </div>
-  <Modal v-if="showModal" />
 </template>
