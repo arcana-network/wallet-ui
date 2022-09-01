@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { AxiosError } from 'axios'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
@@ -33,7 +32,7 @@ async function getCurrencyExchangeRate() {
       const rate = await getExchangeRate(currency.value, EXCHANGE_RATE_CURRENCY)
       if (rate) exchangeRate.value = rate
     }
-  } catch (err: AxiosError) {
+  } catch (err) {
     console.error(err)
     exchangeRate.value = null
   }
@@ -86,7 +85,7 @@ async function copyToClipboard(value: string) {
       </p>
     </div>
     <div
-      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient space-y-2 sm:space-y-0"
+      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
       <div v-if="exchangeRate" class="space-y-2 sm:space-y-0">
