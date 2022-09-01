@@ -5,6 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import Modal from '@/components/ModalComponent.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
@@ -13,7 +14,9 @@ import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
+type ModalState = 'send' | 'receive' | false
 
+const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -108,14 +111,17 @@ async function copyToClipboard(value: string) {
     <div class="flex space-x-3">
       <button
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
+        @click="showModal = 'send'"
       >
         Send
       </button>
       <button
         class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+        @click="showModal = 'receive'"
       >
         Receive
       </button>
     </div>
   </div>
+  <Modal v-if="showModal" />
 </template>
