@@ -53,6 +53,7 @@ async function getWalletBalance() {
   const balance = await accountHandler.provider.getBalance(
     userStore.walletAddress
   )
+  rpcStore.setWalletBalance(balance.toString())
   walletBalance.value = balance.toString()
 }
 
