@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
@@ -56,7 +57,7 @@ async function getWalletBalance() {
     userStore.walletAddress
   )
   rpcStore.setWalletBalance(balance.toString())
-  walletBalance.value = balance.toString()
+  walletBalance.value = ethers.utils.formatEther(balance.toString())
 }
 
 async function copyToClipboard(value: string) {
