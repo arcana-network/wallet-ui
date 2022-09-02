@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 
 type CurrencySymbol = 'BTC' | 'USD' | 'ETH' | 'XAR' | 'MATIC'
 
@@ -18,8 +18,12 @@ async function getExchangeRate(
       data: { data },
     } = await service.get('', { params: { currency: fromCurrencySymbol } })
     return data.rates[toCurrencySymbol]
-  } catch (err: AxiosError) {
-    if (err.response.status === TOO_MANY_REQUESTS_CODE) {
+  } catch (err) {
+    if (
+      axios.isAxiosError(err) &&
+      err.response &&
+      err.response.status === TOO_MANY_REQUESTS_CODE
+    ) {
       return null
     } else {
       throw err
