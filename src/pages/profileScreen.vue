@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { AxiosError } from 'axios'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import SendTokens from '@/components/SendTokens.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -19,6 +20,7 @@ const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
+const modalStore = useModalStore()
 const walletBalance = ref('')
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
@@ -35,7 +37,7 @@ async function getCurrencyExchangeRate() {
       const rate = await getExchangeRate(currency.value, EXCHANGE_RATE_CURRENCY)
       if (rate) exchangeRate.value = rate
     }
-  } catch (err: AxiosError) {
+  } catch (err) {
     console.error(err)
     exchangeRate.value = null
   }
@@ -64,6 +66,16 @@ async function copyToClipboard(value: string) {
   } catch (err) {
     toast.error('Failed to copy wallet address')
   }
+}
+
+function openSendTokens(open) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'send' : false
+}
+
+function openReceiveTokens(open) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'receive' : false
 }
 </script>
 
@@ -111,16 +123,19 @@ async function copyToClipboard(value: string) {
     <div class="flex space-x-3">
       <button
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
-        @click="showModal = 'send'"
+        @click="openSendTokens(true)"
       >
         Send
       </button>
       <button
         class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-        @click="showModal = 'receive'"
+        @click="openReceiveTokens(true)"
       >
         Receive
       </button>
     </div>
+    <Teleport v-if="showModal" to="#modal-container">
+      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
+    </Teleport>
   </div>
 </template>
