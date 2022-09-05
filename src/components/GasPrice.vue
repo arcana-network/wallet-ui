@@ -61,7 +61,7 @@ function onCustomGasPriceInput(value) {
           <span class="text-xs text-zinc-400">Gas Fees</span>
           <div class="space-x-1">
             <span class="sm:text-xs">{{ disableSlider ? '-' : gasFees }}</span>
-            <span class="text-xs">GWEI</span>
+            <span class="text-xs">{{ rpcStore.currency }}</span>
           </div>
         </div>
         <div class="space-x-1">
