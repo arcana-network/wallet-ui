@@ -6,6 +6,8 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
+const emits = defineEmits(['gasPriceInput'])
+
 onMounted(fetchGasPrices)
 
 const rpcStore = useRpcStore()
@@ -41,11 +43,13 @@ function handleGasPriceSelect(value = '') {
   const { wait, price } = gasPriceLabelPropsMap[type]
   gasFees.value = gasPrices.value[price] / 10
   transactionTime.value = gasPrices.value[wait]
+  emits('gasPriceInput', gasFees.value)
 }
 
 function onCustomGasPriceInput(value) {
   disableSlider.value = true
   gasFees.value = value
+  emits('gasPriceInput', gasFees.value)
 }
 </script>
 
