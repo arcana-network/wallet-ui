@@ -137,20 +137,23 @@ async function getCurrencyExchangeRate() {
           >
         </p>
       </div>
-      <div class="flex divide-x space-x-1 sm:p-1 bg-gradient rounded-lg">
+      <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
         <input
           id="amount"
+          autocomplete="off"
           type="text"
-          class="p-2 text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
+          class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
           placeholder="0.5"
           @input="(evt) => onCustomGasPriceInput(evt.target.value)"
         />
         <div
           v-if="rpcStore.currency"
           class="p-2"
-          :class="{ 'border-l-[1px] px-1': rpcStore.currency }"
+          :class="{
+            'border-l-[1px] border-l-slate-400 px-1': rpcStore.currency,
+          }"
         >
-          <p>{{ rpcStore.currency }}</p>
+          <p class="text-sm pl-1">{{ rpcStore.currency }}</p>
         </div>
       </div>
     </div>
