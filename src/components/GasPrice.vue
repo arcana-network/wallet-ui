@@ -46,7 +46,9 @@ function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
-  gasFees.value = gasPrices.value[price] / 10
+  const gasFessInGwei = gasPrices.value[price] / 10
+  const decimal = rpcStore.rpcConfig?.nativeCurrency?.decimals || 9
+  gasFees.value = gasFessInGwei / Math.pow(10, decimal)
   transactionTime.value = gasPrices.value[wait]
   emits('gasPriceInput', gasFees.value)
 }
