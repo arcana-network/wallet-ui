@@ -75,7 +75,7 @@ const loginEventHandler = (ev: MessageEvent) => {
 async function init() {
   isLoading.value = true
   try {
-    channel = new BroadcastChannel('login_notification')
+    channel = new BroadcastChannel(`${appId}_login_notification`)
     channel.addEventListener('message', loginEventHandler)
 
     app.setAppId(`${appId}`)

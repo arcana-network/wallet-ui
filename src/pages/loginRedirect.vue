@@ -16,8 +16,8 @@ onUnmounted(cleanup)
 
 async function init() {
   try {
-    channel = new BroadcastChannel('login_notification')
     const authProvider = await getAuthProvider(`${appId}`)
+    channel = new BroadcastChannel(`${appId}_login_notification`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       channel.postMessage({ status: 'success', info })
