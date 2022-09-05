@@ -3,9 +3,12 @@ import { onMounted, Ref, ref } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
 import { getGasPrice } from '@/services/gasPrice.service'
+import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 onMounted(fetchGasPrices)
+
+const rpcStore = useRpcStore()
 
 const gasFees = ref(0)
 const transactionTime = ref(null)
@@ -94,17 +97,18 @@ function onCustomGasPriceInput(value) {
       <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
         <input
           id="amount"
-          required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
+          class="p-2 text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
           placeholder="0.5"
           @input="(evt) => onCustomGasPriceInput(evt.target.value)"
         />
-        <select name="choice" class="bg-gradient pr-2 outline-none">
-          <option value="eth" select>ETH</option>
-          <option value="matic">MATIC</option>
-          <option value="xar">XAR</option>
-        </select>
+        <div
+          v-if="rpcStore.currency"
+          class="p-2"
+          :class="{ 'border-l-[1px] px-1': rpcStore.currency }"
+        >
+          <p>{{ rpcStore.currency }}</p>
+        </div>
       </div>
     </div>
   </div>
