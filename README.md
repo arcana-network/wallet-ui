@@ -31,4 +31,6 @@ We welcome all contributions to this repository from the community. Read our [co
 
 ## License
 
+This public repository of Arcana Network is shared and distributed under the [MIT License](https://fossa.com/blog/open-source-licenses-101-mit-license/).
+
 For details see [Arcana License](https://github.com/arcana-network/license/blob/main/LICENSE.md).
