@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
+const rpcStore = useRpcStore()
 
 const emits = defineEmits(['close, submit'])
+const props = defineProps({
+  previewData: {
+    type: Object,
+    required: true,
+  },
+})
+
+const totalAmount =
+  Number(props.previewData.amount) + Number(props.previewData.gasFees)
 </script>
 
 <template>
@@ -19,14 +30,18 @@ const emits = defineEmits(['close, submit'])
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Sender’s Wallet Address</p>
-      <p class="text-base truncate">19emjx4vqHPn6ZTsh1ZNbBD7uFZFqWA5Cq</p>
+      <p class="text-base truncate">
+        {{ props.previewData.senderWalletAddress }}
+      </p>
     </div>
     <div class="flex justify-center">
       <img :src="getImage('arrow-down-icon')" alt="arrow down icon" />
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
-      <p class="text-sm truncate">19emjx4vqHPn6ZTsh1ZNbBD7uFZFqWA5Cq</p>
+      <p class="text-sm truncate">
+        {{ props.previewData.recipientWalletAddress }}
+      </p>
     </div>
     <div class="space-y-3">
       <div class="flex justify-between text-xs text-zinc-400">
@@ -36,18 +51,21 @@ const emits = defineEmits(['close, submit'])
       <div class="space-y-[10px]">
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Send Amount</p>
-          <p>1.2 ETH</p>
+          <p>
+            {{ props.previewData.amount }}
+            {{ rpcStore.currency }}
+          </p>
         </div>
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Gas Fees</p>
-          <p>.0300 ETH</p>
+          <p>{{ props.previewData.gasFees }} {{ rpcStore.currency }}</p>
         </div>
       </div>
       <div
         class="flex justify-between text-sm sm:text-xs font-normal border-y-[1px] border-x-0 border-zinc-400 py-4"
       >
         <p>Total:</p>
-        <p>1.23 ETH</p>
+        <p>{{ totalAmount }} {{ rpcStore.currency }}</p>
       </div>
     </div>
     <div class="flex justify-between">
