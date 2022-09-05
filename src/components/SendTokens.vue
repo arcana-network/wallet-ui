@@ -43,6 +43,7 @@ async function handleSendToken() {
     }
     const accountHandler = new AccountHandler(userStore.privateKey)
     await accountHandler.requestSendTransaction(payload)
+    toast.success('Tokens sent Successfully')
   } catch (err: object) {
     if (err && err.reason) {
       toast.error(err.reason)
