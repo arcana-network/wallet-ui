@@ -15,6 +15,8 @@ Use the Node version in the [.nvmrc](./.nvmrc) file.
 | `npm run lint`  | Lint and auto-fix errors               |
 | `npm run build` | Build and minify site for production   |
 
+If you are using VS Code, see the recommended [settings](./.vscode/settings.json) and [extensions](./.vscode/extensions.json).
+
 ## Usage
 
 To use Arcana's web wallet in an external dapp follow the instructions for the initializing [`@arcana/auth`](https://github.com/arcana-network/auth) SDK.
