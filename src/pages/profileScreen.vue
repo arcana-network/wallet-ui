@@ -39,7 +39,7 @@ onMounted(async () => {
 
 function showLoader(message) {
   loader.value.show = true
-  loader.value.message = message
+  loader.value.message = `${message}...`
 }
 
 function hideLoader() {
@@ -109,7 +109,11 @@ function openReceiveTokens(open) {
 </script>
 
 <template>
+  <div v-if="loader.show" class="flex justify-center items-center h-full">
+    <p>{{ loader.message }}</p>
+  </div>
   <div
+    v-else
     class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
   >
     <div class="flex flex-col justify-center items-center space-y-2">
