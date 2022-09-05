@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -31,10 +31,15 @@ const loader = ref({
   show: false,
   message: '',
 })
+const accountHandler = new AccountHandler(userStore.privateKey)
 
 onMounted(async () => {
   await getWalletBalance()
   await getCurrencyExchangeRate()
+})
+
+watch(showModal, () => {
+  if (!showModal.value) getWalletBalance()
 })
 
 function showLoader(message) {
@@ -77,7 +82,6 @@ const totalAmountInUSD = computed(() => {
 async function getWalletBalance() {
   showLoader('Fetching Wallet Balance')
   try {
-    const accountHandler = new AccountHandler(userStore.privateKey)
     const balance = await accountHandler.provider.getBalance(
       userStore.walletAddress
     )
@@ -86,7 +90,7 @@ async function getWalletBalance() {
   } catch (err) {
     console.log({ err })
   } finally {
-    hideLoader
+    hideLoader()
   }
 }
 

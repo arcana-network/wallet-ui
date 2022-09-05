@@ -78,6 +78,7 @@ async function handleSendToken() {
     }
   } finally {
     showPreview.value = false
+    emits('close')
     hideLoader()
     clearForm()
   }
