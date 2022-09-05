@@ -67,7 +67,9 @@ async function getCurrencyExchangeRate() {
 
 const totalAmountInUSD = computed(() => {
   if (exchangeRate.value) {
-    return Math.round(Number(walletBalance.value) * exchangeRate.value)
+    return Math.round(
+      Number(walletBalance.value) * exchangeRate.value
+    ).toLocaleString()
   }
   return ''
 })
