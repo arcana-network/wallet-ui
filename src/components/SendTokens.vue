@@ -137,7 +137,6 @@ function handleShowPreview() {
           <input
             id="recipientWalletAddress"
             v-model="recipientWalletAddress"
-            autocomplete="off"
             required
             type="text"
             class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"

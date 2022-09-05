@@ -14,7 +14,7 @@ const props = defineProps({
 })
 
 const totalAmount =
-  Number(props.previewData.amount) + Number(props.previewData.gasFees)
+  Number(props.previewData.amount) + Number(props.previewData.gasFee)
 </script>
 
 <template>
@@ -56,7 +56,7 @@ const totalAmount =
         </div>
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Gas Fees</p>
-          <p>{{ props.previewData.gasFees }} {{ rpcStore.currency }}</p>
+          <p>{{ props.previewData.gasFee }} {{ rpcStore.currency }}</p>
         </div>
       </div>
       <div
