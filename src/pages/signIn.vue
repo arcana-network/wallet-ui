@@ -20,6 +20,7 @@ const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
+let channel: BroadcastChannel | null = null
 
 const userEmailInput = ref('')
 const passwordlessForm = ref(null)
@@ -44,11 +45,16 @@ const penpalMethods = {
   getPublicKey: handleGetPublicKey,
 }
 
+const cleanup = () => {
+  parentConnection?.destroy()
+  if (channel) {
+    channel.close()
+  }
+}
+
 onMounted(init)
 
-onUnmounted(() => {
-  parentConnection?.destroy()
-})
+onUnmounted(cleanup)
 
 let authProvider: AuthProvider | null = null
 
@@ -59,6 +65,16 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 async function init() {
   isLoading.value = true
   try {
+    channel = new BroadcastChannel('internal_notification')
+    channel.addEventListener('message', (ev: MessageEvent) => {
+      if (ev.data?.status === 'success') {
+        sessionStorage.setItem('userInfo', JSON.stringify(ev.data.info))
+        sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+        user.setUserInfo(ev.data.info)
+        user.setLoginStatus(true)
+        router.push('/')
+      }
+    })
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
