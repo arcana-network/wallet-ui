@@ -137,7 +137,7 @@ async function getCurrencyExchangeRate() {
           >
         </p>
       </div>
-      <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
+      <div class="flex divide-x space-x-1 sm:p-1 bg-gradient rounded-lg">
         <input
           id="amount"
           type="text"

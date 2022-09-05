@@ -12,6 +12,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
@@ -26,13 +27,28 @@ const walletBalance = ref('')
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
 const { rpcConfig, currency } = storeToRefs(rpcStore)
+const loader = ref({
+  show: false,
+  message: '',
+})
 
 onMounted(async () => {
   await getWalletBalance()
   await getCurrencyExchangeRate()
 })
 
+function showLoader(message) {
+  loader.value.show = true
+  loader.value.message = message
+}
+
+function hideLoader() {
+  loader.value.show = false
+  loader.value.message = ''
+}
+
 async function getCurrencyExchangeRate() {
+  showLoader('Fetching Currency Rate')
   try {
     if (currency.value) {
       const rate = await getExchangeRate(
@@ -44,6 +60,8 @@ async function getCurrencyExchangeRate() {
   } catch (err) {
     console.error(err)
     exchangeRate.value = null
+  } finally {
+    hideLoader()
   }
 }
 
@@ -55,12 +73,19 @@ const totalAmountInUSD = computed(() => {
 })
 
 async function getWalletBalance() {
-  const accountHandler = new AccountHandler(userStore.privateKey)
-  const balance = await accountHandler.provider.getBalance(
-    userStore.walletAddress
-  )
-  rpcStore.setWalletBalance(balance.toString())
-  walletBalance.value = ethers.utils.formatEther(balance.toString())
+  showLoader('Fetching Wallet Balance')
+  try {
+    const accountHandler = new AccountHandler(userStore.privateKey)
+    const balance = await accountHandler.provider.getBalance(
+      userStore.walletAddress
+    )
+    rpcStore.setWalletBalance(balance.toString())
+    walletBalance.value = ethers.utils.formatEther(balance.toString())
+  } catch (err) {
+    console.log({ err })
+  } finally {
+    hideLoader
+  }
 }
 
 async function copyToClipboard(value: string) {
@@ -105,7 +130,7 @@ function openReceiveTokens(open) {
       </p>
     </div>
     <div
-      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center glow bg-gradient space-y-2 sm:space-y-0"
+      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
       <div v-if="exchangeRate" class="space-y-2 sm:space-y-0">
@@ -113,7 +138,7 @@ function openReceiveTokens(open) {
           {{ `$${totalAmountInUSD}` }}
         </p>
         <div class="flex text-zinc-400 text-sm space-x-1">
-          <p>{{ walletBalance }}</p>
+          <p>{{ truncateToTwoDecimals(walletBalance) }}</p>
           <p>{{ currency }}</p>
         </div>
       </div>
