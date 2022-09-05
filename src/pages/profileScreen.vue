@@ -67,7 +67,7 @@ async function getCurrencyExchangeRate() {
 
 const totalAmountInUSD = computed(() => {
   if (exchangeRate.value) {
-    return Number(walletBalance.value) * exchangeRate.value
+    return Math.round(Number(walletBalance.value) * exchangeRate.value)
   }
   return ''
 })
@@ -133,7 +133,10 @@ function openReceiveTokens(open) {
       class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
-      <div v-if="exchangeRate" class="space-y-2 sm:space-y-0">
+      <div
+        v-if="exchangeRate"
+        class="space-y-2 sm:space-y-0 flex flex-col items-center"
+      >
         <p class="text-2xl sm:text-base text-center">
           {{ `$${totalAmountInUSD}` }}
         </p>
