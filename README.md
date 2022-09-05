@@ -1,6 +1,6 @@
 # wallet-ui
 
-Arcana's embeded web wallet implementation.
+Arcana's embedded web wallet implementation.
 
 The wallet is a Vue app written in TypeScript and styled with Tailwind CSS.
 
