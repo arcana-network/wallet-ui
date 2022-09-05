@@ -16,7 +16,7 @@ onUnmounted(cleanup)
 
 async function init() {
   try {
-    channel = new BroadcastChannel('internal_notification')
+    channel = new BroadcastChannel('login_notification')
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()

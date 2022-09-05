@@ -62,19 +62,22 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
+const loginEventHandler = (ev: MessageEvent) => {
+  if (ev.data?.status === 'success') {
+    sessionStorage.setItem('userInfo', JSON.stringify(ev.data.info))
+    sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+    user.setUserInfo(ev.data.info)
+    user.setLoginStatus(true)
+    router.push('/')
+  }
+}
+
 async function init() {
   isLoading.value = true
   try {
-    channel = new BroadcastChannel('internal_notification')
-    channel.addEventListener('message', (ev: MessageEvent) => {
-      if (ev.data?.status === 'success') {
-        sessionStorage.setItem('userInfo', JSON.stringify(ev.data.info))
-        sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
-        user.setUserInfo(ev.data.info)
-        user.setLoginStatus(true)
-        router.push('/')
-      }
-    })
+    channel = new BroadcastChannel('login_notification')
+    channel.addEventListener('message', loginEventHandler)
+
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
