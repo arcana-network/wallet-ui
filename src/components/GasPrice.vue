@@ -12,7 +12,7 @@ const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
 const emits = defineEmits(['gasPriceInput'])
 
-onMounted(fetchGasPrices)
+onMounted(init)
 
 const rpcStore = useRpcStore()
 
@@ -30,6 +30,11 @@ const gasPriceLabelPropsMap = {
   average: { wait: 'avgWait', price: 'average' },
   fast: { wait: 'fastWait', price: 'fast' },
   fastest: { wait: 'fastestWait', price: 'fastest' },
+}
+
+function init() {
+  fetchGasPrices()
+  if (!rpcStore.currency) showCustomGasFeeInput.value = true
 }
 
 async function fetchGasPrices() {
@@ -86,7 +91,7 @@ async function getCurrencyExchangeRate() {
 
 <template>
   <div>
-    <div class="space-y-[10px]">
+    <div v-if="rpcStore.currency" class="space-y-[10px]">
       <div class="flex justify-between sm:flex-col">
         <div class="space-x-1 flex items-baseline">
           <span class="text-xs text-zinc-400">Gas Fees</span>
@@ -110,6 +115,7 @@ async function getCurrencyExchangeRate() {
       </div>
     </div>
     <button
+      v-if="rpcStore.currency"
       class="flex justify-center items-center m-auto space-x-1 mt-5"
       @click.prevent="showCustomGasFeeInput = !showCustomGasFeeInput"
     >
