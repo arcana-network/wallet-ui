@@ -39,7 +39,14 @@ onMounted(async () => {
 })
 
 watch(showModal, () => {
-  if (!showModal.value) getWalletBalance()
+  if (!showModal.value) {
+    showLoader('Loading')
+    setTimeout(async () => {
+      //need timeout before fetching balance, else the previous balance is fetched
+      await getWalletBalance()
+      hideLoader()
+    }, 1000)
+  }
 })
 
 function showLoader(message) {
