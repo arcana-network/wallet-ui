@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { ref } from 'vue'
+import { onMounted, ref, Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
+import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -18,27 +19,54 @@ const rpcStore = useRpcStore()
 const userStore = useUserStore()
 const getImage = useImage()
 const toast = useToast()
-const showLoader = ref(false)
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
-const gasFees = ref('')
+const gasFee = ref('')
+const gasPrices: Ref<object> = ref({})
+const loader = ref({
+  show: false,
+  message: '',
+})
 
 const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
+
+function showLoader(message) {
+  loader.value.show = true
+  loader.value.message = `${message}...`
+}
+
+function hideLoader() {
+  loader.value.show = false
+  loader.value.message = ''
+}
+
+onMounted(async () => {
+  showLoader('Loading')
+  try {
+    const data = await getGasPrice()
+    gasPrices.value = data
+  } catch (err) {
+    console.log({ err })
+    gasPrices.value = {}
+  } finally {
+    hideLoader()
+  }
+})
 
 function clearForm() {
   recipientWalletAddress.value = ''
   amount.value = ''
-  gasFees.value = ''
+  gasFee.value = ''
 }
 
 async function handleSendToken() {
-  showLoader.value = true
+  showLoader('Sending')
   try {
     const payload = {
       to: `0x${recipientWalletAddress.value}`,
       value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-      gasPrice: Number(gasFees.value),
+      gasPrice: Number(gasFee.value),
       from: userStore.walletAddress,
     }
     const accountHandler = new AccountHandler(userStore.privateKey)
@@ -50,17 +78,17 @@ async function handleSendToken() {
     }
   } finally {
     showPreview.value = false
-    showLoader.value = false
+    hideLoader()
     clearForm()
   }
 }
 
 function handleSetGasPrice(value) {
-  gasFees.value = value
+  gasFee.value = value
 }
 
 function handleShowPreview() {
-  if (recipientWalletAddress.value && amount.value && gasFees.value) {
+  if (recipientWalletAddress.value && amount.value && gasFee.value) {
     showPreview.value = true
   } else {
     toast.error('Please fill all values')
@@ -69,7 +97,9 @@ function handleShowPreview() {
 </script>
 
 <template>
-  <p v-if="showLoader">Please Wait...</p>
+  <div v-if="loader.show" class="h-full flex justify-center items-center">
+    <p>Please Wait...</p>
+  </div>
   <div v-else class="w-full">
     <SendTokensPreview
       v-if="showPreview"
@@ -77,7 +107,7 @@ function handleShowPreview() {
         senderWalletAddress: userStore.walletAddress,
         recipientWalletAddress: `Ox${recipientWalletAddress}`,
         amount,
-        gasFees,
+        gasFee,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
@@ -144,7 +174,10 @@ function handleShowPreview() {
             </div>
           </div>
         </div>
-        <GasPrice @gas-price-input="handleSetGasPrice" />
+        <GasPrice
+          :gas-prices="gasPrices"
+          @gas-price-input="handleSetGasPrice"
+        />
         <div class="flex justify-center">
           <button
             class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8"

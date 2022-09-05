@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { onMounted, Ref, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
-import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
 const emits = defineEmits(['gasPriceInput'])
+
+const props = defineProps({
+  gasPrices: {
+    type: Object,
+    required: false,
+    default: () => ({}),
+  },
+})
 
 onMounted(init)
 
@@ -24,7 +31,6 @@ const disableSlider = ref(true)
 
 const getImage = useImage()
 const showCustomGasFeeInput = ref(false)
-const gasPrices: Ref<object> = ref({})
 const gasPriceLabelPropsMap = {
   slow: { wait: 'safeLowWait', price: 'safeLow' },
   average: { wait: 'avgWait', price: 'average' },
@@ -35,28 +41,17 @@ const gasPriceLabelPropsMap = {
 const showSlider = rpcStore.currency !== '' && rpcStore.currency !== 'XAR'
 
 function init() {
-  fetchGasPrices()
   showCustomGasFeeInput.value = !showSlider
-}
-
-async function fetchGasPrices() {
-  try {
-    const data = await getGasPrice()
-    gasPrices.value = data
-  } catch (err) {
-    console.log({ err })
-    gasPrices.value = {}
-  }
 }
 
 function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
-  const gasFeeInGwei = gasPrices.value[price] / 10
+  const gasFeeInGwei = props.gasPrices[price] / 10
   const decimal = rpcStore.rpcConfig?.nativeCurrency?.decimals || 9
   gasFees.value = gasFeeInGwei / Math.pow(10, decimal)
-  transactionTime.value = gasPrices.value[wait]
+  transactionTime.value = props.gasPrices[wait]
   emits('gasPriceInput', gasFees.value)
 }
 
