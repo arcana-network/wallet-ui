@@ -144,7 +144,7 @@ function openReceiveTokens(open) {
       </div>
       <div v-else>
         <div class="flex text-2xl sm:text-base space-x-1">
-          <p>{{ walletBalance }}</p>
+          <p>{{ truncateToTwoDecimals(walletBalance) }}</p>
           <p>{{ currency }}</p>
         </div>
       </div>
