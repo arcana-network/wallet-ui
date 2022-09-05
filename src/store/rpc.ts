@@ -16,8 +16,12 @@ export const useRpcStore = defineStore('rpcStore', {
   getters: {
     currency(state: RpcConfigState): string {
       const { rpcConfig } = state
+      if (this.isArcanaNetwork) return 'XAR'
       if (rpcConfig?.nativeCurrency) return rpcConfig.nativeCurrency.symbol
       else return ''
+    },
+    isArcanaNetwork() {
+      return this.rpcConfig?.chainName?.toLowerCase('arcana')
     },
   },
 
