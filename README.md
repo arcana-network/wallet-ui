@@ -27,7 +27,7 @@ For any support or integration related queries, contact [Arcana's support team](
 
 ## Contributing Guide
 
-We welcome all contributions to this repository from the community. Read our [contributing guide](https://github.com/arcana-network/license/blob/main/CONTRIBUTING.md) to learn about the our development process, how to propose bug fixes and improvements, and the code of conduct that we expect the participants to adhere to.
+We welcome all contributions to this repository from the community. Read our [contributing guide](https://github.com/arcana-network/license/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and the code of conduct that we expect the participants to adhere to.
 
 ## License
 
