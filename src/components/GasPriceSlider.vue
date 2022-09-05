@@ -4,6 +4,13 @@ import 'vue-slider-component/theme/antd.css'
 
 const emits = defineEmits(['selectGasPrice'])
 
+const props = defineProps({
+  disable: {
+    type: Boolean,
+    required: true,
+  },
+})
+
 const marksData = {
   0: 'Slow',
   1: 'Average',
@@ -68,5 +75,17 @@ function handleSlide(value) {
     :step-active-style="stepActiveStyle"
     tooltip="none"
     @change="handleSlide"
-  />
+  >
+    <template #dot>
+      <div
+        v-if="!props.disable"
+        class="w-[18px] h-[18px] bg-white rounded-full border-none shadow-white"
+      ></div>
+      <div
+        v-else
+        class="bg-transparent h-full"
+        @click="() => handleSlide(0)"
+      ></div>
+    </template>
+  </vue-slider>
 </template>
