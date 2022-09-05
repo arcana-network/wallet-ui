@@ -55,7 +55,7 @@ function handleGasPriceSelect(value = '') {
   emits('gasPriceInput', gasFees.value)
 }
 
-function onCustomGasPriceInput(value) {
+function handleCustomGasPriceInput(value) {
   disableSlider.value = true
   gasFees.value = value
   emits('gasPriceInput', gasFees.value)
@@ -142,7 +142,7 @@ async function getCurrencyExchangeRate() {
           type="text"
           class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
           placeholder="0.5"
-          @input="(evt) => onCustomGasPriceInput(evt.target.value)"
+          @input="(evt) => handleCustomGasPriceInput(evt.target.value)"
         />
         <div
           v-if="rpcStore.currency"
