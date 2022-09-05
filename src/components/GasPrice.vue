@@ -2,9 +2,13 @@
 import { onMounted, Ref, ref } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
+import type { CurrencySymbol } from '@/services/exchangeRate.service'
+import { getExchangeRate } from '@/services/exchangeRate.service'
 import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
+
+const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -14,6 +18,7 @@ const rpcStore = useRpcStore()
 
 const gasFees = ref(0)
 const transactionTime = ref(null)
+const conversionRate = ref(0)
 
 const disableSlider = ref(true)
 
@@ -50,6 +55,30 @@ function onCustomGasPriceInput(value) {
   disableSlider.value = true
   gasFees.value = value
   emits('gasPriceInput', gasFees.value)
+  if (rpcStore.currency) getConversionRate(gasFees.value)
+}
+
+async function getConversionRate(gasFees) {
+  try {
+    const rate = await getCurrencyExchangeRate()
+    conversionRate.value = Number(gasFees) * rate
+  } catch (err) {
+    console.log(err)
+    conversionRate.value = 0
+  }
+}
+
+async function getCurrencyExchangeRate() {
+  try {
+    const rate = await getExchangeRate(
+      rpcStore.currency as CurrencySymbol,
+      EXCHANGE_RATE_CURRENCY
+    )
+    if (rate) return rate
+  } catch (err) {
+    console.error(err)
+    return 0
+  }
 }
 </script>
 
@@ -93,9 +122,11 @@ function onCustomGasPriceInput(value) {
     <div v-if="showCustomGasFeeInput" class="space-y-1">
       <div class="flex justify-between sm:flex-col sm:space-y-1">
         <label class="text-xs text-zinc-400" for="amount"> Custom Fee </label>
-        <p class="space-x-1 text-xs text-zinc-400">
+        <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
           <span>Conversion Rate:</span>
-          <span class="text-white">1,452 USD</span>
+          <span class="text-white"
+            >{{ conversionRate }} {{ EXCHANGE_RATE_CURRENCY }}</span
+          >
         </p>
       </div>
       <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
