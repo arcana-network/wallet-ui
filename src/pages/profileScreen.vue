@@ -35,7 +35,10 @@ onMounted(async () => {
 async function getCurrencyExchangeRate() {
   try {
     if (currency.value) {
-      const rate = await getExchangeRate(currency.value, EXCHANGE_RATE_CURRENCY)
+      const rate = await getExchangeRate(
+        currency.value as CurrencySymbol,
+        EXCHANGE_RATE_CURRENCY
+      )
       if (rate) exchangeRate.value = rate
     }
   } catch (err) {
