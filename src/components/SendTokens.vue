@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
 import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['close'])
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
+const userStore = useUserStore()
 const getImage = useImage()
+const toast = useToast()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -19,18 +24,54 @@ const gasFees = ref('')
 
 const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
 
-function handleSendToken() {
-  console.log('send tokens')
+function clearForm() {
+  recipientWalletAddress.value = ''
+  amount.value = ''
+  gasFees.value = ''
 }
 
-function handleSetGasPrice() {
-  console.log('handleSetGasPrice')
+async function handleSendToken() {
+  try {
+    const payload = {
+      to: `0x${recipientWalletAddress.value}`,
+      value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
+      gasPrice: gasFees.value,
+      from: userStore.walletAddress,
+    }
+    const accountHandler = new AccountHandler(userStore.privateKey)
+    await accountHandler.requestSendTransaction(payload)
+  } catch (err: object) {
+    if (err && err.reason) {
+      toast.error(err.reason)
+    }
+  } finally {
+    showPreview.value = false
+    clearForm()
+  }
+}
+
+function handleSetGasPrice(value) {
+  gasFees.value = value
+}
+
+function handleShowPreview() {
+  if (recipientWalletAddress.value && amount.value && gasFees.value) {
+    showPreview.value = true
+  } else {
+    toast.error('Please fill all values')
+  }
 }
 </script>
 
 <template>
   <SendTokensPreview
     v-if="showPreview"
+    :preview-data="{
+      senderWalletAddress: userStore.walletAddress,
+      recipientWalletAddress: `Ox${recipientWalletAddress}`,
+      amount,
+      gasFees,
+    }"
     @close="showPreview = false"
     @submit="handleSendToken"
   />
@@ -52,9 +93,9 @@ function handleSetGasPrice() {
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">Ethereum</p>
+      <p class="text-base sm:text-sm">{{ rpcStore.rpcConfig?.chainName }}</p>
     </div>
-    <form class="space-y-4 sm:space-y-3" @submit.prevent="showPreview = true">
+    <form class="space-y-4 sm:space-y-3" @submit.prevent="handleShowPreview">
       <div class="space-y-1">
         <label class="text-xs text-zinc-400" for="recipientWalletAddress">
           Recipient’s Wallet Address
@@ -76,23 +117,25 @@ function handleSetGasPrice() {
             <span class="text-white">{{ walletbalance }}</span>
           </p>
         </div>
-        <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
+        <div class="flex space-x-1 sm:p-1 bg-gradient rounded-lg">
           <input
             id="amount"
             v-model="amount"
             required
             type="text"
-            class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
+            class="p-2 text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
             placeholder="0.5"
           />
-          <select name="choice" class="bg-gradient pr-2 outline-none">
-            <option value="eth" select>ETH</option>
-            <option value="matic">MATIC</option>
-            <option value="xar">XAR</option>
-          </select>
+          <div
+            v-if="rpcStore.currency"
+            class="p-2"
+            :class="{ 'border-l-[1px] px-1': rpcStore.currency }"
+          >
+            <p>{{ rpcStore.currency }}</p>
+          </div>
         </div>
       </div>
-      <GasPrice />
+      <GasPrice @gas-price-input="handleSetGasPrice" />
       <div class="flex justify-center">
         <button
           class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8"
