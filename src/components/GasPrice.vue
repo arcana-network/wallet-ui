@@ -64,24 +64,15 @@ function handleCustomGasPriceInput(value) {
 
 async function getConversionRate(gasFees) {
   try {
-    const rate = await getCurrencyExchangeRate()
-    conversionRate.value = Number(gasFees) * rate
+    const rate =
+      (await getExchangeRate(
+        rpcStore.currency as CurrencySymbol,
+        EXCHANGE_RATE_CURRENCY
+      )) || 0
+    conversionRate.value = Math.round(Number(gasFees) * rate)
   } catch (err) {
     console.log(err)
     conversionRate.value = 0
-  }
-}
-
-async function getCurrencyExchangeRate() {
-  try {
-    const rate = await getExchangeRate(
-      rpcStore.currency as CurrencySymbol,
-      EXCHANGE_RATE_CURRENCY
-    )
-    if (rate) return rate
-  } catch (err) {
-    console.error(err)
-    return 0
   }
 }
 </script>
