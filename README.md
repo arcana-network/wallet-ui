@@ -6,7 +6,7 @@ The wallet is a Vue app written in TypeScript and styled with Tailwind CSS.
 
 ## Installation
 
-Use the Node version in the [.nvmrc](./.nvmrc) file.
+Use the Node version listed in the [.nvmrc](./.nvmrc) file.
 
 | Command         | Action                                 |
 | :-------------- | :------------------------------------- |
