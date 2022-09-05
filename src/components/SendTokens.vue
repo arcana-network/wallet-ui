@@ -82,10 +82,7 @@ function handleShowPreview() {
       @close="showPreview = false"
       @submit="handleSendToken"
     />
-    <div
-      v-else
-      class="container space-y-3 rounded-lg overflow-auto h-full min-w-full p-3 sm:p-2 flex flex-col justify-between"
-    >
+    <div v-else class="space-y-3 overflow-auto flex flex-col justify-between">
       <div class="flex flex-col space-y-3 sm:space-y-2">
         <div class="flex justify-between">
           <p class="text-xl sm:text-sm">Send Tokens</p>
@@ -156,10 +153,3 @@ function handleShowPreview() {
     </div>
   </div>
 </template>
-
-<style scoped>
-.container {
-  background: var(--content-bg-color);
-  box-shadow: 4px 5px 4px rgb(0 0 0 / 25%);
-}
-</style>
