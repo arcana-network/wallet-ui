@@ -109,7 +109,7 @@ export class AccountHandler {
         throw new Error('No Wallet found for the provided address')
       }
     } catch (e) {
-      return e
+      return Promise.reject(e)
     }
   }
 
