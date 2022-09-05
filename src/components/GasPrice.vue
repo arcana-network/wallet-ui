@@ -32,9 +32,11 @@ const gasPriceLabelPropsMap = {
   fastest: { wait: 'fastestWait', price: 'fastest' },
 }
 
+const showSlider = rpcStore.currency !== '' && rpcStore.currency !== 'XAR'
+
 function init() {
   fetchGasPrices()
-  if (!rpcStore.currency) showCustomGasFeeInput.value = true
+  showCustomGasFeeInput.value = !showSlider
 }
 
 async function fetchGasPrices() {
@@ -90,9 +92,10 @@ async function getCurrencyExchangeRate() {
 </script>
 
 <template>
+  <div></div>
   <div>
-    <div v-if="rpcStore.currency" class="space-y-[10px]">
-      <div class="flex justify-between sm:flex-col">
+    <div v-if="showSlider" class="space-y-[10px]">
+      <div class="flex flex-col justify-between">
         <div class="space-x-1 flex items-baseline">
           <span class="text-xs text-zinc-400">Gas Fees</span>
           <div class="space-x-1">
@@ -115,7 +118,7 @@ async function getCurrencyExchangeRate() {
       </div>
     </div>
     <button
-      v-if="rpcStore.currency"
+      v-if="showSlider"
       class="flex justify-center items-center m-auto space-x-1 mt-5"
       @click.prevent="showCustomGasFeeInput = !showCustomGasFeeInput"
     >
