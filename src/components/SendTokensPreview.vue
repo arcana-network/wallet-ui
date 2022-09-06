@@ -25,7 +25,7 @@ const totalAmount =
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">Ethereum</p>
+      <p class="text-base sm:text-sm">{{ rpcStore.rpcConfig?.chainName }}</p>
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Sender’s Wallet Address</p>
