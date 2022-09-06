@@ -21,7 +21,8 @@ export const useRpcStore = defineStore('rpcStore', {
       else return ''
     },
     isArcanaNetwork() {
-      return this.rpcConfig?.chainName?.toLowerCase('arcana')
+      const chainName: string = this.rpcConfig?.chainName?.toLowerCase() || ''
+      return chainName.includes('arcana')
     },
   },
 
