@@ -2,7 +2,7 @@
 
 Arcana's embedded web wallet implementation.
 
-The wallet is a Vue app written in TypeScript and styled with Tailwind CSS.
+This is a Vue app written in TypeScript and styled with Tailwind CSS.
 
 ## Installation
 
@@ -19,7 +19,7 @@ If you are using VS Code, see the recommended [settings](./.vscode/settings.json
 
 ## Usage
 
-To use Arcana's web wallet in an external dapp follow the instructions for the initializing [`@arcana/auth`](https://github.com/arcana-network/auth) SDK.
+To use Arcana's web wallet in an external dapp, follow the instructions for initializing [`@arcana/auth`](https://github.com/arcana-network/auth) SDK.
 
 ## Support
 
