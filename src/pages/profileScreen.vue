@@ -158,13 +158,17 @@ function openReceiveTokens(open) {
           {{ `$${totalAmountInUSD}` }}
         </p>
         <div class="flex text-zinc-400 text-sm space-x-1">
-          <p>{{ truncateToTwoDecimals(walletBalance) }}</p>
+          <p :title="walletBalance">
+            {{ truncateToTwoDecimals(walletBalance) }}
+          </p>
           <p>{{ currency }}</p>
         </div>
       </div>
       <div v-else>
         <div class="flex text-2xl sm:text-base space-x-1">
-          <p>{{ truncateToTwoDecimals(walletBalance) }}</p>
+          <p :title="walletBalance">
+            {{ truncateToTwoDecimals(walletBalance) }}
+          </p>
           <p>{{ currency }}</p>
         </div>
       </div>
