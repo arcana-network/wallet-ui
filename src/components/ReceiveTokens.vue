@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { useImage } from '@/utils/useImage'
@@ -12,6 +13,7 @@ const emits = defineEmits(['close'])
 
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
+const appStore = useAppStore()
 const toast = useToast()
 
 function renderQrCode(element) {
@@ -20,6 +22,8 @@ function renderQrCode(element) {
     value: userStore.walletAddress,
     level: 'H',
     size: 300,
+    background: appStore.theme === 'dark' ? 'white' : 'black',
+    foreground: appStore.theme === 'dark' ? 'black' : 'white',
   })
 }
 
