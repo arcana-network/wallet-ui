@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { PreviewData } from '@/models/SendTokenPreview'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const rpcStore = useRpcStore()
 
-const emits = defineEmits(['close, submit'])
+const emits = defineEmits(['close', 'submit'])
 const props = defineProps({
   previewData: {
-    type: Object,
+    type: PreviewData,
     required: true,
   },
 })
