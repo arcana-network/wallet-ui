@@ -19,7 +19,7 @@ const totalAmount =
 </script>
 
 <template>
-  <div class="space-y-4 sm:space-y-3 overflow-auto flex flex-col">
+  <div class="space-y-3 overflow-auto flex flex-col">
     <div class="flex flex-col space-y-3 sm:space-y-2">
       <p class="text-xl sm:text-sm">Preview</p>
     </div>
