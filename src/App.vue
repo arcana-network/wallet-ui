@@ -172,7 +172,6 @@ button {
   /* TODO: Brainstrom on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
   cursor: pointer;
   background: transparent;
-  border: none;
   outline: none;
 }
 
