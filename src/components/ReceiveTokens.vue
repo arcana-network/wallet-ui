@@ -54,7 +54,7 @@ async function copyToClipboard(value: string) {
     <div class="flex justify-center items-center">
       <canvas
         :ref="renderQrCode"
-        class="m-2 rounded-md sm:w-36 sm:h-36"
+        class="rounded-md sm:w-36 sm:h-36 p-2 bg-black dark:bg-white"
       ></canvas>
     </div>
     <div class="flex flex-col items-center">
