@@ -2,12 +2,15 @@
 import { toRefs, ref, onMounted } from 'vue'
 
 import WalletFooter from '@/components/AppFooter.vue'
+import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
+import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
 import '@/index.css'
 
 const user = useUserStore()
 const app = useAppStore()
+const modal = useModalStore()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
 
@@ -50,10 +53,11 @@ function init() {
     class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <div class="wallet__body">
+    <div class="wallet__body mb-[10px]">
       <RouterView />
     </div>
     <WalletFooter />
+    <BaseModal v-if="modal.show" />
   </div>
 </template>
 
@@ -168,7 +172,6 @@ button {
   /* TODO: Brainstrom on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
   cursor: pointer;
   background: transparent;
-  border: none;
   outline: none;
 }
 
@@ -187,10 +190,6 @@ button {
   overflow: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
-}
-
-.wallet__container > * + * {
-  margin-top: 10px;
 }
 
 .flow-container > *:not(:first-child) {
