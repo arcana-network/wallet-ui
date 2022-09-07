@@ -7,8 +7,7 @@ import type {
   Response,
 } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
-
-const NOT_SUPPORTED_TEXT = 'operation_not_supported'
+import { isStringArray, isTransactionDataArray } from '@/utils/typeguards'
 
 export class Keeper {
   accountHandler: AccountHandler
@@ -30,7 +29,7 @@ export class Keeper {
     connectionInstance?.onMethodResponse(method, response)
   }
 
-  async handleRequest(request: Request) {
+  async handleRequest(request: Request<unknown>) {
     const response = {
       id: request.id,
       result: null,
@@ -41,37 +40,69 @@ export class Keeper {
         response.result = this.accountHandler.getAccounts()
         return response
       case 'eth_getEncryptionPublicKey':
-        response.result = this.accountHandler.getPublicKey(request.params[0])
+        if (isStringArray(request.params)) {
+          response.result = this.accountHandler.getPublicKey(request.params[0])
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'eth_sign':
-        response.result = await this.accountHandler.requestSign(
-          request.params[0],
-          request.params[1]
-        )
+        if (isStringArray(request.params)) {
+          response.result = await this.accountHandler.requestSign(
+            request.params[0],
+            request.params[1]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'personal_sign':
-        response.result = await this.accountHandler.requestPersonalSign(
-          request.params[1],
-          request.params[0]
-        )
+        if (isStringArray(request.params)) {
+          response.result = await this.accountHandler.requestPersonalSign(
+            request.params[1],
+            request.params[0]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'eth_sendTransaction':
-        response.error = NOT_SUPPORTED_TEXT
+        if (isTransactionDataArray(request.params)) {
+          response.result = await this.accountHandler.requestSendTransaction(
+            request.params[0]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'eth_decrypt':
-        response.result = await this.accountHandler.requestDecryption(
-          request.params[0],
-          request.params[1]
-        )
+        if (isStringArray(request.params)) {
+          response.result = await this.accountHandler.requestDecryption(
+            request.params[0],
+            request.params[1]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'eth_signTransaction':
-        response.error = NOT_SUPPORTED_TEXT
+        if (isTransactionDataArray(request.params)) {
+          response.result = await this.accountHandler.requestSignTransaction(
+            request.params[0]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       case 'eth_signTypedData_v4':
-        response.result = await this.accountHandler.requestSignTypedMessage(
-          request.params[1],
-          request.params[0]
-        )
+        if (isStringArray(request.params)) {
+          response.result = await this.accountHandler.requestSignTypedMessage(
+            request.params[1],
+            request.params[0]
+          )
+        } else {
+          response.error = 'Invalid type in request'
+        }
         return response
       default:
         return
