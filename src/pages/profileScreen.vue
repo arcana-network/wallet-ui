@@ -5,6 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
@@ -123,7 +124,7 @@ function openReceiveTokens(open) {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center h-full">
-    <p>{{ loader.message }}</p>
+    <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div
     v-else
@@ -189,6 +190,10 @@ function openReceiveTokens(open) {
     </div>
     <Teleport v-if="showModal" to="#modal-container">
       <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
+      <ReceiveTokens
+        v-if="showModal === 'receive'"
+        @close="openReceiveTokens(false)"
+      />
     </Teleport>
   </div>
 </template>
