@@ -1,5 +1,6 @@
-function truncateToTwoDecimals(val: string) {
-  return val.match(/^-?\d+(?:\.\d{0,2})?/)[0]
+function truncateToTwoDecimals(val: string): string {
+  const results = val.match(/^-?\d+(?:\.\d{0,2})?/)
+  return results ? results[0] : val
 }
 
 export { truncateToTwoDecimals }
