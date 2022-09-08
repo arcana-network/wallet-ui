@@ -8,12 +8,14 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 
-defineProps({
+const props = defineProps({
   request: {
     type: Request,
     required: true,
   },
 })
+
+const emits = defineEmits(['gasPriceInput'])
 
 const rpcStore = useRpcStore()
 
@@ -46,6 +48,11 @@ onMounted(async () => {
     hideLoader()
   }
 })
+
+function handleSetGasPrice(value) {
+  const requestId = props.request.request.id
+  emits('gasPriceInput', { value, requestId })
+}
 </script>
 
 <template>
