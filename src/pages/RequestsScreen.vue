@@ -3,6 +3,7 @@ import { toRefs } from 'vue'
 import Popper from 'vue3-popper'
 
 import ChargeInfo from '@/components/ChargeInfo.vue'
+import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useRequestStore } from '@/store/request'
@@ -21,6 +22,11 @@ const onApproveClick = (requestID) => {
 const onRejectClick = (requestID) => {
   requestStore.rejectRequest(requestID)
 }
+
+const isSendTransactionRequest = (request) => {
+  const { method } = request
+  return method === 'eth_sendTransaction'
+}
 </script>
 
 <template>
@@ -30,7 +36,11 @@ const onRejectClick = (requestID) => {
       :key="pendingRequest.request.id"
       class="sign__message-container"
     >
-      <SignMessage :request="pendingRequest" />
+      <SendTransaction
+        v-if="isSendTransactionRequest(pendingRequest.request)"
+        :request="pendingRequest"
+      />
+      <SignMessage v-else :request="pendingRequest" />
       <div class="sign__message-footer">
         <p class="sign__message-info-text">
           You are not going to be charged!
