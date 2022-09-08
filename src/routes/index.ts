@@ -4,9 +4,10 @@ import HomePage from '@/pages/homePage.vue'
 import InitPage from '@/pages/initPage.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
+import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SendTransaction from '@/pages/sendTransaction.vue'
 import SignIn from '@/pages/signIn.vue'
-import SignMessage from '@/pages/signMessage.vue'
+// import SignMessage from '@/pages/signMessage.vue'
 
 const routes = [
   {
@@ -26,9 +27,9 @@ const routes = [
     component: HomePage,
   },
   {
-    name: 'signMessage',
-    path: '/signMessage',
-    component: SignMessage,
+    name: 'requests',
+    path: '/requests',
+    component: RequestsScreen,
   },
   {
     name: 'profileScreen',
