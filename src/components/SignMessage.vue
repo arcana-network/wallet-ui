@@ -29,7 +29,7 @@ defineProps({
 <template>
   <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex items-baseline">
-      <h1 class="flex-1 m-0 font-semibold text-sm">Sign Message</h1>
+      <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm">Sign Message</h1>
       <DateTime :datetime="request.receivedTime" />
     </div>
     <p class="font-normal text-sm sm:text-xs">
