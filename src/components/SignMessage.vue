@@ -47,21 +47,7 @@ defineProps({
     >
       {{ methodAndAction[request.request.method] }}
     </p>
-    <button
-      class="flex items-center justify-center space-x-1"
-      @click="showAdvancedInfo = !showAdvancedInfo"
-    >
-      <p class="text-xs sm:text-[8px] font-semibold">
-        View Advanced Information
-      </p>
-      <img
-        class="w-4 h-4 transition-transform"
-        :class="{ 'rotate-180': showAdvancedInfo }"
-        :src="getImage('arrow-icon')"
-      />
-    </button>
     <SignMessageAdvancedInfo
-      v-if="showAdvancedInfo"
       :info="advancedInfo(request.request.method, request.request.params)"
     />
   </div>
