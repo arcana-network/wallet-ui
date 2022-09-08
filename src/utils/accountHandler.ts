@@ -1,20 +1,13 @@
-import Common from '@ethereumjs/common'
-import { Transaction, TxData } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
   personalSign,
   signTypedData_v4 as signTypedDataV4,
 } from 'eth-sig-util'
-import {
-  stripHexPrefix,
-  ecsign,
-  bufferToHex,
-  setLengthLeft,
-} from 'ethereumjs-util'
+import { stripHexPrefix, ecsign, setLengthLeft } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
-interface TransactionData extends TxData {
+interface TransactionData extends ethers.providers.TransactionRequest {
   from: string
 }
 
@@ -41,6 +34,14 @@ export class AccountHandler {
   getWallet(address: string): ethers.Wallet | undefined {
     if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
       return this.wallet
+    }
+    return undefined
+  }
+
+  getConnectedWallet(address: string): ethers.Wallet | undefined {
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      return wallet.connect(this.provider)
     }
     return undefined
   }
@@ -98,21 +99,6 @@ export class AccountHandler {
     }
   }
 
-  async requestSendTransaction(data: TransactionData) {
-    try {
-      const wallet = this.getWallet(data.from)
-      if (wallet) {
-        const signature = await this.requestSignTransaction(data)
-        const tx = await this.provider.sendTransaction(signature.raw)
-        return tx.hash
-      } else {
-        throw new Error('No Wallet found for the provided address')
-      }
-    } catch (e) {
-      return Promise.reject(e)
-    }
-  }
-
   async requestDecryption(ciphertext: string, address: string) {
     try {
       const wallet = this.getWallet(address)
@@ -131,25 +117,26 @@ export class AccountHandler {
     }
   }
 
+  async requestSendTransaction(txData: TransactionData) {
+    try {
+      const wallet = this.getConnectedWallet(txData.from)
+      if (wallet) {
+        const tx = await wallet.sendTransaction({ ...txData })
+        return tx.hash
+      } else {
+        throw new Error('No Wallet found for the provided address')
+      }
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
   async requestSignTransaction(txData: TransactionData) {
     try {
-      const wallet = this.getWallet(txData.from)
+      const wallet = this.getConnectedWallet(txData.from)
       if (wallet) {
-        const chainId = await this.getChainId()
-        const nonce = await this.provider.getTransactionCount(wallet.address)
-        const transaction = Transaction.fromTxData(
-          {
-            nonce,
-            ...txData,
-            gasLimit: 21000,
-          },
-          { common: Common.custom({ chainId }) }
-        )
-        const tx = transaction.sign(
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-        )
-        const raw = bufferToHex(tx.serialize())
-        return { raw, tx: tx.toJSON() }
+        const sig = await wallet.signTransaction({ ...txData })
+        return sig
       } else {
         throw new Error('No Wallet found for the provided address')
       }
