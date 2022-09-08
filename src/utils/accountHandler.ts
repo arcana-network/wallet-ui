@@ -136,7 +136,7 @@ export class AccountHandler {
       const wallet = this.getConnectedWallet(txData.from)
       if (wallet) {
         const sig = await wallet.signTransaction({ ...txData })
-        return { sig }
+        return sig
       } else {
         throw new Error('No Wallet found for the provided address')
       }
