@@ -88,57 +88,11 @@ const isSendTransactionRequest = (request) => {
   overflow: auto;
 }
 
-.sign__message-body {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
 .sign__message-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-}
-
-.sign__message-title-container {
-  display: flex;
-  align-items: baseline;
-}
-
-.sign__message-title {
-  flex: 1;
-  margin: 0;
-  font-size: var(--fs-450);
-  font-weight: 600;
-}
-
-.sign__message-permission {
-  font-size: var(--fs-350);
-  font-weight: 400;
-}
-
-.sign__message-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 80px;
-  font-size: var(--fs-400);
-  font-weight: 600;
-  color: var(--fg-color);
-  text-align: center;
-  background: var(--debossed-box-color);
-  border-radius: 10px;
-  box-shadow: var(--debossed-shadow);
-}
-
-.sign__message-view-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color);
 }
 
 .sign__message-info-text {
@@ -152,13 +106,6 @@ const isSendTransactionRequest = (request) => {
   width: 12.5px;
   height: 12.5px;
   margin-left: 6px;
-}
-
-.sign__message-arrow-icon {
-  width: 7px;
-  height: 3px;
-  margin-left: 6px;
-  transition: all 0.5s;
 }
 
 .sign__message-button-container {
@@ -191,29 +138,9 @@ const isSendTransactionRequest = (request) => {
   background-color: var(--filled-button-bg-color);
 }
 
-.sign__message-network-name-label {
-  font-size: var(--fs-250);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-
-.sign__message-network-name-value {
-  font-size: var(--fs-400);
-}
-
 .sign__message-button-reject:hover,
 .sign__message-button-approve:hover {
   transition: all 0.5s;
   transform: scale(1.05, 1.05);
-}
-
-.arrow__up {
-  transform: rotate(180deg);
-}
-
-@media (max-width: 235px) {
-  .sign__message-text {
-    height: 40px;
-  }
 }
 </style>
