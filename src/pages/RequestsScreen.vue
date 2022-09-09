@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toRefs } from 'vue'
+import { useToast } from 'vue-toastification'
 import Popper from 'vue3-popper'
 
 import ChargeInfo from '@/components/ChargeInfo.vue'
@@ -11,21 +12,39 @@ import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const requestStore = useRequestStore()
+const toast = useToast()
 
 const { pendingRequestsForApproval, areRequestsPendingForApproval } =
   toRefs(requestStore)
 
-const onApproveClick = (requestID) => {
-  requestStore.approveRequest(requestID)
+const onApproveClick = (requestId) => {
+  if (isSendTransactionRequest(requestId)) {
+    const request = requestStore.pendingRequests[requestId].request
+    if (Array.isArray(request.params)) {
+      const param = request.params[0]
+      const gasPrice = String(param.gasPrice)
+      if (!gasPrice.length) {
+        toast.error('Please provide Gas Fee')
+        return
+      }
+    }
+  }
+  requestStore.approveRequest(requestId)
 }
 
-const onRejectClick = (requestID) => {
-  requestStore.rejectRequest(requestID)
+const onRejectClick = (requestId) => {
+  requestStore.rejectRequest(requestId)
 }
 
-const isSendTransactionRequest = (request) => {
-  const { method } = request
+const isSendTransactionRequest = (requestId) => {
+  const {
+    request: { method },
+  } = requestStore.pendingRequests[requestId]
   return method === 'eth_sendTransaction'
+}
+
+function handleGasPriceInput({ value, requestId }) {
+  requestStore.setGasFee(value, requestId)
 }
 </script>
 
@@ -37,8 +56,9 @@ const isSendTransactionRequest = (request) => {
       class="sign__message-container"
     >
       <SendTransaction
-        v-if="isSendTransactionRequest(pendingRequest.request)"
+        v-if="isSendTransactionRequest(pendingRequest.request.id)"
         :request="pendingRequest"
+        @gas-price-input="handleGasPriceInput"
       />
       <SignMessage v-else :request="pendingRequest" />
       <div class="sign__message-footer">
