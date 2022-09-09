@@ -65,6 +65,7 @@ function handleCustomGasPriceInput(value) {
 }
 
 async function getConversionRate(gasFees) {
+  if (rpcStore.currency === 'XAR') return 0
   try {
     const rate =
       (await getExchangeRate(
