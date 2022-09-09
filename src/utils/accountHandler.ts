@@ -101,7 +101,7 @@ export class AccountHandler {
 
   async requestDecryption(ciphertext: string, address: string) {
     try {
-      const wallet = this.getWallet(data.from)
+      const wallet = this.getWallet(address)
       if (wallet) {
         const parsedCipher = cipher.parse(ciphertext)
         const decryptedMessage = await decryptWithPrivateKey(
