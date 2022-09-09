@@ -17,7 +17,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@arcana/auth": "^0.1.2-beta.6",
+    "@arcana/auth": "^0.1.2-beta.8",
     "@arcana/auth-core": "^0.1.5-beta.1",
     "@ethereumjs/tx": "^3.4.0",
     "@sentry/tracing": "^7.5.1",
@@ -40,6 +40,7 @@
     "vue-gtag": "^2.0.1",
     "vue-json-viewer": "^3.0.4",
     "vue-router": "^4.0.14",
+    "vue-slider-component": "^4.1.0-beta.2",
     "vue-toastification": "^2.0.0-rc.5",
     "vue3-popper": "^1.5.0",
     "yup": "^0.32.11"

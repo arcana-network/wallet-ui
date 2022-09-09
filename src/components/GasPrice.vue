@@ -8,6 +8,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
+const DEFAULT_DECIMAL = 5
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -49,7 +50,8 @@ function handleGasPriceSelect(value = '') {
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
   const gasFeeInGwei = props.gasPrices[price] / 10
-  const decimal = rpcStore.rpcConfig?.nativeCurrency?.decimals || 9
+  const decimal =
+    rpcStore.rpcConfig?.nativeCurrency?.decimals || DEFAULT_DECIMAL
   gasFees.value = gasFeeInGwei / Math.pow(10, decimal)
   transactionTime.value = props.gasPrices[wait]
   emits('gasPriceInput', gasFees.value)

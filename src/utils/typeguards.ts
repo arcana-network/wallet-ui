@@ -1,6 +1,6 @@
-import type { TxData } from '@ethereumjs/tx'
+import { ethers } from 'ethers'
 
-interface TransactionData extends TxData {
+interface TransactionData extends ethers.providers.TransactionRequest {
   from: string
 }
 
