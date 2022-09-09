@@ -1,3 +1,4 @@
+import { ethers } from 'ethers'
 import type { Connection } from 'penpal'
 
 import type {
@@ -68,6 +69,10 @@ export class Keeper {
         return response
       case 'eth_sendTransaction':
         if (isTransactionDataArray(request.params)) {
+          const param = request.params[0]
+          param.gasPrice = ethers.utils
+            .parseEther(`${param.gasPrice}`)
+            .toHexString()
           response.result = await this.accountHandler.requestSendTransaction(
             request.params[0]
           )
