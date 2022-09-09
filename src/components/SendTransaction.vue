@@ -75,14 +75,18 @@ function handleSetGasPrice(value) {
         Origin
       </label>
       <p
-        class="text-base sm:text-sm text-zinc-400 rounded-lg p-3 sm:p-1 bg-gradient"
+        class="max-w-full truncate text-base sm:text-sm text-zinc-400 rounded-lg p-3 sm:p-1 bg-gradient"
       >
-        0x.....AAVE
+        {{ request.request.params[0].from }}
       </p>
     </div>
-    <GasPrice :gas-prices="gasPrices" @gas-price-input="handleSetGasPrice" />
+    <GasPrice
+      :gas-price="request.request.params[0].gasPrice"
+      :gas-prices="gasPrices"
+      @gas-price-input="handleSetGasPrice"
+    />
     <SignMessageAdvancedInfo
-      :info="advancedInfo(request.request.method, request.request.params)"
+      :info="advancedInfo(request.request.method, request.request.params[0])"
     />
   </div>
 </template>
