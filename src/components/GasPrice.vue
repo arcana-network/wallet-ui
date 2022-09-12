@@ -18,6 +18,10 @@ const props = defineProps({
     required: false,
     default: () => ({}),
   },
+  gasPrice: {
+    type: String,
+    default: '',
+  },
 })
 
 onMounted(init)
@@ -65,6 +69,7 @@ function handleCustomGasPriceInput(value) {
 }
 
 async function getConversionRate(gasFees) {
+  if (rpcStore.currency === 'XAR') return 0
   try {
     const rate =
       (await getExchangeRate(
@@ -129,6 +134,7 @@ async function getConversionRate(gasFees) {
     <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
       <input
         id="amount"
+        :value="props.gasPrice"
         autocomplete="off"
         type="text"
         class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
