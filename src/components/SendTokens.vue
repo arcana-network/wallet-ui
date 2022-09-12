@@ -66,7 +66,7 @@ async function handleSendToken() {
     const payload = {
       to: `0x${recipientWalletAddress.value}`,
       value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-      gasPrice: Number(gasFee.value),
+      gasPrice: ethers.utils.parseEther(`${gasFee.value}`).toHexString(),
       from: userStore.walletAddress,
     }
     const accountHandler = new AccountHandler(userStore.privateKey)

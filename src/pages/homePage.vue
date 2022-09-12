@@ -121,7 +121,7 @@ async function handleLogout() {
 }
 
 function onCloseClick() {
-  router.push('/signMessage')
+  router.push('/requests')
 }
 
 onBeforeRouteLeave((to) => {
