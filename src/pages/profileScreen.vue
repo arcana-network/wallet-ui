@@ -176,7 +176,7 @@ function openReceiveTokens(open) {
     </div>
     <div class="flex justify-center">
       <button class="flex items-center space-x-1" @click="getWalletBalance">
-        <img :src="getImage('refresh-icon')" alt="refresh icon" class="w-4" />
+        <img :src="getImage('refresh-icon')" alt="Refresh wallet balance" class="w-4" />
         <span class="text-xs">Refresh Balance</span>
       </button>
     </div>
