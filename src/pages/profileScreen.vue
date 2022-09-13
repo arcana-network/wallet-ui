@@ -80,9 +80,10 @@ async function getCurrencyExchangeRate() {
 
 const totalAmountInUSD = computed(() => {
   if (exchangeRate.value) {
-    return Math.round(
-      Number(walletBalance.value) * exchangeRate.value
-    ).toLocaleString()
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(Math.round(Number(walletBalance.value) * exchangeRate.value))
   }
   return ''
 })
@@ -156,7 +157,7 @@ function openReceiveTokens(open) {
         class="space-y-2 sm:space-y-0 flex flex-col items-center"
       >
         <p class="text-2xl sm:text-base text-center">
-          {{ `$${totalAmountInUSD}` }}
+          {{ totalAmountInUSD }}
         </p>
         <div class="flex text-zinc-400 text-sm space-x-1">
           <p :title="walletBalance">
@@ -176,7 +177,11 @@ function openReceiveTokens(open) {
     </div>
     <div class="flex justify-center">
       <button class="flex items-center space-x-1" @click="getWalletBalance">
-        <img :src="getImage('refresh-icon')" alt="Refresh wallet balance" class="w-4" />
+        <img
+          :src="getImage('refresh-icon')"
+          alt="Refresh wallet balance"
+          class="w-4"
+        />
         <span class="text-xs">Refresh Balance</span>
       </button>
     </div>
