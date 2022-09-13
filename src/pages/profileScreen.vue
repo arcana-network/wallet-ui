@@ -148,7 +148,7 @@ function openReceiveTokens(open) {
       </p>
     </div>
     <div
-      class="w-36 h-36 sm:w-28 sm:h-28 rounded-full mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
+      class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
     >
       <p class="text-sm sm:text-xs">Total Balance</p>
       <div
@@ -173,6 +173,12 @@ function openReceiveTokens(open) {
           <p>{{ currency }}</p>
         </div>
       </div>
+    </div>
+    <div class="flex justify-center">
+      <button class="flex items-center space-x-1" @click="getWalletBalance">
+        <img :src="getImage('refresh-icon')" alt="Refresh wallet balance" class="w-4" />
+        <span class="text-xs">Refresh Balance</span>
+      </button>
     </div>
     <div class="flex space-x-3">
       <button
