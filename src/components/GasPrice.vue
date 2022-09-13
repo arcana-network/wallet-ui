@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { onMounted, ref } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
@@ -8,7 +9,6 @@ import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-const DEFAULT_DECIMAL = 5
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -28,7 +28,7 @@ onMounted(init)
 
 const rpcStore = useRpcStore()
 
-const gasFees = ref(0)
+const gasFees = ref('')
 const transactionTime = ref(null)
 const conversionRate = ref(0)
 
@@ -54,9 +54,7 @@ function handleGasPriceSelect(value = '') {
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
   const gasFeeInGwei = props.gasPrices[price] / 10
-  const decimal =
-    rpcStore.rpcConfig?.nativeCurrency?.decimals || DEFAULT_DECIMAL
-  gasFees.value = gasFeeInGwei / Math.pow(10, decimal)
+  gasFees.value = convertGweiToEth(gasFeeInGwei)
   transactionTime.value = props.gasPrices[wait]
   emits('gasPriceInput', gasFees.value)
 }
@@ -66,6 +64,11 @@ function handleCustomGasPriceInput(value) {
   gasFees.value = value
   emits('gasPriceInput', gasFees.value)
   if (rpcStore.currency) getConversionRate(gasFees.value)
+}
+
+function convertGweiToEth(gasFeeInGwei) {
+  const gasFeeInWei = gasFeeInGwei * Math.pow(10, 9)
+  return ethers.utils.formatEther(gasFeeInWei)
 }
 
 async function getConversionRate(gasFees) {
