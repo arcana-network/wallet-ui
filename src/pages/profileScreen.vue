@@ -1,210 +1,181 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
+import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
-import type { Ref } from 'vue'
+import { toRefs } from 'vue'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
-import ReceiveTokens from '@/components/ReceiveTokens.vue'
-import SendTokens from '@/components/SendTokens.vue'
-import { getExchangeRate } from '@/services/exchangeRate.service'
-import type { CurrencySymbol } from '@/services/exchangeRate.service'
-import { useModalStore } from '@/store/modal'
+import type { ParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
-import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
+import { getAuthProvider } from '@/utils/getAuthProvider'
 import { useImage } from '@/utils/useImage'
 
-const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | false
-
-const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
-const userStore = useUserStore()
-const rpcStore = useRpcStore()
-const modalStore = useModalStore()
-const walletBalance = ref('')
+
+const user = useUserStore()
+const appStore = useAppStore()
+const router = useRouter()
 const toast = useToast()
-const exchangeRate: Ref<number | null> = ref(null)
-const { rpcConfig, currency } = storeToRefs(rpcStore)
-const loader = ref({
-  show: false,
-  message: '',
-})
-const accountHandler = new AccountHandler(userStore.privateKey)
+const rpcStore = useRpcStore()
+const { rpcConfig } = storeToRefs(rpcStore)
 
-onMounted(async () => {
-  await getWalletBalance()
-  await getCurrencyExchangeRate()
-})
+const {
+  info: { email, name },
+} = user
+const { walletAddressShrinked, walletAddress } = toRefs(user)
+const { id: appId } = appStore
+let parentConnection: Connection<ParentConnectionApi> | null = null
 
-watch(showModal, () => {
-  if (!showModal.value) {
-    showLoader('Loading')
-    setTimeout(async () => {
-      //need timeout before fetching balance, else the previous balance is fetched
-      await getWalletBalance()
-      hideLoader()
-    }, 1000)
-  }
-})
+function onCopyClick() {
+  const walletAddressEl = document.getElementById(
+    'wallet-address'
+  ) as HTMLInputElement | null
 
-function showLoader(message) {
-  loader.value.show = true
-  loader.value.message = `${message}...`
-}
-
-function hideLoader() {
-  loader.value.show = false
-  loader.value.message = ''
-}
-
-async function getCurrencyExchangeRate() {
-  showLoader('Fetching Currency Rate')
-  try {
-    if (currency.value) {
-      const rate = await getExchangeRate(
-        currency.value as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )
-      if (rate) exchangeRate.value = rate
+  if (walletAddressEl) {
+    try {
+      walletAddressEl.setAttribute('type', 'text')
+      walletAddressEl.select()
+      document.execCommand('copy')
+      toast.success('Wallet address copied')
+    } catch (e) {
+      toast.error('Failed to copy wallet address')
     }
-  } catch (err) {
-    console.error(err)
-    exchangeRate.value = null
-  } finally {
-    hideLoader()
+    walletAddressEl.setAttribute('type', 'hidden')
   }
+  window.getSelection()?.removeAllRanges()
 }
 
-const totalAmountInUSD = computed(() => {
-  if (exchangeRate.value) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(Math.round(Number(walletBalance.value) * exchangeRate.value))
-  }
-  return ''
+async function handleLogout() {
+  const parentConnectionInstance = await parentConnection?.promise
+  const authProvider = await getAuthProvider(appId)
+  await user.handleLogout(authProvider)
+  parentConnectionInstance?.onEvent('disconnect')
+  setTimeout(() => {
+    router.push(`/${appId}/login`)
+  })
+}
+
+function onCloseClick() {
+  router.push('/requests')
+}
+
+onBeforeRouteLeave((to) => {
+  if (to.path.includes('login')) parentConnection?.destroy()
 })
-
-async function getWalletBalance() {
-  showLoader('Fetching Wallet Balance')
-  try {
-    const balance = await accountHandler.provider.getBalance(
-      userStore.walletAddress
-    )
-    rpcStore.setWalletBalance(balance.toString())
-    walletBalance.value = ethers.utils.formatEther(balance.toString())
-  } catch (err) {
-    console.log({ err })
-  } finally {
-    hideLoader()
-  }
-}
-
-async function copyToClipboard(value: string) {
-  try {
-    await navigator.clipboard.writeText(value)
-    toast.success('Wallet address copied')
-  } catch (err) {
-    toast.error('Failed to copy wallet address')
-  }
-}
-
-function openSendTokens(open) {
-  modalStore.setShowModal(open)
-  showModal.value = open ? 'send' : false
-}
-
-function openReceiveTokens(open) {
-  modalStore.setShowModal(open)
-  showModal.value = open ? 'receive' : false
-}
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center h-full">
-    <p class="sm:text-xs">{{ loader.message }}</p>
-  </div>
-  <div
-    v-else
-    class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
-  >
-    <div class="flex flex-col justify-center items-center space-y-2">
-      <p class="text-xl sm:text-sm truncate w-full text-center">
-        {{ userStore.info.name || userStore.info.email }}
-      </p>
-      <div class="flex items-center space-x-1">
-        <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
-        <button class="h-3" @click="copyToClipboard(userStore.walletAddress)">
-          <img :src="getImage('copy-icon')" alt="copy icon" class="h-full" />
-        </button>
+  <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
+    <h1 class="home__title">Welcome</h1>
+    <div class="home__body-container space-y-4 sm:space-y-2">
+      <div v-if="name" class="home__body-content">
+        <p class="home__body-content-label">Name</p>
+        <p class="home__body-content-value">{{ name }}</p>
       </div>
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-        {{ rpcConfig.chainName }}
-      </p>
-    </div>
-    <div
-      class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
-    >
-      <p class="text-sm sm:text-xs">Total Balance</p>
-      <div
-        v-if="exchangeRate"
-        class="space-y-2 sm:space-y-0 flex flex-col items-center"
-      >
-        <p class="text-2xl sm:text-base text-center">
-          {{ totalAmountInUSD }}
+      <div class="home__body-content">
+        <p class="home__body-content-label">Email ID</p>
+        <p class="home__body-content-value">{{ email }}</p>
+      </div>
+      <div class="home__body-content">
+        <p class="home__body-content-label">Network</p>
+        <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
+      </div>
+      <div class="home__body-content">
+        <p class="home__body-content-label">Wallet Address</p>
+        <p class="home__body-content-value">
+          <span>{{ walletAddressShrinked }}</span>
+          <input id="wallet-address" type="hidden" :value="walletAddress" />
+          <button @click.stop.prevent="onCopyClick">
+            <img
+              :src="getImage('copy-icon')"
+              alt="copy icon"
+              class="home__body-copy-icon"
+            />
+          </button>
         </p>
-        <div class="flex text-zinc-400 text-sm space-x-1">
-          <p :title="walletBalance">
-            {{ truncateToTwoDecimals(walletBalance) }}
-          </p>
-          <p>{{ currency }}</p>
-        </div>
-      </div>
-      <div v-else>
-        <div class="flex text-2xl sm:text-base space-x-1">
-          <p :title="walletBalance">
-            {{ truncateToTwoDecimals(walletBalance) }}
-          </p>
-          <p>{{ currency }}</p>
-        </div>
       </div>
     </div>
-    <div class="flex justify-center">
-      <button class="flex items-center space-x-1" @click="getWalletBalance">
-        <img
-          :src="getImage('refresh-icon')"
-          alt="Refresh wallet balance"
-          class="w-4"
-        />
-        <span class="text-xs">Refresh Balance</span>
+    <div class="home__footer">
+      <button class="home__footer-button-outline" @click="handleLogout">
+        Logout
+      </button>
+      <button class="home__footer-button-filled" @click="onCloseClick">
+        Close
       </button>
     </div>
-    <div class="flex space-x-3">
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
-        @click="openSendTokens(true)"
-      >
-        Send
-      </button>
-      <button
-        class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-        @click="openReceiveTokens(true)"
-      >
-        Receive
-      </button>
-    </div>
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
-      <ReceiveTokens
-        v-if="showModal === 'receive'"
-        @close="openReceiveTokens(false)"
-      />
-    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.home__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.home__title {
+  width: 100%;
+  font-size: var(--fs-500);
+  font-weight: 600;
+  text-align: left;
+}
+
+.home__body-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: var(--p-400);
+  color: var(--fg-color);
+  text-align: center;
+  text-align: left;
+  background: var(--debossed-box-color);
+  border-radius: 10px;
+  box-shadow: var(--debossed-shadow);
+}
+
+.home__body-content-label {
+  font-size: var(--fs-300);
+  font-weight: 400;
+}
+
+.home__body-content-value {
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-400);
+  font-weight: 400;
+}
+
+.home__body-copy-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 12px;
+}
+
+.home__footer {
+  display: flex;
+  width: 100%;
+  font-size: var(--fs-350);
+}
+
+.home__footer-button-outline {
+  flex: 1;
+  margin-right: 5px;
+  color: var(--outlined-button-fg-color);
+  border: 2px solid;
+  border-color: var(--outlined-button-border-color);
+  border-radius: 10px;
+}
+
+.home__footer-button-filled {
+  flex: 1;
+  margin-left: 5px;
+  color: var(--filled-button-fg-color);
+  background-color: var(--filled-button-bg-color);
+  border-radius: 10px;
+}
+</style>
