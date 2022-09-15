@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, Ref } from 'vue'
+import { onMounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -9,6 +9,7 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { convertGweiToEth } from '@/utils/gweiToEth'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -23,6 +24,7 @@ const toast = useToast()
 const recipientWalletAddress = ref('')
 const amount = ref('')
 const gasFee = ref('')
+const gasFeeInEth = ref('')
 const gasPrices: Ref<object> = ref({})
 const loader = ref({
   show: false,
@@ -30,6 +32,10 @@ const loader = ref({
 })
 
 const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
+
+watch(gasFee, () => {
+  gasFeeInEth.value = convertGweiToEth(gasFee.value)
+})
 
 function showLoader(message) {
   loader.value.show = true
@@ -108,7 +114,7 @@ function handleShowPreview() {
         senderWalletAddress: userStore.walletAddress,
         recipientWalletAddress: `Ox${recipientWalletAddress}`,
         amount,
-        gasFee,
+        gasFee: gasFeeInEth,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
