@@ -176,6 +176,7 @@ function handleShowPreview() {
           </div>
         </div>
         <GasPrice
+          :gas-price="gasFee"
           :gas-prices="gasPrices"
           @gas-price-input="handleSetGasPrice"
         />

@@ -6,6 +6,7 @@ import GasPriceSlider from '@/components/GasPriceSlider.vue'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
+import debounce from '@/utils/debounce'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
@@ -49,6 +50,23 @@ function init() {
   showCustomGasFeeInput.value = !showSlider
 }
 
+async function getConversionRate(gasFees) {
+  if (rpcStore.currency === 'XAR') return 0
+  try {
+    const rate =
+      (await getExchangeRate(
+        rpcStore.currency as CurrencySymbol,
+        EXCHANGE_RATE_CURRENCY
+      )) || 0
+    conversionRate.value = Math.round(Number(gasFees) * rate)
+  } catch (err) {
+    console.log(err)
+    conversionRate.value = 0
+  }
+}
+
+const getConversionRateDebounced = debounce(getConversionRate)
+
 function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
@@ -63,27 +81,12 @@ function handleCustomGasPriceInput(value) {
   disableSlider.value = true
   gasFees.value = value
   emits('gasPriceInput', gasFees.value)
-  if (rpcStore.currency) getConversionRate(gasFees.value)
+  if (rpcStore.currency) getConversionRateDebounced(gasFees.value)
 }
 
 function convertGweiToEth(gasFeeInGwei) {
   const gasFeeInWei = gasFeeInGwei * Math.pow(10, 9)
   return ethers.utils.formatEther(gasFeeInWei)
-}
-
-async function getConversionRate(gasFees) {
-  if (rpcStore.currency === 'XAR') return 0
-  try {
-    const rate =
-      (await getExchangeRate(
-        rpcStore.currency as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )) || 0
-    conversionRate.value = Math.round(Number(gasFees) * rate)
-  } catch (err) {
-    console.log(err)
-    conversionRate.value = 0
-  }
 }
 </script>
 
