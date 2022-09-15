@@ -10,6 +10,7 @@ import debounce from '@/utils/debounce'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
+const GAS_FEE_UNIT = 'GWEI'
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -97,7 +98,7 @@ function convertGweiToEth(gasFeeInGwei) {
         <span class="text-xs text-zinc-400">Gas Fees</span>
         <div class="space-x-1">
           <span class="sm:text-xs">{{ disableSlider ? '-' : gasFees }}</span>
-          <span class="text-xs">{{ rpcStore.currency }}</span>
+          <span class="text-xs">{{ GAS_FEE_UNIT }}</span>
         </div>
       </div>
       <div class="space-x-1">
@@ -147,14 +148,8 @@ function convertGweiToEth(gasFeeInGwei) {
         placeholder="0.5"
         @input="(evt) => handleCustomGasPriceInput(evt.target.value)"
       />
-      <div
-        v-if="rpcStore.currency"
-        class="p-2"
-        :class="{
-          'border-l-[1px] border-l-slate-400 px-1': rpcStore.currency,
-        }"
-      >
-        <p class="text-sm pl-1">{{ rpcStore.currency }}</p>
+      <div class="p-2 border-l-[1px] border-l-slate-400 px-1">
+        <p class="text-sm pl-1">{{ GAS_FEE_UNIT }}</p>
       </div>
     </div>
   </div>
