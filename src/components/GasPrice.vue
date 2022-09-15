@@ -31,7 +31,7 @@ onMounted(init)
 
 const rpcStore = useRpcStore()
 
-const gasFees = ref(0)
+const gasFee = ref(0)
 const transactionTime = ref(null)
 const conversionRate = ref('')
 
@@ -39,8 +39,8 @@ const disableSlider = ref(true)
 
 const getConversionRateDebounced = debounce(getConversionRate)
 
-watch(gasFees, () => {
-  if (rpcStore.currency) getConversionRateDebounced(gasFees.value)
+watch(gasFee, () => {
+  if (rpcStore.currency) getConversionRateDebounced(gasFee.value)
 })
 
 const getImage = useImage()
@@ -58,7 +58,7 @@ function init() {
   showCustomGasFeeInput.value = !showSlider
 }
 
-async function getConversionRate(gasFees) {
+async function getConversionRate(gasFee) {
   if (rpcStore.currency === 'XAR') return 0
   try {
     const rate =
@@ -66,7 +66,7 @@ async function getConversionRate(gasFees) {
         rpcStore.currency as CurrencySymbol,
         EXCHANGE_RATE_CURRENCY
       )) || 0
-    const gasFeeInEth = convertGweiToEth(gasFees)
+    const gasFeeInEth = convertGweiToEth(gasFee)
     conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
   } catch (err) {
     console.log(err)
@@ -78,15 +78,15 @@ function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
-  gasFees.value = props.gasPrices[price] / 10
+  gasFee.value = props.gasPrices[price] / 10
   transactionTime.value = props.gasPrices[wait]
-  emits('gasPriceInput', gasFees.value)
+  emits('gasPriceInput', gasFee.value)
 }
 
 function handleCustomGasPriceInput(value) {
   disableSlider.value = true
-  gasFees.value = value
-  emits('gasPriceInput', gasFees.value)
+  gasFee.value = value
+  emits('gasPriceInput', gasFee.value)
 }
 </script>
 
@@ -96,7 +96,7 @@ function handleCustomGasPriceInput(value) {
       <div class="space-x-1 flex items-baseline">
         <span class="text-xs text-zinc-400">Gas Fees</span>
         <div class="space-x-1">
-          <span class="sm:text-xs">{{ disableSlider ? '-' : gasFees }}</span>
+          <span class="sm:text-xs">{{ disableSlider ? '-' : gasFee }}</span>
           <span class="text-xs">{{ GAS_FEE_UNIT }}</span>
         </div>
       </div>

@@ -23,7 +23,7 @@ const toast = useToast()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
-const gasFee = ref('')
+const gasFeeInGwei = ref('')
 const gasFeeInEth = ref('')
 const gasPrices: Ref<object> = ref({})
 const loader = ref({
@@ -33,8 +33,8 @@ const loader = ref({
 
 const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
 
-watch(gasFee, () => {
-  gasFeeInEth.value = convertGweiToEth(gasFee.value)
+watch(gasFeeInGwei, () => {
+  gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
 })
 
 function showLoader(message) {
@@ -63,7 +63,7 @@ onMounted(async () => {
 function clearForm() {
   recipientWalletAddress.value = ''
   amount.value = ''
-  gasFee.value = ''
+  gasFeeInGwei.value = ''
 }
 
 async function handleSendToken() {
@@ -72,7 +72,7 @@ async function handleSendToken() {
     const payload = {
       to: `0x${recipientWalletAddress.value}`,
       value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-      gasPrice: ethers.utils.parseEther(`${gasFee.value}`).toHexString(),
+      gasPrice: ethers.utils.parseEther(`${gasFeeInGwei.value}`).toHexString(),
       from: userStore.walletAddress,
     }
     const accountHandler = new AccountHandler(userStore.privateKey)
@@ -91,11 +91,11 @@ async function handleSendToken() {
 }
 
 function handleSetGasPrice(value) {
-  gasFee.value = value
+  gasFeeInGwei.value = value
 }
 
 function handleShowPreview() {
-  if (recipientWalletAddress.value && amount.value && gasFee.value) {
+  if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
     showPreview.value = true
   } else {
     toast.error('Please fill all values')
@@ -182,7 +182,7 @@ function handleShowPreview() {
           </div>
         </div>
         <GasPrice
-          :gas-price="gasFee"
+          :gas-price="gasFeeInGwei"
           :gas-prices="gasPrices"
           @gas-price-input="handleSetGasPrice"
         />
