@@ -13,6 +13,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { formatValueToUSD } from '@/utils/formatUSD'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -80,10 +81,8 @@ async function getCurrencyExchangeRate() {
 
 const totalAmountInUSD = computed(() => {
   if (exchangeRate.value) {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(Math.round(Number(walletBalance.value) * exchangeRate.value))
+    const amount = Math.round(Number(walletBalance.value) * exchangeRate.value)
+    return formatValueToUSD(amount)
   }
   return ''
 })
