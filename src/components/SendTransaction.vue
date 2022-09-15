@@ -5,6 +5,7 @@ import type { Ref } from 'vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getGasPrice } from '@/services/gasPrice.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 
@@ -18,6 +19,7 @@ const props = defineProps({
 const emits = defineEmits(['gasPriceInput'])
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 
 const gasPrices: Ref<object> = ref({})
 
@@ -62,8 +64,9 @@ function handleSetGasPrice(value) {
         <p class="text-xl sm:text-sm">Send Transaction</p>
       </div>
       <p class="text-xs text-zinc-400">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor
+        {{ appStore.name }} requests your permission to send this transaction to
+        the {{ rpcStore.rpcConfig?.chainName }}. Please specify gas while
+        submitting the transaction.
       </p>
     </div>
     <div class="space-y-1">

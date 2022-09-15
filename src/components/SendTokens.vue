@@ -122,8 +122,8 @@ function handleShowPreview() {
           </button>
         </div>
         <p class="text-xs text-zinc-400">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor
+          Transfer tokens to the specified address. Please specify gas while
+          transferring.
         </p>
       </div>
       <div class="space-y-1">
