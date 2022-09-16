@@ -28,23 +28,13 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
-function onCopyClick() {
-  const walletAddressEl = document.getElementById(
-    'wallet-address'
-  ) as HTMLInputElement | null
-
-  if (walletAddressEl) {
-    try {
-      walletAddressEl.setAttribute('type', 'text')
-      walletAddressEl.select()
-      document.execCommand('copy')
-      toast.success('Wallet address copied')
-    } catch (e) {
-      toast.error('Failed to copy wallet address')
-    }
-    walletAddressEl.setAttribute('type', 'hidden')
+async function copyToClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    toast.success('Wallet address copied')
+  } catch (err) {
+    toast.error('Failed to copy wallet address')
   }
-  window.getSelection()?.removeAllRanges()
 }
 
 async function handleLogout() {
@@ -87,7 +77,7 @@ onBeforeRouteLeave((to) => {
         <p class="home__body-content-value">
           <span>{{ walletAddressShrinked }}</span>
           <input id="wallet-address" type="hidden" :value="walletAddress" />
-          <button @click.stop.prevent="onCopyClick">
+          <button @click="copyToClipboard(walletAddress)">
             <img
               :src="getImage('copy-icon')"
               alt="copy icon"

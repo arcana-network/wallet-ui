@@ -8,6 +8,7 @@ import type {
   Response,
 } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
+import { convertGweiToEth } from '@/utils/gweiToEth'
 import { isStringArray, isTransactionDataArray } from '@/utils/typeguards'
 
 export class Keeper {
@@ -71,7 +72,7 @@ export class Keeper {
         if (isTransactionDataArray(request.params)) {
           const param = request.params[0]
           param.gasPrice = ethers.utils
-            .parseEther(`${param.gasPrice}`)
+            .parseEther(convertGweiToEth(param.gasPrice))
             .toHexString()
           response.result = await this.accountHandler.requestSendTransaction(
             request.params[0]

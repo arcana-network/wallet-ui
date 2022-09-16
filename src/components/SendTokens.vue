@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, Ref } from 'vue'
+import { onMounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -9,6 +9,7 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { convertGweiToEth } from '@/utils/gweiToEth'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -22,7 +23,8 @@ const toast = useToast()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
-const gasFee = ref('')
+const gasFeeInGwei = ref('')
+const gasFeeInEth = ref('')
 const gasPrices: Ref<object> = ref({})
 const loader = ref({
   show: false,
@@ -30,6 +32,10 @@ const loader = ref({
 })
 
 const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
+
+watch(gasFeeInGwei, () => {
+  gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+})
 
 function showLoader(message) {
   loader.value.show = true
@@ -57,7 +63,7 @@ onMounted(async () => {
 function clearForm() {
   recipientWalletAddress.value = ''
   amount.value = ''
-  gasFee.value = ''
+  gasFeeInGwei.value = ''
 }
 
 async function handleSendToken() {
@@ -66,7 +72,7 @@ async function handleSendToken() {
     const payload = {
       to: `0x${recipientWalletAddress.value}`,
       value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-      gasPrice: ethers.utils.parseEther(`${gasFee.value}`).toHexString(),
+      gasPrice: ethers.utils.parseEther(`${gasFeeInGwei.value}`).toHexString(),
       from: userStore.walletAddress,
     }
     const accountHandler = new AccountHandler(userStore.privateKey)
@@ -85,11 +91,11 @@ async function handleSendToken() {
 }
 
 function handleSetGasPrice(value) {
-  gasFee.value = value
+  gasFeeInGwei.value = value
 }
 
 function handleShowPreview() {
-  if (recipientWalletAddress.value && amount.value && gasFee.value) {
+  if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
     showPreview.value = true
   } else {
     toast.error('Please fill all values')
@@ -108,7 +114,7 @@ function handleShowPreview() {
         senderWalletAddress: userStore.walletAddress,
         recipientWalletAddress: `Ox${recipientWalletAddress}`,
         amount,
-        gasFee,
+        gasFee: gasFeeInEth,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
@@ -176,7 +182,7 @@ function handleShowPreview() {
           </div>
         </div>
         <GasPrice
-          :gas-price="gasFee"
+          :gas-price="gasFeeInGwei"
           :gas-prices="gasPrices"
           @gas-price-input="handleSetGasPrice"
         />
