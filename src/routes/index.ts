@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import HomePage from '@/pages/homePage.vue'
+import HomeScreen from '@/pages/homeScreen.vue'
 import InitPage from '@/pages/initPage.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
@@ -22,7 +22,7 @@ const routes = [
   },
   {
     path: '/',
-    component: HomePage,
+    component: HomeScreen,
   },
   {
     name: 'requests',
