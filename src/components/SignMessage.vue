@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
 
 import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
