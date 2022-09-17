@@ -60,16 +60,16 @@ function clearForm() {
   gasFee.value = ''
 }
 
-function set0xPrefix(value: string) {
-  const HexPrefix = '0x'
-  return value.startsWith(HexPrefix) ? value : `0x${value}`
+function setHexPrefix(value: string) {
+  const hexPrefix = '0x'
+  return value.startsWith(hexPrefix) ? value : `${hexPrefix}${value}`
 }
 
 async function handleSendToken() {
   showLoader('Sending')
   try {
     const payload = {
-      to: set0xPrefix(recipientWalletAddress.value),
+      to: setHexPrefix(recipientWalletAddress.value),
       value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
       gasPrice: ethers.utils.parseEther(`${gasFee.value}`).toHexString(),
       from: userStore.walletAddress,
@@ -111,7 +111,7 @@ function handleShowPreview() {
       v-if="showPreview"
       :preview-data="{
         senderWalletAddress: userStore.walletAddress,
-        recipientWalletAddress: set0xPrefix(recipientWalletAddress),
+        recipientWalletAddress: setHexPrefix(recipientWalletAddress),
         amount,
         gasFee,
       }"
