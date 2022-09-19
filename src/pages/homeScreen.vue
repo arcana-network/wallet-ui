@@ -52,10 +52,16 @@ const loader = ref({
   show: false,
   message: '',
 })
-const accountHandler = new AccountHandler(userStore.privateKey)
+let accountHandler: AccountHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
-onMounted(init)
+onMounted(async () => {
+  connectToParent()
+  await getRpcConfig()
+  await init()
+  await getWalletBalance()
+  await getCurrencyExchangeRate()
+})
 
 watch(showModal, () => {
   if (!showModal.value) {
@@ -68,13 +74,6 @@ watch(showModal, () => {
   }
 })
 
-async function init() {
-  await connectionToParent()
-  await getRpcConfig()
-  await getWalletBalance()
-  await getCurrencyExchangeRate()
-}
-
 function showLoader(message) {
   loader.value.show = true
   loader.value.message = `${message}...`
@@ -85,40 +84,68 @@ function hideLoader() {
   loader.value.message = ''
 }
 
-async function connectionToParent() {
-  showLoader('Loading')
-  const walletType = await getWalletType(appStore.id)
+async function init() {
+  showLoader('please wait')
+  try {
+    const parentConnectionInstance = await parentConnection.promise
 
-  const walletAddress = accountHandler.getAccounts()[0]
-  userStore.setWalletAddress(walletAddress)
+    accountHandler = new AccountHandler(
+      userStore.privateKey,
+      rpcStore.rpcConfig?.rpcUrls[0]
+    )
 
-  const keeper = new Keeper(walletType, accountHandler)
+    const walletAddress = accountHandler.getAccounts()[0]
+    userStore.setWalletAddress(walletAddress)
 
+    const walletType = await getWalletType(
+      appStore.id,
+      rpcStore.rpcConfig?.rpcUrls[0]
+    )
+
+    const keeper = await initKeeper(walletType)
+    keeper.setConnection(parentConnection)
+
+    watchRequestQueue(requestStore, keeper)
+
+    setAppMode(walletType, parentConnectionInstance)
+
+    const chainId = await accountHandler.getChainId()
+    parentConnectionInstance.onEvent('connect', { chainId })
+  } catch (err) {
+    console.log({ err })
+  } finally {
+    hideLoader()
+  }
+}
+
+function connectToParent() {
   const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
-
-  const accountDetails = accountHandler.getAccount()
-
   parentConnection = createParentConnection({
     isLoggedIn: () => userStore.isLoggedIn,
     sendRequest,
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
-    getUserInfo: () => ({ ...userStore.info, ...accountDetails }),
+    getUserInfo,
   })
-
   parentConnectionStore.setParentConnection(parentConnection)
+}
 
-  keeper.setConnection(parentConnection)
-  watchRequestQueue(requestStore, keeper)
+function getUserInfo() {
+  const accountDetails = accountHandler.getAccount()
+  return {
+    ...userStore.info,
+    ...accountDetails,
+  }
+}
 
-  const chainId = await accountHandler.getChainId()
-  const parentConnectionInstance = await parentConnection.promise
+async function initKeeper(walletType) {
+  return new Keeper(walletType, accountHandler)
+}
+
+async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
   appStore.setAppMode(validAppMode)
-
-  parentConnectionInstance.onEvent('connect', { chainId })
-  hideLoader()
 }
 
 async function handleLogout() {
@@ -132,12 +159,17 @@ async function handleLogout() {
 }
 
 async function getRpcConfig() {
-  showLoader('Loading')
-  if (rpcStore.rpcConfig) return
-  const parentConnectionInstance = await parentConnection.promise
-  const rpcConfig = await parentConnectionInstance.getRpcConfig()
-  rpcStore.setRpcConfig(rpcConfig)
-  hideLoader()
+  try {
+    showLoader('Loading')
+    if (rpcStore.rpcConfig) return
+    const parentConnectionInstance = await parentConnection.promise
+    const rpcConfig = await parentConnectionInstance.getRpcConfig()
+    rpcStore.setRpcConfig(rpcConfig)
+  } catch (err) {
+    console.log({ err })
+  } finally {
+    hideLoader()
+  }
 }
 
 async function handleGetPublicKey(id, verifier) {
