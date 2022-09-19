@@ -7,6 +7,7 @@ import { useToast } from 'vue-toastification'
 
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -19,6 +20,7 @@ const appStore = useAppStore()
 const router = useRouter()
 const toast = useToast()
 const rpcStore = useRpcStore()
+const parentConnectionStore = useParentConnectionStore()
 const { rpcConfig } = storeToRefs(rpcStore)
 
 const {
@@ -26,7 +28,8 @@ const {
 } = user
 const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
-let parentConnection: Connection<ParentConnectionApi> | null = null
+const parentConnection: Connection<ParentConnectionApi> | null =
+  parentConnectionStore.parentConnection
 
 async function copyToClipboard(value: string) {
   try {

@@ -14,6 +14,7 @@ import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -39,6 +40,7 @@ const getImage = useImage()
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const parentConnectionStore = useParentConnectionStore()
 const modalStore = useModalStore()
 const walletBalance = ref('')
 const requestStore = useRequestStore()
@@ -103,6 +105,8 @@ async function connectionToParent() {
     triggerLogout: handleLogout,
     getUserInfo: () => ({ ...userStore.info, ...accountDetails }),
   })
+
+  parentConnectionStore.setParentConnection(parentConnection)
 
   keeper.setConnection(parentConnection)
   watchRequestQueue(requestStore, keeper)
