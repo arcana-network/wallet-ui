@@ -27,7 +27,7 @@ export const useRpcStore = defineStore('rpcStore', {
   },
 
   actions: {
-    setRpcConfig(rpcConfig: RpcConfig): void {
+    setRpcConfig(rpcConfig: RpcConfig | null): void {
       this.rpcConfig = rpcConfig
     },
     setWalletBalance(balance): void {
