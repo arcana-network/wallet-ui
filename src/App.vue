@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted } from 'vue'
+import { toRefs, ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import '@/index.css'
 
 const user = useUserStore()
 const app = useAppStore()
 const modal = useModalStore()
+const requestStore = useRequestStore()
+const router = useRouter()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
 
@@ -42,6 +46,10 @@ function init() {
   } finally {
     isLoading.value = false
   }
+  watch(requestStore.pendingRequests, () => {
+    const requests = Object.values(requestStore.pendingRequests)
+    if (requests.length) router.push({ name: 'requests' })
+  })
 }
 </script>
 
