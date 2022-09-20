@@ -49,49 +49,53 @@ function handleGasPriceInput({ value, requestId }) {
 </script>
 
 <template>
-  <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
-    <div
-      v-for="pendingRequest in pendingRequestsForApproval"
-      :key="pendingRequest.request.id"
-      class="sign__message-container"
-    >
-      <SendTransaction
-        v-if="isSendTransactionRequest(pendingRequest.request.id)"
-        :request="pendingRequest"
-        @gas-price-input="handleGasPriceInput"
-      />
-      <SignMessage v-else :request="pendingRequest" />
-      <div class="sign__message-footer">
-        <p class="sign__message-info-text">
-          You are not going to be charged!
-          <Popper arrow hover>
-            <button>
-              <img
-                class="sign__message-info-icon"
-                :src="getImage('info-icon')"
-              />
+  <div class="wallet__body mb-[10px]">
+    <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
+      <div
+        v-for="pendingRequest in pendingRequestsForApproval"
+        :key="pendingRequest.request.id"
+        class="sign__message-container"
+      >
+        <SendTransaction
+          v-if="isSendTransactionRequest(pendingRequest.request.id)"
+          :request="pendingRequest"
+          @gas-price-input="handleGasPriceInput"
+        />
+        <SignMessage v-else :request="pendingRequest" />
+        <div class="sign__message-footer">
+          <p class="sign__message-info-text">
+            You are not going to be charged!
+            <Popper arrow hover>
+              <button>
+                <img
+                  class="sign__message-info-icon"
+                  :src="getImage('info-icon')"
+                />
+              </button>
+              <template #content>
+                <ChargeInfo />
+              </template>
+            </Popper>
+          </p>
+          <div class="sign__message-button-container">
+            <button
+              class="sign__message-button-reject"
+              @click="onRejectClick(pendingRequest.request.id)"
+            >
+              Reject
             </button>
-            <template #content> <ChargeInfo /> </template>
-          </Popper>
-        </p>
-        <div class="sign__message-button-container">
-          <button
-            class="sign__message-button-reject"
-            @click="onRejectClick(pendingRequest.request.id)"
-          >
-            Reject
-          </button>
-          <button
-            class="sign__message-button-approve"
-            @click="onApproveClick(pendingRequest.request.id)"
-          >
-            Approve
-          </button>
+            <button
+              class="sign__message-button-approve"
+              @click="onApproveClick(pendingRequest.request.id)"
+            >
+              Approve
+            </button>
+          </div>
         </div>
       </div>
     </div>
+    <SignMessageNoRequests v-else />
   </div>
-  <SignMessageNoRequests v-else />
 </template>
 
 <style scoped>

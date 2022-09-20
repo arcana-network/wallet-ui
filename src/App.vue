@@ -53,9 +53,7 @@ function init() {
     class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <div class="wallet__body mb-[10px]">
-      <RouterView />
-    </div>
+    <RouterView />
     <WalletFooter />
     <BaseModal v-if="modal.show" />
   </div>

@@ -60,43 +60,45 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
-    <h1 class="home__title">Welcome</h1>
-    <div class="home__body-container space-y-4 sm:space-y-2">
-      <div v-if="name" class="home__body-content">
-        <p class="home__body-content-label">Name</p>
-        <p class="home__body-content-value">{{ name }}</p>
+  <div class="wallet__body mb-[10px]">
+    <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
+      <h1 class="home__title">Welcome</h1>
+      <div class="home__body-container space-y-4 sm:space-y-2">
+        <div v-if="name" class="home__body-content">
+          <p class="home__body-content-label">Name</p>
+          <p class="home__body-content-value">{{ name }}</p>
+        </div>
+        <div class="home__body-content">
+          <p class="home__body-content-label">Email ID</p>
+          <p class="home__body-content-value">{{ email }}</p>
+        </div>
+        <div class="home__body-content">
+          <p class="home__body-content-label">Network</p>
+          <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
+        </div>
+        <div class="home__body-content">
+          <p class="home__body-content-label">Wallet Address</p>
+          <p class="home__body-content-value">
+            <span>{{ walletAddressShrinked }}</span>
+            <input id="wallet-address" type="hidden" :value="walletAddress" />
+            <button @click="copyToClipboard(walletAddress)">
+              <img
+                :src="getImage('copy-icon')"
+                alt="copy icon"
+                class="home__body-copy-icon"
+              />
+            </button>
+          </p>
+        </div>
       </div>
-      <div class="home__body-content">
-        <p class="home__body-content-label">Email ID</p>
-        <p class="home__body-content-value">{{ email }}</p>
+      <div class="home__footer">
+        <button class="home__footer-button-outline" @click="handleLogout">
+          Logout
+        </button>
+        <button class="home__footer-button-filled" @click="onCloseClick">
+          Close
+        </button>
       </div>
-      <div class="home__body-content">
-        <p class="home__body-content-label">Network</p>
-        <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
-      </div>
-      <div class="home__body-content">
-        <p class="home__body-content-label">Wallet Address</p>
-        <p class="home__body-content-value">
-          <span>{{ walletAddressShrinked }}</span>
-          <input id="wallet-address" type="hidden" :value="walletAddress" />
-          <button @click="copyToClipboard(walletAddress)">
-            <img
-              :src="getImage('copy-icon')"
-              alt="copy icon"
-              class="home__body-copy-icon"
-            />
-          </button>
-        </p>
-      </div>
-    </div>
-    <div class="home__footer">
-      <button class="home__footer-button-outline" @click="handleLogout">
-        Logout
-      </button>
-      <button class="home__footer-button-filled" @click="onCloseClick">
-        Close
-      </button>
     </div>
   </div>
 </template>

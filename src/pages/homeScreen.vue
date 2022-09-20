@@ -216,78 +216,89 @@ onBeforeRouteLeave((to) => {
   <div v-if="loader.show" class="flex justify-center items-center h-full">
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
-  <div
-    v-else
-    class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
-  >
-    <div class="flex flex-col justify-center items-center space-y-2">
-      <p class="text-xl sm:text-sm truncate w-full text-center">
-        {{ userStore.info.name || userStore.info.email }}
-      </p>
-      <div class="flex items-center space-x-1">
-        <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
-        <button class="h-3" @click="copyToClipboard(userStore.walletAddress)">
-          <img :src="getImage('copy-icon')" alt="copy icon" class="h-full" />
-        </button>
-      </div>
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-        {{ rpcConfig.chainName }}
-      </p>
-    </div>
-    <div
-      class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
-    >
-      <p class="text-sm sm:text-xs">Total Balance</p>
+  <div v-else>
+    <div class="wallet__body mb-[10px]">
       <div
-        v-if="exchangeRate"
-        class="space-y-2 sm:space-y-0 flex flex-col items-center"
+        class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
       >
-        <p class="text-2xl sm:text-base text-center">
-          {{ totalAmountInUSD }}
-        </p>
-        <div class="flex text-zinc-400 text-sm space-x-1">
-          <p :title="walletBalance">
-            {{ truncateToTwoDecimals(walletBalance) }}
+        <div class="flex flex-col justify-center items-center space-y-2">
+          <p class="text-xl sm:text-sm truncate w-full text-center">
+            {{ userStore.info.name || userStore.info.email }}
           </p>
-          <p>{{ currency }}</p>
+          <div class="flex items-center space-x-1">
+            <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
+            <button
+              class="h-3"
+              @click="copyToClipboard(userStore.walletAddress)"
+            >
+              <img
+                :src="getImage('copy-icon')"
+                alt="copy icon"
+                class="h-full"
+              />
+            </button>
+          </div>
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs text-zinc-400">Network</p>
+          <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
+            {{ rpcConfig.chainName }}
+          </p>
+        </div>
+        <div
+          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
+        >
+          <p class="text-sm sm:text-xs">Total Balance</p>
+          <div
+            v-if="exchangeRate"
+            class="space-y-2 sm:space-y-0 flex flex-col items-center"
+          >
+            <p class="text-2xl sm:text-base text-center">
+              {{ totalAmountInUSD }}
+            </p>
+            <div class="flex text-zinc-400 text-sm space-x-1">
+              <p :title="walletBalance">
+                {{ truncateToTwoDecimals(walletBalance) }}
+              </p>
+              <p>{{ currency }}</p>
+            </div>
+          </div>
+          <div v-else>
+            <div class="flex text-2xl sm:text-base space-x-1">
+              <p :title="walletBalance">
+                {{ truncateToTwoDecimals(walletBalance) }}
+              </p>
+              <p>{{ currency }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <button class="flex items-center space-x-1" @click="getWalletBalance">
+            <img
+              :src="getImage('refresh-icon')"
+              alt="Refresh wallet balance"
+              class="w-4"
+            />
+            <span class="text-xs">Refresh Balance</span>
+          </button>
+        </div>
+        <div class="flex space-x-3">
+          <button
+            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
+            @click="openSendTokens(true)"
+          >
+            Send
+          </button>
+          <button
+            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+            @click="openReceiveTokens(true)"
+          >
+            Receive
+          </button>
         </div>
       </div>
-      <div v-else>
-        <div class="flex text-2xl sm:text-base space-x-1">
-          <p :title="walletBalance">
-            {{ truncateToTwoDecimals(walletBalance) }}
-          </p>
-          <p>{{ currency }}</p>
-        </div>
-      </div>
     </div>
-    <div class="flex justify-center">
-      <button class="flex items-center space-x-1" @click="getWalletBalance">
-        <img
-          :src="getImage('refresh-icon')"
-          alt="Refresh wallet balance"
-          class="w-4"
-        />
-        <span class="text-xs">Refresh Balance</span>
-      </button>
-    </div>
-    <div class="flex space-x-3">
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
-        @click="openSendTokens(true)"
-      >
-        Send
-      </button>
-      <button
-        class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
-        @click="openReceiveTokens(true)"
-      >
-        Receive
-      </button>
-    </div>
+    <span class="text-white">This is it</span>
     <Teleport v-if="showModal" to="#modal-container">
       <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
       <ReceiveTokens
