@@ -10,16 +10,17 @@
     --bg-gradient-start-color: #eee;
     --bg-gradient-stop-color: #eee;
   }
+
   .dark {
-    --glow-start-color: rgba(247, 247, 247, 0.3);
-    --glow-middle-color: rgba(11, 11, 11, 0.5);
-    --glow-stop-color: rgba(28, 28, 28, 0.84);
+    --glow-start-color: rgb(247 247 247 / 30%);
+    --glow-middle-color: rgb(11 11 11 / 50%);
+    --glow-stop-color: rgb(28 28 28 / 84%);
     --bg-gradient-start-color: #161616;
     --bg-gradient-stop-color: #151515;
   }
 
   .glow {
-    box-shadow: 0px 0px 12px 4px var(--glow-start-color),
+    box-shadow: 0 0 12px 4px var(--glow-start-color),
       inset 5px 5px 10px var(--glow-middle-color),
       inset -50px 49px 29px 22px var(--glow-stop-color);
   }
@@ -30,5 +31,9 @@
       var(--bg-gradient-start-color) -4.56%,
       var(--bg-gradient-stop-color) 135.63%
     );
+  }
+
+  .full-bleed {
+    margin: 0 calc(1px - var(--p-400));
   }
 }
