@@ -102,7 +102,7 @@ async function initAccountHandler() {
       rpcStore.rpcConfig?.rpcUrls[0]
     )
 
-    const keeper = await initKeeper(walletType)
+    const keeper = new Keeper(walletType, accountHandler)
     keeper.setConnection(parentConnection)
 
     watchRequestQueue(requestStore, keeper)
@@ -136,10 +136,6 @@ function getUserInfo() {
     ...userStore.info,
     ...accountDetails,
   }
-}
-
-async function initKeeper(walletType) {
-  return new Keeper(walletType, accountHandler)
 }
 
 async function setAppMode(walletType, parentConnectionInstance) {
