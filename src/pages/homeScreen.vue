@@ -59,6 +59,28 @@ const accountHandler = new AccountHandler(userStore.privateKey)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
+const assets = [
+  {
+    name: 'Ethereum',
+    balance: 1.22,
+    currency: 'ETH',
+  },
+  {
+    name: 'Matic Mainnet',
+    balance: 10.52,
+    currency: 'MATIC',
+  },
+  {
+    name: 'Shiba Inu',
+    balance: 10000,
+    currency: 'SHIB',
+  },
+  {
+    name: 'Uniswap',
+    balance: 200.67,
+    currency: 'UNI',
+  },
+]
 
 onMounted(init)
 
@@ -304,7 +326,7 @@ onBeforeRouteLeave((to) => {
       </div>
     </div>
     <BaseTabs v-model="selectedTab" :tabs="tabs" class="full-bleed" />
-    <AssetsView v-if="selectedTab === 'Assets'" />
+    <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
     <ActivityView v-else />
     <Teleport v-if="showModal" to="#modal-container">
       <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
