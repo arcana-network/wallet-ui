@@ -183,9 +183,9 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 100%;
+  min-height: 100%;
   padding: var(--p-400);
-  overflow: hidden;
+  overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
 }
