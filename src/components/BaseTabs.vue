@@ -13,7 +13,7 @@ const emit = defineEmits(['update:modelValue'])
     <div
       v-for="(tab, index) in props.tabs"
       :key="`tab-${index}-${tab}`"
-      class="flex grow justify-center cursor-pointer py-[10px] font-semibold font-[1.25rem] tab"
+      class="flex grow justify-center cursor-pointer py-[10px] font-semibold tab"
       :class="
         tab === props.modelValue
           ? 'bg-black dark:bg-white text-white dark:text-black'
@@ -28,6 +28,7 @@ const emit = defineEmits(['update:modelValue'])
 
 <style>
 .tab {
+  font-size: var(--fs-500);
   color: var(--fg-color-secondary);
   border: 1px var(--fg-color-secondary);
   border-style: solid none;

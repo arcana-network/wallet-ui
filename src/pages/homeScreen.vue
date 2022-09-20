@@ -315,9 +315,3 @@ onBeforeRouteLeave((to) => {
     </Teleport>
   </div>
 </template>
-
-<style scoped>
-.full-bleed {
-  margin: 0 calc(1px - var(--p-400));
-}
-</style>
