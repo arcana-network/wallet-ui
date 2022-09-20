@@ -7,6 +7,7 @@ import type {
   Request,
   Response,
 } from '@/models/Connection'
+import { EthersError } from '@/models/EthersError'
 import { AccountHandler } from '@/utils/accountHandler'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { isStringArray, isTransactionDataArray } from '@/utils/typeguards'
@@ -82,7 +83,9 @@ export class Keeper {
             response.error = 'Invalid type in request'
           }
         } catch (err) {
-          response.error = err.reason
+          if (err instanceof EthersError) {
+            response.error = err.reason
+          }
         }
         return response
       case 'eth_decrypt':
