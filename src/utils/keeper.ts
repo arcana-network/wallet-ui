@@ -69,16 +69,20 @@ export class Keeper {
         }
         return response
       case 'eth_sendTransaction':
-        if (isTransactionDataArray(request.params)) {
-          const param = request.params[0]
-          param.gasPrice = ethers.utils
-            .parseEther(convertGweiToEth(param.gasPrice))
-            .toHexString()
-          response.result = await this.accountHandler.requestSendTransaction(
-            request.params[0]
-          )
-        } else {
-          response.error = 'Invalid type in request'
+        try {
+          if (isTransactionDataArray(request.params)) {
+            const param = request.params[0]
+            param.gasPrice = ethers.utils
+              .parseEther(convertGweiToEth(param.gasPrice))
+              .toHexString()
+            response.result = await this.accountHandler.requestSendTransaction(
+              request.params[0]
+            )
+          } else {
+            response.error = 'Invalid type in request'
+          }
+        } catch (err) {
+          response.error = err.reason
         }
         return response
       case 'eth_decrypt':
