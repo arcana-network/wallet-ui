@@ -7,6 +7,9 @@ import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import ActivityView from '@/components/ActivityView.vue'
+import AssetsView from '@/components/AssetsView.vue'
+import BaseTabs from '@/components/BaseTabs.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -54,6 +57,8 @@ const loader = ref({
 })
 const accountHandler = new AccountHandler(userStore.privateKey)
 let parentConnection: Connection<ParentConnectionApi> | null = null
+const tabs = ['Assets', 'Activity']
+const selectedTab = ref('Assets')
 
 onMounted(init)
 
@@ -217,7 +222,7 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
-    <div class="wallet__body mb-[10px]">
+    <div class="wallet__body mb-[2.5rem]">
       <div
         class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
       >
@@ -298,7 +303,9 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
-    <span class="text-white">This is it</span>
+    <BaseTabs v-model="selectedTab" :tabs="tabs" class="full-bleed" />
+    <AssetsView v-if="selectedTab === 'Assets'" />
+    <ActivityView v-else />
     <Teleport v-if="showModal" to="#modal-container">
       <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
       <ReceiveTokens
@@ -308,3 +315,9 @@ onBeforeRouteLeave((to) => {
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+.full-bleed {
+  margin: 0 calc(1px - var(--p-400));
+}
+</style>
