@@ -58,7 +58,7 @@ let parentConnection: Connection<ParentConnectionApi> | null = null
 onMounted(async () => {
   connectToParent()
   await getRpcConfig()
-  await init()
+  await initAccountHandler()
   await getWalletBalance()
   await getCurrencyExchangeRate()
 })
@@ -84,8 +84,8 @@ function hideLoader() {
   loader.value.message = ''
 }
 
-async function init() {
-  showLoader('please wait')
+async function initAccountHandler() {
+  showLoader('Please wait')
   try {
     const parentConnectionInstance = await parentConnection.promise
 
