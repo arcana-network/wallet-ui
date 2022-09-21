@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPage from '@/pages/initPage.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
@@ -33,6 +34,11 @@ const routes = [
     name: 'profileScreen',
     path: '/profileScreen',
     component: ProfileScreen,
+  },
+  {
+    name: 'addToken',
+    path: '/addToken',
+    component: AddTokenScreen,
   },
 ]
 

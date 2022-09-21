@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
+
 type Asset = {
   name: string
   balance: number
@@ -10,17 +12,24 @@ type AssetViewProps = {
 }
 
 const props = defineProps<AssetViewProps>()
+const router = useRouter()
+
+function handleAddToken() {
+  router.push({ name: 'addToken' })
+}
 </script>
 
 <template>
   <div class="flex flex-col">
     <div class="flex justify-between items-center py-[1.25rem]">
       <span class="assets-view__add-token-text">Add a Token</span>
-      <img
-        class="dark:invert cursor-pointer w-[1.5rem]"
-        src="@/assets/images/plus-circle.svg"
-        alt="Click to add a token"
-      />
+      <button class="h-auto" @click.stop="handleAddToken">
+        <img
+          class="dark:invert cursor-pointer w-[1.5rem]"
+          src="@/assets/images/plus-circle.svg"
+          alt="Click to add a token"
+        />
+      </button>
     </div>
     <hr class="assets-view__separator" />
     <div
