@@ -2,9 +2,10 @@
 import { useRouter } from 'vue-router'
 
 type Asset = {
-  name: string
-  balance: number
-  currency: string
+  name?: string
+  balance: string
+  symbol: string
+  decimals: number
 }
 
 type AssetViewProps = {
@@ -16,6 +17,14 @@ const router = useRouter()
 
 function handleAddToken() {
   router.push({ name: 'addToken' })
+}
+
+function formatDecimals(balance: string | number, decimals = 0) {
+  const divider = Math.pow(10, decimals)
+  if (typeof balance !== 'number') {
+    balance = Number(balance)
+  }
+  return balance / divider
 }
 </script>
 
@@ -42,7 +51,7 @@ function handleAddToken() {
         <span class="assets-view__asset-name">{{ asset.name }}</span>
       </div>
       <div class="assets-view__asset-balance">
-        {{ asset.balance }} {{ asset.currency }}
+        {{ formatDecimals(asset.balance, asset.decimals) }} {{ asset.symbol }}
       </div>
     </div>
   </div>
