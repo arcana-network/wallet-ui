@@ -24,6 +24,7 @@ import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import getTokenBalance from '@/utils/getTokenBalance'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
@@ -59,28 +60,12 @@ const accountHandler = new AccountHandler(userStore.privateKey)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
-const assets = [
-  {
-    name: 'Ethereum',
-    balance: 1.22,
-    currency: 'ETH',
-  },
-  {
-    name: 'Matic Mainnet',
-    balance: 10.52,
-    currency: 'MATIC',
-  },
-  {
-    name: 'Shiba Inu',
-    balance: 10000,
-    currency: 'SHIB',
-  },
-  {
-    name: 'Uniswap',
-    balance: 200.67,
-    currency: 'UNI',
-  },
-]
+const assets: {
+  name?: string
+  symbol: string
+  decimals: number
+  balance: string
+}[] = []
 
 onMounted(init)
 
@@ -208,11 +193,35 @@ async function getWalletBalance() {
     )
     rpcStore.setWalletBalance(balance.toString())
     walletBalance.value = ethers.utils.formatEther(balance.toString())
+    assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
   } catch (err) {
     console.log({ err })
   } finally {
     hideLoader()
   }
+
+  const contracts = [
+    {
+      address: '0x3cFcd51697591664782E1A9595F8dE9018c94fB5',
+      symbol: 'KRPT',
+      tokenName: 'Krypton Token',
+      decimals: 0,
+    },
+  ]
+
+  contracts.forEach(async (contract) => {
+    const balance = await getTokenBalance(
+      userStore.privateKey,
+      userStore.walletAddress,
+      contract.address
+    )
+    assets.push({
+      name: contract.tokenName,
+      symbol: contract.symbol,
+      decimals: contract.decimals,
+      balance: balance.toString(),
+    })
+  })
 }
 
 async function copyToClipboard(value: string) {

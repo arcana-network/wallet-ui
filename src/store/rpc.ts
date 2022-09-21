@@ -24,6 +24,27 @@ export const useRpcStore = defineStore('rpcStore', {
       const chainName: string = this.rpcConfig?.chainName?.toLowerCase() || ''
       return chainName.includes('arcana')
     },
+    nativeCurrency(state: RpcConfigState) {
+      const { rpcConfig } = state
+      if (this.isArcanaNetwork) {
+        return {
+          name: 'Arcana Network Token',
+          symbol: 'XAR',
+          decimals: 18,
+        }
+      }
+      if (rpcConfig?.nativeCurrency) {
+        return {
+          name: rpcConfig.chainName,
+          ...rpcConfig.nativeCurrency,
+        }
+      }
+      return {
+        name: rpcConfig?.chainName || 'Unknown',
+        symbol: '',
+        decimals: 0,
+      }
+    },
   },
 
   actions: {
