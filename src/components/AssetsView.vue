@@ -38,7 +38,7 @@ function handleAddToken() {
       class="flex justify-between items-center py-[1.25rem]"
     >
       <div class="flex items-center gap-3">
-        <img src="@/assets/images/plus-circle.svg" class="w-[1.25rem]" />
+        <img src="@/assets/images/plus-circle.svg" class="w-[1.25rem] invert" />
         <span class="assets-view__asset-name">{{ asset.name }}</span>
       </div>
       <div class="assets-view__asset-balance">
