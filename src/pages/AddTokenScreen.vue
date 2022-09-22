@@ -1,16 +1,82 @@
 <script setup lang="ts">
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 import contractMap from '@/contract-map.json'
+import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import getTokenBalance from '@/utils/getTokenBalance'
+
+type AssetContract = {
+  address: string
+  symbol: string
+  decimals: number
+}
 
 const router = useRouter()
-const tokens = Object.keys(contractMap).map((address) => ({
+const ethMainnetTokens: (AssetContract & {
+  name: string
+  logo: string
+  erc20: boolean
+  erc721: boolean
+})[] = Object.keys(contractMap).map((address) => ({
   ...contractMap[address],
-  contractAddress: address,
+  address,
 }))
+const rpcStore = useRpcStore()
+const toast = useToast()
+const userStore = useUserStore()
+
+const tokenContract: AssetContract = reactive({
+  address: '',
+  symbol: '',
+  decimals: 0,
+})
 
 function handleCancel() {
   router.back()
+}
+
+async function addTokenContract() {
+  const assetContractsString = localStorage.getItem(
+    `${rpcStore.rpcConfig?.chainId}-asset-contracts`
+  )
+  console.log(assetContractsString)
+  let assetContracts: AssetContract[] = []
+  if (assetContractsString) {
+    assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+    if (
+      assetContracts.find(
+        (contract) => contract.address === tokenContract.address
+      )
+    ) {
+      return toast.error('Token already added')
+    }
+    if (
+      ethMainnetTokens.find(
+        (contract) => contract.address === tokenContract.address
+      )
+    ) {
+      return toast.error('Token belongs to Ethereum Mainnet')
+    }
+  }
+  try {
+    await getTokenBalance(
+      userStore.privateKey,
+      userStore.walletAddress,
+      tokenContract.address
+    )
+  } catch (e) {
+    return toast.error('Invalid contract address')
+  }
+  assetContracts.push({ ...tokenContract })
+  localStorage.setItem(
+    `${rpcStore.rpcConfig?.chainId}-asset-contracts`,
+    JSON.stringify(assetContracts)
+  )
+  toast.success('Token Added successfully')
+  router.push({ name: 'homeScreen' })
 }
 </script>
 
@@ -18,58 +84,39 @@ function handleCancel() {
   <div class="wallet__body mb-[2.5rem]">
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
-      <form class="flex flex-col" @submit.prevent="void 0">
-        <div class="flex flex-col gap-1">
-          <label for="search-token" class="text-sm font-semibold label"
-            >Search Token</label
+      <form class="flex flex-col" @submit.prevent="addTokenContract">
+        <div v-if="rpcStore.isEthereumMainnet">
+          <div class="flex flex-col gap-1">
+            <label for="search-token" class="text-sm font-semibold label"
+              >Search Token</label
+            >
+            <div class="flex p-4 input gap-1 justify-center">
+              <img src="@/assets/images/search-icon.svg" />
+              <input
+                id="search-token"
+                type="search"
+                list="available-tokens"
+                placeholder="Enter Token Symbol"
+                class="text-base bg-transparent outline-none"
+                autocomplete="off"
+              />
+              <img src="@/assets/images/arrow-gray.svg" />
+            </div>
+          </div>
+          <datalist
+            id="available-tokens"
+            class="absolute h-40 bg-black text-white"
           >
-          <div class="flex p-4 input gap-1 justify-center">
-            <img src="@/assets/images/search-icon.svg" />
-            <input
-              id="search-token"
-              type="search"
-              list="available-tokens"
-              placeholder="Enter Token Symbol"
-              class="text-base bg-transparent outline-none"
-            />
-            <img src="@/assets/images/arrow-gray.svg" />
-          </div>
+            <option
+              v-for="token in ethMainnetTokens"
+              :key="token.address"
+              :value="token.symbol"
+              class="bg-black text-white"
+            ></option>
+          </datalist>
+          <div class="text-center my-6">Add Custom Token</div>
         </div>
-        <datalist
-          id="available-tokens"
-          class="absolute h-40 bg-black text-white"
-        >
-          <option
-            v-for="token in tokens"
-            :key="token.address"
-            :value="token.symbol"
-            class="bg-black text-white"
-          ></option>
-        </datalist>
-        <div class="text-center my-6">Add Custom Token</div>
         <div class="flex flex-col gap-5">
-          <div class="flex flex-col gap-1">
-            <label for="token-name" class="text-sm font-semibold label"
-              >Token Name</label
-            >
-            <input
-              id="token-name"
-              type="text"
-              placeholder="Eg. Arcana"
-              class="text-base p-4 input"
-            />
-          </div>
-          <div class="flex flex-col gap-1">
-            <label for="token-symbol" class="text-sm font-semibold label"
-              >Token Symbol</label
-            >
-            <input
-              id="token-symbol"
-              type="text"
-              placeholder="Eg. XAR"
-              class="text-base p-4 input"
-            />
-          </div>
           <div class="flex flex-col gap-1">
             <label
               for="token-contract-address"
@@ -78,9 +125,26 @@ function handleCancel() {
             >
             <input
               id="token-contract-address"
+              v-model="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
               class="text-base p-4 input"
+              required
+              autocomplete="off"
+            />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="token-symbol" class="text-sm font-semibold label"
+              >Token Symbol</label
+            >
+            <input
+              id="token-symbol"
+              v-model="tokenContract.symbol"
+              type="text"
+              placeholder="Eg. XAR"
+              class="text-base p-4 input"
+              required
+              autocomplete="off"
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -89,11 +153,14 @@ function handleCancel() {
             >
             <input
               id="token-decimal"
+              v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
               class="text-base p-4 input"
               min="0"
               step="1"
+              required
+              autocomplete="off"
             />
           </div>
           <div class="flex space-x-3">

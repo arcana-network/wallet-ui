@@ -24,11 +24,14 @@ export const useRpcStore = defineStore('rpcStore', {
       const chainName: string = this.rpcConfig?.chainName?.toLowerCase() || ''
       return chainName.includes('arcana')
     },
+    isEthereumMainnet(state: RpcConfigState) {
+      return 1 === state.rpcConfig?.chainId
+    },
     nativeCurrency(state: RpcConfigState) {
       const { rpcConfig } = state
       if (this.isArcanaNetwork) {
         return {
-          name: 'Arcana Network Token',
+          name: 'Arcana',
           symbol: 'XAR',
           decimals: 18,
         }

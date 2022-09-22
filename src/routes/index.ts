@@ -22,6 +22,7 @@ const routes = [
     component: InitPage,
   },
   {
+    name: 'homeScreen',
     path: '/',
     component: HomeScreen,
   },

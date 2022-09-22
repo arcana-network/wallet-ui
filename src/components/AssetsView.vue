@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { onMounted, Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import getTokenBalance from '@/utils/getTokenBalance'
 
 type Asset = {
   name?: string
@@ -8,12 +13,55 @@ type Asset = {
   decimals: number
 }
 
-type AssetViewProps = {
-  assets: Asset[]
+type AssetContract = {
+  logo?: string
+  address: string
+  symbol: string
+  decimals: number
 }
 
-const props = defineProps<AssetViewProps>()
+const userStore = useUserStore()
+const rpcStore = useRpcStore()
 const router = useRouter()
+const assets: Ref<Asset[]> = ref([])
+
+function fetchStoredAssetContracts(): AssetContract[] {
+  const assetContracts = localStorage.getItem(
+    `${rpcStore.rpcConfig?.chainId}-asset-contracts`
+  )
+  if (assetContracts) {
+    return JSON.parse(assetContracts)
+  } else {
+    return []
+  }
+}
+
+function fetchNativeAsset() {
+  return {
+    name: rpcStore.nativeCurrency.name,
+    balance: rpcStore.walletbalance,
+    decimals: rpcStore.nativeCurrency.decimals,
+    symbol: rpcStore.nativeCurrency.symbol,
+  }
+}
+
+async function getAssetsBalance() {
+  assets.value.push(fetchNativeAsset())
+  const storedAssetContracts = fetchStoredAssetContracts()
+  storedAssetContracts.forEach(async (contract) => {
+    const balance = await getTokenBalance(
+      userStore.privateKey,
+      userStore.walletAddress,
+      contract.address
+    )
+    assets.value.push({
+      name: contract.symbol,
+      symbol: contract.symbol,
+      decimals: contract.decimals,
+      balance: balance.toString(),
+    })
+  })
+}
 
 function handleAddToken() {
   router.push({ name: 'addToken' })
@@ -26,6 +74,10 @@ function formatDecimals(balance: string | number, decimals = 0) {
   }
   return balance / divider
 }
+
+onMounted(getAssetsBalance)
+
+rpcStore.$subscribe(getAssetsBalance)
 </script>
 
 <template>
@@ -42,7 +94,7 @@ function formatDecimals(balance: string | number, decimals = 0) {
     </div>
     <hr class="assets-view__separator" />
     <div
-      v-for="(asset, index) in props.assets"
+      v-for="(asset, index) in assets"
       :key="`asset-${index}-${asset.name}`"
       class="flex justify-between items-center py-[1.25rem]"
     >
