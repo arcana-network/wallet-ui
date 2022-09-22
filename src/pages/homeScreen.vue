@@ -24,7 +24,6 @@ import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import getTokenBalance from '@/utils/getTokenBalance'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import { Keeper } from '@/utils/keeper'
@@ -199,29 +198,6 @@ async function getWalletBalance() {
   } finally {
     hideLoader()
   }
-
-  const contracts = [
-    {
-      address: '0x3cFcd51697591664782E1A9595F8dE9018c94fB5',
-      symbol: 'KRPT',
-      tokenName: 'Krypton Token',
-      decimals: 0,
-    },
-  ]
-
-  contracts.forEach(async (contract) => {
-    const balance = await getTokenBalance(
-      userStore.privateKey,
-      userStore.walletAddress,
-      contract.address
-    )
-    assets.push({
-      name: contract.tokenName,
-      symbol: contract.symbol,
-      decimals: contract.decimals,
-      balance: balance.toString(),
-    })
-  })
 }
 
 async function copyToClipboard(value: string) {
@@ -249,7 +225,7 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center h-full">
+  <div v-if="loader.show" class="flex justify-center items-center h-screen">
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
