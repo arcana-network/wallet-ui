@@ -58,7 +58,7 @@ async function getAssetsBalance() {
       name: contract.symbol,
       symbol: contract.symbol,
       decimals: contract.decimals,
-      balance: balance.toString(),
+      balance,
     })
   })
 }

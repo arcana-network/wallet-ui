@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -33,6 +33,21 @@ const tokenContract: AssetContract = reactive({
   symbol: '',
   decimals: 0,
 })
+const selectedToken = ref('')
+
+watch(
+  () => selectedToken.value,
+  () => {
+    const selectedTokenContract = ethMainnetTokens.find(
+      (contract) => contract.symbol === selectedToken.value
+    )
+    if (selectedTokenContract) {
+      tokenContract.address = selectedTokenContract.address
+      tokenContract.symbol = selectedTokenContract.symbol
+      tokenContract.decimals = selectedTokenContract.decimals
+    }
+  }
+)
 
 function handleCancel() {
   router.back()
@@ -54,6 +69,7 @@ async function addTokenContract() {
       return toast.error('Token already added')
     }
     if (
+      !rpcStore.isEthereumMainnet &&
       ethMainnetTokens.find(
         (contract) => contract.address === tokenContract.address
       )
@@ -85,7 +101,7 @@ async function addTokenContract() {
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
-        <div v-if="rpcStore.isEthereumMainnet">
+        <div>
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"
               >Search Token</label
@@ -94,6 +110,7 @@ async function addTokenContract() {
               <img src="@/assets/images/search-icon.svg" />
               <input
                 id="search-token"
+                v-model="selectedToken"
                 type="search"
                 list="available-tokens"
                 placeholder="Enter Token Symbol"

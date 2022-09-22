@@ -25,7 +25,7 @@ export const useRpcStore = defineStore('rpcStore', {
       return chainName.includes('arcana')
     },
     isEthereumMainnet(state: RpcConfigState) {
-      return 1 === state.rpcConfig?.chainId
+      return state.rpcConfig?.chainId === 1
     },
     nativeCurrency(state: RpcConfigState) {
       const { rpcConfig } = state
