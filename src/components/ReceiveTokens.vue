@@ -53,7 +53,9 @@ async function copyToClipboard(value: string) {
     </div>
     <div class="space-y-1 space-x-2 flex justify-center items-baseline">
       <p class="text-xs text-zinc-400">Network:</p>
-      <p class="text-base sm:text-sm">{{ rpcStore.rpcConfig?.chainName }}</p>
+      <p class="text-base sm:text-[12px]">
+        {{ rpcStore.rpcConfig?.chainName }}
+      </p>
     </div>
     <div class="flex justify-center items-center">
       <canvas
