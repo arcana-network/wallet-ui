@@ -4,26 +4,18 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import contractMap from '@/contract-map.json'
+import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import getTokenBalance from '@/utils/getTokenBalance'
 
-type AssetContract = {
-  address: string
-  symbol: string
-  decimals: number
-  logo?: string
-  name?: string
-}
-
 const router = useRouter()
-const ethMainnetTokens: (AssetContract & {
-  erc20: boolean
-  erc721: boolean
-})[] = Object.keys(contractMap).map((address) => ({
-  ...contractMap[address],
-  address,
-}))
+const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
+  (address) => ({
+    ...contractMap[address],
+    address,
+  })
+)
 const rpcStore = useRpcStore()
 const toast = useToast()
 const userStore = useUserStore()

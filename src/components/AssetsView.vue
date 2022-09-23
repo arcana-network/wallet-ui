@@ -2,6 +2,7 @@
 import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
+import type { Asset, AssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import {
@@ -10,16 +11,6 @@ import {
 } from '@/utils/formatTokenDecimals'
 import getImageAsset from '@/utils/getImageAsset'
 import getTokenBalance from '@/utils/getTokenBalance'
-
-type AssetContract = {
-  logo?: string
-  name?: string
-  address: string
-  symbol: string
-  decimals: number
-}
-
-type Asset = Omit<AssetContract, 'address' | 'decimals'> & { balance: number }
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -45,7 +36,7 @@ function fetchNativeAsset() {
       rpcStore.nativeCurrency.decimals
     ),
     symbol: rpcStore.nativeCurrency.symbol,
-    logo: 'arcana-fallback-token-logo.png',
+    logo: 'arcana-fallback-token-logo.svg',
   }
 }
 
@@ -62,7 +53,7 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: formatTokenDecimals(balance, contract.decimals),
-      logo: contract.logo || 'arcana-fallback-token-logo.png',
+      logo: contract.logo || 'arcana-fallback-token-logo.svg',
     })
   })
 }
