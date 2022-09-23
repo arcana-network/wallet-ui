@@ -225,7 +225,7 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center h-screen">
+  <div v-if="loader.show" class="flex justify-center items-center h-full">
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>

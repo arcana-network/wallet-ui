@@ -27,6 +27,10 @@ const ethMainnetTokens: (AssetContract & {
 const rpcStore = useRpcStore()
 const toast = useToast()
 const userStore = useUserStore()
+const loader = reactive({
+  show: false,
+  message: 'Saving token...',
+})
 
 const tokenContract: AssetContract = reactive({
   address: '',
@@ -54,6 +58,7 @@ function handleCancel() {
 }
 
 async function addTokenContract() {
+  loader.show = true
   const assetContractsString = localStorage.getItem(
     `${rpcStore.rpcConfig?.chainId}-asset-contracts`
   )
@@ -66,16 +71,18 @@ async function addTokenContract() {
         (contract) => contract.address === tokenContract.address
       )
     ) {
+      loader.show = false
       return toast.error('Token already added')
     }
-    if (
-      !rpcStore.isEthereumMainnet &&
-      ethMainnetTokens.find(
-        (contract) => contract.address === tokenContract.address
-      )
-    ) {
-      return toast.error('Token belongs to Ethereum Mainnet')
-    }
+  }
+  if (
+    !rpcStore.isEthereumMainnet &&
+    ethMainnetTokens.find(
+      (contract) => contract.address === tokenContract.address
+    )
+  ) {
+    loader.show = false
+    return toast.error('Token belongs to Ethereum Mainnet')
   }
   try {
     await getTokenBalance(
@@ -84,6 +91,7 @@ async function addTokenContract() {
       tokenContract.address
     )
   } catch (e) {
+    loader.show = false
     return toast.error('Invalid contract address')
   }
   assetContracts.push({ ...tokenContract })
@@ -91,6 +99,7 @@ async function addTokenContract() {
     `${rpcStore.rpcConfig?.chainId}-asset-contracts`,
     JSON.stringify(assetContracts)
   )
+  loader.show = false
   toast.success('Token Added successfully')
   router.push({ name: 'homeScreen' })
 }
@@ -98,10 +107,16 @@ async function addTokenContract() {
 
 <template>
   <div class="wallet__body mb-[2.5rem]">
+    <div
+      v-if="loader.show"
+      class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
+    >
+      <p class="sm:text-xs text-black dark:text-white">{{ loader.message }}</p>
+    </div>
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
-        <div>
+        <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"
               >Search Token</label
