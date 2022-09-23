@@ -7,6 +7,7 @@ import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import ChangeChain from '@/components/ChangeChain.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -58,9 +59,7 @@ let parentConnection: Connection<ParentConnectionApi> | null = null
 onMounted(async () => {
   connectToParent()
   await getRpcConfig()
-  await initAccountHandler()
-  await getWalletBalance()
-  await getCurrencyExchangeRate()
+  await init()
 })
 
 watch(showModal, () => {
@@ -74,6 +73,10 @@ watch(showModal, () => {
   }
 })
 
+watch(rpcConfig, () => {
+  init()
+})
+
 function showLoader(message) {
   loader.value.show = true
   loader.value.message = `${message}...`
@@ -82,6 +85,12 @@ function showLoader(message) {
 function hideLoader() {
   loader.value.show = false
   loader.value.message = ''
+}
+
+async function init() {
+  await initAccountHandler()
+  await getWalletBalance()
+  await getCurrencyExchangeRate()
 }
 
 async function initAccountHandler() {
@@ -259,11 +268,11 @@ onBeforeRouteLeave((to) => {
         </button>
       </div>
     </div>
-    <div class="space-y-1">
+    <div class="space-y-1 relative pb-14 sm:pb-8">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-        {{ rpcConfig.chainName }}
-      </p>
+      <div class="w-full rounded-lg absolute">
+        <ChangeChain />
+      </div>
     </div>
     <div
       class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
