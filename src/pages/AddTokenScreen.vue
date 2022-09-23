@@ -3,6 +3,7 @@ import { reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
@@ -110,6 +111,7 @@ async function addTokenContract() {
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
+        <SearchToken :tokens="ethMainnetTokens" />
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"
