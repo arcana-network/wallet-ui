@@ -6,7 +6,7 @@ function formatTokenDecimals(balance: string | number, decimals = 0) {
   return balance / divider
 }
 
-function beautifyBalance(balance: number, decimals = 2) {
+function beautifyBalance(balance: number, decimals = 3) {
   const base = Math.pow(10, decimals)
   return Math.round(balance * base) / base
 }

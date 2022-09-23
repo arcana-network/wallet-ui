@@ -98,7 +98,7 @@ rpcStore.$subscribe(getAssetsBalance)
         class="assets-view__asset-balance flex flex-wrap leading-none"
         :title="`${asset.balance} ${asset.symbol}`"
       >
-        {{ beautifyBalance(asset.balance, 5) }}
+        {{ beautifyBalance(asset.balance) }}
         {{ asset.symbol }}
       </div>
     </div>
