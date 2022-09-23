@@ -1,29 +1,30 @@
 <script setup lang="ts">
-import { onMounted, Ref, ref } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import {
+  formatTokenDecimals,
+  beautifyBalance,
+} from '@/utils/formatTokenDecimals'
+import getImageAsset from '@/utils/getImageAsset'
 import getTokenBalance from '@/utils/getTokenBalance'
-
-type Asset = {
-  name?: string
-  balance: string
-  symbol: string
-  decimals: number
-}
 
 type AssetContract = {
   logo?: string
+  name?: string
   address: string
   symbol: string
   decimals: number
 }
 
+type Asset = Omit<AssetContract, 'address' | 'decimals'> & { balance: number }
+
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
-const assets: Ref<Asset[]> = ref([])
+const assets: Asset[] = reactive([])
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = localStorage.getItem(
@@ -39,14 +40,17 @@ function fetchStoredAssetContracts(): AssetContract[] {
 function fetchNativeAsset() {
   return {
     name: rpcStore.nativeCurrency.name,
-    balance: rpcStore.walletbalance,
-    decimals: rpcStore.nativeCurrency.decimals,
+    balance: formatTokenDecimals(
+      rpcStore.walletbalance,
+      rpcStore.nativeCurrency.decimals
+    ),
     symbol: rpcStore.nativeCurrency.symbol,
+    logo: 'arcana-fallback-token-logo.png',
   }
 }
 
 async function getAssetsBalance() {
-  assets.value.push(fetchNativeAsset())
+  assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach(async (contract) => {
     const balance = await getTokenBalance(
@@ -54,25 +58,17 @@ async function getAssetsBalance() {
       userStore.walletAddress,
       contract.address
     )
-    assets.value.push({
-      name: contract.symbol,
+    assets.push({
+      name: contract.name || contract.symbol,
       symbol: contract.symbol,
-      decimals: contract.decimals,
-      balance,
+      balance: formatTokenDecimals(balance, contract.decimals),
+      logo: contract.logo || 'arcana-fallback-token-logo.png',
     })
   })
 }
 
 function handleAddToken() {
   router.push({ name: 'addToken' })
-}
-
-function formatDecimals(balance: string | number, decimals = 0) {
-  const divider = Math.pow(10, decimals)
-  if (typeof balance !== 'number') {
-    balance = Number(balance)
-  }
-  return balance / divider
 }
 
 onMounted(getAssetsBalance)
@@ -99,11 +95,20 @@ rpcStore.$subscribe(getAssetsBalance)
       class="flex justify-between items-center py-[1.25rem]"
     >
       <div class="flex items-center gap-3">
-        <img src="@/assets/images/plus-circle.svg" class="w-[1.25rem] invert" />
-        <span class="assets-view__asset-name">{{ asset.name }}</span>
+        <img
+          :src="getImageAsset(`token-logos/${asset.logo}`)"
+          class="w-[1.25rem] aspect-square rounded-full"
+        />
+        <span class="assets-view__asset-name leading-none">{{
+          asset.name
+        }}</span>
       </div>
-      <div class="assets-view__asset-balance">
-        {{ formatDecimals(asset.balance, asset.decimals) }} {{ asset.symbol }}
+      <div
+        class="assets-view__asset-balance flex flex-wrap leading-none"
+        :title="`${asset.balance} ${asset.symbol}`"
+      >
+        {{ beautifyBalance(asset.balance, 5) }}
+        {{ asset.symbol }}
       </div>
     </div>
   </div>

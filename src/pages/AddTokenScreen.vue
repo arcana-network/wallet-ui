@@ -12,12 +12,12 @@ type AssetContract = {
   address: string
   symbol: string
   decimals: number
+  logo?: string
+  name?: string
 }
 
 const router = useRouter()
 const ethMainnetTokens: (AssetContract & {
-  name: string
-  logo: string
   erc20: boolean
   erc721: boolean
 })[] = Object.keys(contractMap).map((address) => ({
@@ -49,6 +49,8 @@ watch(
       tokenContract.address = selectedTokenContract.address
       tokenContract.symbol = selectedTokenContract.symbol
       tokenContract.decimals = selectedTokenContract.decimals
+      tokenContract.logo = selectedTokenContract.logo
+      tokenContract.name = selectedTokenContract.name
     }
   }
 )
