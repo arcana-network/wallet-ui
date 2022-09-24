@@ -43,7 +43,7 @@ const penpalMethods = {
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
-  getAvailableLogins: () => availableLogins.value,
+  getAvailableLogins: () => [...availableLogins.value],
 }
 
 const cleanup = () => {

@@ -80,7 +80,10 @@ async function handleSendToken() {
       gasPrice: ethers.utils.parseEther(`${gasFeeInGwei.value}`).toHexString(),
       from: userStore.walletAddress,
     }
-    const accountHandler = new AccountHandler(userStore.privateKey)
+    const accountHandler = new AccountHandler(
+      userStore.privateKey,
+      rpcStore.rpcConfig?.rpcUrls[0]
+    )
     await accountHandler.requestSendTransaction(payload)
     toast.success('Tokens sent Successfully')
   } catch (err: object) {

@@ -15,11 +15,9 @@ export class AccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(privateKey: string) {
+  constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.JsonRpcProvider(
-      process.env.VUE_APP_WALLET_RPC_URL
-    )
+    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   }
 
   getAccount(): { address: string; publicKey: string } {
