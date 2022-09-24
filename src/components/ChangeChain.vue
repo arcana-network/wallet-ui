@@ -108,9 +108,9 @@ watch(selectedChain, () => {
 </script>
 
 <template>
-  <Listbox v-model="selectedChain">
+  <Listbox v-slot="{ open }" v-model="selectedChain">
     <ListboxButton
-      class="text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 bg-gradient w-full h-14 sm:h-8 outline-none border-none"
+      class="flex justify-between items-center text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 bg-gradient w-full h-14 sm:h-8 outline-none border-none"
     >
       <div class="flex space-x-1 items-center">
         <img
@@ -120,6 +120,12 @@ watch(selectedChain, () => {
         />
         <p>{{ selectedChain.chainName }}</p>
       </div>
+      <img
+        :src="getImage('arrow-icon')"
+        alt="drop down"
+        class="transition-transform"
+        :class="{ 'rotate-180': open }"
+      />
     </ListboxButton>
 
     <ListboxOptions
