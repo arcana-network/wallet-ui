@@ -1,82 +1,84 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const userStore = useUserStore()
+const appStore = useAppStore()
+const router = useRouter()
+const requestStore = useRequestStore()
+
+const currentRoute = computed(() => {
+  return router.currentRoute.value.name?.toString()
+})
+
+function isCurrentRoute(pathName) {
+  return currentRoute.value === pathName
+}
+
+function getAppropriateIcon(iconName, pathName) {
+  const isDark = appStore.theme === 'dark'
+  if (isCurrentRoute(pathName))
+    return getImage(iconName, isDark ? 'light' : 'dark')
+  else return getImage(iconName)
+}
 </script>
 
 <template>
   <footer
-    class="footer"
-    :class="{ 'footer--space-between': userStore.isLoggedIn }"
+    class="relative flex items-center justify-end h-8"
+    :class="{ 'justify-between': userStore.isLoggedIn }"
   >
-    <router-link
-      v-if="userStore.isLoggedIn"
-      to="/"
-      class="footer__profileicon-link"
-    >
-      <img
-        :src="getImage('home-icon')"
-        alt="home-icon"
-        class="footer__profileicon-img"
-      />
-    </router-link>
-    <div class="footer__poweredby-container">
-      <p class="footer__poweredby-text">Powered by</p>
+    <div v-if="userStore.isLoggedIn" class="flex space-x-4">
+      <router-link to="/requests" class="relative">
+        <img
+          :src="getAppropriateIcon('home-icon', 'requests')"
+          alt="request"
+          class="w-6 h-6"
+          :class="{
+            'bg-black dark:bg-white p-[2px] rounded-md':
+              isCurrentRoute('requests'),
+          }"
+        />
+        <div
+          v-if="requestStore.areRequestsPendingForApproval"
+          class="w-[9px] h-[9px] bg-red-700 rounded-full absolute top-[1px] right-[1px]"
+          :class="{
+            'animate-ping': requestStore.areRequestsPendingForApproval,
+          }"
+        ></div>
+      </router-link>
+      <router-link to="/">
+        <img
+          :src="getAppropriateIcon('coins-stacked-icon', 'home')"
+          alt="home"
+          class="w-6 h-6"
+          :class="{
+            'bg-black dark:bg-white p-[2px] rounded-md': isCurrentRoute('home'),
+          }"
+        />
+      </router-link>
+      <router-link to="/profileScreen">
+        <img
+          :src="getAppropriateIcon('profile-icon', 'profile')"
+          alt="profile"
+          class="w-6 h-6"
+          :class="{
+            'bg-black dark:bg-white p-[2px] rounded-md':
+              isCurrentRoute('profile'),
+          }"
+        />
+      </router-link>
+    </div>
+    <div class="flex items-center justify-center">
       <a href="https://arcana.network/" target="_blank">
-        <img class="footer__poweredby-img" :src="getImage('arcana-logo')" />
+        <img class="w-16 h-auto" :src="getImage('powered-by-arcana')" />
       </a>
     </div>
-    <router-link
-      v-if="userStore.isLoggedIn"
-      to="/profileScreen"
-      class="footer__profileicon-link"
-    >
-      <img
-        :src="getImage('profile-icon')"
-        alt="profile-icon"
-        class="footer__profileicon-img"
-      />
-    </router-link>
   </footer>
 </template>
-
-<style scoped>
-.footer {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 20px;
-}
-
-.footer__poweredby-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.footer__poweredby-container * + * {
-  margin-left: 5px;
-}
-
-.footer__poweredby-text {
-  font-size: var(--fs-300);
-  font-weight: 400;
-}
-
-.footer__poweredby-img {
-  width: 60px;
-  height: 15px;
-}
-
-.footer__profileicon-img {
-  width: 20px;
-  height: 20px;
-}
-
-.footer--space-between {
-  justify-content: space-between;
-}
-</style>
