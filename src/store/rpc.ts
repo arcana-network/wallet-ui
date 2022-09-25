@@ -1,9 +1,11 @@
-import type { RpcConfig } from '@arcana/auth'
 import { defineStore } from 'pinia'
 
+import type { RpcConfigWallet } from '@/models/RpcConfig'
+
 type RpcConfigState = {
-  rpcConfig: RpcConfig | null
+  rpcConfig: RpcConfigWallet | null
   walletbalance: string
+  chainList: Array<RpcConfigWallet>
 }
 
 export const useRpcStore = defineStore('rpcStore', {
@@ -11,6 +13,7 @@ export const useRpcStore = defineStore('rpcStore', {
     ({
       rpcConfig: null,
       walletbalance: '',
+      chainList: [],
     } as RpcConfigState),
 
   getters: {
@@ -27,7 +30,13 @@ export const useRpcStore = defineStore('rpcStore', {
   },
 
   actions: {
-    setRpcConfig(rpcConfig: RpcConfig | null): void {
+    addNetwork(rpcConfig: RpcConfigWallet) {
+      this.chainList.push(rpcConfig)
+    },
+    setChainList(chainList: Array<RpcConfigWallet>) {
+      this.chainList = chainList
+    },
+    setRpcConfig(rpcConfig: RpcConfigWallet | null): void {
       this.rpcConfig = rpcConfig
     },
     setWalletBalance(balance): void {
