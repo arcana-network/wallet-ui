@@ -5,9 +5,10 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { useRpcStore } from '@/store/rpc'
+import { getChainList } from '@/utils/chainList'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['addNetwork'])
@@ -15,97 +16,29 @@ const emits = defineEmits(['addNetwork'])
 const rpcStore = useRpcStore()
 const getImage = useImage()
 
-const ChainList = [
-  {
-    chainId: 1,
-    rpcUrls: ['https://cloudflare-eth.com/'],
-    chainName: 'Ethereum Mainnet',
-    blockExplorerUrls: ['https://etherscan.io/'],
-    favicon: getImage('ethereum-icon'),
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 3,
-    rpcUrls: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-    chainName: 'Ethereum Ropsten (Testnet)',
-    blockExplorerUrls: ['https://ropsten.etherscan.io/'],
-    favicon: getImage('ethereum-icon'),
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 4,
-    rpcUrls: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-    chainName: 'Ethereum Rinkeby (Testnet)',
-    blockExplorerUrls: ['https://rinkeby.etherscan.io/'],
-    favicon: getImage('ethereum-icon'),
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 5,
-    rpcUrls: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-    chainName: 'Ethereum Goerli (Testnet)',
-    blockExplorerUrls: ['https://goerli.etherscan.io/'],
-    favicon: getImage('ethereum-icon'),
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 137,
-    rpcUrls: ['https://polygon-rpc.com'],
-    chainName: 'Polygon Mainnet',
-    blockExplorerUrls: ['https://polygonscan.com'],
-    favicon: getImage('polygon-icon'),
-    nativeCurrency: {
-      symbol: 'matic',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 80001,
-    rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
-    chainName: 'Polygon Mumbai (Testnet)',
-    blockExplorerUrls: ['https://mumbai-explorer.matic.today'],
-    favicon: getImage('polygon-icon'),
-    nativeCurrency: {
-      symbol: 'matic',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 40405,
-    rpcUrls: ['https://blockchain001-testnet.arcana.network/'],
-    chainName: 'Arcana (Testnet)',
-    blockExplorerUrls: ['https://explorer.beta.arcana.network/'],
-    favicon: getImage('arcana-icon'),
-  },
-  {
-    chainId: 40404,
-    rpcUrls: ['https://blockchain-dev.arcana.network'],
-    chainName: 'Arcana Dev',
-    blockExplorerUrls: ['https://explorer.dev.arcana.network/'],
-    favicon: getImage('arcana-icon'),
-  },
-]
-
-const chainFromParentApp = ChainList.find((chain) => {
-  return rpcStore.rpcConfig?.chainId === chain.chainId
+onMounted(() => {
+  if (!rpcStore.chainList.length) {
+    rpcStore.setChainList(getChainList())
+  }
 })
 
-const selectedChain = ref(chainFromParentApp || ChainList[0])
+const chainFromParentApp = rpcStore.chainList.find((chain) => {
+  return (
+    rpcStore.rpcConfig?.chainId === chain.chainId &&
+    rpcStore.rpcConfig?.chainName === chain.chainName
+  )
+})
+
+const selectedChain = ref(chainFromParentApp || rpcStore.chainList[0])
 
 watch(selectedChain, () => {
   rpcStore.setRpcConfig(selectedChain.value)
+})
+
+rpcStore.$onAction(({ name, store, args }) => {
+  if (name === 'addNetwork') {
+    store.setRpcConfig(args[0])
+  }
 })
 </script>
 
@@ -147,7 +80,7 @@ watch(selectedChain, () => {
         class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
       >
         <ListboxOption
-          v-for="chain in ChainList"
+          v-for="chain in rpcStore.chainList"
           :key="chain.chainName"
           :value="chain"
           class="cursor-pointer"
