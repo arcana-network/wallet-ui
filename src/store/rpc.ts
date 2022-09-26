@@ -1,37 +1,61 @@
-import type { RpcConfig } from '@arcana/auth'
 import { defineStore } from 'pinia'
 
+import {
+  RpcConfigWallet,
+  DEFAULT_CHAIN_ID,
+  CHAIN_LIST,
+} from '@/models/RpcConfigList'
+
+type RpcConfigs = {
+  [chainId: number]: RpcConfigWallet
+}
+
 type RpcConfigState = {
-  rpcConfig: RpcConfig | null
+  selectedChainId: number
   walletbalance: string
+  rpcConfigs: RpcConfigs | null
 }
 
 export const useRpcStore = defineStore('rpcStore', {
   state: () =>
     ({
-      rpcConfig: null,
+      selectedChainId: DEFAULT_CHAIN_ID,
       walletbalance: '',
+      rpcConfigs: null,
     } as RpcConfigState),
 
   getters: {
-    currency(state: RpcConfigState): string {
-      const { rpcConfig } = state
+    currency(): string {
       if (this.isArcanaNetwork) return 'XAR'
-      if (rpcConfig?.nativeCurrency) return rpcConfig.nativeCurrency.symbol
+      if (this.selectedRpcConfig?.nativeCurrency)
+        return this.selectedRpcConfig.nativeCurrency.symbol
       else return ''
     },
     isArcanaNetwork() {
-      const chainName: string = this.rpcConfig?.chainName?.toLowerCase() || ''
+      const chainName: string =
+        this.selectedRpcConfig?.chainName?.toLowerCase() || ''
       return chainName.includes('arcana')
+    },
+    selectedRpcConfig(state: RpcConfigState): RpcConfigWallet {
+      const { selectedChainId } = state
+      if (this.rpcConfigs) return this.rpcConfigs[selectedChainId]
+      else return CHAIN_LIST[DEFAULT_CHAIN_ID]
     },
   },
 
   actions: {
-    setRpcConfig(rpcConfig: RpcConfig | null): void {
-      this.rpcConfig = rpcConfig
+    setSelectedChainId(chainId: number): void {
+      this.selectedChainId = chainId
     },
     setWalletBalance(balance): void {
       this.walletbalance = balance
+    },
+    setRpcConfigs(list: Array<RpcConfigWallet>) {
+      const configs = {}
+      list.forEach((chainConfig) => {
+        configs[chainConfig.chainId] = chainConfig
+      })
+      this.rpcConfigs = configs
     },
   },
 })

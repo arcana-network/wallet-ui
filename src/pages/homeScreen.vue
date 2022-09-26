@@ -11,6 +11,7 @@ import ChangeChain from '@/components/ChangeChain.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useAppStore } from '@/store/app'
@@ -48,7 +49,7 @@ const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
-const { rpcConfig, currency } = storeToRefs(rpcStore)
+const { selectedChainId, currency } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
@@ -57,6 +58,7 @@ let accountHandler: AccountHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 onMounted(async () => {
+  setRpcConfigs()
   connectToParent()
   await getRpcConfig()
   await getAccountDetails()
@@ -73,7 +75,7 @@ watch(showModal, () => {
   }
 })
 
-watch(rpcConfig, () => {
+watch(selectedChainId, () => {
   getAccountDetails()
 })
 
@@ -100,7 +102,7 @@ async function initAccountHandler() {
 
     accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const walletAddress = accountHandler.getAccounts()[0]
@@ -108,7 +110,7 @@ async function initAccountHandler() {
 
     const walletType = await getWalletType(
       appStore.id,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const keeper = new Keeper(walletType, accountHandler)
@@ -163,13 +165,17 @@ async function handleLogout() {
   })
 }
 
+function setRpcConfigs() {
+  rpcStore.setRpcConfigs(CHAIN_LIST)
+}
+
 async function getRpcConfig() {
   try {
     showLoader('Loading')
-    if (rpcStore.rpcConfig) return
+    if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setRpcConfig(rpcConfig)
+    rpcStore.setSelectedChainId(rpcConfig.chainId)
   } catch (err) {
     console.log({ err })
   } finally {
