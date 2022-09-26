@@ -59,7 +59,7 @@ let parentConnection: Connection<ParentConnectionApi> | null = null
 onMounted(async () => {
   connectToParent()
   await getRpcConfig()
-  await init()
+  await getAccountDetails()
 })
 
 watch(showModal, () => {
@@ -74,7 +74,7 @@ watch(showModal, () => {
 })
 
 watch(rpcConfig, () => {
-  init()
+  getAccountDetails()
 })
 
 function showLoader(message) {
@@ -87,7 +87,7 @@ function hideLoader() {
   loader.value.message = ''
 }
 
-async function init() {
+async function getAccountDetails() {
   await initAccountHandler()
   await getWalletBalance()
   await getCurrencyExchangeRate()
