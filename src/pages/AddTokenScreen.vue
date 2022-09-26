@@ -57,7 +57,6 @@ async function addTokenContract() {
   const assetContractsString = localStorage.getItem(
     `${rpcStore.rpcConfig?.chainId}-asset-contracts`
   )
-  console.log(assetContractsString)
   let assetContracts: AssetContract[] = []
   if (assetContractsString) {
     assetContracts = JSON.parse(assetContractsString) as AssetContract[]
@@ -80,11 +79,12 @@ async function addTokenContract() {
     return toast.error('Token belongs to Ethereum Mainnet')
   }
   try {
-    await getTokenBalance(
-      userStore.privateKey,
-      userStore.walletAddress,
-      tokenContract.address
-    )
+    await getTokenBalance({
+      privateKey: userStore.privateKey,
+      rpcUrl: rpcStore.rpcConfig?.rpcUrls[0] as string,
+      walletAddress: userStore.walletAddress,
+      contractAddress: tokenContract.address,
+    })
   } catch (e) {
     loader.show = false
     return toast.error('Invalid contract address')
@@ -111,7 +111,7 @@ async function addTokenContract() {
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
-        <SearchToken :tokens="ethMainnetTokens" />
+        <!-- <SearchToken :tokens="ethMainnetTokens" /> -->
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"

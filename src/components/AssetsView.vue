@@ -44,11 +44,12 @@ async function getAssetsBalance() {
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach(async (contract) => {
-    const balance = await getTokenBalance(
-      userStore.privateKey,
-      userStore.walletAddress,
-      contract.address
-    )
+    const balance = await getTokenBalance({
+      privateKey: userStore.privateKey,
+      rpcUrl: rpcStore.rpcConfig?.rpcUrls[0] as string,
+      walletAddress: userStore.walletAddress,
+      contractAddress: contract.address,
+    })
     assets.push({
       name: contract.name || contract.symbol,
       symbol: contract.symbol,

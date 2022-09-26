@@ -3,19 +3,22 @@ import { ethers } from 'ethers'
 import ABI from '@/abi.json'
 import { AccountHandler } from '@/utils/accountHandler'
 
-async function getTokenBalance(
-  privateKey: string,
-  walletAddress: string,
+type TokenBalanceParams = {
+  privateKey: string
+  rpcUrl: string
+  walletAddress: string
   contractAddress: string
-): Promise<string> {
-  const accountHandler = new AccountHandler(privateKey)
+}
+
+async function getTokenBalance(data: TokenBalanceParams): Promise<string> {
+  const accountHandler = new AccountHandler(data.privateKey, data.rpcUrl)
   const ethersContract = new ethers.Contract(
-    contractAddress,
+    data.contractAddress,
     ABI,
     accountHandler.provider
   )
 
-  const balance = await ethersContract.balanceOf(walletAddress)
+  const balance = await ethersContract.balanceOf(data.walletAddress)
 
   return balance.toString()
 }
