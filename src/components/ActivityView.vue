@@ -1,7 +1,16 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+
+import { useActivitiesStore } from '@/store/activities'
+import { useRpcStore } from '@/store/rpc'
 
 const isExpanded = ref(false)
+const activitiesStore = useActivitiesStore()
+const rpcStore = useRpcStore()
+
+const activities = computed(() =>
+  activitiesStore.activities(rpcStore.rpcConfig?.chainId as number)
+)
 </script>
 
 <template>

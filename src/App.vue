@@ -166,6 +166,7 @@ body {
 
 #app {
   height: 100%;
+  overflow-x: hidden;
 }
 
 button {
