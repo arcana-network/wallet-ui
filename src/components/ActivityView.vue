@@ -5,90 +5,131 @@ const isExpanded = ref(false)
 </script>
 
 <template>
-  <div class="flex flex-col px-4 py-5 gap-8">
-    <div class="flex flex-col">
+  <div class="flex flex-col px-4 py-5">
+    <div class="flex flex-col gap-8">
       <div class="flex">
         <div class="mr-4">
           <img src="@/assets/images/activities/tx-send.svg" />
         </div>
-        <div class="flex flex-col flex-grow">
+        <div class="flex flex-col flex-grow gap-2">
           <div class="flex">
-            <span>Send</span>
+            <span class="font-bold text-base leading-5">{{ `Send` }}</span>
             <img
-              src="@/assets/images/arrow-icon-dark-mode.png"
-              class="cursor-pointer transition-transform duration-500 will-change-transform"
-              :class="isExpanded ? '-rotate-180' : 'rotate-0'"
+              src="@/assets/images/arrow-up.svg"
+              class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
+              :class="isExpanded ? 'rotate-0' : 'rotate-180'"
               role="button"
               @click="isExpanded = !isExpanded"
             />
           </div>
-          <span>To: 19emj....WA5Cq</span>
-          <div class="flex">
-            <span>Aug 21</span>
+          <span class="text-xs color-secondary"
+            >{{ `To` }}: {{ `19emj....WA5Cq` }}</span
+          >
+          <div class="flex text-xs color-secondary gap-1">
+            <span>{{ `Aug 21` }}</span>
             <img src="@/assets/images/gray-circle-filled.svg" />
-            <span>Status: </span>
-            <span>Pending</span>
+            <span>Status:</span>
+            <span class="color-state-yellow">{{ `Pending` }}</span>
           </div>
         </div>
-        <div class="flex flex-col items-end">
-          <span>2 ETH</span>
-          <span>2,694 USD</span>
+        <div class="flex flex-col items-end gap-1">
+          <span
+            class="font-bold text-base leading-5"
+            :class="'color-state-red'"
+            >{{ `2 ETH` }}</span
+          >
+          <span class="flex text-xs text-secondary">
+            {{ `2,694 USD` }}
+          </span>
         </div>
       </div>
       <div v-if="isExpanded" class="flex flex-col">
-        <hr />
+        <hr
+          class="border-solid border-0 border-t-[1px] activity-view__border-gray mb-4"
+        />
         <div v-if="false">
           <div class="flex flex-col">
-            <span>Recepient</span>
-            <span>19emj...WA5Cq</span>
+            <span
+              class="font-montserrat color-secondary text-xs font-semibold"
+              >{{ `Recepient` }}</span
+            >
+            <span class="text-base font-normal leading-5">
+              {{ `19emj...WA5Cq` }}
+            </span>
           </div>
         </div>
         <div v-else>
-          <div class="flex">
-            <div class="flex flex-col">
-              <span>From</span>
-              <span>19emj...WA5Cq</span>
+          <div class="flex flex-col gap-5">
+            <div class="flex justify-between">
+              <div class="flex flex-col">
+                <span
+                  class="font-montserrat color-secondary text-xs font-semibold"
+                  >From</span
+                >
+                <span class="text-base font-normal leading-5">
+                  {{ `19emj...WA5Cq` }}
+                </span>
+              </div>
+              <img src="@/assets/images/arrow-right.svg" />
+              <div class="flex flex-col">
+                <span
+                  class="font-montserrat color-secondary text-xs font-semibold"
+                  >To</span
+                >
+                <span class="text-base font-normal leading-5">
+                  {{ `19emj...WA5Cq` }}
+                </span>
+              </div>
             </div>
-            <img src="@/assets/images/arrow-right.svg" />
-            <div class="flex flex-col">
-              <span>To</span>
-              <span>19emj...WA5Cq</span>
+            <div class="flex flex-col gap-4">
+              <span
+                class="font-montserrat color-secondary text-xs font-semibold"
+                >Transaction Details</span
+              >
+              <div class="flex flex-col gap-5 text-base font-normal leading-5">
+                <div class="flex justify-between">
+                  <span>Nonce</span>
+                  <span>{{ 5 }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Amount</span>
+                  <span class="font-bold">{{ `2 ETH` }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Gas Limits (Units)</span>
+                  <span>{{ 0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Gas Used (Units)</span>
+                  <span>{{ 0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Gas Price</span>
+                  <span>{{ 0 }}</span>
+                </div>
+              </div>
+              <div
+                class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] activity-view__border-gray text-base font-bold leading-5"
+              >
+                <span>Total:</span>
+                <span :class="'color-state-red'">{{ `2 ETH` }}</span>
+              </div>
+            </div>
+            <div class="flex justify-center">
+              <a :href="`#`" class="flex font-montserrat font-medium text-xs">
+                View on Explorer
+                <img src="@/assets/images/arrow-up-right.svg" />
+              </a>
             </div>
           </div>
-          <div class="flex flex-col">
-            <span>Transaction Details</span>
-            <div class="flex justify-between">
-              <span>Nonce</span>
-              <span>5</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Amount</span>
-              <span>2 ETH</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Gas Limits (Units)</span>
-              <span>0</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Gas Used (Units)</span>
-              <span>0</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Gas Price</span>
-              <span>0</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Total:</span>
-              <span>2 ETH</span>
-            </div>
-          </div>
-        </div>
-        <div>
-          <a href="#" class="flex">
-            View on Explorer <img src="@/assets/images/arrow-up-right.svg" />
-          </a>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.activity-view__border-gray {
+  border-color: rgb(247 247 247 / 20%);
+}
+</style>
