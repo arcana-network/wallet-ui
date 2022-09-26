@@ -9,6 +9,7 @@
     --glow-stop-color: rgb(234 234 234 / 84%);
     --bg-gradient-start-color: #eee;
     --bg-gradient-stop-color: #eee;
+    --tab-shadow-color: rgb(255 255 255 / 25%);
   }
 
   .dark {
@@ -17,6 +18,11 @@
     --glow-stop-color: rgb(28 28 28 / 84%);
     --bg-gradient-start-color: #161616;
     --bg-gradient-stop-color: #151515;
+    --tab-shadow-color: rgb(0 0 0 / 25%);
+  }
+
+  .tab-shadow {
+    box-shadow: inset 0 4px 4px var(--tab-shadow-color);
   }
 
   .glow {
@@ -31,9 +37,5 @@
       var(--bg-gradient-start-color) -4.56%,
       var(--bg-gradient-stop-color) 135.63%
     );
-  }
-
-  .full-bleed {
-    margin: 0 calc(1px - var(--p-400));
   }
 }
