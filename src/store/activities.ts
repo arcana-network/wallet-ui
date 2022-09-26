@@ -16,12 +16,14 @@ type FileOps =
   | 'Transfer Ownership'
   | 'Delete'
 
+type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
+
 type Activity = {
   transaction: {
     hash: string
     operation: TransactionOps | FileOps
     date: string
-    status: 'Success' | 'Unapproved' | 'Pending'
+    status: ActivityStatus
     amount: number
     nonce: number
     gasLimit: number
@@ -64,4 +66,4 @@ export const useActivitiesStore = defineStore('activitiesStore', {
   },
 })
 
-export type { ChainId, Activity, TransactionOps, FileOps }
+export type { ChainId, Activity, TransactionOps, FileOps, ActivityStatus }
