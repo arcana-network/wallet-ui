@@ -45,13 +45,17 @@ function getAppropriateIcon(iconName, pathName) {
               isCurrentRoute('requests'),
           }"
         />
-        <div
+        <span
           v-if="requestStore.areRequestsPendingForApproval"
-          class="w-[9px] h-[9px] bg-red-700 rounded-full absolute top-[1px] right-[1px]"
-          :class="{
-            'animate-ping': requestStore.areRequestsPendingForApproval,
-          }"
-        ></div>
+          class="flex h-[9px] w-[9px] absolute top-[1px] right-[1px]"
+        >
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-[9px] w-[9px] bg-red-700"
+          ></span>
+        </span>
       </router-link>
       <router-link to="/">
         <img
