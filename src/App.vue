@@ -61,6 +61,7 @@ function init() {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=block');
 @import '@/assets/css/reset.css';
 
 :root {
@@ -69,6 +70,9 @@ function init() {
   --color-philippine-gray: #8d8d8d;
   --color-light-disabled: #f9f9f9af;
   --color-dark-disabled: #101010af;
+  --color-state-green: #5dab5c;
+  --color-state-red: #b43030;
+  --color-state-yellow: #b07641;
   --color-gradient-light: linear-gradient(
     324.81deg,
     #d6d8d9 14.65%,
@@ -171,6 +175,26 @@ button {
   cursor: pointer;
   background: transparent;
   outline: none;
+}
+
+.font-montserrat {
+  font-family: Montserrat, sans-serif;
+}
+
+.color-secondary {
+  color: var(--color-philippine-gray);
+}
+
+.color-state-green {
+  color: var(--color-state-green);
+}
+
+.color-state-red {
+  color: var(--color-state-red);
+}
+
+.color-state-yellow {
+  color: var(--color-state-yellow);
 }
 
 @media (max-width: 235px) {
