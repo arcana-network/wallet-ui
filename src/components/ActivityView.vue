@@ -242,6 +242,7 @@ function getAmount(amount: bigint) {
               <a
                 :href="`${rpcStore.rpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
                 class="flex font-montserrat font-medium text-xs"
+                target="_blank"
               >
                 View on Explorer
                 <img src="@/assets/images/arrow-up-right.svg" />
