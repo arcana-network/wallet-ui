@@ -34,7 +34,7 @@ function isChainIdExist(chainId) {
   return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
-function onSubmit() {
+function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
   if (isRpcURLExist(rpcUrl)) {
@@ -70,7 +70,7 @@ function onSubmit() {
         <img :src="getImage('close-icon')" alt="close form" />
       </button>
     </div>
-    <form class="space-y-3 sm:space-y-2" @submit.prevent="onSubmit">
+    <form class="space-y-3 sm:space-y-2" @submit.prevent="handleSubmit">
       <div class="space-y-1">
         <label class="text-xs text-zinc-400" for="networkName">
           Network Name
