@@ -20,7 +20,7 @@ const rpcConfig = ref({
 })
 
 function checkIfNameExist(chainName) {
-  return rpcStore.chainList.some((chain) => chain.chainName === chainName)
+  return rpcStore.rpcConfigList.some((chain) => chain.chainName === chainName)
 }
 
 function onSubmit() {
@@ -33,13 +33,14 @@ function onSubmit() {
       chainId: Number(rpcConfig.value.chainId),
       blockExplorerUrls: [rpcConfig.value.explorerUrl],
       rpcUrls: [rpcConfig.value.rpcUrl],
-      favicon: getImage('blockchain-icon'),
+      favicon: 'blockchain-icon',
       nativeCurrency: {
         symbol: rpcConfig.value.currencySymbol,
         decimals: Math.pow(10, 18),
       },
     }
     rpcStore.addNetwork(payload)
+    rpcStore.setSelectedChainId(payload.chainId)
     emits('close')
   }
 }
