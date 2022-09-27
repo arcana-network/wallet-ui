@@ -5,39 +5,25 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue'
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
+import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useRpcStore } from '@/store/rpc'
-import { getChainList } from '@/utils/chainList'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['addNetwork'])
-
 const rpcStore = useRpcStore()
 const getImage = useImage()
 
-onMounted(() => {
-  if (!rpcStore.chainList.length) {
-    rpcStore.setChainList(getChainList())
-  }
-})
-
-const chainFromParentApp = rpcStore.chainList.find((chain) => {
-  return (
-    rpcStore.rpcConfig?.chainId === chain.chainId &&
-    rpcStore.rpcConfig?.chainName === chain.chainName
-  )
-})
-
-const selectedChain = ref(chainFromParentApp || rpcStore.chainList[0])
+const selectedChain = ref(rpcStore.selectedRpcConfig)
 
 watch(selectedChain, () => {
-  rpcStore.setRpcConfig(selectedChain.value)
+  rpcStore.setSelectedChainId(selectedChain.value.chainId)
 })
 
 rpcStore.$onAction(({ name, store, args }) => {
   if (name === 'addNetwork') {
-    store.setRpcConfig(args[0])
+    store.setSelectedChainId(args[0].chainId)
   }
 })
 </script>
@@ -49,7 +35,7 @@ rpcStore.$onAction(({ name, store, args }) => {
     >
       <div class="flex space-x-1 items-center">
         <img
-          :src="selectedChain.favicon"
+          :src="getImage(selectedChain.favicon)"
           :alt="selectedChain.chainName"
           class="w-3 h-3"
         />
@@ -80,14 +66,18 @@ rpcStore.$onAction(({ name, store, args }) => {
         class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
       >
         <ListboxOption
-          v-for="chain in rpcStore.chainList"
+          v-for="chain in CHAIN_LIST"
           :key="chain.chainName"
           :value="chain"
           class="cursor-pointer"
           :class="{ 'text-gray-500': selectedChain.chainId !== chain.chainId }"
         >
           <div class="flex space-x-1 items-center">
-            <img :src="chain.favicon" :alt="chain.chainName" class="w-3 h-3" />
+            <img
+              :src="getImage(chain.favicon)"
+              :alt="chain.chainName"
+              class="w-3 h-3"
+            />
             <p>{{ chain.chainName }}</p>
           </div>
         </ListboxOption>
