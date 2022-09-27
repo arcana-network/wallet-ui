@@ -19,14 +19,30 @@ const rpcConfig = ref({
   explorerUrl: '',
 })
 
-function checkIfNameExist(chainName) {
-  return rpcStore.rpcConfigList.some((chain) => chain.chainName === chainName)
+function isRpcURLExist(url) {
+  const exisitingRpcUrls = rpcStore.rpcConfigList.reduce((acc, val) => {
+    acc.push(...val.rpcUrls)
+    return acc
+  }, [])
+
+  return exisitingRpcUrls.some((rpcUrl) => {
+    return rpcUrl === url
+  })
+}
+
+function isChainIdExist(chainId) {
+  return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
 function onSubmit() {
-  const chainName = rpcConfig.value.networkName
-  if (checkIfNameExist(chainName)) {
-    toast.error(`${chainName} already exists, please use different one`)
+  const rpcUrl = rpcConfig.value.rpcUrl
+  const chainId = rpcConfig.value.chainId
+  if (isRpcURLExist(rpcUrl)) {
+    toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
+  } else if (isChainIdExist(Number(chainId))) {
+    toast.error(
+      `Chain ID - ${chainId} already exists, please use different one`
+    )
   } else {
     const payload = {
       chainName: rpcConfig.value.networkName,
