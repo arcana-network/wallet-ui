@@ -7,9 +7,11 @@ import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import ChangeChain from '@/components/ChangeChain.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useAppStore } from '@/store/app'
@@ -47,7 +49,7 @@ const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
-const { rpcConfig, currency } = storeToRefs(rpcStore)
+const { selectedChainId, currency } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
@@ -56,11 +58,10 @@ let accountHandler: AccountHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 
 onMounted(async () => {
+  setRpcConfigs()
   connectToParent()
   await getRpcConfig()
-  await initAccountHandler()
-  await getWalletBalance()
-  await getCurrencyExchangeRate()
+  await getAccountDetails()
 })
 
 watch(showModal, () => {
@@ -74,6 +75,10 @@ watch(showModal, () => {
   }
 })
 
+watch(selectedChainId, () => {
+  getAccountDetails()
+})
+
 function showLoader(message) {
   loader.value.show = true
   loader.value.message = `${message}...`
@@ -84,6 +89,12 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+async function getAccountDetails() {
+  await initAccountHandler()
+  await getWalletBalance()
+  await getCurrencyExchangeRate()
+}
+
 async function initAccountHandler() {
   showLoader('Please wait')
   try {
@@ -91,7 +102,7 @@ async function initAccountHandler() {
 
     accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const walletAddress = accountHandler.getAccounts()[0]
@@ -99,7 +110,7 @@ async function initAccountHandler() {
 
     const walletType = await getWalletType(
       appStore.id,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const keeper = new Keeper(walletType, accountHandler)
@@ -154,13 +165,17 @@ async function handleLogout() {
   })
 }
 
+function setRpcConfigs() {
+  rpcStore.setRpcConfigs(CHAIN_LIST)
+}
+
 async function getRpcConfig() {
   try {
     showLoader('Loading')
-    if (rpcStore.rpcConfig) return
+    if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setRpcConfig(rpcConfig)
+    rpcStore.setSelectedChainId(rpcConfig.chainId)
   } catch (err) {
     console.log({ err })
   } finally {
@@ -259,11 +274,11 @@ onBeforeRouteLeave((to) => {
         </button>
       </div>
     </div>
-    <div class="space-y-1">
+    <div class="space-y-1 relative pb-14 sm:pb-8">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-        {{ rpcConfig.chainName }}
-      </p>
+      <div class="w-full rounded-lg absolute">
+        <ChangeChain />
+      </div>
     </div>
     <div
       class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"

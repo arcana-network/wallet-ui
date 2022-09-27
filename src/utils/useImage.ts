@@ -7,6 +7,9 @@ const THEME_NEUTRAL_IMAGES = [
   'twitch-icon',
   'reddit-icon',
   'discord-icon',
+  'ethereum-icon',
+  'polygon-icon',
+  'arcana-icon',
 ]
 
 export function useImage() {
