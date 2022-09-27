@@ -41,6 +41,9 @@ export const useRpcStore = defineStore('rpcStore', {
       if (this.rpcConfigs) return this.rpcConfigs[selectedChainId]
       else return CHAIN_LIST[DEFAULT_CHAIN_ID]
     },
+    rpcConfigList(state: RpcConfigState): Array<RpcConfigWallet> {
+      return Object.values(state.rpcConfigs || {})
+    },
   },
 
   actions: {
