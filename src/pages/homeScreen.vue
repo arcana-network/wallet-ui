@@ -167,7 +167,7 @@ async function handleLogout() {
 }
 
 function setRpcConfigs() {
-  rpcStore.setRpcConfigs(CHAIN_LIST)
+  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
 }
 
 async function getRpcConfig() {
