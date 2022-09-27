@@ -14,13 +14,14 @@ const THEME_NEUTRAL_IMAGES = [
 export function useImage() {
   const appStore = useAppStore()
 
-  return function getImage(imageName: string, theme?: Theme): string {
+  return function getImage(
+    imageName: string,
+    theme: Theme = appStore.theme
+  ): string {
     if (THEME_NEUTRAL_IMAGES.includes(imageName)) {
       return require(`@/assets/images/${imageName}.png`)
     } else {
-      return require(`@/assets/images/${imageName}-${
-        theme || appStore.theme
-      }-mode.png`)
+      return require(`@/assets/images/${imageName}-${theme}-mode.png`)
     }
   }
 }
