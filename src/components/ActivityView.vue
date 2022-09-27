@@ -17,12 +17,6 @@ const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
-const transactionOps = [
-  'Send',
-  'Receive',
-  'Contract Interaction',
-  'Contract Deployment',
-]
 
 type ActivityView = Activity & {
   isExpanded?: boolean
@@ -76,10 +70,13 @@ function calculateCurrencyValue(valueInCrypto: bigint) {
 }
 
 function calculateTotal(activity: Activity) {
-  return (
-    activity.transaction.amount +
-    activity.transaction.gasUsed * activity.transaction.gasPrice
-  )
+  if (activity.transaction) {
+    return (
+      activity.transaction.amount +
+      activity.transaction.gasUsed * activity.transaction.gasPrice
+    )
+  }
+  return 0n
 }
 
 function getAmount(amount: bigint) {
@@ -88,23 +85,23 @@ function getAmount(amount: bigint) {
 </script>
 
 <template>
-  <div class="flex flex-col px-4 py-5">
+  <div class="flex flex-col px-4 py-5 gap-8">
     <div
       v-for="activity in activities"
-      :key="activity.transaction.hash"
-      class="flex flex-col gap-8"
+      :key="activity.transaction?.hash || activity.file?.did"
+      class="flex flex-col gap-5"
     >
       <div class="flex">
         <div class="mr-4">
           <img
-            :src="getTransactionIcon(activity.transaction.operation)"
+            :src="getTransactionIcon(activity.operation)"
             class="invert dark:invert-0"
           />
         </div>
         <div class="flex flex-col flex-grow gap-2">
           <div class="flex">
             <span class="font-bold text-base leading-5">
-              {{ truncateOperation(activity.transaction.operation) }}
+              {{ truncateOperation(activity.operation) }}
             </span>
             <img
               src="@/assets/images/arrow-up.svg"
@@ -114,32 +111,32 @@ function getAmount(amount: bigint) {
               @click="activity.isExpanded = !activity.isExpanded"
             />
           </div>
-          <span class="text-xs color-secondary"
+          <span v-if="activity.transaction" class="text-xs color-secondary"
             >To: {{ truncateAddress(activity.address.to) }}</span
           >
+          <span v-if="activity.file" class="text-xs color-secondary"
+            >File DID: {{ truncateAddress(activity.file.did) }}</span
+          >
           <div class="flex text-xs color-secondary gap-1">
-            <span>{{ dayjs(activity.transaction.date).format('MMM D') }}</span>
+            <span>{{ dayjs(activity.date).format('MMM D') }}</span>
             <img src="@/assets/images/gray-circle-filled.svg" />
             <span>Status:</span>
             <span
               :class="
-                activity.transaction.status === 'Success'
+                activity.status === 'Success'
                   ? 'color-state-green'
                   : 'color-state-yellow'
               "
             >
-              {{ activity.transaction.status }}
+              {{ activity.status }}
             </span>
           </div>
         </div>
-        <div
-          v-show="transactionOps.includes(activity.transaction.operation)"
-          class="flex flex-col items-end gap-1"
-        >
+        <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
           <span
             class="font-bold text-base leading-5"
             :class="
-              activity.transaction.operation === 'Receive'
+              activity.operation === 'Receive'
                 ? 'color-state-green'
                 : 'color-state-red'
             "
@@ -154,25 +151,37 @@ function getAmount(amount: bigint) {
           >
         </div>
       </div>
-      <div v-if="activity.isExpanded" class="flex flex-col">
+      <div
+        v-if="
+          activity.isExpanded &&
+          (activity.transaction || activity.file?.recepient)
+        "
+        class="flex flex-col"
+      >
         <hr
           class="border-solid border-0 border-t-[1px] activity-view__border-gray mb-4"
         />
         <div v-if="activity.file?.recepient">
-          <div class="flex flex-col">
+          <div class="flex flex-col gap-[5px]">
             <span
+              v-if="activity.operation === 'Transfer Ownership'"
               class="font-montserrat color-secondary text-xs font-semibold"
-              >{{ `Recepient` }}</span
+              >To</span
+            >
+            <span
+              v-else
+              class="font-montserrat color-secondary text-xs font-semibold"
+              >Recepient</span
             >
             <span class="text-base font-normal leading-5">
               {{ truncateAddress(activity.file.recepient) }}
             </span>
           </div>
         </div>
-        <div v-else>
+        <div v-else-if="activity.transaction">
           <div class="flex flex-col gap-5">
             <div class="flex justify-between">
-              <div class="flex flex-col">
+              <div class="flex flex-col gap-[5px]">
                 <span
                   class="font-montserrat color-secondary text-xs font-semibold"
                   >From</span
@@ -182,7 +191,7 @@ function getAmount(amount: bigint) {
                 </span>
               </div>
               <img src="@/assets/images/arrow-right.svg" />
-              <div class="flex flex-col">
+              <div class="flex flex-col gap-[5px]">
                 <span
                   class="font-montserrat color-secondary text-xs font-semibold"
                   >To</span
@@ -215,7 +224,7 @@ function getAmount(amount: bigint) {
                 </div>
                 <div class="flex justify-between">
                   <span>Gas Used (Units)</span>
-                  <span>{{ activity.transaction.gasUsed }}</span>
+                  <span>{{ activity.transaction?.gasUsed || 0 }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Gas Price</span>
@@ -235,20 +244,23 @@ function getAmount(amount: bigint) {
                 >
               </div>
             </div>
-            <div
-              v-if="rpcStore.rpcConfig?.blockExplorerUrls?.length"
-              class="flex justify-center"
-            >
-              <a
-                :href="`${rpcStore.rpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
-                class="flex font-montserrat font-medium text-xs"
-                target="_blank"
-              >
-                View on Explorer
-                <img src="@/assets/images/arrow-up-right.svg" />
-              </a>
-            </div>
           </div>
+        </div>
+        <div
+          v-if="
+            rpcStore.rpcConfig?.blockExplorerUrls?.length &&
+            activity.transaction
+          "
+          class="flex justify-center my-5"
+        >
+          <a
+            :href="`${rpcStore.rpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
+            class="flex font-montserrat font-medium text-xs"
+            target="_blank"
+          >
+            View on Explorer
+            <img src="@/assets/images/arrow-up-right.svg" />
+          </a>
         </div>
       </div>
     </div>
