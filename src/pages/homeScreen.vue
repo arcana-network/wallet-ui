@@ -7,6 +7,7 @@ import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import AddNetwork from '@/components/AddNetwork.vue'
 import ChangeChain from '@/components/ChangeChain.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
@@ -35,7 +36,7 @@ import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | false
+type ModalState = 'send' | 'receive' | 'add-network' | false
 
 const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
@@ -166,7 +167,7 @@ async function handleLogout() {
 }
 
 function setRpcConfigs() {
-  rpcStore.setRpcConfigs(CHAIN_LIST)
+  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
 }
 
 async function getRpcConfig() {
@@ -250,6 +251,11 @@ function openReceiveTokens(open) {
   showModal.value = open ? 'receive' : false
 }
 
+function openAddNetwork(open) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'add-network' : false
+}
+
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -277,7 +283,7 @@ onBeforeRouteLeave((to) => {
     <div class="space-y-1 relative pb-14 sm:pb-8">
       <p class="text-xs text-zinc-400">Network</p>
       <div class="w-full rounded-lg absolute">
-        <ChangeChain />
+        <ChangeChain @add-network="openAddNetwork(true)" />
       </div>
     </div>
     <div
@@ -336,6 +342,10 @@ onBeforeRouteLeave((to) => {
       <ReceiveTokens
         v-if="showModal === 'receive'"
         @close="openReceiveTokens(false)"
+      />
+      <AddNetwork
+        v-if="showModal === 'add-network'"
+        @close="openAddNetwork(false)"
       />
     </Teleport>
   </div>

@@ -7,10 +7,10 @@ import {
 } from '@headlessui/vue'
 import { ref, watch } from 'vue'
 
-import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
+const emits = defineEmits(['addNetwork'])
 const rpcStore = useRpcStore()
 const getImage = useImage()
 
@@ -42,25 +42,39 @@ watch(selectedChain, () => {
       />
     </ListboxButton>
 
-    <ListboxOptions
-      class="text-base sm:text-[12px] bg-gradient p-3 sm:p-1 space-y-4 sm:space-y-2 overflow-auto h-[250px] rounded-b-lg"
+    <div
+      v-if="open"
+      class="bg-gradient p-3 sm:p-1 h-[250px] overflow-auto divide-y-2"
     >
-      <ListboxOption
-        v-for="chain in CHAIN_LIST"
-        :key="chain.chainName"
-        :value="chain"
-        class="cursor-pointer"
-        :class="{ 'text-gray-500': selectedChain.chainId !== chain.chainId }"
+      <div class="flex justify-end pb-2">
+        <button
+          class="flex items-center space-x-1 h-auto"
+          @click="emits('addNetwork')"
+        >
+          <img :src="getImage('plus-circle-icon')" alt="add network" />
+          <span>Network</span>
+        </button>
+      </div>
+      <ListboxOptions
+        class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
       >
-        <div class="flex space-x-1 items-center">
-          <img
-            :src="getImage(chain.favicon)"
-            :alt="chain.chainName"
-            class="w-3 h-3"
-          />
-          <p>{{ chain.chainName }}</p>
-        </div>
-      </ListboxOption>
-    </ListboxOptions>
+        <ListboxOption
+          v-for="chain in rpcStore.rpcConfigList"
+          :key="chain.chainName"
+          :value="chain"
+          class="cursor-pointer"
+          :class="{ 'text-gray-500': selectedChain.chainId !== chain.chainId }"
+        >
+          <div class="flex space-x-1 items-center">
+            <img
+              :src="getImage(chain.favicon)"
+              :alt="chain.chainName"
+              class="w-3 h-3"
+            />
+            <p>{{ chain.chainName }}</p>
+          </div>
+        </ListboxOption>
+      </ListboxOptions>
+    </div>
   </Listbox>
 </template>

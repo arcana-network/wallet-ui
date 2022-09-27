@@ -10,6 +10,7 @@ const THEME_NEUTRAL_IMAGES = [
   'ethereum-icon',
   'polygon-icon',
   'arcana-icon',
+  'blockchain-icon',
 ]
 
 export function useImage() {
