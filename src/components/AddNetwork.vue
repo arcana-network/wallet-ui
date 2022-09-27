@@ -52,7 +52,7 @@ function onSubmit() {
       favicon: 'blockchain-icon',
       nativeCurrency: {
         symbol: rpcConfig.value.currencySymbol,
-        decimals: Math.pow(10, 18),
+        decimals: 18,
       },
     }
     rpcStore.addNetwork(payload)
