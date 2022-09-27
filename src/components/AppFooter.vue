@@ -14,7 +14,7 @@ const router = useRouter()
 const requestStore = useRequestStore()
 
 const currentRoute = computed(() => {
-  return router.currentRoute.value.name?.toString()
+  return router.currentRoute.value.name
 })
 
 function isCurrentRoute(pathName) {
