@@ -7,7 +7,6 @@ import {
 } from '@headlessui/vue'
 import { ref, watch } from 'vue'
 
-import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
@@ -19,12 +18,6 @@ const selectedChain = ref(rpcStore.selectedRpcConfig)
 
 watch(selectedChain, () => {
   rpcStore.setSelectedChainId(selectedChain.value.chainId)
-})
-
-rpcStore.$onAction(({ name, store, args }) => {
-  if (name === 'addNetwork') {
-    store.setSelectedChainId(args[0].chainId)
-  }
 })
 </script>
 
@@ -66,7 +59,7 @@ rpcStore.$onAction(({ name, store, args }) => {
         class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
       >
         <ListboxOption
-          v-for="chain in CHAIN_LIST"
+          v-for="chain in rpcStore.rpcConfigList"
           :key="chain.chainName"
           :value="chain"
           class="cursor-pointer"
