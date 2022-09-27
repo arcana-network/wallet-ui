@@ -92,7 +92,7 @@ function handleSubmit() {
           required
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. https://blockchain.dev.arcana.network"
+          placeholder="e.g. https://cloudflare-eth.com/"
         />
       </div>
       <div class="space-y-1">
@@ -116,7 +116,7 @@ function handleSubmit() {
           required
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. 40404"
+          placeholder="e.g. 1"
         />
       </div>
       <div class="space-y-1">
@@ -128,7 +128,7 @@ function handleSubmit() {
           v-model="rpcConfig.explorerUrl"
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. https://explorer.dev.arcana.network/"
+          placeholder="e.g. https://etherscan.io/"
         />
       </div>
       <div class="flex justify-center">
