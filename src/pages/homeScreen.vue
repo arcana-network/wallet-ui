@@ -356,7 +356,7 @@ onBeforeRouteLeave((to) => {
     <div class="wallet__body mb-[2.5rem]">
       <BaseTabs v-model="selectedTab" :tabs="tabs" class="mt-1 mx-1" />
       <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
-      <ActivityView v-else />
+      <ActivityView v-else :currency-exchange-rate="exchangeRate" />
     </div>
     <Teleport v-if="showModal" to="#modal-container">
       <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />

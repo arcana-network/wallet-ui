@@ -6,6 +6,7 @@ import { useToast } from 'vue-toastification'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { getGasPrice } from '@/services/gasPrice.service'
+import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -18,6 +19,7 @@ const emits = defineEmits(['close'])
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
+const activitiesStore = useActivitiesStore()
 const getImage = useImage()
 const toast = useToast()
 
@@ -84,7 +86,12 @@ async function handleSendToken() {
       userStore.privateKey,
       rpcStore.rpcConfig?.rpcUrls[0]
     )
-    await accountHandler.requestSendTransaction(payload)
+    const txHash = await accountHandler.requestSendTransaction(payload)
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.rpcConfig?.chainId,
+      txHash,
+      accountHandler,
+    })
     toast.success('Tokens sent Successfully')
   } catch (err: object) {
     if (err && err.reason) {

@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+import { AccountHandler } from '@/utils/accountHandler'
+
 type ChainId = number
 
 type TransactionOps =
@@ -22,21 +24,21 @@ type Activity = {
   transaction: {
     hash: string
     operation: TransactionOps | FileOps
-    date: string
+    date: Date
     status: ActivityStatus
-    amount: number
+    amount: bigint
     nonce: number
-    gasLimit: number
-    gasUsed: number
-    gasPrice: number
-    total: number
+    gasLimit: bigint
+    gasUsed: bigint
+    gasPrice: bigint
   }
   address: {
     from: string
-    to: string
+    to: string | undefined | null
   }
   file?: {
     did: string
+    recepient: string
   }
 }
 
@@ -44,6 +46,12 @@ type ActivitiesState = {
   activitiesByChainId: {
     [key: ChainId]: Activity[]
   }
+}
+
+type TransactionFetchParams = {
+  txHash: string
+  accountHandler: AccountHandler
+  chainId: ChainId
 }
 
 export const useActivitiesStore = defineStore('activitiesStore', {
@@ -61,6 +69,47 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         this.activitiesByChainId[chainId].push(activity)
       } else {
         this.activitiesByChainId[chainId] = [activity]
+      }
+    },
+    updateActivityStatus(
+      chainId: ChainId,
+      txHash: string,
+      status: ActivityStatus
+    ) {
+      const activity = this.activitiesByChainId[chainId].find(
+        (activityByChainId) => activityByChainId.transaction.hash === txHash
+      )
+      if (activity) activity.transaction.status = status
+    },
+    async fetchAndSaveActivityFromHash({
+      txHash,
+      chainId,
+      accountHandler,
+    }: TransactionFetchParams) {
+      const remoteTransaction = await accountHandler.provider.getTransaction(
+        txHash
+      )
+      const activity: Activity = {
+        transaction: {
+          hash: txHash,
+          amount: remoteTransaction.value.toBigInt(),
+          operation: 'Send',
+          date: new Date(),
+          nonce: remoteTransaction.nonce,
+          gasLimit: remoteTransaction.gasLimit.toBigInt(),
+          gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+          gasUsed: remoteTransaction.gasLimit.toBigInt(),
+          status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+        },
+        address: {
+          from: remoteTransaction.from,
+          to: remoteTransaction.to,
+        },
+      }
+      this.saveActivity(chainId, activity)
+      if (!remoteTransaction.blockNumber) {
+        remoteTransaction.wait()
+        this.updateActivityStatus(chainId, txHash, 'Success')
       }
     },
   },

@@ -9,7 +9,7 @@ const THEME_NEUTRAL_IMAGES = [
   'discord-icon',
 ]
 
-export function useImage() {
+function useImage() {
   const appStore = useAppStore()
 
   return function getImage(imageName: string): string {
@@ -20,3 +20,9 @@ export function useImage() {
     }
   }
 }
+
+function getIconAsset(iconPath: string) {
+  return require(`@/assets/images/${iconPath}`)
+}
+
+export { useImage, getIconAsset }

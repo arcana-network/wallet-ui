@@ -1,69 +1,171 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import dayjs from 'dayjs'
+import { ethers } from 'ethers'
+import { computed, ComputedRef } from 'vue'
 
 import { useActivitiesStore } from '@/store/activities'
+import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
+import { beautifyBalance } from '@/utils/formatTokenDecimals'
+import { getIconAsset } from '@/utils/useImage'
 
-const isExpanded = ref(false)
+type ActivityViewProps = {
+  currencyExchangeRate: number | null
+}
+
+const props = defineProps<ActivityViewProps>()
+
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
+const transactionOps = [
+  'Send',
+  'Receive',
+  'Contract Interaction',
+  'Contract Deployment',
+]
 
-const activities = computed(() =>
+type ActivityView = Activity & {
+  isExpanded?: boolean
+}
+
+const activities: ComputedRef<ActivityView[]> = computed(() =>
   activitiesStore.activities(rpcStore.rpcConfig?.chainId as number)
 )
+
+function truncateAddress(address?: string | null) {
+  if (!address) return ''
+  return (
+    address.substring(0, 4) + '....' + address.substring(address.length - 5)
+  )
+}
+
+function truncateOperation(operation: string) {
+  if (operation.length > 12) {
+    return operation.substring(0, 11) + '...'
+  }
+  return operation
+}
+
+function getTransactionIcon(operation: TransactionOps | FileOps) {
+  const interaction = ['Contract Deployment', 'Contract Interaction']
+  if (interaction.includes(operation)) {
+    return getIconAsset('activities/tx-interact.svg')
+  }
+
+  if (operation === 'Transfer Ownership') {
+    return getIconAsset('activities/tx-transfer-ownership.svg')
+  }
+
+  return getIconAsset(`activities/tx-${operation.toLowerCase()}.svg`)
+}
+
+function calculateCurrencyValue(valueInCrypto: bigint) {
+  if (props.currencyExchangeRate) {
+    return {
+      amount: new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(Math.round(Number(valueInCrypto) * props.currencyExchangeRate)),
+      currency: 'USD',
+    }
+  }
+  return {
+    amount: String(getAmount(valueInCrypto)),
+    currency: rpcStore.currency,
+  }
+}
+
+function calculateTotal(activity: Activity) {
+  return (
+    activity.transaction.amount +
+    activity.transaction.gasUsed * activity.transaction.gasPrice
+  )
+}
+
+function getAmount(amount: bigint) {
+  return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
+}
 </script>
 
 <template>
   <div class="flex flex-col px-4 py-5">
-    <div class="flex flex-col gap-8">
+    <div
+      v-for="activity in activities"
+      :key="activity.transaction.hash"
+      class="flex flex-col gap-8"
+    >
       <div class="flex">
         <div class="mr-4">
-          <img src="@/assets/images/activities/tx-send.svg" />
+          <img
+            :src="getTransactionIcon(activity.transaction.operation)"
+            class="invert dark:invert-0"
+          />
         </div>
         <div class="flex flex-col flex-grow gap-2">
           <div class="flex">
-            <span class="font-bold text-base leading-5">{{ `Send` }}</span>
+            <span class="font-bold text-base leading-5">
+              {{ truncateOperation(activity.transaction.operation) }}
+            </span>
             <img
               src="@/assets/images/arrow-up.svg"
               class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
-              :class="isExpanded ? 'rotate-0' : 'rotate-180'"
+              :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
               role="button"
-              @click="isExpanded = !isExpanded"
+              @click="activity.isExpanded = !activity.isExpanded"
             />
           </div>
           <span class="text-xs color-secondary"
-            >{{ `To` }}: {{ `19emj....WA5Cq` }}</span
+            >To: {{ truncateAddress(activity.address.to) }}</span
           >
           <div class="flex text-xs color-secondary gap-1">
-            <span>{{ `Aug 21` }}</span>
+            <span>{{ dayjs(activity.transaction.date).format('MMM D') }}</span>
             <img src="@/assets/images/gray-circle-filled.svg" />
             <span>Status:</span>
-            <span class="color-state-yellow">{{ `Pending` }}</span>
+            <span
+              :class="
+                activity.transaction.status === 'Success'
+                  ? 'color-state-green'
+                  : 'color-state-yellow'
+              "
+            >
+              {{ activity.transaction.status }}
+            </span>
           </div>
         </div>
-        <div class="flex flex-col items-end gap-1">
+        <div
+          v-show="transactionOps.includes(activity.transaction.operation)"
+          class="flex flex-col items-end gap-1"
+        >
           <span
             class="font-bold text-base leading-5"
-            :class="'color-state-red'"
-            >{{ `2 ETH` }}</span
+            :class="
+              activity.transaction.operation === 'Receive'
+                ? 'color-state-green'
+                : 'color-state-red'
+            "
+            >{{ getAmount(activity.transaction.amount) }}
+            {{ rpcStore.currency }}</span
           >
-          <span class="flex text-xs text-secondary">
-            {{ `2,694 USD` }}
-          </span>
+          <span class="flex text-xs text-secondary"
+            >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
+            {{
+              calculateCurrencyValue(activity.transaction.amount).currency
+            }}</span
+          >
         </div>
       </div>
-      <div v-if="isExpanded" class="flex flex-col">
+      <div v-if="activity.isExpanded" class="flex flex-col">
         <hr
           class="border-solid border-0 border-t-[1px] activity-view__border-gray mb-4"
         />
-        <div v-if="false">
+        <div v-if="activity.file?.recepient">
           <div class="flex flex-col">
             <span
               class="font-montserrat color-secondary text-xs font-semibold"
               >{{ `Recepient` }}</span
             >
             <span class="text-base font-normal leading-5">
-              {{ `19emj...WA5Cq` }}
+              {{ truncateAddress(activity.file.recepient) }}
             </span>
           </div>
         </div>
@@ -76,7 +178,7 @@ const activities = computed(() =>
                   >From</span
                 >
                 <span class="text-base font-normal leading-5">
-                  {{ `19emj...WA5Cq` }}
+                  {{ truncateAddress(activity.address.from) }}
                 </span>
               </div>
               <img src="@/assets/images/arrow-right.svg" />
@@ -86,7 +188,7 @@ const activities = computed(() =>
                   >To</span
                 >
                 <span class="text-base font-normal leading-5">
-                  {{ `19emj...WA5Cq` }}
+                  {{ truncateAddress(activity.address.to) }}
                 </span>
               </div>
             </div>
@@ -98,34 +200,49 @@ const activities = computed(() =>
               <div class="flex flex-col gap-5 text-base font-normal leading-5">
                 <div class="flex justify-between">
                   <span>Nonce</span>
-                  <span>{{ 5 }}</span>
+                  <span>{{ activity.transaction.nonce }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Amount</span>
-                  <span class="font-bold">{{ `2 ETH` }}</span>
+                  <span class="font-bold"
+                    >{{ getAmount(activity.transaction.amount) }}
+                    {{ rpcStore.currency }}</span
+                  >
                 </div>
                 <div class="flex justify-between">
                   <span>Gas Limits (Units)</span>
-                  <span>{{ 0 }}</span>
+                  <span>{{ activity.transaction.gasLimit }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Gas Used (Units)</span>
-                  <span>{{ 0 }}</span>
+                  <span>{{ activity.transaction.gasUsed }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Gas Price</span>
-                  <span>{{ 0 }}</span>
+                  <span
+                    >{{ getAmount(activity.transaction.gasPrice) }}
+                    {{ rpcStore.currency }}</span
+                  >
                 </div>
               </div>
               <div
                 class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] activity-view__border-gray text-base font-bold leading-5"
               >
                 <span>Total:</span>
-                <span :class="'color-state-red'">{{ `2 ETH` }}</span>
+                <span :class="'color-state-red'"
+                  >{{ getAmount(calculateTotal(activity)) }}
+                  {{ rpcStore.currency }}</span
+                >
               </div>
             </div>
-            <div class="flex justify-center">
-              <a :href="`#`" class="flex font-montserrat font-medium text-xs">
+            <div
+              v-if="rpcStore.rpcConfig?.blockExplorerUrls?.length"
+              class="flex justify-center"
+            >
+              <a
+                :href="`${rpcStore.rpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
+                class="flex font-montserrat font-medium text-xs"
+              >
                 View on Explorer
                 <img src="@/assets/images/arrow-up-right.svg" />
               </a>
