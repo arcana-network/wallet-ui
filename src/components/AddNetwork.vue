@@ -5,7 +5,7 @@ import { useToast } from 'vue-toastification'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
-const emits = defineEmits(['close'])
+const emit = defineEmits(['close'])
 
 const rpcStore = useRpcStore()
 const getImage = useImage()
@@ -57,7 +57,7 @@ function handleSubmit() {
     }
     rpcStore.addNetwork(payload)
     rpcStore.setSelectedChainId(payload.chainId)
-    emits('close')
+    emit('close')
   }
 }
 </script>
@@ -66,7 +66,7 @@ function handleSubmit() {
   <div class="space-y-3">
     <div class="flex justify-between">
       <p class="text-xl sm:text-sm">Add a Network</p>
-      <button class="h-auto" @click="emits('close')">
+      <button class="h-auto" @click="emit('close')">
         <img :src="getImage('close-icon')" alt="close form" />
       </button>
     </div>
