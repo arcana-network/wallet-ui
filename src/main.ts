@@ -2,7 +2,6 @@ import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
-import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
@@ -10,6 +9,7 @@ import Toast from 'vue-toastification'
 
 import App from '@/App.vue'
 import { router } from '@/routes/index'
+import { store } from '@/store'
 
 import 'vue-toastification/dist/index.css'
 
@@ -55,11 +55,7 @@ SentryInit({
   tracesSampleRate: 1.0,
 })
 
-walletApp
-  .use(JsonViewer)
-  .use(router)
-  .use(Toast, toastOptions)
-  .use(createPinia())
+walletApp.use(JsonViewer).use(router).use(Toast, toastOptions).use(store)
 
 if (process.env.NODE_ENV === 'production') {
   walletApp.use(VueGtag, {
