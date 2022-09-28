@@ -56,7 +56,7 @@ watch(selectedChain, () => {
         </button>
       </div>
       <ListboxOptions
-        class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
+        class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg pt-2"
       >
         <ListboxOption
           v-for="chain in rpcStore.rpcConfigList"
@@ -74,7 +74,10 @@ watch(selectedChain, () => {
               />
               <p>{{ chain.chainName }}</p>
             </div>
-            <button @click.prevent="emits('editNetwork', chain.chainId)">
+            <button
+              class="h-auto"
+              @click.prevent="emits('editNetwork', chain.chainId)"
+            >
               <img
                 :src="getImage('edit-icon')"
                 alt="edit network"
