@@ -19,7 +19,7 @@ const rpcConfig = ref({
   chainId: rpcConfigForEdit?.chainId,
   rpcUrl: rpcConfigForEdit?.rpcUrls[0],
   currencySymbol: rpcConfigForEdit?.nativeCurrency?.symbol,
-  explorerUrl: rpcConfigForEdit?.blockExplorerUrls,
+  explorerUrl: rpcConfigForEdit?.blockExplorerUrls[0],
 })
 
 function isExistingRpcUrl(url) {
