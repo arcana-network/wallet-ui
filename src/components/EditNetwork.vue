@@ -22,7 +22,7 @@ const rpcConfig = ref({
   explorerUrl: rpcConfigForEdit?.blockExplorerUrls,
 })
 
-function isRpcURLExist(url) {
+function isExistingRpcUrl(url) {
   const exisitingRpcUrls = rpcStore.rpcConfigList
     .filter((chain) => chain.chainId !== editChainId)
     .map((chain) => chain.rpcUrls)
@@ -33,7 +33,7 @@ function isRpcURLExist(url) {
   })
 }
 
-function isChainIdExist(chainId) {
+function isExistingChainId(chainId) {
   return rpcStore.rpcConfigList.some(
     (chain) => chain.chainId === chainId && chain.chainId !== editChainId
   )
@@ -42,9 +42,9 @@ function isChainIdExist(chainId) {
 function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
-  if (isRpcURLExist(rpcUrl)) {
+  if (isExistingRpcUrl(rpcUrl)) {
     toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
-  } else if (isChainIdExist(Number(chainId))) {
+  } else if (isExistingChainId(Number(chainId))) {
     toast.error(
       `Chain ID - ${chainId} already exists, please use different one`
     )
