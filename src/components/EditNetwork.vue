@@ -23,13 +23,10 @@ const rpcConfig = ref({
 })
 
 function isRpcURLExist(url) {
-  const exisitingRpcUrls = rpcStore.rpcConfigList.reduce((acc, val) => {
-    if (val.chainId === editChainId) return acc
-    else {
-      acc.push(...val.rpcUrls)
-      return acc
-    }
-  }, [])
+  const exisitingRpcUrls = rpcStore.rpcConfigList
+    .filter((chain) => chain.chainId !== editChainId)
+    .map((chain) => chain.rpcUrls)
+    .flat()
 
   return exisitingRpcUrls.some((rpcUrl) => {
     return rpcUrl === url

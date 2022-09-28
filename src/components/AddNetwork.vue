@@ -20,10 +20,9 @@ const rpcConfig = ref({
 })
 
 function isRpcURLExist(url) {
-  const exisitingRpcUrls = rpcStore.rpcConfigList.reduce((acc, val) => {
-    acc.push(...val.rpcUrls)
-    return acc
-  }, [])
+  const exisitingRpcUrls = rpcStore.rpcConfigList
+    .map((chain) => chain.rpcUrls)
+    .flat()
 
   return exisitingRpcUrls.some((rpcUrl) => {
     return rpcUrl === url
