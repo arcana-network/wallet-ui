@@ -9,6 +9,7 @@ import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import ChangeChain from '@/components/ChangeChain.vue'
+import EditNetwork from '@/components/EditNetwork.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -36,7 +37,7 @@ import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | 'add-network' | false
+type ModalState = 'send' | 'receive' | 'add-network' | 'edit-network' | false
 
 const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
@@ -256,6 +257,12 @@ function openAddNetwork(open) {
   showModal.value = open ? 'add-network' : false
 }
 
+function openEditNetwork(open, chainId: number | null = null) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'edit-network' : false
+  rpcStore.editChainId = chainId
+}
+
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -283,7 +290,10 @@ onBeforeRouteLeave((to) => {
     <div class="space-y-1 relative pb-14 sm:pb-8">
       <p class="text-xs text-zinc-400">Network</p>
       <div class="w-full rounded-lg absolute">
-        <ChangeChain @add-network="openAddNetwork(true)" />
+        <ChangeChain
+          @add-network="openAddNetwork(true)"
+          @edit-network="(chainId) => openEditNetwork(true, chainId)"
+        />
       </div>
     </div>
     <div
@@ -346,6 +356,10 @@ onBeforeRouteLeave((to) => {
       <AddNetwork
         v-if="showModal === 'add-network'"
         @close="openAddNetwork(false)"
+      />
+      <EditNetwork
+        v-if="showModal === 'edit-network'"
+        @close="openEditNetwork(false)"
       />
     </Teleport>
   </div>
