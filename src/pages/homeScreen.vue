@@ -277,13 +277,32 @@ onBeforeRouteLeave((to) => {
     class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
   >
     <div class="flex flex-col justify-center items-center space-y-2">
-      <p class="text-xl sm:text-sm truncate w-full text-center">
-        {{ userStore.info.name || userStore.info.email }}
-      </p>
       <div class="flex items-center space-x-1">
-        <p class="text-xs">{{ userStore.walletAddressShrinked }}</p>
-        <button class="h-3" @click="copyToClipboard(userStore.walletAddress)">
+        <p class="text-xl sm:text-sm">{{ userStore.walletAddressShrinked }}</p>
+        <button class="h-4" @click="copyToClipboard(userStore.walletAddress)">
           <img :src="getImage('copy-icon')" alt="copy icon" class="h-full" />
+        </button>
+      </div>
+      <div class="flex items-center space-x-2 sm:space-x-1">
+        <a
+          :href="rpcStore.selectedRpcConfig.blockExplorerUrls[0]"
+          target="_blank"
+          class="flex items-center space-x-1"
+        >
+          <img
+            :src="getImage('arrow-up-right-icon')"
+            alt="Explore"
+            class="h-4"
+          />
+          <span class="text-xs">View on Explorer</span>
+        </a>
+        <button class="flex items-center space-x-1" @click="getWalletBalance">
+          <img
+            :src="getImage('refresh-icon')"
+            alt="Refresh wallet balance"
+            class="w-4"
+          />
+          <span class="text-xs">Refresh</span>
         </button>
       </div>
     </div>
@@ -322,16 +341,6 @@ onBeforeRouteLeave((to) => {
           <p>{{ currency }}</p>
         </div>
       </div>
-    </div>
-    <div class="flex justify-center">
-      <button class="flex items-center space-x-1" @click="getWalletBalance">
-        <img
-          :src="getImage('refresh-icon')"
-          alt="Refresh wallet balance"
-          class="w-4"
-        />
-        <span class="text-xs">Refresh Balance</span>
-      </button>
     </div>
     <div class="flex space-x-3">
       <button
