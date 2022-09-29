@@ -21,7 +21,7 @@ const router = useRouter()
 const toast = useToast()
 const rpcStore = useRpcStore()
 const parentConnectionStore = useParentConnectionStore()
-const { rpcConfig } = storeToRefs(rpcStore)
+const { selectedRpcConfig } = storeToRefs(rpcStore)
 
 const {
   info: { email, name },
@@ -60,7 +60,7 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div class="wallet__body mb-[10px]">
+  <div class="wallet__card mb-[10px]">
     <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
       <h1 class="home__title">Welcome</h1>
       <div class="home__body-container space-y-4 sm:space-y-2">
@@ -74,7 +74,9 @@ onBeforeRouteLeave((to) => {
         </div>
         <div class="home__body-content">
           <p class="home__body-content-label">Network</p>
-          <p class="home__body-content-value">{{ rpcConfig?.chainName }}</p>
+          <p class="home__body-content-value">
+            {{ selectedRpcConfig?.chainName }}
+          </p>
         </div>
         <div class="home__body-content">
           <p class="home__body-content-label">Wallet Address</p>

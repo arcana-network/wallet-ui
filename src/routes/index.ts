@@ -22,7 +22,7 @@ const routes = [
     component: InitPage,
   },
   {
-    name: 'homeScreen',
+    name: 'home',
     path: '/',
     component: HomeScreen,
   },
@@ -32,7 +32,7 @@ const routes = [
     component: RequestsScreen,
   },
   {
-    name: 'profileScreen',
+    name: 'profile',
     path: '/profileScreen',
     component: ProfileScreen,
   },
