@@ -79,14 +79,17 @@ function calculateTotal(activity: Activity) {
   return 0n
 }
 
-function getAmount(amount: bigint) {
+function getAmount(amount: bigint, isGas = false) {
+  if (isGas) {
+    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 2)
+  }
   return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
 </script>
 
 <template>
-  <div class="flex flex-col px-4 py-5 gap-8">
-    <div
+  <ul class="flex flex-col px-4 py-5 gap-8">
+    <li
       v-for="activity in activities"
       :key="activity.transaction?.hash || activity.file?.did"
       class="flex flex-col gap-5"
@@ -96,11 +99,15 @@ function getAmount(amount: bigint) {
           <img
             :src="getTransactionIcon(activity.operation)"
             class="invert dark:invert-0"
+            :title="activity.operation"
           />
         </div>
         <div class="flex flex-col flex-grow gap-2">
           <div class="flex">
-            <span class="font-bold text-base leading-5">
+            <span
+              class="font-bold text-base leading-5"
+              :title="activity.operation"
+            >
               {{ truncateOperation(activity.operation) }}
             </span>
             <img
@@ -111,10 +118,16 @@ function getAmount(amount: bigint) {
               @click="activity.isExpanded = !activity.isExpanded"
             />
           </div>
-          <span v-if="activity.transaction" class="text-xs color-secondary"
+          <span
+            v-if="activity.transaction && activity.address.to"
+            class="text-xs color-secondary"
+            :title="activity.address.to"
             >To: {{ truncateAddress(activity.address.to) }}</span
           >
-          <span v-if="activity.file" class="text-xs color-secondary"
+          <span
+            v-if="activity.file"
+            class="text-xs color-secondary"
+            :title="activity.file.did"
             >File DID: {{ truncateAddress(activity.file.did) }}</span
           >
           <div class="flex text-xs color-secondary gap-1">
@@ -140,6 +153,7 @@ function getAmount(amount: bigint) {
                 ? 'color-state-green'
                 : 'color-state-red'
             "
+            :title="ethers.utils.formatEther(activity.transaction.amount)"
             >{{ getAmount(activity.transaction.amount) }}
             {{ rpcStore.currency }}</span
           >
@@ -166,11 +180,13 @@ function getAmount(amount: bigint) {
             <span
               v-if="activity.operation === 'Transfer Ownership'"
               class="font-montserrat color-secondary text-xs font-semibold"
+              :title="activity.file.recepient"
               >To</span
             >
             <span
               v-else
               class="font-montserrat color-secondary text-xs font-semibold"
+              :title="activity.file.recepient"
               >Recepient</span
             >
             <span class="text-base font-normal leading-5">
@@ -186,17 +202,26 @@ function getAmount(amount: bigint) {
                   class="font-montserrat color-secondary text-xs font-semibold"
                   >From</span
                 >
-                <span class="text-base font-normal leading-5">
+                <span
+                  class="text-base font-normal leading-5"
+                  :title="activity.address.from"
+                >
                   {{ truncateAddress(activity.address.from) }}
                 </span>
               </div>
-              <img src="@/assets/images/arrow-right.svg" />
-              <div class="flex flex-col gap-[5px]">
+              <img
+                v-if="activity.address.to"
+                src="@/assets/images/arrow-right.svg"
+              />
+              <div v-if="activity.address.to" class="flex flex-col gap-[5px]">
                 <span
                   class="font-montserrat color-secondary text-xs font-semibold"
                   >To</span
                 >
-                <span class="text-base font-normal leading-5">
+                <span
+                  class="text-base font-normal leading-5"
+                  :title="activity.address.to"
+                >
                   {{ truncateAddress(activity.address.to) }}
                 </span>
               </div>
@@ -213,7 +238,11 @@ function getAmount(amount: bigint) {
                 </div>
                 <div class="flex justify-between">
                   <span>Amount</span>
-                  <span class="font-bold"
+                  <span
+                    class="font-bold"
+                    :title="
+                      ethers.utils.formatEther(activity.transaction.amount)
+                    "
                     >{{ getAmount(activity.transaction.amount) }}
                     {{ rpcStore.currency }}</span
                   >
@@ -229,8 +258,13 @@ function getAmount(amount: bigint) {
                 <div class="flex justify-between">
                   <span>Gas Price</span>
                   <span
-                    >{{ getAmount(activity.transaction.gasPrice) }}
-                    {{ rpcStore.currency }}</span
+                    :title="
+                      ethers.utils.formatEther(activity.transaction.gasPrice)
+                    "
+                    >{{
+                      getAmount(activity.transaction.gasPrice, 9)
+                    }}
+                    Gwei</span
                   >
                 </div>
               </div>
@@ -238,7 +272,9 @@ function getAmount(amount: bigint) {
                 class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] activity-view__border-gray text-base font-bold leading-5"
               >
                 <span>Total:</span>
-                <span :class="'color-state-red'"
+                <span
+                  :class="'color-state-red'"
+                  :title="ethers.utils.formatEther(calculateTotal(activity))"
                   >{{ getAmount(calculateTotal(activity)) }}
                   {{ rpcStore.currency }}</span
                 >
@@ -263,8 +299,8 @@ function getAmount(amount: bigint) {
           </a>
         </div>
       </div>
-    </div>
-  </div>
+    </li>
+  </ul>
 </template>
 
 <style scoped>
