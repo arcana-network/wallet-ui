@@ -14,6 +14,7 @@ type RpcConfigState = {
   selectedChainId: number
   walletBalance: string
   rpcConfigs: RpcConfigs | null
+  editChainId: number | null
 }
 
 export const useRpcStore = defineStore('rpcStore', {
@@ -22,6 +23,7 @@ export const useRpcStore = defineStore('rpcStore', {
       selectedChainId: DEFAULT_CHAIN_ID,
       walletBalance: '',
       rpcConfigs: null,
+      editChainId: null,
     } as RpcConfigState),
 
   getters: {
@@ -44,12 +46,23 @@ export const useRpcStore = defineStore('rpcStore', {
     rpcConfigList(state: RpcConfigState): Array<RpcConfigWallet> {
       return Object.values(state.rpcConfigs || {})
     },
+    rpcConfigForEdit(): RpcConfigWallet | null {
+      if (this.rpcConfigs && this.editChainId)
+        return this.rpcConfigs[this.editChainId]
+      return null
+    },
   },
 
   actions: {
-    addNetwork(rpcConfig: RpcConfigWallet) {
+    addNetwork(rpcConfig: RpcConfigWallet): void {
       if (this.rpcConfigs) this.rpcConfigs[rpcConfig.chainId] = rpcConfig
       else this.rpcConfigs = { [rpcConfig.chainId]: rpcConfig }
+    },
+    editNetwork(chainId: number, rpcConfig: RpcConfigWallet): void {
+      if (this.rpcConfigs) this.rpcConfigs[chainId] = rpcConfig
+    },
+    deleteNetwork(chainId: number): void {
+      if (this.rpcConfigs) delete this.rpcConfigs[chainId]
     },
     setSelectedChainId(chainId: number): void {
       this.selectedChainId = chainId

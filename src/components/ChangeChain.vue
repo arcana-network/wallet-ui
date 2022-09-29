@@ -10,7 +10,7 @@ import { ref, watch } from 'vue'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
-const emits = defineEmits(['addNetwork'])
+const emits = defineEmits(['addNetwork', 'editNetwork'])
 const rpcStore = useRpcStore()
 const getImage = useImage()
 
@@ -56,7 +56,7 @@ watch(selectedChain, () => {
         </button>
       </div>
       <ListboxOptions
-        class="text-base sm:text-[12px] space-y-4 sm:space-y-2 rounded-b-lg pt-2"
+        class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg pt-2"
       >
         <ListboxOption
           v-for="chain in rpcStore.rpcConfigList"
@@ -65,13 +65,25 @@ watch(selectedChain, () => {
           class="cursor-pointer"
           :class="{ 'text-gray-500': selectedChain.chainId !== chain.chainId }"
         >
-          <div class="flex space-x-1 items-center">
-            <img
-              :src="getImage(chain.favicon)"
-              :alt="chain.chainName"
-              class="w-3 h-3"
-            />
-            <p>{{ chain.chainName }}</p>
+          <div class="flex justify-between">
+            <div class="flex space-x-1 items-center">
+              <img
+                :src="getImage(chain.favicon)"
+                :alt="chain.chainName"
+                class="w-3 h-3"
+              />
+              <p>{{ chain.chainName }}</p>
+            </div>
+            <button
+              class="h-auto"
+              @click.prevent="emits('editNetwork', chain.chainId)"
+            >
+              <img
+                :src="getImage('edit-icon')"
+                alt="edit network"
+                class="w-4"
+              />
+            </button>
           </div>
         </ListboxOption>
       </ListboxOptions>
