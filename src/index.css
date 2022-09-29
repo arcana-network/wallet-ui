@@ -4,9 +4,6 @@
 
 @layer utilities {
   :root {
-    --glow-start-color: rgb(0 133 255);
-    --glow-middle-color: rgb(240 240 240 / 50%);
-    --glow-stop-color: rgb(234 234 234 / 84%);
     --bg-gradient-start-color: #eee;
     --bg-gradient-stop-color: #eee;
   }

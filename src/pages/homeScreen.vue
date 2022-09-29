@@ -8,11 +8,15 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import ActivityView from '@/components/ActivityView.vue'
+import AddNetwork from '@/components/AddNetwork.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import BaseTabs from '@/components/BaseTabs.vue'
+import ChangeChain from '@/components/ChangeChain.vue'
+import EditNetwork from '@/components/EditNetwork.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useAppStore } from '@/store/app'
@@ -36,7 +40,7 @@ import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | false
+type ModalState = 'send' | 'receive' | 'add-network' | 'edit-network' | false
 
 const showModal: Ref<ModalState> = ref(false)
 const getImage = useImage()
@@ -50,7 +54,7 @@ const requestStore = useRequestStore()
 const router = useRouter()
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
-const { rpcConfig, currency } = storeToRefs(rpcStore)
+const { selectedChainId, currency } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
@@ -83,11 +87,10 @@ const assets = [
 ]
 
 onMounted(async () => {
+  setRpcConfigs()
   connectToParent()
   await getRpcConfig()
-  await initAccountHandler()
-  await getWalletBalance()
-  await getCurrencyExchangeRate()
+  await getAccountDetails()
 })
 
 watch(showModal, () => {
@@ -101,6 +104,10 @@ watch(showModal, () => {
   }
 })
 
+watch(selectedChainId, () => {
+  getAccountDetails()
+})
+
 function showLoader(message) {
   loader.value.show = true
   loader.value.message = `${message}...`
@@ -111,6 +118,12 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+async function getAccountDetails() {
+  await initAccountHandler()
+  await getWalletBalance()
+  await getCurrencyExchangeRate()
+}
+
 async function initAccountHandler() {
   showLoader('Please wait')
   try {
@@ -118,7 +131,7 @@ async function initAccountHandler() {
 
     accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const walletAddress = accountHandler.getAccounts()[0]
@@ -126,7 +139,7 @@ async function initAccountHandler() {
 
     const walletType = await getWalletType(
       appStore.id,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
     const keeper = new Keeper(walletType, accountHandler)
@@ -181,13 +194,17 @@ async function handleLogout() {
   })
 }
 
+function setRpcConfigs() {
+  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
+}
+
 async function getRpcConfig() {
   try {
     showLoader('Loading')
-    if (rpcStore.rpcConfig) return
+    if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setRpcConfig(rpcConfig)
+    rpcStore.setSelectedChainId(rpcConfig.chainId)
   } catch (err) {
     console.log({ err })
   } finally {
@@ -262,6 +279,17 @@ function openReceiveTokens(open) {
   showModal.value = open ? 'receive' : false
 }
 
+function openAddNetwork(open) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'add-network' : false
+}
+
+function openEditNetwork(open, chainId: number | null = null) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'edit-network' : false
+  rpcStore.editChainId = chainId
+}
+
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -294,36 +322,47 @@ onBeforeRouteLeave((to) => {
             </button>
           </div>
         </div>
-        <div class="space-y-1">
+        <div class="space-y-1 relative pb-14 sm:pb-8">
           <p class="text-xs text-zinc-400">Network</p>
-          <p class="text-base sm:text-sm rounded-lg p-3 sm:p-1 bg-gradient">
-            {{ rpcConfig.chainName }}
-          </p>
+          <div class="w-full rounded-lg absolute">
+            <ChangeChain
+              @add-network="openAddNetwork(true)"
+              @edit-network="(chainId) => openEditNetwork(true, chainId)"
+            />
+          </div>
         </div>
         <div
           class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
         >
-          <p class="text-sm sm:text-xs">Total Balance</p>
           <div
-            v-if="exchangeRate"
-            class="space-y-2 sm:space-y-0 flex flex-col items-center"
+            class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
           >
-            <p class="text-2xl sm:text-base text-center">
-              {{ totalAmountInUSD }}
-            </p>
-            <div class="flex text-zinc-400 text-sm space-x-1">
-              <p :title="walletBalance">
-                {{ truncateToTwoDecimals(walletBalance) }}
-              </p>
-              <p>{{ currency }}</p>
-            </div>
-          </div>
-          <div v-else>
-            <div class="flex text-2xl sm:text-base space-x-1">
-              <p :title="walletBalance">
-                {{ truncateToTwoDecimals(walletBalance) }}
-              </p>
-              <p>{{ currency }}</p>
+            <div
+              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
+            >
+              <p class="text-sm sm:text-xs">Total Balance</p>
+              <div
+                v-if="exchangeRate"
+                class="space-y-2 sm:space-y-0 flex flex-col items-center"
+              >
+                <p class="text-2xl sm:text-base text-center">
+                  {{ totalAmountInUSD }}
+                </p>
+                <div class="flex text-zinc-400 text-sm space-x-1">
+                  <p :title="walletBalance">
+                    {{ truncateToTwoDecimals(walletBalance) }}
+                  </p>
+                  <p>{{ currency }}</p>
+                </div>
+              </div>
+              <div v-else>
+                <div class="flex text-2xl sm:text-base space-x-1">
+                  <p :title="walletBalance">
+                    {{ truncateToTwoDecimals(walletBalance) }}
+                  </p>
+                  <p>{{ currency }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -353,15 +392,28 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
-    <BaseTabs v-model="selectedTab" :tabs="tabs" class="full-bleed" />
-    <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
-    <ActivityView v-else />
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
-      <ReceiveTokens
-        v-if="showModal === 'receive'"
-        @close="openReceiveTokens(false)"
-      />
-    </Teleport>
+    <div class="wallet__body mb-[2.5rem]">
+      <BaseTabs v-model="selectedTab" :tabs="tabs" />
+      <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
+      <ActivityView v-else />
+      <Teleport v-if="showModal" to="#modal-container">
+        <SendTokens
+          v-if="showModal === 'send'"
+          @close="openSendTokens(false)"
+        />
+        <ReceiveTokens
+          v-if="showModal === 'receive'"
+          @close="openReceiveTokens(false)"
+        />
+        <AddNetwork
+          v-if="showModal === 'add-network'"
+          @close="openAddNetwork(false)"
+        />
+        <EditNetwork
+          v-if="showModal === 'edit-network'"
+          @close="openEditNetwork(false)"
+        />
+      </Teleport>
+    </div>
   </div>
 </template>
