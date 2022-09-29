@@ -36,7 +36,9 @@ function fetchNativeAsset() {
       rpcStore.nativeCurrency.decimals
     ),
     symbol: rpcStore.nativeCurrency.symbol,
-    logo: 'arcana-fallback-token-logo.svg',
+    logo: rpcStore.selectedRpcConfig.favicon
+      ? `${rpcStore.selectedRpcConfig.favicon}.png`
+      : 'arcana-fallback-token-logo.svg',
   }
 }
 
@@ -88,7 +90,7 @@ rpcStore.$subscribe(getAssetsBalance)
     >
       <div class="flex items-center gap-3">
         <img
-          :src="getImageAsset(`arcana-icon.png`)"
+          :src="getImageAsset(asset.logo)"
           class="w-[1.25rem] aspect-square rounded-full"
         />
         <span class="assets-view__asset-name leading-none">{{
