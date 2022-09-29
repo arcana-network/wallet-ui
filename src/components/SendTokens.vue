@@ -87,7 +87,7 @@ async function handleSendToken() {
       rpcStore.rpcConfig?.rpcUrls[0]
     )
     const txHash = await accountHandler.requestSendTransaction(payload)
-    activitiesStore.fetchAndSaveSendTokenFromHash({
+    activitiesStore.fetchAndSaveActivityFromHash({
       chainId: rpcStore.rpcConfig?.chainId as number,
       txHash,
     })

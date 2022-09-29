@@ -1,3 +1,4 @@
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { defineStore } from 'pinia'
 
 import { store } from '@/store'
@@ -39,6 +40,7 @@ type Activity = {
     gasLimit: bigint
     gasUsed: bigint
     gasPrice: bigint
+    data?: string
   }
   operation: TransactionOps | FileOps
   date: Date
@@ -62,6 +64,25 @@ type ActivitiesState = {
 type TransactionFetchParams = {
   txHash: string
   chainId: ChainId
+}
+
+function getTxOperation(transaction: TransactionResponse): TransactionOps {
+  if (!transaction.data || transaction.data === '0x') {
+    if (transaction.from === userStore.walletAddress) {
+      return 'Send'
+    }
+    if (transaction.to === userStore.walletAddress) {
+      return 'Receive'
+    }
+  } else {
+    if (
+      transaction.from === userStore.walletAddress &&
+      transaction.to === null
+    ) {
+      return 'Contract Deployment'
+    }
+  }
+  return 'Contract Interaction'
 }
 
 export const useActivitiesStore = defineStore('activitiesStore', {
@@ -91,7 +112,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       )
       if (activity) activity.status = status
     },
-    async fetchAndSaveSendTokenFromHash({
+    async fetchAndSaveActivityFromHash({
       txHash,
       chainId,
     }: TransactionFetchParams) {
@@ -103,7 +124,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         txHash
       )
       const activity: Activity = {
-        operation: 'Send',
+        operation: getTxOperation(remoteTransaction),
         transaction: {
           hash: txHash,
           amount: remoteTransaction.value.toBigInt(),
@@ -111,6 +132,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           gasLimit: remoteTransaction.gasLimit.toBigInt(),
           gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
           gasUsed: remoteTransaction.gasLimit.toBigInt(),
+          data: remoteTransaction.data,
         },
         status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
         date: new Date(),
