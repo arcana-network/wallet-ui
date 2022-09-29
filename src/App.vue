@@ -223,14 +223,6 @@ button {
   margin-top: var(--flow-space-element);
 }
 
-.wallet__body {
-  flex: 1;
-  overflow: auto;
-  background: var(--content-bg-color);
-  border-radius: 10px;
-  box-shadow: 4px 5px 4px rgb(0 0 0 / 25%);
-}
-
 .v-popper--theme-tooltip {
   background-color: #101010;
 }

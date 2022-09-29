@@ -33,7 +33,7 @@ const loader = ref({
   message: '',
 })
 
-const walletbalance = ethers.utils.formatEther(rpcStore.walletbalance)
+const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
 watch(gasFeeInGwei, () => {
   gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
@@ -170,7 +170,7 @@ function handleShowPreview() {
             <p class="space-x-1 text-xs text-zinc-400">
               <span>Total Balance:</span>
               <span class="text-white">{{
-                truncateToTwoDecimals(walletbalance)
+                truncateToTwoDecimals(walletBalance)
               }}</span>
             </p>
           </div>

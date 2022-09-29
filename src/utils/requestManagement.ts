@@ -34,7 +34,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       const params = JSON.parse(request.params[1])
       if (params.domain.name === 'Arcana Forwarder') {
         activitiesStore.saveFileActivity(
-          rpcStore.rpcConfig?.chainId as number,
+          rpcStore.selectedRpcConfig?.chainId as number,
           params.message.data
         )
       }
@@ -42,7 +42,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
     if (request.method === 'eth_sendTransaction' && response.result) {
       activitiesStore.fetchAndSaveActivityFromHash({
         txHash: response.result,
-        chainId: rpcStore.rpcConfig?.chainId as number,
+        chainId: rpcStore.selectedRpcConfig?.chainId as number,
       })
     }
   } else {

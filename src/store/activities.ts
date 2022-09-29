@@ -118,7 +118,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
     }: TransactionFetchParams) {
       const accountHandler = new AccountHandler(
         userStore.privateKey,
-        rpcStore.rpcConfig?.rpcUrls[0] as string
+        rpcStore.selectedRpcConfig?.rpcUrls[0] as string
       )
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash

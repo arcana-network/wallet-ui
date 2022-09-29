@@ -23,7 +23,7 @@ type ActivityView = Activity & {
 }
 
 const activities: ComputedRef<ActivityView[]> = computed(() =>
-  activitiesStore.activities(rpcStore.rpcConfig?.chainId as number)
+  activitiesStore.activities(rpcStore.selectedRpcConfig?.chainId as number)
 )
 
 function truncateAddress(address?: string | null) {
@@ -284,13 +284,13 @@ function getAmount(amount: bigint, isGas = false) {
         </div>
         <div
           v-if="
-            rpcStore.rpcConfig?.blockExplorerUrls?.length &&
+            rpcStore.selectedRpcConfig?.blockExplorerUrls?.length &&
             activity.transaction
           "
           class="flex justify-center my-5"
         >
           <a
-            :href="`${rpcStore.rpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
+            :href="`${rpcStore.selectedRpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
             class="flex font-montserrat font-medium text-xs"
             target="_blank"
           >
