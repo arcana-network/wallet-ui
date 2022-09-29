@@ -19,7 +19,7 @@ const assets: Asset[] = reactive([])
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = localStorage.getItem(
-    `${rpcStore.rpcConfig?.chainId}-asset-contracts`
+    `${rpcStore.selectedRpcConfig?.chainId}-asset-contracts`
   )
   if (assetContracts) {
     return JSON.parse(assetContracts)
@@ -32,7 +32,7 @@ function fetchNativeAsset() {
   return {
     name: rpcStore.nativeCurrency.name,
     balance: formatTokenDecimals(
-      rpcStore.walletbalance,
+      rpcStore.walletBalance,
       rpcStore.nativeCurrency.decimals
     ),
     symbol: rpcStore.nativeCurrency.symbol,
@@ -46,7 +46,7 @@ async function getAssetsBalance() {
   storedAssetContracts.forEach(async (contract) => {
     const balance = await getTokenBalance({
       privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.rpcConfig?.rpcUrls[0] as string,
+      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
       contractAddress: contract.address,
     })

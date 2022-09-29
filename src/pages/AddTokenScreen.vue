@@ -55,7 +55,7 @@ function handleCancel() {
 async function addTokenContract() {
   loader.show = true
   const assetContractsString = localStorage.getItem(
-    `${rpcStore.rpcConfig?.chainId}-asset-contracts`
+    `${rpcStore.selectedRpcConfig?.chainId}-asset-contracts`
   )
   let assetContracts: AssetContract[] = []
   if (assetContractsString) {
@@ -81,7 +81,7 @@ async function addTokenContract() {
   try {
     await getTokenBalance({
       privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.rpcConfig?.rpcUrls[0] as string,
+      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
       contractAddress: tokenContract.address,
     })
@@ -91,7 +91,7 @@ async function addTokenContract() {
   }
   assetContracts.push({ ...tokenContract })
   localStorage.setItem(
-    `${rpcStore.rpcConfig?.chainId}-asset-contracts`,
+    `${rpcStore.selectedRpcConfig?.chainId}-asset-contracts`,
     JSON.stringify(assetContracts)
   )
   loader.show = false

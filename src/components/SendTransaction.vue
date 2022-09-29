@@ -65,13 +65,15 @@ function handleSetGasPrice(value) {
       </div>
       <p class="text-xs text-zinc-400">
         {{ appStore.name }} requests your permission to send this transaction to
-        the {{ rpcStore.rpcConfig?.chainName }}. Please specify gas while
-        submitting the transaction.
+        the {{ rpcStore.selectedRpcConfig?.chainName }}. Please specify gas
+        while submitting the transaction.
       </p>
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">{{ rpcStore.rpcConfig?.chainName }}</p>
+      <p class="text-base sm:text-sm">
+        {{ rpcStore.selectedRpcConfig?.chainName }}
+      </p>
     </div>
     <div class="space-y-1">
       <label class="text-xs text-zinc-400" for="recipientWalletAddress">
