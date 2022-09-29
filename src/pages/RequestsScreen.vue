@@ -49,7 +49,7 @@ function handleGasPriceInput({ value, requestId }) {
 </script>
 
 <template>
-  <div class="wallet__body mb-[10px]">
+  <div class="wallet__card mb-[10px]">
     <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
       <div
         v-for="pendingRequest in pendingRequestsForApproval"

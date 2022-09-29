@@ -296,11 +296,11 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center h-full">
+  <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
-    <div class="wallet__body mb-[2.5rem]">
+    <div class="wallet__card mb-[2.5rem]">
       <div
         class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
       >
@@ -392,7 +392,7 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
-    <div class="wallet__body mb-[2.5rem]">
+    <div class="wallet__card mb-[2.5rem]">
       <BaseTabs v-model="selectedTab" :tabs="tabs" />
       <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
       <ActivityView v-else />

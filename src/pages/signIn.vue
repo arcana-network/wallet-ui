@@ -138,10 +138,10 @@ function onEnterPress() {
 </script>
 
 <template>
-  <div v-if="isLoading" class="signin__loader">
+  <div v-if="isLoading" class="signin__loader flex-1">
     <p>Loading...</p>
   </div>
-  <div v-else class="wallet__body mb-[10px]">
+  <div v-else class="wallet__card mb-[10px]">
     <div class="signin__container">
       <div class="signin__body flow-container">
         <div class="signin__title-desc flow-element">
