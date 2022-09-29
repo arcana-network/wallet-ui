@@ -73,7 +73,7 @@ watch(showModal, () => {
       //need timeout before fetching balance, else the previous balance is fetched
       await getWalletBalance()
       hideLoader()
-    }, 1000)
+    }, 3000)
   }
 })
 
