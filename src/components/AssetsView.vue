@@ -82,13 +82,13 @@ rpcStore.$subscribe(getAssetsBalance)
     </div>
     <hr class="assets-view__separator" />
     <div
-      v-for="(asset, index) in assets"
-      :key="`asset-${index}-${asset.name}`"
+      v-for="asset in assets"
+      :key="`asset-${asset.symbol}`"
       class="flex justify-between items-center py-[1.25rem]"
     >
       <div class="flex items-center gap-3">
         <img
-          :src="getImageAsset(`token-logos/${asset.logo}`)"
+          :src="getImageAsset(`arcana-icon.png`)"
           class="w-[1.25rem] aspect-square rounded-full"
         />
         <span class="assets-view__asset-name leading-none">{{
