@@ -50,10 +50,6 @@ async function handleLogout() {
   })
 }
 
-function onCloseClick() {
-  router.push('/requests')
-}
-
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -92,12 +88,12 @@ onBeforeRouteLeave((to) => {
         </p>
       </div>
     </div>
-    <div class="home__footer">
-      <button class="home__footer-button-outline" @click="handleLogout">
+    <div class="flex w-full text-sm sm:text-xs justify-center">
+      <button
+        class="home__footer-button-outline rounded-xl border-2 border-solid w-1/2"
+        @click="handleLogout"
+      >
         Logout
-      </button>
-      <button class="home__footer-button-filled" @click="onCloseClick">
-        Close
       </button>
     </div>
   </div>
@@ -151,19 +147,9 @@ onBeforeRouteLeave((to) => {
   margin-left: 12px;
 }
 
-.home__footer {
-  display: flex;
-  width: 100%;
-  font-size: var(--fs-350);
-}
-
 .home__footer-button-outline {
-  flex: 1;
-  margin-right: 5px;
   color: var(--outlined-button-fg-color);
-  border: 2px solid;
   border-color: var(--outlined-button-border-color);
-  border-radius: 10px;
 }
 
 .home__footer-button-filled {
