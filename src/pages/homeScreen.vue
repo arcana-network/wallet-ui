@@ -81,6 +81,12 @@ watch(selectedChainId, () => {
   getAccountDetails()
 })
 
+const explorerUrl = computed(() => {
+  const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
+  const walletAddress = userStore.walletAddress
+  return `${blockExplorerUrl}/address/${walletAddress}`
+})
+
 function showLoader(message) {
   loader.value.show = true
   loader.value.message = `${message}...`
@@ -285,7 +291,7 @@ onBeforeRouteLeave((to) => {
       </div>
       <div class="flex items-center space-x-2 sm:space-x-1">
         <a
-          :href="rpcStore.selectedRpcConfig.blockExplorerUrls[0]"
+          :href="explorerUrl"
           target="_blank"
           class="flex items-center space-x-1"
         >
