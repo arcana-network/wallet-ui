@@ -82,7 +82,7 @@ async function handleSendToken() {
     }
     const accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.rpcConfig?.rpcUrls[0]
+      rpcStore.selectedRpcConfig?.rpcUrls[0]
     )
     await accountHandler.requestSendTransaction(payload)
     toast.success('Tokens sent Successfully')
@@ -142,7 +142,9 @@ function handleShowPreview() {
       </div>
       <div class="space-y-1">
         <p class="text-xs text-zinc-400">Network</p>
-        <p class="text-base sm:text-sm">{{ rpcStore.rpcConfig?.chainName }}</p>
+        <p class="text-base sm:text-sm">
+          {{ rpcStore.selectedRpcConfig?.chainName }}
+        </p>
       </div>
       <form class="space-y-4 sm:space-y-3" @submit.prevent="handleShowPreview">
         <div class="space-y-1">
