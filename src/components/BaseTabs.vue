@@ -30,7 +30,6 @@ const emit = defineEmits(['update:modelValue'])
 .tab {
   font-size: var(--fs-500);
   color: var(--fg-color-secondary);
-  border: 1px var(--fg-color-secondary);
-  border-style: solid none;
+  border-block: 1px solid var(--fg-color-secondary);
 }
 </style>

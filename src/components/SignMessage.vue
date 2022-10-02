@@ -12,7 +12,7 @@ import { methodAndAction } from '@/utils/method'
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
 
-const { rpcConfig } = storeToRefs(rpcStore)
+const { selectedRpcConfig } = storeToRefs(rpcStore)
 
 defineProps({
   request: {
@@ -35,7 +35,7 @@ defineProps({
     <div>
       <p class="text-sm sm:text-xs text-zinc-400">Network</p>
       <p class="text-base sm:text-sm">
-        {{ rpcConfig.chainName }}
+        {{ selectedRpcConfig.chainName }}
       </p>
     </div>
     <p
