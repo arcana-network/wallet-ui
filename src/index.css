@@ -52,7 +52,8 @@
     color: var(--color-philippine-gray);
   }
 
-  .input {
+  .input,
+  .debossed-card {
     background: var(--debossed-box-color);
     border-radius: 10px;
     box-shadow: var(--debossed-shadow);

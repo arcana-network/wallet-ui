@@ -24,7 +24,7 @@ watch(selectedChain, () => {
 <template>
   <Listbox v-slot="{ open }" v-model="selectedChain">
     <ListboxButton
-      class="flex justify-between items-center text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 bg-gradient w-full h-14 sm:h-8 outline-none border-none"
+      class="flex justify-between items-center text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 debossed-card w-full h-14 sm:h-8 outline-none border-none"
     >
       <div class="flex space-x-1 items-center">
         <img
@@ -44,7 +44,7 @@ watch(selectedChain, () => {
 
     <div
       v-if="open"
-      class="bg-gradient p-3 sm:p-1 h-40 rounded-[10px] -mt-3 overflow-auto divide-y-2"
+      class="debossed-card p-3 sm:p-1 h-40 rounded-[10px] -mt-3 overflow-auto divide-y-2"
     >
       <div class="flex justify-end pb-2">
         <button

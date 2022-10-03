@@ -198,7 +198,10 @@ function getAmount(amount: bigint, isGas = false) {
                 :title="activity.file.recepient"
                 >Recepient</span
               >
-              <span class="text-base font-normal leading-5">
+              <span
+                class="text-base font-normal leading-5"
+                :title="activity.file.recepient"
+              >
                 {{ truncateAddress(activity.file.recepient) }}
               </span>
             </div>

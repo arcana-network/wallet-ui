@@ -319,6 +319,7 @@ onBeforeRouteLeave((to) => {
           </div>
           <div class="flex items-center space-x-2 sm:space-x-1">
             <a
+              v-if="explorerUrl"
               :href="explorerUrl"
               target="_blank"
               class="flex items-center space-x-1"

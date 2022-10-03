@@ -90,7 +90,7 @@ function displayValue() {
       >
         <div v-show="open">
           <ComboboxOptions
-            class="absolute max-h-60 w-full rounded-[10px] bg-white dark:bg-black text-base focus:outline-black dark:focus:outline-white overflow-auto"
+            class="absolute max-h-60 w-full debossed-box text-base focus:outline-black dark:focus:outline-white overflow-auto"
             static
           >
             <ComboboxOption

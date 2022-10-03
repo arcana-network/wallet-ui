@@ -9,7 +9,7 @@ const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
-  <div class="flex rounded-md tab-container">
+  <div class="flex rounded-[5px] tab-container">
     <div
       v-for="(tab, index) in props.tabs"
       :key="`tab-${index}-${tab}`"
@@ -28,6 +28,7 @@ const emit = defineEmits(['update:modelValue'])
 
 <style scoped>
 .tab-container {
-  background: var(--container-bg-color);
+  background: var(--debossed-box-color);
+  box-shadow: var(--debossed-shadow);
 }
 </style>

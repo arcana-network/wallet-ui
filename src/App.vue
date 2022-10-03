@@ -92,10 +92,8 @@ function init() {
     inset 5px 5px 10px rgb(11 11 11 / 50%);
   --debossed-light-color: #eee;
   --debossed-dark-color: #161616;
-  --debossed-box-shadow-light: inset -1px -1px 1px rgb(255 255 255 / 70%),
-    inset 1px 1px 2px rgb(174 174 192 / 20%);
-  --debossed-box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
-    inset 5px 5px 10px rgb(11 11 11 / 50%);
+  --debossed-box-shadow-light: inset 5px 5px 10px 5px rgb(255 255 255 / 70%);
+  --debossed-box-shadow-dark: inset 5px 5px 10px 5px #121212;
   --fs-500: 20px;
   --fs-550: 18px;
   --fs-400: 16px;
