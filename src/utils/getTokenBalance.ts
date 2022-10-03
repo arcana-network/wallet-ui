@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import ABI from '@/abis/abi.json'
+import ABI from '@/abis/erc20abi.json'
 import { AccountHandler } from '@/utils/accountHandler'
 
 type TokenBalanceParams = {
