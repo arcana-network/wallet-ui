@@ -88,7 +88,7 @@ async function handleSendToken() {
     )
     const txHash = await accountHandler.requestSendTransaction(payload)
     activitiesStore.fetchAndSaveActivityFromHash({
-      chainId: rpcStore.rpcConfig?.chainId as number,
+      chainId: rpcStore.selectedRpcConfig?.chainId as number,
       txHash,
     })
     toast.success('Tokens sent Successfully')
