@@ -63,28 +63,12 @@ let accountHandler: AccountHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
-const assets = [
-  {
-    name: 'Ethereum',
-    balance: 1.22,
-    currency: 'ETH',
-  },
-  {
-    name: 'Matic Mainnet',
-    balance: 10.52,
-    currency: 'MATIC',
-  },
-  {
-    name: 'Shiba Inu',
-    balance: 10000,
-    currency: 'SHIB',
-  },
-  {
-    name: 'Uniswap',
-    balance: 200.67,
-    currency: 'UNI',
-  },
-]
+const assets: {
+  name?: string
+  symbol: string
+  decimals: number
+  balance: string
+}[] = []
 
 onMounted(async () => {
   setRpcConfigs()
@@ -259,6 +243,7 @@ async function getWalletBalance() {
     )
     rpcStore.setWalletBalance(balance.toString())
     walletBalance.value = ethers.utils.formatEther(balance.toString())
+    assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
   } catch (err) {
     console.log({ err })
   } finally {
@@ -307,9 +292,7 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <div
-        class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between overflow-auto"
-      >
+      <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
         <div class="flex flex-col justify-center items-center space-y-2">
           <div class="flex items-center space-x-1">
             <p class="text-xl sm:text-sm">
@@ -414,7 +397,7 @@ onBeforeRouteLeave((to) => {
     </div>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
       <BaseTabs v-model="selectedTab" :tabs="tabs" />
-      <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
+      <AssetsView v-if="selectedTab === 'Assets'" />
       <ActivityView v-else />
       <Teleport v-if="showModal" to="#modal-container">
         <SendTokens

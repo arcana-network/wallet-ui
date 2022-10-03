@@ -38,6 +38,27 @@ export const useRpcStore = defineStore('rpcStore', {
         this.selectedRpcConfig?.chainName?.toLowerCase() || ''
       return chainName.includes('arcana')
     },
+    nativeCurrency() {
+      const rpcConfig: RpcConfigWallet = this.selectedRpcConfig
+      if (this.isArcanaNetwork) {
+        return {
+          name: 'Arcana',
+          symbol: 'XAR',
+          decimals: 18,
+        }
+      }
+      if (rpcConfig?.nativeCurrency) {
+        return {
+          name: rpcConfig.chainName,
+          ...rpcConfig.nativeCurrency,
+        }
+      }
+      return {
+        name: rpcConfig?.chainName || 'Unknown',
+        symbol: '',
+        decimals: 0,
+      }
+    },
     selectedRpcConfig(state: RpcConfigState): RpcConfigWallet {
       const { selectedChainId } = state
       if (this.rpcConfigs) return this.rpcConfigs[selectedChainId]
@@ -50,6 +71,10 @@ export const useRpcStore = defineStore('rpcStore', {
       if (this.rpcConfigs && this.editChainId)
         return this.rpcConfigs[this.editChainId]
       return null
+    },
+    isEthereumMainnet() {
+      const selectedRpcConfig: RpcConfigWallet = this.selectedRpcConfig
+      return selectedRpcConfig.chainId === 1
     },
   },
 

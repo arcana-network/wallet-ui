@@ -46,7 +46,9 @@ function init() {
 </script>
 
 <template>
-  <div v-if="isLoading">loading...</div>
+  <div v-if="isLoading" class="flex col justify-center items-center h-full">
+    <div>Loading...</div>
+  </div>
   <!-- TODO: Replace it with loading indicator -->
   <div
     v-else

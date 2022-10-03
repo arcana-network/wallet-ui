@@ -34,4 +34,15 @@
     background: var(--card-bg);
     box-shadow: var(--card-shadow);
   }
+
+  .label,
+  ::placeholder {
+    color: var(--color-philippine-gray);
+  }
+
+  .input {
+    background: var(--debossed-box-color);
+    border-radius: 10px;
+    box-shadow: var(--debossed-shadow);
+  }
 }

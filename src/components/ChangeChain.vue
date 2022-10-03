@@ -30,7 +30,7 @@ watch(selectedChain, () => {
         <img
           :src="getImage(selectedChain.favicon)"
           :alt="selectedChain.chainName"
-          class="w-3 h-3"
+          class="w-6 h-6"
         />
         <p>{{ selectedChain.chainName }}</p>
       </div>
@@ -70,7 +70,7 @@ watch(selectedChain, () => {
               <img
                 :src="getImage(chain.favicon)"
                 :alt="chain.chainName"
-                class="w-3 h-3"
+                class="w-6 h-6"
               />
               <p>{{ chain.chainName }}</p>
             </div>
