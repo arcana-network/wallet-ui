@@ -30,7 +30,7 @@ watch(selectedChain, () => {
         <img
           :src="getImage(selectedChain.favicon)"
           :alt="selectedChain.chainName"
-          class="w-3 h-3"
+          class="w-6 h-6"
         />
         <p>{{ selectedChain.chainName }}</p>
       </div>
@@ -44,7 +44,7 @@ watch(selectedChain, () => {
 
     <div
       v-if="open"
-      class="bg-gradient p-3 sm:p-1 h-[250px] overflow-auto divide-y-2"
+      class="bg-gradient p-3 sm:p-1 h-40 rounded-[10px] -mt-3 overflow-auto divide-y-2"
     >
       <div class="flex justify-end pb-2">
         <button
@@ -70,7 +70,7 @@ watch(selectedChain, () => {
               <img
                 :src="getImage(chain.favicon)"
                 :alt="chain.chainName"
-                class="w-3 h-3"
+                class="w-6 h-6"
               />
               <p>{{ chain.chainName }}</p>
             </div>

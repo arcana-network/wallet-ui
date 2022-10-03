@@ -46,16 +46,16 @@ function init() {
 </script>
 
 <template>
-  <div v-if="isLoading">loading...</div>
+  <div v-if="isLoading" class="flex col justify-center items-center h-full">
+    <div>Loading...</div>
+  </div>
   <!-- TODO: Replace it with loading indicator -->
   <div
     v-else
     class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <div class="wallet__body mb-[10px]">
-      <RouterView />
-    </div>
+    <RouterView />
     <WalletFooter />
     <BaseModal v-if="modal.show" />
   </div>
@@ -135,6 +135,8 @@ function init() {
   --container-bg-color: var(--color-gradient-light);
   --debossed-box-color: var(--debossed-light-color);
   --debossed-shadow: var(--debossed-box-shadow-light);
+  --card-shadow: 4px 5px 4px #f0f0f3;
+  --card-bg: #f9f9f9;
   --filled-button-bg-color: var(--color-dark);
   --filled-button-fg-color: var(--color-light);
   --outlined-button-border-color: var(--color-dark);
@@ -150,6 +152,8 @@ function init() {
   --container-bg-color: var(--color-dark);
   --debossed-box-color: var(--debossed-dark-color);
   --debossed-shadow: var(--debossed-box-shadow-dark);
+  --card-shadow: 4px 5px 4px #181818;
+  --card-bg: #262626;
   --filled-button-bg-color: var(--color-light);
   --filled-button-fg-color: var(--color-dark);
   --outlined-button-border-color: var(--color-light);
@@ -185,9 +189,9 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  height: 100%;
+  min-height: 100%;
   padding: var(--p-400);
-  overflow: hidden;
+  overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
 }
@@ -198,14 +202,6 @@ button {
 
 .flow-element > *:not(:first-child) {
   margin-top: var(--flow-space-element);
-}
-
-.wallet__body {
-  flex: 1;
-  overflow: auto;
-  background: var(--content-bg-color);
-  border-radius: 10px;
-  box-shadow: 4px 5px 4px rgb(0 0 0 / 25%);
 }
 
 .v-popper--theme-tooltip {

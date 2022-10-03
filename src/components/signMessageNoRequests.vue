@@ -5,7 +5,7 @@ const getImage = useImage()
 </script>
 
 <template>
-  <div class="no-requests__container">
+  <div class="no-requests__container flex-1">
     <img
       :src="getImage('no-pending-req-illustration')"
       alt="Tick Icon"
