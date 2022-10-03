@@ -69,13 +69,18 @@ rpcStore.$subscribe(getAssetsBalance)
 
 <template>
   <div class="flex flex-col px-4">
-    <div class="flex justify-end py-4 gap-1 items-center">
-      <img
-        class="dark:invert cursor-pointer w-6"
-        src="@/assets/images/plus-circle.svg"
-        alt="Click to add a token"
-      />
-      <span class="assets-view__add-token-text">Token</span>
+    <div class="flex justify-end">
+      <div
+        class="flex py-4 gap-1 items-center cursor-pointer"
+        @click.stop="handleAddToken"
+      >
+        <img
+          class="dark:invert w-6"
+          src="@/assets/images/plus-circle.svg"
+          alt="Click to add a token"
+        />
+        <span class="assets-view__add-token-text">Token</span>
+      </div>
     </div>
     <hr class="assets-view__separator" />
     <div

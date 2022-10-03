@@ -100,7 +100,7 @@ async function addTokenContract() {
 </script>
 
 <template>
-  <div class="wallet__body mb-[2.5rem]">
+  <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
     <div
       v-if="loader.show"
       class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
