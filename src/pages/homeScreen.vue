@@ -292,9 +292,7 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <div
-        class="p-4 sm:p-2 h-full flex flex-col justify-between overflow-auto"
-      >
+      <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
         <div class="flex flex-col justify-center items-center space-y-2">
           <div class="flex items-center space-x-1">
             <p class="text-xl sm:text-sm">
