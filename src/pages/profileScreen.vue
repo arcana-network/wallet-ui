@@ -56,7 +56,7 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div class="wallet__card mb-[10px]">
+  <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]">
     <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
       <h1 class="home__title">Welcome</h1>
       <div class="home__body-container space-y-4 sm:space-y-2">

@@ -141,7 +141,10 @@ function onEnterPress() {
   <div v-if="isLoading" class="signin__loader flex-1">
     <p>Loading...</p>
   </div>
-  <div v-else class="wallet__card mb-[10px]">
+  <div
+    v-else
+    class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]"
+  >
     <div class="signin__container">
       <div class="signin__body flow-container">
         <div class="signin__title-desc flow-element">

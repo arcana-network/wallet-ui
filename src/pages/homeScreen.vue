@@ -306,7 +306,7 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
-    <div class="wallet__card mb-[2.5rem]">
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
       <div
         class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
       >
@@ -422,8 +422,8 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
-    <div class="wallet__card mb-[2.5rem]">
-      <BaseTabs v-model="selectedTab" :tabs="tabs" class="mt-1 mx-1" />
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
+      <BaseTabs v-model="selectedTab" :tabs="tabs" />
       <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
       <ActivityView v-else :currency-exchange-rate="exchangeRate" />
       <Teleport v-if="showModal" to="#modal-container">
