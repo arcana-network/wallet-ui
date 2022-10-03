@@ -135,6 +135,8 @@ function init() {
   --container-bg-color: var(--color-gradient-light);
   --debossed-box-color: var(--debossed-light-color);
   --debossed-shadow: var(--debossed-box-shadow-light);
+  --card-shadow: 4px 5px 4px #f0f0f3;
+  --card-bg: #f9f9f9;
   --filled-button-bg-color: var(--color-dark);
   --filled-button-fg-color: var(--color-light);
   --outlined-button-border-color: var(--color-dark);
@@ -150,6 +152,8 @@ function init() {
   --container-bg-color: var(--color-dark);
   --debossed-box-color: var(--debossed-dark-color);
   --debossed-shadow: var(--debossed-box-shadow-dark);
+  --card-shadow: 4px 5px 4px #181818;
+  --card-bg: #262626;
   --filled-button-bg-color: var(--color-light);
   --filled-button-fg-color: var(--color-dark);
   --outlined-button-border-color: var(--color-light);
