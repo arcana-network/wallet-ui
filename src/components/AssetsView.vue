@@ -5,10 +5,7 @@ import { useRouter } from 'vue-router'
 import type { Asset, AssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
-  formatTokenDecimals,
-  beautifyBalance,
-} from '@/utils/formatTokenDecimals'
+import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import getImageAsset from '@/utils/getImageAsset'
 import getTokenBalance from '@/utils/getTokenBalance'
 
