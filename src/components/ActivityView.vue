@@ -17,14 +17,19 @@ const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
+const chainId = rpcStore.selectedRpcConfig?.chainId as number
 
 type ActivityView = Activity & {
   isExpanded?: boolean
 }
 
-const activities: ComputedRef<ActivityView[]> = computed(() => [
-  ...activitiesStore.activities(rpcStore.selectedRpcConfig?.chainId as number),
-])
+const activities: ComputedRef<ActivityView[]> = computed(() => {
+  const activitiesInStore = activitiesStore.activities(chainId)
+  if (!activitiesInStore) {
+    return []
+  }
+  return [...activitiesInStore]
+})
 
 function truncateAddress(address?: string | null) {
   if (!address) return ''
