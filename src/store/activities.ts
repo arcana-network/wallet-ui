@@ -91,7 +91,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
   }),
   getters: {
     activities: (state) => {
-      return (chainId: ChainId) => state.activitiesByChainId[chainId]
+      return (chainId: ChainId) => state.activitiesByChainId[chainId] || []
     },
   },
   actions: {
