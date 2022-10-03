@@ -55,7 +55,7 @@ function init() {
     class="wallet__container"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <RouterView />
+    <!-- <RouterView /> -->
     <WalletFooter />
     <BaseModal v-if="modal.show" />
   </div>
@@ -191,7 +191,7 @@ button {
   justify-content: space-around;
   min-height: 100%;
   padding: var(--p-400);
-  overflow-x: hidden;
+  overflow: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
 }
