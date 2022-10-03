@@ -87,7 +87,7 @@ rpcStore.$subscribe(getAssetsBalance)
     >
       <div class="flex items-center gap-3">
         <img
-          :src="getImageAsset(asset.logo)"
+          :src="getImageAsset(`token-logos/${asset.logo}`)"
           class="w-[1.25rem] aspect-square rounded-full"
         />
         <span class="assets-view__asset-name leading-none">{{
