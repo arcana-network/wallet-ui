@@ -63,28 +63,12 @@ let accountHandler: AccountHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
-const assets = [
-  {
-    name: 'Ethereum',
-    balance: 1.22,
-    currency: 'ETH',
-  },
-  {
-    name: 'Matic Mainnet',
-    balance: 10.52,
-    currency: 'MATIC',
-  },
-  {
-    name: 'Shiba Inu',
-    balance: 10000,
-    currency: 'SHIB',
-  },
-  {
-    name: 'Uniswap',
-    balance: 200.67,
-    currency: 'UNI',
-  },
-]
+const assets: {
+  name?: string
+  symbol: string
+  decimals: number
+  balance: string
+}[] = []
 
 onMounted(async () => {
   setRpcConfigs()
@@ -259,6 +243,7 @@ async function getWalletBalance() {
     )
     rpcStore.setWalletBalance(balance.toString())
     walletBalance.value = ethers.utils.formatEther(balance.toString())
+    assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
   } catch (err) {
     console.log({ err })
   } finally {
@@ -307,9 +292,7 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <div
-        class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
-      >
+      <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
         <div class="flex flex-col justify-center items-center space-y-2">
           <div class="flex items-center space-x-1">
             <p class="text-xl sm:text-sm">
@@ -352,7 +335,7 @@ onBeforeRouteLeave((to) => {
             </button>
           </div>
         </div>
-        <div class="space-y-1 relative pb-14 sm:pb-8">
+        <div class="space-y-1 relative pb-14 sm:pb-8 mt-8">
           <p class="text-xs text-zinc-400">Network</p>
           <div class="w-full rounded-lg absolute">
             <ChangeChain
@@ -362,7 +345,7 @@ onBeforeRouteLeave((to) => {
           </div>
         </div>
         <div
-          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
+          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient mt-5"
         >
           <div
             class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
@@ -396,19 +379,9 @@ onBeforeRouteLeave((to) => {
             </div>
           </div>
         </div>
-        <div class="flex justify-center">
-          <button class="flex items-center space-x-1" @click="getWalletBalance">
-            <img
-              :src="getImage('refresh-icon')"
-              alt="Refresh wallet balance"
-              class="w-4"
-            />
-            <span class="text-xs">Refresh Balance</span>
-          </button>
-        </div>
-        <div class="flex space-x-3">
+        <div class="flex space-x-3 mt-10">
           <button
-            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1"
+            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
             @click="openSendTokens(true)"
           >
             Send
@@ -423,8 +396,8 @@ onBeforeRouteLeave((to) => {
       </div>
     </div>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
-      <AssetsView v-if="selectedTab === 'Assets'" :assets="assets" />
+      <BaseTabs v-model="selectedTab" :tabs="tabs" />
+      <AssetsView v-if="selectedTab === 'Assets'" />
       <ActivityView v-else :currency-exchange-rate="exchangeRate" />
       <Teleport v-if="showModal" to="#modal-container">
         <SendTokens

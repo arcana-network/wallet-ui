@@ -1,6 +1,6 @@
 <template>
   <div
-    class="backdrop-blur-[32px] flex justify-center items-center absolute h-screen w-screen top-0 left-0 z-50 p-2"
+    class="backdrop-blur-[32px] fixed flex justify-center items-center inset-0 z-50 p-2"
   >
     <div
       id="modal-container"

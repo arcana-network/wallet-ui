@@ -28,6 +28,12 @@
       inset -50px 49px 29px 22px var(--glow-stop-color);
   }
 
+  .glow {
+    box-shadow: 0 0 12px 4px var(--glow-start-color),
+      inset 5px 5px 10px var(--glow-middle-color),
+      inset -50px 49px 29px 22px var(--glow-stop-color);
+  }
+
   .bg-gradient {
     background: linear-gradient(
       141.48deg,
@@ -39,5 +45,16 @@
   .wallet__card {
     background: var(--card-bg);
     box-shadow: var(--card-shadow);
+  }
+
+  .label,
+  ::placeholder {
+    color: var(--color-philippine-gray);
+  }
+
+  .input {
+    background: var(--debossed-box-color);
+    border-radius: 10px;
+    box-shadow: var(--debossed-shadow);
   }
 }
