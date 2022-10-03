@@ -44,7 +44,7 @@ watch(selectedChain, () => {
 
     <div
       v-if="open"
-      class="bg-gradient p-3 sm:p-1 h-[250px] overflow-auto divide-y-2"
+      class="bg-gradient p-3 sm:p-1 h-40 rounded-[10px] -mt-3 overflow-auto divide-y-2"
     >
       <div class="flex justify-end pb-2">
         <button
