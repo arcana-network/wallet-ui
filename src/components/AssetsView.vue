@@ -6,8 +6,8 @@ import type { Asset, AssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
-import getImageAsset from '@/utils/getImageAsset'
 import getTokenBalance from '@/utils/getTokenBalance'
+import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -85,7 +85,7 @@ rpcStore.$subscribe(getAssetsBalance)
     >
       <div class="flex items-center gap-3">
         <img
-          :src="getImageAsset(`token-logos/${asset.logo}`)"
+          :src="getIconAsset(`token-logos/${asset.logo}`)"
           class="w-[1.25rem] aspect-square rounded-full"
         />
         <span class="assets-view__asset-name leading-none">{{
