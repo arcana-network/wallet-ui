@@ -396,7 +396,7 @@ onBeforeRouteLeave((to) => {
       </div>
     </div>
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <BaseTabs v-model="selectedTab" :tabs="tabs" />
+      <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
       <AssetsView v-if="selectedTab === 'Assets'" />
       <ActivityView v-else :currency-exchange-rate="exchangeRate" />
       <Teleport v-if="showModal" to="#modal-container">

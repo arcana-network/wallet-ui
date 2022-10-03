@@ -68,16 +68,14 @@ rpcStore.$subscribe(getAssetsBalance)
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex justify-between items-center py-[1.25rem]">
-      <span class="assets-view__add-token-text">Add a Token</span>
-      <button class="h-auto" @click.stop="handleAddToken">
-        <img
-          class="dark:invert cursor-pointer w-[1.5rem]"
-          src="@/assets/images/plus-circle.svg"
-          alt="Click to add a token"
-        />
-      </button>
+  <div class="flex flex-col px-4">
+    <div class="flex justify-end py-4 gap-1 items-center">
+      <img
+        class="dark:invert cursor-pointer w-6"
+        src="@/assets/images/plus-circle.svg"
+        alt="Click to add a token"
+      />
+      <span class="assets-view__add-token-text">Token</span>
     </div>
     <hr class="assets-view__separator" />
     <div
@@ -95,7 +93,7 @@ rpcStore.$subscribe(getAssetsBalance)
         }}</span>
       </div>
       <div
-        class="assets-view__asset-balance flex flex-wrap leading-none"
+        class="assets-view__asset-balance flex flex-wrap leading-none text-right"
         :title="`${asset.balance} ${asset.symbol}`"
       >
         {{ beautifyBalance(asset.balance) }}
