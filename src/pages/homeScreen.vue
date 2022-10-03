@@ -93,9 +93,12 @@ watch(selectedChainId, () => {
 })
 
 const explorerUrl = computed(() => {
-  const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
-  const walletAddress = userStore.walletAddress
-  return `${blockExplorerUrl}/address/${walletAddress}`
+  if (rpcStore.selectedRpcConfig.blockExplorerUrls?.length) {
+    const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
+    const walletAddress = userStore.walletAddress
+    return `${blockExplorerUrl}/address/${walletAddress}`
+  }
+  return undefined
 })
 
 function showLoader(message) {
@@ -117,7 +120,7 @@ async function getAccountDetails() {
 async function initAccountHandler() {
   showLoader('Please wait')
   try {
-    const parentConnectionInstance = await parentConnection.promise
+    const parentConnectionInstance = await parentConnection?.promise
 
     accountHandler = new AccountHandler(
       userStore.privateKey,
@@ -132,15 +135,17 @@ async function initAccountHandler() {
       rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
-    const keeper = new Keeper(walletType, accountHandler)
-    keeper.setConnection(parentConnection)
+    if (parentConnection) {
+      const keeper = new Keeper(walletType, accountHandler)
+      keeper.setConnection(parentConnection)
 
-    watchRequestQueue(requestStore, keeper)
+      watchRequestQueue(requestStore, keeper)
+    }
 
     setAppMode(walletType, parentConnectionInstance)
 
     const chainId = await accountHandler.getChainId()
-    parentConnectionInstance.onEvent('connect', { chainId })
+    parentConnectionInstance?.onEvent('connect', { chainId })
   } catch (err) {
     console.log({ err })
   } finally {
@@ -161,7 +166,7 @@ function connectToParent() {
 }
 
 function getUserInfo() {
-  const accountDetails = accountHandler.getAccount()
+  const accountDetails = accountHandler?.getAccount()
   return {
     ...userStore.info,
     ...accountDetails,
@@ -171,7 +176,9 @@ function getUserInfo() {
 async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
-  appStore.setAppMode(validAppMode)
+  if (validAppMode) {
+    appStore.setAppMode(validAppMode)
+  }
 }
 
 async function handleLogout() {
@@ -192,6 +199,7 @@ async function getRpcConfig() {
   try {
     showLoader('Loading')
     if (rpcStore.selectedChainId) return
+    if (!parentConnection) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
     rpcStore.setSelectedChainId(rpcConfig.chainId)
@@ -238,9 +246,9 @@ const totalAmountInUSD = computed(() => {
 async function getWalletBalance() {
   showLoader('Fetching Wallet Balance')
   try {
-    const balance = await accountHandler.provider.getBalance(
-      userStore.walletAddress
-    )
+    const balance =
+      (await accountHandler?.provider.getBalance(userStore.walletAddress)) ||
+      '0'
     rpcStore.setWalletBalance(balance.toString())
     walletBalance.value = ethers.utils.formatEther(balance.toString())
     assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
