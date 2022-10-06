@@ -15,7 +15,7 @@ const THEME_NEUTRAL_IMAGES = [
   'blockchain-icon',
 ]
 
-export function useImage() {
+function useImage() {
   const appStore = useAppStore()
 
   return function getImage(
@@ -29,3 +29,9 @@ export function useImage() {
     }
   }
 }
+
+function getIconAsset(iconPath: string) {
+  return require(`@/assets/images/${iconPath}`)
+}
+
+export { useImage, getIconAsset }

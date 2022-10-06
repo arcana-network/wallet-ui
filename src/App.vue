@@ -63,6 +63,7 @@ function init() {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=block');
 @import '@/assets/css/reset.css';
 
 :root {
@@ -71,6 +72,9 @@ function init() {
   --color-philippine-gray: #8d8d8d;
   --color-light-disabled: #f9f9f9af;
   --color-dark-disabled: #101010af;
+  --color-state-green: #5dab5c;
+  --color-state-red: #b43030;
+  --color-state-yellow: #b07641;
   --color-gradient-light: linear-gradient(
     324.81deg,
     #d6d8d9 14.65%,
@@ -88,10 +92,8 @@ function init() {
     inset 5px 5px 10px rgb(11 11 11 / 50%);
   --debossed-light-color: #eee;
   --debossed-dark-color: #161616;
-  --debossed-box-shadow-light: inset -1px -1px 1px rgb(255 255 255 / 70%),
-    inset 1px 1px 2px rgb(174 174 192 / 20%);
-  --debossed-box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
-    inset 5px 5px 10px rgb(11 11 11 / 50%);
+  --debossed-box-shadow-light: inset 5px 5px 10px 5px rgb(255 255 255 / 70%);
+  --debossed-box-shadow-dark: inset 5px 5px 10px 5px #121212;
   --fs-500: 20px;
   --fs-550: 18px;
   --fs-400: 16px;
@@ -168,6 +170,7 @@ body {
 
 #app {
   height: 100%;
+  overflow-x: hidden;
 }
 
 button {
@@ -177,6 +180,26 @@ button {
   cursor: pointer;
   background: transparent;
   outline: none;
+}
+
+.font-montserrat {
+  font-family: Montserrat, sans-serif;
+}
+
+.color-secondary {
+  color: var(--color-philippine-gray);
+}
+
+.color-state-green {
+  color: var(--color-state-green);
+}
+
+.color-state-red {
+  color: var(--color-state-red);
+}
+
+.color-state-yellow {
+  color: var(--color-state-yellow);
 }
 
 @media (max-width: 235px) {

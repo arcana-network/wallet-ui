@@ -6,8 +6,8 @@ import type { Asset, AssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
-import getImageAsset from '@/utils/getImageAsset'
 import getTokenBalance from '@/utils/getTokenBalance'
+import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -16,7 +16,7 @@ const assets: Asset[] = reactive([])
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = localStorage.getItem(
-    `${rpcStore.selectedRpcConfig?.chainId}-asset-contracts`
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {
     return JSON.parse(assetContracts)
@@ -68,16 +68,19 @@ rpcStore.$subscribe(getAssetsBalance)
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex justify-between items-center py-[1.25rem]">
-      <span class="assets-view__add-token-text">Add a Token</span>
-      <button class="h-auto" @click.stop="handleAddToken">
+  <div class="flex flex-col px-4">
+    <div class="flex justify-end">
+      <div
+        class="flex py-4 gap-1 items-center cursor-pointer"
+        @click.stop="handleAddToken"
+      >
         <img
-          class="dark:invert cursor-pointer w-[1.5rem]"
+          class="dark:invert w-6"
           src="@/assets/images/plus-circle.svg"
           alt="Click to add a token"
         />
-      </button>
+        <span class="assets-view__add-token-text">Token</span>
+      </div>
     </div>
     <hr class="assets-view__separator" />
     <div
@@ -87,7 +90,7 @@ rpcStore.$subscribe(getAssetsBalance)
     >
       <div class="flex items-center gap-3">
         <img
-          :src="getImageAsset(`token-logos/${asset.logo}`)"
+          :src="getIconAsset(`token-logos/${asset.logo}`)"
           class="w-[1.25rem] aspect-square rounded-full"
         />
         <span class="assets-view__asset-name leading-none">{{
@@ -95,7 +98,7 @@ rpcStore.$subscribe(getAssetsBalance)
         }}</span>
       </div>
       <div
-        class="assets-view__asset-balance flex flex-wrap leading-none"
+        class="assets-view__asset-balance flex flex-wrap leading-none text-right"
         :title="`${asset.balance} ${asset.symbol}`"
       >
         {{ beautifyBalance(asset.balance) }}
