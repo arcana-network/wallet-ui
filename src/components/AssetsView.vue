@@ -16,7 +16,7 @@ const assets: Asset[] = reactive([])
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = localStorage.getItem(
-    `${rpcStore.selectedRpcConfig?.chainId}-asset-contracts`
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {
     return JSON.parse(assetContracts)
