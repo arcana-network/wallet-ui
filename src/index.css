@@ -6,7 +6,12 @@
   :root {
     --bg-gradient-start-color: #eee;
     --bg-gradient-stop-color: #eee;
-    --tab-shadow-color: rgb(255 255 255 / 25%);
+    --tab-shadow-color: inset 0 4px 4px rgb(0 0 0 / 25%);
+    --tab-container-shadow: inset -1px -1px 1px rgb(255 255 255 / 70%),
+      inset 1px 1px 2px rgb(0 0 0 / 5%);
+    --input-box-shadow: inset -1px -1px 1px rgb(255 255 255 / 70%),
+      inset 1px 1px 2px rgb(0 0 0 / 5%);
+    --tab-view-border-color: #aeaec0;
   }
 
   .dark {
@@ -16,6 +21,9 @@
     --bg-gradient-start-color: #161616;
     --bg-gradient-stop-color: #151515;
     --tab-shadow-color: rgb(0 0 0 / 25%);
+    --tab-container-shadow: 5px 5px 10px rgb(0 0 0 / 15%);
+    --input-box-shadow: var(--debossed-box-shadow);
+    --tab-view-border-color: rgb(247 247 247 / 20%);
   }
 
   .tab-shadow {
@@ -56,6 +64,10 @@
   .debossed-card {
     background: var(--debossed-box-color);
     border-radius: 10px;
-    box-shadow: var(--debossed-shadow);
+    box-shadow: var(--input-box-shadow);
+  }
+
+  .tab-view-border-color {
+    border-color: var(--tab-view-border-color);
   }
 }
