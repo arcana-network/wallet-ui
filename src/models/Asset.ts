@@ -11,6 +11,6 @@ type EthAssetContract = AssetContract & {
   erc721: boolean
 }
 
-type Asset = Omit<AssetContract, 'address' | 'decimals'> & { balance: number }
+type Asset = Omit<AssetContract, 'address'> & { balance: number }
 
 export type { Asset, AssetContract, EthAssetContract }

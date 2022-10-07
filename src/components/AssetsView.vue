@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router'
 import type { Asset, AssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
-import getTokenBalance from '@/utils/getTokenBalance'
 import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
@@ -32,6 +32,7 @@ function fetchNativeAsset() {
       rpcStore.walletBalance,
       rpcStore.nativeCurrency.decimals
     ),
+    decimals: rpcStore.nativeCurrency.decimals,
     symbol: rpcStore.nativeCurrency.symbol,
     logo: rpcStore.selectedRpcConfig.favicon
       ? `${rpcStore.selectedRpcConfig.favicon}.png`
@@ -54,6 +55,7 @@ async function getAssetsBalance() {
       symbol: contract.symbol,
       balance: formatTokenDecimals(balance, contract.decimals),
       logo: contract.logo || 'arcana-fallback-token-logo.svg',
+      decimals: contract.decimals,
     })
   })
 }
@@ -99,7 +101,7 @@ rpcStore.$subscribe(getAssetsBalance)
       </div>
       <div
         class="assets-view__asset-balance flex flex-wrap leading-none text-right"
-        :title="`${asset.balance} ${asset.symbol}`"
+        :title="`${asset.balance.toFixed(asset.decimals)} ${asset.symbol}`"
       >
         {{ beautifyBalance(asset.balance) }}
         {{ asset.symbol }}

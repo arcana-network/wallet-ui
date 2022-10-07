@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -8,7 +8,8 @@ import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import getTokenBalance from '@/utils/getTokenBalance'
+import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
+import debounce from '@/utils/debounce'
 
 const router = useRouter()
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
@@ -45,58 +46,94 @@ function handleCancel() {
 
 async function addTokenContract() {
   loader.show = true
+  const isValidContract = await validateAndPopulateContract()
+  if (isValidContract) {
+    const assetContractsString = localStorage.getItem(
+      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    )
+    let assetContracts: AssetContract[] = []
+    if (assetContractsString) {
+      assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+    }
+    assetContracts.push({ ...tokenContract })
+    localStorage.setItem(
+      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
+      JSON.stringify(assetContracts)
+    )
+    loader.show = false
+    toast.success('Token Added successfully')
+    router.push({ name: 'home' })
+  }
+}
+
+function isContractInLocalStorage() {
   const assetContractsString = localStorage.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
-  let assetContracts: AssetContract[] = []
   if (assetContractsString) {
-    assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+    const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
     if (
       assetContracts.find(
         (contract) => contract.address === tokenContract.address
       )
     ) {
-      loader.show = false
-      return toast.error('Token already added')
-    }
-    if (
-      assetContracts.find(
-        (contract) => contract.symbol === tokenContract.symbol
-      )
-    ) {
-      loader.show = false
-      return toast.error('Token symbol already in use')
+      return true
     }
   }
-  if (
+  return false
+}
+
+function doesTokenBelongsToEthMainnet() {
+  return (
     !rpcStore.isEthereumMainnet &&
     ethMainnetTokens.find(
       (contract) => contract.address === tokenContract.address
     )
-  ) {
+  )
+}
+
+async function validateAndPopulateContract() {
+  if (isContractInLocalStorage()) {
     loader.show = false
-    return toast.error('Token belongs to Ethereum Mainnet')
+    toast.error('Token already added')
+    return false
+  }
+  if (doesTokenBelongsToEthMainnet()) {
+    loader.show = false
+    toast.error('Token belongs to Ethereum Mainnet')
+    return false
   }
   try {
-    await getTokenBalance({
+    const { symbol, decimals } = await getTokenSymbolAndDecimals({
       privateKey: userStore.privateKey,
       rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
-      walletAddress: userStore.walletAddress,
       contractAddress: tokenContract.address,
     })
+    tokenContract.symbol = symbol
+    tokenContract.decimals = decimals
+    return true
   } catch (e) {
     loader.show = false
-    return toast.error('Invalid contract address')
+    tokenContract.symbol = ''
+    tokenContract.decimals = 0
+    toast.error('Invalid contract address')
+    return false
   }
-  assetContracts.push({ ...tokenContract })
-  localStorage.setItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
-    JSON.stringify(assetContracts)
-  )
-  loader.show = false
-  toast.success('Token Added successfully')
-  router.push({ name: 'home' })
 }
+
+const debouncedValidation = debounce(validateAndPopulateContract)
+
+watch(
+  () => tokenContract.address,
+  async () => {
+    if (tokenContract.address) {
+      await debouncedValidation()
+    } else {
+      tokenContract.symbol = ''
+      tokenContract.decimals = 0
+    }
+  }
+)
 </script>
 
 <template>
@@ -131,7 +168,7 @@ async function addTokenContract() {
             >
             <input
               id="token-contract-address"
-              v-model="tokenContract.address"
+              v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
               class="text-base p-4 input"
@@ -148,9 +185,10 @@ async function addTokenContract() {
               v-model="tokenContract.symbol"
               type="text"
               placeholder="Eg. XAR"
-              class="text-base p-4 input"
+              class="text-base p-4 input cursor-not-allowed"
               required
               autocomplete="off"
+              disabled
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -162,11 +200,12 @@ async function addTokenContract() {
               v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
-              class="text-base p-4 input"
+              class="text-base p-4 input cursor-not-allowed"
               min="0"
               step="1"
               required
               autocomplete="off"
+              disabled
             />
           </div>
           <div class="flex space-x-3">
