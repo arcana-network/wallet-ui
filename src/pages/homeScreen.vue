@@ -176,7 +176,7 @@ function getUserInfo() {
 async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
-  if (validAppMode) {
+  if (typeof validAppMode === 'number') {
     appStore.setAppMode(validAppMode)
   }
 }
