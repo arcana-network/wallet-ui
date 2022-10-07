@@ -13,12 +13,16 @@ function getSendRequestFn(handleRequest, requestStore, appStore) {
   }
 }
 
-async function watchRequestQueue(store, keeper) {
-  const connectionInstance = await keeper.connection.promise
-  store.$subscribe((_, state) => {
+function watchRequestQueue(reqStore, keeper) {
+  reqStore.$subscribe(async (_, state) => {
     const { processQueue, pendingRequests } = state
     const pendingRequestCount = Object.values(pendingRequests).length
-    connectionInstance.sendPendingRequestCount(pendingRequestCount)
+    const connectionInstance = await keeper.connection.promise
+    try {
+      connectionInstance.sendPendingRequestCount(pendingRequestCount)
+    } catch (err) {
+      console.error({ err })
+    }
     while (processQueue.length > 0) {
       const request = processQueue.shift()
       processRequest(request, keeper)
