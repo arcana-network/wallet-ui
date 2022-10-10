@@ -11,7 +11,7 @@ type TokenBalanceParams = {
 }
 
 async function getTokenBalance(data: TokenBalanceParams): Promise<string> {
-  const accountHandler = new AccountHandler(data.privateKey, data.rpcUrl)
+  const accountHandler = new AccountHandler(data.privateKey)
   const ethersContract = new ethers.Contract(
     data.contractAddress,
     ABI,

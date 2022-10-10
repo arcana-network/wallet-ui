@@ -30,7 +30,7 @@ import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
-import { Keeper } from '@/utils/keeper'
+import { RequestHandler } from '@/utils/requestHandler'
 import {
   getSendRequestFn,
   handleRequest,
@@ -122,21 +122,19 @@ async function initAccountHandler() {
   try {
     const parentConnectionInstance = await parentConnection.promise
 
-    accountHandler = new AccountHandler(
-      userStore.privateKey,
-      rpcStore.selectedRpcConfig.rpcUrls[0]
-    )
+    accountHandler = new AccountHandler(userStore.privateKey)
 
-    const walletAddress = accountHandler.getAccounts()[0]
-    userStore.setWalletAddress(walletAddress)
+    const account = accountHandler.getAccount()
+    userStore.setWalletAddress(account.address)
 
     const walletType = await getWalletType(
       appStore.id,
       rpcStore.selectedRpcConfig.rpcUrls[0]
     )
 
-    const keeper = new Keeper(walletType, accountHandler)
+    const keeper = new RequestHandler(accountHandler)
     keeper.setConnection(parentConnection)
+    await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
 
     watchRequestQueue(requestStore, keeper)
 

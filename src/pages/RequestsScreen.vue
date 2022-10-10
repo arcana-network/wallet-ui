@@ -14,8 +14,7 @@ const getImage = useImage()
 const requestStore = useRequestStore()
 const toast = useToast()
 
-const { pendingRequestsForApproval, areRequestsPendingForApproval } =
-  toRefs(requestStore)
+const { pendingRequest, areRequestsPendingForApproval } = toRefs(requestStore)
 
 const onApproveClick = (requestId) => {
   if (isSendTransactionRequest(requestId)) {
@@ -51,11 +50,7 @@ function handleGasPriceInput({ value, requestId }) {
 <template>
   <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]">
     <div v-if="areRequestsPendingForApproval" class="sign__messages-container">
-      <div
-        v-for="pendingRequest in pendingRequestsForApproval"
-        :key="pendingRequest.request.id"
-        class="sign__message-container"
-      >
+      <div :key="pendingRequest.request.id" class="sign__message-container">
         <SendTransaction
           v-if="isSendTransactionRequest(pendingRequest.request.id)"
           :request="pendingRequest"
