@@ -1,19 +1,11 @@
-import { Transaction } from '@ethereumjs/tx'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
   personalSign,
   signTypedData_v4 as signTypedDataV4,
 } from 'eth-sig-util'
-import {
-  stripHexPrefix,
-  ecsign,
-  BN,
-  bufferToHex,
-  setLengthLeft,
-} from 'ethereumjs-util'
+import { stripHexPrefix, ecsign, setLengthLeft } from 'ethereumjs-util'
 import { ethers } from 'ethers'
-import { JsonRpcRequest } from 'json-rpc-engine'
 
 import {
   MessageParams,
@@ -51,12 +43,8 @@ export class AccountHandler {
     })
   }
 
-  sendTransactionWrapper = async (
-    p: TransactionParams,
-    req: JsonRpcRequest<unknown>
-  ): Promise<string> => {
-    const params = Array.isArray(req.params) ? req.params[0] : req.params
-    return (await this.sendTransaction(params, p.from)) as string
+  sendTransactionWrapper = async (p: TransactionParams): Promise<string> => {
+    return (await this.sendTransaction(p, p.from)) as string
   }
 
   getAccountsWrapper = async (): Promise<string[]> => {

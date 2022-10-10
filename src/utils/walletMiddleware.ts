@@ -39,10 +39,7 @@ interface WalletMiddlewareOptions {
     msgParams: MessageParams,
     req: JsonRpcRequest<unknown>
   ) => Promise<string>
-  processTransaction?: (
-    txParams: TransactionParams,
-    req: JsonRpcRequest<unknown>
-  ) => Promise<string>
+  processTransaction?: (txParams: TransactionParams) => Promise<string>
   processSignTransaction?: (
     txParams: TransactionParams,
     req: JsonRpcRequest<unknown>
@@ -143,7 +140,7 @@ function createWalletMiddleware({
       txParams.from as string,
       req
     )
-    res.result = await processTransaction(txParams, req)
+    res.result = await processTransaction(txParams)
   }
 
   async function signTransaction(
