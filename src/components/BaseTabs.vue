@@ -13,12 +13,13 @@ const emit = defineEmits(['update:modelValue'])
     <div
       v-for="(tab, index) in props.tabs"
       :key="`tab-${index}-${tab}`"
-      class="flex grow justify-center cursor-pointer py-[5px] font-semibold text-xl color-secondary rounded-md"
-      :class="
-        tab === props.modelValue
-          ? 'bg-black dark:bg-white text-white dark:text-black tab-shadow'
-          : ''
-      "
+      class="flex grow justify-center cursor-pointer py-[5px] font-semibold text-xl rounded-md"
+      :class="{
+        'bg-black dark:bg-white text-white dark:text-black tab-shadow':
+          tab === props.modelValue,
+        'color-secondary hover:text-black dark:hover:text-white':
+          tab !== props.modelValue,
+      }"
       @click.stop="emit('update:modelValue', tab)"
     >
       {{ tab }}
@@ -29,6 +30,6 @@ const emit = defineEmits(['update:modelValue'])
 <style scoped>
 .tab-container {
   background: var(--debossed-box-color);
-  box-shadow: var(--debossed-shadow);
+  box-shadow: var(--tab-container-shadow);
 }
 </style>
