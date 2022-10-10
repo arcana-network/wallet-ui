@@ -26,6 +26,11 @@ export const useRequestStore = defineStore('request', {
       const requests = Object.values(state.pendingRequests)
       return requests.length > 0
     },
+    pendingRequest({ pendingRequests }) {
+      if (this.areRequestsPendingForApproval) {
+        return Object.values(pendingRequests)[0]
+      }
+    },
   },
   actions: {
     addRequests(
