@@ -55,7 +55,8 @@ export class AccountHandler {
     p: TransactionParams,
     req: JsonRpcRequest<unknown>
   ): Promise<string> => {
-    return (await this.sendTransaction(req.params, p.from)) as string
+    const params = Array.isArray(req.params) ? req.params[0] : req.params
+    return (await this.sendTransaction(params, p.from)) as string
   }
 
   getAccountsWrapper = async (): Promise<string[]> => {
@@ -158,7 +159,7 @@ export class AccountHandler {
     }
   }
 
-  private async sendTransaction(data, address: string): Promise<string> {
+  public async sendTransaction(data, address: string): Promise<string> {
     try {
       const wallet = this.getWallet(address)
       if (wallet) {
