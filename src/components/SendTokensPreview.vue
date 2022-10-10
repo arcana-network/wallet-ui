@@ -54,19 +54,21 @@ const totalAmount =
           <p>Send Amount</p>
           <p>
             {{ props.previewData.amount }}
-            {{ rpcStore.currency }}
+            {{ props.previewData.selectedToken }}
           </p>
         </div>
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Gas Fees</p>
-          <p>{{ props.previewData.gasFee }} {{ rpcStore.currency }}</p>
+          <p>
+            {{ props.previewData.gasFee }} {{ props.previewData.selectedToken }}
+          </p>
         </div>
       </div>
       <div
         class="flex justify-between text-sm sm:text-xs font-normal border-y-[1px] border-x-0 border-zinc-400 py-4"
       >
         <p>Total:</p>
-        <p>{{ totalAmount }} {{ rpcStore.currency }}</p>
+        <p>{{ totalAmount }} {{ props.previewData.selectedToken }}</p>
       </div>
     </div>
     <div class="flex justify-between">
