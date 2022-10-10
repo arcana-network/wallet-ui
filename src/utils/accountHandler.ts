@@ -72,8 +72,7 @@ export class AccountHandler {
   }
 
   signTransactionWrapper = async (p: TransactionParams): Promise<string> => {
-    const r = await this.signTransaction(p, p.from)
-    return r.raw
+    return await this.signTransaction(p, p.from)
   }
 
   personalSignWrapper = async (p: MessageParams): Promise<string> => {
@@ -196,17 +195,7 @@ export class AccountHandler {
     try {
       const wallet = this.getWallet(address)
       if (wallet) {
-        const transaction = Transaction.fromTxData({
-          ...txData,
-          value: new BN(txData.value, 10),
-          gasPrice: new BN(txData.gasPrice, 10),
-          gas: new BN(txData.gas, 10),
-        })
-        const tx = transaction.sign(
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-        )
-        const raw = bufferToHex(tx.serialize())
-        return { raw, tx: tx.toJSON() }
+        return await wallet.signTransaction({ ...txData })
       } else {
         throw new Error('No Wallet found for the provided address')
       }
