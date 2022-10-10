@@ -40,6 +40,10 @@ const isSendTransactionRequest = (requestId) => {
   const {
     request: { method },
   } = requestStore.pendingRequests[requestId]
+  console.log(
+    requestStore.pendingRequests[requestId],
+    'isSendTransactionRequest'
+  )
   return method === 'eth_sendTransaction'
 }
 

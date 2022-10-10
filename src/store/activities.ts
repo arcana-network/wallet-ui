@@ -2,7 +2,6 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { defineStore } from 'pinia'
 
 import { store } from '@/store'
-import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import {
@@ -12,7 +11,6 @@ import {
 import { parseFileTransaction } from '@/utils/parseFileTransaction'
 
 const userStore = useUserStore(store)
-const rpcStore = useRpcStore(store)
 
 type ChainId = number
 
@@ -116,10 +114,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       txHash,
       chainId,
     }: TransactionFetchParams) {
-      const accountHandler = new AccountHandler(
-        userStore.privateKey,
-        rpcStore.selectedRpcConfig?.rpcUrls[0] as string
-      )
+      const accountHandler = new AccountHandler(userStore.privateKey)
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
