@@ -101,7 +101,7 @@ function getAmount(amount: bigint, isGas = false) {
         class="flex flex-col gap-5"
       >
         <div class="flex">
-          <div class="mr-4">
+          <div class="mr-3">
             <img
               :src="getTransactionIcon(activity.operation)"
               class="invert dark:invert-0"
@@ -118,7 +118,7 @@ function getAmount(amount: bigint, isGas = false) {
               </span>
               <img
                 src="@/assets/images/arrow-up.svg"
-                class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
+                class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px] invert dark:invert-0"
                 :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
                 role="button"
                 @click="activity.isExpanded = !activity.isExpanded"
@@ -136,7 +136,7 @@ function getAmount(amount: bigint, isGas = false) {
               :title="activity.file.did"
               >File DID: {{ truncateAddress(activity.file.did) }}</span
             >
-            <div class="flex text-xs color-secondary gap-1">
+            <div class="flex text-xs color-secondary gap-1 items-center">
               <span>{{ dayjs(activity.date).format('MMM D') }}</span>
               <img src="@/assets/images/gray-circle-filled.svg" />
               <span>Status:</span>
@@ -156,7 +156,7 @@ function getAmount(amount: bigint, isGas = false) {
             class="flex flex-col items-end gap-1"
           >
             <span
-              class="font-bold text-base leading-5"
+              class="font-bold text-base leading-5 text-right"
               :class="
                 activity.operation === 'Receive'
                   ? 'color-state-green'
@@ -166,7 +166,7 @@ function getAmount(amount: bigint, isGas = false) {
               >{{ getAmount(activity.transaction.amount) }}
               {{ rpcStore.currency }}</span
             >
-            <span class="flex text-xs text-secondary"
+            <span class="flex text-xs text-secondary text-right"
               >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
               {{
                 calculateCurrencyValue(activity.transaction.amount).currency
@@ -182,7 +182,7 @@ function getAmount(amount: bigint, isGas = false) {
           class="flex flex-col"
         >
           <hr
-            class="border-solid border-0 border-t-[1px] activity-view__border-gray mb-4"
+            class="border-solid border-0 border-t-[1px] tab-view-border-color mb-4"
           />
           <div v-if="activity.file?.recepient">
             <div class="flex flex-col gap-[5px]">
@@ -283,7 +283,7 @@ function getAmount(amount: bigint, isGas = false) {
                   </div>
                 </div>
                 <div
-                  class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] activity-view__border-gray text-base font-bold leading-5"
+                  class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] tab-view-border-color text-base font-bold leading-5"
                 >
                   <span>Total:</span>
                   <span
@@ -309,7 +309,10 @@ function getAmount(amount: bigint, isGas = false) {
               target="_blank"
             >
               View on Explorer
-              <img src="@/assets/images/arrow-up-right.svg" />
+              <img
+                src="@/assets/images/arrow-up-right.svg"
+                class="invert dark:invert-0"
+              />
             </a>
           </div>
         </div>
@@ -320,9 +323,3 @@ function getAmount(amount: bigint, isGas = false) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.activity-view__border-gray {
-  border-color: rgb(247 247 247 / 20%);
-}
-</style>

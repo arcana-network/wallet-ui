@@ -1,9 +1,8 @@
+import { JsonRpcRequest } from 'json-rpc-engine'
 import { defineStore } from 'pinia'
 
-import type { Request } from '@/models/Connection'
-
 type PendingRequest = {
-  request: Request<unknown>
+  request: JsonRpcRequest<unknown>
   receivedTime?: Date
   isPermissionGranted: boolean
 }
@@ -27,10 +26,15 @@ export const useRequestStore = defineStore('request', {
       const requests = Object.values(state.pendingRequests)
       return requests.length > 0
     },
+    pendingRequest({ pendingRequests }) {
+      if (this.areRequestsPendingForApproval) {
+        return Object.values(pendingRequests)[0]
+      }
+    },
   },
   actions: {
     addRequests(
-      request: Request<unknown>,
+      request: JsonRpcRequest<unknown> & { id: number },
       isPermissionRequired: boolean,
       receivedTime: Date
     ): void {

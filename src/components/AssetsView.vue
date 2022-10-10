@@ -84,7 +84,7 @@ rpcStore.$subscribe(getAssetsBalance)
         <span class="assets-view__add-token-text">Token</span>
       </div>
     </div>
-    <hr class="assets-view__separator" />
+    <hr class="tab-view-border-color border-0 border-t" />
     <div
       v-for="asset in assets"
       :key="`asset-${asset.symbol}`"
@@ -115,9 +115,5 @@ rpcStore.$subscribe(getAssetsBalance)
 .assets-view__asset-name,
 .assets-view__asset-balance {
   font-size: var(--fs-350);
-}
-
-.assets-view__separator {
-  border-top: 1px solid var(--color-philippine-gray);
 }
 </style>

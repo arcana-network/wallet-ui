@@ -211,7 +211,7 @@ watch(
           <div class="flex space-x-3">
             <button
               type="reset"
-              class="text-sm sm:text-xs rounded-xl text-black border-white border-2 dark:text-white dark:border-white flex-1 font-semibold uppercase"
+              class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white flex-1 font-semibold uppercase"
               @click.stop="handleCancel"
             >
               Cancel
