@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PreviewData } from '@/models/SendTokenPreview'
 import { useRpcStore } from '@/store/rpc'
+import { toFixed } from '@/utils/toFixed'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
@@ -66,7 +67,7 @@ const totalAmount =
         class="flex justify-between text-sm sm:text-xs font-normal border-y-[1px] border-x-0 border-zinc-400 py-4"
       >
         <p>Total:</p>
-        <p>{{ totalAmount }} {{ rpcStore.currency }}</p>
+        <p>{{ toFixed(totalAmount) }} {{ rpcStore.currency }}</p>
       </div>
     </div>
     <div class="flex justify-between">
