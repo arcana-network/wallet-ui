@@ -81,7 +81,7 @@ class RequestHandler {
       request.id = 1
     }
 
-    this.handleRequest(request)
+    return this.handleRequest(request)
   }
 
   private async handleRequest(req: JsonRpcRequest<unknown>) {
