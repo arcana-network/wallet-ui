@@ -32,8 +32,7 @@ function watchRequestQueue(reqStore, keeper) {
 
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    const response = await keeper.handleRequest(request)
-    console.log({ response }, 'processRequest')
+    const response = await keeper.request(request)
     keeper.reply(request.method, response)
     if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
       const params = JSON.parse(request.params[1])
