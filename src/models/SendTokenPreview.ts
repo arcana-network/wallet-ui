@@ -3,11 +3,19 @@ class PreviewData {
   recipientWalletAddress: string
   amount: string
   gasFee: string
-  constructor(senderWalletAddress, recipientWalletAddress, amount, gasFee) {
+  selectedToken: string
+  constructor(
+    senderWalletAddress,
+    recipientWalletAddress,
+    amount,
+    gasFee,
+    selectedToken
+  ) {
     this.senderWalletAddress = senderWalletAddress
     this.recipientWalletAddress = recipientWalletAddress
     this.amount = amount
     this.gasFee = gasFee
+    this.selectedToken = selectedToken
   }
 }
 
