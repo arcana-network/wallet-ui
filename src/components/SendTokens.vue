@@ -119,6 +119,7 @@ async function handleSendToken() {
   showLoader('Sending')
   try {
     const accountHandler = new AccountHandler(userStore.privateKey)
+    accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
     if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
