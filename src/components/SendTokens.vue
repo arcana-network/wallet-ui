@@ -10,6 +10,7 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
@@ -32,11 +33,22 @@ const loader = ref({
   show: false,
   message: '',
 })
+const tokenList = ref([
+  {
+    symbol: rpcStore.nativeCurrency.symbol,
+  },
+])
+const selectedToken = ref(tokenList.value[0].symbol)
+const selectedTokenBalance = ref('0')
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
 watch(gasFeeInGwei, () => {
   gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+})
+
+watch(selectedToken, async () => {
+  await fetchTokenBalance()
 })
 
 function showLoader(message) {
@@ -52,6 +64,8 @@ function hideLoader() {
 onMounted(async () => {
   showLoader('Loading')
   try {
+    setTokenList()
+    await fetchTokenBalance()
     const data = await getGasPrice()
     gasPrices.value = data
   } catch (err) {
@@ -61,6 +75,34 @@ onMounted(async () => {
     hideLoader()
   }
 })
+
+async function fetchTokenBalance() {
+  const tokenInfo = tokenList.value.find(
+    (item) => item.symbol === selectedToken.value
+  )
+
+  if (tokenInfo?.symbol === rpcStore.nativeCurrency.symbol) {
+    selectedTokenBalance.value = walletBalance
+  } else {
+    selectedTokenBalance.value = await getTokenBalance({
+      privateKey: userStore.privateKey,
+      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
+      walletAddress: userStore.walletAddress,
+      contractAddress: tokenInfo.address,
+    })
+  }
+}
+
+function setTokenList() {
+  const chainId = rpcStore.selectedChainId
+  const walletAddress = userStore.walletAddress
+  const localStoreKey = `${walletAddress}/${chainId}/asset-contracts`
+  const contractsDetails = localStorage.getItem(localStoreKey)
+  if (contractsDetails) {
+    const contracts = JSON.parse(contractsDetails)
+    tokenList.value.push(...contracts)
+  }
+}
 
 function clearForm() {
   recipientWalletAddress.value = ''
@@ -76,22 +118,39 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending')
   try {
-    const payload = {
-      to: setHexPrefix(recipientWalletAddress.value),
-      value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-      gasPrice: ethers.utils.parseEther(`${gasFeeInGwei.value}`).toHexString(),
-      from: userStore.walletAddress,
-    }
-
     const accountHandler = new AccountHandler(userStore.privateKey)
-    const txHash = await accountHandler.sendTransaction(
-      payload,
-      userStore.walletAddress
-    )
-    activitiesStore.fetchAndSaveActivityFromHash({
-      chainId: rpcStore.selectedRpcConfig?.chainId as number,
-      txHash,
-    })
+    if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
+      const payload = {
+        to: setHexPrefix(recipientWalletAddress.value),
+        value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
+        gasPrice: ethers.utils
+          .parseEther(`${gasFeeInGwei.value}`)
+          .toHexString(),
+        from: userStore.walletAddress,
+      }
+
+      const txHash = await accountHandler.sendTransaction(
+        payload,
+        userStore.walletAddress
+      )
+      activitiesStore.fetchAndSaveActivityFromHash({
+        chainId: rpcStore.selectedRpcConfig?.chainId as number,
+        txHash,
+      })
+    } else {
+      const tokenInfo = tokenList.value.find(
+        (item) => item.symbol === selectedToken.value
+      )
+      const { transactionHash } = await accountHandler.sendCustomToken(
+        tokenInfo.address,
+        setHexPrefix(recipientWalletAddress.value),
+        amount.value
+      )
+      activitiesStore.fetchAndSaveActivityFromHash({
+        chainId: rpcStore.selectedRpcConfig?.chainId as number,
+        txHash: transactionHash,
+      })
+    }
     toast.success('Tokens sent Successfully')
   } catch (err) {
     if (err && err.reason) {
@@ -130,6 +189,7 @@ function handleShowPreview() {
         recipientWalletAddress: setHexPrefix(recipientWalletAddress),
         amount,
         gasFee: gasFeeInEth,
+        selectedToken,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
@@ -172,9 +232,7 @@ function handleShowPreview() {
             <label class="text-xs text-zinc-400" for="amount"> Amount </label>
             <p class="space-x-1 text-xs text-zinc-400">
               <span>Total Balance:</span>
-              <span class="text-white">{{
-                truncateToTwoDecimals(walletBalance)
-              }}</span>
+              <span>{{ truncateToTwoDecimals(selectedTokenBalance) }}</span>
             </p>
           </div>
           <div class="flex space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
@@ -194,7 +252,19 @@ function handleShowPreview() {
                 'border-l-[1px] border-l-slate-400 px-1': rpcStore.currency,
               }"
             >
-              <p class="text-sm pl-1">{{ rpcStore.currency }}</p>
+              <select
+                v-model="selectedToken"
+                name="tokens"
+                class="bg-transparent outline-none"
+              >
+                <option
+                  v-for="token in tokenList"
+                  :key="token.symbol"
+                  :value="token.symbol"
+                >
+                  {{ token.symbol }}
+                </option>
+              </select>
             </div>
           </div>
         </div>

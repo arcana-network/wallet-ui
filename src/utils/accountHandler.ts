@@ -43,6 +43,16 @@ export class AccountHandler {
     })
   }
 
+  sendCustomToken = async (contractAddress, recepientAddress, amount) => {
+    const abi = [
+      'function transfer(address recipient, uint256 amount) returns (bool)',
+    ]
+    const signer = this.wallet.connect(this.provider)
+    const contract = new ethers.Contract(contractAddress, abi, signer)
+    const tx = await contract.functions.transfer(recepientAddress, amount)
+    return await tx.wait()
+  }
+
   sendTransactionWrapper = async (p: TransactionParams): Promise<string> => {
     return (await this.sendTransaction(p, p.from)) as string
   }
