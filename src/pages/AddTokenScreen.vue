@@ -9,7 +9,6 @@ import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
-import debounce from '@/utils/debounce'
 
 const router = useRouter()
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
@@ -121,13 +120,11 @@ async function validateAndPopulateContract() {
   }
 }
 
-const debouncedValidation = debounce(validateAndPopulateContract)
-
 watch(
   () => tokenContract.address,
   async () => {
-    if (tokenContract.address) {
-      await debouncedValidation()
+    if (tokenContract.address?.length == 42) {
+      await validateAndPopulateContract()
     } else {
       tokenContract.symbol = ''
       tokenContract.decimals = 0
