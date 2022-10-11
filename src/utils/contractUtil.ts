@@ -17,6 +17,7 @@ type SymbolDecimalResponse = {
 
 async function getTokenBalance(data: ContractParams): Promise<string> {
   const accountHandler = new AccountHandler(data.privateKey)
+  accountHandler.setProvider(data.rpcUrl)
   const ethersContract = new ethers.Contract(
     data.contractAddress,
     ABI,
@@ -32,6 +33,7 @@ async function getTokenSymbolAndDecimals(
   data: Omit<ContractParams, 'walletAddress'>
 ): Promise<SymbolDecimalResponse> {
   const accountHandler = new AccountHandler(data.privateKey)
+  accountHandler.setProvider(data.rpcUrl)
   const ethersContract = new ethers.Contract(
     data.contractAddress,
     ABI,
@@ -42,8 +44,6 @@ async function getTokenSymbolAndDecimals(
   const decimalsPromise: Promise<number> = ethersContract.decimals()
 
   const [symbol, decimals] = await Promise.all([symbolPromise, decimalsPromise])
-
-  console.log({ symbol, decimals })
 
   return {
     symbol,
