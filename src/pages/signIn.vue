@@ -99,8 +99,6 @@ async function init() {
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
 
-      localStorage.setItem('theme', theme)
-      localStorage.setItem('appName', appName)
       app.setTheme(theme)
       app.setName(appName)
     }
