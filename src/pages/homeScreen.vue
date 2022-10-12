@@ -124,21 +124,21 @@ async function initAccountHandler() {
 
     accountHandler = new AccountHandler(userStore.privateKey)
 
-    const account = accountHandler.getAccount()
-    userStore.setWalletAddress(account.address)
+    if (!userStore.walletAddress) {
+      const account = accountHandler.getAccount()
+      userStore.setWalletAddress(account.address)
+    }
 
-    const walletType = await getWalletType(
-      appStore.id,
-      rpcStore.selectedRpcConfig.rpcUrls[0]
-    )
+    if (typeof appStore.validAppMode !== 'number') {
+      const walletType = await getWalletType(appStore.id)
+      setAppMode(walletType, parentConnectionInstance)
+    }
 
     const keeper = new RequestHandler(accountHandler)
     keeper.setConnection(parentConnection)
     await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
 
     watchRequestQueue(requestStore, keeper)
-
-    setAppMode(walletType, parentConnectionInstance)
 
     const chainId = await accountHandler.getChainId()
     parentConnectionInstance.onEvent('connect', { chainId })
