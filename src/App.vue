@@ -6,7 +6,6 @@ import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
-import { createParentConnection } from '@/utils/createParentConnection'
 import '@/index.css'
 
 const user = useUserStore()
