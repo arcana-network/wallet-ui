@@ -1,41 +1,29 @@
 <script setup lang="ts">
-import { useImage } from '@/utils/useImage'
-
-const getImage = useImage()
+import { getIconAsset } from '@/utils/useImage'
 </script>
 
 <template>
-  <div class="no-requests__container flex-1">
+  <div
+    class="no-requests__container flex-1 flex flex-col content-center justify-center h-full"
+  >
     <img
-      :src="getImage('no-pending-req-illustration')"
+      :src="getIconAsset('no-pending-requests.svg')"
       alt="Tick Icon"
-      class="no-requests__img"
+      class="w-20 h-20 mx-auto mb-5"
     />
-    <p class="no-requests__text">No Pending Requests!</p>
+    <p class="no-requests__text font-semibold text-center">
+      No Pending Requests!
+    </p>
   </div>
 </template>
 
 <style scoped>
 .no-requests__container {
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  justify-content: center;
-  height: 100%;
   background-color: var(--container-bg-color);
   box-shadow: none;
 }
 
-.no-requests__img {
-  width: 100px;
-  height: 120px;
-  margin: 0 auto;
-  margin-bottom: 20px;
-}
-
 .no-requests__text {
   font-size: var(--fs-500);
-  font-weight: 600;
-  text-align: center;
 }
 </style>

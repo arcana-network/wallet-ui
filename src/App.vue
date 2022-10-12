@@ -6,6 +6,7 @@ import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
+import { createParentConnection } from '@/utils/createParentConnection'
 import '@/index.css'
 
 const user = useUserStore()
@@ -21,19 +22,23 @@ function setThemeAttribute(value) {
   if (value === 'dark') htmlEl.classList.add(value)
 }
 
-function init() {
+async function init() {
   isLoading.value = true
   try {
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
-    const theme = localStorage.getItem('theme')
-    const appName = localStorage.getItem('appName')
+    const parentConnection = createParentConnection({})
 
-    if (theme) {
-      app.setTheme(theme)
-      setThemeAttribute(theme)
-    }
-    if (appName) app.setName(appName)
+    const parentConnectionInstance = await parentConnection.promise
+
+    const {
+      themeConfig: { theme },
+      name: appName,
+    } = await parentConnectionInstance.getAppConfig()
+
+    app.setTheme(theme)
+    setThemeAttribute(theme)
+    app.setName(appName)
 
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
@@ -134,7 +139,7 @@ function init() {
   --fg-color-secondary: var(--color-philippine-gray);
   --bg-gradient: var(--color-gradient-light);
   --content-bg-color: var(--color-light);
-  --container-bg-color: var(--color-gradient-light);
+  --container-bg-color: #f2f2f2;
   --debossed-box-color: var(--debossed-light-color);
   --debossed-shadow: var(--debossed-box-shadow-light);
   --card-shadow: 4px 5px 4px #f0f0f3;
@@ -151,7 +156,7 @@ function init() {
   --fg-color-secondary: var(--color-philippine-gray);
   --bg-gradient: var(--color-gradient-dark);
   --content-bg-color: var(--color-gradient-dark);
-  --container-bg-color: var(--color-dark);
+  --container-bg-color: #1e1e1e;
   --debossed-box-color: var(--debossed-dark-color);
   --debossed-shadow: var(--debossed-box-shadow-dark);
   --card-shadow: 4px 5px 4px #181818;

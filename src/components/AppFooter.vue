@@ -35,28 +35,6 @@ function getAppropriateIcon(iconName, pathName) {
     :class="{ 'justify-between': userStore.isLoggedIn }"
   >
     <div v-if="userStore.isLoggedIn" class="flex space-x-4">
-      <router-link to="/requests" class="relative">
-        <img
-          :src="getAppropriateIcon('home-icon', 'requests')"
-          alt="request"
-          class="w-6 h-6"
-          :class="{
-            'bg-black dark:bg-white p-[2px] rounded-md':
-              isCurrentRoute('requests'),
-          }"
-        />
-        <span
-          v-if="requestStore.areRequestsPendingForApproval"
-          class="flex h-[9px] w-[9px] absolute top-[1px] right-[1px]"
-        >
-          <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
-          ></span>
-          <span
-            class="relative inline-flex rounded-full h-[9px] w-[9px] bg-red-700"
-          ></span>
-        </span>
-      </router-link>
       <router-link to="/">
         <img
           :src="getAppropriateIcon('coins-stacked-icon', 'home')"
@@ -77,6 +55,28 @@ function getAppropriateIcon(iconName, pathName) {
               isCurrentRoute('profile'),
           }"
         />
+      </router-link>
+      <router-link to="/requests" class="relative">
+        <img
+          :src="getAppropriateIcon('notification-icon', 'requests')"
+          alt="request"
+          class="w-6 h-6"
+          :class="{
+            'bg-black dark:bg-white p-[2px] rounded-md':
+              isCurrentRoute('requests'),
+          }"
+        />
+        <span
+          v-if="requestStore.areRequestsPendingForApproval"
+          class="flex h-[9px] w-[9px] absolute top-[1px] right-[1px]"
+        >
+          <span
+            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
+          ></span>
+          <span
+            class="relative inline-flex rounded-full h-[9px] w-[9px] bg-red-700"
+          ></span>
+        </span>
       </router-link>
     </div>
     <div class="flex items-center justify-center">
