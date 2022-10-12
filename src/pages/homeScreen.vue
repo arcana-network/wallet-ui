@@ -73,6 +73,7 @@ const assets: {
 onMounted(async () => {
   setRpcConfigs()
   connectToParent()
+  await setTheme()
   await getRpcConfig()
   await getAccountDetails()
 })
@@ -159,6 +160,19 @@ function connectToParent() {
     getUserInfo,
   })
   parentConnectionStore.setParentConnection(parentConnection)
+}
+
+async function setTheme() {
+  const parentConnectionInstance = await parentConnection.promise
+  const {
+    themeConfig: { theme },
+    name: appName,
+  } = await parentConnectionInstance.getAppConfig()
+
+  appStore.setTheme(theme)
+  appStore.setName(appName)
+  const htmlEl = document.getElementsByTagName('html')[0]
+  if (theme === 'dark') htmlEl.classList.add(theme)
 }
 
 function getUserInfo() {

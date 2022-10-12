@@ -6,7 +6,6 @@ import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
-import { createParentConnection } from '@/utils/createParentConnection'
 import '@/index.css'
 
 const user = useUserStore()
@@ -17,28 +16,11 @@ const isLoading = ref(false)
 
 onMounted(init)
 
-function setThemeAttribute(value) {
-  const htmlEl = document.getElementsByTagName('html')[0]
-  if (value === 'dark') htmlEl.classList.add(value)
-}
-
 async function init() {
   isLoading.value = true
   try {
     const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
     const isLoggedIn = sessionStorage.getItem('isLoggedIn')
-    const parentConnection = createParentConnection({})
-
-    const parentConnectionInstance = await parentConnection.promise
-
-    const {
-      themeConfig: { theme },
-      name: appName,
-    } = await parentConnectionInstance.getAppConfig()
-
-    app.setTheme(theme)
-    setThemeAttribute(theme)
-    app.setName(appName)
 
     if (isLoggedIn) {
       user.setUserInfo(userInfo)
