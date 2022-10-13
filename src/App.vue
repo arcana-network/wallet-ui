@@ -39,12 +39,14 @@ async function init() {
   <!-- TODO: Replace it with loading indicator -->
   <div
     v-else
-    class="wallet__container"
+    class="flex flex-col h-full"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <RouterView />
+    <div class="flex-grow wallet__container">
+      <RouterView class="min-h-full" />
+      <BaseModal v-if="modal.show" />
+    </div>
     <WalletFooter />
-    <BaseModal v-if="modal.show" />
   </div>
 </template>
 
@@ -199,7 +201,6 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  min-height: 100%;
   padding: var(--p-400);
   overflow-x: hidden;
   color: var(--fg-color);
