@@ -107,7 +107,7 @@ function handleCustomGasPriceInput(value) {
         </span>
       </div>
     </div>
-    <div class="px-4">
+    <div class="px-6">
       <GasPriceSlider
         :disable="disableSlider"
         @select-gas-price="handleGasPriceSelect"
@@ -116,7 +116,8 @@ function handleCustomGasPriceInput(value) {
   </div>
   <button
     v-if="showSlider"
-    class="flex justify-center items-center m-auto space-x-1 mt-5"
+    class="flex justify-center items-center mx-auto"
+    style="margin-top: 2.5rem"
     @click.prevent="showCustomGasFeeInput = !showCustomGasFeeInput"
   >
     <p class="text-xs">Advanced Option</p>

@@ -210,7 +210,11 @@ function handleShowPreview() {
       </div>
       <div class="space-y-1">
         <p class="text-xs text-zinc-400">Network</p>
-        <p class="text-base sm:text-sm">
+        <p class="text-base sm:text-sm flex gap-2">
+          <img
+            :src="getImage(rpcStore.selectedRpcConfig.favicon)"
+            class="w-6 h-6"
+          />
           {{ rpcStore.selectedRpcConfig?.chainName }}
         </p>
       </div>

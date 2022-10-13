@@ -24,7 +24,7 @@ const emits = defineEmits(['oauthClick'])
 <template>
   <div class="wallet__signin-oauth-container">
     <p class="wallet__signin-oauth-text">Or sign in with</p>
-    <div>
+    <div class="flex gap-2">
       <button
         v-for="oauth in oauthLoginList"
         :key="oauth.value"
