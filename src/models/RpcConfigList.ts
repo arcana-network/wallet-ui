@@ -2,6 +2,7 @@ import { RpcConfig } from '@arcana/auth'
 
 interface RpcConfigWallet extends RpcConfig {
   favicon: string
+  isCustom: boolean
 }
 
 const CHAIN_LIST = [
@@ -11,6 +12,7 @@ const CHAIN_LIST = [
     chainName: 'Ethereum Mainnet',
     blockExplorerUrls: ['https://etherscan.io/'],
     favicon: 'ethereum-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'ETH',
       decimals: 18,
@@ -22,6 +24,7 @@ const CHAIN_LIST = [
     chainName: 'Ethereum Ropsten (Testnet)',
     blockExplorerUrls: ['https://ropsten.etherscan.io/'],
     favicon: 'ethereum-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'ETH',
       decimals: 18,
@@ -33,6 +36,7 @@ const CHAIN_LIST = [
     chainName: 'Ethereum Rinkeby (Testnet)',
     blockExplorerUrls: ['https://rinkeby.etherscan.io/'],
     favicon: 'ethereum-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'ETH',
       decimals: 18,
@@ -44,6 +48,7 @@ const CHAIN_LIST = [
     chainName: 'Ethereum Goerli (Testnet)',
     blockExplorerUrls: ['https://goerli.etherscan.io/'],
     favicon: 'ethereum-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'ETH',
       decimals: 18,
@@ -55,6 +60,7 @@ const CHAIN_LIST = [
     chainName: 'Polygon Mainnet',
     blockExplorerUrls: ['https://polygonscan.com'],
     favicon: 'polygon-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'matic',
       decimals: 18,
@@ -66,6 +72,7 @@ const CHAIN_LIST = [
     chainName: 'Polygon Mumbai (Testnet)',
     blockExplorerUrls: ['https://mumbai-explorer.matic.today'],
     favicon: 'polygon-icon',
+    isCustom: false,
     nativeCurrency: {
       symbol: 'matic',
       decimals: 18,
@@ -77,6 +84,7 @@ const CHAIN_LIST = [
     chainName: 'Arcana (Testnet)',
     blockExplorerUrls: ['https://explorer.beta.arcana.network/'],
     favicon: 'arcana-icon',
+    isCustom: false,
   },
   {
     chainId: 40404,
@@ -84,6 +92,7 @@ const CHAIN_LIST = [
     chainName: 'Arcana Dev',
     blockExplorerUrls: ['https://explorer.dev.arcana.network/'],
     favicon: 'arcana-icon',
+    isCustom: false,
   },
 ]
 
