@@ -133,7 +133,7 @@ function handleGasPriceInput({ value, requestId }) {
 
 .sign__message-button-container {
   width: calc(100% + 2rem);
-  background: rgb(10 10 10 / 70%);
+  background: var(--request-footer-bg);
 }
 
 .sign__message-button-reject,

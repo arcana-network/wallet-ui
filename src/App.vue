@@ -149,6 +149,7 @@ async function init() {
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
   --button-bg-disabled: var(--color-dark-disabled);
+  --request-footer-bg: rgb(235 235 235 / 70%);
 }
 
 .dark-mode {
@@ -166,6 +167,7 @@ async function init() {
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
   --button-bg-disabled: var(--color-light-disabled);
+  --request-footer-bg: rgb(10 10 10 / 70%);
 }
 
 body {

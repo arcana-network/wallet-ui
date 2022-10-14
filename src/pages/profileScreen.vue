@@ -56,46 +56,50 @@ onBeforeRouteLeave((to) => {
 </script>
 
 <template>
-  <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]">
-    <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2">
-      <h1 class="home__title">Welcome</h1>
-      <div class="home__body-container space-y-4 sm:space-y-2">
-        <div v-if="name" class="home__body-content">
-          <p class="home__body-content-label">Name</p>
-          <p class="home__body-content-value">{{ name }}</p>
-        </div>
-        <div class="home__body-content">
-          <p class="home__body-content-label">Email ID</p>
-          <p class="home__body-content-value">{{ email }}</p>
-        </div>
-        <div class="home__body-content">
-          <p class="home__body-content-label">Network</p>
-          <p class="home__body-content-value">
-            {{ selectedRpcConfig?.chainName }}
-          </p>
-        </div>
-        <div class="home__body-content">
-          <p class="home__body-content-label">Wallet Address</p>
-          <p class="home__body-content-value">
-            <span>{{ walletAddressShrinked }}</span>
-            <input id="wallet-address" type="hidden" :value="walletAddress" />
-            <button @click="copyToClipboard(walletAddress)">
-              <img
-                :src="getImage('copy-icon')"
-                alt="copy icon"
-                class="home__body-copy-icon"
-              />
-            </button>
-          </p>
-        </div>
-      </div>
-      <div class="flex w-full text-sm sm:text-xs justify-center">
-        <button
-          class="home__footer-button-outline rounded-xl border-2 border-solid w-1/2"
-          @click="handleLogout"
+  <div>
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col min-h-full">
+      <div class="home__container p-4 sm:p-2 space-y-5 sm:space-y-2 flex-grow">
+        <h1 class="home__title">Welcome</h1>
+        <div
+          class="home__body-container space-y-4 sm:space-y-2 debossed-card flex-grow"
         >
-          Logout
-        </button>
+          <div v-if="name" class="home__body-content">
+            <p class="home__body-content-label">Name</p>
+            <p class="home__body-content-value">{{ name }}</p>
+          </div>
+          <div class="home__body-content">
+            <p class="home__body-content-label">Email ID</p>
+            <p class="home__body-content-value">{{ email }}</p>
+          </div>
+          <div class="home__body-content">
+            <p class="home__body-content-label">Network</p>
+            <p class="home__body-content-value">
+              {{ selectedRpcConfig?.chainName }}
+            </p>
+          </div>
+          <div class="home__body-content">
+            <p class="home__body-content-label">Wallet Address</p>
+            <p class="home__body-content-value">
+              <span>{{ walletAddressShrinked }}</span>
+              <input id="wallet-address" type="hidden" :value="walletAddress" />
+              <button @click="copyToClipboard(walletAddress)">
+                <img
+                  :src="getImage('copy-icon')"
+                  alt="copy icon"
+                  class="home__body-copy-icon"
+                />
+              </button>
+            </p>
+          </div>
+        </div>
+        <div class="flex w-full text-sm sm:text-xs justify-center">
+          <button
+            class="home__footer-button-outline rounded-xl border-2 border-solid w-1/2"
+            @click="handleLogout"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -106,8 +110,7 @@ onBeforeRouteLeave((to) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  height: 100%;
+  min-height: 100%;
 }
 
 .home__title {
@@ -126,9 +129,7 @@ onBeforeRouteLeave((to) => {
   color: var(--fg-color);
   text-align: center;
   text-align: left;
-  background: var(--debossed-box-color);
   border-radius: 10px;
-  box-shadow: var(--debossed-shadow);
 }
 
 .home__body-content-label {
