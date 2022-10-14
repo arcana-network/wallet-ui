@@ -71,23 +71,25 @@ rpcStore.$subscribe(getAssetsBalance)
 
 <template>
   <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
-    <div>
+    <div class="flex flex-col py-5 gap-5">
       <div
         v-for="asset in assets"
         :key="`asset-${asset.symbol}`"
-        class="flex justify-between items-center py-[1.25rem]"
+        class="flex justify-between items-center"
       >
         <div class="flex items-center gap-3">
           <img
             :src="getIconAsset(`token-logos/${asset.logo}`)"
             class="w-[1.25rem] aspect-square rounded-full"
           />
-          <span class="assets-view__asset-name leading-none">{{
-            asset.name
-          }}</span>
+          <span
+            class="assets-view__asset-name leading-none overflow-hidden whitespace-nowrap text-ellipsis"
+            :title="asset.name"
+            >{{ asset.name }}</span
+          >
         </div>
         <div
-          class="assets-view__asset-balance flex flex-wrap leading-none text-right"
+          class="assets-view__asset-balance flex flex-wrap leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis"
           :title="`${asset.balance.toFixed(asset.decimals)} ${asset.symbol}`"
         >
           {{ beautifyBalance(asset.balance) }}
@@ -112,5 +114,13 @@ rpcStore.$subscribe(getAssetsBalance)
 .assets-view__asset-name,
 .assets-view__asset-balance {
   font-size: var(--fs-350);
+}
+
+.assets-view__asset-name {
+  max-width: 12ch;
+}
+
+.assets-view__asset-balance {
+  max-width: 10ch;
 }
 </style>

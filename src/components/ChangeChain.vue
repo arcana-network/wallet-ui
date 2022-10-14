@@ -32,7 +32,9 @@ watch(selectedChain, () => {
           :alt="selectedChain.chainName"
           class="w-6 h-6"
         />
-        <p>{{ selectedChain.chainName }}</p>
+        <p class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch]">
+          {{ selectedChain.chainName }}
+        </p>
       </div>
       <img
         :src="getImage('arrow-icon')"
@@ -63,7 +65,11 @@ watch(selectedChain, () => {
                 :alt="chain.chainName"
                 class="w-6 h-6"
               />
-              <p>{{ chain.chainName }}</p>
+              <p
+                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[20ch]"
+              >
+                {{ chain.chainName }}
+              </p>
             </div>
             <button
               v-if="chain.isCustom"
