@@ -70,41 +70,38 @@ rpcStore.$subscribe(getAssetsBalance)
 </script>
 
 <template>
-  <div class="flex flex-col px-4">
-    <div class="flex justify-end">
+  <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
+    <div>
+      <div
+        v-for="asset in assets"
+        :key="`asset-${asset.symbol}`"
+        class="flex justify-between items-center py-[1.25rem]"
+      >
+        <div class="flex items-center gap-3">
+          <img
+            :src="getIconAsset(`token-logos/${asset.logo}`)"
+            class="w-[1.25rem] aspect-square rounded-full"
+          />
+          <span class="assets-view__asset-name leading-none">{{
+            asset.name
+          }}</span>
+        </div>
+        <div
+          class="assets-view__asset-balance flex flex-wrap leading-none text-right"
+          :title="`${asset.balance.toFixed(asset.decimals)} ${asset.symbol}`"
+        >
+          {{ beautifyBalance(asset.balance) }}
+          {{ asset.symbol }}
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-center">
       <div
         class="flex py-4 gap-1 items-center cursor-pointer"
         @click.stop="handleAddToken"
       >
-        <img
-          class="dark:invert w-6"
-          src="@/assets/images/plus-circle.svg"
-          alt="Click to add a token"
-        />
+        <span class="text-xl">+</span>
         <span class="assets-view__add-token-text">Token</span>
-      </div>
-    </div>
-    <hr class="tab-view-border-color border-0 border-t" />
-    <div
-      v-for="asset in assets"
-      :key="`asset-${asset.symbol}`"
-      class="flex justify-between items-center py-[1.25rem]"
-    >
-      <div class="flex items-center gap-3">
-        <img
-          :src="getIconAsset(`token-logos/${asset.logo}`)"
-          class="w-[1.25rem] aspect-square rounded-full"
-        />
-        <span class="assets-view__asset-name leading-none">{{
-          asset.name
-        }}</span>
-      </div>
-      <div
-        class="assets-view__asset-balance flex flex-wrap leading-none text-right"
-        :title="`${asset.balance.toFixed(asset.decimals)} ${asset.symbol}`"
-      >
-        {{ beautifyBalance(asset.balance) }}
-        {{ asset.symbol }}
       </div>
     </div>
   </div>
