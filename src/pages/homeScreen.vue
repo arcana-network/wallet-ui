@@ -357,13 +357,13 @@ onBeforeRouteLeave((to) => {
           </div>
         </div>
         <div
-          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient mt-5"
+          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 debossed-card mt-5"
         >
           <div
             class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
           >
             <div
-              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
+              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
             >
               <p class="text-sm sm:text-xs">Total Balance</p>
               <div

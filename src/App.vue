@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { toRefs, ref, onMounted, watch, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
@@ -8,17 +8,27 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
+
 import '@/index.css'
 
 const user = useUserStore()
 const app = useAppStore()
 const modal = useModalStore()
+const requestStore = useRequestStore()
+const router = useRouter()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
 const route = useRoute()
-const requestStore = useRequestStore()
 
 onMounted(init)
+
+const showRequestPage = computed(() => {
+  return requestStore.areRequestsPendingForApproval
+})
+
+watch(showRequestPage, () => {
+  if (showRequestPage.value) router.push({ name: 'requests' })
+})
 
 async function init() {
   isLoading.value = true
@@ -140,6 +150,7 @@ async function init() {
   --outlined-button-fg-color: var(--color-dark);
   --button-bg-disabled: var(--color-dark-disabled);
   --scrollbar-thumb-color: #ddd;
+  --request-footer-bg: rgb(235 235 235 / 70%);
 }
 
 .dark-mode {
@@ -158,6 +169,7 @@ async function init() {
   --outlined-button-fg-color: var(--color-light);
   --button-bg-disabled: var(--color-light-disabled);
   --scrollbar-thumb-color: #444;
+  --request-footer-bg: rgb(10 10 10 / 70%);
 }
 
 ::-webkit-scrollbar {
