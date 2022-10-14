@@ -48,49 +48,50 @@ function handleGasPriceInput({ value, requestId }) {
 </script>
 
 <template>
-  <div
-    v-if="areRequestsPendingForApproval"
-    class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]"
-  >
-    <div class="sign__messages-container">
-      <div :key="pendingRequest.request.id" class="sign__message-container">
-        <SendTransaction
-          v-if="isSendTransactionRequest(pendingRequest.request.id)"
-          :request="pendingRequest"
-          @gas-price-input="handleGasPriceInput"
-        />
-        <SignMessage v-else :request="pendingRequest" />
-        <div class="sign__message-footer">
-          <p class="sign__message-info-text">
-            You are not going to be charged!
-            <Popper arrow hover>
-              <button>
-                <img
-                  class="sign__message-info-icon"
-                  :src="getImage('info-icon')"
-                />
-              </button>
-              <template #content>
-                <ChargeInfo />
-              </template>
-            </Popper>
-          </p>
-          <div class="sign__message-button-container">
-            <button
-              class="sign__message-button-reject"
-              @click="onRejectClick(pendingRequest.request.id)"
-            >
-              Reject
-            </button>
-            <button
-              class="sign__message-button-approve"
-              @click="onApproveClick(pendingRequest.request.id)"
-            >
-              Approve
-            </button>
+  <div v-if="areRequestsPendingForApproval" class="flex flex-col h-full gap-2">
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col h-[80%]">
+      <div class="sign__messages-container">
+        <div :key="pendingRequest.request.id" class="sign__message-container">
+          <SendTransaction
+            v-if="isSendTransactionRequest(pendingRequest.request.id)"
+            :request="pendingRequest"
+            @gas-price-input="handleGasPriceInput"
+          />
+          <SignMessage v-else :request="pendingRequest" />
+          <div class="sign__message-footer">
+            <p class="sign__message-info-text">
+              You are not going to be charged!
+              <Popper arrow hover>
+                <button>
+                  <img
+                    class="sign__message-info-icon"
+                    :src="getImage('info-icon')"
+                  />
+                </button>
+                <template #content>
+                  <ChargeInfo />
+                </template>
+              </Popper>
+            </p>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="sign__message-button-container flex justify-around -m-4 mt-0 p-4"
+    >
+      <button
+        class="sign__message-button-reject uppercase"
+        @click="onRejectClick(pendingRequest.request.id)"
+      >
+        Reject
+      </button>
+      <button
+        class="sign__message-button-approve uppercase"
+        @click="onApproveClick(pendingRequest.request.id)"
+      >
+        Approve
+      </button>
     </div>
   </div>
   <SignMessageNoRequests v-else />
@@ -131,9 +132,8 @@ function handleGasPriceInput({ value, requestId }) {
 }
 
 .sign__message-button-container {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
+  width: calc(100% + 2rem);
+  background: var(--request-footer-bg);
 }
 
 .sign__message-button-reject,

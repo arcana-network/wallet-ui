@@ -139,53 +139,52 @@ function onEnterPress() {
   <div v-if="isLoading" class="signin__loader flex-1">
     <p>Loading...</p>
   </div>
-  <div
-    v-else
-    class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[10px]"
-  >
-    <div class="signin__container">
-      <div class="signin__body flow-container">
-        <div class="signin__title-desc flow-element">
-          <h1 class="signin__title">Welcome!</h1>
-          <p class="signin__desc">
-            You will receive a login link in your email for a password-less
-            sign-in.
-          </p>
+  <div v-else class="flex items-center">
+    <div class="wallet__card rounded-[10px] flex flex-col mb-[10px]">
+      <div class="signin__container">
+        <div class="signin__body flow-container">
+          <div class="signin__title-desc flow-element">
+            <h1 class="signin__title">Welcome!</h1>
+            <p class="signin__desc">
+              You will receive a login link in your email for a password-less
+              sign-in.
+            </p>
+          </div>
+          <form
+            ref="passwordlessForm"
+            class="signin__input-container flow-element"
+            @submit.prevent="handleSubmit"
+          >
+            <label class="signin__input-label">Email</label>
+            <input
+              v-model="userEmailInput"
+              name="email"
+              type="email"
+              class="signin__input-field"
+              placeholder="someone@example.com"
+              required
+              @keyup.enter="onEnterPress"
+            />
+            <input
+              type="submit"
+              value="Send Link"
+              class="signin__button"
+              :class="{ 'signin__button--disabled': disableSendLinkBtn }"
+              :disabled="disableSendLinkBtn"
+            />
+          </form>
         </div>
-        <form
-          ref="passwordlessForm"
-          class="signin__input-container flow-element"
-          @submit.prevent="handleSubmit"
-        >
-          <label class="signin__input-label">Email</label>
-          <input
-            v-model="userEmailInput"
-            name="email"
-            type="email"
-            class="signin__input-field"
-            placeholder="someone@example.com"
-            required
-            @keyup.enter="onEnterPress"
-          />
-          <input
-            type="submit"
-            value="Send Link"
-            class="signin__button"
-            :class="{ 'signin__button--disabled': disableSendLinkBtn }"
-            :disabled="disableSendLinkBtn"
-          />
-        </form>
-      </div>
-      <div class="signin__footer">
-        <div>
-          <OauthLogin
-            v-if="availableLogins.length"
-            :available-logins="availableLogins"
-            @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
-          />
-          <p v-else class="signin__footer-text-error">
-            {{ LOGINS_FETCHING_ERROR_TEXT }}
-          </p>
+        <div class="signin__footer">
+          <div>
+            <OauthLogin
+              v-if="availableLogins.length"
+              :available-logins="availableLogins"
+              @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
+            />
+            <p v-else class="signin__footer-text-error">
+              {{ LOGINS_FETCHING_ERROR_TEXT }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -209,7 +208,7 @@ function onEnterPress() {
 }
 
 .signin__container > *:not(:first-child) {
-  margin-top: 80px;
+  margin-top: 40px;
 }
 
 .signin__body {

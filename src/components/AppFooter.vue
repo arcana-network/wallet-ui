@@ -31,7 +31,7 @@ function getAppropriateIcon(iconName, pathName) {
 
 <template>
   <footer
-    class="relative flex items-center justify-end h-8"
+    class="flex items-center justify-end py-4"
     :class="{ 'justify-between': userStore.isLoggedIn }"
   >
     <div v-if="userStore.isLoggedIn" class="flex space-x-4">
@@ -39,9 +39,9 @@ function getAppropriateIcon(iconName, pathName) {
         <img
           :src="getAppropriateIcon('coins-stacked-icon', 'home')"
           alt="home"
-          class="w-6 h-6"
+          class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white p-[2px] rounded-md': isCurrentRoute('home'),
+            'bg-black dark:bg-white': isCurrentRoute('home'),
           }"
         />
       </router-link>
@@ -49,10 +49,9 @@ function getAppropriateIcon(iconName, pathName) {
         <img
           :src="getAppropriateIcon('profile-icon', 'profile')"
           alt="profile"
-          class="w-6 h-6"
+          class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white p-[2px] rounded-md':
-              isCurrentRoute('profile'),
+            'bg-black dark:bg-white': isCurrentRoute('profile'),
           }"
         />
       </router-link>
@@ -60,29 +59,35 @@ function getAppropriateIcon(iconName, pathName) {
         <img
           :src="getAppropriateIcon('notification-icon', 'requests')"
           alt="request"
-          class="w-6 h-6"
+          class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white p-[2px] rounded-md':
-              isCurrentRoute('requests'),
+            'bg-black dark:bg-white': isCurrentRoute('requests'),
           }"
         />
         <span
           v-if="requestStore.areRequestsPendingForApproval"
-          class="flex h-[9px] w-[9px] absolute top-[1px] right-[1px]"
+          class="flex h-2 w-2 absolute top-1 right-2"
         >
           <span
             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
           ></span>
           <span
-            class="relative inline-flex rounded-full h-[9px] w-[9px] bg-red-700"
+            class="relative inline-flex rounded-full h-2 w-2 bg-red-700"
           ></span>
         </span>
       </router-link>
     </div>
     <div class="flex items-center justify-center">
       <a href="https://arcana.network/" target="_blank">
-        <img class="w-16 h-auto" :src="getImage('powered-by-arcana')" />
+        <img class="h-auto" :src="getImage('powered-by-arcana')" />
       </a>
     </div>
   </footer>
 </template>
+
+<style scoped>
+footer {
+  padding: var(--p-500);
+  background: var(--container-bg-color);
+}
+</style>

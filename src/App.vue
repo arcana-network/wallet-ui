@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRefs, ref, onMounted, watch, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
@@ -18,6 +18,7 @@ const requestStore = useRequestStore()
 const router = useRouter()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
+const route = useRoute()
 
 onMounted(init)
 
@@ -52,12 +53,16 @@ async function init() {
   <!-- TODO: Replace it with loading indicator -->
   <div
     v-else
-    class="wallet__container"
+    class="flex flex-col h-full"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <RouterView />
-    <WalletFooter />
-    <BaseModal v-if="modal.show" />
+    <div class="flex-grow wallet__container">
+      <RouterView class="min-h-full" />
+      <BaseModal v-if="modal.show" />
+    </div>
+    <WalletFooter
+      v-if="route.name !== 'requests' || !requestStore.pendingRequest"
+    />
   </div>
 </template>
 
@@ -144,6 +149,7 @@ async function init() {
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
   --button-bg-disabled: var(--color-dark-disabled);
+  --request-footer-bg: rgb(235 235 235 / 70%);
 }
 
 .dark-mode {
@@ -161,6 +167,7 @@ async function init() {
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
   --button-bg-disabled: var(--color-light-disabled);
+  --request-footer-bg: rgb(10 10 10 / 70%);
 }
 
 body {
@@ -212,7 +219,6 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  min-height: 100%;
   padding: var(--p-400);
   overflow-x: hidden;
   color: var(--fg-color);

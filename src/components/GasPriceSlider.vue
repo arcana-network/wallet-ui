@@ -31,8 +31,6 @@ const railStyle = {
 }
 
 const dotStyle = {
-  width: '18px',
-  height: '18px',
   border: 'none',
   boxShadow: '0 0 0 2px #fff',
 }
@@ -79,7 +77,7 @@ function handleSlide(value) {
     <template #dot>
       <div
         v-if="!props.disable"
-        class="w-[18px] h-[18px] bg-white rounded-full border-none shadow-white"
+        class="w-4 h-4 bg-white rounded-full border-none shadow-white"
       ></div>
       <div
         v-else

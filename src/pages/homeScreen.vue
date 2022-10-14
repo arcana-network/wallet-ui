@@ -305,7 +305,7 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
-    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-10">
       <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
         <div class="flex flex-col justify-center items-center space-y-2">
           <div class="flex items-center space-x-1">
@@ -323,7 +323,7 @@ onBeforeRouteLeave((to) => {
               />
             </button>
           </div>
-          <div class="flex items-center space-x-2 sm:space-x-1">
+          <div class="flex items-center space-x-1 gap-4">
             <a
               v-if="explorerUrl"
               :href="explorerUrl"
@@ -337,10 +337,7 @@ onBeforeRouteLeave((to) => {
               />
               <span class="text-xs">View on Explorer</span>
             </a>
-            <button
-              class="flex items-center space-x-1"
-              @click="getWalletBalance"
-            >
+            <button class="flex items-center" @click="getWalletBalance">
               <img
                 :src="getImage('refresh-icon')"
                 alt="Refresh wallet balance"
@@ -350,7 +347,7 @@ onBeforeRouteLeave((to) => {
             </button>
           </div>
         </div>
-        <div class="space-y-1 relative pb-14 sm:pb-8 mt-8">
+        <div class="space-y-1 relative pb-14 sm:pb-8 mt-4">
           <p class="text-xs text-zinc-400">Network</p>
           <div class="w-full rounded-lg absolute">
             <ChangeChain
@@ -360,13 +357,13 @@ onBeforeRouteLeave((to) => {
           </div>
         </div>
         <div
-          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient mt-5"
+          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 debossed-card mt-5"
         >
           <div
             class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
           >
             <div
-              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 bg-gradient"
+              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
             >
               <p class="text-sm sm:text-xs">Total Balance</p>
               <div
@@ -394,15 +391,15 @@ onBeforeRouteLeave((to) => {
             </div>
           </div>
         </div>
-        <div class="flex space-x-3 mt-10">
+        <div class="flex space-x-3 mt-5">
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openSendTokens(true)"
           >
             Send
           </button>
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1"
+            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openReceiveTokens(true)"
           >
             Receive
@@ -410,28 +407,27 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
-    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-[2.5rem]">
-      <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
-      <AssetsView v-if="selectedTab === 'Assets'" />
-      <ActivityView v-else :currency-exchange-rate="exchangeRate" />
-      <Teleport v-if="showModal" to="#modal-container">
-        <SendTokens
-          v-if="showModal === 'send'"
-          @close="openSendTokens(false)"
-        />
-        <ReceiveTokens
-          v-if="showModal === 'receive'"
-          @close="openReceiveTokens(false)"
-        />
-        <AddNetwork
-          v-if="showModal === 'add-network'"
-          @close="openAddNetwork(false)"
-        />
-        <EditNetwork
-          v-if="showModal === 'edit-network'"
-          @close="openEditNetwork(false)"
-        />
-      </Teleport>
+    <div class="pb-5">
+      <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
+        <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
+        <AssetsView v-if="selectedTab === 'Assets'" />
+        <ActivityView v-else :currency-exchange-rate="exchangeRate" />
+      </div>
     </div>
+    <Teleport v-if="showModal" to="#modal-container">
+      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
+      <ReceiveTokens
+        v-if="showModal === 'receive'"
+        @close="openReceiveTokens(false)"
+      />
+      <AddNetwork
+        v-if="showModal === 'add-network'"
+        @close="openAddNetwork(false)"
+      />
+      <EditNetwork
+        v-if="showModal === 'edit-network'"
+        @close="openEditNetwork(false)"
+      />
+    </Teleport>
   </div>
 </template>
