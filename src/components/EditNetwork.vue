@@ -81,7 +81,11 @@ function deleteNetwork() {
   <div class="space-y-3">
     <div class="flex justify-between">
       <p class="text-xl sm:text-sm">Edit Network</p>
-      <button class="h-auto" @click="deleteNetwork">
+      <button
+        v-if="rpcConfigForEdit.isCustom"
+        class="h-auto"
+        @click="deleteNetwork"
+      >
         <img :src="getImage('trash-icon')" alt="close form" />
       </button>
     </div>

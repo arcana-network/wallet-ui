@@ -75,6 +75,7 @@ watch(selectedChain, () => {
               <p>{{ chain.chainName }}</p>
             </div>
             <button
+              v-if="chain.isCustom"
               class="h-auto"
               @click.prevent="emits('editNetwork', chain.chainId)"
             >
