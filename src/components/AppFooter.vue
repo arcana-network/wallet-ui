@@ -66,20 +66,20 @@ function getAppropriateIcon(iconName, pathName) {
         />
         <span
           v-if="requestStore.areRequestsPendingForApproval"
-          class="flex h-[9px] w-[9px] absolute top-[1px] right-[1px]"
+          class="flex h-2 w-2 absolute top-1 right-2"
         >
           <span
             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
           ></span>
           <span
-            class="relative inline-flex rounded-full h-[9px] w-[9px] bg-red-700"
+            class="relative inline-flex rounded-full h-2 w-2 bg-red-700"
           ></span>
         </span>
       </router-link>
     </div>
     <div class="flex items-center justify-center">
       <a href="https://arcana.network/" target="_blank">
-        <img class="w-16 h-auto" :src="getImage('powered-by-arcana')" />
+        <img class="h-auto" :src="getImage('powered-by-arcana')" />
       </a>
     </div>
   </footer>
