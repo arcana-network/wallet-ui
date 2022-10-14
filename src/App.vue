@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { toRefs, ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import '@/index.css'
 
@@ -13,6 +15,8 @@ const app = useAppStore()
 const modal = useModalStore()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
+const route = useRoute()
+const requestStore = useRequestStore()
 
 onMounted(init)
 
@@ -46,7 +50,9 @@ async function init() {
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
-    <WalletFooter />
+    <WalletFooter
+      v-if="route.name !== 'requests' || !requestStore.pendingRequest"
+    />
   </div>
 </template>
 

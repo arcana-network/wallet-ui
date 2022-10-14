@@ -280,7 +280,7 @@ function handleShowPreview() {
         />
         <div class="flex justify-center">
           <button
-            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8"
+            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
           >
             Proceed
           </button>
