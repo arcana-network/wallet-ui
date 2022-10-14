@@ -44,19 +44,10 @@ watch(selectedChain, () => {
 
     <div
       v-if="open"
-      class="debossed-card p-3 sm:p-1 h-40 rounded-[10px] -mt-3 overflow-auto divide-y-2"
+      class="debossed-card p-3 sm:p-1 h-40 rounded-[10px] -mt-3 divide-y-[1px] divide-gray-600 flex flex-col"
     >
-      <div class="flex justify-end pb-2">
-        <button
-          class="flex items-center space-x-1 h-auto"
-          @click="emits('addNetwork')"
-        >
-          <img :src="getImage('plus-circle-icon')" alt="add network" />
-          <span>Network</span>
-        </button>
-      </div>
       <ListboxOptions
-        class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg pt-2"
+        class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg py-2 flex-1 overflow-auto"
       >
         <ListboxOption
           v-for="chain in rpcStore.rpcConfigList"
@@ -88,6 +79,15 @@ watch(selectedChain, () => {
           </div>
         </ListboxOption>
       </ListboxOptions>
+      <div class="flex justify-center py-2">
+        <button
+          class="flex items-center space-x-1 h-auto"
+          @click="emits('addNetwork')"
+        >
+          <span class="text-xl">+</span>
+          <span>New</span>
+        </button>
+      </div>
     </div>
   </Listbox>
 </template>
