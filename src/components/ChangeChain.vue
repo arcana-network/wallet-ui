@@ -79,7 +79,7 @@ watch(selectedChain, () => {
           </div>
         </ListboxOption>
       </ListboxOptions>
-      <div class="flex justify-center py-2">
+      <div class="flex justify-center pt-2">
         <button
           class="flex items-center space-x-1 h-auto"
           @click="emits('addNetwork')"

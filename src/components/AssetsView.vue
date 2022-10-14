@@ -101,7 +101,7 @@ rpcStore.$subscribe(getAssetsBalance)
         @click.stop="handleAddToken"
       >
         <span class="text-xl">+</span>
-        <span class="assets-view__add-token-text">Token</span>
+        <span class="assets-view__add-token-text">New</span>
       </div>
     </div>
   </div>
