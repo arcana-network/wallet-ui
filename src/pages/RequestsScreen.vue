@@ -58,12 +58,6 @@ function handleGasPriceInput({ value, requestId }) {
             @gas-price-input="handleGasPriceInput"
           />
           <SignMessage v-else :request="pendingRequest" />
-          <SendTransaction
-            v-if="isSendTransactionRequest(pendingRequest.request.id)"
-            :request="pendingRequest"
-            @gas-price-input="handleGasPriceInput"
-          />
-          <SignMessage v-else :request="pendingRequest" />
           <div class="sign__message-footer">
             <p class="sign__message-info-text">
               You are not going to be charged!
