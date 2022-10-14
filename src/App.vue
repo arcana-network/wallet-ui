@@ -139,6 +139,7 @@ async function init() {
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
   --button-bg-disabled: var(--color-dark-disabled);
+  --scrollbar-thumb-color: #ddd;
 }
 
 .dark-mode {
@@ -156,6 +157,19 @@ async function init() {
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
   --button-bg-disabled: var(--color-light-disabled);
+  --scrollbar-thumb-color: #444;
+}
+
+::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color);
+  background-clip: padding-box;
+  border: 0.25rem solid transparent;
+  border-radius: 10px;
 }
 
 body {
