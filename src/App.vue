@@ -27,7 +27,10 @@ const showRequestPage = computed(() => {
 })
 
 watch(showRequestPage, () => {
-  if (showRequestPage.value) router.push({ name: 'requests' })
+  if (showRequestPage.value) {
+    modal.show = false
+    router.push({ name: 'requests' })
+  }
 })
 
 async function init() {

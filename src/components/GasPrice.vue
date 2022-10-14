@@ -34,6 +34,7 @@ const rpcStore = useRpcStore()
 const gasFee = ref(0)
 const transactionTime = ref(null)
 const conversionRate = ref('')
+const isGasPriceFocused = ref(false)
 
 const disableSlider = ref(true)
 
@@ -136,18 +137,29 @@ function handleCustomGasPriceInput(value) {
         <span class="text-white">{{ conversionRate }}</span>
       </p>
     </div>
-    <div class="flex divide-x space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
+    <div
+      class="flex divide-x space-x-1 p-2 sm:p-1 input rounded-lg"
+      :class="{
+        'outline-black dark:outline-white outline-1 outline': isGasPriceFocused,
+      }"
+    >
       <input
         id="amount"
         :value="props.gasPrice"
         autocomplete="off"
         type="text"
-        class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
+        class="text-base sm:text-sm bg-transparent w-full rounded-lg border-none outline-none"
         placeholder="0.5"
         @input="(evt) => handleCustomGasPriceInput(evt.target.value)"
+        @focus="isGasPriceFocused = true"
+        @blur="isGasPriceFocused = false"
       />
       <div class="p-2 border-l-[1px] border-l-slate-400 px-1">
-        <p class="text-sm pl-1">{{ GAS_FEE_UNIT }}</p>
+        <p
+          class="text-sm pl-1 w-[4.375rem] text-ellipsis whitespace-nowrap overflow-hidden"
+        >
+          {{ GAS_FEE_UNIT }}
+        </p>
       </div>
     </div>
   </div>

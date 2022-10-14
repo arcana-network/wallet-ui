@@ -8,9 +8,11 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
+import { useImage } from '@/utils/useImage'
 
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const getImage = useImage()
 
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 
@@ -34,7 +36,11 @@ defineProps({
     </p>
     <div>
       <p class="text-sm sm:text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">
+      <p class="text-base sm:text-sm flex gap-2">
+        <img
+          :src="getImage(rpcStore.selectedRpcConfig.favicon)"
+          class="w-6 h-6"
+        />
         {{ selectedRpcConfig.chainName }}
       </p>
     </div>

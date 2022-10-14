@@ -24,6 +24,7 @@ let channel: BroadcastChannel | null = null
 
 const userEmailInput = ref('')
 const passwordlessForm = ref(null)
+const isEmailFocused = ref(false)
 
 const disableSendLinkBtn = computed(() => {
   return userEmailInput.value.length === 0
@@ -100,6 +101,8 @@ async function init() {
       } = await parentConnectionInstance.getAppConfig()
 
       app.setTheme(theme)
+      const htmlEl = document.getElementsByTagName('html')[0]
+      if (theme === 'dark') htmlEl.classList.add(theme)
       app.setName(appName)
     }
   } finally {
@@ -160,10 +163,16 @@ function onEnterPress() {
               v-model="userEmailInput"
               name="email"
               type="email"
-              class="signin__input-field"
+              class="signin__input-field py-4"
               placeholder="someone@example.com"
               required
+              :class="{
+                'outline-black dark:outline-white outline-1 outline':
+                  isEmailFocused,
+              }"
               @keyup.enter="onEnterPress"
+              @focus="isEmailFocused = true"
+              @blur="isEmailFocused = false"
             />
             <input
               type="submit"
@@ -268,15 +277,13 @@ function onEnterPress() {
 }
 
 .signin__input-field {
-  height: 45px;
-  padding: 0 var(--p-400);
+  padding: var(--p-400);
   font-size: var(--fs-350);
   font-weight: 400;
   color: var(--fg-color);
   background: var(--debossed-box-color);
   border: none;
   border-radius: 10px;
-  outline: none;
   box-shadow: var(--debossed-shadow);
 }
 
