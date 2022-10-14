@@ -79,7 +79,10 @@ function getAppropriateIcon(iconName, pathName) {
     </div>
     <div class="flex items-center justify-center">
       <a href="https://arcana.network/" target="_blank">
-        <img class="h-auto" :src="getImage('powered-by-arcana')" />
+        <img
+          class="h-auto"
+          :src="getImage('powered-by-arcana', appStore.theme, 'svg')"
+        />
       </a>
     </div>
   </footer>
