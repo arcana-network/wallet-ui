@@ -19,30 +19,6 @@ const CHAIN_LIST = [
     },
   },
   {
-    chainId: 3,
-    rpcUrls: ['https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-    chainName: 'Ethereum Ropsten (Testnet)',
-    blockExplorerUrls: ['https://ropsten.etherscan.io/'],
-    favicon: 'ethereum-icon',
-    isCustom: false,
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
-    chainId: 4,
-    rpcUrls: ['https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-    chainName: 'Ethereum Rinkeby (Testnet)',
-    blockExplorerUrls: ['https://rinkeby.etherscan.io/'],
-    favicon: 'ethereum-icon',
-    isCustom: false,
-    nativeCurrency: {
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  {
     chainId: 5,
     rpcUrls: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
     chainName: 'Ethereum Goerli (Testnet)',
