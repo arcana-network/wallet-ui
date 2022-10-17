@@ -8,6 +8,7 @@ import { getGasPrice } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
   request: {
@@ -20,6 +21,7 @@ const emits = defineEmits(['gasPriceInput'])
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const getImage = useImage()
 
 const gasPrices: Ref<object> = ref({})
 
@@ -71,7 +73,11 @@ function handleSetGasPrice(value) {
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">
+      <p class="text-base sm:text-sm flex gap-2">
+        <img
+          :src="getImage(rpcStore.selectedRpcConfig.favicon)"
+          class="w-6 h-6"
+        />
         {{ rpcStore.selectedRpcConfig?.chainName }}
       </p>
     </div>

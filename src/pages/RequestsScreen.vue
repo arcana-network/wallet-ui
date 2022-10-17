@@ -8,11 +8,13 @@ import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const requestStore = useRequestStore()
 const toast = useToast()
+const rpcStore = useRpcStore()
 
 const { pendingRequest, areRequestsPendingForApproval } = toRefs(requestStore)
 
@@ -58,7 +60,7 @@ function handleGasPriceInput({ value, requestId }) {
             @gas-price-input="handleGasPriceInput"
           />
           <SignMessage v-else :request="pendingRequest" />
-          <div class="sign__message-footer">
+          <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
             <p class="sign__message-info-text">
               You are not going to be charged!
               <Popper arrow hover>

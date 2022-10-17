@@ -20,12 +20,13 @@ function useImage() {
 
   return function getImage(
     imageName: string,
-    theme: Theme = appStore.theme
+    theme: Theme = appStore.theme,
+    extension: 'png' | 'svg' = 'png'
   ): string {
     if (THEME_NEUTRAL_IMAGES.includes(imageName)) {
-      return require(`@/assets/images/${imageName}.png`)
+      return require(`@/assets/images/${imageName}.${extension}`)
     } else {
-      return require(`@/assets/images/${imageName}-${theme}-mode.png`)
+      return require(`@/assets/images/${imageName}-${theme}-mode.${extension}`)
     }
   }
 }

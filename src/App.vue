@@ -27,7 +27,10 @@ const showRequestPage = computed(() => {
 })
 
 watch(showRequestPage, () => {
-  if (showRequestPage.value) router.push({ name: 'requests' })
+  if (showRequestPage.value) {
+    modal.show = false
+    router.push({ name: 'requests' })
+  }
 })
 
 async function init() {
@@ -149,6 +152,7 @@ async function init() {
   --outlined-button-border-color: var(--color-dark);
   --outlined-button-fg-color: var(--color-dark);
   --button-bg-disabled: var(--color-dark-disabled);
+  --scrollbar-thumb-color: #ddd;
   --request-footer-bg: rgb(235 235 235 / 70%);
 }
 
@@ -167,7 +171,20 @@ async function init() {
   --outlined-button-border-color: var(--color-light);
   --outlined-button-fg-color: var(--color-light);
   --button-bg-disabled: var(--color-light-disabled);
+  --scrollbar-thumb-color: #444;
   --request-footer-bg: rgb(10 10 10 / 70%);
+}
+
+::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color);
+  background-clip: padding-box;
+  border: 0.25rem solid transparent;
+  border-radius: 10px;
 }
 
 body {

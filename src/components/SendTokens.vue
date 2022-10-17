@@ -23,6 +23,8 @@ const userStore = useUserStore()
 const activitiesStore = useActivitiesStore()
 const getImage = useImage()
 const toast = useToast()
+const isWalletAddressFocused = ref(false)
+const isAmountFocused = ref(false)
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -218,19 +220,32 @@ function handleShowPreview() {
           {{ rpcStore.selectedRpcConfig?.chainName }}
         </p>
       </div>
-      <form class="space-y-4 sm:space-y-3" @submit.prevent="handleShowPreview">
+      <form
+        class="space-y-4 sm:space-y-3 px-[1px]"
+        @submit.prevent="handleShowPreview"
+      >
         <div class="space-y-1">
           <label class="text-xs text-zinc-400" for="recipientWalletAddress">
             Recipient’s Wallet Address
           </label>
-          <input
-            id="recipientWalletAddress"
-            v-model="recipientWalletAddress"
-            required
-            type="text"
-            class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-            placeholder="6yhjtikn7..."
-          />
+          <div
+            class="flex space-x-1 px-2 py-4 sm:p-1 input rounded-lg"
+            :class="{
+              'outline-black dark:outline-white outline-1 outline':
+                isWalletAddressFocused,
+            }"
+          >
+            <input
+              id="recipientWalletAddress"
+              v-model="recipientWalletAddress"
+              required
+              type="text"
+              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none"
+              placeholder="6yhjtikn7..."
+              @focus="isWalletAddressFocused = true"
+              @blur="isWalletAddressFocused = false"
+            />
+          </div>
         </div>
         <div class="space-y-1">
           <div class="flex justify-between sm:flex-col sm:space-y-1">
@@ -240,31 +255,42 @@ function handleShowPreview() {
               <span>{{ truncateToTwoDecimals(selectedTokenBalance) }}</span>
             </p>
           </div>
-          <div class="flex space-x-1 p-2 sm:p-1 bg-gradient rounded-lg">
+          <div
+            class="flex space-x-1 p-2 sm:p-1 input rounded-lg"
+            :class="{
+              'outline-black dark:outline-white outline-1 outline':
+                isAmountFocused,
+            }"
+          >
             <input
               id="amount"
               v-model="amount"
               autocomplete="off"
               required
               type="text"
-              class="text-base sm:text-sm bg-gradient w-full rounded-lg border-none outline-none"
+              class="text-base sm:text-sm bg-transparent w-full rounded-lg border-none outline-none"
               placeholder="0.5"
+              @focus="isAmountFocused = true"
+              @blur="isAmountFocused = false"
             />
             <div
-              v-if="rpcStore.currency"
+              v-if="tokenList.length"
               class="p-2"
               :class="{
-                'border-l-[1px] border-l-slate-400 px-1': rpcStore.currency,
+                'border-l-[1px] border-l-slate-400 px-1': tokenList.length,
               }"
             >
               <select
                 v-model="selectedToken"
                 name="tokens"
-                class="bg-transparent outline-none"
+                class="bg-transparent outline-none w-[6ch] text-ellipsis whitespace-nowrap overflow-hidden"
+                @focus="isAmountFocused = true"
+                @blur="isAmountFocused = false"
               >
                 <option
                   v-for="token in tokenList"
                   :key="token.symbol"
+                  class="text-black hover:text-white"
                   :value="token.symbol"
                 >
                   {{ token.symbol }}

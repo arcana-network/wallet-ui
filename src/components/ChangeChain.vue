@@ -25,6 +25,9 @@ watch(selectedChain, () => {
   <Listbox v-slot="{ open }" v-model="selectedChain">
     <ListboxButton
       class="flex justify-between items-center text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 debossed-card w-full h-14 sm:h-8 outline-none border-none"
+      :class="{
+        'outline-black dark:outline-white outline-1 outline': open,
+      }"
     >
       <div class="flex space-x-1 items-center">
         <img
@@ -32,7 +35,9 @@ watch(selectedChain, () => {
           :alt="selectedChain.chainName"
           class="w-6 h-6"
         />
-        <p>{{ selectedChain.chainName }}</p>
+        <p class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch]">
+          {{ selectedChain.chainName }}
+        </p>
       </div>
       <img
         :src="getImage('arrow-icon')"
@@ -44,7 +49,7 @@ watch(selectedChain, () => {
 
     <div
       v-if="open"
-      class="debossed-card p-3 sm:p-1 h-40 rounded-[10px] -mt-3 divide-y-[1px] divide-gray-600 flex flex-col"
+      class="debossed-card p-3 sm:p-1 h-40 rounded-[10px] -mt-2 divide-y-[1px] divide-gray-600 flex flex-col"
     >
       <ListboxOptions
         class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg py-2 flex-1 overflow-auto"
@@ -63,7 +68,11 @@ watch(selectedChain, () => {
                 :alt="chain.chainName"
                 class="w-6 h-6"
               />
-              <p>{{ chain.chainName }}</p>
+              <p
+                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[20ch]"
+              >
+                {{ chain.chainName }}
+              </p>
             </div>
             <button
               v-if="chain.isCustom"
@@ -79,7 +88,7 @@ watch(selectedChain, () => {
           </div>
         </ListboxOption>
       </ListboxOptions>
-      <div class="flex justify-center py-2">
+      <div class="flex justify-center pt-2">
         <button
           class="flex items-center space-x-1 h-auto"
           @click="emits('addNetwork')"
