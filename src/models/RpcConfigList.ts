@@ -34,11 +34,11 @@ const CHAIN_LIST = [
     chainId: 137,
     rpcUrls: ['https://polygon-rpc.com'],
     chainName: 'Polygon Mainnet',
-    blockExplorerUrls: ['https://polygonscan.com'],
+    blockExplorerUrls: ['https://polygonscan.com/'],
     favicon: 'polygon-icon',
     isCustom: false,
     nativeCurrency: {
-      symbol: 'matic',
+      symbol: 'MATIC',
       decimals: 18,
     },
   },
@@ -46,11 +46,11 @@ const CHAIN_LIST = [
     chainId: 80001,
     rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
     chainName: 'Polygon Mumbai (Testnet)',
-    blockExplorerUrls: ['https://mumbai-explorer.matic.today'],
+    blockExplorerUrls: ['https://mumbai-explorer.matic.today/'],
     favicon: 'polygon-icon',
     isCustom: false,
     nativeCurrency: {
-      symbol: 'matic',
+      symbol: 'MATIC',
       decimals: 18,
     },
   },
@@ -61,6 +61,18 @@ const CHAIN_LIST = [
     blockExplorerUrls: ['https://explorer.beta.arcana.network/'],
     favicon: 'arcana-icon',
     isCustom: false,
+  },
+  {
+    chainId: 11155111,
+    rpcUrls: ['https://rpc.sepolia.org'],
+    chainName: 'Sepolia (Testnet)',
+    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+    favicon: 'ethereum-icon',
+    isCustom: false,
+    nativeCurrency: {
+      symbol: 'ETH',
+      decimals: 18,
+    },
   },
 ]
 
