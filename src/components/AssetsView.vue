@@ -43,20 +43,35 @@ function fetchNativeAsset() {
 async function getAssetsBalance() {
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
-  storedAssetContracts.forEach(async (contract) => {
-    const balance = await getTokenBalance({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
-      walletAddress: userStore.walletAddress,
-      contractAddress: contract.address,
-    })
+  storedAssetContracts.forEach((contract) => {
     assets.push({
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
-      balance: formatTokenDecimals(balance, contract.decimals),
+      balance: 0,
       logo: contract.logo || 'arcana-fallback-token-logo.svg',
       decimals: contract.decimals,
     })
+  })
+  storedAssetContracts.forEach(async (contract) => {
+    try {
+      const balance = await getTokenBalance({
+        privateKey: userStore.privateKey,
+        rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
+        walletAddress: userStore.walletAddress,
+        contractAddress: contract.address,
+      })
+      const assetIndex = assets.findIndex(
+        (asset) => asset.symbol === contract.symbol
+      )
+      if (assetIndex > -1) {
+        assets[assetIndex].balance = formatTokenDecimals(
+          balance,
+          contract.decimals
+        )
+      }
+    } catch (err) {
+      console.error({ err })
+    }
   })
 }
 
