@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { onMounted, ref, watch } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
+import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
 import debounce from '@/utils/debounce'
 import { formatValueToUSD } from '@/utils/formatUSD'
 import { convertGweiToEth } from '@/utils/gweiToEth'
@@ -25,11 +29,19 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  baseFee: {
+    type: String,
+    default: '0',
+  },
 })
 
 onMounted(init)
 
 const rpcStore = useRpcStore()
+const userStore = useUserStore()
+
+const accountHandler = new AccountHandler(userStore.privateKey)
+accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasFee = ref(0)
 const transactionTime = ref(null)
@@ -48,27 +60,28 @@ const getImage = useImage()
 const showCustomGasFeeInput = ref(false)
 const gasPriceLabelPropsMap = {
   slow: { wait: 'safeLowWait', price: 'safeLow' },
-  average: { wait: 'avgWait', price: 'average' },
+  standard: { wait: 'avgWait', price: 'average' },
   fast: { wait: 'fastWait', price: 'fast' },
-  fastest: { wait: 'fastestWait', price: 'fastest' },
 }
 
-const showSlider = rpcStore.currency !== '' && rpcStore.currency !== 'XAR'
+const showSlider = GAS_AVAILABLE_CHAIN_IDS.includes(rpcStore.selectedChainId)
 
-function init() {
+async function init() {
   showCustomGasFeeInput.value = !showSlider
 }
 
 async function getConversionRate(gasFee) {
   if (rpcStore.currency === 'XAR') return 0
   try {
-    const rate =
-      (await getExchangeRate(
-        rpcStore.currency as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )) || 0
-    const gasFeeInEth = convertGweiToEth(gasFee)
-    conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
+    if (gasFee) {
+      const rate =
+        (await getExchangeRate(
+          rpcStore.currency as CurrencySymbol,
+          EXCHANGE_RATE_CURRENCY
+        )) || 0
+      const gasFeeInEth = convertGweiToEth(gasFee)
+      conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
+    }
   } catch (err) {
     console.log(err)
     conversionRate.value = '0'
@@ -86,8 +99,20 @@ function handleGasPriceSelect(value = '') {
 
 function handleCustomGasPriceInput(value) {
   disableSlider.value = true
-  gasFee.value = value
-  emits('gasPriceInput', gasFee.value)
+  if (value) {
+    const amountInputEl = document.querySelector(
+      '#custom-gas-fee-amount'
+    ) as HTMLInputElement
+    if (value < Number(props.baseFee)) {
+      return amountInputEl.setCustomValidity(
+        'Amount must not be less than base fee.'
+      )
+    } else {
+      amountInputEl.setCustomValidity('')
+      gasFee.value = value
+      emits('gasPriceInput', gasFee.value)
+    }
+  }
 }
 </script>
 
@@ -130,11 +155,17 @@ function handleCustomGasPriceInput(value) {
     />
   </button>
   <div v-if="showCustomGasFeeInput" class="space-y-1">
+    <div class="space-x-1 mb-2 text-xs text-zinc-400">
+      <span>Base Fee:</span>
+      <span class="text-black dark:text-white">{{ props.baseFee }}</span>
+    </div>
     <div class="flex justify-between sm:flex-col sm:space-y-1">
       <label class="text-xs text-zinc-400" for="amount"> Custom Fee </label>
       <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
         <span>Conversion Rate:</span>
-        <span class="text-white">{{ conversionRate }}</span>
+        <span class="text-black dark:text-white">{{
+          conversionRate || 0
+        }}</span>
       </p>
     </div>
     <div
@@ -144,7 +175,7 @@ function handleCustomGasPriceInput(value) {
       }"
     >
       <input
-        id="amount"
+        id="custom-gas-fee-amount"
         :value="props.gasPrice"
         autocomplete="off"
         type="text"

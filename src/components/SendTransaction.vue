@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import { getGasPrice } from '@/services/gasPrice.service'
+import {
+  getGasPrice,
+  GAS_AVAILABLE_CHAIN_IDS,
+} from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { useImage } from '@/utils/useImage'
 
@@ -21,7 +27,13 @@ const emits = defineEmits(['gasPriceInput'])
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const getImage = useImage()
+const baseFee = ref('0')
+const chainId = rpcStore.selectedChainId
+
+const accountHandler = new AccountHandler(userStore.privateKey)
+accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasPrices: Ref<object> = ref({})
 
@@ -43,8 +55,14 @@ function hideLoader() {
 onMounted(async () => {
   showLoader('Loading')
   try {
-    const data = await getGasPrice()
-    gasPrices.value = data
+    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
+      const data = await getGasPrice(chainId)
+      gasPrices.value = data
+    }
+    const baseGasPrice = (
+      await accountHandler.provider.getGasPrice()
+    ).toString()
+    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
   } catch (err) {
     console.log({ err })
     gasPrices.value = {}
@@ -94,6 +112,7 @@ function handleSetGasPrice(value) {
     <GasPrice
       :gas-price="request.request.params[0].gasPrice"
       :gas-prices="gasPrices"
+      :base-fee="baseFee"
       @gas-price-input="handleSetGasPrice"
     />
     <SignMessageAdvancedInfo

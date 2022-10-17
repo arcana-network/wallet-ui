@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/antd.css'
 
@@ -13,16 +13,15 @@ const props = defineProps({
 
 const marksData = {
   0: 'Slow',
-  1: 'Average',
+  1: 'Standard',
   2: 'Fast',
-  3: 'Fastest',
 }
 
 const markStyle = {
   width: '6px',
   height: '6px',
   backgroundColor: '#000',
-  transform: 'translate(-2px, -2px)',
+  transform: 'translate(-2px, -3px)',
   cursor: 'pointer',
 }
 
@@ -61,6 +60,8 @@ function handleSlide(value) {
   const type = marksData[value]
   emits('selectGasPrice', type)
 }
+
+handleSlide(0)
 </script>
 
 <template>
@@ -77,12 +78,7 @@ function handleSlide(value) {
     <template #dot>
       <div
         v-if="!props.disable"
-        class="w-4 h-4 bg-white rounded-full border-none shadow-white"
-      ></div>
-      <div
-        v-else
-        class="bg-transparent h-full"
-        @click="() => handleSlide(0)"
+        class="w-4 h-4 -m-[1px] bg-white rounded-full border-none shadow-white"
       ></div>
     </template>
   </vue-slider>
