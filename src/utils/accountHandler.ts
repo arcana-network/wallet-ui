@@ -50,7 +50,7 @@ export class AccountHandler {
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
     const tx = await contract.functions.transfer(recepientAddress, amount)
-    return await tx.wait()
+    return tx.hash
   }
 
   sendTransactionWrapper = async (p: TransactionParams): Promise<string> => {

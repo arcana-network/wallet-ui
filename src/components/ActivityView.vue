@@ -163,6 +163,19 @@ function getAmount(amount: bigint, isGas = false) {
             class="flex flex-col items-end gap-1"
           >
             <span
+              v-if="activity.customToken"
+              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[6ch]"
+              :class="
+                activity.operation === 'Receive'
+                  ? 'color-state-green'
+                  : 'color-state-red'
+              "
+              :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+              >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
+              {{ activity.customToken.symbol }}</span
+            >
+            <span
+              v-else
               class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[6ch]"
               :class="
                 activity.operation === 'Receive'
@@ -175,7 +188,9 @@ function getAmount(amount: bigint, isGas = false) {
               >{{ getAmount(activity.transaction.amount) }}
               {{ rpcStore.currency }}</span
             >
-            <span class="flex text-xs text-secondary text-right"
+            <span
+              v-if="!activity.customToken"
+              class="flex text-xs text-secondary text-right"
               >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
               {{
                 calculateCurrencyValue(activity.transaction.amount).currency

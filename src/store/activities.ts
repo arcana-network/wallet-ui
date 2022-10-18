@@ -53,6 +53,11 @@ type Activity = {
     did: string
     recepient?: string
   }
+  customToken?: {
+    operation: string
+    amount: string
+    symbol: string
+  }
 }
 
 type ActivitiesState = {
@@ -61,12 +66,25 @@ type ActivitiesState = {
   }
 }
 
+type CustomTokenActivity = {
+  operation: 'Send' | 'Receive'
+  amount: string
+  symbol: string
+}
+
 type TransactionFetchParams = {
   txHash: string
   chainId: ChainId
+  customToken?: CustomTokenActivity
 }
 
-function getTxOperation(transaction: TransactionResponse): TransactionOps {
+function getTxOperation(
+  transaction: TransactionResponse,
+  customToken?: CustomTokenActivity
+): TransactionOps {
+  if (customToken) {
+    return customToken.operation
+  }
   if (!transaction.data || transaction.data === '0x') {
     if (transaction.from === userStore.walletAddress) {
       return 'Send'
@@ -115,6 +133,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
     async fetchAndSaveActivityFromHash({
       txHash,
       chainId,
+      customToken,
     }: TransactionFetchParams) {
       const accountHandler = new AccountHandler(userStore.privateKey)
       accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
@@ -122,7 +141,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         txHash
       )
       const activity: Activity = {
-        operation: getTxOperation(remoteTransaction),
+        operation: getTxOperation(remoteTransaction, customToken),
         transaction: {
           hash: txHash,
           amount: remoteTransaction.value.toBigInt(),
@@ -138,6 +157,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           from: remoteTransaction.from,
           to: remoteTransaction.to,
         },
+        customToken,
       }
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {

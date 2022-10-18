@@ -103,12 +103,15 @@ async function fetchTokenBalance() {
   if (tokenInfo?.symbol === rpcStore.nativeCurrency.symbol) {
     selectedTokenBalance.value = walletBalance
   } else {
-    selectedTokenBalance.value = await getTokenBalance({
+    const balance = await getTokenBalance({
       privateKey: userStore.privateKey,
       rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
       contractAddress: tokenInfo.address,
     })
+    selectedTokenBalance.value = tokenInfo.decimals
+      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toString()
+      : balance
   }
 }
 
@@ -161,14 +164,22 @@ async function handleSendToken() {
       const tokenInfo = tokenList.value.find(
         (item) => item.symbol === selectedToken.value
       )
-      const { transactionHash } = await accountHandler.sendCustomToken(
+      const sendAmount = tokenInfo.decimals
+        ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
+        : amount.value
+      const transactionHash = await accountHandler.sendCustomToken(
         tokenInfo.address,
         setHexPrefix(recipientWalletAddress.value),
-        amount.value
+        sendAmount
       )
       activitiesStore.fetchAndSaveActivityFromHash({
         chainId: rpcStore.selectedRpcConfig?.chainId as number,
         txHash: transactionHash,
+        customToken: {
+          operation: 'Send',
+          amount: amount.value,
+          symbol: tokenInfo.symbol,
+        },
       })
     }
     toast.success('Tokens sent Successfully')
@@ -286,7 +297,9 @@ async function handleShowPreview() {
             <label class="text-xs text-zinc-400" for="amount"> Amount </label>
             <p class="space-x-1 text-xs text-zinc-400">
               <span>Total Balance:</span>
-              <span>{{ truncateToTwoDecimals(selectedTokenBalance) }}</span>
+              <span :title="selectedTokenBalance">{{
+                truncateToTwoDecimals(selectedTokenBalance)
+              }}</span>
             </p>
           </div>
           <div
