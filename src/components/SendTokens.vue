@@ -141,14 +141,15 @@ async function handleSendToken() {
   showLoader('Sending')
   try {
     const accountHandler = new AccountHandler(userStore.privateKey)
+    const gasFees = ethers.utils
+      .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
+      .toHexString()
     accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
     if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-        gasPrice: ethers.utils
-          .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
-          .toHexString(),
+        gasPrice: gasFees,
         from: userStore.walletAddress,
       }
 
@@ -170,7 +171,8 @@ async function handleSendToken() {
       const transactionHash = await accountHandler.sendCustomToken(
         tokenInfo.address,
         setHexPrefix(recipientWalletAddress.value),
-        sendAmount
+        sendAmount,
+        gasFees
       )
       activitiesStore.fetchAndSaveActivityFromHash({
         chainId: rpcStore.selectedRpcConfig?.chainId as number,
@@ -206,13 +208,27 @@ async function handleShowPreview() {
   if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
     showLoader('Loading preview...')
     try {
-      estimatedGas.value = (
-        await accountHandler.provider.estimateGas({
-          from: userStore.walletAddress,
-          to: setHexPrefix(recipientWalletAddress.value),
-          value: ethers.utils.parseUnits(amount.value, 'ether'),
-        })
-      ).toString()
+      if (rpcStore.nativeCurrency.symbol === selectedToken.value) {
+        estimatedGas.value = (
+          await accountHandler.provider.estimateGas({
+            from: userStore.walletAddress,
+            to: setHexPrefix(recipientWalletAddress.value),
+            value: ethers.utils.parseUnits(amount.value, 'ether'),
+          })
+        ).toString()
+      } else {
+        const tokenInfo = tokenList.value.find(
+          (item) => item.symbol === selectedToken.value
+        )
+        const sendAmount = tokenInfo.decimals
+          ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
+          : amount.value
+        estimatedGas.value = await accountHandler.estimateCustomTokenGas(
+          tokenInfo.address,
+          setHexPrefix(recipientWalletAddress.value),
+          sendAmount
+        )
+      }
     } catch (e) {
       console.error({ e })
     }
