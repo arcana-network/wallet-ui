@@ -24,6 +24,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['gasPriceInput'])
+const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -73,6 +74,7 @@ onMounted(async () => {
 
 function handleSetGasPrice(value) {
   const requestId = props.request.request.id
+  customGasPrice.value = value
   emits('gasPriceInput', {
     value: `0x${Number(value * Math.pow(10, 9)).toString(16)}`,
     requestId,
@@ -116,7 +118,7 @@ function handleSetGasPrice(value) {
       </p>
     </div>
     <GasPrice
-      :gas-price="request.request.params[0].gasPrice"
+      :gas-price="customGasPrice"
       :gas-prices="gasPrices"
       :base-fee="baseFee"
       @gas-price-input="handleSetGasPrice"

@@ -307,9 +307,10 @@ function getAmount(amount: bigint, isGas = false) {
                     <span>Gas Price</span>
                     <span
                       class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
-                      :title="`${ethers.utils.formatEther(
-                        activity.transaction.gasPrice
-                      )} ${rpcStore.currency}`"
+                      :title="`${getAmount(
+                        activity.transaction.gasPrice,
+                        true
+                      )} Gwei`"
                       >{{
                         getAmount(activity.transaction.gasPrice, true)
                       }}
