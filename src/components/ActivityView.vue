@@ -10,7 +10,7 @@ import { beautifyBalance } from '@/utils/formatTokenDecimals'
 import { getIconAsset } from '@/utils/useImage'
 
 type ActivityViewProps = {
-  currencyExchangeRate: number | null
+  currencyExchangeRate: number | string | null
 }
 
 const props = defineProps<ActivityViewProps>()
@@ -66,7 +66,7 @@ function calculateCurrencyValue(valueInCrypto: bigint) {
         currency: 'USD',
       }).format(
         Math.round(
-          ethers.utils.parseEther(valueInCrypto.toString()).toNumber() *
+          Number(ethers.utils.formatEther(valueInCrypto.toString())) *
             props.currencyExchangeRate
         )
       ),
