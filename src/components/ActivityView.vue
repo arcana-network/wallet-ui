@@ -91,7 +91,7 @@ function calculateTotal(activity: Activity) {
 
 function getAmount(amount: bigint, isGas = false) {
   if (isGas) {
-    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 2)
+    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 3)
   }
   return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
@@ -142,7 +142,9 @@ function getAmount(amount: bigint, isGas = false) {
               >File DID: {{ truncateAddress(activity.file.did) }}</span
             >
             <div class="flex text-xs color-secondary gap-1 items-center">
-              <span>{{ dayjs(activity.date).format('MMM D') }}</span>
+              <span class="whitespace-nowrap">{{
+                dayjs(activity.date).format('MMM D')
+              }}</span>
               <img src="@/assets/images/gray-circle-filled.svg" />
               <span>Status:</span>
               <span
@@ -161,13 +163,15 @@ function getAmount(amount: bigint, isGas = false) {
             class="flex flex-col items-end gap-1"
           >
             <span
-              class="font-bold text-base leading-5 text-right"
+              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis w-[6ch]"
               :class="
                 activity.operation === 'Receive'
                   ? 'color-state-green'
                   : 'color-state-red'
               "
-              :title="ethers.utils.formatEther(activity.transaction.amount)"
+              :title="`${ethers.utils.formatEther(
+                activity.transaction.amount
+              )} ${rpcStore.currency}`"
               >{{ getAmount(activity.transaction.amount) }}
               {{ rpcStore.currency }}</span
             >
@@ -258,10 +262,10 @@ function getAmount(amount: bigint, isGas = false) {
                   <div class="flex justify-between">
                     <span>Amount</span>
                     <span
-                      class="font-bold"
-                      :title="
-                        ethers.utils.formatEther(activity.transaction.amount)
-                      "
+                      class="font-bold whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                      :title="`${ethers.utils.formatEther(
+                        activity.transaction.amount
+                      )} ${rpcStore.currency}`"
                       >{{ getAmount(activity.transaction.amount) }}
                       {{ rpcStore.currency }}</span
                     >
@@ -277,9 +281,10 @@ function getAmount(amount: bigint, isGas = false) {
                   <div class="flex justify-between">
                     <span>Gas Price</span>
                     <span
-                      :title="
-                        ethers.utils.formatEther(activity.transaction.gasPrice)
-                      "
+                      class="whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                      :title="`${ethers.utils.formatEther(
+                        activity.transaction.gasPrice
+                      )} ${rpcStore.currency}`"
                       >{{
                         getAmount(activity.transaction.gasPrice, true)
                       }}
@@ -292,8 +297,15 @@ function getAmount(amount: bigint, isGas = false) {
                 >
                   <span>Total:</span>
                   <span
-                    :class="'color-state-red'"
-                    :title="ethers.utils.formatEther(calculateTotal(activity))"
+                    class="whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                    :class="
+                      activity.operation === 'Receive'
+                        ? 'color-state-green'
+                        : 'color-state-red'
+                    "
+                    :title="`${ethers.utils.formatEther(
+                      calculateTotal(activity)
+                    )} ${rpcStore.currency}`"
                     >{{ getAmount(calculateTotal(activity)) }}
                     {{ rpcStore.currency }}</span
                   >
