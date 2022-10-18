@@ -133,6 +133,7 @@ rpcStore.$subscribe(getAssetsBalance)
 
 .assets-view__asset-name {
   max-width: 12ch;
+  line-height: 1.5;
 }
 
 .assets-view__asset-balance {

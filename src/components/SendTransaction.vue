@@ -53,7 +53,7 @@ function hideLoader() {
 }
 
 onMounted(async () => {
-  showLoader('Loading')
+  showLoader('Loading...')
   try {
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
       const data = await getGasPrice(chainId)
@@ -73,12 +73,18 @@ onMounted(async () => {
 
 function handleSetGasPrice(value) {
   const requestId = props.request.request.id
-  emits('gasPriceInput', { value, requestId })
+  emits('gasPriceInput', {
+    value: `0x${Number(value * Math.pow(10, 9)).toString(16)}`,
+    requestId,
+  })
 }
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
+  <div v-if="loader.show" class="flex justify-center items-center flex-1">
+    <p class="sm:text-xs">{{ loader.message }}</p>
+  </div>
+  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
       <div class="flex justify-between">
         <p class="text-xl sm:text-sm">Send Transaction</p>

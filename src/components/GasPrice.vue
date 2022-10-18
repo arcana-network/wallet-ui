@@ -157,7 +157,7 @@ function handleCustomGasPriceInput(value) {
   <div v-if="showCustomGasFeeInput" class="space-y-1">
     <div class="space-x-1 mb-2 text-xs text-zinc-400">
       <span>Base Fee:</span>
-      <span class="text-black dark:text-white">{{ props.baseFee }}</span>
+      <span class="text-black dark:text-white">{{ props.baseFee }} Gwei</span>
     </div>
     <div class="flex justify-between sm:flex-col sm:space-y-1">
       <label class="text-xs text-zinc-400" for="amount"> Custom Fee </label>

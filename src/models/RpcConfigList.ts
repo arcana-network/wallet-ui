@@ -8,9 +8,9 @@ interface RpcConfigWallet extends RpcConfig {
 const CHAIN_LIST = [
   {
     chainId: 1,
-    rpcUrls: ['https://cloudflare-eth.com/'],
+    rpcUrls: ['https://cloudflare-eth.com'],
     chainName: 'Ethereum Mainnet',
-    blockExplorerUrls: ['https://etherscan.io/'],
+    blockExplorerUrls: ['https://etherscan.io'],
     favicon: 'ethereum-icon',
     isCustom: false,
     nativeCurrency: {
@@ -22,7 +22,7 @@ const CHAIN_LIST = [
     chainId: 5,
     rpcUrls: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
     chainName: 'Ethereum Goerli (Testnet)',
-    blockExplorerUrls: ['https://goerli.etherscan.io/'],
+    blockExplorerUrls: ['https://goerli.etherscan.io'],
     favicon: 'ethereum-icon',
     isCustom: false,
     nativeCurrency: {
@@ -34,7 +34,7 @@ const CHAIN_LIST = [
     chainId: 137,
     rpcUrls: ['https://polygon-rpc.com'],
     chainName: 'Polygon Mainnet',
-    blockExplorerUrls: ['https://polygonscan.com/'],
+    blockExplorerUrls: ['https://polygonscan.com'],
     favicon: 'polygon-icon',
     isCustom: false,
     nativeCurrency: {
@@ -46,7 +46,7 @@ const CHAIN_LIST = [
     chainId: 80001,
     rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
     chainName: 'Polygon Mumbai (Testnet)',
-    blockExplorerUrls: ['https://mumbai-explorer.matic.today/'],
+    blockExplorerUrls: ['https://mumbai.polygonscan.com'],
     favicon: 'polygon-icon',
     isCustom: false,
     nativeCurrency: {
@@ -56,9 +56,9 @@ const CHAIN_LIST = [
   },
   {
     chainId: 40405,
-    rpcUrls: ['https://blockchain001-testnet.arcana.network/'],
+    rpcUrls: ['https://blockchain001-testnet.arcana.network'],
     chainName: 'Arcana (Testnet)',
-    blockExplorerUrls: ['https://explorer.beta.arcana.network/'],
+    blockExplorerUrls: ['https://explorer.beta.arcana.network'],
     favicon: 'arcana-icon',
     isCustom: false,
   },
@@ -66,7 +66,7 @@ const CHAIN_LIST = [
     chainId: 11155111,
     rpcUrls: ['https://rpc.sepolia.org'],
     chainName: 'Sepolia (Testnet)',
-    blockExplorerUrls: ['https://sepolia.etherscan.io/'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io'],
     favicon: 'ethereum-icon',
     isCustom: false,
     nativeCurrency: {
@@ -81,7 +81,7 @@ if (process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev') {
     chainId: 40404,
     rpcUrls: ['https://blockchain-dev.arcana.network'],
     chainName: 'Arcana Dev',
-    blockExplorerUrls: ['https://explorer.dev.arcana.network/'],
+    blockExplorerUrls: ['https://explorer.dev.arcana.network'],
     favicon: 'arcana-icon',
     isCustom: false,
   })

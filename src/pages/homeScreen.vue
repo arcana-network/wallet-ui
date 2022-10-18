@@ -124,6 +124,7 @@ async function initAccountHandler() {
     const parentConnectionInstance = await parentConnection.promise
 
     accountHandler = new AccountHandler(userStore.privateKey)
+    accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
     if (!userStore.walletAddress) {
       const account = accountHandler.getAccount()
