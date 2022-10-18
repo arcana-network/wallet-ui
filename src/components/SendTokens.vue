@@ -56,7 +56,9 @@ const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 watch(
   () => gasFeeInGwei.value,
   () => {
+    console.log(gasFeeInGwei.value)
     gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    console.log(gasFeeInEth.value)
   }
 )
 
@@ -82,6 +84,7 @@ onMounted(async () => {
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
       const data = await getGasPrice(chainId)
       gasPrices.value = data
+      console.log(gasPrices.value)
     }
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()

@@ -92,7 +92,7 @@ function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
   const { wait, price } = gasPriceLabelPropsMap[type]
-  gasFee.value = props.gasPrices[price] / 10
+  gasFee.value = Number((props.gasPrices[price] / 10).toFixed(9))
   transactionTime.value = props.gasPrices[wait]
   emits('gasPriceInput', gasFee.value)
 }

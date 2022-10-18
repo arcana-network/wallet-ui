@@ -24,9 +24,9 @@ const GasApiMapping = {
 
 function convertPolygonResponseToEthResponse(data) {
   return {
-    fast: data.fast.maxFee * 10,
-    safeLow: data.safeLow.maxFee * 10,
-    average: data.standard.maxFee * 10,
+    fast: Number((data.fast.maxFee * 10).toFixed(9)),
+    safeLow: Number((data.safeLow.maxFee * 10).toFixed(9)),
+    average: Number((data.standard.maxFee * 10).toFixed(9)),
     fastWait: 0.08,
     safeLowWait: 0.5,
     avgWait: 0.25,

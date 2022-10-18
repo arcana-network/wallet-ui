@@ -64,7 +64,12 @@ function calculateCurrencyValue(valueInCrypto: bigint) {
       amount: new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(Math.round(Number(valueInCrypto) * props.currencyExchangeRate)),
+      }).format(
+        Math.round(
+          ethers.utils.parseEther(valueInCrypto.toString()).toNumber() *
+            props.currencyExchangeRate
+        )
+      ),
       currency: 'USD',
     }
   }
