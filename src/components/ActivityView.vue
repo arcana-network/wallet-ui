@@ -122,6 +122,7 @@ function getAmount(amount: bigint, isGas = false) {
                 {{ truncateOperation(activity.operation) }}
               </span>
               <img
+                v-if="activity.transaction || activity.file?.recepient"
                 src="@/assets/images/arrow-up.svg"
                 class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px] invert dark:invert-0"
                 :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
