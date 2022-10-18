@@ -110,7 +110,9 @@ async function fetchTokenBalance() {
       contractAddress: tokenInfo.address,
     })
     selectedTokenBalance.value = tokenInfo.decimals
-      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toString()
+      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toFixed(
+          tokenInfo.decimals
+        )
       : balance
   }
 }

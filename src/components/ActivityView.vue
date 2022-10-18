@@ -116,6 +116,15 @@ function getAmount(amount: bigint, isGas = false) {
           <div class="flex flex-col flex-grow gap-2">
             <div class="flex">
               <span
+                v-if="activity.customToken"
+                class="font-bold text-base leading-5"
+                :title="`${activity.operation} ${activity.customToken.symbol}`"
+              >
+                {{ truncateOperation(activity.operation) }}
+                {{ activity.customToken.symbol }}
+              </span>
+              <span
+                v-else
                 class="font-bold text-base leading-5"
                 :title="activity.operation"
               >
