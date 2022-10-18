@@ -163,7 +163,7 @@ function getAmount(amount: bigint, isGas = false) {
             class="flex flex-col items-end gap-1"
           >
             <span
-              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis w-[6ch]"
+              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[6ch]"
               :class="
                 activity.operation === 'Receive'
                   ? 'color-state-green'
@@ -262,7 +262,7 @@ function getAmount(amount: bigint, isGas = false) {
                   <div class="flex justify-between">
                     <span>Amount</span>
                     <span
-                      class="font-bold whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                      class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
                       :title="`${ethers.utils.formatEther(
                         activity.transaction.amount
                       )} ${rpcStore.currency}`"
@@ -281,7 +281,7 @@ function getAmount(amount: bigint, isGas = false) {
                   <div class="flex justify-between">
                     <span>Gas Price</span>
                     <span
-                      class="whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                      class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
                       :title="`${ethers.utils.formatEther(
                         activity.transaction.gasPrice
                       )} ${rpcStore.currency}`"
@@ -297,7 +297,7 @@ function getAmount(amount: bigint, isGas = false) {
                 >
                   <span>Total:</span>
                   <span
-                    class="whitespace-nowrap overflow-hidden text-ellipsis w-[8ch]"
+                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
                     :class="
                       activity.operation === 'Receive'
                         ? 'color-state-green'
