@@ -5,13 +5,10 @@ const PolygonGasStationApi = 'https://gasstation-mainnet.matic.network/v2'
 const PolygonMumbaiGasStationApi = 'https://gasstation-mumbai.matic.today/v2'
 
 const POLYGON_CHAIN_IDS = [137, 80001]
-const GAS_AVAILABLE_CHAIN_IDS = [1, 5, ...POLYGON_CHAIN_IDS]
+const GAS_AVAILABLE_CHAIN_IDS = [1, ...POLYGON_CHAIN_IDS]
 
 const GasApiMapping = {
   1: {
-    api: EthGasStationApi,
-  },
-  5: {
     api: EthGasStationApi,
   },
   137: {
