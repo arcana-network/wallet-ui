@@ -50,7 +50,11 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       keeper.reply(request.method, response)
       if (response.error) {
         console.log(response.error)
-        toast.error(response.error.data.originalError.code)
+        if (response.error.data?.originalError?.code) {
+          toast.error(response.error.data.originalError.code)
+        } else {
+          toast.error(response.error)
+        }
         return
       }
       if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
