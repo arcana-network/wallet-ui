@@ -89,7 +89,6 @@ function addNetwork(request, keeper) {
       },
     }
     rpcStore.addNetwork(payload)
-    rpcStore.setSelectedChainId(payload.chainId)
     router.push({ name: 'home' })
     result = `Added the network ${networkInfo.networkName} and set it as current`
   }
