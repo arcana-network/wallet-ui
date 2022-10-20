@@ -71,17 +71,16 @@ async function init() {
 }
 
 async function getConversionRate(gasFee) {
-  if (rpcStore.currency === 'XAR') return 0
+  if (rpcStore.currency === 'XAR') return (conversionRate.value = '0')
+  if (!gasFee) return (conversionRate.value = '0')
   try {
-    if (gasFee) {
-      const rate =
-        (await getExchangeRate(
-          rpcStore.currency as CurrencySymbol,
-          EXCHANGE_RATE_CURRENCY
-        )) || 0
-      const gasFeeInEth = convertGweiToEth(gasFee)
-      conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
-    }
+    const rate =
+      (await getExchangeRate(
+        rpcStore.currency as CurrencySymbol,
+        EXCHANGE_RATE_CURRENCY
+      )) || 0
+    const gasFeeInEth = convertGweiToEth(gasFee)
+    conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
   } catch (err) {
     console.log(err)
     conversionRate.value = '0'
@@ -164,7 +163,7 @@ function handleCustomGasPriceInput(value) {
       <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
         <span>Conversion Rate:</span>
         <span class="text-black dark:text-white">{{
-          conversionRate || 0
+          conversionRate || 'NA'
         }}</span>
       </p>
     </div>
