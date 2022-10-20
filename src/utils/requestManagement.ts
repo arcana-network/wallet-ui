@@ -1,5 +1,6 @@
 // Todo: Find a better place for these functions
 import { requirePermission } from '@/models/Connection'
+import { router } from '@/routes'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
@@ -30,24 +31,46 @@ function watchRequestQueue(reqStore, keeper) {
   })
 }
 
+function switchChain(request, keeper) {
+  const { chainId } = request.params[0]
+  const rpcConfigs = rpcStore.rpcConfigs
+  if (rpcConfigs && rpcConfigs[chainId]) {
+    rpcStore.setSelectedChainId(Number(chainId))
+    keeper.reply(request.method, {
+      result: `Chain changed to ${rpcConfigs[chainId].chainName}`,
+      id: request.id,
+    })
+    router.push({ name: 'home' })
+  } else {
+    keeper.reply(request.method, {
+      result: `Chain Id ${chainId} is not in the list`,
+      id: request.id,
+    })
+  }
+}
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    const response = await keeper.request(request)
-    keeper.reply(request.method, response)
-    if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
-      const params = JSON.parse(request.params[1])
-      if (params.domain.name === 'Arcana Forwarder') {
-        activitiesStore.saveFileActivity(
-          rpcStore.selectedRpcConfig?.chainId as number,
-          params.message.data
-        )
+    if (request.method === 'wallet_switchEthereumChain') {
+      switchChain(request, keeper)
+    } else {
+      const response = await keeper.request(request)
+      keeper.reply(request.method, response)
+      if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
+        const params = JSON.parse(request.params[1])
+        if (params.domain.name === 'Arcana Forwarder') {
+          activitiesStore.saveFileActivity(
+            rpcStore.selectedRpcConfig?.chainId as number,
+            params.message.data
+          )
+        }
       }
-    }
-    if (request.method === 'eth_sendTransaction' && response.result) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        txHash: response.result,
-        chainId: rpcStore.selectedRpcConfig?.chainId as number,
-      })
+      if (request.method === 'eth_sendTransaction' && response.result) {
+        activitiesStore.fetchAndSaveActivityFromHash({
+          txHash: response.result,
+          chainId: rpcStore.selectedRpcConfig?.chainId as number,
+        })
+      }
     }
   } else {
     keeper.reply(request.method, {
