@@ -60,14 +60,9 @@ async function getAssetsBalance() {
         walletAddress: userStore.walletAddress,
         contractAddress: contract.address,
       })
-      const assetIndex = assets.findIndex(
-        (asset) => asset.symbol === contract.symbol
-      )
-      if (assetIndex > -1) {
-        assets[assetIndex].balance = formatTokenDecimals(
-          balance,
-          contract.decimals
-        )
+      const asset = assets.find((asset) => asset.symbol === contract.symbol)
+      if (asset) {
+        asset.balance = formatTokenDecimals(balance, contract.decimals)
       }
     } catch (err) {
       console.error({ err })
