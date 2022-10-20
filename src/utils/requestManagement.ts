@@ -49,10 +49,66 @@ function switchChain(request, keeper) {
   }
 }
 
+function isExistingRpcUrl(url) {
+  const exisitingRpcUrls = rpcStore.rpcConfigList
+    .map((chain) => chain.rpcUrls)
+    .flat()
+
+  return exisitingRpcUrls.some((rpcUrl) => {
+    return rpcUrl === url
+  })
+}
+
+function isExistingChainId(chainId) {
+  return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
+}
+
+function addNetwork(request, keeper) {
+  const { method, params } = request
+  const { networkInfo } = params[0]
+  const rpcUrl = networkInfo.rpcUrl
+  const chainId = Number(networkInfo.chainId)
+
+  let result = ''
+
+  if (isExistingRpcUrl(rpcUrl)) {
+    result = `RPC URL - ${rpcUrl} already exists, please use different one`
+  } else if (isExistingChainId(Number(chainId))) {
+    result = `Chain ID - ${chainId} already exists, please use different one`
+  } else {
+    const payload = {
+      chainName: networkInfo.networkName,
+      chainId: Number(networkInfo.chainId),
+      blockExplorerUrls: [networkInfo.explorerUrl],
+      rpcUrls: [networkInfo.rpcUrl],
+      favicon: 'blockchain-icon',
+      isCustom: true,
+      nativeCurrency: {
+        symbol: networkInfo.currencySymbol,
+        decimals: 18,
+      },
+    }
+    rpcStore.addNetwork(payload)
+    rpcStore.setSelectedChainId(payload.chainId)
+    router.push({ name: 'home' })
+    result = `Added the network ${networkInfo.networkName} and set it as current`
+  }
+
+  keeper.reply(method, {
+    result,
+    id: request.id,
+  })
+}
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    if (request.method === 'wallet_switchEthereumChain') {
-      switchChain(request, keeper)
+    if (
+      request.method === 'wallet_switchEthereumChain' ||
+      request.method === 'wallet_addEthereumChain'
+    ) {
+      const { method } = request
+      if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
+      if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
     } else {
       const response = await keeper.request(request)
       keeper.reply(request.method, response)
