@@ -1,22 +1,17 @@
 import axios from 'axios'
 
-const EthGasStationApi = 'https://ethgasstation.info/api/ethgasAPI.json'
-const PolygonGasStationApi = 'https://gasstation-mainnet.matic.network/v2'
-const PolygonMumbaiGasStationApi = 'https://gasstation-mumbai.matic.today/v2'
+const ETH_GAS_STATION_API = 'https://ethgasstation.info/api/ethgasAPI.json'
+const POLYGON_GAS_STATION_API = 'https://gasstation-mainnet.matic.network/v2'
+const POLYGON_MUMBAI_GAS_STATION_API =
+  'https://gasstation-mumbai.matic.today/v2'
 
 const POLYGON_CHAIN_IDS = [137, 80001]
 const GAS_AVAILABLE_CHAIN_IDS = [1, ...POLYGON_CHAIN_IDS]
 
-const GasApiMapping = {
-  1: {
-    api: EthGasStationApi,
-  },
-  137: {
-    api: PolygonGasStationApi,
-  },
-  80001: {
-    api: PolygonMumbaiGasStationApi,
-  },
+const GAS_API_MAPPING = {
+  1: ETH_GAS_STATION_API,
+  137: POLYGON_GAS_STATION_API,
+  80001: POLYGON_MUMBAI_GAS_STATION_API,
 }
 
 function convertPolygonResponseToEthResponse(data) {
@@ -31,7 +26,7 @@ function convertPolygonResponseToEthResponse(data) {
 }
 
 async function getGasPrice(chainId = 1) {
-  const gasStationUrl = GasApiMapping[chainId].api
+  const gasStationUrl = GAS_API_MAPPING[chainId]
   const { data } = await axios.get(gasStationUrl)
 
   if (POLYGON_CHAIN_IDS.includes(chainId)) {
