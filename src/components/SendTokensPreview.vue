@@ -18,7 +18,7 @@ const props = defineProps({
 
 const nativeCurrency = rpcStore.nativeCurrency.symbol
 
-const gasFees =
+const txFees =
   Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
 
 const sendAmount =
@@ -26,7 +26,7 @@ const sendAmount =
     ? Number(props.previewData.amount)
     : 0
 
-const totalAmount = sendAmount + gasFees
+const totalAmount = sendAmount + txFees
 </script>
 
 <template>
@@ -70,7 +70,7 @@ const totalAmount = sendAmount + gasFees
         </div>
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Gas Fees</p>
-          <p>{{ gasFees }} {{ nativeCurrency }}</p>
+          <p>{{ txFees }} {{ nativeCurrency }}</p>
         </div>
       </div>
       <div
