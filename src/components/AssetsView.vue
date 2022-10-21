@@ -43,20 +43,30 @@ function fetchNativeAsset() {
 async function getAssetsBalance() {
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
-  storedAssetContracts.forEach(async (contract) => {
-    const balance = await getTokenBalance({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
-      walletAddress: userStore.walletAddress,
-      contractAddress: contract.address,
-    })
+  storedAssetContracts.forEach((contract) => {
     assets.push({
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
-      balance: formatTokenDecimals(balance, contract.decimals),
+      balance: 0,
       logo: contract.logo || 'arcana-fallback-token-logo.svg',
       decimals: contract.decimals,
     })
+  })
+  storedAssetContracts.forEach(async (contract) => {
+    try {
+      const balance = await getTokenBalance({
+        privateKey: userStore.privateKey,
+        rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
+        walletAddress: userStore.walletAddress,
+        contractAddress: contract.address,
+      })
+      const asset = assets.find((asset) => asset.symbol === contract.symbol)
+      if (asset) {
+        asset.balance = formatTokenDecimals(balance, contract.decimals)
+      }
+    } catch (err) {
+      console.error({ err })
+    }
   })
 }
 
@@ -118,6 +128,7 @@ rpcStore.$subscribe(getAssetsBalance)
 
 .assets-view__asset-name {
   max-width: 12ch;
+  line-height: 1.5;
 }
 
 .assets-view__asset-balance {

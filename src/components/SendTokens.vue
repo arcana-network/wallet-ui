@@ -5,7 +5,10 @@ import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import { getGasPrice } from '@/services/gasPrice.service'
+import {
+  getGasPrice,
+  GAS_AVAILABLE_CHAIN_IDS,
+} from '@/services/gasPrice.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -25,11 +28,13 @@ const getImage = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
+const chainId = rpcStore.selectedChainId
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
 const gasFeeInGwei = ref('')
 const gasFeeInEth = ref('')
+const estimatedGas = ref('0')
 const gasPrices: Ref<object> = ref({})
 const loader = ref({
   show: false,
@@ -40,14 +45,20 @@ const tokenList = ref([
     symbol: rpcStore.nativeCurrency.symbol,
   },
 ])
+const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0].symbol)
 const selectedTokenBalance = ref('0')
+const accountHandler = new AccountHandler(userStore.privateKey)
+accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
-watch(gasFeeInGwei, () => {
-  gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
-})
+watch(
+  () => gasFeeInGwei.value,
+  () => {
+    gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+  }
+)
 
 watch(selectedToken, async () => {
   await fetchTokenBalance()
@@ -68,8 +79,14 @@ onMounted(async () => {
   try {
     setTokenList()
     await fetchTokenBalance()
-    const data = await getGasPrice()
-    gasPrices.value = data
+    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
+      const data = await getGasPrice(chainId)
+      gasPrices.value = data
+    }
+    const baseGasPrice = (
+      await accountHandler.provider.getGasPrice()
+    ).toString()
+    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
   } catch (err) {
     console.log({ err })
     gasPrices.value = {}
@@ -86,12 +103,17 @@ async function fetchTokenBalance() {
   if (tokenInfo?.symbol === rpcStore.nativeCurrency.symbol) {
     selectedTokenBalance.value = walletBalance
   } else {
-    selectedTokenBalance.value = await getTokenBalance({
+    const balance = await getTokenBalance({
       privateKey: userStore.privateKey,
       rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
       contractAddress: tokenInfo.address,
     })
+    selectedTokenBalance.value = tokenInfo.decimals
+      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toFixed(
+          tokenInfo.decimals
+        )
+      : balance
   }
 }
 
@@ -121,14 +143,15 @@ async function handleSendToken() {
   showLoader('Sending')
   try {
     const accountHandler = new AccountHandler(userStore.privateKey)
+    const gasFees = ethers.utils
+      .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
+      .toHexString()
     accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
     if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-        gasPrice: ethers.utils
-          .parseEther(`${gasFeeInGwei.value}`)
-          .toHexString(),
+        gasPrice: gasFees,
         from: userStore.walletAddress,
       }
 
@@ -144,14 +167,23 @@ async function handleSendToken() {
       const tokenInfo = tokenList.value.find(
         (item) => item.symbol === selectedToken.value
       )
-      const { transactionHash } = await accountHandler.sendCustomToken(
+      const sendAmount = tokenInfo.decimals
+        ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
+        : amount.value
+      const transactionHash = await accountHandler.sendCustomToken(
         tokenInfo.address,
         setHexPrefix(recipientWalletAddress.value),
-        amount.value
+        sendAmount,
+        gasFees
       )
       activitiesStore.fetchAndSaveActivityFromHash({
         chainId: rpcStore.selectedRpcConfig?.chainId as number,
         txHash: transactionHash,
+        customToken: {
+          operation: 'Send',
+          amount: amount.value,
+          symbol: tokenInfo.symbol,
+        },
       })
     }
     toast.success('Tokens sent Successfully')
@@ -171,8 +203,38 @@ function handleSetGasPrice(value) {
   gasFeeInGwei.value = value
 }
 
-function handleShowPreview() {
+async function handleShowPreview() {
+  if (!gasFeeInGwei.value) {
+    gasFeeInGwei.value = baseFee.value
+  }
   if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
+    showLoader('Loading preview...')
+    try {
+      if (rpcStore.nativeCurrency.symbol === selectedToken.value) {
+        estimatedGas.value = (
+          await accountHandler.provider.estimateGas({
+            from: userStore.walletAddress,
+            to: setHexPrefix(recipientWalletAddress.value),
+            value: ethers.utils.parseUnits(amount.value, 'ether'),
+          })
+        ).toString()
+      } else {
+        const tokenInfo = tokenList.value.find(
+          (item) => item.symbol === selectedToken.value
+        )
+        const sendAmount = tokenInfo.decimals
+          ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
+          : amount.value
+        estimatedGas.value = await accountHandler.estimateCustomTokenGas(
+          tokenInfo.address,
+          setHexPrefix(recipientWalletAddress.value),
+          sendAmount
+        )
+      }
+    } catch (e) {
+      console.error({ e })
+    }
+    hideLoader()
     showPreview.value = true
   } else {
     toast.error('Please fill all values')
@@ -193,6 +255,7 @@ function handleShowPreview() {
         amount,
         gasFee: gasFeeInEth,
         selectedToken,
+        estimatedGas,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
@@ -252,7 +315,9 @@ function handleShowPreview() {
             <label class="text-xs text-zinc-400" for="amount"> Amount </label>
             <p class="space-x-1 text-xs text-zinc-400">
               <span>Total Balance:</span>
-              <span>{{ truncateToTwoDecimals(selectedTokenBalance) }}</span>
+              <span :title="selectedTokenBalance">{{
+                truncateToTwoDecimals(selectedTokenBalance)
+              }}</span>
             </p>
           </div>
           <div
@@ -302,6 +367,7 @@ function handleShowPreview() {
         <GasPrice
           :gas-price="gasFeeInGwei"
           :gas-prices="gasPrices"
+          :base-fee="baseFee"
           @gas-price-input="handleSetGasPrice"
         />
         <div class="flex justify-center">

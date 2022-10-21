@@ -1,5 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import VueSlider from 'vue-slider-component'
+
+import { useAppStore } from '@/store/app'
 import 'vue-slider-component/theme/antd.css'
 
 const emits = defineEmits(['selectGasPrice'])
@@ -11,41 +13,45 @@ const props = defineProps({
   },
 })
 
+const appStore = useAppStore()
+
+const hasDarkMode = appStore.theme === 'dark'
+
 const marksData = {
   0: 'Slow',
-  1: 'Average',
+  1: 'Standard',
   2: 'Fast',
-  3: 'Fastest',
 }
 
 const markStyle = {
   width: '6px',
   height: '6px',
-  backgroundColor: '#000',
-  transform: 'translate(-2px, -2px)',
+  backgroundColor: hasDarkMode ? '#000' : '#fff',
+  transform: 'translate(-2px, -3px)',
   cursor: 'pointer',
 }
 
 const railStyle = {
   height: '1px',
+  backgroundColor: '#8d8d8d',
 }
 
 const dotStyle = {
   border: 'none',
-  boxShadow: '0 0 0 2px #fff',
+  boxShadow: hasDarkMode ? '0 0 0 2px #fff' : '0 0 0 2px #000',
 }
 
 const processStyle = {
-  backgroundColor: '#fff',
+  backgroundColor: hasDarkMode ? '#fff' : '#000',
 }
 
 const stepActiveStyle = {
-  backgroundColor: '#000',
-  boxShadow: '0 0 0 2px #fff',
+  backgroundColor: hasDarkMode ? '#000' : '#fff',
+  boxShadow: hasDarkMode ? '0 0 0 2px #fff' : '0 0 0 2px #000',
 }
 
 const labelStyle = {
-  color: '#fff',
+  color: hasDarkMode ? '#fff' : '#000',
   marginTop: '15px',
 }
 
@@ -61,6 +67,8 @@ function handleSlide(value) {
   const type = marksData[value]
   emits('selectGasPrice', type)
 }
+
+handleSlide(0)
 </script>
 
 <template>
@@ -77,12 +85,7 @@ function handleSlide(value) {
     <template #dot>
       <div
         v-if="!props.disable"
-        class="w-4 h-4 bg-white rounded-full border-none shadow-white"
-      ></div>
-      <div
-        v-else
-        class="bg-transparent h-full"
-        @click="() => handleSlide(0)"
+        class="w-4 h-4 -m-[1px] bg-black dark:bg-white rounded-full border-none shadow-black dark:shadow-white"
       ></div>
     </template>
   </vue-slider>
