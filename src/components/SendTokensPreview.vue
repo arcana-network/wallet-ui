@@ -16,8 +16,17 @@ const props = defineProps({
   },
 })
 
-const totalAmount =
-  Number(props.previewData.amount) + Number(props.previewData.gasFee)
+const nativeCurrency = rpcStore.nativeCurrency.symbol
+
+const txFees =
+  Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
+
+const sendAmount =
+  nativeCurrency === props.previewData.selectedToken
+    ? Number(props.previewData.amount)
+    : 0
+
+const totalAmount = sendAmount + txFees
 </script>
 
 <template>
@@ -61,9 +70,7 @@ const totalAmount =
         </div>
         <div class="flex justify-between text-sm sm:text-xs font-normal">
           <p>Gas Fees</p>
-          <p>
-            {{ props.previewData.gasFee }} {{ props.previewData.selectedToken }}
-          </p>
+          <p>{{ txFees }} {{ nativeCurrency }}</p>
         </div>
       </div>
       <div
@@ -72,7 +79,7 @@ const totalAmount =
         <p>Total:</p>
         <p>
           {{ new BigNumber(totalAmount).toFixed() }}
-          {{ props.previewData.selectedToken }}
+          {{ nativeCurrency }}
         </p>
       </div>
     </div>

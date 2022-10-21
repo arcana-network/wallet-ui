@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import { getGasPrice } from '@/services/gasPrice.service'
+import {
+  getGasPrice,
+  GAS_AVAILABLE_CHAIN_IDS,
+} from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { useImage } from '@/utils/useImage'
 
@@ -18,10 +24,17 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['gasPriceInput'])
+const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const getImage = useImage()
+const baseFee = ref('0')
+const chainId = rpcStore.selectedChainId
+
+const accountHandler = new AccountHandler(userStore.privateKey)
+accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasPrices: Ref<object> = ref({})
 
@@ -41,10 +54,16 @@ function hideLoader() {
 }
 
 onMounted(async () => {
-  showLoader('Loading')
+  showLoader('Loading...')
   try {
-    const data = await getGasPrice()
-    gasPrices.value = data
+    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
+      const data = await getGasPrice(chainId)
+      gasPrices.value = data
+    }
+    const baseGasPrice = (
+      await accountHandler.provider.getGasPrice()
+    ).toString()
+    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
   } catch (err) {
     console.log({ err })
     gasPrices.value = {}
@@ -55,12 +74,19 @@ onMounted(async () => {
 
 function handleSetGasPrice(value) {
   const requestId = props.request.request.id
-  emits('gasPriceInput', { value, requestId })
+  customGasPrice.value = value
+  emits('gasPriceInput', {
+    value: `0x${Number(value * Math.pow(10, 9)).toString(16)}`,
+    requestId,
+  })
 }
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
+  <div v-if="loader.show" class="flex justify-center items-center flex-1">
+    <p class="sm:text-xs">{{ loader.message }}</p>
+  </div>
+  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
       <div class="flex justify-between">
         <p class="text-xl sm:text-sm">Send Transaction</p>
@@ -92,8 +118,9 @@ function handleSetGasPrice(value) {
       </p>
     </div>
     <GasPrice
-      :gas-price="request.request.params[0].gasPrice"
+      :gas-price="customGasPrice"
       :gas-prices="gasPrices"
+      :base-fee="baseFee"
       @gas-price-input="handleSetGasPrice"
     />
     <SignMessageAdvancedInfo
