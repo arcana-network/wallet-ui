@@ -84,8 +84,8 @@ function addNetwork(request, keeper) {
       favicon: 'blockchain-icon',
       isCustom: true,
       nativeCurrency: {
-        symbol: networkInfo.currencySymbol,
-        decimals: 18,
+        symbol: networkInfo.nativeCurrency.symbol,
+        decimals: networkInfo.nativeCurrency.decimals || 18,
       },
     }
     rpcStore.addNetwork(payload)
