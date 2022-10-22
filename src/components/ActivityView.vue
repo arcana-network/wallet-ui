@@ -7,6 +7,7 @@ import { useActivitiesStore } from '@/store/activities'
 import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { beautifyBalance } from '@/utils/formatTokenDecimals'
+import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
 
 type ActivityViewProps = {
@@ -23,9 +24,7 @@ type ActivityView = Activity & {
   isExpanded?: boolean
 }
 
-const explorerUrl = rpcStore.selectedRpcConfig?.blockExplorerUrls?.length
-  ? rpcStore.selectedRpcConfig?.blockExplorerUrls[0]
-  : undefined
+const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
 
 const activities: ComputedRef<ActivityView[]> = computed(() => {
   const activitiesInStore = activitiesStore.activities(chainId)
@@ -34,20 +33,6 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   }
   return [...activitiesInStore]
 })
-
-function truncateAddress(address?: string | null) {
-  if (!address) return ''
-  return (
-    address.substring(0, 4) + '....' + address.substring(address.length - 5)
-  )
-}
-
-function truncateOperation(operation: string) {
-  if (operation.length > 12) {
-    return operation.substring(0, 11) + '...'
-  }
-  return operation
-}
 
 function getTransactionIcon(operation: TransactionOps | FileOps) {
   const interaction = [
@@ -108,7 +93,7 @@ function getAmount(amount: bigint, isGas = false) {
 function canShowDropdown(activity: Activity) {
   return (
     (explorerUrl && activity.txHash) ||
-    activity.txHash ||
+    activity.transaction ||
     activity.file?.recipient ||
     activity.file?.ruleHash
   )
@@ -138,7 +123,7 @@ function canShowDropdown(activity: Activity) {
                 class="font-bold text-base leading-5"
                 :title="`${activity.operation} ${activity.customToken.symbol}`"
               >
-                {{ truncateOperation(activity.operation) }}
+                {{ truncateEnd(activity.operation, 12) }}
                 {{ activity.customToken.symbol }}
               </span>
               <span
@@ -146,7 +131,7 @@ function canShowDropdown(activity: Activity) {
                 class="font-bold text-base leading-5"
                 :title="activity.operation"
               >
-                {{ truncateOperation(activity.operation) }}
+                {{ truncateEnd(activity.operation, 12) }}
               </span>
               <img
                 v-if="canShowDropdown(activity)"
@@ -161,13 +146,13 @@ function canShowDropdown(activity: Activity) {
               v-if="activity.transaction && activity.address.to"
               class="text-xs color-secondary"
               :title="activity.address.to"
-              >To: {{ truncateAddress(activity.address.to) }}</span
+              >To: {{ truncateMid(activity.address.to) }}</span
             >
             <span
               v-if="activity.file"
               class="text-xs color-secondary"
               :title="activity.file.did"
-              >File DID: {{ truncateAddress(activity.file.did) }}</span
+              >File DID: {{ truncateMid(activity.file.did) }}</span
             >
             <div class="flex text-xs color-secondary gap-1 items-center">
               <span class="whitespace-nowrap">{{
@@ -249,7 +234,7 @@ function canShowDropdown(activity: Activity) {
                 class="text-base font-normal leading-5"
                 :title="activity.file.recipient"
               >
-                {{ truncateAddress(activity.file.recipient) }}
+                {{ truncateMid(activity.file.recipient) }}
               </span>
             </div>
           </div>
@@ -263,7 +248,7 @@ function canShowDropdown(activity: Activity) {
                 class="text-base font-normal leading-5"
                 :title="activity.file.ruleHash"
               >
-                {{ truncateAddress(activity.file.ruleHash) }}
+                {{ truncateMid(activity.file.ruleHash) }}
               </span>
             </div>
           </div>
@@ -279,7 +264,7 @@ function canShowDropdown(activity: Activity) {
                     class="text-base font-normal leading-5"
                     :title="activity.address.from"
                   >
-                    {{ truncateAddress(activity.address.from) }}
+                    {{ truncateMid(activity.address.from) }}
                   </span>
                 </div>
                 <img
@@ -295,7 +280,7 @@ function canShowDropdown(activity: Activity) {
                     class="text-base font-normal leading-5"
                     :title="activity.address.to"
                   >
-                    {{ truncateAddress(activity.address.to) }}
+                    {{ truncateMid(activity.address.to) }}
                   </span>
                 </div>
               </div>

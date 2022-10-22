@@ -195,8 +195,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         const { did, ruleHash, recipient } = fileKeysFromContract
         file = {
           did: fileTransaction.details[did],
-          ruleHash: ruleHash ? fileTransaction.details[ruleHash] : undefined,
-          recipient: recipient ? fileTransaction.details[recipient] : undefined,
+          ruleHash: ruleHash && fileTransaction.details[ruleHash],
+          recipient: recipient && fileTransaction.details[recipient],
         }
       }
       const activity: Activity = {
