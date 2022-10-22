@@ -1,108 +1,47 @@
 import { FileOps } from '@/store/activities'
 
-type ContractFunction =
-  | 'uploadInit'
-  | 'checkPermission'
-  | 'share'
-  | 'revoke'
-  | 'deleteFile'
-  | 'changeFileOwner'
-
-type ContractParams = '_did' | '_user' | '_newOwner' | '_files'
-type ActivityParams = 'did' | 'recepient'
-
-type ContractMapValues = {
+type FileValues = {
   operation: FileOps
-  params: {
-    key: ContractParams
-    activityParam: ActivityParams
-    hasMultiple?: true
-  }[]
+  did?: string
+  recipient?: string
+  ruleHash?: string
 }
 
-type ContractFunctionToOperationMap = {
-  [key in ContractFunction]: ContractMapValues
-}
-
-const contractFunctions: ContractFunction[] = [
-  'uploadInit',
-  'checkPermission',
-  'share',
-  'revoke',
-  'deleteFile',
-  'changeFileOwner',
-]
-
-const contractFunctionToOperationMap: ContractFunctionToOperationMap = {
+const CONTRACT_MAP = {
   uploadInit: {
     operation: 'Upload',
-    params: [
-      {
-        key: '_did',
-        activityParam: 'did',
-      },
-    ],
+    did: 'did',
   },
-  checkPermission: {
+  download: {
     operation: 'Download',
-    params: [
-      {
-        key: '_did',
-        activityParam: 'did',
-      },
-    ],
+    did: 'did',
   },
-  share: {
-    operation: 'Share',
-    params: [
-      {
-        key: '_files',
-        activityParam: 'did',
-        hasMultiple: true,
-      },
-      {
-        key: '_user',
-        activityParam: 'recepient',
-        hasMultiple: true,
-      },
-    ],
-  },
-  revoke: {
-    operation: 'Revoke',
-    params: [
-      {
-        key: '_did',
-        activityParam: 'did',
-      },
-      {
-        key: '_user',
-        activityParam: 'recepient',
-      },
-    ],
+  updateRuleSet: {
+    operation: 'Update Rule',
+    did: '_did',
+    ruleHash: '_ruleHash',
   },
   deleteFile: {
     operation: 'Delete',
-    params: [
-      {
-        key: '_did',
-        activityParam: 'did',
-      },
-    ],
+    did: '_did',
   },
   changeFileOwner: {
     operation: 'Transfer Ownership',
-    params: [
-      {
-        key: '_did',
-        activityParam: 'did',
-      },
-      {
-        key: '_newOwner',
-        activityParam: 'recepient',
-      },
-    ],
+    did: '_did',
+    recipient: '_newOwner',
   },
 }
 
-export { contractFunctions, contractFunctionToOperationMap }
-export type { ContractFunction, ContractMapValues }
+function getFileKeysFromContract(contractMethod: string): FileValues {
+  if (contractMethod && CONTRACT_MAP[contractMethod]) {
+    return CONTRACT_MAP[contractMethod]
+  }
+  return {
+    operation: 'Meta Transaction',
+  }
+}
+
+const CONTRACT_EVENT_CODE =
+  '0x7bd21089cf9edb595059a60d1c46af0920f2453eba4ca019c8aa3b2286d6c69b'
+
+export { getFileKeysFromContract, CONTRACT_EVENT_CODE }

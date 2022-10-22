@@ -23,6 +23,11 @@ type ActivityView = Activity & {
   isExpanded?: boolean
 }
 
+const explorerUrl = rpcStore.selectedRpcConfig?.blockExplorerUrls?.length
+  ? rpcStore.selectedRpcConfig?.blockExplorerUrls[0]
+  : undefined
+console.log({ explorerUrl })
+
 const activities: ComputedRef<ActivityView[]> = computed(() => {
   const activitiesInStore = activitiesStore.activities(chainId)
   if (!activitiesInStore) {
@@ -30,6 +35,8 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   }
   return [...activitiesInStore]
 })
+
+console.log(activities)
 
 function truncateAddress(address?: string | null) {
   if (!address) return ''
@@ -46,7 +53,12 @@ function truncateOperation(operation: string) {
 }
 
 function getTransactionIcon(operation: TransactionOps | FileOps) {
-  const interaction = ['Contract Deployment', 'Contract Interaction']
+  const interaction = [
+    'Contract Deployment',
+    'Contract Interaction',
+    'Meta Transaction',
+    'Update Rule',
+  ]
   if (interaction.includes(operation)) {
     return getIconAsset('activities/tx-interact.svg')
   }
@@ -95,6 +107,15 @@ function getAmount(amount: bigint, isGas = false) {
   }
   return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
+
+function canShowDropdown(activity: Activity) {
+  return (
+    (explorerUrl && activity.txHash) ||
+    activity.txHash ||
+    activity.file?.recipient ||
+    activity.file?.ruleHash
+  )
+}
 </script>
 
 <template>
@@ -131,7 +152,7 @@ function getAmount(amount: bigint, isGas = false) {
                 {{ truncateOperation(activity.operation) }}
               </span>
               <img
-                v-if="activity.transaction || activity.file?.recepient"
+                v-if="canShowDropdown(activity)"
                 src="@/assets/images/arrow-up.svg"
                 class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px] invert dark:invert-0"
                 :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
@@ -209,34 +230,43 @@ function getAmount(amount: bigint, isGas = false) {
           </div>
         </div>
         <div
-          v-if="
-            activity.isExpanded &&
-            (activity.transaction || activity.file?.recepient)
-          "
+          v-if="canShowDropdown(activity) && activity.isExpanded"
           class="flex flex-col"
         >
           <hr
-            class="border-solid border-0 border-t-[1px] tab-view-border-color mb-4"
+            class="border-solid border-0 border-t-[1px] tab-view-border-color"
+            :class="{
+              'mb-4':
+                activity.file?.recipient ||
+                activity.file?.ruleHash ||
+                activity.transaction,
+            }"
           />
-          <div v-if="activity.file?.recepient">
+          <div v-if="activity.file?.recipient">
             <div class="flex flex-col gap-[5px]">
               <span
-                v-if="activity.operation === 'Transfer Ownership'"
                 class="font-montserrat color-secondary text-xs font-semibold"
-                :title="activity.file.recepient"
                 >To</span
               >
               <span
-                v-else
+                class="text-base font-normal leading-5"
+                :title="activity.file.recipient"
+              >
+                {{ truncateAddress(activity.file.recipient) }}
+              </span>
+            </div>
+          </div>
+          <div v-if="activity.file?.ruleHash">
+            <div class="flex flex-col gap-[5px]">
+              <span
                 class="font-montserrat color-secondary text-xs font-semibold"
-                :title="activity.file.recepient"
-                >Recepient</span
+                >Rule Hash</span
               >
               <span
                 class="text-base font-normal leading-5"
-                :title="activity.file.recepient"
+                :title="activity.file.ruleHash"
               >
-                {{ truncateAddress(activity.file.recepient) }}
+                {{ truncateAddress(activity.file.ruleHash) }}
               </span>
             </div>
           </div>
@@ -340,14 +370,11 @@ function getAmount(amount: bigint, isGas = false) {
             </div>
           </div>
           <div
-            v-if="
-              rpcStore.selectedRpcConfig?.blockExplorerUrls?.length &&
-              activity.transaction
-            "
+            v-if="explorerUrl && activity.txHash"
             class="flex justify-center my-5"
           >
             <a
-              :href="`${rpcStore.selectedRpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
+              :href="`${explorerUrl}/tx/${activity.txHash}`"
               class="flex font-montserrat font-medium text-xs"
               target="_blank"
             >

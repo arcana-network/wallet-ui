@@ -1,4 +1,5 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { ethers, BigNumber } from 'ethers'
 import { defineStore } from 'pinia'
 
 import { store } from '@/store'
@@ -6,10 +7,9 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
 import {
-  contractFunctions,
-  contractFunctionToOperationMap,
+  CONTRACT_EVENT_CODE,
+  getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
-import { parseFileTransaction } from '@/utils/parseFileTransaction'
 
 const userStore = useUserStore(store)
 const rpcStore = useRpcStore(store)
@@ -25,14 +25,28 @@ type TransactionOps =
 type FileOps =
   | 'Upload'
   | 'Download'
-  | 'Share'
-  | 'Revoke'
+  | 'Update Rule'
   | 'Transfer Ownership'
   | 'Delete'
+  | 'Meta Transaction'
+
+type ContractFileActivityMessage = {
+  details: {
+    did: string
+    ephemeralWallet: string
+  }
+  tx: {
+    from: string
+    method: string
+    nonce: number
+    to: string
+  }
+}
 
 type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
 
 type Activity = {
+  txHash?: string
   transaction?: {
     hash: string
     amount: bigint
@@ -40,7 +54,7 @@ type Activity = {
     gasLimit: bigint
     gasUsed: bigint
     gasPrice: bigint
-    data?: string
+    data: string
   }
   operation: TransactionOps | FileOps
   date: Date
@@ -51,7 +65,8 @@ type Activity = {
   }
   file?: {
     did: string
-    recepient?: string
+    recipient?: string
+    ruleHash?: string
   }
   customToken?: {
     operation: string
@@ -142,6 +157,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       )
       const activity: Activity = {
         operation: getTxOperation(remoteTransaction, customToken),
+        txHash,
         transaction: {
           hash: txHash,
           amount: remoteTransaction.value.toBigInt(),
@@ -165,58 +181,56 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
       }
     },
-    async saveFileActivity(chainId: ChainId, data: string) {
-      const fileTransaction = parseFileTransaction(data)
-      if (contractFunctions.includes(fileTransaction.name)) {
-        const map = contractFunctionToOperationMap[fileTransaction.name]
-        const didParam = map.params.find(
-          (param) => param.activityParam === 'did'
-        )
-        if (didParam) {
-          const recepientParam = map.params.find(
-            (param) => param.activityParam === 'recepient'
-          )
-          if (map.operation === 'Share' && recepientParam) {
-            const dids = fileTransaction.args[didParam.key] as string[]
-            const recepients = fileTransaction.args[
-              recepientParam.key
-            ] as string[]
-            for (const did of dids) {
-              for (const recepient of recepients) {
-                const activity: Activity = {
-                  operation: map.operation,
-                  status: 'Success',
-                  date: new Date(),
-                  address: {
-                    from: userStore.walletAddress,
-                  },
-                  file: {
-                    did,
-                    recepient,
-                  },
-                }
-                this.saveActivity(chainId, activity)
-              }
-            }
-          } else {
-            const activity: Activity = {
-              operation: map.operation,
-              status: 'Success',
-              date: new Date(),
-              address: {
-                from: userStore.walletAddress,
-              },
-              file: {
-                did: fileTransaction.args[didParam.key],
-                recepient: recepientParam
-                  ? fileTransaction.args[recepientParam.key]
-                  : undefined,
-              },
-            }
-            this.saveActivity(chainId, activity)
-          }
+    async saveFileActivity(
+      chainId: ChainId,
+      fileTransaction: ContractFileActivityMessage,
+      forwarderAddress: string
+    ) {
+      const fileKeysFromContract = getFileKeysFromContract(
+        fileTransaction.tx.method
+      )
+
+      let file
+      if (fileKeysFromContract.did) {
+        const { did, ruleHash, recipient } = fileKeysFromContract
+        file = {
+          did: fileTransaction.details[did],
+          ruleHash: ruleHash ? fileTransaction.details[ruleHash] : undefined,
+          recipient: recipient ? fileTransaction.details[recipient] : undefined,
         }
       }
+      const activity: Activity = {
+        operation: fileKeysFromContract.operation,
+        status: 'Pending',
+        date: new Date(),
+        address: {
+          from: userStore.walletAddress,
+        },
+        file,
+      }
+      this.saveActivity(chainId, activity)
+      const currentActivity = this.activitiesByChainId[chainId][0]
+      console.log({ currentActivity })
+
+      const filter = {
+        address: forwarderAddress,
+        topics: [
+          CONTRACT_EVENT_CODE,
+          ethers.utils.hexZeroPad(fileTransaction.tx.from, 32),
+          ethers.utils.hexZeroPad(fileTransaction.tx.to, 32),
+          ethers.utils.hexZeroPad(
+            BigNumber.from(fileTransaction.tx.nonce).toHexString(),
+            32
+          ),
+        ],
+      }
+
+      const accountHandler = new AccountHandler(userStore.privateKey)
+      accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+      accountHandler.provider.once(filter, async (log) => {
+        currentActivity.status = 'Success'
+        currentActivity.txHash = log.transactionHash
+      })
     },
   },
 })
