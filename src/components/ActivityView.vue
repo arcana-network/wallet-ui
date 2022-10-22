@@ -26,7 +26,6 @@ type ActivityView = Activity & {
 const explorerUrl = rpcStore.selectedRpcConfig?.blockExplorerUrls?.length
   ? rpcStore.selectedRpcConfig?.blockExplorerUrls[0]
   : undefined
-console.log({ explorerUrl })
 
 const activities: ComputedRef<ActivityView[]> = computed(() => {
   const activitiesInStore = activitiesStore.activities(chainId)
@@ -35,8 +34,6 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   }
   return [...activitiesInStore]
 })
-
-console.log(activities)
 
 function truncateAddress(address?: string | null) {
   if (!address) return ''

@@ -210,7 +210,6 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       }
       this.saveActivity(chainId, activity)
       const currentActivity = this.activitiesByChainId[chainId][0]
-      console.log({ currentActivity })
 
       const filter = {
         address: forwarderAddress,

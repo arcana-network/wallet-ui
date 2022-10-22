@@ -24,11 +24,6 @@ async function getTokenBalance(data: ContractParams): Promise<string> {
     accountHandler.provider
   )
 
-  console.log({
-    walletAddress: data.walletAddress,
-    contractAddress: data.contractAddress,
-  })
-
   const balance = await ethersContract.balanceOf(data.walletAddress)
 
   return balance.toString()
