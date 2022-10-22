@@ -62,7 +62,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (params.domain.name === 'Arcana Forwarder') {
           activitiesStore.saveFileActivity(
             rpcStore.selectedRpcConfig?.chainId as number,
-            params.message.data
+            params.message
           )
         }
         return
