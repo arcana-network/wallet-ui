@@ -1,14 +1,17 @@
 <script setup lang="ts">
-defineProps({
-  value: {
-    type: Object,
-    required: true,
-  },
-})
+type ViewerProps = {
+  value: string | JSON
+}
+
+defineProps<ViewerProps>()
 </script>
 
 <template>
-  <json-viewer :value="value" theme="json-viewer"></json-viewer>
+  <json-viewer
+    :value="value"
+    :expand-depth="3"
+    theme="json-viewer"
+  ></json-viewer>
 </template>
 
 <style lang="scss">
