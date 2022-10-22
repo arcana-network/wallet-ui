@@ -1,5 +1,5 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { ethers, BigNumber } from 'ethers'
+import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
 import { store } from '@/store'
@@ -222,7 +222,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             32
           ),
         ],
-      }
+      } as EventFilter
 
       const accountHandler = new AccountHandler(userStore.privateKey)
       accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
