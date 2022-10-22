@@ -41,6 +41,6 @@ function getFileKeysFromContract(contractMethod: string): FileValues {
   }
 }
 
-const CONTRACT_EVENT_CODE = process.env.VUE_APP_CONTRACT_EVENT_CODE
+const CONTRACT_EVENT_CODE = process.env.VUE_APP_CONTRACT_EVENT_CODE as string
 
 export { getFileKeysFromContract, CONTRACT_EVENT_CODE }

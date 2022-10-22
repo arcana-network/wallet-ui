@@ -211,7 +211,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       this.saveActivity(chainId, activity)
       const currentActivity = this.activitiesByChainId[chainId][0]
 
-      const filter = {
+      const filter: EventFilter = {
         address: forwarderAddress,
         topics: [
           CONTRACT_EVENT_CODE,
@@ -222,7 +222,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             32
           ),
         ],
-      } as EventFilter
+      }
 
       const accountHandler = new AccountHandler(userStore.privateKey)
       accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
