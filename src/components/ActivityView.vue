@@ -7,6 +7,7 @@ import { useActivitiesStore } from '@/store/activities'
 import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { beautifyBalance } from '@/utils/formatTokenDecimals'
+import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
 
 type ActivityViewProps = {
@@ -23,6 +24,8 @@ type ActivityView = Activity & {
   isExpanded?: boolean
 }
 
+const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
+
 const activities: ComputedRef<ActivityView[]> = computed(() => {
   const activitiesInStore = activitiesStore.activities(chainId)
   if (!activitiesInStore) {
@@ -31,22 +34,13 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   return [...activitiesInStore]
 })
 
-function truncateAddress(address?: string | null) {
-  if (!address) return ''
-  return (
-    address.substring(0, 4) + '....' + address.substring(address.length - 5)
-  )
-}
-
-function truncateOperation(operation: string) {
-  if (operation.length > 12) {
-    return operation.substring(0, 11) + '...'
-  }
-  return operation
-}
-
 function getTransactionIcon(operation: TransactionOps | FileOps) {
-  const interaction = ['Contract Deployment', 'Contract Interaction']
+  const interaction = [
+    'Contract Deployment',
+    'Contract Interaction',
+    'Meta Transaction',
+    'Update Rule',
+  ]
   if (interaction.includes(operation)) {
     return getIconAsset('activities/tx-interact.svg')
   }
@@ -95,6 +89,15 @@ function getAmount(amount: bigint, isGas = false) {
   }
   return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
+
+function canShowDropdown(activity: Activity) {
+  return (
+    (explorerUrl && activity.txHash) ||
+    activity.transaction ||
+    activity.file?.recipient ||
+    activity.file?.ruleHash
+  )
+}
 </script>
 
 <template>
@@ -120,7 +123,7 @@ function getAmount(amount: bigint, isGas = false) {
                 class="font-bold text-base leading-5"
                 :title="`${activity.operation} ${activity.customToken.symbol}`"
               >
-                {{ truncateOperation(activity.operation) }}
+                {{ truncateEnd(activity.operation, 12) }}
                 {{ activity.customToken.symbol }}
               </span>
               <span
@@ -128,10 +131,10 @@ function getAmount(amount: bigint, isGas = false) {
                 class="font-bold text-base leading-5"
                 :title="activity.operation"
               >
-                {{ truncateOperation(activity.operation) }}
+                {{ truncateEnd(activity.operation, 12) }}
               </span>
               <img
-                v-if="activity.transaction || activity.file?.recepient"
+                v-if="canShowDropdown(activity)"
                 src="@/assets/images/arrow-up.svg"
                 class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px] invert dark:invert-0"
                 :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
@@ -143,13 +146,13 @@ function getAmount(amount: bigint, isGas = false) {
               v-if="activity.transaction && activity.address.to"
               class="text-xs color-secondary"
               :title="activity.address.to"
-              >To: {{ truncateAddress(activity.address.to) }}</span
+              >To: {{ truncateMid(activity.address.to) }}</span
             >
             <span
               v-if="activity.file"
               class="text-xs color-secondary"
               :title="activity.file.did"
-              >File DID: {{ truncateAddress(activity.file.did) }}</span
+              >File DID: {{ truncateMid(activity.file.did) }}</span
             >
             <div class="flex text-xs color-secondary gap-1 items-center">
               <span class="whitespace-nowrap">{{
@@ -209,34 +212,43 @@ function getAmount(amount: bigint, isGas = false) {
           </div>
         </div>
         <div
-          v-if="
-            activity.isExpanded &&
-            (activity.transaction || activity.file?.recepient)
-          "
+          v-if="canShowDropdown(activity) && activity.isExpanded"
           class="flex flex-col"
         >
           <hr
-            class="border-solid border-0 border-t-[1px] tab-view-border-color mb-4"
+            class="border-solid border-0 border-t-[1px] tab-view-border-color"
+            :class="{
+              'mb-4':
+                activity.file?.recipient ||
+                activity.file?.ruleHash ||
+                activity.transaction,
+            }"
           />
-          <div v-if="activity.file?.recepient">
+          <div v-if="activity.file?.recipient">
             <div class="flex flex-col gap-[5px]">
               <span
-                v-if="activity.operation === 'Transfer Ownership'"
                 class="font-montserrat color-secondary text-xs font-semibold"
-                :title="activity.file.recepient"
                 >To</span
               >
               <span
-                v-else
+                class="text-base font-normal leading-5"
+                :title="activity.file.recipient"
+              >
+                {{ truncateMid(activity.file.recipient) }}
+              </span>
+            </div>
+          </div>
+          <div v-if="activity.file?.ruleHash">
+            <div class="flex flex-col gap-[5px]">
+              <span
                 class="font-montserrat color-secondary text-xs font-semibold"
-                :title="activity.file.recepient"
-                >Recepient</span
+                >Rule Hash</span
               >
               <span
                 class="text-base font-normal leading-5"
-                :title="activity.file.recepient"
+                :title="activity.file.ruleHash"
               >
-                {{ truncateAddress(activity.file.recepient) }}
+                {{ truncateMid(activity.file.ruleHash) }}
               </span>
             </div>
           </div>
@@ -252,7 +264,7 @@ function getAmount(amount: bigint, isGas = false) {
                     class="text-base font-normal leading-5"
                     :title="activity.address.from"
                   >
-                    {{ truncateAddress(activity.address.from) }}
+                    {{ truncateMid(activity.address.from) }}
                   </span>
                 </div>
                 <img
@@ -268,7 +280,7 @@ function getAmount(amount: bigint, isGas = false) {
                     class="text-base font-normal leading-5"
                     :title="activity.address.to"
                   >
-                    {{ truncateAddress(activity.address.to) }}
+                    {{ truncateMid(activity.address.to) }}
                   </span>
                 </div>
               </div>
@@ -340,14 +352,11 @@ function getAmount(amount: bigint, isGas = false) {
             </div>
           </div>
           <div
-            v-if="
-              rpcStore.selectedRpcConfig?.blockExplorerUrls?.length &&
-              activity.transaction
-            "
+            v-if="explorerUrl && activity.txHash"
             class="flex justify-center my-5"
           >
             <a
-              :href="`${rpcStore.selectedRpcConfig.blockExplorerUrls[0]}/tx/${activity.transaction.hash}`"
+              :href="`${explorerUrl}/tx/${activity.txHash}`"
               class="flex font-montserrat font-medium text-xs"
               target="_blank"
             >
