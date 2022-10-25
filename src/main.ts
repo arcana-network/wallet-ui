@@ -31,7 +31,10 @@ window.Buffer = Buffer
 const walletApp = createApp(App)
 
 function getSentryConfig() {
-  if (process.env.NODE_ENV === 'production') {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.VUE_APP_ENABLE_SENTRY === 'true'
+  ) {
     return {
       dsn: process.env.VUE_APP_SENTRY_DSN,
       tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
