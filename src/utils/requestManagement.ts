@@ -101,7 +101,7 @@ function addNetwork(request, keeper) {
   } else {
     const payload = {
       chainName: name,
-      chainId: Number(chainId),
+      chainId: chainId,
       blockExplorerUrls: networkInfo.explorerUrls,
       rpcUrls: rpcUrls,
       favicon: 'blockchain-icon',
@@ -112,6 +112,7 @@ function addNetwork(request, keeper) {
       },
     }
     rpcStore.addNetwork(payload)
+    rpcStore.setSelectedChainId(chainId)
     router.push({ name: 'home' })
     response[
       'result'
