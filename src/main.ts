@@ -30,30 +30,22 @@ window.Buffer = Buffer
 
 const walletApp = createApp(App)
 
-function getSentryConfig() {
-  if (process.env.NODE_ENV === 'production') {
-    return {
-      dsn: process.env.VUE_APP_SENTRY_DSN,
-      tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
-    }
-  }
-  return {
-    dsn: undefined,
-    tracingOrigins: undefined,
-  }
+if (
+  process.env.VUE_APP_ENABLE_SENTRY === 'true' &&
+  process.env.NODE_ENV === 'production'
+) {
+  SentryInit({
+    app: walletApp,
+    dsn: process.env.VUE_APP_SENTRY_DSN,
+    integrations: [
+      new BrowserTracing({
+        routingInstrumentation: vueRouterInstrumentation(router),
+        tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
+      }),
+    ],
+    tracesSampleRate: 1.0,
+  })
 }
-
-SentryInit({
-  app: walletApp,
-  dsn: getSentryConfig().dsn,
-  integrations: [
-    new BrowserTracing({
-      routingInstrumentation: vueRouterInstrumentation(router),
-      tracingOrigins: getSentryConfig().tracingOrigins,
-    }),
-  ],
-  tracesSampleRate: 1.0,
-})
 
 walletApp.use(JsonViewer).use(router).use(Toast, toastOptions).use(store)
 
