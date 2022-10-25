@@ -51,7 +51,8 @@ function switchChain(request, keeper) {
     router.push({ name: 'home' })
   } else {
     keeper.reply(request.method, {
-      result: `Chain Id ${chainId} is not in the list`,
+      error: `Chain Id ${chainId} is not in the list`,
+      result: null,
       id: request.id,
     })
   }
@@ -77,12 +78,18 @@ function addNetwork(request, keeper) {
   const rpcUrl = networkInfo.rpcUrl
   const chainId = Number(networkInfo.chainId)
 
-  let result = ''
+  const response = {}
 
   if (isExistingRpcUrl(rpcUrl)) {
-    result = `RPC URL - ${rpcUrl} already exists, please use different one`
+    response['result'] = null
+    response[
+      'error'
+    ] = `RPC URL - ${rpcUrl} already exists, please use different one`
   } else if (isExistingChainId(Number(chainId))) {
-    result = `Chain ID - ${chainId} already exists, please use different one`
+    response['result'] = null
+    response[
+      'error'
+    ] = `Chain ID - ${chainId} already exists, please use different one`
   } else {
     const payload = {
       chainName: networkInfo.networkName,
@@ -98,11 +105,13 @@ function addNetwork(request, keeper) {
     }
     rpcStore.addNetwork(payload)
     router.push({ name: 'home' })
-    result = `Added the network ${networkInfo.networkName} and set it as current`
+    response[
+      'result'
+    ] = `Added the network ${networkInfo.networkName} and set it as current`
   }
 
   keeper.reply(method, {
-    result,
+    ...response,
     id: request.id,
   })
 }
