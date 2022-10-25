@@ -156,15 +156,26 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           if (params.domain.name === 'Arcana Forwarder') {
             activitiesStore.saveFileActivity(
               rpcStore.selectedRpcConfig?.chainId as number,
-              params.message.data
+              params.message,
+              params.domain.verifyingContract
             )
           }
-        }
-        if (request.method === 'eth_sendTransaction' && response.result) {
-          activitiesStore.fetchAndSaveActivityFromHash({
-            txHash: response.result,
-            chainId: rpcStore.selectedRpcConfig?.chainId as number,
-          })
+          if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
+            const params = JSON.parse(request.params[1])
+            if (params.domain.name === 'Arcana Forwarder') {
+              activitiesStore.saveFileActivity(
+                rpcStore.selectedRpcConfig?.chainId as number,
+                params.message.data,
+                params.domain.verifyingContract
+              )
+            }
+          }
+          if (request.method === 'eth_sendTransaction' && response.result) {
+            activitiesStore.fetchAndSaveActivityFromHash({
+              txHash: response.result,
+              chainId: rpcStore.selectedRpcConfig?.chainId as number,
+            })
+          }
         }
       } catch (error) {
         console.error({ error })

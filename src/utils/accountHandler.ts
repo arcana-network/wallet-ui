@@ -45,7 +45,7 @@ export class AccountHandler {
 
   sendCustomToken = async (
     contractAddress,
-    recepientAddress,
+    recipientAddress,
     amount,
     gasFees
   ) => {
@@ -54,7 +54,7 @@ export class AccountHandler {
     ]
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    const tx = await contract.functions.transfer(recepientAddress, amount, {
+    const tx = await contract.functions.transfer(recipientAddress, amount, {
       gasPrice: gasFees,
     })
     return tx.hash
@@ -62,7 +62,7 @@ export class AccountHandler {
 
   estimateCustomTokenGas = async (
     contractAddress,
-    recepientAddress,
+    recipientAddress,
     amount
   ) => {
     const abi = [
@@ -71,7 +71,7 @@ export class AccountHandler {
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
     return (
-      await contract.estimateGas.transfer(recepientAddress, amount)
+      await contract.estimateGas.transfer(recipientAddress, amount)
     ).toString()
   }
 
