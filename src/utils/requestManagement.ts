@@ -115,7 +115,6 @@ function addNetwork(request, keeper) {
       },
     }
     rpcStore.addNetwork(payload)
-    rpcStore.setSelectedChainId(chainId)
     router.push({ name: 'home' })
     response[
       'result'
