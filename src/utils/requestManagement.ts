@@ -75,16 +75,21 @@ function isExistingChainId(chainId) {
 function addNetwork(request, keeper) {
   const { method, params } = request
   const { networkInfo } = params[0]
-  const rpcUrl = networkInfo.rpcUrl
-  const chainId = Number(networkInfo.chainId)
-
+  const name: string = networkInfo.networkName || ''
+  const rpcUrls: string = networkInfo.rpcUrls || ''
+  const chainId = Number(networkInfo.chainId) || 0
+  const currencySymbol: string = networkInfo.nativeCurrency.currencySymbol || ''
   const response = {}
 
-  if (isExistingRpcUrl(rpcUrl)) {
+  console.log({ name, rpcUrls, chainId, currencySymbol })
+
+  if (!name.length || !rpcUrls.length || !chainId || !currencySymbol.length) {
+    response['error'] = 'Please provide all the required values'
+  } else if (isExistingRpcUrl(rpcUrls)) {
     response['result'] = null
     response[
       'error'
-    ] = `RPC URL - ${rpcUrl} already exists, please use different one`
+    ] = `RPC URL - ${rpcUrls} already exists, please use different one`
   } else if (isExistingChainId(Number(chainId))) {
     response['result'] = null
     response[
@@ -92,14 +97,14 @@ function addNetwork(request, keeper) {
     ] = `Chain ID - ${chainId} already exists, please use different one`
   } else {
     const payload = {
-      chainName: networkInfo.networkName,
-      chainId: Number(networkInfo.chainId),
-      blockExplorerUrls: [networkInfo.explorerUrl],
-      rpcUrls: [networkInfo.rpcUrl],
+      chainName: name,
+      chainId: Number(chainId),
+      blockExplorerUrls: [networkInfo.explorerUrls],
+      rpcUrls: [rpcUrls],
       favicon: 'blockchain-icon',
       isCustom: true,
       nativeCurrency: {
-        symbol: networkInfo.nativeCurrency.symbol,
+        symbol: currencySymbol,
         decimals: networkInfo.nativeCurrency.decimals || 18,
       },
     }
