@@ -76,14 +76,17 @@ function addNetwork(request, keeper) {
   const { method, params } = request
   const { networkInfo } = params[0]
   const name: string = networkInfo.networkName || ''
-  const rpcUrls: string = networkInfo.rpcUrls || ''
+  const rpcUrls: string[] = networkInfo.rpcUrls || []
   const chainId = Number(networkInfo.chainId) || 0
   const currencySymbol: string = networkInfo.nativeCurrency.currencySymbol || ''
   const response = {}
 
-  console.log({ name, rpcUrls, chainId, currencySymbol })
-
-  if (!name.length || !rpcUrls.length || !chainId || !currencySymbol.length) {
+  if (
+    !name.length ||
+    !(Array.isArray(rpcUrls) && rpcUrls.length > 0 && rpcUrls[0].length > 0) ||
+    !chainId ||
+    !currencySymbol.length
+  ) {
     response['error'] = 'Please provide all the required values'
   } else if (isExistingRpcUrl(rpcUrls)) {
     response['result'] = null
@@ -99,8 +102,8 @@ function addNetwork(request, keeper) {
     const payload = {
       chainName: name,
       chainId: Number(chainId),
-      blockExplorerUrls: [networkInfo.explorerUrls],
-      rpcUrls: [rpcUrls],
+      blockExplorerUrls: networkInfo.explorerUrls,
+      rpcUrls: rpcUrls,
       favicon: 'blockchain-icon',
       isCustom: true,
       nativeCurrency: {
