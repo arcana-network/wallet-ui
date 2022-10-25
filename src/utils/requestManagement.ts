@@ -128,7 +128,6 @@ function addNetwork(request, keeper) {
 }
 
 async function processRequest({ request, isPermissionGranted }, keeper) {
-  keeper.setRpcConfig(rpcStore.selectedRpcConfig)
   if (isPermissionGranted) {
     if (
       request.method === 'wallet_switchEthereumChain' ||
