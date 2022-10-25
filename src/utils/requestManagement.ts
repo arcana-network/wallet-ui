@@ -1,4 +1,5 @@
 // Todo: Find a better place for these functions
+import { ethErrors } from 'eth-rpc-errors'
 import { useToast } from 'vue-toastification'
 
 import { requirePermission } from '@/models/Connection'
@@ -51,7 +52,9 @@ function switchChain(request, keeper) {
     router.push({ name: 'home' })
   } else {
     keeper.reply(request.method, {
-      error: `Chain Id ${chainId} is not in the list`,
+      error: ethErrors.rpc.invalidParams(
+        `Chain Id ${chainId} is not in the list`
+      ),
       result: null,
       id: request.id,
     })
@@ -87,17 +90,17 @@ function addNetwork(request, keeper) {
     !chainId ||
     !currencySymbol.length
   ) {
-    response['error'] = 'Please provide all the required values'
-  } else if (isExistingRpcUrl(rpcUrls)) {
+    response['error'] = ethErrors.rpc.invalidParams(`required params missing`)
+  } else if (isExistingRpcUrl(rpcUrls[0])) {
     response['result'] = null
-    response[
-      'error'
-    ] = `RPC URL - ${rpcUrls} already exists, please use different one`
+    response['error'] = ethErrors.rpc.invalidParams(
+      `RPC URL - ${rpcUrls} already exists, please use different one`
+    )
   } else if (isExistingChainId(Number(chainId))) {
     response['result'] = null
-    response[
-      'error'
-    ] = `Chain ID - ${chainId} already exists, please use different one`
+    response['error'] = ethErrors.rpc.invalidParams(
+      `Chain ID - ${chainId} already exists, please use different one`
+    )
   } else {
     const payload = {
       chainName: name,
