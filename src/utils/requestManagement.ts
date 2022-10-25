@@ -1,5 +1,11 @@
 // Todo: Find a better place for these functions
+import { RpcConfig } from '@arcana/auth'
 import { ethErrors } from 'eth-rpc-errors'
+import {
+  JsonRpcRequest,
+  JsonRpcVersion,
+  PendingJsonRpcResponse,
+} from 'json-rpc-engine'
 import { useToast } from 'vue-toastification'
 
 import { requirePermission } from '@/models/Connection'
@@ -7,6 +13,7 @@ import { router } from '@/routes'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
+import { RequestHandler } from '@/utils/requestHandler'
 
 const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
@@ -75,14 +82,17 @@ function isExistingChainId(chainId) {
   return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
-function addNetwork(request, keeper) {
+function addNetwork(request: JsonRpcRequest<unknown>, keeper: RequestHandler) {
   const { method, params } = request
-  const { networkInfo } = params[0]
-  const name: string = networkInfo.networkName || ''
+  const networkInfo = (params as RpcConfig[])[0]
+  const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
   const chainId = Number(networkInfo.chainId) || 0
-  const currencySymbol: string = networkInfo.nativeCurrency.currencySymbol || ''
-  const response = {}
+  const currencySymbol: string = networkInfo.nativeCurrency?.symbol || ''
+  const response: PendingJsonRpcResponse<unknown> = {
+    jsonrpc: '2.0' as JsonRpcVersion,
+    id: request.id,
+  }
 
   if (
     !name.length ||
@@ -90,28 +100,34 @@ function addNetwork(request, keeper) {
     !chainId ||
     !currencySymbol.length
   ) {
-    response['error'] = ethErrors.rpc.invalidParams(`required params missing`)
+    response['error'] = ethErrors.rpc
+      .invalidParams(`required params missing`)
+      .serialize()
   } else if (isExistingRpcUrl(rpcUrls[0])) {
     response['result'] = null
-    response['error'] = ethErrors.rpc.invalidParams(
-      `RPC URL - ${rpcUrls} already exists, please use different one`
-    )
+    response['error'] = ethErrors.rpc
+      .invalidParams(
+        `RPC URL - ${rpcUrls} already exists, please use different one`
+      )
+      .serialize()
   } else if (isExistingChainId(Number(chainId))) {
     response['result'] = null
-    response['error'] = ethErrors.rpc.invalidParams(
-      `Chain ID - ${chainId} already exists, please use different one`
-    )
+    response['error'] = ethErrors.rpc
+      .invalidParams(
+        `Chain ID - ${chainId} already exists, please use different one`
+      )
+      .serialize()
   } else {
     const payload = {
       chainName: name,
       chainId: chainId,
-      blockExplorerUrls: networkInfo.explorerUrls,
+      blockExplorerUrls: networkInfo.blockExplorerUrls,
       rpcUrls: rpcUrls,
       favicon: 'blockchain-icon',
       isCustom: true,
       nativeCurrency: {
         symbol: currencySymbol,
-        decimals: networkInfo.nativeCurrency.decimals || 18,
+        decimals: 18,
       },
     }
     rpcStore.addNetwork(payload)
@@ -119,12 +135,11 @@ function addNetwork(request, keeper) {
     router.push({ name: 'home' })
     response[
       'result'
-    ] = `Added the network ${networkInfo.networkName} and set it as current`
+    ] = `Added the network ${networkInfo.chainName} and set it as current`
   }
 
   keeper.reply(method, {
     ...response,
-    id: request.id,
   })
 }
 
