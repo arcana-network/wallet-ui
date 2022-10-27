@@ -1,5 +1,5 @@
 // Todo: Find a better place for these functions
-import { ethErrors } from 'eth-rpc-errors'
+import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { useToast } from 'vue-toastification'
 
 import { requirePermission } from '@/models/Connection'
@@ -40,6 +40,10 @@ async function watchRequestQueue(reqStore, keeper) {
   })
 }
 
+function getEtherInvalidParamsError(msg) {
+  return serializeError(ethErrors.rpc.invalidParams(msg))
+}
+
 function switchChain(request, keeper) {
   const { chainId } = request.params[0]
   const rpcConfigs = rpcStore.rpcConfigs
@@ -52,7 +56,7 @@ function switchChain(request, keeper) {
     router.push({ name: 'home' })
   } else {
     keeper.reply(request.method, {
-      error: ethErrors.rpc.invalidParams(
+      error: getEtherInvalidParamsError(
         `Chain Id ${chainId} is not in the list`
       ),
       result: null,
@@ -90,15 +94,15 @@ function addNetwork(request, keeper) {
     !chainId ||
     !currencySymbol.length
   ) {
-    response['error'] = ethErrors.rpc.invalidParams(`required params missing`)
+    response['error'] = getEtherInvalidParamsError(`required params missing`)
   } else if (isExistingRpcUrl(rpcUrls[0])) {
     response['result'] = null
-    response['error'] = ethErrors.rpc.invalidParams(
+    response['error'] = getEtherInvalidParamsError(
       `RPC URL - ${rpcUrls} already exists, please use different one`
     )
   } else if (isExistingChainId(Number(chainId))) {
     response['result'] = null
-    response['error'] = ethErrors.rpc.invalidParams(
+    response['error'] = getEtherInvalidParamsError(
       `Chain ID - ${chainId} already exists, please use different one`
     )
   } else {
