@@ -12,9 +12,9 @@ const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
 const toast = useToast()
 
-function getSendRequestFn(handleRequest, requestStore, appStore) {
+function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   return function sendRequest(request) {
-    return handleRequest(request, requestStore, appStore)
+    return handleRequest(request, requestStore, appStore, keeper)
   }
 }
 
@@ -45,24 +45,13 @@ function getEtherInvalidParamsError(msg) {
 }
 
 function switchChain(request, keeper) {
-  const { chainId } = request.params[0]
-  const rpcConfigs = rpcStore.rpcConfigs
-  if (rpcConfigs && rpcConfigs[chainId]) {
-    rpcStore.setSelectedChainId(Number(chainId))
-    keeper.reply(request.method, {
-      result: `Chain changed to ${rpcConfigs[chainId].chainName}`,
-      id: request.id,
-    })
-    router.push({ name: 'home' })
-  } else {
-    keeper.reply(request.method, {
-      error: getEtherInvalidParamsError(
-        `Chain Id ${chainId} is not in the list`
-      ),
-      result: null,
-      id: request.id,
-    })
-  }
+  const chainId = request.params[0]
+  rpcStore.setSelectedChainId(Number(chainId))
+  keeper.reply(request.method, {
+    result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
+    id: request.id,
+  })
+  router.push({ name: 'home' })
 }
 
 function isExistingRpcUrl(url) {
@@ -79,54 +68,81 @@ function isExistingChainId(chainId) {
   return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
+function validateSwitchChainParams(chainId) {
+  const rpcConfigs = rpcStore.rpcConfigs
+  const result: { isValid: boolean; error: unknown } = {
+    isValid: false,
+    error: null,
+  }
+  if (!chainId) {
+    result.error = 'Please provide chain id'
+  } else if (!(rpcConfigs && rpcConfigs[chainId])) {
+    result.error = `Chain Id ${chainId} is not in the list`
+  } else {
+    result.error = ''
+    result.isValid = true
+  }
+  return result
+}
+
+function validateAddNetworkParams(networkInfo) {
+  const result: { isValid: boolean; error: unknown } = {
+    isValid: false,
+    error: null,
+  }
+
+  if (
+    !networkInfo.chainName.length ||
+    !(
+      Array.isArray(networkInfo.rpcUrls) &&
+      networkInfo.rpcUrls.length > 0 &&
+      networkInfo.rpcUrls[0] &&
+      networkInfo.rpcUrls[0].length > 0
+    ) ||
+    !networkInfo.chainId ||
+    !networkInfo.nativeCurrency.currencySymbol.length
+  ) {
+    result.error = getEtherInvalidParamsError(`required params missing`)
+  } else if (isExistingRpcUrl(networkInfo.rpcUrls[0])) {
+    result.error = getEtherInvalidParamsError(
+      `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
+    )
+  } else if (isExistingChainId(Number(networkInfo.chainId))) {
+    result.error = getEtherInvalidParamsError(
+      `Chain ID - ${networkInfo.chainId} already exists, please use different one`
+    )
+  } else {
+    result.error = ''
+    result.isValid = true
+  }
+  return result
+}
+
 function addNetwork(request, keeper) {
   const { method, params } = request
-  const { networkInfo } = params[0]
-  const name: string = networkInfo.networkName || ''
+  const networkInfo = params[0]
+  const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
   const chainId = Number(networkInfo.chainId) || 0
   const currencySymbol: string = networkInfo.nativeCurrency.currencySymbol || ''
-  const response = {}
 
-  if (
-    !name.length ||
-    !(Array.isArray(rpcUrls) && rpcUrls.length > 0 && rpcUrls[0].length > 0) ||
-    !chainId ||
-    !currencySymbol.length
-  ) {
-    response['error'] = getEtherInvalidParamsError(`required params missing`)
-  } else if (isExistingRpcUrl(rpcUrls[0])) {
-    response['result'] = null
-    response['error'] = getEtherInvalidParamsError(
-      `RPC URL - ${rpcUrls} already exists, please use different one`
-    )
-  } else if (isExistingChainId(Number(chainId))) {
-    response['result'] = null
-    response['error'] = getEtherInvalidParamsError(
-      `Chain ID - ${chainId} already exists, please use different one`
-    )
-  } else {
-    const payload = {
-      chainName: name,
-      chainId: chainId,
-      blockExplorerUrls: networkInfo.explorerUrls,
-      rpcUrls: rpcUrls,
-      favicon: 'blockchain-icon',
-      isCustom: true,
-      nativeCurrency: {
-        symbol: currencySymbol,
-        decimals: networkInfo.nativeCurrency.decimals || 18,
-      },
-    }
-    rpcStore.addNetwork(payload)
-    router.push({ name: 'home' })
-    response[
-      'result'
-    ] = `Added the network ${networkInfo.networkName} and set it as current`
+  const payload = {
+    chainName: name,
+    chainId: chainId,
+    blockExplorerUrls: networkInfo.explorerUrls,
+    rpcUrls: rpcUrls,
+    favicon: 'blockchain-icon',
+    isCustom: true,
+    nativeCurrency: {
+      symbol: currencySymbol,
+      decimals: networkInfo.nativeCurrency.decimals || 18,
+    },
   }
+  rpcStore.addNetwork(payload)
+  router.push({ name: 'home' })
 
   keeper.reply(method, {
-    ...response,
+    result: `Added the network ${networkInfo.chainName} and set it as current`,
     id: request.id,
   })
 }
@@ -196,7 +212,30 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
   }
 }
 
-async function handleRequest(request, requestStore, appStore) {
+async function handleRequest(request, requestStore, appStore, keeper) {
+  if (request.method === 'wallet_addEthereumChain') {
+    const validationResponse = validateAddNetworkParams(request.params[0])
+    if (!validationResponse.isValid) {
+      keeper.reply(request.method, {
+        error: validationResponse.error,
+        result: null,
+        id: request.id,
+      })
+      return
+    }
+  }
+  console.log(request.method, 'request.method')
+  if (request.method === 'wallet_switchEthereumChain') {
+    const validationResponse = validateSwitchChainParams(request.params[0])
+    if (!validationResponse.isValid) {
+      keeper.reply(request.method, {
+        error: validationResponse.error,
+        result: null,
+        id: request.id,
+      })
+      return
+    }
+  }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
