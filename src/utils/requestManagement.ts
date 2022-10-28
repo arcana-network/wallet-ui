@@ -77,10 +77,12 @@ function validateSwitchChainParams({ chainId }) {
   if (!chainId) {
     result.error = 'Please provide chain id'
   } else if (!(rpcConfigs && rpcConfigs[parseInt(chainId)])) {
-    result.error = ethErrors.provider.custom({
-      code: 4902,
-      message: `Chain Id ${chainId} is not in the list`,
-    })
+    result.error = serializeError(
+      ethErrors.provider.custom({
+        code: 4902,
+        message: `Chain Id ${chainId} is not in the list`,
+      })
+    )
   } else {
     result.error = ''
     result.isValid = true
