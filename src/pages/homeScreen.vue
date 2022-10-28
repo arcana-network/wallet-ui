@@ -97,7 +97,10 @@ watch(selectedChainId, () => {
 })
 
 const explorerUrl = computed(() => {
-  if (rpcStore.selectedRpcConfig.blockExplorerUrls?.length) {
+  if (
+    rpcStore.selectedRpcConfig &&
+    rpcStore.selectedRpcConfig.blockExplorerUrls?.length
+  ) {
     const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
     const walletAddress = userStore.walletAddress
     return `${blockExplorerUrl}/address/${walletAddress}`
