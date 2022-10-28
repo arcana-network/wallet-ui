@@ -45,7 +45,7 @@ function getEtherInvalidParamsError(msg) {
 }
 
 function switchChain(request, keeper) {
-  const chainId = request.params[0]
+  const { chainId } = request.params[0]
   rpcStore.setSelectedChainId(Number(chainId))
   keeper.reply(request.method, {
     result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
@@ -68,7 +68,7 @@ function isExistingChainId(chainId) {
   return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
-function validateSwitchChainParams(chainId) {
+function validateSwitchChainParams({ chainId }) {
   const rpcConfigs = rpcStore.rpcConfigs
   const result: { isValid: boolean; error: unknown } = {
     isValid: false,
