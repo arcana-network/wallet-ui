@@ -226,7 +226,7 @@ async function getRpcConfig() {
     if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setSelectedChainId(rpcConfig.chainId)
+    rpcStore.setSelectedChainId(parseInt(rpcConfig.chainId))
   } catch (err) {
     console.log({ err })
   } finally {

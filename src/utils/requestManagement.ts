@@ -46,7 +46,7 @@ function getEtherInvalidParamsError(msg) {
 
 function switchChain(request, keeper) {
   const { chainId } = request.params[0]
-  rpcStore.setSelectedChainId(Number(chainId))
+  rpcStore.setSelectedChainId(parseInt(chainId))
   keeper.reply(request.method, {
     result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
     id: request.id,
@@ -76,7 +76,7 @@ function validateSwitchChainParams({ chainId }) {
   }
   if (!chainId) {
     result.error = 'Please provide chain id'
-  } else if (!(rpcConfigs && rpcConfigs[chainId])) {
+  } else if (!(rpcConfigs && rpcConfigs[parseInt(chainId)])) {
     result.error = `Chain Id ${chainId} is not in the list`
   } else {
     result.error = ''
@@ -107,7 +107,7 @@ function validateAddNetworkParams(networkInfo) {
     result.error = getEtherInvalidParamsError(
       `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
     )
-  } else if (isExistingChainId(Number(networkInfo.chainId))) {
+  } else if (isExistingChainId(parseInt(networkInfo.chainId))) {
     result.error = getEtherInvalidParamsError(
       `Chain ID - ${networkInfo.chainId} already exists, please use different one`
     )
@@ -123,7 +123,7 @@ function addNetwork(request, keeper) {
   const networkInfo = params[0]
   const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
-  const chainId = Number(networkInfo.chainId) || 0
+  const chainId = parseInt(networkInfo.chainId) || 0
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
 
   const payload = {
