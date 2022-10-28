@@ -100,7 +100,7 @@ function validateAddNetworkParams(networkInfo) {
       networkInfo.rpcUrls[0].length > 0
     ) ||
     !networkInfo.chainId ||
-    !networkInfo.nativeCurrency?.currencySymbol.length
+    !networkInfo.nativeCurrency?.symbol.length
   ) {
     result.error = getEtherInvalidParamsError(`required params missing`)
   } else if (isExistingRpcUrl(networkInfo.rpcUrls[0])) {
@@ -124,7 +124,7 @@ function addNetwork(request, keeper) {
   const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
   const chainId = Number(networkInfo.chainId) || 0
-  const currencySymbol: string = networkInfo.nativeCurrency.currencySymbol || ''
+  const symbol: string = networkInfo.nativeCurrency.symbol || ''
 
   const payload = {
     chainName: name,
@@ -134,7 +134,7 @@ function addNetwork(request, keeper) {
     favicon: 'blockchain-icon',
     isCustom: true,
     nativeCurrency: {
-      symbol: currencySymbol,
+      symbol: symbol,
       decimals: networkInfo.nativeCurrency.decimals || 18,
     },
   }
