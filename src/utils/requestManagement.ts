@@ -92,7 +92,7 @@ function validateAddNetworkParams(networkInfo) {
   }
 
   if (
-    !networkInfo.chainName.length ||
+    !networkInfo.chainName?.length ||
     !(
       Array.isArray(networkInfo.rpcUrls) &&
       networkInfo.rpcUrls.length > 0 &&
@@ -100,7 +100,7 @@ function validateAddNetworkParams(networkInfo) {
       networkInfo.rpcUrls[0].length > 0
     ) ||
     !networkInfo.chainId ||
-    !networkInfo.nativeCurrency.currencySymbol.length
+    !networkInfo.nativeCurrency?.currencySymbol.length
   ) {
     result.error = getEtherInvalidParamsError(`required params missing`)
   } else if (isExistingRpcUrl(networkInfo.rpcUrls[0])) {
