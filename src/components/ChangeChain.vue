@@ -29,7 +29,7 @@ watch(selectedChain, () => {
         'outline-black dark:outline-white outline-1 outline': open,
       }"
     >
-      <div class="flex space-x-1 items-center">
+      <div v-if="selectedChain" class="flex space-x-1 items-center">
         <img
           :src="getImage(selectedChain.favicon)"
           :alt="selectedChain.chainName"

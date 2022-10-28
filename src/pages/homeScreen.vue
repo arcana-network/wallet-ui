@@ -60,6 +60,7 @@ const loader = ref({
   message: '',
 })
 let accountHandler: AccountHandler | null = null
+let keeper: RequestHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
@@ -72,6 +73,8 @@ const assets: {
 
 onMounted(async () => {
   setRpcConfigs()
+  initAccounthandler()
+  initKeeper()
   connectToParent()
   await setTheme()
   await getRpcConfig()
@@ -94,7 +97,10 @@ watch(selectedChainId, () => {
 })
 
 const explorerUrl = computed(() => {
-  if (rpcStore.selectedRpcConfig.blockExplorerUrls?.length) {
+  if (
+    rpcStore.selectedRpcConfig &&
+    rpcStore.selectedRpcConfig.blockExplorerUrls?.length
+  ) {
     const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
     const walletAddress = userStore.walletAddress
     return `${blockExplorerUrl}/address/${walletAddress}`
@@ -118,13 +124,19 @@ async function getAccountDetails() {
   await getCurrencyExchangeRate()
 }
 
+function initAccounthandler() {
+  accountHandler = new AccountHandler(userStore.privateKey)
+  accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+}
+
+async function initKeeper() {
+  keeper = new RequestHandler(accountHandler)
+}
+
 async function initAccountHandler() {
   showLoader('Please wait')
   try {
     const parentConnectionInstance = await parentConnection.promise
-
-    accountHandler = new AccountHandler(userStore.privateKey)
-    accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
     if (!userStore.walletAddress) {
       const account = accountHandler.getAccount()
@@ -136,7 +148,6 @@ async function initAccountHandler() {
       setAppMode(walletType, parentConnectionInstance)
     }
 
-    const keeper = new RequestHandler(accountHandler)
     keeper.setConnection(parentConnection)
     await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
 
@@ -152,7 +163,12 @@ async function initAccountHandler() {
 }
 
 function connectToParent() {
-  const sendRequest = getSendRequestFn(handleRequest, requestStore, appStore)
+  const sendRequest = getSendRequestFn(
+    handleRequest,
+    requestStore,
+    appStore,
+    keeper
+  )
   parentConnection = createParentConnection({
     isLoggedIn: () => userStore.isLoggedIn,
     sendRequest,
@@ -210,7 +226,7 @@ async function getRpcConfig() {
     if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setSelectedChainId(rpcConfig.chainId)
+    rpcStore.setSelectedChainId(parseInt(rpcConfig.chainId))
   } catch (err) {
     console.log({ err })
   } finally {

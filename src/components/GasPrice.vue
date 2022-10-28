@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
 import { onMounted, ref, watch } from 'vue'
 
 import GasPriceSlider from '@/components/GasPriceSlider.vue'
