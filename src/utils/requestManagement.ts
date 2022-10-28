@@ -129,7 +129,7 @@ function addNetwork(request, keeper) {
   const payload = {
     chainName: name,
     chainId: chainId,
-    blockExplorerUrls: networkInfo.explorerUrls,
+    blockExplorerUrls: networkInfo.blockExplorerUrls,
     rpcUrls: rpcUrls,
     favicon: 'blockchain-icon',
     isCustom: true,
