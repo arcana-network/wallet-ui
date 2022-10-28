@@ -34,9 +34,10 @@ function fetchNativeAsset() {
     ),
     decimals: rpcStore.nativeCurrency.decimals,
     symbol: rpcStore.nativeCurrency.symbol,
-    logo: rpcStore.selectedRpcConfig.favicon
-      ? `${rpcStore.selectedRpcConfig.favicon}.png`
-      : 'arcana-fallback-token-logo.svg',
+    logo:
+      rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
+        ? `${rpcStore.selectedRpcConfig.favicon}.png`
+        : 'arcana-fallback-token-logo.svg',
   }
 }
 
