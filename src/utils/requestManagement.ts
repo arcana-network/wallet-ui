@@ -77,7 +77,10 @@ function validateSwitchChainParams({ chainId }) {
   if (!chainId) {
     result.error = 'Please provide chain id'
   } else if (!(rpcConfigs && rpcConfigs[parseInt(chainId)])) {
-    result.error = `Chain Id ${chainId} is not in the list`
+    result.error = ethErrors.provider.custom({
+      code: 4902,
+      message: `Chain Id ${chainId} is not in the list`,
+    })
   } else {
     result.error = ''
     result.isValid = true
@@ -224,7 +227,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       return
     }
   }
-  console.log(request.method, 'request.method')
+
   if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
