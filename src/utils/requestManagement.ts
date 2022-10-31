@@ -107,7 +107,7 @@ function validateAddNetworkParams(networkInfo) {
     !networkInfo.chainId ||
     !networkInfo.nativeCurrency?.symbol.length
   ) {
-    result.error = getEtherInvalidParamsError(`required params missing`)
+    result.error = getEtherInvalidParamsError('required params missing')
   } else if (isExistingRpcUrl(networkInfo.rpcUrls[0])) {
     result.error = getEtherInvalidParamsError(
       `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
@@ -232,15 +232,24 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])
-    const chainId = params.domain.chainId
-    if (parseInt(chainId) !== rpcStore.selectedChainId) {
-      keeper.reply(request.method, {
-        error: `domain chain ID ${chainId} does not match network chain id ${rpcStore.selectedChainId}`,
-        result: null,
-        id: request.id,
-      })
-      return
+    let error: string | unknown | null = null
+    if (
+      typeof params !== 'object' ||
+      !params.domain ||
+      !params.domain.chainId
+    ) {
+      error = getEtherInvalidParamsError('required params missing')
+    } else if (
+      parseInt(params.domain.chainId) !== parseInt(rpcStore.selectedChainId)
+    ) {
+      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedChainId}`
     }
+    keeper.reply(request.method, {
+      error,
+      result: null,
+      id: request.id,
+    })
+    if (error) return
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
