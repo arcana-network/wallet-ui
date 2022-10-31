@@ -11,7 +11,7 @@ type RpcConfigs = {
 }
 
 type RpcConfigState = {
-  selectedChainId: number
+  selectedChainId: string
   walletBalance: string
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
@@ -91,7 +91,7 @@ export const useRpcStore = defineStore('rpcStore', {
     deleteNetwork(chainId: number): void {
       if (this.rpcConfigs) delete this.rpcConfigs[chainId]
     },
-    setSelectedChainId(chainId: number): void {
+    setSelectedChainId(chainId: string): void {
       this.selectedChainId = chainId
     },
     setWalletBalance(balance): void {
