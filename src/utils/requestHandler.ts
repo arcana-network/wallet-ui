@@ -149,7 +149,7 @@ class RequestHandler {
 }
 
 const getHexFromNumber = (n: number, prefix = true): string => {
-  const h = n.toString(16)
+  const h = Number(n).toString(16)
   return prefix ? addHexPrefix(h) : removeHexPrefix(h)
 }
 
