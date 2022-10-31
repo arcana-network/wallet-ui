@@ -10,7 +10,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="sign__message-advanced-info">
+  <div class="sign__message-advanced-info debossed-card">
     <div class="sign__message-advanced-info-container">
       <VJsonViewer :value="info"></VJsonViewer>
     </div>
@@ -22,9 +22,6 @@ defineProps({
   max-height: 300px;
   padding: var(--p-500) var(--p-400);
   overflow: auto;
-  background: var(--debossed-box-color);
-  border-radius: 10px;
-  box-shadow: var(--debossed-shadow);
 }
 
 .sign__message-advanced-info-label {

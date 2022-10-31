@@ -1,9 +1,8 @@
+import { JsonRpcRequest } from 'json-rpc-engine'
 import { defineStore } from 'pinia'
 
-import type { Request } from '@/models/Connection'
-
 type PendingRequest = {
-  request: Request
+  request: JsonRpcRequest<unknown>
   receivedTime?: Date
   isPermissionGranted: boolean
 }
@@ -27,10 +26,15 @@ export const useRequestStore = defineStore('request', {
       const requests = Object.values(state.pendingRequests)
       return requests.length > 0
     },
+    pendingRequest({ pendingRequests }) {
+      if (this.areRequestsPendingForApproval) {
+        return Object.values(pendingRequests)[0]
+      }
+    },
   },
   actions: {
     addRequests(
-      request: Request,
+      request: JsonRpcRequest<unknown> & { id: number },
       isPermissionRequired: boolean,
       receivedTime: Date
     ): void {
@@ -42,6 +46,13 @@ export const useRequestStore = defineStore('request', {
         }
       } else {
         this.processQueue.push({ request, isPermissionGranted: true })
+      }
+    },
+    setGasFee(gasPrice: string, requestId: string): void {
+      const request = this.pendingRequests[requestId].request
+      if (Array.isArray(request.params)) {
+        const param = request.params[0]
+        param.gasPrice = gasPrice
       }
     },
     approveRequest(requestId: string): void {
