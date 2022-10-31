@@ -45,7 +45,7 @@ function handleSubmit() {
   } else {
     const payload = {
       chainName: rpcConfig.value.networkName,
-      chainId: `${Number(rpcConfig.value.chainId)}`,
+      chainId: rpcConfig.value.chainId,
       blockExplorerUrls: [rpcConfig.value.explorerUrl],
       rpcUrls: [rpcConfig.value.rpcUrl],
       favicon: 'blockchain-icon',
