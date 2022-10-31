@@ -1,6 +1,6 @@
 # wallet-ui
 
-Arcana's embedded web wallet implementation.
+Arcana's embedded Web3 wallet implementation.
 
 This is a Vue app written in TypeScript and styled with Tailwind CSS.
 
@@ -19,7 +19,7 @@ If you are using VS Code, see the recommended [settings](./.vscode/settings.json
 
 ## Usage
 
-To use Arcana's web wallet in an external dapp, follow the instructions for initializing [`@arcana/auth`](https://github.com/arcana-network/auth) SDK.
+To use Arcana's Web3 wallet in an external dapp, follow the instructions for initializing [`@arcana/auth`](https://github.com/arcana-network/auth) SDK.
 
 ## Support
 
