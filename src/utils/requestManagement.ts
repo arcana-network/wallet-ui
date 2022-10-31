@@ -170,7 +170,6 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         const response = await keeper.request(request)
         keeper.reply(request.method, response)
         if (response.error) {
-          console.log(response.error)
           if (response.error.data?.originalError?.code) {
             toast.error(response.error.data.originalError.code)
           } else {
@@ -187,22 +186,12 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
               params.domain.verifyingContract
             )
           }
-          if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
-            const params = JSON.parse(request.params[1])
-            if (params.domain.name === 'Arcana Forwarder') {
-              activitiesStore.saveFileActivity(
-                rpcStore.selectedRpcConfig?.chainId,
-                params.message.data,
-                params.domain.verifyingContract
-              )
-            }
-          }
-          if (request.method === 'eth_sendTransaction' && response.result) {
-            activitiesStore.fetchAndSaveActivityFromHash({
-              txHash: response.result,
-              chainId: rpcStore.selectedRpcConfig?.chainId,
-            })
-          }
+        }
+        if (request.method === 'eth_sendTransaction' && response.result) {
+          activitiesStore.fetchAndSaveActivityFromHash({
+            txHash: response.result,
+            chainId: rpcStore.selectedRpcConfig?.chainId,
+          })
         }
       } catch (error) {
         console.error({ error })
@@ -235,6 +224,18 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     if (!validationResponse.isValid) {
       keeper.reply(request.method, {
         error: validationResponse.error,
+        result: null,
+        id: request.id,
+      })
+      return
+    }
+  }
+  if (request.method === 'eth_signTypedData_v4') {
+    const params = JSON.parse(request.params[1])
+    const chainId = params.domain.chainId
+    if (parseInt(chainId) !== rpcStore.selectedChainId) {
+      keeper.reply(request.method, {
+        error: `domain chain ID ${chainId} does not match network chain id ${rpcStore.selectedChainId}`,
         result: null,
         id: request.id,
       })
