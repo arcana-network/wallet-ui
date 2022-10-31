@@ -60,9 +60,10 @@ export const useRpcStore = defineStore('rpcStore', {
       }
     },
     selectedRpcConfig(state: RpcConfigState): RpcConfigWallet {
-      const { selectedChainId } = state
+      const { selectedChainId, rpcConfigs } = state
       if (this.rpcConfigs) return this.rpcConfigs[selectedChainId]
-      else return CHAIN_LIST[DEFAULT_CHAIN_ID]
+      else if (rpcConfigs) return rpcConfigs[DEFAULT_CHAIN_ID]
+      else return CHAIN_LIST[0]
     },
     rpcConfigList(state: RpcConfigState): Array<RpcConfigWallet> {
       return Object.values(state.rpcConfigs || {})
@@ -74,7 +75,7 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     isEthereumMainnet() {
       const selectedRpcConfig: RpcConfigWallet = this.selectedRpcConfig
-      return selectedRpcConfig.chainId === 1
+      return selectedRpcConfig.chainId === `1`
     },
   },
 

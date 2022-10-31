@@ -14,7 +14,7 @@ import {
 const userStore = useUserStore(store)
 const rpcStore = useRpcStore(store)
 
-type ChainId = number
+type ChainId = string
 
 type TransactionOps =
   | 'Send'
