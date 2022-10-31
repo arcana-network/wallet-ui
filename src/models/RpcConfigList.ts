@@ -88,7 +88,7 @@ if (process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev') {
 }
 
 const DEFAULT_CHAIN_ID =
-  process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev' ? 40404 : 40405
+  process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev' ? '40404' : '40405'
 
 export type { RpcConfigWallet }
 export { CHAIN_LIST, DEFAULT_CHAIN_ID }
