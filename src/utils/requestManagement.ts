@@ -133,7 +133,7 @@ function addNetwork(request, keeper) {
 
   const payload = {
     chainName: name,
-    chainId: chainId,
+    chainId: String(chainId),
     blockExplorerUrls: networkInfo.blockExplorerUrls,
     rpcUrls: rpcUrls,
     favicon: 'blockchain-icon',
@@ -182,7 +182,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
             activitiesStore.saveFileActivity(
-              rpcStore.selectedRpcConfig?.chainId as number,
+              rpcStore.selectedRpcConfig?.chainId,
               params.message,
               params.domain.verifyingContract
             )
@@ -191,7 +191,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             const params = JSON.parse(request.params[1])
             if (params.domain.name === 'Arcana Forwarder') {
               activitiesStore.saveFileActivity(
-                rpcStore.selectedRpcConfig?.chainId as number,
+                rpcStore.selectedRpcConfig?.chainId,
                 params.message.data,
                 params.domain.verifyingContract
               )
@@ -200,7 +200,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           if (request.method === 'eth_sendTransaction' && response.result) {
             activitiesStore.fetchAndSaveActivityFromHash({
               txHash: response.result,
-              chainId: rpcStore.selectedRpcConfig?.chainId as number,
+              chainId: rpcStore.selectedRpcConfig?.chainId,
             })
           }
         }
