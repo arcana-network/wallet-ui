@@ -139,8 +139,8 @@ class RequestHandler {
     return engine
   }
 
-  private getNetAndChainMiddleware(chainId: number) {
-    const hexChainId = getHexFromNumber(chainId)
+  private getNetAndChainMiddleware(chainId: number | string) {
+    const hexChainId = getHexFromNumber(Number(chainId))
     return createScaffoldMiddleware({
       eth_chainId: hexChainId,
       net_version: chainId,
