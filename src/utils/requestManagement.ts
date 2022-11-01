@@ -244,12 +244,14 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedChainId}`
     }
-    keeper.reply(request.method, {
-      error,
-      result: null,
-      id: request.id,
-    })
-    if (error) return
+    if (error) {
+      keeper.reply(request.method, {
+        error,
+        result: null,
+        id: request.id,
+      })
+      return
+    }
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())
