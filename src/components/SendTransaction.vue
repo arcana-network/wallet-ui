@@ -31,7 +31,7 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 const getImage = useImage()
 const baseFee = ref('0')
-const chainId = rpcStore.selectedChainId
+const chainId = Number(rpcStore.selectedChainId)
 
 const accountHandler = new AccountHandler(userStore.privateKey)
 accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])

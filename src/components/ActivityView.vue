@@ -18,7 +18,7 @@ const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
-const chainId = rpcStore.selectedRpcConfig?.chainId as number
+const chainId = rpcStore.selectedRpcConfig?.chainId
 
 type ActivityView = Activity & {
   isExpanded?: boolean

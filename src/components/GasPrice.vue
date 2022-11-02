@@ -63,7 +63,9 @@ const gasPriceLabelPropsMap = {
   fast: { wait: 'fastWait', price: 'fast' },
 }
 
-const showSlider = GAS_AVAILABLE_CHAIN_IDS.includes(rpcStore.selectedChainId)
+const showSlider = GAS_AVAILABLE_CHAIN_IDS.includes(
+  Number(rpcStore.selectedChainId)
+)
 
 async function init() {
   showCustomGasFeeInput.value = !showSlider
