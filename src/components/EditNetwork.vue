@@ -55,6 +55,7 @@ function handleSubmit() {
       blockExplorerUrls: [rpcConfig.value.explorerUrl],
       rpcUrls: [rpcConfig.value.rpcUrl],
       favicon: rpcConfigForEdit?.favicon,
+      isCustom: true,
       nativeCurrency: {
         symbol: rpcConfig.value.currencySymbol,
         decimals: 18,
