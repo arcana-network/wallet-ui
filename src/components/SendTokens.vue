@@ -28,7 +28,7 @@ const getImage = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
-const chainId = rpcStore.selectedChainId
+const chainId = Number(rpcStore.selectedChainId)
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -160,7 +160,7 @@ async function handleSendToken() {
         userStore.walletAddress
       )
       activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId as number,
+        chainId: rpcStore.selectedRpcConfig?.chainId,
         txHash,
       })
     } else {
@@ -177,7 +177,7 @@ async function handleSendToken() {
         gasFees
       )
       activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId as number,
+        chainId: rpcStore.selectedRpcConfig?.chainId,
         txHash: transactionHash,
         customToken: {
           operation: 'Send',
