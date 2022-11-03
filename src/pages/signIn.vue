@@ -19,10 +19,12 @@ const user = useUserStore()
 const app = useAppStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
-type LoginRequestOrigin = 'parent' | 'wallet'
 let parentConnection: Connection<ParentConnectionApi> | null = null
+let channel: BroadcastChannel | null = null
 
 const userEmailInput = ref('')
+const passwordlessForm = ref(null)
+const isEmailFocused = ref(false)
 
 const disableSendLinkBtn = computed(() => {
   return userEmailInput.value.length === 0
@@ -39,17 +41,22 @@ const {
 
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
-  triggerSocialLogin: (type) => handleSocialLoginRequest(type, 'parent'),
-  triggerPasswordlessLogin: (email) =>
-    handlePasswordlessLoginRequest(email, 'parent'),
+  isLoginAvailable: (kind: SocialLoginType) =>
+    availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
+  getAvailableLogins: () => [...availableLogins.value],
+}
+
+const cleanup = () => {
+  parentConnection?.destroy()
+  if (channel) {
+    channel.close()
+  }
 }
 
 onMounted(init)
 
-onUnmounted(() => {
-  parentConnection?.destroy()
-})
+onUnmounted(cleanup)
 
 let authProvider: AuthProvider | null = null
 
@@ -57,9 +64,22 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
+const loginEventHandler = (ev: MessageEvent) => {
+  if (ev.data?.status === 'success') {
+    sessionStorage.setItem('userInfo', JSON.stringify(ev.data.info))
+    sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+    user.setUserInfo(ev.data.info)
+    user.setLoginStatus(true)
+    router.push('/')
+  }
+}
+
 async function init() {
   isLoading.value = true
   try {
+    channel = new BroadcastChannel(`${appId}_login_notification`)
+    channel.addEventListener('message', loginEventHandler)
+
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
@@ -80,22 +100,19 @@ async function init() {
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
 
-      localStorage.setItem('theme', theme)
-      localStorage.setItem('appName', appName)
       app.setTheme(theme)
+      const htmlEl = document.getElementsByTagName('html')[0]
+      if (theme === 'dark') htmlEl.classList.add(theme)
       app.setName(appName)
-
-      const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      localStorage.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
     isLoading.value = false
   }
 }
 
-async function handleSocialLoginRequest(type, from: LoginRequestOrigin) {
-  authProvider.params.autoRedirect = from === 'wallet'
-  return await user.handleSocialLogin(authProvider, type)
+async function handleSocialLoginRequest(kind: SocialLoginType) {
+  const c = await parentConnection?.promise
+  c?.triggerSocialLogin(kind)
 }
 
 async function handleGetPublicKey(id, verifier) {
@@ -103,63 +120,81 @@ async function handleGetPublicKey(id, verifier) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
-async function handlePasswordlessLoginRequest(email, from: LoginRequestOrigin) {
+async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    const authProvider = await getAuthProvider(app.id)
-    authProvider.params.autoRedirect = from === 'wallet'
-    return await user.handlePasswordlessLogin(authProvider, email, {
-      withUI: true,
-    })
+    const c = await parentConnection?.promise
+    c?.triggerPasswordlessLogin(email)
+    return
   }
 }
 
-async function onSendLinkClick() {
-  handlePasswordlessLoginRequest(userEmailInput.value, 'wallet')
+async function handleSubmit() {
+  handlePasswordlessLoginRequest(userEmailInput.value)
+}
+
+function onEnterPress() {
+  if (passwordlessForm.value.email.checkValidity()) handleSubmit()
 }
 </script>
 
 <template>
-  <div v-if="isLoading" class="signin__loader">
+  <div v-if="isLoading" class="signin__loader flex-1">
     <p>Loading...</p>
   </div>
-  <div v-else class="signin__container">
-    <div class="signin__body flow-container">
-      <div class="signin__title-desc flow-element">
-        <h1 class="signin__title">Welcome!</h1>
-        <p class="signin__desc">
-          You will receive a login link in your email for a password-less
-          sign-in.
-        </p>
-      </div>
-      <div class="signin__input-container flow-element">
-        <label class="signin__input-label">Email</label>
-        <input
-          v-model="userEmailInput"
-          type="email"
-          class="signin__input-field"
-          placeholder="someone@example.com"
-        />
-      </div>
-      <button
-        class="signin__button"
-        :class="{ 'signin__button--disabled': disableSendLinkBtn }"
-        :disabled="disableSendLinkBtn"
-        @click="onSendLinkClick"
-      >
-        Send link
-      </button>
-    </div>
-    <div class="signin__footer">
-      <div>
-        <OauthLogin
-          v-if="availableLogins.length"
-          :available-logins="availableLogins"
-          @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
-        />
-        <p v-else class="signin__footer-text-error">
-          {{ LOGINS_FETCHING_ERROR_TEXT }}
-        </p>
+  <div v-else class="flex items-center">
+    <div class="wallet__card rounded-[10px] flex flex-col mb-[10px]">
+      <div class="signin__container">
+        <div class="signin__body flow-container">
+          <div class="signin__title-desc flow-element">
+            <h1 class="signin__title">Welcome!</h1>
+            <p class="signin__desc">
+              You will receive a login link in your email for a password-less
+              sign-in.
+            </p>
+          </div>
+          <form
+            ref="passwordlessForm"
+            class="signin__input-container flow-element"
+            @submit.prevent="handleSubmit"
+          >
+            <label class="signin__input-label">Email</label>
+            <input
+              v-model="userEmailInput"
+              name="email"
+              type="email"
+              class="signin__input-field py-4"
+              placeholder="someone@example.com"
+              required
+              :class="{
+                'outline-black dark:outline-white outline-1 outline':
+                  isEmailFocused,
+              }"
+              @keyup.enter="onEnterPress"
+              @focus="isEmailFocused = true"
+              @blur="isEmailFocused = false"
+            />
+            <input
+              type="submit"
+              value="Send Link"
+              class="signin__button"
+              :class="{ 'signin__button--disabled': disableSendLinkBtn }"
+              :disabled="disableSendLinkBtn"
+            />
+          </form>
+        </div>
+        <div class="signin__footer">
+          <div>
+            <OauthLogin
+              v-if="availableLogins.length"
+              :available-logins="availableLogins"
+              @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
+            />
+            <p v-else class="signin__footer-text-error">
+              {{ LOGINS_FETCHING_ERROR_TEXT }}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -182,7 +217,7 @@ async function onSendLinkClick() {
 }
 
 .signin__container > *:not(:first-child) {
-  margin-top: 80px;
+  margin-top: 40px;
 }
 
 .signin__body {
@@ -230,6 +265,7 @@ async function onSendLinkClick() {
 
 .signin__input-container {
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
 }
@@ -241,25 +277,25 @@ async function onSendLinkClick() {
 }
 
 .signin__input-field {
-  height: 45px;
-  padding: 0 var(--p-400);
+  padding: var(--p-400);
   font-size: var(--fs-350);
   font-weight: 400;
   color: var(--fg-color);
   background: var(--debossed-box-color);
   border: none;
   border-radius: 10px;
-  outline: none;
   box-shadow: var(--debossed-shadow);
 }
 
 .signin__button {
   width: 100%;
+  height: 2.25rem;
   font-size: var(--fs-350);
   font-weight: 600;
   color: var(--filled-button-fg-color);
   text-transform: uppercase;
   background: var(--filled-button-bg-color);
+  border: none;
   border-radius: 10px;
 }
 
@@ -281,6 +317,10 @@ async function onSendLinkClick() {
 @media (max-width: 235px) {
   .signin__container > *:not(:first-child) {
     margin-top: 30px;
+  }
+
+  .signin__button {
+    height: 1.75rem;
   }
 }
 </style>

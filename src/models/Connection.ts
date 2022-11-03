@@ -1,4 +1,6 @@
-import { AppConfig, AppMode } from '@arcana/auth'
+import { AppConfig, AppMode, RpcConfig } from '@arcana/auth'
+import type { SocialLoginType } from '@arcana/auth-core'
+import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 
 type RequestMethod =
   | 'eth_sign'
@@ -9,38 +11,37 @@ type RequestMethod =
   | 'eth_sendTransaction'
   | 'eth_accounts'
   | 'eth_getEncryptionPublicKey'
+  | 'wallet_addEthereumChain'
+  | 'wallet_switchEthereumChain'
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   eth_sign: true,
   personal_sign: true,
   eth_decrypt: true,
   eth_signTypedData_v4: true,
-  eth_signTransaction: false,
-  eth_sendTransaction: false,
+  eth_signTransaction: true,
+  eth_sendTransaction: true,
   eth_accounts: false,
   eth_getEncryptionPublicKey: false,
+  wallet_addEthereumChain: true,
+  wallet_switchEthereumChain: true,
 })
 
-type Request = {
-  id: number
-  method: RequestMethod
-  params: string[]
-}
-
-function requirePermission(request: Request, appMode: AppMode): boolean {
+function requirePermission(
+  request: JsonRpcRequest<unknown>,
+  appMode: AppMode
+): boolean {
   if (appMode === AppMode.NoUI) return false
   return PERMISSIONS[request.method]
 }
 
-type Response = {
-  id: number
-  result: unknown
-  error?: string
-}
-
-type ProviderConnectInfo = {
-  chainId: string | number
-}
+type ProviderEvent =
+  | {
+      chainId: number
+    }
+  | string[]
+  | string
+  | { type: string; data: unknown }
 
 type RedirectParentConnectionApi = {
   redirect(parentAppUrl: string | null): Promise<void>
@@ -49,11 +50,21 @@ type RedirectParentConnectionApi = {
 
 type ParentConnectionApi = {
   getAppConfig(): AppConfig
-  onMethodResponse(method: RequestMethod, response: Response): void
+  getRpcConfig(): RpcConfig
+  onMethodResponse(
+    method: string,
+    response: PendingJsonRpcResponse<unknown>
+  ): void
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
-  onEvent(event: string, chain?: ProviderConnectInfo): void
+  onEvent(event: string, params?: ProviderEvent): void
   getAppMode(): Promise<AppMode>
+  triggerSocialLogin(type: SocialLoginType): void
+  triggerPasswordlessLogin(email: string): void
+}
+type InitParentConnectionApi = {
+  getParentUrl(): string
+  error(e: string): void
 }
 
 export { requirePermission, PERMISSIONS }
@@ -61,7 +72,7 @@ export { requirePermission, PERMISSIONS }
 export type {
   RedirectParentConnectionApi,
   ParentConnectionApi,
-  Request,
+  InitParentConnectionApi,
   RequestMethod,
-  Response,
+  ProviderEvent,
 }

@@ -11,10 +11,12 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const oauthLoginList = props.availableLogins.map((login) => ({
-  value: SocialLoginType[login],
-  iconPath: getImage(`${login}-icon`),
-}))
+const oauthLoginList = props.availableLogins
+  .filter((login) => login !== 'passwordless')
+  .map((login) => ({
+    value: SocialLoginType[login],
+    iconPath: getImage(`${login}-icon`),
+  }))
 
 const emits = defineEmits(['oauthClick'])
 </script>
@@ -22,7 +24,7 @@ const emits = defineEmits(['oauthClick'])
 <template>
   <div class="wallet__signin-oauth-container">
     <p class="wallet__signin-oauth-text">Or sign in with</p>
-    <div class="wallet__signin-oauth-icons-container">
+    <div class="flex gap-2">
       <button
         v-for="oauth in oauthLoginList"
         :key="oauth.value"
@@ -39,7 +41,6 @@ const emits = defineEmits(['oauthClick'])
   display: flex;
   align-items: center;
   justify-content: space-around;
-  width: 200px;
 }
 
 .wallet__signin-oauth-container > * + * {
@@ -49,10 +50,6 @@ const emits = defineEmits(['oauthClick'])
 .wallet__signin-oauth-text {
   font-size: var(--fs-300);
   font-weight: 400;
-}
-
-.wallet__signin-oauth-icons-container {
-  flex: 1;
 }
 
 .wallet__signin-oauth-icon {

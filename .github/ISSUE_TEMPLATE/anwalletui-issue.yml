@@ -1,0 +1,56 @@
+name: Arcana Network Wallet UI Issue Report
+description: File an bug report for Arcana Network's Wallet UI
+title: '[Wallet UI Issue]: '
+labels: ['wallet', 'bug', 'triage']
+assignees:
+  - ajithranka
+body:
+  - type: markdown
+    attributes:
+      value: |
+        :wave:  **Hey, there!**
+        *Thank you for trying out Arcana Network's web wallet.*
+        Help us address and prioritize your issue by going through this checklist and providing all the requisite issue details.
+  - type: checkboxes
+    id: issue-checklist
+    attributes:
+      label: Issue Checklist
+      description: Before you submit the issue, verify it is indeed a bug and not a question.
+      options:
+        - label: Is this something you can **debug and fix**? Send a pull request! Your contributions to Arcana Network are valuable to us.
+          required: false
+        - label: Have a **usage question**? Ask your question on [StackOverflow](https://stackoverflow.com/search?q=%22arcana+network%22%2B%22XAR%22) or [Discord channel](https://discord.gg/6g7fQvEpdy). We use GitHub solely for bugs and feature enhancement requests.
+          required: false
+  - type: markdown
+    attributes:
+      value: '## Create GitHub Issue for Arcana Network's Wallet UI'
+  - type: markdown
+    attributes:
+      value: |
+        Make sure to add all the information needed to understand the bug or your feature request.
+        If the info is missing we'll add the 'Needs more information' label and prioritize it only when there is enough information provided.
+  - type: textarea
+    id: issue
+    attributes:
+      label: Describe Your Issue
+      description: Please provide a description of the bug and any relevant details.
+      placeholder: Tell us what you see!
+      value: "Provide steps for us to recreate the issue or a minimal reproducible example."
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        * Provide screenshots where appropriate
+  - type: textarea
+    id: browser-env
+    attributes:
+      label: Documentation Browsing Environment
+      description: Describe your browser environment.
+      placeholder: Chrome / Safari / Other
+      value: |
+        * Which browser / version you were using to access the Arcana Network's web wallet?
+        * Are you using Mac, Linux or Windows desktop platform?
+        * Are you using iOS / Android / other mobile platform?
+    validations:
+      required: false

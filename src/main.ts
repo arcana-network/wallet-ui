@@ -2,8 +2,6 @@ import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
-import FloatingVue from 'floating-vue'
-import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
@@ -11,8 +9,8 @@ import Toast from 'vue-toastification'
 
 import App from '@/App.vue'
 import { router } from '@/routes/index'
+import { store } from '@/store'
 
-import 'floating-vue/dist/style.css'
 import 'vue-toastification/dist/index.css'
 
 const toastOptions = {
@@ -32,37 +30,24 @@ window.Buffer = Buffer
 
 const walletApp = createApp(App)
 
-function getSentryConfig() {
-  if (process.env.NODE_ENV === 'production') {
-    return {
-      dsn: process.env.VUE_APP_SENTRY_DSN,
-      tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
-    }
-  }
-  return {
-    dsn: undefined,
-    tracingOrigins: undefined,
-  }
+if (
+  process.env.VUE_APP_ENABLE_SENTRY === 'true' &&
+  process.env.NODE_ENV === 'production'
+) {
+  SentryInit({
+    app: walletApp,
+    dsn: process.env.VUE_APP_SENTRY_DSN,
+    integrations: [
+      new BrowserTracing({
+        routingInstrumentation: vueRouterInstrumentation(router),
+        tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
+      }),
+    ],
+    tracesSampleRate: 1.0,
+  })
 }
 
-SentryInit({
-  app: walletApp,
-  dsn: getSentryConfig().dsn,
-  integrations: [
-    new BrowserTracing({
-      routingInstrumentation: vueRouterInstrumentation(router),
-      tracingOrigins: getSentryConfig().tracingOrigins,
-    }),
-  ],
-  tracesSampleRate: 1.0,
-})
-
-walletApp
-  .use(JsonViewer)
-  .use(router)
-  .use(Toast, toastOptions)
-  .use(FloatingVue)
-  .use(createPinia())
+walletApp.use(JsonViewer).use(router).use(Toast, toastOptions).use(store)
 
 if (process.env.NODE_ENV === 'production') {
   walletApp.use(VueGtag, {

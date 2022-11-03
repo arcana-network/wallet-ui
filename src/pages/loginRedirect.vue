@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { connectToParent } from 'penpal'
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
@@ -9,13 +9,18 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 const route = useRoute()
 const { appId } = route.params
 
+let channel: BroadcastChannel | null = null
+
 onMounted(init)
+onUnmounted(cleanup)
 
 async function init() {
   try {
     const authProvider = await getAuthProvider(`${appId}`)
+    channel = new BroadcastChannel(`${appId}_login_notification`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
+      channel.postMessage({ status: 'success', info })
       sessionStorage.setItem('userInfo', JSON.stringify(info))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
     } else {
@@ -28,10 +33,17 @@ async function init() {
       await connectToParent<RedirectParentConnectionApi>({}).promise
     connectionToParent.redirect(parentAppUrl)
   } catch (e) {
-    await reportError(e.message)
+    if (e instanceof Error) {
+      await reportError(e.message)
+    }
   }
 }
 
+function cleanup() {
+  if (channel) {
+    channel.close()
+  }
+}
 async function reportError(errorMessage) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
