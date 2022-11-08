@@ -123,6 +123,20 @@ function validateAddNetworkParams(networkInfo) {
   return result
 }
 
+function validateAddTokensParams(params) {
+  const result: { isValid: boolean; error: unknown } = {
+    isValid: false,
+    error: null,
+  }
+  if (!params.address || !params.symbol || !params.decimals) {
+    result.isValid = false
+    result.error = 'required params missing'
+  } else {
+    result.isValid = true
+  }
+  return result
+}
+
 function addNetwork(request, keeper) {
   const { method, params } = request
   const networkInfo = params[0]
@@ -247,6 +261,18 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     if (error) {
       keeper.reply(request.method, {
         error,
+        result: null,
+        id: request.id,
+      })
+      return
+    }
+  }
+  if (request.method === 'wallet_watchAsset') {
+    const params = request.params[0]
+    const validationResponse = validateAddTokensParams(params)
+    if (!validationResponse.isValid) {
+      keeper.reply(request.method, {
+        error: validationResponse.error,
         result: null,
         id: request.id,
       })
