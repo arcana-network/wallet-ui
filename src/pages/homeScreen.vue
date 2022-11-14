@@ -94,7 +94,6 @@ watch(showModal, () => {
 
 watch(selectedChainId, () => {
   getAccountDetails()
-  parentConnection?.destroy()
   connectToParent()
 })
 
