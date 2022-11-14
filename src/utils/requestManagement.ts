@@ -21,14 +21,14 @@ function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   }
 }
 
-let unwatch
+let unwatchRequestQueue
 
 async function watchRequestQueue(keeper) {
-  if (unwatch) {
-    unwatch() // Stops watch handler
+  if (unwatchRequestQueue) {
+    unwatchRequestQueue()
   }
 
-  unwatch = watch(
+  unwatchRequestQueue = watch(
     () => reqStore,
     async () => {
       const { processQueue, pendingRequests } = reqStore
