@@ -34,12 +34,15 @@ async function watchRequestQueue(keeper) {
       const { processQueue, pendingRequests } = reqStore
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
+      if (pendingRequestCount === 0) {
+        connectionInstance.closePopup()
+      }
       try {
         connectionInstance.sendPendingRequestCount(pendingRequestCount)
       } catch (err) {
         console.error({ err })
       }
-      while (processQueue.length > 0) {
+      if (processQueue.length > 0) {
         const request = processQueue.shift()
         if (request) processRequest(request, keeper)
         try {
