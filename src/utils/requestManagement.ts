@@ -1,4 +1,5 @@
 // Todo: Find a better place for these functions
+import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -34,7 +35,8 @@ async function watchRequestQueue(keeper) {
       const { processQueue, pendingRequests } = reqStore
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
-      if (pendingRequestCount === 0) {
+      const appMode = await connectionInstance.getAppMode()
+      if (appMode === AppMode.Widget && pendingRequestCount === 0) {
         connectionInstance.closePopup()
       }
       try {
