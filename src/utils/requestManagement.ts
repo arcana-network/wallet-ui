@@ -1,4 +1,5 @@
 // Todo: Find a better place for these functions
+import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -34,12 +35,16 @@ async function watchRequestQueue(keeper) {
       const { processQueue, pendingRequests } = reqStore
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
+      const appMode = await connectionInstance.getAppMode()
+      if (appMode === AppMode.Widget && pendingRequestCount === 0) {
+        connectionInstance.closePopup()
+      }
       try {
         connectionInstance.sendPendingRequestCount(pendingRequestCount)
       } catch (err) {
         console.error({ err })
       }
-      while (processQueue.length > 0) {
+      if (processQueue.length > 0) {
         const request = processQueue.shift()
         if (request) processRequest(request, keeper)
         try {
