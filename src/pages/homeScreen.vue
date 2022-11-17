@@ -94,6 +94,7 @@ watch(showModal, () => {
 
 watch(selectedChainId, () => {
   getAccountDetails()
+  connectToParent()
 })
 
 const explorerUrl = computed(() => {
@@ -151,7 +152,7 @@ async function initAccountHandler() {
     keeper.setConnection(parentConnection)
     await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
 
-    watchRequestQueue(requestStore, keeper)
+    watchRequestQueue(keeper)
 
     const chainId = await accountHandler.getChainId()
     parentConnectionInstance.onEvent('connect', { chainId })
