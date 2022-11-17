@@ -133,8 +133,8 @@ onBeforeRouteLeave((to) => {
           </div>
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Private Key</p>
-            <p
-              class="home__body-content-value cursor-pointer w-max"
+            <button
+              class="home__body-content-value h-max w-max"
               @click.stop="handleShowPrivateKeyCautionModal"
             >
               <span>Export Key</span>
@@ -143,7 +143,7 @@ onBeforeRouteLeave((to) => {
                 alt="Click to export"
                 class="w-6 aspect-square ml-3 invert dark:invert-0"
               />
-            </p>
+            </button>
           </div>
         </div>
         <div class="flex w-full text-sm sm:text-xs justify-center">
