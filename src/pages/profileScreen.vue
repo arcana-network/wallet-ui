@@ -82,7 +82,7 @@ function handlePrivateKeyDownload() {
   const fileData = new Blob([privateKey.value], {
     type: 'text/plain',
   })
-  downloadFile(`${walletAddress.value}-private-key.json`, fileData)
+  downloadFile(`${walletAddress.value}-private-key.txt`, fileData)
 }
 
 onBeforeRouteLeave((to) => {
