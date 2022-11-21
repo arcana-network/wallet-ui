@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { AuthProvider, SocialLoginType } from '@arcana/auth-core'
+import type {
+  AuthProvider,
+  GetInfoOutput,
+  SocialLoginType,
+} from '@arcana/auth-core'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -52,6 +56,7 @@ const cleanup = () => {
   if (channel) {
     channel.close()
   }
+  window.removeEventListener('message', windowEventHandler)
 }
 
 onMounted(init)
@@ -64,22 +69,51 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-const loginEventHandler = (ev: MessageEvent) => {
-  if (ev.data?.status === 'success') {
-    sessionStorage.setItem('userInfo', JSON.stringify(ev.data.info))
-    sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
-    user.setUserInfo(ev.data.info)
-    user.setLoginStatus(true)
-    router.push('/')
+function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
+  sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
+  sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+  user.setUserInfo(userInfo)
+  user.setLoginStatus(true)
+  router.push('/')
+}
+
+const channelEventHandler = (ev: MessageEvent) => {
+  if (ev.data?.status === 'LOGIN_INFO') {
+    channel?.postMessage({
+      status: 'LOGIN_INFO_ACK',
+      messageId: ev.data.messageId,
+    })
+    storeUserInfoAndRedirect(ev.data.info)
+  }
+}
+
+const windowEventHandler = (
+  ev: MessageEvent<{ status: string; messageId: number; info: GetInfoOutput }>
+) => {
+  // eslint-disable-next-line no-undef
+  if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
+    return
+  }
+  console.log({ ev })
+  if (ev.data?.status === 'LOGIN_INFO') {
+    console.log('received message, going to send ack back')
+    ev.source?.postMessage(
+      { status: 'LOGIN_INFO_ACK', messageId: ev.data.messageId },
+      { targetOrigin: ev.origin }
+    )
+    storeUserInfoAndRedirect(ev.data.info)
   }
 }
 
 async function init() {
   isLoading.value = true
   try {
+    // channel listener
     channel = new BroadcastChannel(`${appId}_login_notification`)
-    channel.addEventListener('message', loginEventHandler)
+    channel.addEventListener('message', channelEventHandler)
 
+    // window listener
+    window.addEventListener('message', windowEventHandler)
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
