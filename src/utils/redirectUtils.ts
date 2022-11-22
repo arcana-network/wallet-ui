@@ -32,22 +32,27 @@ function contactUsingBroadcastChannel(
 }
 
 function contactParentPage(info: GetInfoOutput, messageId: number) {
-  console.log('Going to try contacting parent page', { info, messageId })
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       return reject('request timed out')
     }, WAIT_TIMEOUT)
     try {
       const frameLength = window.parent.opener.frames.length
-      window.addEventListener('message', (ev: MessageEvent) => {
-        console.log({ ev })
-        if (
-          ev.data.status === 'LOGIN_INFO_ACK' &&
-          ev.data.messageId == messageId
-        ) {
-          return resolve('ok')
+      window.addEventListener(
+        'message',
+        (ev: MessageEvent<{ status: string; messageId: number }>) => {
+          if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
+            return
+          }
+
+          if (
+            ev.data?.status === 'LOGIN_INFO_ACK' &&
+            ev.data?.messageId == messageId
+          ) {
+            return resolve('ok')
+          }
         }
-      })
+      )
       for (let i = 0; i < frameLength; i++) {
         try {
           window.parent.opener.frames[i].postMessage(
@@ -95,7 +100,6 @@ async function handleSocialLogin(
   try {
     await contactParentPage(info, messageId)
     connection.replyTo(parentAppUrl)
-    console.log('finished contacting parent')
   } catch (e) {
     console.log('A very unexpected error occurred', e)
   }
