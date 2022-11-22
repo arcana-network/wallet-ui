@@ -12,10 +12,8 @@ function contactUsingBroadcastChannel(
 ) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      console.log('Broadcast channel failed for passwordless')
-      return reject('did not happen')
+      return reject('bc did not succeed')
     }, WAIT_TIMEOUT)
-    channel.postMessage({ status: 'LOGIN_INFO', info, messageId })
     channel.addEventListener(
       'message',
       (ev: MessageEvent<{ status: string; messageId: number }>) => {
@@ -28,6 +26,7 @@ function contactUsingBroadcastChannel(
         }
       }
     )
+    channel.postMessage({ status: 'LOGIN_INFO', info, messageId })
   })
 }
 

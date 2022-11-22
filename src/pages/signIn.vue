@@ -94,9 +94,7 @@ const windowEventHandler = (
   if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
     return
   }
-  console.log({ ev })
   if (ev.data?.status === 'LOGIN_INFO') {
-    console.log('received message, going to send ack back')
     ev.source?.postMessage(
       { status: 'LOGIN_INFO_ACK', messageId: ev.data.messageId },
       { targetOrigin: ev.origin }
