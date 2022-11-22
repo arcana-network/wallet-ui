@@ -78,6 +78,7 @@ async function handlePasswordlessLogin(
 ) {
   try {
     await contactUsingBroadcastChannel(channel, info, messageId)
+    connection.replyTo(parentAppUrl)
   } catch (e) {
     const url = new URL(parentAppUrl)
     url.hash = 'fLR=y'
