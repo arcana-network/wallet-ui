@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
+import { getUniqueId } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -71,7 +72,18 @@ const assets: {
   balance: string
 }[] = []
 
+const helpOtherTabsLogin = () => {
+  const channel = new BroadcastChannel(`${appStore.id}_login_notification`)
+  channel.postMessage({
+    status: 'LOGIN_INFO',
+    info: { userInfo: { ...userStore.info }, privateKey: userStore.privateKey },
+    messageId: getUniqueId(),
+  })
+  channel.close()
+}
+
 onMounted(async () => {
+  helpOtherTabsLogin()
   setRpcConfigs()
   initAccounthandler()
   initKeeper()
