@@ -4,15 +4,19 @@ import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import type { AssetContract } from '@/models/Asset'
 import { requirePermission } from '@/models/Connection'
 import { router } from '@/routes'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import validatePopulateContractForToken from '@/utils/validatePopulateContractForToken'
 
 const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
+const userStore = useUserStore(store)
 const toast = useToast()
 const reqStore = useRequestStore()
 
@@ -141,18 +145,15 @@ function validateAddNetworkParams(networkInfo) {
   return result
 }
 
-function validateAddTokensParams(params) {
-  const result: { isValid: boolean; error: unknown } = {
-    isValid: false,
-    error: null,
-  }
-  if (!params.address || !params.symbol || !params.decimals) {
-    result.isValid = false
-    result.error = 'required params missing'
-  } else {
-    result.isValid = true
-  }
-  return result
+async function validateAddTokensParams(params) {
+  return await validatePopulateContractForToken(
+    userStore.walletAddress,
+    rpcStore.selectedRpcConfig.chainId,
+    params,
+    rpcStore.isEthereumMainnet,
+    userStore.privateKey,
+    rpcStore.selectedRpcConfig.rpcUrls[0]
+  )
 }
 
 function addNetwork(request, keeper) {
@@ -184,15 +185,38 @@ function addNetwork(request, keeper) {
   })
 }
 
+async function addToken(request, keeper) {
+  const params = request.params[0]
+  const { tokenContract } = await validateAddTokensParams(params)
+  const assetContractsString = localStorage.getItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+  )
+  let assetContracts: AssetContract[] = []
+  if (assetContractsString) {
+    assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+  }
+  assetContracts.push({ ...tokenContract })
+  localStorage.setItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
+    JSON.stringify(assetContracts)
+  )
+  keeper.reply(request.method, {
+    result: 'Token Added successfully',
+    id: request.id,
+  })
+}
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
     if (
       request.method === 'wallet_switchEthereumChain' ||
-      request.method === 'wallet_addEthereumChain'
+      request.method === 'wallet_addEthereumChain' ||
+      request.method === 'wallet_watchAsset'
     ) {
       const { method } = request
       if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
+      if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
       if (request.method === 'eth_sendTransaction') {
         request.params[0].gasLimit = request.params[0].gas
@@ -287,7 +311,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   if (request.method === 'wallet_watchAsset') {
     const params = request.params[0]
-    const validationResponse = validateAddTokensParams(params)
+    const validationResponse = await validateAddTokensParams(params)
     if (!validationResponse.isValid) {
       keeper.reply(request.method, {
         error: validationResponse.error,
