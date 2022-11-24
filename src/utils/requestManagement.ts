@@ -1,16 +1,20 @@
 // Todo: Find a better place for these functions
+import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
+import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { requirePermission } from '@/models/Connection'
 import { router } from '@/routes'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 
 const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
 const toast = useToast()
+const reqStore = useRequestStore()
 
 function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   return function sendRequest(request) {
@@ -18,26 +22,40 @@ function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   }
 }
 
-async function watchRequestQueue(reqStore, keeper) {
-  reqStore.$subscribe(async (_, state) => {
-    const { processQueue, pendingRequests } = state
-    const pendingRequestCount = Object.values(pendingRequests).length
-    const connectionInstance = await keeper.connection.promise
-    try {
-      connectionInstance.sendPendingRequestCount(pendingRequestCount)
-    } catch (err) {
-      console.error({ err })
-    }
-    while (processQueue.length > 0) {
-      const request = processQueue.shift()
-      processRequest(request, keeper)
+let unwatchRequestQueue
+
+async function watchRequestQueue(keeper) {
+  if (unwatchRequestQueue) {
+    unwatchRequestQueue()
+  }
+
+  unwatchRequestQueue = watch(
+    () => reqStore,
+    async () => {
+      const { processQueue, pendingRequests } = reqStore
+      const pendingRequestCount = Object.values(pendingRequests).length
+      const connectionInstance = await keeper.connection.promise
+      const appMode = await connectionInstance.getAppMode()
       try {
         connectionInstance.sendPendingRequestCount(pendingRequestCount)
       } catch (err) {
         console.error({ err })
       }
-    }
-  })
+      if (processQueue.length > 0) {
+        const request = processQueue.shift()
+        if (request) processRequest(request, keeper)
+        if (appMode === AppMode.Widget && pendingRequestCount === 0) {
+          connectionInstance.closePopup()
+        }
+        try {
+          connectionInstance.sendPendingRequestCount(pendingRequestCount)
+        } catch (err) {
+          console.error({ err })
+        }
+      }
+    },
+    { deep: true }
+  )
 }
 
 function getEtherInvalidParamsError(msg) {

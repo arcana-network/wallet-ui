@@ -45,8 +45,9 @@ type ProviderEvent =
   | { type: string; data: unknown }
 
 type RedirectParentConnectionApi = {
-  redirect(parentAppUrl: string | null): Promise<void>
-  error(errorMessage: string): Promise<void>
+  redirect(url: string | null): Promise<void>
+  replyTo(parentAppUrl: string | null): Promise<void>
+  error(errorMessage: string, parentAppUrl: string): Promise<void>
 }
 
 type ParentConnectionApi = {
