@@ -54,11 +54,7 @@ async function validateAndPopulateContract(
     error: null,
     tokenContract: tokenContract,
   }
-  if (
-    !tokenContract.address ||
-    !tokenContract.symbol ||
-    !tokenContract.decimals
-  ) {
+  if (!tokenContract.address) {
     result.isValid = false
     result.error = 'required params missing'
     return result
