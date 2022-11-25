@@ -13,19 +13,14 @@ function isContractInLocalStorage(walletAddress, chainId, tokenContract) {
   const assetContractsString = localStorage.getItem(
     `${walletAddress}/${chainId}/asset-contracts`
   )
-  console.log({ assetContractsString })
-  if (assetContractsString) {
-    const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
-    console.log({ assetContracts })
-    if (
-      assetContracts.find(
-        (contract) => contract.address === tokenContract.address
-      )
-    ) {
-      return true
-    }
-  }
-  return false
+  if (assetContractsString === null) return false
+
+  const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+  if (!Array.isArray(assetContracts)) return false
+
+  return assetContracts.find(
+    (contract) => contract.address === tokenContract.address
+  )
 }
 
 function doesTokenBelongsToEthMainnet(isEthereumMainnet, tokenContract) {
