@@ -146,14 +146,14 @@ function validateAddNetworkParams(networkInfo) {
 }
 
 async function validateAddTokensParams(params) {
-  return await validatePopulateContractForToken(
-    userStore.walletAddress,
-    rpcStore.selectedRpcConfig.chainId,
-    params,
-    rpcStore.isEthereumMainnet,
-    userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
-  )
+  return await validatePopulateContractForToken({
+    walletAddress: userStore.walletAddress,
+    chainId: rpcStore.selectedRpcConfig.chainId,
+    tokenContract: params,
+    isEthereumMainnet: rpcStore.isEthereumMainnet,
+    privateKey: userStore.privateKey,
+    rpcUrl: rpcStore.selectedRpcConfig.rpcUrls[0],
+  })
 }
 
 function addNetwork(request, keeper) {

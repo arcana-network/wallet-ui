@@ -32,14 +32,14 @@ function doesTokenBelongsToEthMainnet(isEthereumMainnet, tokenContract) {
   )
 }
 
-async function validateAndPopulateContract(
+async function validateAndPopulateContract({
   walletAddress,
   chainId,
   tokenContract,
   isEthereumMainnet,
   privateKey,
-  rpcUrl
-) {
+  rpcUrl,
+}) {
   const result: {
     isValid: boolean
     error: unknown
