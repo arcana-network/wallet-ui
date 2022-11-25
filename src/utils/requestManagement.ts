@@ -186,7 +186,7 @@ function addNetwork(request, keeper) {
 }
 
 async function addToken(request, keeper) {
-  const params = request.params[0]
+  const params = request.params[0].options
   const { tokenContract } = await validateAddTokensParams(params)
   const assetContractsString = localStorage.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
@@ -310,7 +310,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     }
   }
   if (request.method === 'wallet_watchAsset') {
-    const params = request.params[0]
+    const params = request.params[0].options
     const validationResponse = await validateAddTokensParams(params)
     if (!validationResponse.isValid) {
       keeper.reply(request.method, {
