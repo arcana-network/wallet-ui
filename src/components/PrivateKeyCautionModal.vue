@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DOCS_URL } from '@/utils/constants'
+
 const emit = defineEmits(['proceed', 'close'])
 </script>
 
@@ -20,7 +22,12 @@ const emit = defineEmits(['proceed', 'close'])
       <p>
         Please store your keys in a safe place as anyone with access to it can
         take over your wallet.
-        <a class="text-blue-500 cursor-pointer">LEARN MORE</a>
+        <a
+          :href="`${DOCS_URL}/walletexportkey`"
+          target="_blank"
+          class="text-blue-500 cursor-pointer"
+          >LEARN MORE</a
+        >
       </p>
     </div>
     <div>
