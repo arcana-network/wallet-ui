@@ -36,9 +36,6 @@ async function watchRequestQueue(keeper) {
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
       const appMode = await connectionInstance.getAppMode()
-      if (appMode === AppMode.Widget && pendingRequestCount === 0) {
-        connectionInstance.closePopup()
-      }
       try {
         connectionInstance.sendPendingRequestCount(pendingRequestCount)
       } catch (err) {
@@ -47,6 +44,9 @@ async function watchRequestQueue(keeper) {
       if (processQueue.length > 0) {
         const request = processQueue.shift()
         if (request) processRequest(request, keeper)
+        if (appMode === AppMode.Widget && pendingRequestCount === 0) {
+          connectionInstance.closePopup()
+        }
         try {
           connectionInstance.sendPendingRequestCount(pendingRequestCount)
         } catch (err) {
