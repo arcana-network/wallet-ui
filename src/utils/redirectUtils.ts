@@ -3,7 +3,8 @@ import { AsyncMethodReturns } from 'penpal'
 
 import { RedirectParentConnectionApi } from '@/models/Connection'
 
-const WAIT_TIMEOUT = 5000 // 5s timeout
+const SOCIAL_TIMEOUT = 5000 // 5s timeout
+const PASSWORDLESS_TIMEOUT = 1500 // 5s timeout
 
 function contactUsingBroadcastChannel(
   channel: BroadcastChannel,
@@ -13,7 +14,7 @@ function contactUsingBroadcastChannel(
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       return reject('bc did not succeed')
-    }, WAIT_TIMEOUT)
+    }, PASSWORDLESS_TIMEOUT)
     channel.addEventListener(
       'message',
       (ev: MessageEvent<{ status: string; messageId: number }>) => {
@@ -34,7 +35,7 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       return reject('request timed out')
-    }, WAIT_TIMEOUT)
+    }, SOCIAL_TIMEOUT)
     try {
       const frameLength = window.parent.opener.frames.length
       window.addEventListener(
@@ -101,6 +102,10 @@ async function handleSocialLogin(
     connection.replyTo(parentAppUrl)
   } catch (e) {
     console.log('A very unexpected error occurred', e)
+    connection.error(
+      'Could not login, an unexpected error occurred',
+      parentAppUrl
+    )
   }
 }
 
