@@ -4,7 +4,7 @@ import { AsyncMethodReturns } from 'penpal'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
-const PASSWORDLESS_TIMEOUT = 1500 // 5s timeout
+const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
 
 function contactUsingBroadcastChannel(
   channel: BroadcastChannel,
