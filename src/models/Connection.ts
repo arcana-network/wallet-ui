@@ -25,6 +25,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   eth_getEncryptionPublicKey: false,
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
+  wallet_watchAsset: true,
 })
 
 function requirePermission(
