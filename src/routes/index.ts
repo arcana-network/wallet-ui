@@ -27,6 +27,11 @@ const routes = [
     component: HomeScreen,
   },
   {
+    name: 'nfts',
+    path: '/nfts',
+    component: HomeScreen,
+  },
+  {
     name: 'requests',
     path: '/requests',
     component: RequestsScreen,

@@ -35,7 +35,7 @@ function getAppropriateIcon(iconName, pathName) {
     :class="{ 'justify-between': userStore.isLoggedIn }"
   >
     <div v-if="userStore.isLoggedIn" class="flex space-x-4">
-      <router-link to="/">
+      <router-link :to="{ name: 'home' }">
         <img
           :src="getAppropriateIcon('coins-stacked-icon', 'home')"
           alt="home"
@@ -45,7 +45,17 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link to="/profileScreen">
+      <router-link :to="{ name: 'nfts' }">
+        <img
+          :src="getAppropriateIcon('nfts-icon', 'nfts')"
+          alt="nfts"
+          class="p-1 rounded-[10px]"
+          :class="{
+            'bg-black dark:bg-white': isCurrentRoute('nfts'),
+          }"
+        />
+      </router-link>
+      <router-link :to="{ name: 'profile' }">
         <img
           :src="getAppropriateIcon('profile-icon', 'profile')"
           alt="profile"
@@ -55,7 +65,7 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link to="/requests" class="relative">
+      <router-link :to="{ name: 'requests' }" class="relative">
         <img
           :src="getAppropriateIcon('notification-icon', 'requests')"
           alt="request"
