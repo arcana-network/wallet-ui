@@ -151,8 +151,6 @@ async function validateAddTokensParams(params) {
     chainId: rpcStore.selectedRpcConfig.chainId,
     tokenContract: params,
     isEthereumMainnet: rpcStore.isEthereumMainnet,
-    privateKey: userStore.privateKey,
-    rpcUrl: rpcStore.selectedRpcConfig.rpcUrls[0],
   })
 }
 

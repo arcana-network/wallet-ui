@@ -14,15 +14,16 @@ import {
   createWalletMiddleware,
 } from '@/utils/walletMiddleware'
 
-export class AccountHandler {
+class AccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(privateKey: string) {
+  constructor(
+    privateKey: string,
+    rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
+  ) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.JsonRpcProvider(
-      process.env.VUE_APP_WALLET_RPC_URL
-    )
+    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   }
 
   setProvider(url: string) {
@@ -238,3 +239,19 @@ export class AccountHandler {
     }
   }
 }
+
+let accountHandler: AccountHandler
+
+function createNewAccountHandler(
+  privateKey: string,
+  rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
+) {
+  accountHandler = new AccountHandler(privateKey, rpcUrl)
+  return accountHandler
+}
+
+function getAccountHandler() {
+  return accountHandler
+}
+
+export { AccountHandler, createNewAccountHandler, getAccountHandler }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
@@ -26,7 +27,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { AccountHandler, createNewAccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
@@ -60,9 +61,9 @@ const loader = ref({
   show: false,
   message: '',
 })
-let accountHandler: AccountHandler | null = null
-let keeper: RequestHandler | null = null
-let parentConnection: Connection<ParentConnectionApi> | null = null
+let accountHandler: AccountHandler
+let keeper: RequestHandler
+let parentConnection: Connection<ParentConnectionApi>
 const tabs = ['Assets', 'Activity']
 const selectedTab = ref('Assets')
 const assets: {
@@ -138,8 +139,10 @@ async function getAccountDetails() {
 }
 
 function initAccounthandler() {
-  accountHandler = new AccountHandler(userStore.privateKey)
-  accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+  accountHandler = createNewAccountHandler(
+    userStore.privateKey,
+    rpcStore.selectedRpcConfig.rpcUrls[0]
+  )
 }
 
 async function initKeeper() {
@@ -162,12 +165,14 @@ async function initAccountHandler() {
     }
 
     keeper.setConnection(parentConnection)
-    await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
+
+    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+    const selectedChainId = Number(chainId)
+    await keeper.setRpcConfig({ chainId: selectedChainId, ...rpcConfig })
 
     watchRequestQueue(keeper)
 
-    const chainId = await accountHandler.getChainId()
-    parentConnectionInstance.onEvent('connect', { chainId })
+    parentConnectionInstance.onEvent('connect', { chainId: selectedChainId })
   } catch (err) {
     console.log({ err })
   } finally {
@@ -216,7 +221,7 @@ function getUserInfo() {
 async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
-  appStore.setAppMode(validAppMode)
+  appStore.setAppMode(validAppMode as AppMode)
 }
 
 async function handleLogout() {
@@ -239,7 +244,7 @@ async function getRpcConfig() {
     if (rpcStore.selectedChainId) return
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setSelectedChainId(parseInt(rpcConfig.chainId))
+    rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
   } catch (err) {
     console.log({ err })
   } finally {

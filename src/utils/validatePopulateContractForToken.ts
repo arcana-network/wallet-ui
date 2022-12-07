@@ -37,8 +37,6 @@ async function validateAndPopulateContract({
   chainId,
   tokenContract,
   isEthereumMainnet,
-  privateKey,
-  rpcUrl,
 }) {
   const result: {
     isValid: boolean
@@ -66,8 +64,6 @@ async function validateAndPopulateContract({
   }
   try {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
-      privateKey: privateKey,
-      rpcUrl: rpcUrl,
       contractAddress: tokenContract.address,
     })
     result.tokenContract.symbol = symbol

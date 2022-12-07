@@ -56,8 +56,6 @@ async function getAssetsBalance() {
   storedAssetContracts.forEach(async (contract) => {
     try {
       const balance = await getTokenBalance({
-        privateKey: userStore.privateKey,
-        rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
         walletAddress: userStore.walletAddress,
         contractAddress: contract.address,
       })
