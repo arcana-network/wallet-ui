@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, Ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -73,26 +73,41 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+let baseFeePoll
+let gasSliderPoll
+
 onMounted(async () => {
   showLoader('Loading')
   try {
     setTokenList()
     await fetchTokenBalance()
+    await fetchBaseFee()
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      const data = await getGasPrice(chainId)
-      gasPrices.value = data
+      await fetchGasSliderValues()
+      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
     }
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
-    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    baseFeePoll = setInterval(fetchBaseFee, 2000)
   } catch (err) {
     console.log({ err })
-    gasPrices.value = {}
   } finally {
     hideLoader()
   }
 })
+
+onUnmounted(() => {
+  if (baseFeePoll) clearInterval(baseFeePoll)
+  if (gasSliderPoll) clearInterval(gasSliderPoll)
+})
+
+async function fetchBaseFee() {
+  const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
+  baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+}
+
+async function fetchGasSliderValues() {
+  const data = await getGasPrice(chainId)
+  gasPrices.value = data
+}
 
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
