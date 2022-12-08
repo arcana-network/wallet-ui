@@ -44,10 +44,8 @@ const explorerUrl = computed(() => {
   ) {
     const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
     const walletAddress = userStore.walletAddress
-    console.log(`${blockExplorerUrl}/address/${walletAddress}`)
     return `${blockExplorerUrl}/address/${walletAddress}`
   }
-  console.log('Explorer url undefined')
   return undefined
 })
 
@@ -95,7 +93,6 @@ function openReceiveTokens(open) {
 
 async function getCurrencyExchangeRate() {
   showLoader('Fetching Currency Rate')
-  console.log({ currency: currency.value })
   totalAmountInUSD.value = null
   try {
     if (currency.value) {
@@ -114,7 +111,6 @@ async function getCurrencyExchangeRate() {
     console.log({ err })
     totalAmountInUSD.value = null
   } finally {
-    console.log({ totalAmountInUSD: totalAmountInUSD.value })
     hideLoader()
   }
 }
