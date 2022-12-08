@@ -14,6 +14,10 @@ import BaseTabs from '@/components/BaseTabs.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
+import {
+  getExchangeRate,
+  type CurrencySymbol,
+} from '@/services/exchangeRate.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -31,6 +35,8 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 
+const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
+
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
@@ -39,7 +45,7 @@ const walletBalance = ref('')
 const requestStore = useRequestStore()
 const router = useRouter()
 const exchangeRate: Ref<number | null> = ref(null)
-const { selectedChainId } = storeToRefs(rpcStore)
+const { selectedChainId, currency } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
@@ -79,7 +85,6 @@ onMounted(async () => {
 
 watch(selectedChainId, () => {
   getAccountDetails()
-  connectToParent()
 })
 
 function showLoader(message) {
@@ -95,6 +100,7 @@ function hideLoader() {
 async function getAccountDetails() {
   await initAccountHandler()
   await getWalletBalance()
+  getCurrencyExchangeRate()
 }
 
 function initAccounthandler() {
@@ -226,6 +232,24 @@ async function getWalletBalance() {
     assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
   } catch (err) {
     console.log({ err })
+  } finally {
+    hideLoader()
+  }
+}
+
+async function getCurrencyExchangeRate() {
+  showLoader('Fetching Currency Rate')
+  try {
+    if (currency.value) {
+      const rate = await getExchangeRate(
+        currency.value as CurrencySymbol,
+        EXCHANGE_RATE_CURRENCY
+      )
+      if (rate) exchangeRate.value = rate
+    }
+  } catch (err) {
+    console.error(err)
+    exchangeRate.value = null
   } finally {
     hideLoader()
   }

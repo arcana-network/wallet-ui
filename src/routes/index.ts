@@ -4,6 +4,7 @@ import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPage from '@/pages/initPage.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
+import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SignIn from '@/pages/signIn.vue'
@@ -29,7 +30,7 @@ const routes = [
   {
     name: 'nfts',
     path: '/nfts',
-    component: HomeScreen,
+    component: NFTScreen,
   },
   {
     name: 'requests',
