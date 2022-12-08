@@ -71,6 +71,9 @@ async function handleSocialLoginRequest(type: SocialLoginType) {
 async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
+    const connection = await parentConnection?.promise
+    const params = await connection?.getPasswordlessParams()
+    localStorage.setItem('CURRENT_LOGIN_INFO', JSON.stringify(params))
     const authProvider = await getAuthProvider(app.id)
     return await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
