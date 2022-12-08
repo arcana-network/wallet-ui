@@ -8,10 +8,8 @@ import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
-import ActivityView from '@/components/ActivityView.vue'
 import AddNetwork from '@/components/AddNetwork.vue'
 import AssetsView from '@/components/AssetsView.vue'
-import BaseTabs from '@/components/BaseTabs.vue'
 import ChangeChain from '@/components/ChangeChain.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
@@ -63,8 +61,6 @@ const loader = ref({
 let accountHandler: AccountHandler | null = null
 let keeper: RequestHandler | null = null
 let parentConnection: Connection<ParentConnectionApi> | null = null
-const tabs = ['Assets', 'Activity']
-const selectedTab = ref('Assets')
 const assets: {
   name?: string
   symbol: string
@@ -438,10 +434,9 @@ onBeforeRouteLeave((to) => {
       </div>
     </div>
     <div class="pb-5">
+      <h2 class="mb-[5px]">Assets</h2>
       <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
-        <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
-        <AssetsView v-if="selectedTab === 'Assets'" />
-        <ActivityView v-else :currency-exchange-rate="exchangeRate" />
+        <AssetsView />
       </div>
     </div>
     <Teleport v-if="showModal" to="#modal-container">
