@@ -35,14 +35,7 @@ async function init() {
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
-        channel = new BroadcastChannel(`${appId}_login_notification`)
-        await handlePasswordlessLogin(
-          info,
-          messageId,
-          parentAppUrl,
-          connectionToParent,
-          channel
-        )
+        await handlePasswordlessLogin(info, connectionToParent)
       } else {
         await handleSocialLogin(
           info,

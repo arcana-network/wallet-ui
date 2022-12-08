@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import type {
-  AuthProvider,
-  GetInfoOutput,
-  SocialLoginType,
-} from '@arcana/auth-core'
+import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
+import { SocialLoginType } from '@arcana/auth-core'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -16,6 +13,7 @@ import { useUserStore } from '@/store/user'
 import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { PasswordlessLoginHandler } from '@/utils/PasswordlessLoginHandler'
 
 const route = useRoute()
 const router = useRouter()
@@ -43,8 +41,32 @@ const {
   },
 } = toRefs(route)
 
+let passwordlessLoginHandler: PasswordlessLoginHandler | null
+
+const initPasswordlessLogin = (email: string) => {
+  if (passwordlessLoginHandler) {
+    passwordlessLoginHandler.cancel()
+  }
+  passwordlessLoginHandler = new PasswordlessLoginHandler(email)
+  const params = passwordlessLoginHandler.params()
+  passwordlessLoginHandler.start().then(({ privateKey, email }) => {
+    storeUserInfoAndRedirect({
+      loginType: SocialLoginType.passwordless,
+      userInfo: {
+        email,
+        id: email,
+        picture: '',
+        name: '',
+      },
+      privateKey,
+    })
+  })
+  return params
+}
+
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
+  initPasswordlessLogin: (email: string) => initPasswordlessLogin(email),
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
