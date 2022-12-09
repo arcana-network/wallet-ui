@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
-import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { useImage } from '@/utils/useImage'
 
@@ -11,7 +10,6 @@ const getImage = useImage()
 const userStore = useUserStore()
 const appStore = useAppStore()
 const router = useRouter()
-const requestStore = useRequestStore()
 
 const currentRoute = computed(() => {
   return router.currentRoute.value.name
