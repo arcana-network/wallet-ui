@@ -9,6 +9,32 @@ import {
 } from '@/utils/PasswordlessLoginHandler'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
+const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
+
+function contactUsingBroadcastChannel(
+  channel: BroadcastChannel,
+  info: GetInfoOutput,
+  messageId: number
+) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      return reject('bc did not succeed')
+    }, PASSWORDLESS_TIMEOUT)
+    channel.addEventListener(
+      'message',
+      (ev: MessageEvent<{ status: string; messageId: number }>) => {
+        if (
+          ev.data?.status == 'LOGIN_INFO_ACK' &&
+          ev.data?.messageId == messageId
+        ) {
+          clearTimeout(timer)
+          return resolve('ok')
+        }
+      }
+    )
+    channel.postMessage({ status: 'LOGIN_INFO', info, messageId })
+  })
+}
 
 function contactParentPage(info: GetInfoOutput, messageId: number) {
   return new Promise((resolve, reject) => {
@@ -53,7 +79,7 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
   })
 }
 
-async function handlePasswordlessLogin(
+async function handlePasswordlessLoginV2(
   info: GetInfoOutput,
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
@@ -89,4 +115,20 @@ async function handleSocialLogin(
   }
 }
 
-export { handlePasswordlessLogin, handleSocialLogin }
+async function handlePasswordlessLogin(
+  info: GetInfoOutput,
+  messageId: number,
+  parentAppUrl: string,
+  connection: AsyncMethodReturns<RedirectParentConnectionApi>,
+  channel: BroadcastChannel
+) {
+  try {
+    await contactUsingBroadcastChannel(channel, info, messageId)
+    connection.replyTo(parentAppUrl)
+  } catch (e) {
+    const url = new URL(parentAppUrl)
+    url.hash = 'fLR=y'
+    connection.redirect(url.toString())
+  }
+}
+export { handlePasswordlessLogin, handlePasswordlessLoginV2, handleSocialLogin }
