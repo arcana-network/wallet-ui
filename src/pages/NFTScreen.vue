@@ -15,6 +15,7 @@ import {
   createNewAccountHandler,
   getAccountHandler,
 } from '@/utils/accountHandler'
+import { checkOwner } from '@/utils/nftUtils'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -43,10 +44,21 @@ onMounted(async () => {
   setRpcConfigs()
   initAccounthandler()
   await getRpcConfig()
+
+  checkOwner({
+    tokenId:
+      '35138289863136114763570875047721999729020648079043709494442063097990664421377',
+    contractAddress: '0x495f947276749ce646f68ac8c248420045cb7b5e',
+  })
 })
 
 watch(selectedChainId, () => {
   initAccounthandler()
+  checkOwner({
+    tokenId:
+      '70251292591482240677129842875841137792628907798321799368906902574628366974977',
+    contractAddress: '0x2953399124f0cbb46d2cbacd8a89cf0599974963',
+  })
 })
 
 function showLoader(message) {

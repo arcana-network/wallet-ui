@@ -43,6 +43,8 @@ const loader = ref({
 const tokenList = ref([
   {
     symbol: rpcStore.nativeCurrency.symbol,
+    decimals: 18,
+    address: '',
   },
 ])
 const baseFee = ref('0')
@@ -119,11 +121,11 @@ async function fetchTokenBalance() {
   } else {
     const balance = await getTokenBalance({
       walletAddress: userStore.walletAddress,
-      contractAddress: tokenInfo.address,
+      contractAddress: tokenInfo?.address as string,
     })
-    selectedTokenBalance.value = tokenInfo.decimals
-      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toFixed(
-          tokenInfo.decimals
+    selectedTokenBalance.value = tokenInfo?.decimals
+      ? (Number(balance) / Math.pow(10, tokenInfo?.decimals)).toFixed(
+          tokenInfo?.decimals
         )
       : balance
   }
@@ -178,11 +180,11 @@ async function handleSendToken() {
       const tokenInfo = tokenList.value.find(
         (item) => item.symbol === selectedToken.value
       )
-      const sendAmount = tokenInfo.decimals
+      const sendAmount = tokenInfo?.decimals
         ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
         : amount.value
       const transactionHash = await accountHandler.sendCustomToken(
-        tokenInfo.address,
+        tokenInfo?.address,
         setHexPrefix(recipientWalletAddress.value),
         sendAmount,
         gasFees
@@ -193,12 +195,12 @@ async function handleSendToken() {
         customToken: {
           operation: 'Send',
           amount: amount.value,
-          symbol: tokenInfo.symbol,
+          symbol: tokenInfo?.symbol as string,
         },
       })
     }
     toast.success('Tokens sent Successfully')
-  } catch (err) {
+  } catch (err: any) {
     if (err && err.reason) {
       toast.error(err.reason)
     }
@@ -233,11 +235,11 @@ async function handleShowPreview() {
         const tokenInfo = tokenList.value.find(
           (item) => item.symbol === selectedToken.value
         )
-        const sendAmount = tokenInfo.decimals
+        const sendAmount = tokenInfo?.decimals
           ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
           : amount.value
         estimatedGas.value = await accountHandler.estimateCustomTokenGas(
-          tokenInfo.address,
+          tokenInfo?.address,
           setHexPrefix(recipientWalletAddress.value),
           sendAmount
         )
