@@ -130,7 +130,7 @@ watch(selectedChainId, () => {
 
 <template>
   <div>
-    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-10">
+    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-6">
       <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
         <div class="flex flex-col justify-center items-center space-y-2">
           <div class="flex items-center space-x-1">

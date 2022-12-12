@@ -8,9 +8,7 @@ import { onMounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
-import ActivityView from '@/components/ActivityView.vue'
 import AssetsView from '@/components/AssetsView.vue'
-import BaseTabs from '@/components/BaseTabs.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
@@ -53,8 +51,6 @@ const loader = ref({
 let accountHandler: AccountHandler
 let keeper: RequestHandler
 let parentConnection: Connection<ParentConnectionApi>
-const tabs = ['Assets', 'Activity']
-const selectedTab = ref('Assets')
 const assets: {
   name?: string
   symbol: string
@@ -191,7 +187,7 @@ async function setAppMode(walletType, parentConnectionInstance) {
 
 async function handleLogout() {
   const parentConnectionInstance = await parentConnection.promise
-  const authProvider = await getAuthProvider(appStore.id)
+  const authProvider = await getAuthProvider(appStore.id as string)
   await userStore.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
   setTimeout(() => {
@@ -218,7 +214,7 @@ async function getRpcConfig() {
 }
 
 async function handleGetPublicKey(id, verifier) {
-  const authProvider = await getAuthProvider(appStore.id)
+  const authProvider = await getAuthProvider(appStore.id as string)
   return await authProvider.getPublicKey({ id, verifier })
 }
 
@@ -266,12 +262,17 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else>
     <UserWallet :wallet-balance="walletBalance" @refresh="getWalletBalance" />
-    <div class="pb-5">
+    <div class="pb-5 flex flex-col gap-1">
+      <div class="font-semibold">Assets</div>
       <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
-        <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
-        <AssetsView v-if="selectedTab === 'Assets'" />
-        <ActivityView v-else :currency-exchange-rate="exchangeRate" />
+        <AssetsView />
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.section-title {
+  font-size: var(--fs-400);
+}
+</style>

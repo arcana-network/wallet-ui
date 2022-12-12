@@ -61,7 +61,7 @@ function calculateCurrencyValue(valueInCrypto: bigint) {
       }).format(
         Math.round(
           Number(ethers.utils.formatEther(valueInCrypto.toString())) *
-            props.currencyExchangeRate
+            Number(props.currencyExchangeRate)
         )
       ),
       currency: 'USD',

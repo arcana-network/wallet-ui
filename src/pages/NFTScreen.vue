@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
+import NFTView from '@/components/NFTView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
@@ -46,9 +47,8 @@ onMounted(async () => {
   await getRpcConfig()
 
   checkOwner({
-    tokenId:
-      '35138289863136114763570875047721999729020648079043709494442063097990664421377',
-    contractAddress: '0x495f947276749ce646f68ac8c248420045cb7b5e',
+    tokenId: '3868',
+    contractAddress: '0x7278dbabebe2b4817fd7532ece4901a53cf1851d',
   })
 })
 
@@ -112,5 +112,11 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else>
     <UserWallet @refresh="handleRefresh" />
+    <div class="pb-5 flex flex-col gap-1">
+      <div class="font-semibold">Assets</div>
+      <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
+        <NFTView />
+      </div>
+    </div>
   </div>
 </template>

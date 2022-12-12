@@ -13,7 +13,6 @@ import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 
 const routes = [
-  // Old pages for backward compatiability
   {
     path: '/:appId/login',
     component: SignIn,
@@ -26,7 +25,6 @@ const routes = [
     path: '/:appId/init/',
     component: InitPage,
   },
-  // New pages
   {
     path: '/:appId/v2/login',
     component: SignInV2,

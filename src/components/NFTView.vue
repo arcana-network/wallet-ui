@@ -80,7 +80,7 @@ rpcStore.$subscribe(getAssetsBalance)
 
 <template>
   <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
-    <div class="flex flex-col py-5 gap-5">
+    <div class="flex flex-col pt-5 pb-1 gap-5">
       <div
         v-for="asset in assets"
         :key="`asset-${asset.symbol}`"
@@ -111,8 +111,8 @@ rpcStore.$subscribe(getAssetsBalance)
         class="flex py-4 gap-2 items-center cursor-pointer"
         @click.stop="handleAddToken"
       >
-        <img src="@/assets/images/plus.svg" class="invert dark:invert-0" />
-        <span class="assets-view__add-token-text leading-[1]">New</span>
+        <img src="@/assets/images/settings.svg" class="invert dark:invert-0" />
+        <span class="assets-view__add-token-text leading-[1]">Manage</span>
       </div>
     </div>
   </div>
