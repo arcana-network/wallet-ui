@@ -46,7 +46,7 @@ type ProviderEvent =
 
 type RedirectParentConnectionApi = {
   redirect(url: string | null): Promise<void>
-  replyTo(parentAppUrl: string | null): Promise<void>
+  replyTo(parentAppUrl?: string | null): Promise<void>
   error(errorMessage: string, parentAppUrl: string): Promise<void>
 }
 
@@ -66,6 +66,7 @@ type ParentConnectionApi = {
 }
 type InitParentConnectionApi = {
   getParentUrl(): string
+  getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
 }
 
