@@ -7,7 +7,7 @@ import { useRoute } from 'vue-router'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
-  handlePasswordlessLogin,
+  handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
 
@@ -28,14 +28,14 @@ async function init() {
   try {
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
-    const authProvider = await getAuthProvider(`${appId}`)
+    const authProvider = await getAuthProvider(`${appId}`, true)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       sessionStorage.setItem('userInfo', JSON.stringify(info))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
-        await handlePasswordlessLogin(info, connectionToParent)
+        await handlePasswordlessLoginV2(info, connectionToParent)
       } else {
         await handleSocialLogin(
           info,
