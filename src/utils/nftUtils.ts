@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 
-import ABI from '@/abis/erc721.abi.json'
+import erc1155abi from '@/abis/erc1155.abi.json'
+import erc721abi from '@/abis/erc721.abi.json'
 import { getAccountHandler } from '@/utils/accountHandler'
 
 type ContractParams = {
@@ -12,7 +13,7 @@ async function checkOwner(data: ContractParams): Promise<string> {
   const accountHandler = getAccountHandler()
   const ethersContract = new ethers.Contract(
     data.contractAddress,
-    ABI,
+    erc1155abi,
     accountHandler.provider
   )
 
@@ -20,7 +21,7 @@ async function checkOwner(data: ContractParams): Promise<string> {
   console.log({ owner })
   const name = await ethersContract.name()
   console.log({ name })
-  const tokenURI = await ethersContract.tokenURI(data.tokenId)
+  const tokenURI = await ethersContract.uri(data.tokenId)
   console.log({ tokenURI })
 
   return ''
