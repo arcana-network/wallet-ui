@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, Ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -12,7 +12,7 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { getAccountHandler } from '@/utils/accountHandler'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
@@ -48,8 +48,7 @@ const tokenList = ref([
 const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0].symbol)
 const selectedTokenBalance = ref('0')
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+const accountHandler = getAccountHandler()
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
@@ -74,26 +73,41 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+let baseFeePoll
+let gasSliderPoll
+
 onMounted(async () => {
   showLoader('Loading')
   try {
     setTokenList()
     await fetchTokenBalance()
+    await fetchBaseFee()
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      const data = await getGasPrice(chainId)
-      gasPrices.value = data
+      await fetchGasSliderValues()
+      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
     }
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
-    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    baseFeePoll = setInterval(fetchBaseFee, 2000)
   } catch (err) {
     console.log({ err })
-    gasPrices.value = {}
   } finally {
     hideLoader()
   }
 })
+
+onUnmounted(() => {
+  if (baseFeePoll) clearInterval(baseFeePoll)
+  if (gasSliderPoll) clearInterval(gasSliderPoll)
+})
+
+async function fetchBaseFee() {
+  const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
+  baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+}
+
+async function fetchGasSliderValues() {
+  const data = await getGasPrice(chainId)
+  gasPrices.value = data
+}
 
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
@@ -104,8 +118,6 @@ async function fetchTokenBalance() {
     selectedTokenBalance.value = walletBalance
   } else {
     const balance = await getTokenBalance({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
       contractAddress: tokenInfo.address,
     })
@@ -142,11 +154,10 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending')
   try {
-    const accountHandler = new AccountHandler(userStore.privateKey)
+    const accountHandler = getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
-    accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
     if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),

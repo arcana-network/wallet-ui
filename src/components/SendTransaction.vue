@@ -11,8 +11,7 @@ import {
 } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
-import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { getAccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { useImage } from '@/utils/useImage'
 
@@ -28,13 +27,11 @@ const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
-const userStore = useUserStore()
 const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
 
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+const accountHandler = getAccountHandler()
 
 const gasPrices: Ref<object> = ref({})
 

@@ -6,8 +6,6 @@ import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
-import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import debounce from '@/utils/debounce'
 import { formatValueToUSD } from '@/utils/formatUSD'
 import { convertGweiToEth } from '@/utils/gweiToEth'
@@ -37,10 +35,6 @@ const props = defineProps({
 onMounted(init)
 
 const rpcStore = useRpcStore()
-const userStore = useUserStore()
-
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasFee = ref(0)
 const transactionTime = ref(null)

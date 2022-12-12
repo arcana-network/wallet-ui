@@ -3,16 +3,14 @@ import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
 import { store } from '@/store'
-import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { getAccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
 
 const userStore = useUserStore(store)
-const rpcStore = useRpcStore(store)
 
 type ChainId = string
 
@@ -150,8 +148,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       chainId,
       customToken,
     }: TransactionFetchParams) {
-      const accountHandler = new AccountHandler(userStore.privateKey)
-      accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+      const accountHandler = getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
@@ -224,8 +221,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         ],
       }
 
-      const accountHandler = new AccountHandler(userStore.privateKey)
-      accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+      const accountHandler = getAccountHandler()
       accountHandler.provider.once(filter, async (log) => {
         currentActivity.status = 'Success'
         currentActivity.txHash = log.transactionHash

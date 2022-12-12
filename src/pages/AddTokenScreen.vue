@@ -104,8 +104,6 @@ async function validateAndPopulateContract() {
   }
   try {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       contractAddress: tokenContract.address,
     })
     tokenContract.symbol = symbol
