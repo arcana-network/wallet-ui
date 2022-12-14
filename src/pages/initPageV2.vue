@@ -42,7 +42,7 @@ async function init() {
   isLoading.value = true
   try {
     app.setAppId(`${appId}`)
-    authProvider = await getAuthProvider(`${appId}`, true)
+    authProvider = await getAuthProvider(`${appId}`)
 
     parentConnection = createInitParentConnection({
       ...penpalMethods,
