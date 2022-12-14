@@ -12,6 +12,7 @@ import { getIconAsset } from '@/utils/useImage'
 
 type ActivityViewProps = {
   currencyExchangeRate: number | string | null
+  filterOperations: string[]
 }
 
 const props = defineProps<ActivityViewProps>()
@@ -31,7 +32,11 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   if (!activitiesInStore) {
     return []
   }
-  return [...activitiesInStore]
+  return [
+    ...activitiesInStore.filter((activity) =>
+      props.filterOperations.includes(activity.operation)
+    ),
+  ]
 })
 
 function getTransactionIcon(operation: TransactionOps | FileOps) {

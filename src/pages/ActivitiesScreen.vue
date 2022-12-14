@@ -26,6 +26,12 @@ const filters = [
   },
 ]
 
+const filters_operations_map = {
+  all: ['Send', 'Receive', 'Contract Deployment', 'Contract Interaction'],
+  'app-initiated': ['Contract Deployment', 'Contract Interaction'],
+  'user-initiated': ['Send', 'Receive'],
+}
+
 onMounted(() => {
   getCurrencyExchangeRate()
 })
@@ -118,7 +124,10 @@ async function getCurrencyExchangeRate() {
       </div>
     </div>
     <div class="flex-1">
-      <ActivityView :currency-exchange-rate="exchangeRate" />
+      <ActivityView
+        :currency-exchange-rate="exchangeRate"
+        :filter-operations="filters_operations_map[selectedFilter]"
+      />
     </div>
   </div>
 </template>
