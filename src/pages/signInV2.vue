@@ -136,7 +136,7 @@ async function init() {
     window.addEventListener('message', windowEventHandler)
     app.setAppId(`${appId}`)
 
-    authProvider = await getAuthProvider(`${appId}`, true)
+    authProvider = await getAuthProvider(`${appId}`)
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 

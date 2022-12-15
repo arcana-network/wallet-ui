@@ -215,13 +215,14 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode)
 }
 
-async function handleLogout() {
+async function handleLogout(isV2 = false) {
   const parentConnectionInstance = await parentConnection.promise
   const authProvider = await getAuthProvider(appStore.id)
   await userStore.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
   setTimeout(() => {
-    router.push(`/${appStore.id}/login`)
+    const route = isV2 ? `/${appStore.id}/v2/login` : `/${appStore.id}/login`
+    router.push(route)
   })
 }
 
