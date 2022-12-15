@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+import Activities from '@/pages/ActivitiesScreen.vue'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import InitPage from '@/pages/backCompat/initPage.vue'
 import LoginRedirect from '@/pages/backCompat/loginRedirect.vue'
@@ -57,6 +58,11 @@ const routes = [
     name: 'addToken',
     path: '/addToken',
     component: AddTokenScreen,
+  },
+  {
+    name: 'activities',
+    path: '/activities',
+    component: Activities,
   },
 ]
 
