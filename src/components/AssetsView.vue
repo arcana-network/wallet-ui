@@ -19,7 +19,7 @@ function fetchStoredAssetContracts(): AssetContract[] {
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {
-    return JSON.parse(assetContracts)
+    return JSON.parse(assetContracts) as AssetContract[]
   } else {
     return []
   }
@@ -70,7 +70,7 @@ async function getAssetsBalance() {
 }
 
 function handleAddToken() {
-  router.push({ name: 'addToken' })
+  router.push({ name: 'AddToken' })
 }
 
 onMounted(getAssetsBalance)

@@ -11,12 +11,12 @@ import { useUserStore } from '@/store/user'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 
 const router = useRouter()
-const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
-  (address) => ({
+const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap)
+  .map((address) => ({
     ...contractMap[address],
     address,
-  })
-)
+  }))
+  .filter((contract) => contract.erc20 === true)
 const rpcStore = useRpcStore()
 const toast = useToast()
 const userStore = useUserStore()
@@ -32,11 +32,13 @@ const tokenContract: AssetContract = reactive({
 })
 
 function handleSearchToken(selectedTokenContract: EthAssetContract) {
-  tokenContract.address = selectedTokenContract.address
-  tokenContract.symbol = selectedTokenContract.symbol
-  tokenContract.decimals = selectedTokenContract.decimals
-  tokenContract.logo = selectedTokenContract.logo
-  tokenContract.name = selectedTokenContract.name
+  if (selectedTokenContract) {
+    tokenContract.address = selectedTokenContract.address
+    tokenContract.symbol = selectedTokenContract.symbol
+    tokenContract.decimals = selectedTokenContract.decimals
+    tokenContract.logo = selectedTokenContract.logo
+    tokenContract.name = selectedTokenContract.name
+  }
 }
 
 function handleCancel() {
@@ -106,6 +108,7 @@ async function validateAndPopulateContract() {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
       contractAddress: tokenContract.address,
     })
+    console.log({ symbol, decimals })
     tokenContract.symbol = symbol
     tokenContract.decimals = decimals
     return true
@@ -166,7 +169,7 @@ watch(
               v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
-              class="text-base p-4 input"
+              class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
               required
               autocomplete="off"
             />

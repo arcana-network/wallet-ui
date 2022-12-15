@@ -148,7 +148,7 @@ onBeforeRouteLeave((to) => {
         </div>
         <div class="flex w-full text-sm sm:text-xs justify-center">
           <button
-            class="home__footer-button-outline rounded-xl border-2 border-solid w-1/2"
+            class="home__footer-button-outline rounded-xl border-2 border-solid w-1/2 uppercase"
             @click="handleLogout"
           >
             Logout
@@ -156,21 +156,21 @@ onBeforeRouteLeave((to) => {
         </div>
       </div>
     </div>
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <PrivateKeyCautionModal
+        v-if="showPrivateKeyCautionModal"
+        @proceed="handleProceed"
+        @close="handleHidePrivateKeyCautionModal"
+      />
+      <ExportKeyModal
+        v-if="showExportKeyModal"
+        :private-key="privateKey"
+        @copy="copyToClipboard(privateKey, 'Private key copied')"
+        @download="handlePrivateKeyDownload"
+        @close="handleHideExportKeyModal"
+      />
+    </Teleport>
   </div>
-  <Teleport v-if="modalStore.show" to="#modal-container">
-    <PrivateKeyCautionModal
-      v-if="showPrivateKeyCautionModal"
-      @proceed="handleProceed"
-      @close="handleHidePrivateKeyCautionModal"
-    />
-    <ExportKeyModal
-      v-if="showExportKeyModal"
-      :private-key="privateKey"
-      @copy="copyToClipboard(privateKey, 'Private key copied')"
-      @download="handlePrivateKeyDownload"
-      @close="handleHideExportKeyModal"
-    />
-  </Teleport>
 </template>
 
 <style scoped>

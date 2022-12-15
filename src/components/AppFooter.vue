@@ -45,13 +45,13 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link :to="{ name: 'nfts' }">
+      <router-link :to="{ name: 'Nfts' }">
         <img
-          :src="getAppropriateIcon('nfts-icon', 'nfts')"
+          :src="getAppropriateIcon('nfts-icon', 'Nfts')"
           alt="nfts"
           class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white': isCurrentRoute('nfts'),
+            'bg-black dark:bg-white': isCurrentRoute('Nfts'),
           }"
         />
       </router-link>
