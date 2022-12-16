@@ -12,6 +12,9 @@
     --input-box-shadow: inset -1px -1px 1px rgb(255 255 255 / 70%),
       inset 1px 1px 2px rgb(0 0 0 / 5%);
     --tab-view-border-color: #aeaec0;
+    --nft-card-background: #dadada;
+    --nft-card-title: #aaa;
+    --nft-card-collection: #808080;
   }
 
   .dark {
@@ -24,6 +27,7 @@
     --tab-container-shadow: 5px 5px 10px rgb(0 0 0 / 15%);
     --input-box-shadow: var(--debossed-box-shadow);
     --tab-view-border-color: rgb(247 247 247 / 20%);
+    --nft-card-background: #202020;
   }
 
   .tab-shadow {

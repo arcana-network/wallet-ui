@@ -3,34 +3,25 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { NFT } from '@/models/NFT'
+import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { useImage } from '@/utils/useImage'
 
 const router = useRouter()
+const userStore = useUserStore()
+const rpcStore = useRpcStore()
+const getImage = useImage()
 
 const loader = reactive({
   show: false,
   message: '',
 })
 
-const nfts: NFT[] = [
-  {
-    name: 'Monkey.gif',
-    type: 'erc721',
-    tokenId: '1',
-    address: 'dskfjhsf',
-    imageUrl: 'fjkdjfks',
-    collectionName: 'BaycDao',
-    description: 'ksdjfs',
-  },
-  {
-    name: 'Monkey2.gif',
-    type: 'erc721',
-    tokenId: '1',
-    address: 'dskfjhsf',
-    imageUrl: 'fjkdjfks',
-    collectionName: 'BaycDao',
-    description: 'ksdjfs',
-  },
-]
+const storedNftsString = localStorage.getItem(
+  `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
+)
+
+const nfts: NFT[] = storedNftsString?.length ? JSON.parse(storedNftsString) : []
 
 function handleClose() {
   router.back()
@@ -52,16 +43,39 @@ function handleAddToken() {
       >
         <h1 class="home__title w-full text-left font-semibold">Manage NFTs</h1>
         <div
-          class="home__body-container flex flex-col w-full h-full text-left p-2 debossed-card flex-grow divide-y-[1px] divide-gray-400 dark:divide-gray-800"
+          class="home__body-container flex flex-col w-full h-full max-h-[440px] text-left p-2 debossed-card flex-grow divide-y-[1px] divide-gray-400 dark:divide-gray-800"
         >
-          <div class="flex flex-col flex-grow">
+          <div
+            v-if="nfts.length"
+            class="flex flex-col flex-grow overflow-y-scroll -mr-[6px]"
+          >
             <div
               v-for="nft in nfts"
               :key="`nft-${nft.address}-${nft.tokenId}`"
-              class="cursor-pointer select-none p-3 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+              :title="`${nft.collectionName} (${nft.tokenId}) - ${nft.name}`"
+              class="cursor-pointer select-none p-3 rounded-[10px] flex justify-between gap-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white nft-container"
+              @click.stop="
+                router.push({
+                  name: 'EditNft',
+                  params: {
+                    address: nft.address,
+                    collectionName: nft.collectionName,
+                    tokenId: nft.tokenId,
+                  },
+                })
+              "
             >
-              {{ nft.name }}
+              <span class="overflow-hidden whitespace-nowrap text-ellipsis">
+                {{ nft.collectionName }} ({{ nft.tokenId }})
+              </span>
+              <img :src="getImage('edit-icon')" class="opacity-0" />
             </div>
+          </div>
+          <div v-else class="flex flex-col flex-grow">
+            <span
+              class="color-secondary m-auto font-semibold text-sm sm:text-xs"
+              >No NFTs added</span
+            >
           </div>
           <div class="flex justify-center">
             <div
@@ -122,5 +136,9 @@ function handleAddToken() {
   color: var(--filled-button-fg-color);
   background-color: var(--filled-button-bg-color);
   border-radius: 10px;
+}
+
+.nft-container:hover img {
+  opacity: 1;
 }
 </style>

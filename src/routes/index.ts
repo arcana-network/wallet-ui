@@ -63,6 +63,7 @@ const routes = [
     name: 'EditNft',
     path: '/nfts/edit',
     component: AddOrEditNFTScreen,
+    props: true,
   },
   {
     name: 'requests',

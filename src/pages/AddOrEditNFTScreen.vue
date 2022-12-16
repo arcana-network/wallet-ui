@@ -15,10 +15,20 @@ import {
   getERCStandard,
   getTokenUri,
 } from '@/utils/nftUtils'
+import { useImage } from '@/utils/useImage'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const getImage = useImage()
+
+type EditNFTProps = {
+  collectionName?: string
+  address?: string
+  tokenId?: string
+}
+
+const props = defineProps<EditNFTProps>()
 
 const canEdit = route.name === 'EditNft'
 const showAddressOutline = ref(false)
@@ -38,9 +48,9 @@ const loader = reactive({
 })
 
 const nftContract = reactive({
-  address: '',
-  name: '',
-  tokenId: '',
+  address: props.address || '',
+  name: props.collectionName || '',
+  tokenId: props.tokenId || '',
 })
 
 function handleSearchToken(selectedNftContract: EthAssetContract) {
@@ -66,7 +76,7 @@ async function handleSubmit() {
   const storedNftStrings = localStorage.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
-  const storedNfts: NFT[] = storedNftStrings?.length
+  let storedNfts: NFT[] = storedNftStrings?.length
     ? JSON.parse(storedNftStrings)
     : []
 
@@ -92,7 +102,6 @@ async function handleSubmit() {
   if (tokenUri) {
     try {
       const tokenDetails = await getNFTDetails(tokenUri, nftContract.tokenId)
-      console.log({ tokenDetails })
       const imageUrl = tokenDetails.image_url || tokenDetails.image
       const sanitizedImageUrl = sanitizeUrl(imageUrl) as string
       const animationUrl = tokenDetails.animation_url || tokenDetails.animation
@@ -114,7 +123,23 @@ async function handleSubmit() {
         animationUrl: sanitizedAnimationUrl,
         attributes,
       }
+
+      if (canEdit) {
+        storedNfts = storedNfts.filter(
+          (nft) =>
+            nft.address !== props.address || nft.tokenId !== props.tokenId
+        )
+      }
       storedNfts.push(nftDetails)
+      storedNfts.sort((nft1, nft2) => {
+        if (nft1.tokenId > nft2.tokenId) {
+          return 1
+        }
+        if (nft2.tokenId > nft1.tokenId) {
+          return -1
+        }
+        return 0
+      })
       storedNfts.sort((nft1, nft2) => {
         if (nft1.collectionName > nft2.collectionName) {
           return 1
@@ -129,6 +154,7 @@ async function handleSubmit() {
         `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
         JSON.stringify(storedNfts)
       )
+      router.back()
     } catch (e) {
       console.error(e)
       toast.error("Couldn't fetch NFT details")
@@ -136,6 +162,47 @@ async function handleSubmit() {
   } else {
     toast.error('Invalid token ID')
   }
+  loader.show = false
+}
+
+function handleDeleteNft() {
+  loader.show = true
+  loader.message = 'Deleting NFT...'
+  const storedNftStrings = localStorage.getItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
+  )
+  let storedNfts: NFT[] = storedNftStrings?.length
+    ? JSON.parse(storedNftStrings)
+    : []
+
+  storedNfts = storedNfts.filter(
+    (nft) => nft.address !== props.address || nft.tokenId !== props.tokenId
+  )
+
+  storedNfts.sort((nft1, nft2) => {
+    if (nft1.tokenId > nft2.tokenId) {
+      return 1
+    }
+    if (nft2.tokenId > nft1.tokenId) {
+      return -1
+    }
+    return 0
+  })
+  storedNfts.sort((nft1, nft2) => {
+    if (nft1.collectionName > nft2.collectionName) {
+      return 1
+    }
+    if (nft2.collectionName > nft1.collectionName) {
+      return -1
+    }
+    return 0
+  })
+
+  localStorage.setItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
+    JSON.stringify(storedNfts)
+  )
+  router.back()
   loader.show = false
 }
 
@@ -165,12 +232,17 @@ watch(
       <p class="sm:text-xs text-black dark:text-white">{{ loader.message }}</p>
     </div>
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
-      <h2 v-if="canEdit" class="font-semibold mb-5 add-token__title">
-        Edit NFT
-      </h2>
+      <div v-if="canEdit" class="flex justify-between items-start">
+        <h2 class="font-semibold mb-5 add-token__title">Edit NFT</h2>
+        <img
+          :src="getImage('trash-icon')"
+          class="cursor-pointer"
+          @click.stop="handleDeleteNft"
+        />
+      </div>
       <h2 v-else class="font-semibold mb-5 add-token__title">Add NFT</h2>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
-        <div v-if="rpcStore.isEthereumMainnet">
+        <div v-if="rpcStore.isEthereumMainnet && !canEdit">
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"
               >Search Token</label

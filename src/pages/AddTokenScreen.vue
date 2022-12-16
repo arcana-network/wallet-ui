@@ -108,7 +108,6 @@ async function validateAndPopulateContract() {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
       contractAddress: tokenContract.address,
     })
-    console.log({ symbol, decimals })
     tokenContract.symbol = symbol
     tokenContract.decimals = decimals
     return true

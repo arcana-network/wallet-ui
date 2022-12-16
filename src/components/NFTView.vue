@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
+import { onMounted, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFTContract, NFT } from '@/models/NFT'
@@ -12,14 +12,14 @@ import { getIconAsset } from '@/utils/useImage'
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
-const nfts: NFT[] = reactive([])
+const nfts: Ref<NFT[]> = ref([])
 
-function fetchStoredNftContracts(): NFTContract[] {
-  const assetContracts = localStorage.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nft-contracts`
+function fetchStoredNfts(): NFT[] {
+  const storedNftsString = localStorage.getItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
-  if (assetContracts) {
-    return (JSON.parse(assetContracts) as NFTContract[]).filter(
+  if (storedNftsString) {
+    return (JSON.parse(storedNftsString) as NFT[]).filter(
       (contract) => contract.type === 'erc721' || contract.type === 'erc1155'
     )
   } else {
@@ -28,27 +28,29 @@ function fetchStoredNftContracts(): NFTContract[] {
 }
 
 async function getNFTAssets() {
-  const storedNftContracts = fetchStoredNftContracts()
-  storedNftContracts.forEach((contract) => {
-    nfts.push({
-      type: contract.type,
-      name: contract.name,
-      balance: 0,
-      imageUrl: contract.imageUrl,
-      animationUrl: contract.animationUrl,
-      description: contract.description,
-      collectionName: contract.collectionName,
-      tokenId: contract.tokenId,
-      address: contract.address,
+  nfts.value = []
+  const storedNfts = fetchStoredNfts()
+  console.log(storedNfts)
+  storedNfts.forEach((nft) => {
+    nfts.value.push({
+      type: nft.type,
+      name: nft.name,
+      balance: nft.balance,
+      imageUrl: nft.imageUrl,
+      animationUrl: nft.animationUrl,
+      description: nft.description,
+      collectionName: nft.collectionName,
+      tokenId: nft.tokenId,
+      address: nft.address,
     })
   })
-  storedNftContracts.forEach(async (contract) => {
-    try {
-      //
-    } catch (err) {
-      console.error({ err })
-    }
-  })
+  // storedNfts.forEach(async (contract) => {
+  //   try {
+  //     //
+  //   } catch (err) {
+  //     console.error({ err })
+  //   }
+  // })
 }
 
 function handleManageNFT() {
@@ -61,23 +63,41 @@ rpcStore.$subscribe(getNFTAssets)
 </script>
 
 <template>
-  <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
-    <div class="flex flex-col pt-5 pb-1 gap-5">
+  <div class="flex flex-col divide-y-[1px] max-h-72 divide-gray-600">
+    <div
+      v-if="nfts.length"
+      class="grid grid-cols-2 gap-[10px] pt-5 pb-4 overflow-y-scroll mx-4 mr-[6px]"
+    >
       <div
         v-for="nft in nfts"
         :key="`nft-${nft.address}-${nft.tokenId}`"
-        class="flex justify-between items-center"
+        class="nft-card rounded cursor-pointer"
+        @click.stop="void 0"
       >
-        <div class="flex items-center gap-3">
+        <div
+          class="h-[136px] sm:h-[96px] rounded m-1 bg-center bg-cover"
+          :style="{ 'background-image': `url(${nft.imageUrl})` }"
+        ></div>
+        <div class="flex flex-col gap-1 p-[10px]">
           <span
-            class="assets-view__asset-name leading-none overflow-hidden whitespace-nowrap text-ellipsis"
+            class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
             :title="nft.name"
             >{{ nft.name }}</span
+          >
+          <span
+            class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+            :title="nft.collectionName"
+            >{{ nft.collectionName }}</span
           >
         </div>
       </div>
     </div>
-    <div class="flex justify-center">
+    <div v-else class="flex justify-between p-5">
+      <span class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+        >No NFTs added</span
+      >
+    </div>
+    <div class="flex justify-center mx-4">
       <div
         class="flex py-4 gap-2 items-center cursor-pointer"
         @click.stop="handleManageNFT"
@@ -94,5 +114,19 @@ rpcStore.$subscribe(getNFTAssets)
   max-width: 12ch;
   font-size: var(--fs-350);
   line-height: 1.5;
+}
+
+.nft-card {
+  background: var(--nft-card-background);
+}
+
+.nft-card-title {
+  font-size: var(--fs-300);
+  color: var(--nft-card-title);
+}
+
+.nft-card-collection {
+  font-size: var(--fs-250);
+  color: var(--nft-card-collection);
 }
 </style>
