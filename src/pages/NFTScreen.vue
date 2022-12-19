@@ -22,6 +22,7 @@ const appStore = useAppStore()
 const rpcStore = useRpcStore()
 const parentConnectionStore = useParentConnectionStore()
 const { selectedChainId } = storeToRefs(rpcStore)
+const refreshState = ref(false)
 const loader = ref({
   show: false,
   message: '',
@@ -86,8 +87,7 @@ async function getRpcConfig() {
 }
 
 async function handleRefresh() {
-  showLoader('Fetching Wallet Balance')
-  hideLoader()
+  refreshState.value = true
 }
 
 onBeforeRouteLeave((to) => {
@@ -104,7 +104,10 @@ onBeforeRouteLeave((to) => {
     <div class="pb-5 flex flex-col gap-1">
       <div class="font-semibold">Assets</div>
       <div class="wallet__card rounded-[10px] flex flex-col">
-        <NFTView />
+        <NFTView
+          :refresh-state="refreshState"
+          @refreshed="refreshState = false"
+        />
       </div>
     </div>
   </div>

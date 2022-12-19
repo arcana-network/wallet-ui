@@ -103,6 +103,7 @@ async function handleSubmit() {
   })
 
   if (!hasOwnership.owner) {
+    loader.show = false
     return toast.error("You don't have ownership for this NFT")
   }
 

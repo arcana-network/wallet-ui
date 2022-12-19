@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref, reactive } from 'vue'
+import { onMounted, ref, type Ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
@@ -9,6 +9,13 @@ import { checkOwnership } from '@/utils/nftUtils'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
+
+type NFTViewProps = {
+  refreshState?: boolean
+}
+
+const props = defineProps<NFTViewProps>()
+const emit = defineEmits(['refreshed'])
 
 const router = useRouter()
 const nfts: Ref<NFT[]> = ref([])
@@ -101,6 +108,16 @@ function getNftDetailValues(nft: NFT) {
 onMounted(getNFTAssets)
 
 rpcStore.$subscribe(getNFTAssets)
+
+watch(
+  () => props.refreshState,
+  async () => {
+    if (props.refreshState) {
+      await getNFTAssets()
+      emit('refreshed')
+    }
+  }
+)
 </script>
 
 <template>
