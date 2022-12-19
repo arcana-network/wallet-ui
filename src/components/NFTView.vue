@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue'
+import { onMounted, ref, type Ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { checkOwnership } from '@/utils/nftUtils'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
 const nfts: Ref<NFT[]> = ref([])
+const loader = reactive({
+  show: false,
+  message: 'Loading saved NFTs...',
+})
 
 function fetchStoredNfts(): NFT[] {
   const storedNftsString = localStorage.getItem(
@@ -25,6 +30,7 @@ function fetchStoredNfts(): NFT[] {
 }
 
 async function getNFTAssets() {
+  loader.show = true
   nfts.value = []
   const storedNfts = fetchStoredNfts()
   storedNfts.forEach((nft) => {
@@ -41,13 +47,40 @@ async function getNFTAssets() {
       attributes: nft.attributes,
     })
   })
-  // storedNfts.forEach(async (contract) => {
-  //   try {
-  //     //
-  //   } catch (err) {
-  //     console.error({ err })
-  //   }
-  // })
+  const nftsToRemoveIndex: number[] = []
+  const nftCheckOwnerPromises: Promise<any>[] = []
+  nfts.value.forEach((nft, index) => {
+    nftCheckOwnerPromises.push(checkNftOwnership(nft, index, nftsToRemoveIndex))
+  })
+
+  await Promise.all(nftCheckOwnerPromises)
+
+  nfts.value = nfts.value.filter(
+    (nft, index) => !nftsToRemoveIndex.includes(index)
+  )
+
+  localStorage.setItem(
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
+    JSON.stringify(nfts.value)
+  )
+
+  loader.show = false
+}
+
+async function checkNftOwnership(
+  nft: NFT,
+  index: number,
+  nftsToRemoveIndex: number[]
+) {
+  const hasOwnership = await checkOwnership(nft.type, {
+    tokenId: nft.tokenId,
+    contractAddress: nft.address,
+  })
+  if (hasOwnership.owner) {
+    nft.balance = hasOwnership.balance
+  } else {
+    nftsToRemoveIndex.push(index)
+  }
 }
 
 function handleManageNFT() {
@@ -58,8 +91,6 @@ function getNftDetailValues(nft: NFT) {
   const attributes = nft.attributes?.length
     ? JSON.stringify(nft.attributes)
     : ''
-  console.log(nft)
-  console.log(attributes)
   return {
     ...nft,
     attributes,
@@ -75,45 +106,55 @@ rpcStore.$subscribe(getNFTAssets)
   <div>
     <div class="flex flex-col divide-y-[1px] max-h-72 divide-gray-600">
       <div
-        v-if="nfts.length"
-        class="grid grid-cols-2 gap-[10px] pt-5 pb-4 overflow-y-scroll mx-4 mr-[6px]"
+        v-if="loader.show"
+        class="flex justify-center items-center flex-1flex p-5"
       >
+        <p class="m-auto font-semibold text-sm sm:text-xs px-4">
+          {{ loader.message }}
+        </p>
+      </div>
+      <div v-else>
         <div
-          v-for="nft in nfts"
-          :key="`nft-${nft.address}-${nft.tokenId}`"
-          class="nft-card rounded cursor-pointer"
-          @click.stop="
-            router.push({
-              name: 'NftDetails',
-              params: {
-                ...getNftDetailValues(nft),
-              },
-            })
-          "
+          v-if="nfts.length"
+          class="grid grid-cols-2 gap-[10px] pt-5 pb-4 overflow-y-scroll mx-4 mr-[6px]"
         >
           <div
-            class="h-[136px] sm:h-[96px] rounded m-1 bg-center bg-cover"
-            :style="{ 'background-image': `url(${nft.imageUrl})` }"
-          ></div>
-          <div class="flex flex-col gap-1 p-[10px]">
-            <span
-              class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
-              :title="nft.name"
-              >{{ nft.name }}</span
-            >
-            <span
-              class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
-              :title="nft.collectionName"
-              >{{ nft.collectionName }}</span
-            >
+            v-for="nft in nfts"
+            :key="`nft-${nft.address}-${nft.tokenId}`"
+            class="nft-card rounded cursor-pointer"
+            @click.stop="
+              router.push({
+                name: 'NftDetails',
+                params: {
+                  ...getNftDetailValues(nft),
+                },
+              })
+            "
+          >
+            <div
+              class="h-[136px] sm:h-[96px] rounded m-1 bg-center bg-cover"
+              :style="{ 'background-image': `url(${nft.imageUrl})` }"
+            ></div>
+            <div class="flex flex-col gap-1 p-[10px]">
+              <span
+                class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                :title="nft.name"
+                >{{ nft.name }}</span
+              >
+              <span
+                class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                :title="nft.collectionName"
+                >{{ nft.collectionName }}</span
+              >
+            </div>
           </div>
         </div>
-      </div>
-      <div v-else class="flex justify-between p-5">
-        <span
-          class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
-          >No NFTs added</span
-        >
+        <div v-else class="flex justify-between p-5">
+          <span
+            class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+            >No NFTs added</span
+          >
+        </div>
       </div>
       <div class="flex justify-center mx-4">
         <div

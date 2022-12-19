@@ -13,6 +13,7 @@ import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
+import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 
 const routes = [
@@ -49,6 +50,11 @@ const routes = [
     name: 'Nfts',
     path: '/nfts',
     component: NFTScreen,
+  },
+  {
+    name: 'SelectNft',
+    path: '/nfts/select',
+    component: SelectNftScreen,
   },
   {
     name: 'ManageNft',

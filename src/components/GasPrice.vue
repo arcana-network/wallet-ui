@@ -75,7 +75,6 @@ async function getConversionRate(gasFee) {
         EXCHANGE_RATE_CURRENCY
       )) || 0
     const gasFeeInEth = convertGweiToEth(gasFee)
-    console.log({ rate })
     conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
   } catch (err) {
     console.log(err)

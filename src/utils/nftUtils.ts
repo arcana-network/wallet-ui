@@ -92,8 +92,7 @@ async function getCollectionName(contractAddress: string) {
 
 async function check721Ownership(data: ContractParams, walletAddress: string) {
   const erc721Contract = get721Contract(data.contractAddress)
-  const ownerOfToken = erc721Contract.ownerOf(data.tokenId)
-
+  const ownerOfToken = await erc721Contract.ownerOf(data.tokenId)
   if (ownerOfToken === walletAddress) {
     return {
       owner: true,

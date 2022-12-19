@@ -100,7 +100,7 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else class="h-full">
-    <UserWallet @refresh="handleRefresh" />
+    <UserWallet page="nft" @refresh="handleRefresh" />
     <div class="pb-5 flex flex-col gap-1">
       <div class="font-semibold">Assets</div>
       <div class="wallet__card rounded-[10px] flex flex-col">
