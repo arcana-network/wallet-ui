@@ -61,6 +61,8 @@ const helpOtherTabsLogin = () => {
 }
 
 onMounted(async () => {
+  loader.value.show = true
+  loader.value.message = 'Loading...'
   helpOtherTabsLogin()
   setRpcConfigs()
   initAccounthandler()
@@ -69,6 +71,7 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  loader.value.show = false
 })
 
 watch(selectedChainId, () => {

@@ -91,25 +91,17 @@ class AccountHandler {
     const signer = this.wallet.connect(this.provider)
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
-      const hexAmount = Number(amount).toString(16)
-      return (
-        await contract.functions.safeTransferFrom(
-          from,
-          to,
-          tokenId,
-          hexAmount,
-          {
-            gasPrice: gasFees,
-          }
-        )
-      ).toString()
+      const hexAmount = '0x' + Number(amount).toString(16)
+      const tx = await contract.safeTransferFrom(from, to, tokenId, hexAmount, {
+        gasPrice: gasFees,
+      })
+      return tx.hash
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      return (
-        await contract.functions.safeTransferFrom(from, to, tokenId, {
-          gasPrice: gasFees,
-        })
-      ).toString()
+      const tx = await contract.transferFrom(from, to, tokenId, {
+        gasPrice: gasFees,
+      })
+      return tx.hash
     }
   }
 
@@ -136,7 +128,7 @@ class AccountHandler {
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
       return (
-        await contract.estimateGas.safeTransferFrom(from, to, tokenId)
+        await contract.estimateGas.transferFrom(from, to, tokenId)
       ).toString()
     }
   }

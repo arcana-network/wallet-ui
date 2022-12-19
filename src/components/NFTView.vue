@@ -9,6 +9,7 @@ import { checkOwnership } from '@/utils/nftUtils'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
+
 const router = useRouter()
 const nfts: Ref<NFT[]> = ref([])
 const loader = reactive({
@@ -113,10 +114,10 @@ rpcStore.$subscribe(getNFTAssets)
           {{ loader.message }}
         </p>
       </div>
-      <div v-else>
+      <div v-else class="overflow-y-scroll">
         <div
           v-if="nfts.length"
-          class="grid grid-cols-2 gap-[10px] pt-5 pb-4 overflow-y-scroll mx-4 mr-[6px]"
+          class="grid grid-cols-2 gap-[10px] pt-5 pb-4 mx-4 mr-[6px]"
         >
           <div
             v-for="nft in nfts"

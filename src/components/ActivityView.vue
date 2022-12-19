@@ -90,7 +90,7 @@ function calculateTotal(activity: Activity) {
 
 function getAmount(amount: bigint, isGas = false) {
   if (isGas) {
-    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 3)
+    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 5)
   }
   return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
@@ -129,6 +129,14 @@ function canShowDropdown(activity: Activity) {
             >
               {{ truncateEnd(activity.operation, 12) }}
               {{ activity.customToken.symbol }}
+            </span>
+            <span
+              v-else-if="activity.nft"
+              class="font-bold text-base leading-5"
+              :title="`${activity.operation} NFT`"
+            >
+              {{ truncateEnd(activity.operation, 12) }}
+              NFT
             </span>
             <span
               v-else
@@ -219,7 +227,7 @@ function canShowDropdown(activity: Activity) {
         <hr
           class="border-solid border-0 border-t-[1px] tab-view-border-color"
           :class="{
-            'mb-4':
+            'mb-5':
               activity.file?.recipient ||
               activity.file?.ruleHash ||
               activity.transaction,
@@ -253,6 +261,13 @@ function canShowDropdown(activity: Activity) {
         </div>
         <div v-else-if="activity.transaction">
           <div class="flex flex-col gap-5">
+            <div v-if="activity.nft" class="flex justify-center items-center">
+              <img
+                :src="activity.nft.imageUrl"
+                :title="`${activity.nft.name} by ${activity.nft.collectionName}`"
+                class="w-16 h-16 rounded-[10px]"
+              />
+            </div>
             <div class="flex justify-between">
               <div class="flex flex-col gap-[5px]">
                 <span
@@ -283,7 +298,7 @@ function canShowDropdown(activity: Activity) {
                 </span>
               </div>
             </div>
-            <div class="flex flex-col gap-4">
+            <div v-if="!activity.nft" class="flex flex-col gap-4">
               <span
                 class="font-montserrat color-secondary text-xs font-semibold"
                 >Transaction Details</span

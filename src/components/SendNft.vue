@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -32,6 +33,7 @@ const getImage = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const chainId = Number(rpcStore.selectedChainId)
+const router = useRouter()
 
 const recipientWalletAddress = ref('')
 const gasFeeInGwei = ref('')
@@ -42,15 +44,7 @@ const loader = ref({
   show: false,
   message: '',
 })
-const tokenList = ref([
-  {
-    symbol: rpcStore.nativeCurrency.symbol,
-    decimals: 18,
-    address: '',
-  },
-])
 const baseFee = ref('0')
-const selectedToken = ref(tokenList.value[0].symbol)
 const accountHandler = getAccountHandler()
 
 watch(
@@ -131,11 +125,12 @@ async function handleSendToken() {
       1,
       gasFees
     )
-    activitiesStore.fetchAndSaveNFTActivityFromHash({
+    await activitiesStore.fetchAndSaveNFTActivityFromHash({
       chainId: rpcStore.selectedRpcConfig?.chainId,
       txHash,
       nft: props.nft,
     })
+    router.back()
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
     if (err && err.reason) {
