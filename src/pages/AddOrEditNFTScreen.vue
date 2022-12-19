@@ -14,6 +14,7 @@ import {
   getCollectionName,
   getERCStandard,
   getTokenUri,
+  checkOwnership,
 } from '@/utils/nftUtils'
 import { useImage } from '@/utils/useImage'
 
@@ -95,6 +96,16 @@ async function handleSubmit() {
     loader.show = false
     return toast.error('Unsupported NFT')
   }
+
+  const hasOwnership = await checkOwnership(ercStandard, {
+    tokenId: nftContract.tokenId,
+    contractAddress: nftContract.address,
+  })
+
+  if (!hasOwnership.owner) {
+    return toast.error("You don't have ownership for this NFT")
+  }
+
   const tokenUri = await getTokenUri(ercStandard, {
     tokenId: nftContract.tokenId,
     contractAddress: nftContract.address,
@@ -112,7 +123,7 @@ async function handleSubmit() {
             value: attribute.value,
           }))
         : []
-      const nftDetails: NFTContract = {
+      const nftDetails: NFT = {
         tokenId: nftContract.tokenId,
         type: ercStandard,
         address: nftContract.address,
@@ -122,6 +133,7 @@ async function handleSubmit() {
         imageUrl: sanitizedImageUrl,
         animationUrl: sanitizedAnimationUrl,
         attributes,
+        balance: hasOwnership.balance,
       }
 
       if (canEdit) {

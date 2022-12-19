@@ -41,7 +41,7 @@ async function copyToClipboard(value: string) {
   <div class="space-y-2 max-h-full flex flex-col justify-between">
     <div class="space-y-1">
       <div class="flex items-center justify-between">
-        <p class="text-xl sm:text-sm">Receive Tokens</p>
+        <p class="text-xl sm:text-sm font-semibold">Receive Tokens</p>
         <button class="h-auto" @click="emits('close')">
           <img :src="getImage('close-icon')" alt="close icon" class="sm:h-2" />
         </button>
@@ -52,7 +52,7 @@ async function copyToClipboard(value: string) {
       </p>
     </div>
     <div class="space-y-1 space-x-2 flex justify-center items-baseline">
-      <p class="text-xs text-zinc-400">Network:</p>
+      <p class="text-xs text-zinc-400 font-semibold">Network:</p>
       <p class="text-base sm:text-[12px]">
         {{ rpcStore.selectedRpcConfig?.chainName }}
       </p>

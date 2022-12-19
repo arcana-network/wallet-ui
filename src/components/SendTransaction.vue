@@ -86,7 +86,7 @@ function handleSetGasPrice(value) {
   <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
       <div class="flex justify-between">
-        <p class="text-xl sm:text-sm">Send Transaction</p>
+        <p class="text-xl sm:text-sm font-semibold">Send Transaction</p>
       </div>
       <p class="text-xs text-zinc-400">
         {{ appStore.name }} requests your permission to send this transaction to
@@ -105,7 +105,10 @@ function handleSetGasPrice(value) {
       </p>
     </div>
     <div class="space-y-1">
-      <label class="text-xs text-zinc-400" for="recipientWalletAddress">
+      <label
+        class="text-xs text-zinc-400 font-semibold"
+        for="recipientWalletAddress"
+      >
         Origin
       </label>
       <p

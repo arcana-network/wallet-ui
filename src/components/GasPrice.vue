@@ -75,6 +75,7 @@ async function getConversionRate(gasFee) {
         EXCHANGE_RATE_CURRENCY
       )) || 0
     const gasFeeInEth = convertGweiToEth(gasFee)
+    console.log({ rate })
     conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
   } catch (err) {
     console.log(err)
@@ -150,11 +151,13 @@ function handleCustomGasPriceInput(value) {
   </button>
   <div v-if="showCustomGasFeeInput" class="space-y-1">
     <div class="space-x-1 mb-2 text-xs text-zinc-400">
-      <span>Base Fee:</span>
+      <span class="font-semibold">Base Fee:</span>
       <span class="text-black dark:text-white">{{ props.baseFee }} Gwei</span>
     </div>
     <div class="flex justify-between sm:flex-col sm:space-y-1">
-      <label class="text-xs text-zinc-400" for="amount"> Custom Fee </label>
+      <label class="text-xs text-zinc-400 font-semibold" for="amount">
+        Set Custom Fee
+      </label>
       <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
         <span>Conversion Rate:</span>
         <span class="text-black dark:text-white">{{

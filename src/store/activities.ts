@@ -2,6 +2,7 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
+import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
 import { getAccountHandler } from '@/utils/accountHandler'
@@ -71,6 +72,13 @@ type Activity = {
     amount: string
     symbol: string
   }
+  nft?: {
+    address: string
+    tokenId: string
+    imageUrl: string
+    collectionName: string
+    name: string
+  }
 }
 
 type ActivitiesState = {
@@ -89,6 +97,12 @@ type TransactionFetchParams = {
   txHash: string
   chainId: ChainId
   customToken?: CustomTokenActivity
+}
+
+type TransactionFetchNftParams = {
+  txHash: string
+  chainId: ChainId
+  nft: NFT
 }
 
 function getTxOperation(
@@ -171,6 +185,47 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           to: remoteTransaction.to,
         },
         customToken,
+      }
+      this.saveActivity(chainId, activity)
+      if (!remoteTransaction.blockNumber) {
+        remoteTransaction.wait()
+        this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+      }
+    },
+    async fetchAndSaveNFTActivityFromHash({
+      txHash,
+      chainId,
+      nft,
+    }: TransactionFetchNftParams) {
+      const accountHandler = getAccountHandler()
+      const remoteTransaction = await accountHandler.provider.getTransaction(
+        txHash
+      )
+      const activity: Activity = {
+        operation: 'Send',
+        txHash,
+        transaction: {
+          hash: txHash,
+          amount: remoteTransaction.value.toBigInt(),
+          nonce: remoteTransaction.nonce,
+          gasLimit: remoteTransaction.gasLimit.toBigInt(),
+          gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+          gasUsed: remoteTransaction.gasLimit.toBigInt(),
+          data: remoteTransaction.data,
+        },
+        status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+        date: new Date(),
+        address: {
+          from: remoteTransaction.from,
+          to: remoteTransaction.to,
+        },
+        nft: {
+          address: nft.address,
+          tokenId: nft.tokenId,
+          imageUrl: nft.imageUrl,
+          name: nft.name,
+          collectionName: nft.collectionName,
+        },
       }
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {

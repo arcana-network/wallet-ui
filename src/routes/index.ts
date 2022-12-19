@@ -9,6 +9,7 @@ import HomeScreen from '@/pages/homeScreen.vue'
 import InitPageV2 from '@/pages/initPageV2.vue'
 import LoginRedirectV2 from '@/pages/loginRedirectV2.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
+import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
@@ -63,6 +64,12 @@ const routes = [
     name: 'EditNft',
     path: '/nfts/edit',
     component: AddOrEditNFTScreen,
+    props: true,
+  },
+  {
+    name: 'NftDetails',
+    path: '/nfts/details',
+    component: NftDetailsScreen,
     props: true,
   },
   {

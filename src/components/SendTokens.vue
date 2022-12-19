@@ -276,7 +276,7 @@ async function handleShowPreview() {
     <div v-else class="space-y-3 overflow-auto flex flex-col justify-between">
       <div class="flex flex-col space-y-3 sm:space-y-2">
         <div class="flex justify-between">
-          <p class="text-xl sm:text-sm">Send Tokens</p>
+          <p class="text-xl sm:text-sm font-semibold">Send Tokens</p>
           <button class="h-auto" @click="emits('close')">
             <img :src="getImage('close-icon')" alt="close icon" />
           </button>
@@ -287,7 +287,7 @@ async function handleShowPreview() {
         </p>
       </div>
       <div class="space-y-1">
-        <p class="text-xs text-zinc-400">Network</p>
+        <p class="text-xs text-zinc-400 font-semibold">Network</p>
         <p class="text-base sm:text-sm flex gap-2">
           <img
             :src="getImage(rpcStore.selectedRpcConfig.favicon)"
@@ -301,7 +301,10 @@ async function handleShowPreview() {
         @submit.prevent="handleShowPreview"
       >
         <div class="space-y-1">
-          <label class="text-xs text-zinc-400" for="recipientWalletAddress">
+          <label
+            class="text-xs text-zinc-400 font-semibold"
+            for="recipientWalletAddress"
+          >
             Recipient’s Wallet Address
           </label>
           <div
@@ -316,7 +319,7 @@ async function handleShowPreview() {
               v-model="recipientWalletAddress"
               required
               type="text"
-              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none"
+              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none overflow-hidden text-ellipsis"
               placeholder="6yhjtikn7..."
               @focus="isWalletAddressFocused = true"
               @blur="isWalletAddressFocused = false"
@@ -325,9 +328,11 @@ async function handleShowPreview() {
         </div>
         <div class="space-y-1">
           <div class="flex justify-between sm:flex-col sm:space-y-1">
-            <label class="text-xs text-zinc-400" for="amount"> Amount </label>
+            <label class="text-xs text-zinc-400 font-semibold" for="amount">
+              Amount
+            </label>
             <p class="space-x-1 text-xs text-zinc-400">
-              <span>Total Balance:</span>
+              <span class="font-semibold">Total Balance:</span>
               <span :title="selectedTokenBalance">{{
                 truncateToTwoDecimals(selectedTokenBalance)
               }}</span>
