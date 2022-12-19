@@ -32,7 +32,7 @@ function doesTokenBelongsToEthMainnet(isEthereumMainnet, tokenContract) {
   )
 }
 
-async function validateAndPopulateContract({
+async function validateAndPopulateContractForToken({
   walletAddress,
   chainId,
   tokenContract,
@@ -49,7 +49,7 @@ async function validateAndPopulateContract({
   }
   if (!tokenContract.address) {
     result.isValid = false
-    result.error = 'required params missing'
+    result.error = 'Required params missing'
     return result
   }
   if (isContractInLocalStorage(walletAddress, chainId, tokenContract)) {
@@ -78,4 +78,4 @@ async function validateAndPopulateContract({
   }
 }
 
-export default validateAndPopulateContract
+export default validateAndPopulateContractForToken
