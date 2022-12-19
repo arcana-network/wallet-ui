@@ -159,7 +159,7 @@ rpcStore.$subscribe(getNFTAssets)
       </div>
       <div class="flex justify-center mx-4">
         <div
-          class="flex py-4 gap-2 items-center cursor-pointer"
+          class="flex py-4 gap-2 items-center cursor-pointer flex-grow justify-center"
           @click.stop="handleManageNFT"
         >
           <img

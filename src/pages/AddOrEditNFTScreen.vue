@@ -226,6 +226,7 @@ watch(
         const name = await getCollectionName(nftContract.address)
         nftContract.name = name
       } catch (e) {
+        toast.error('Invalid contract address')
         nftContract.name = ''
       }
     } else {

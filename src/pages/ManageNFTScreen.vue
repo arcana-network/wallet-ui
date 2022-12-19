@@ -79,7 +79,7 @@ function handleAddToken() {
           </div>
           <div class="flex justify-center">
             <div
-              class="flex py-2 mt-2 gap-2 items-center cursor-pointer"
+              class="flex py-2 mt-2 gap-2 items-center cursor-pointer flex-grow justify-center"
               @click.stop="handleAddToken"
             >
               <img
