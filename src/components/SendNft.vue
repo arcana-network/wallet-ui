@@ -134,6 +134,7 @@ async function handleSendToken() {
     activitiesStore.fetchAndSaveNFTActivityFromHash({
       chainId: rpcStore.selectedRpcConfig?.chainId,
       txHash,
+      nft: props.nft,
     })
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
