@@ -5,12 +5,9 @@ import { getUniqueId } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
-import type { Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
-import ActivityView from '@/components/ActivityView.vue'
 import AssetsView from '@/components/AssetsView.vue'
-import BaseTabs from '@/components/BaseTabs.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
@@ -38,17 +35,14 @@ const parentConnectionStore = useParentConnectionStore()
 const walletBalance = ref('')
 const requestStore = useRequestStore()
 const router = useRouter()
-const exchangeRate: Ref<number | null> = ref(null)
 const { selectedChainId } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
 })
-let accountHandler: AccountHandler
-let keeper: RequestHandler
-let parentConnection: Connection<ParentConnectionApi>
-const tabs = ['Assets', 'Activity']
-const selectedTab = ref('Assets')
+let accountHandler: AccountHandler | null = null
+let keeper: RequestHandler | null = null
+let parentConnection: Connection<ParentConnectionApi> | null = null
 const assets: {
   name?: string
   symbol: string
@@ -105,33 +99,39 @@ function initAccounthandler() {
 }
 
 async function initKeeper() {
-  keeper = new RequestHandler(accountHandler)
+  keeper = new RequestHandler(accountHandler as AccountHandler)
 }
 
 async function initAccountHandler() {
   showLoader('Please wait')
   try {
-    const parentConnectionInstance = await parentConnection.promise
+    if (parentConnection) {
+      const parentConnectionInstance = await parentConnection.promise
 
-    if (!userStore.walletAddress) {
-      const account = accountHandler.getAccount()
-      userStore.setWalletAddress(account.address)
+      if (!userStore.walletAddress) {
+        const account = (accountHandler as AccountHandler).getAccount()
+        userStore.setWalletAddress(account.address)
+      }
+
+      if (typeof appStore.validAppMode !== 'number') {
+        const walletType = await getWalletType(appStore.id)
+        setAppMode(walletType, parentConnectionInstance)
+      }
+
+      if (keeper) {
+        keeper.setConnection(parentConnection)
+
+        const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+        const selectedChainId = Number(chainId)
+        await keeper.setRpcConfig({ chainId: selectedChainId, ...rpcConfig })
+
+        watchRequestQueue(keeper)
+
+        parentConnectionInstance.onEvent('connect', {
+          chainId: selectedChainId,
+        })
+      }
     }
-
-    if (typeof appStore.validAppMode !== 'number') {
-      const walletType = await getWalletType(appStore.id)
-      setAppMode(walletType, parentConnectionInstance)
-    }
-
-    keeper.setConnection(parentConnection)
-
-    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
-    const selectedChainId = Number(chainId)
-    await keeper.setRpcConfig({ chainId: selectedChainId, ...rpcConfig })
-
-    watchRequestQueue(keeper)
-
-    parentConnectionInstance.onEvent('connect', { chainId: selectedChainId })
   } catch (err) {
     console.log({ err })
   } finally {
@@ -157,20 +157,22 @@ function connectToParent() {
 }
 
 async function setTheme() {
-  const parentConnectionInstance = await parentConnection.promise
-  const {
-    themeConfig: { theme },
-    name: appName,
-  } = await parentConnectionInstance.getAppConfig()
+  if (parentConnection) {
+    const parentConnectionInstance = await parentConnection.promise
+    const {
+      themeConfig: { theme },
+      name: appName,
+    } = await parentConnectionInstance.getAppConfig()
 
-  appStore.setTheme(theme)
-  appStore.setName(appName)
-  const htmlEl = document.getElementsByTagName('html')[0]
-  if (theme === 'dark') htmlEl.classList.add(theme)
+    appStore.setTheme(theme)
+    appStore.setName(appName)
+    const htmlEl = document.getElementsByTagName('html')[0]
+    if (theme === 'dark') htmlEl.classList.add(theme)
+  }
 }
 
 function getUserInfo() {
-  const accountDetails = accountHandler.getAccount()
+  const accountDetails = (accountHandler as AccountHandler).getAccount()
   return {
     ...userStore.info,
     ...accountDetails,
@@ -183,14 +185,17 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode as AppMode)
 }
 
-async function handleLogout() {
-  const parentConnectionInstance = await parentConnection.promise
-  const authProvider = await getAuthProvider(appStore.id)
-  await userStore.handleLogout(authProvider)
-  parentConnectionInstance?.onEvent('disconnect')
-  setTimeout(() => {
-    router.push(`/${appStore.id}/login`)
-  })
+async function handleLogout(isV2 = false) {
+  if (parentConnection) {
+    const parentConnectionInstance = await parentConnection.promise
+    const authProvider = await getAuthProvider(appStore.id as string)
+    await userStore.handleLogout(authProvider)
+    parentConnectionInstance?.onEvent('disconnect')
+    setTimeout(() => {
+      const route = isV2 ? `/${appStore.id}/v2/login` : `/${appStore.id}/login`
+      router.push(route)
+    })
+  }
 }
 
 function setRpcConfigs() {
@@ -201,9 +206,11 @@ async function getRpcConfig() {
   try {
     showLoader('Loading')
     if (rpcStore.selectedChainId) return
-    const parentConnectionInstance = await parentConnection.promise
-    const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
+    if (parentConnection) {
+      const parentConnectionInstance = await parentConnection.promise
+      const rpcConfig = await parentConnectionInstance.getRpcConfig()
+      rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
+    }
   } catch (err) {
     console.log({ err })
   } finally {
@@ -212,18 +219,21 @@ async function getRpcConfig() {
 }
 
 async function handleGetPublicKey(id, verifier) {
-  const authProvider = await getAuthProvider(appStore.id)
+  const authProvider = await getAuthProvider(appStore.id as string)
   return await authProvider.getPublicKey({ id, verifier })
 }
 
 async function getWalletBalance() {
   showLoader('Fetching Wallet Balance')
   try {
-    const balance =
-      (await accountHandler.provider.getBalance(userStore.walletAddress)) || '0'
-    rpcStore.setWalletBalance(balance.toString())
-    walletBalance.value = ethers.utils.formatEther(balance.toString())
-    assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
+    if (accountHandler) {
+      const balance =
+        (await accountHandler.provider.getBalance(userStore.walletAddress)) ||
+        '0'
+      rpcStore.setWalletBalance(balance.toString())
+      walletBalance.value = ethers.utils.formatEther(balance.toString())
+      assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
+    }
   } catch (err) {
     console.log({ err })
   } finally {
@@ -243,10 +253,9 @@ onBeforeRouteLeave((to) => {
   <div v-else>
     <UserWallet :wallet-balance="walletBalance" @refresh="getWalletBalance" />
     <div class="pb-5">
+      <h2 class="mb-[5px]">Assets</h2>
       <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
-        <BaseTabs v-model="selectedTab" :tabs="tabs" class="m-1" />
-        <AssetsView v-if="selectedTab === 'Assets'" />
-        <ActivityView v-else :currency-exchange-rate="exchangeRate" />
+        <AssetsView />
       </div>
     </div>
   </div>

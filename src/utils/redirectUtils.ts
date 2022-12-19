@@ -86,7 +86,7 @@ async function handlePasswordlessLoginV2(
   const params = localStorage.getItem('CURRENT_LOGIN_INFO')
   if (!params) {
     console.log('params not found in local storage')
-    return
+    throw new Error('No passwordless login init')
   }
   localStorage.removeItem('CURRENT_LOGIN_INFO')
   const data = JSON.parse(params)

@@ -3,7 +3,6 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
-import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { useImage } from '@/utils/useImage'
 
@@ -11,7 +10,6 @@ const getImage = useImage()
 const userStore = useUserStore()
 const appStore = useAppStore()
 const router = useRouter()
-const requestStore = useRequestStore()
 
 const currentRoute = computed(() => {
   return router.currentRoute.value.name
@@ -65,26 +63,15 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link :to="{ name: 'requests' }" class="relative">
+      <router-link to="/activities">
         <img
-          :src="getAppropriateIcon('notification-icon', 'requests')"
-          alt="request"
+          :src="getAppropriateIcon('thunder-icon', 'activities')"
+          alt="activities"
           class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white': isCurrentRoute('requests'),
+            'bg-black dark:bg-white': isCurrentRoute('activities'),
           }"
         />
-        <span
-          v-if="requestStore.areRequestsPendingForApproval"
-          class="flex h-2 w-2 absolute top-1 right-2"
-        >
-          <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-700 opacity-75"
-          ></span>
-          <span
-            class="relative inline-flex rounded-full h-2 w-2 bg-red-700"
-          ></span>
-        </span>
       </router-link>
     </div>
     <div class="flex items-center justify-center">
