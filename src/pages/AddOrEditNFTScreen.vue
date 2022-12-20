@@ -83,7 +83,8 @@ async function handleSubmit() {
 
   const existingStoredNft = storedNfts.find(
     (nft) =>
-      nft.address === nftContract.address && nft.tokenId === nftContract.tokenId
+      nft.address.toLowerCase() === nftContract.address.toLowerCase() &&
+      nft.tokenId.toLowerCase() === nftContract.tokenId.toLowerCase()
   )
 
   if (existingStoredNft) {
