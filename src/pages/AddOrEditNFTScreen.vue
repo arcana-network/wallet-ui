@@ -45,7 +45,7 @@ const userStore = useUserStore()
 
 const loader = reactive({
   show: false,
-  message: 'Adding NFT...',
+  message: 'Saving NFT...',
 })
 
 const nftContract = reactive({
