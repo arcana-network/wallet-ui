@@ -32,7 +32,7 @@ const txFees =
     <div class="flex flex-col space-y-3 sm:space-y-2">
       <p class="text-xl sm:text-sm font-semibold">Preview</p>
     </div>
-    <div class="w-full aspect-square rounded-[10px]">
+    <div class="w-full aspect-square rounded-[10px] overflow-hidden">
       <img
         :src="props.previewData.imageUrl"
         class="object-cover object-center"
