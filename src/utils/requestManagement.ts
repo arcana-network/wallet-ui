@@ -384,7 +384,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       return keeper.reply(request.method, {
         id: request.id,
         result: null,
-        error: 'This token is currently not supported',
+        error: `Asset of type '${request.params.type}' not supported`,
       })
     }
   }
