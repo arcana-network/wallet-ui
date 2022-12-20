@@ -53,7 +53,7 @@ async function validateAndPopulateContractForNft({
     error: null,
     nft: nftContract,
   }
-  const tokenId = nftContract.tokenId || nftContract.token_id
+  const tokenId = nftContract.tokenId || nftContract.token_id || nftContract.id
   if (!nftContract.address || !tokenId) {
     result.isValid = false
     result.error = 'Required params missing'
