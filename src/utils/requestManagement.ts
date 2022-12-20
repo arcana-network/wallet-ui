@@ -380,12 +380,13 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         })
         return
       }
+    } else {
+      return keeper.reply(request.method, {
+        id: request.id,
+        result: null,
+        error: 'This token is currently not supported',
+      })
     }
-    return keeper.reply(request.method, {
-      id: request.id,
-      result: null,
-      error: 'This token is currently not supported',
-    })
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   requestStore.addRequests(request, isPermissionRequired, new Date())

@@ -127,6 +127,7 @@ async function validateAndPopulateContractForNft({
         result.nft.imageUrl = sanitizedImageUrl
         result.nft.animationUrl = sanitizedAnimationUrl
         result.nft.attributes = attributes
+        result.isValid = true
         return result
       } catch (e) {
         result.error = "Couldn't fetch NFT details"
