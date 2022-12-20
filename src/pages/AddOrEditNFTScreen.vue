@@ -144,7 +144,7 @@ async function handleSubmit() {
             nft.address !== props.address || nft.tokenId !== props.tokenId
         )
       }
-      toast.success('NFT added')
+      toast.success('NFT saved')
       storedNfts.push(nftDetails)
       storedNfts.sort((nft1, nft2) => {
         if (nft1.tokenId > nft2.tokenId) {
