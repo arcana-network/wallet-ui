@@ -14,8 +14,8 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { getAccountHandler } from '@/utils/accountHandler'
 import { convertGweiToEth } from '@/utils/gweiToEth'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
@@ -45,7 +45,7 @@ const loader = ref({
   message: '',
 })
 const baseFee = ref('0')
-const accountHandler = getAccountHandler()
+const accountHandler = getRequestHandler().getAccountHandler()
 
 watch(
   () => gasFeeInGwei.value,
@@ -111,7 +111,7 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending')
   try {
-    const accountHandler = getAccountHandler()
+    // const accountHandler = getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()

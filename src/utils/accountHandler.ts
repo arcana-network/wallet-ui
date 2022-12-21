@@ -297,18 +297,4 @@ class AccountHandler {
   }
 }
 
-let accountHandler: AccountHandler
-
-function createNewAccountHandler(
-  privateKey: string,
-  rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
-) {
-  accountHandler = new AccountHandler(privateKey, rpcUrl)
-  return accountHandler
-}
-
-function getAccountHandler() {
-  return accountHandler
-}
-
-export { AccountHandler, createNewAccountHandler, getAccountHandler }
+export { AccountHandler }

@@ -4,7 +4,7 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import type { NFTContractType } from '@/models/NFT'
 import { useUserStore } from '@/store/user'
-import { getAccountHandler } from '@/utils/accountHandler'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type ContractParams = {
   tokenId: string
@@ -12,7 +12,7 @@ type ContractParams = {
 }
 
 async function getERCStandard(address): Promise<NFTContractType | undefined> {
-  const accountHandler = getAccountHandler()
+  const accountHandler = getRequestHandler().getAccountHandler()
   const provider = accountHandler.provider
 
   const ERC165Abi = [
@@ -49,7 +49,7 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
 }
 
 function get721Contract(contractAddress: string) {
-  const accountHandler = getAccountHandler()
+  const accountHandler = getRequestHandler().getAccountHandler()
   return new ethers.Contract(
     contractAddress,
     erc721abi,
@@ -58,7 +58,7 @@ function get721Contract(contractAddress: string) {
 }
 
 function get1155Contract(contractAddress: string) {
-  const accountHandler = getAccountHandler()
+  const accountHandler = getRequestHandler().getAccountHandler()
   return new ethers.Contract(
     contractAddress,
     erc1155abi,

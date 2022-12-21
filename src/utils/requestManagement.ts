@@ -68,14 +68,22 @@ function getEtherInvalidParamsError(msg) {
   return serializeError(ethErrors.rpc.invalidParams(msg))
 }
 
-function switchChain(request, keeper) {
-  const { chainId } = request.params[0]
-  rpcStore.setSelectedChainId(`${parseInt(chainId)}`)
+async function switchChain(request, keeper) {
+  const { chainId: id } = request.params[0]
+  rpcStore.setSelectedChainId(`${parseInt(id)}`)
+  const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+
+  const selectedChainId = Number(chainId)
+  await keeper.setRpcConfig({
+    ...rpcConfig,
+    chainId: selectedChainId,
+  })
+
   keeper.reply(request.method, {
     result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
     id: request.id,
   })
-  router.push({ name: 'home' })
+  // router.push({ name: 'home' })
 }
 
 function isExistingRpcUrl(url) {

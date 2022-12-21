@@ -7,6 +7,7 @@ import InitPage from '@/pages/backCompat/initPage.vue'
 import SignIn from '@/pages/backCompat/signIn.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPageV2 from '@/pages/initPageV2.vue'
+import LoggedInView from '@/pages/loggedInView.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
@@ -38,61 +39,67 @@ const routes = [
     component: InitPageV2,
   },
   {
-    name: 'home',
-    path: '/',
-    component: HomeScreen,
-  },
-  {
-    name: 'Nfts',
-    path: '/nfts',
-    component: NFTScreen,
-  },
-  {
-    name: 'SelectNft',
-    path: '/nfts/select',
-    component: SelectNftScreen,
-  },
-  {
-    name: 'ManageNft',
-    path: '/nfts/manage',
-    component: ManageNFTScreen,
-  },
-  {
-    name: 'AddNft',
-    path: '/nfts/add',
-    component: AddOrEditNFTScreen,
-  },
-  {
-    name: 'EditNft',
-    path: '/nfts/edit',
-    component: AddOrEditNFTScreen,
-    props: true,
-  },
-  {
-    name: 'NftDetails',
-    path: '/nfts/details',
-    component: NftDetailsScreen,
-    props: true,
-  },
-  {
-    name: 'requests',
-    path: '/requests',
-    component: RequestsScreen,
-  },
-  {
-    name: 'profile',
-    path: '/profileScreen',
-    component: ProfileScreen,
-  },
-  {
-    name: 'AddToken',
-    path: '/addToken',
-    component: AddTokenScreen,
-  },
-  {
-    name: 'activities',
-    path: '/activities',
-    component: Activities,
+    path: '/loggedin',
+    component: LoggedInView,
+    children: [
+      {
+        name: 'home',
+        path: '/',
+        component: HomeScreen,
+      },
+      {
+        name: 'Nfts',
+        path: '/nfts',
+        component: NFTScreen,
+      },
+      {
+        name: 'SelectNft',
+        path: '/nfts/select',
+        component: SelectNftScreen,
+      },
+      {
+        name: 'ManageNft',
+        path: '/nfts/manage',
+        component: ManageNFTScreen,
+      },
+      {
+        name: 'AddNft',
+        path: '/nfts/add',
+        component: AddOrEditNFTScreen,
+      },
+      {
+        name: 'EditNft',
+        path: '/nfts/edit',
+        component: AddOrEditNFTScreen,
+        props: true,
+      },
+      {
+        name: 'NftDetails',
+        path: '/nfts/details',
+        component: NftDetailsScreen,
+        props: true,
+      },
+      {
+        name: 'requests',
+        path: '/requests',
+        component: RequestsScreen,
+      },
+      {
+        name: 'profile',
+        path: '/profileScreen',
+        component: ProfileScreen,
+      },
+      {
+        name: 'AddToken',
+        path: '/addToken',
+        component: AddTokenScreen,
+      },
+      {
+        name: 'activities',
+        path: '/activities',
+        component: Activities,
+      },
+    ],
   },
 ]
 

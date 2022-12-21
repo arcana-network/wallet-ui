@@ -5,11 +5,11 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { getAccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
 
@@ -162,7 +162,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       chainId,
       customToken,
     }: TransactionFetchParams) {
-      const accountHandler = getAccountHandler()
+      const accountHandler = getRequestHandler().getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
@@ -197,7 +197,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       chainId,
       nft,
     }: TransactionFetchNftParams) {
-      const accountHandler = getAccountHandler()
+      const accountHandler = getRequestHandler().getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
@@ -276,7 +276,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         ],
       }
 
-      const accountHandler = getAccountHandler()
+      const accountHandler = getRequestHandler().getAccountHandler()
       accountHandler.provider.once(filter, async (log) => {
         currentActivity.status = 'Success'
         currentActivity.txHash = log.transactionHash
