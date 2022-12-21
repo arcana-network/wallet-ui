@@ -31,8 +31,6 @@ const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
 
-const accountHandler = getRequestHandler().getAccountHandler()
-
 const gasPrices: Ref<object> = ref({})
 
 const loader = ref({
@@ -57,6 +55,7 @@ onMounted(async () => {
       const data = await getGasPrice(chainId)
       gasPrices.value = data
     }
+    const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
