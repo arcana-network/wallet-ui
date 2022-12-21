@@ -22,6 +22,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { useRequestHandlerStore } from '@/store/requestHandler'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -50,10 +51,11 @@ const parentConnectionStore = useParentConnectionStore()
 const modalStore = useModalStore()
 const walletBalance = ref('')
 const requestStore = useRequestStore()
+const requestHandlerStore = useRequestHandlerStore()
 const router = useRouter()
 const toast = useToast()
 const exchangeRate: Ref<number | null> = ref(null)
-const { selectedChainId, currency } = storeToRefs(rpcStore)
+const { selectedChainId, currency, isChainChanged } = storeToRefs(rpcStore)
 const loader = ref({
   show: false,
   message: '',
@@ -81,7 +83,7 @@ const helpOtherTabsLogin = () => {
 onMounted(async () => {
   helpOtherTabsLogin()
   setRpcConfigs()
-  initAccounthandler()
+  initAccountHandler()
   initKeeper()
   connectToParent()
   await setTheme()
@@ -100,9 +102,12 @@ watch(showModal, () => {
   }
 })
 
-watch(selectedChainId, () => {
-  getAccountDetails()
-  connectToParent()
+watch(isChainChanged, (newValue) => {
+  if (newValue) {
+    getAccountDetails()
+    connectToParent()
+    rpcStore.isChainChanged = false
+  }
 })
 
 const explorerUrl = computed(() => {
@@ -128,21 +133,26 @@ function hideLoader() {
 }
 
 async function getAccountDetails() {
-  await initAccountHandler()
+  await setValues()
   await getWalletBalance()
   await getCurrencyExchangeRate()
 }
 
-function initAccounthandler() {
+function initAccountHandler() {
   accountHandler = new AccountHandler(userStore.privateKey)
   accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 }
 
 async function initKeeper() {
-  keeper = new RequestHandler(accountHandler)
+  if (requestHandlerStore.requestHandler) {
+    keeper = requestHandlerStore.requestHandler
+  } else {
+    keeper = new RequestHandler(accountHandler)
+    requestHandlerStore.setRequestHandler(keeper)
+  }
 }
 
-async function initAccountHandler() {
+async function setValues() {
   showLoader('Please wait')
   try {
     const parentConnectionInstance = await parentConnection.promise
@@ -156,14 +166,16 @@ async function initAccountHandler() {
       const walletType = await getWalletType(appStore.id)
       setAppMode(walletType, parentConnectionInstance)
     }
-
-    keeper.setConnection(parentConnection)
-    await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
-
-    watchRequestQueue(keeper)
-
     const chainId = await accountHandler.getChainId()
-    parentConnectionInstance.onEvent('connect', { chainId })
+
+    if (chainId !== parseInt(selectedChainId.value)) {
+      keeper.setConnection(parentConnection)
+      await keeper.setRpcConfig(rpcStore.selectedRpcConfig)
+
+      watchRequestQueue(keeper)
+
+      parentConnectionInstance.onEvent('connect', { chainId })
+    }
   } catch (err) {
     console.log({ err })
   } finally {
@@ -172,20 +184,24 @@ async function initAccountHandler() {
 }
 
 function connectToParent() {
-  const sendRequest = getSendRequestFn(
-    handleRequest,
-    requestStore,
-    appStore,
-    keeper
-  )
-  parentConnection = createParentConnection({
-    isLoggedIn: () => userStore.isLoggedIn,
-    sendRequest,
-    getPublicKey: handleGetPublicKey,
-    triggerLogout: handleLogout,
-    getUserInfo,
-  })
-  parentConnectionStore.setParentConnection(parentConnection)
+  if (parentConnectionStore.parentConnection) {
+    parentConnection = parentConnectionStore.parentConnection
+  } else {
+    const sendRequest = getSendRequestFn(
+      handleRequest,
+      requestStore,
+      appStore,
+      keeper
+    )
+    parentConnection = createParentConnection({
+      isLoggedIn: () => userStore.isLoggedIn,
+      sendRequest,
+      getPublicKey: handleGetPublicKey,
+      triggerLogout: handleLogout,
+      getUserInfo,
+    })
+    parentConnectionStore.setParentConnection(parentConnection)
+  }
 }
 
 async function setTheme() {
@@ -233,9 +249,16 @@ function setRpcConfigs() {
 async function getRpcConfig() {
   try {
     showLoader('Loading')
+    const previousRoute = router.options.history.state.back
     const parentConnectionInstance = await parentConnection.promise
     const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    rpcStore.setSelectedChainId(parseInt(rpcConfig.chainId))
+
+    if (
+      previousRoute.includes('login') &&
+      parseInt(selectedChainId.value) !== parseInt(rpcConfig.chainId)
+    ) {
+      rpcStore.setSelectedChainId(parseInt(rpcConfig.chainId))
+    }
   } catch (err) {
     console.log({ err })
   } finally {
