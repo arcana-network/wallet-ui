@@ -69,10 +69,12 @@ function getEtherInvalidParamsError(msg) {
 function switchChain(request, keeper) {
   const { chainId } = request.params[0]
   rpcStore.setSelectedChainId(`${parseInt(chainId)}`)
-  keeper.reply(request.method, {
-    result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
-    id: request.id,
-  })
+  setTimeout(() => {
+    keeper.reply(request.method, {
+      result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
+      id: request.id,
+    })
+  }, 2000)
   router.push({ name: 'home' })
 }
 
