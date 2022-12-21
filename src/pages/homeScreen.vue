@@ -250,7 +250,11 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else>
-    <UserWallet :wallet-balance="walletBalance" @refresh="getWalletBalance" />
+    <UserWallet
+      page="home"
+      :wallet-balance="walletBalance"
+      @refresh="getWalletBalance"
+    />
     <div class="pb-5">
       <h2 class="mb-[5px]">Assets</h2>
       <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
