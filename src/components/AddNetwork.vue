@@ -64,7 +64,7 @@ function handleSubmit() {
 <template>
   <div class="space-y-3">
     <div class="flex justify-between">
-      <p class="text-xl sm:text-sm">Add a Network</p>
+      <p class="text-xl sm:text-sm font-semibold">Add a Network</p>
       <button class="h-auto" @click="emit('close')">
         <img :src="getImage('close-icon')" alt="close form" />
       </button>

@@ -101,7 +101,7 @@ function displayValue() {
               :value="token.symbol"
             >
               <li
-                class="relative cursor-default select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
                 :class="{
                   'bg-zinc-200 dark:bg-zinc-800': active,
                 }"
