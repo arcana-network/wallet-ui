@@ -1,38 +1,42 @@
 <script setup lang="ts">
-import BigNumber from 'bignumber.js'
-
-import { PreviewData } from '@/models/SendTokenPreview'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 const rpcStore = useRpcStore()
 
-const emits = defineEmits(['close', 'submit'])
-const props = defineProps({
+type NftPreviewProps = {
   previewData: {
-    type: PreviewData,
-    required: true,
-  },
-})
+    senderWalletAddress: string
+    recipientWalletAddress: string
+    gasFee: string
+    estimatedGas: string
+    nftContractAddress: string
+    tokenId: string
+    imageUrl: string
+    quantity?: number
+  }
+}
+
+const emits = defineEmits(['close', 'submit'])
+const props = defineProps<NftPreviewProps>()
 
 const nativeCurrency = rpcStore.nativeCurrency.symbol
 
 const txFees =
   Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
-
-const sendAmount =
-  nativeCurrency === props.previewData.selectedToken
-    ? Number(props.previewData.amount)
-    : 0
-
-const totalAmount = sendAmount + txFees
 </script>
 
 <template>
-  <div class="space-y-3 overflow-auto flex flex-col">
+  <div class="space-y-4 overflow-auto flex flex-col">
     <div class="flex flex-col space-y-3 sm:space-y-2">
       <p class="text-xl sm:text-sm font-semibold">Preview</p>
+    </div>
+    <div class="w-full aspect-square rounded-[10px] overflow-hidden">
+      <img
+        :src="props.previewData.imageUrl"
+        class="object-cover object-center"
+      />
     </div>
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
@@ -41,8 +45,11 @@ const totalAmount = sendAmount + txFees
       </p>
     </div>
     <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Sender’s Wallet Address</p>
-      <p class="text-base truncate">
+      <p class="text-xs text-zinc-400 font-semibold">Sender’s Wallet Address</p>
+      <p
+        class="text-base truncate"
+        :title="props.previewData.senderWalletAddress"
+      >
         {{ props.previewData.senderWalletAddress }}
       </p>
     </div>
@@ -50,37 +57,29 @@ const totalAmount = sendAmount + txFees
       <img :src="getImage('arrow-down-icon')" alt="arrow down icon" />
     </div>
     <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
-      <p class="text-sm truncate">
+      <p class="text-xs text-zinc-400 font-semibold">
+        Recipient’s Wallet Address
+      </p>
+      <p
+        class="text-sm truncate"
+        :title="props.previewData.recipientWalletAddress"
+      >
         {{ props.previewData.recipientWalletAddress }}
       </p>
     </div>
     <div class="space-y-3">
-      <div class="flex justify-between text-xs text-zinc-400">
-        <p>Items</p>
-        <p>Amount</p>
-      </div>
       <div class="space-y-[10px]">
-        <div class="flex justify-between text-sm sm:text-xs font-normal">
-          <p>Send Amount</p>
-          <p>
-            {{ props.previewData.amount }}
-            {{ props.previewData.selectedToken }}
+        <div
+          class="flex flex-col text-sm sm:text-xs font-normal flex-nowrap gap-1"
+        >
+          <p class="text-xs text-zinc-400 font-semibold">Gas Fees</p>
+          <p
+            :title="`${txFees} ${nativeCurrency}`"
+            class="overflow-hidden text-ellipsis whitespace-nowrap"
+          >
+            {{ txFees }} {{ nativeCurrency }}
           </p>
         </div>
-        <div class="flex justify-between text-sm sm:text-xs font-normal">
-          <p>Gas Fees</p>
-          <p>{{ txFees }} {{ nativeCurrency }}</p>
-        </div>
-      </div>
-      <div
-        class="flex justify-between text-sm sm:text-xs font-normal border-y-[1px] border-x-0 border-zinc-400 py-4"
-      >
-        <p>Total:</p>
-        <p>
-          {{ new BigNumber(totalAmount).toFixed() }}
-          {{ nativeCurrency }}
-        </p>
       </div>
     </div>
     <div class="flex justify-between">

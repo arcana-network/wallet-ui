@@ -33,7 +33,7 @@ function getAppropriateIcon(iconName, pathName) {
     :class="{ 'justify-between': userStore.isLoggedIn }"
   >
     <div v-if="userStore.isLoggedIn" class="flex space-x-4">
-      <router-link :to="{ name: 'home' }">
+      <router-link :to="{ name: 'home' }" title="Assets">
         <img
           :src="getAppropriateIcon('coins-stacked-icon', 'home')"
           alt="home"
@@ -43,17 +43,17 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link :to="{ name: 'nfts' }">
+      <router-link :to="{ name: 'Nfts' }" title="NFTs">
         <img
-          :src="getAppropriateIcon('nfts-icon', 'nfts')"
+          :src="getAppropriateIcon('nfts-icon', 'Nfts')"
           alt="nfts"
           class="p-1 rounded-[10px]"
           :class="{
-            'bg-black dark:bg-white': isCurrentRoute('nfts'),
+            'bg-black dark:bg-white': isCurrentRoute('Nfts'),
           }"
         />
       </router-link>
-      <router-link :to="{ name: 'profile' }">
+      <router-link :to="{ name: 'profile' }" title="Profile">
         <img
           :src="getAppropriateIcon('profile-icon', 'profile')"
           alt="profile"
@@ -63,7 +63,7 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link to="/activities">
+      <router-link to="/activities" title="Activities">
         <img
           :src="getAppropriateIcon('thunder-icon', 'activities')"
           alt="activities"

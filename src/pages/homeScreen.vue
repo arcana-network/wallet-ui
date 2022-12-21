@@ -40,9 +40,9 @@ const loader = ref({
   show: false,
   message: '',
 })
-let accountHandler: AccountHandler | null = null
-let keeper: RequestHandler | null = null
-let parentConnection: Connection<ParentConnectionApi> | null = null
+let accountHandler: AccountHandler
+let keeper: RequestHandler
+let parentConnection: Connection<ParentConnectionApi>
 const assets: {
   name?: string
   symbol: string
@@ -61,6 +61,8 @@ const helpOtherTabsLogin = () => {
 }
 
 onMounted(async () => {
+  loader.value.show = true
+  loader.value.message = 'Loading...'
   helpOtherTabsLogin()
   setRpcConfigs()
   initAccounthandler()
@@ -69,11 +71,11 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  loader.value.show = false
 })
 
 watch(selectedChainId, () => {
   getAccountDetails()
-  connectToParent()
 })
 
 function showLoader(message) {
@@ -255,11 +257,17 @@ onBeforeRouteLeave((to) => {
       :wallet-balance="walletBalance"
       @refresh="getWalletBalance"
     />
-    <div class="pb-5">
-      <h2 class="mb-[5px]">Assets</h2>
+    <div class="pb-5 flex flex-col gap-1">
+      <div class="font-semibold">Assets</div>
       <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
         <AssetsView />
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.section-title {
+  font-size: var(--fs-400);
+}
+</style>

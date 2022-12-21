@@ -1,6 +1,6 @@
 import { ethers } from 'ethers'
 
-import ABI from '@/abis/erc20abi.json'
+import ABI from '@/abis/erc20.abi.json'
 import { getAccountHandler } from '@/utils/accountHandler'
 
 type ContractParams = {
