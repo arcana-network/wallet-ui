@@ -35,7 +35,7 @@ defineProps({
       action:
     </p>
     <div>
-      <p class="text-sm sm:text-xs text-zinc-400">Network</p>
+      <p class="text-sm sm:text-xs text-zinc-400 font-semibold">Network</p>
       <p class="text-base sm:text-sm flex gap-2">
         <img
           :src="getImage(rpcStore.selectedRpcConfig.favicon)"

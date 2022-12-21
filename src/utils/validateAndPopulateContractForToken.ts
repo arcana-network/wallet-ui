@@ -32,13 +32,11 @@ function doesTokenBelongsToEthMainnet(isEthereumMainnet, tokenContract) {
   )
 }
 
-async function validateAndPopulateContract({
+async function validateAndPopulateContractForToken({
   walletAddress,
   chainId,
   tokenContract,
   isEthereumMainnet,
-  privateKey,
-  rpcUrl,
 }) {
   const result: {
     isValid: boolean
@@ -51,7 +49,7 @@ async function validateAndPopulateContract({
   }
   if (!tokenContract.address) {
     result.isValid = false
-    result.error = 'required params missing'
+    result.error = 'Required params missing'
     return result
   }
   if (isContractInLocalStorage(walletAddress, chainId, tokenContract)) {
@@ -66,8 +64,6 @@ async function validateAndPopulateContract({
   }
   try {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
-      privateKey: privateKey,
-      rpcUrl: rpcUrl,
       contractAddress: tokenContract.address,
     })
     result.tokenContract.symbol = symbol
@@ -82,4 +78,4 @@ async function validateAndPopulateContract({
   }
 }
 
-export default validateAndPopulateContract
+export default validateAndPopulateContractForToken

@@ -7,6 +7,9 @@ import {
 import { stripHexPrefix, ecsign, setLengthLeft } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
+import erc1155abi from '@/abis/erc1155.abi.json'
+import erc721abi from '@/abis/erc721.abi.json'
+import { NFTContractType } from '@/models/NFT'
 import {
   MessageParams,
   TransactionParams,
@@ -14,15 +17,16 @@ import {
   createWalletMiddleware,
 } from '@/utils/walletMiddleware'
 
-export class AccountHandler {
+class AccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(privateKey: string) {
+  constructor(
+    privateKey: string,
+    rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
+  ) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.JsonRpcProvider(
-      process.env.VUE_APP_WALLET_RPC_URL
-    )
+    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   }
 
   setProvider(url: string) {
@@ -73,6 +77,60 @@ export class AccountHandler {
     return (
       await contract.estimateGas.transfer(recipientAddress, amount)
     ).toString()
+  }
+
+  sendNft = async (
+    ercStandard: NFTContractType,
+    contractAddress: string,
+    from: string,
+    to: string,
+    tokenId: string,
+    amount: number,
+    gasFees: string
+  ) => {
+    const signer = this.wallet.connect(this.provider)
+    if (ercStandard === 'erc1155') {
+      const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
+      const hexAmount = '0x' + Number(amount).toString(16)
+      const tx = await contract.safeTransferFrom(from, to, tokenId, hexAmount, {
+        gasPrice: gasFees,
+      })
+      return tx.hash
+    } else {
+      const contract = new ethers.Contract(contractAddress, erc721abi, signer)
+      const tx = await contract.transferFrom(from, to, tokenId, {
+        gasPrice: gasFees,
+      })
+      return tx.hash
+    }
+  }
+
+  estimateNftGas = async (
+    ercStandard: NFTContractType,
+    contractAddress: string,
+    from: string,
+    to: string,
+    tokenId: string,
+    amount: number
+  ) => {
+    const signer = this.wallet.connect(this.provider)
+    if (ercStandard === 'erc1155') {
+      const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
+      const hexAmount = Number(amount).toString(16)
+      return (
+        await contract.estimateGas.safeTransferFrom(
+          from,
+          to,
+          tokenId,
+          hexAmount
+        )
+      ).toString()
+    } else {
+      const contract = new ethers.Contract(contractAddress, erc721abi, signer)
+      return (
+        await contract.estimateGas.transferFrom(from, to, tokenId)
+      ).toString()
+    }
   }
 
   sendTransactionWrapper = async (p: TransactionParams): Promise<string> => {
@@ -238,3 +296,19 @@ export class AccountHandler {
     }
   }
 }
+
+let accountHandler: AccountHandler
+
+function createNewAccountHandler(
+  privateKey: string,
+  rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
+) {
+  accountHandler = new AccountHandler(privateKey, rpcUrl)
+  return accountHandler
+}
+
+function getAccountHandler() {
+  return accountHandler
+}
+
+export { AccountHandler, createNewAccountHandler, getAccountHandler }
