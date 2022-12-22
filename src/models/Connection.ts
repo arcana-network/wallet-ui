@@ -10,6 +10,7 @@ type RequestMethod =
   | 'eth_signTransaction'
   | 'eth_sendTransaction'
   | 'eth_accounts'
+  | 'eth_requestAccounts'
   | 'eth_getEncryptionPublicKey'
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
@@ -22,6 +23,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   eth_signTransaction: true,
   eth_sendTransaction: true,
   eth_accounts: false,
+  eth_requestAccounts: false,
   eth_getEncryptionPublicKey: false,
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,

@@ -93,7 +93,7 @@ async function validateAndPopulateContractForNft({
       return result
     }
   } catch (e) {
-    result.error = "You don't own this NFT"
+    result.error = 'Invalid token ID'
     result.isValid = false
     return result
   }

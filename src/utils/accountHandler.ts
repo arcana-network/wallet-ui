@@ -92,15 +92,17 @@ class AccountHandler {
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
       const hexAmount = '0x' + Number(amount).toString(16)
-      const tx = await contract.safeTransferFrom(from, to, tokenId, hexAmount, {
-        gasPrice: gasFees,
-      })
+      const tx = await contract.safeTransferFrom(
+        from,
+        to,
+        tokenId,
+        hexAmount,
+        gasFees
+      )
       return tx.hash
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      const tx = await contract.transferFrom(from, to, tokenId, {
-        gasPrice: gasFees,
-      })
+      const tx = await contract.safeTransferFrom(from, to, tokenId, gasFees)
       return tx.hash
     }
   }
@@ -122,13 +124,14 @@ class AccountHandler {
           from,
           to,
           tokenId,
-          hexAmount
+          hexAmount,
+          '0x'
         )
       ).toString()
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
       return (
-        await contract.estimateGas.transferFrom(from, to, tokenId)
+        await contract.estimateGas.safeTransferFrom(from, to, tokenId, '0x')
       ).toString()
     }
   }

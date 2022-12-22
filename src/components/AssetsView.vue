@@ -27,6 +27,7 @@ function fetchStoredAssetContracts(): AssetContract[] {
 
 function fetchNativeAsset() {
   return {
+    address: 'native',
     name: rpcStore.nativeCurrency.name,
     balance: formatTokenDecimals(
       rpcStore.walletBalance,
@@ -46,6 +47,7 @@ async function getAssetsBalance() {
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
     assets.push({
+      address: contract.address,
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
@@ -59,7 +61,7 @@ async function getAssetsBalance() {
         walletAddress: userStore.walletAddress,
         contractAddress: contract.address,
       })
-      const asset = assets.find((asset) => asset.symbol === contract.symbol)
+      const asset = assets.find((asset) => asset.address === contract.address)
       if (asset) {
         asset.balance = formatTokenDecimals(balance, contract.decimals)
       }

@@ -113,7 +113,7 @@ async function check1155Ownership(data: ContractParams, walletAddress: string) {
   if (balance > 0) {
     return {
       owner: true,
-      balance,
+      balance: Number(balance),
     }
   }
   return {
