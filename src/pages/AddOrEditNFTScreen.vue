@@ -68,12 +68,27 @@ function sanitizeUrl(url?: string) {
   return url
 }
 
+function doesTokenBelongsToEthMainnet() {
+  return (
+    !rpcStore.isEthereumMainnet &&
+    ethMainnetNftContracts.find(
+      (contract) => contract.address === nftContract.address
+    )
+  )
+}
+
 async function handleSubmit() {
   loader.show = true
   if (!nftContract.name || !nftContract.tokenId) {
     loader.show = false
     return toast.error('Enter all the details to continue')
   }
+
+  if (doesTokenBelongsToEthMainnet()) {
+    loader.show = false
+    return toast.error('Token belongs to Ethereum Mainnet')
+  }
+
   const storedNftStrings = localStorage.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
@@ -98,10 +113,22 @@ async function handleSubmit() {
     return toast.error('Unsupported NFT')
   }
 
-  const hasOwnership = await checkOwnership(ercStandard, {
-    tokenId: nftContract.tokenId,
-    contractAddress: nftContract.address,
-  })
+  let hasOwnership: {
+    owner: boolean
+    balance: number
+  }
+
+  try {
+    hasOwnership = await checkOwnership(ercStandard, {
+      tokenId: nftContract.tokenId,
+      contractAddress: nftContract.address,
+    })
+  } catch (e) {
+    console.error(e)
+    toast.error('Invalid token ID')
+    loader.show = false
+    return
+  }
 
   if (!hasOwnership.owner) {
     loader.show = false
