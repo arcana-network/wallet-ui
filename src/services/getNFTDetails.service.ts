@@ -11,7 +11,7 @@ async function getNFTDetails(tokenUri: string, tokenId: string) {
 
   if (tokenUri.startsWith('ipfs://')) {
     url = modifyIpfsUrl(tokenUri)
-  } else if (tokenUri.startsWith('https://api.opensea.io')) {
+  } else if (tokenUri.includes('opensea.io') && tokenUri.includes('0x{id}')) {
     url = modifyOpenseaUrl(tokenUri, tokenId)
   } else {
     url = tokenUri
