@@ -12,9 +12,9 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { getAccountHandler } from '@/utils/accountHandler'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -50,7 +50,6 @@ const tokenList = ref([
 const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0].symbol)
 const selectedTokenBalance = ref('0')
-const accountHandler = getAccountHandler()
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
@@ -102,6 +101,7 @@ onUnmounted(() => {
 })
 
 async function fetchBaseFee() {
+  const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
 }
@@ -156,7 +156,7 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending')
   try {
-    const accountHandler = getAccountHandler()
+    const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
@@ -223,6 +223,7 @@ async function handleShowPreview() {
   if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
     showLoader('Loading preview...')
     try {
+      const accountHandler = getRequestHandler().getAccountHandler()
       if (rpcStore.nativeCurrency.symbol === selectedToken.value) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({

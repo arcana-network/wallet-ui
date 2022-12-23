@@ -11,11 +11,7 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
-  AccountHandler,
-  createNewAccountHandler,
-  getAccountHandler,
-} from '@/utils/accountHandler'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -27,7 +23,7 @@ const loader = ref({
   show: false,
   message: '',
 })
-let accountHandler: AccountHandler = getAccountHandler()
+let accountHandler = getRequestHandler().getAccountHandler()
 let parentConnection = parentConnectionStore.parentConnection
 
 const helpOtherTabsLogin = () => {
@@ -43,12 +39,7 @@ const helpOtherTabsLogin = () => {
 onMounted(async () => {
   helpOtherTabsLogin()
   setRpcConfigs()
-  initAccounthandler()
   await getRpcConfig()
-})
-
-watch(selectedChainId, () => {
-  initAccounthandler()
 })
 
 function showLoader(message) {
@@ -59,13 +50,6 @@ function showLoader(message) {
 function hideLoader() {
   loader.value.show = false
   loader.value.message = ''
-}
-
-function initAccounthandler() {
-  accountHandler = createNewAccountHandler(
-    userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
-  )
 }
 
 function setRpcConfigs() {

@@ -37,6 +37,7 @@ class RequestHandler {
   constructor(private accountHandler: AccountHandler) {}
 
   public async setRpcConfig(c: RpcConfig) {
+    console.log({ requestHandlerSetRpcConfig: c })
     this.handler = this.initRpcEngine(c)
     this.accountHandler.setProvider(c.rpcUrls[0])
     // Emit `chainChanged` event
@@ -49,6 +50,10 @@ class RequestHandler {
     if (!(c instanceof Error)) {
       c.onEvent(e, params)
     }
+  }
+
+  public getAccountHandler() {
+    return this.accountHandler
   }
 
   public setConnection(connection: Connection<ParentConnectionApi>): void {

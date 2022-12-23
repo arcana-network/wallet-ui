@@ -11,8 +11,8 @@ import {
 } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
-import { getAccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
@@ -30,8 +30,6 @@ const appStore = useAppStore()
 const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
-
-const accountHandler = getAccountHandler()
 
 const gasPrices: Ref<object> = ref({})
 
@@ -57,6 +55,7 @@ onMounted(async () => {
       const data = await getGasPrice(chainId)
       gasPrices.value = data
     }
+    const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
