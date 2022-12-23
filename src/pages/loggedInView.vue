@@ -243,7 +243,7 @@ onBeforeRouteLeave((to) => {
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
-  <div v-else>
-    <router-view></router-view>
+  <div v-else class="flex">
+    <router-view class="flex-grow"></router-view>
   </div>
 </template>
