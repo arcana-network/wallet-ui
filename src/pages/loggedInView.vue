@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { ethers } from 'ethers'
-import { getUniqueId } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
-import { storeToRefs } from 'pinia'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
-import AssetsView from '@/components/AssetsView.vue'
-import UserWallet from '@/components/UserWallet.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
@@ -36,21 +31,13 @@ const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
 const parentConnectionStore = useParentConnectionStore()
-const walletBalance = ref('')
 const requestStore = useRequestStore()
 const router = useRouter()
-const { selectedChainId } = storeToRefs(rpcStore)
 const loader = ref({
   show: true,
   message: 'Loading...',
 })
 let parentConnection: Connection<ParentConnectionApi>
-const assets: {
-  name?: string
-  symbol: string
-  decimals: number
-  balance: string
-}[] = []
 
 onMounted(async () => {
   setRpcConfigs()
@@ -62,25 +49,8 @@ onMounted(async () => {
   loader.value.show = false
 })
 
-console.log('logged in view again')
-watch(selectedChainId, () => {
-  console.log({ selectedChainId })
-  // getAccountDetails()
-})
-
-function showLoader(message) {
-  loader.value.show = true
-  loader.value.message = `${message}...`
-}
-
-function hideLoader() {
-  loader.value.show = false
-  loader.value.message = ''
-}
-
 async function getAccountDetails() {
   await initAccountHandler()
-  await getWalletBalance()
 }
 
 async function initKeeper() {
@@ -92,7 +62,6 @@ async function initKeeper() {
 }
 
 async function initAccountHandler() {
-  showLoader('Please wait')
   try {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
@@ -127,8 +96,6 @@ async function initAccountHandler() {
     }
   } catch (err) {
     console.log({ err })
-  } finally {
-    hideLoader()
   }
 }
 
@@ -197,7 +164,6 @@ function setRpcConfigs() {
 
 async function getRpcConfig() {
   try {
-    showLoader('Loading')
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
       const rpcConfig = await parentConnectionInstance.getRpcConfig()
@@ -205,33 +171,12 @@ async function getRpcConfig() {
     }
   } catch (err) {
     console.log({ err })
-  } finally {
-    hideLoader()
   }
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(appStore.id as string)
   return await authProvider.getPublicKey({ id, verifier })
-}
-
-async function getWalletBalance() {
-  showLoader('Fetching Wallet Balance')
-  try {
-    const accountHandler = getRequestHandler().getAccountHandler()
-    if (accountHandler) {
-      const balance =
-        (await accountHandler.provider.getBalance(userStore.walletAddress)) ||
-        '0'
-      rpcStore.setWalletBalance(balance.toString())
-      walletBalance.value = ethers.utils.formatEther(balance.toString())
-      assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
-    }
-  } catch (err) {
-    console.log({ err })
-  } finally {
-    hideLoader()
-  }
 }
 
 onBeforeRouteLeave((to) => {
@@ -244,6 +189,6 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else class="flex">
-    <router-view class="flex-grow"></router-view>
+    <router-view class="flex-grow w-full"></router-view>
   </div>
 </template>
