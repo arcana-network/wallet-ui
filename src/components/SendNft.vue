@@ -120,7 +120,7 @@ async function handleSendToken() {
       props.nft.type,
       props.nft.address,
       userStore.walletAddress,
-      recipientWalletAddress.value,
+      setHexPrefix(recipientWalletAddress.value),
       props.nft.tokenId,
       1,
       gasFees
@@ -129,6 +129,7 @@ async function handleSendToken() {
       chainId: rpcStore.selectedRpcConfig?.chainId,
       txHash,
       nft: props.nft,
+      recipientAddress: setHexPrefix(recipientWalletAddress.value),
     })
     router.back()
     toast.success('Tokens sent Successfully')
