@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
