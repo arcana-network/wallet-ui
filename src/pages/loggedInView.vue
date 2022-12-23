@@ -191,6 +191,6 @@ onBeforeRouteLeave((to) => {
     <p class="sm:text-xs">{{ loader.message }}</p>
   </div>
   <div v-else class="flex">
-    <router-view class="flex-grow"></router-view>
+    <router-view class="flex-grow w-full"></router-view>
   </div>
 </template>
