@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
@@ -31,6 +31,8 @@ function hideLoader() {
   loader.value.show = false
   loader.value.message = ''
 }
+
+onMounted(getWalletBalance)
 
 async function getWalletBalance() {
   showLoader('Fetching Wallet Balance')
