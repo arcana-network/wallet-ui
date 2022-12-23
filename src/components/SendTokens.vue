@@ -56,7 +56,9 @@ const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 watch(
   () => gasFeeInGwei.value,
   () => {
-    gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    if (gasFeeInEth.value) {
+      gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    }
   }
 )
 
