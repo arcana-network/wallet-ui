@@ -17,13 +17,11 @@ const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
 const parentConnectionStore = useParentConnectionStore()
-const { selectedChainId } = storeToRefs(rpcStore)
 const refreshState = ref(false)
 const loader = ref({
   show: false,
   message: '',
 })
-let accountHandler = getRequestHandler().getAccountHandler()
 let parentConnection = parentConnectionStore.parentConnection
 
 const helpOtherTabsLogin = () => {

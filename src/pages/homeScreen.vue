@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
@@ -32,15 +32,18 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+onMounted(() => {
+  getWalletBalance()
+})
+
+rpcStore.$subscribe(getWalletBalance)
+
 async function getWalletBalance() {
   showLoader('Fetching Wallet Balance')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
-
     if (accountHandler) {
-      const balance =
-        (await accountHandler.provider.getBalance(userStore.walletAddress)) ||
-        '0'
+      const balance = (await accountHandler.getBalance()) || '0'
       rpcStore.setWalletBalance(balance.toString())
       walletBalance.value = ethers.utils.formatEther(balance.toString())
       assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })

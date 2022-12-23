@@ -29,6 +29,9 @@ class AccountHandler {
     this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   }
 
+  getBalance() {
+    return this.provider.getBalance(this.wallet.address)
+  }
   setProvider(url: string) {
     this.provider = new ethers.providers.JsonRpcProvider(url)
   }
