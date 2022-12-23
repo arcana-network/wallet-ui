@@ -197,6 +197,7 @@ async function handleSendToken() {
           amount: amount.value,
           symbol: tokenInfo?.symbol as string,
         },
+        recipientAddress: setHexPrefix(recipientWalletAddress.value),
       })
     }
     toast.success('Tokens sent Successfully')

@@ -97,12 +97,14 @@ type TransactionFetchParams = {
   txHash: string
   chainId: ChainId
   customToken?: CustomTokenActivity
+  recipientAddress?: string
 }
 
 type TransactionFetchNftParams = {
   txHash: string
   chainId: ChainId
   nft: NFT
+  recipientAddress: string
 }
 
 function getTxOperation(
@@ -161,6 +163,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       txHash,
       chainId,
       customToken,
+      recipientAddress,
     }: TransactionFetchParams) {
       const accountHandler = getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
@@ -182,7 +185,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         date: new Date(),
         address: {
           from: remoteTransaction.from,
-          to: remoteTransaction.to,
+          to: recipientAddress || remoteTransaction.to,
         },
         customToken,
       }
@@ -196,6 +199,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       txHash,
       chainId,
       nft,
+      recipientAddress,
     }: TransactionFetchNftParams) {
       const accountHandler = getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
@@ -217,7 +221,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         date: new Date(),
         address: {
           from: remoteTransaction.from,
-          to: remoteTransaction.to,
+          to: recipientAddress || remoteTransaction.to,
         },
         nft: {
           address: nft.address,
