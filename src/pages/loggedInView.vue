@@ -5,8 +5,6 @@ import type { Connection } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
-import AssetsView from '@/components/AssetsView.vue'
-import UserWallet from '@/components/UserWallet.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
