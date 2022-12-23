@@ -105,7 +105,7 @@ class AccountHandler {
       return tx.hash
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      const tx = await contract.transferFrom(from, to, tokenId, gasFees)
+      const tx = await contract.safeTransferFrom(from, to, tokenId, gasFees)
       return tx.hash
     }
   }
@@ -134,7 +134,7 @@ class AccountHandler {
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
       return (
-        await contract.estimateGas.transferFrom(from, to, tokenId)
+        await contract.estimateGas.safeTransferFrom(from, to, tokenId, '0x')
       ).toString()
     }
   }
