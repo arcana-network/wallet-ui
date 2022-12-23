@@ -191,8 +191,14 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       }
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {
-        remoteTransaction.wait()
-        this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+        const txInterval = setInterval(async () => {
+          const remoteTransaction =
+            await accountHandler.provider.getTransaction(txHash)
+          if (remoteTransaction.blockNumber) {
+            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+            clearInterval(txInterval)
+          }
+        }, 1500)
       }
     },
     async fetchAndSaveNFTActivityFromHash({
@@ -233,8 +239,14 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       }
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {
-        remoteTransaction.wait()
-        this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+        const txInterval = setInterval(async () => {
+          const remoteTransaction =
+            await accountHandler.provider.getTransaction(txHash)
+          if (remoteTransaction.blockNumber) {
+            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+            clearInterval(txInterval)
+          }
+        }, 1500)
       }
     },
     async saveFileActivity(
