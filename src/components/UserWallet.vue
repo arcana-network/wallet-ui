@@ -115,7 +115,6 @@ async function getCurrencyExchangeRate() {
       }
     }
   } catch (err) {
-    console.log({ err })
     totalAmountInUSD.value = null
   } finally {
     hideLoader()
