@@ -199,7 +199,7 @@ function addNetwork(request, keeper) {
   }
 
   keeper.reply(method, {
-    result: `Added the network ${networkInfo.chainName} and set it as current`,
+    result: `Added the network ${networkInfo.chainName}`,
     id: request.id,
   })
 }
