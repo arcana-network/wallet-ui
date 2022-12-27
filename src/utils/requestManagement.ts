@@ -194,10 +194,12 @@ function addNetwork(request, keeper) {
     },
   }
   rpcStore.addNetwork(payload)
-  router.push({ name: 'home' })
+  if (!reqStore.areRequestsPendingForApproval) {
+    router.push({ name: 'home' })
+  }
 
   keeper.reply(method, {
-    result: `Added the network ${networkInfo.chainName} and set it as current`,
+    result: `Added the network ${networkInfo.chainName}`,
     id: request.id,
   })
 }

@@ -11,7 +11,7 @@ import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import SendTokens from '@/components/SendTokens.vue'
 import {
   getExchangeRate,
-  type CurrencySymbol,
+  CurrencySymbol,
 } from '@/services/exchangeRate.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
@@ -115,7 +115,6 @@ async function getCurrencyExchangeRate() {
       }
     }
   } catch (err) {
-    console.log({ err })
     totalAmountInUSD.value = null
   } finally {
     hideLoader()

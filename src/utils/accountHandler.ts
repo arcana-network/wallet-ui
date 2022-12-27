@@ -29,6 +29,9 @@ class AccountHandler {
     this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
   }
 
+  getBalance() {
+    return this.provider.getBalance(this.wallet.address)
+  }
   setProvider(url: string) {
     this.provider = new ethers.providers.JsonRpcProvider(url)
   }
@@ -102,7 +105,7 @@ class AccountHandler {
       return tx.hash
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      const tx = await contract.transferFrom(from, to, tokenId, gasFees)
+      const tx = await contract.transferFrom(from, to, tokenId)
       return tx.hash
     }
   }
