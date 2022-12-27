@@ -8,6 +8,7 @@ import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   handlePasswordlessLogin,
+  handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
 
@@ -35,13 +36,17 @@ async function init() {
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
-        channel = new BroadcastChannel(`${appId}_login_notification`)
-        await handlePasswordlessLogin(
-          info,
-          messageId,
-          parentAppUrl,
-          connectionToParent,
-          channel
+        await handlePasswordlessLoginV2(info, connectionToParent).catch(
+          async () => {
+            channel = new BroadcastChannel(`${appId}_login_notification`)
+            await handlePasswordlessLogin(
+              info,
+              messageId,
+              parentAppUrl,
+              connectionToParent,
+              channel
+            )
+          }
         )
       } else {
         await handleSocialLogin(

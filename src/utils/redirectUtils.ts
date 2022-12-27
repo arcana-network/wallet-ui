@@ -2,6 +2,11 @@ import { GetInfoOutput } from '@arcana/auth-core'
 import { AsyncMethodReturns } from 'penpal'
 
 import { RedirectParentConnectionApi } from '@/models/Connection'
+import { encrypt } from '@/utils/crypto'
+import {
+  getCredentialKey,
+  setCredential,
+} from '@/utils/PasswordlessLoginHandler'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
 const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
@@ -74,21 +79,22 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
   })
 }
 
-async function handlePasswordlessLogin(
+async function handlePasswordlessLoginV2(
   info: GetInfoOutput,
-  messageId: number,
-  parentAppUrl: string,
-  connection: AsyncMethodReturns<RedirectParentConnectionApi>,
-  channel: BroadcastChannel
+  connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
-  try {
-    await contactUsingBroadcastChannel(channel, info, messageId)
-    connection.replyTo(parentAppUrl)
-  } catch (e) {
-    const url = new URL(parentAppUrl)
-    url.hash = 'fLR=y'
-    connection.redirect(url.toString())
+  const params = localStorage.getItem('CURRENT_LOGIN_INFO')
+  if (!params) {
+    console.log('params not found in local storage')
+    throw new Error('No passwordless login init')
   }
+  localStorage.removeItem('CURRENT_LOGIN_INFO')
+  const data = JSON.parse(params)
+
+  const publicKey = await getCredentialKey(data.sessionId)
+  const ciphertext = await encrypt(info.privateKey, publicKey)
+  await setCredential(data.setToken, data.sessionId, ciphertext)
+  connection.replyTo()
 }
 
 async function handleSocialLogin(
@@ -109,4 +115,20 @@ async function handleSocialLogin(
   }
 }
 
-export { handlePasswordlessLogin, handleSocialLogin }
+async function handlePasswordlessLogin(
+  info: GetInfoOutput,
+  messageId: number,
+  parentAppUrl: string,
+  connection: AsyncMethodReturns<RedirectParentConnectionApi>,
+  channel: BroadcastChannel
+) {
+  try {
+    await contactUsingBroadcastChannel(channel, info, messageId)
+    connection.replyTo(parentAppUrl)
+  } catch (e) {
+    const url = new URL(parentAppUrl)
+    url.hash = 'fLR=y'
+    connection.redirect(url.toString())
+  }
+}
+export { handlePasswordlessLogin, handlePasswordlessLoginV2, handleSocialLogin }

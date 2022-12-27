@@ -19,7 +19,7 @@ function fetchStoredAssetContracts(): AssetContract[] {
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {
-    return JSON.parse(assetContracts)
+    return JSON.parse(assetContracts) as AssetContract[]
   } else {
     return []
   }
@@ -27,6 +27,7 @@ function fetchStoredAssetContracts(): AssetContract[] {
 
 function fetchNativeAsset() {
   return {
+    address: 'native',
     name: rpcStore.nativeCurrency.name,
     balance: formatTokenDecimals(
       rpcStore.walletBalance,
@@ -46,6 +47,7 @@ async function getAssetsBalance() {
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
     assets.push({
+      address: contract.address,
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
@@ -56,12 +58,10 @@ async function getAssetsBalance() {
   storedAssetContracts.forEach(async (contract) => {
     try {
       const balance = await getTokenBalance({
-        privateKey: userStore.privateKey,
-        rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
         walletAddress: userStore.walletAddress,
         contractAddress: contract.address,
       })
-      const asset = assets.find((asset) => asset.symbol === contract.symbol)
+      const asset = assets.find((asset) => asset.address === contract.address)
       if (asset) {
         asset.balance = formatTokenDecimals(balance, contract.decimals)
       }
@@ -72,7 +72,7 @@ async function getAssetsBalance() {
 }
 
 function handleAddToken() {
-  router.push({ name: 'addToken' })
+  router.push({ name: 'AddToken' })
 }
 
 onMounted(getAssetsBalance)
@@ -110,11 +110,11 @@ rpcStore.$subscribe(getAssetsBalance)
     </div>
     <div class="flex justify-center">
       <div
-        class="flex py-4 gap-1 items-center cursor-pointer"
+        class="flex py-4 gap-2 items-center cursor-pointer"
         @click.stop="handleAddToken"
       >
-        <span class="text-xl">+</span>
-        <span class="assets-view__add-token-text">New</span>
+        <img src="@/assets/images/plus.svg" class="invert dark:invert-0" />
+        <span class="assets-view__add-token-text leading-[1]">New</span>
       </div>
     </div>
   </div>

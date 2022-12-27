@@ -11,12 +11,16 @@ import { useUserStore } from '@/store/user'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 
 const router = useRouter()
-const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
-  (address) => ({
+const isDisabled = reactive({
+  symbol: false,
+  decimals: false,
+})
+const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap)
+  .map((address) => ({
     ...contractMap[address],
     address,
-  })
-)
+  }))
+  .filter((contract) => contract.erc20 === true)
 const rpcStore = useRpcStore()
 const toast = useToast()
 const userStore = useUserStore()
@@ -32,11 +36,13 @@ const tokenContract: AssetContract = reactive({
 })
 
 function handleSearchToken(selectedTokenContract: EthAssetContract) {
-  tokenContract.address = selectedTokenContract.address
-  tokenContract.symbol = selectedTokenContract.symbol
-  tokenContract.decimals = selectedTokenContract.decimals
-  tokenContract.logo = selectedTokenContract.logo
-  tokenContract.name = selectedTokenContract.name
+  if (selectedTokenContract) {
+    tokenContract.address = selectedTokenContract.address
+    tokenContract.symbol = selectedTokenContract.symbol
+    tokenContract.decimals = selectedTokenContract.decimals
+    tokenContract.logo = selectedTokenContract.logo
+    tokenContract.name = selectedTokenContract.name
+  }
 }
 
 function handleCancel() {
@@ -47,6 +53,14 @@ async function addTokenContract() {
   loader.show = true
   const isValidContract = await validateAndPopulateContract()
   if (isValidContract) {
+    if (
+      !tokenContract.symbol?.trim() &&
+      !tokenContract.decimals &&
+      tokenContract.decimals !== 0
+    ) {
+      loader.show = false
+      return toast.error('Enter all the details to continue')
+    }
     const assetContractsString = localStorage.getItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
     )
@@ -62,6 +76,9 @@ async function addTokenContract() {
     loader.show = false
     toast.success('Token Added successfully')
     router.push({ name: 'home' })
+  } else {
+    loader.show = false
+    toast.error('Invalid contract address')
   }
 }
 
@@ -104,12 +121,16 @@ async function validateAndPopulateContract() {
   }
   try {
     const { symbol, decimals } = await getTokenSymbolAndDecimals({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       contractAddress: tokenContract.address,
     })
-    tokenContract.symbol = symbol
-    tokenContract.decimals = decimals
+    if (!symbol?.trim()) {
+      isDisabled.symbol = false
+    }
+    if (!decimals && decimals !== 0) {
+      isDisabled.decimals = false
+    }
+    tokenContract.symbol = symbol || tokenContract.symbol
+    tokenContract.decimals = decimals || tokenContract.decimals || 0
     return true
   } catch (e) {
     loader.show = false
@@ -124,6 +145,8 @@ watch(
   () => tokenContract.address,
   async () => {
     if (tokenContract.address?.length == 42) {
+      isDisabled.symbol = true
+      isDisabled.decimals = true
       await validateAndPopulateContract()
     } else {
       tokenContract.symbol = ''
@@ -168,7 +191,7 @@ watch(
               v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
-              class="text-base p-4 input"
+              class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
               required
               autocomplete="off"
             />
@@ -182,10 +205,11 @@ watch(
               v-model="tokenContract.symbol"
               type="text"
               placeholder="Eg. XAR"
-              class="text-base p-4 input cursor-not-allowed"
+              class="text-base p-4 input"
+              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
-              disabled
+              :disabled="isDisabled.symbol"
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -197,12 +221,13 @@ watch(
               v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
-              class="text-base p-4 input cursor-not-allowed"
+              class="text-base p-4 input"
+              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"
               required
               autocomplete="off"
-              disabled
+              :disabled="isDisabled.decimals"
             />
           </div>
           <div class="flex space-x-3">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, ref, Ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import GasPrice from '@/components/GasPrice.vue'
@@ -12,9 +12,9 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -43,20 +43,22 @@ const loader = ref({
 const tokenList = ref([
   {
     symbol: rpcStore.nativeCurrency.symbol,
+    decimals: 18,
+    address: '',
   },
 ])
 const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0].symbol)
 const selectedTokenBalance = ref('0')
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
 watch(
   () => gasFeeInGwei.value,
   () => {
-    gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    if (gasFeeInEth.value) {
+      gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    }
   }
 )
 
@@ -74,26 +76,42 @@ function hideLoader() {
   loader.value.message = ''
 }
 
+let baseFeePoll
+let gasSliderPoll
+
 onMounted(async () => {
   showLoader('Loading')
   try {
     setTokenList()
     await fetchTokenBalance()
+    await fetchBaseFee()
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      const data = await getGasPrice(chainId)
-      gasPrices.value = data
+      await fetchGasSliderValues()
+      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
     }
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
-    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    baseFeePoll = setInterval(fetchBaseFee, 2000)
   } catch (err) {
     console.log({ err })
-    gasPrices.value = {}
   } finally {
     hideLoader()
   }
 })
+
+onUnmounted(() => {
+  if (baseFeePoll) clearInterval(baseFeePoll)
+  if (gasSliderPoll) clearInterval(gasSliderPoll)
+})
+
+async function fetchBaseFee() {
+  const accountHandler = getRequestHandler().getAccountHandler()
+  const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
+  baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+}
+
+async function fetchGasSliderValues() {
+  const data = await getGasPrice(chainId)
+  gasPrices.value = data
+}
 
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
@@ -104,14 +122,12 @@ async function fetchTokenBalance() {
     selectedTokenBalance.value = walletBalance
   } else {
     const balance = await getTokenBalance({
-      privateKey: userStore.privateKey,
-      rpcUrl: rpcStore.selectedRpcConfig?.rpcUrls[0] as string,
       walletAddress: userStore.walletAddress,
-      contractAddress: tokenInfo.address,
+      contractAddress: tokenInfo?.address as string,
     })
-    selectedTokenBalance.value = tokenInfo.decimals
-      ? (Number(balance) / Math.pow(10, tokenInfo.decimals)).toFixed(
-          tokenInfo.decimals
+    selectedTokenBalance.value = tokenInfo?.decimals
+      ? (Number(balance) / Math.pow(10, tokenInfo?.decimals)).toFixed(
+          tokenInfo?.decimals
         )
       : balance
   }
@@ -142,11 +158,10 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending')
   try {
-    const accountHandler = new AccountHandler(userStore.privateKey)
+    const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
-    accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
     if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
@@ -167,11 +182,11 @@ async function handleSendToken() {
       const tokenInfo = tokenList.value.find(
         (item) => item.symbol === selectedToken.value
       )
-      const sendAmount = tokenInfo.decimals
+      const sendAmount = tokenInfo?.decimals
         ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
         : amount.value
       const transactionHash = await accountHandler.sendCustomToken(
-        tokenInfo.address,
+        tokenInfo?.address,
         setHexPrefix(recipientWalletAddress.value),
         sendAmount,
         gasFees
@@ -182,12 +197,13 @@ async function handleSendToken() {
         customToken: {
           operation: 'Send',
           amount: amount.value,
-          symbol: tokenInfo.symbol,
+          symbol: tokenInfo?.symbol as string,
         },
+        recipientAddress: setHexPrefix(recipientWalletAddress.value),
       })
     }
     toast.success('Tokens sent Successfully')
-  } catch (err) {
+  } catch (err: any) {
     if (err && err.reason) {
       toast.error(err.reason)
     }
@@ -210,6 +226,7 @@ async function handleShowPreview() {
   if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
     showLoader('Loading preview...')
     try {
+      const accountHandler = getRequestHandler().getAccountHandler()
       if (rpcStore.nativeCurrency.symbol === selectedToken.value) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
@@ -222,11 +239,11 @@ async function handleShowPreview() {
         const tokenInfo = tokenList.value.find(
           (item) => item.symbol === selectedToken.value
         )
-        const sendAmount = tokenInfo.decimals
+        const sendAmount = tokenInfo?.decimals
           ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
           : amount.value
         estimatedGas.value = await accountHandler.estimateCustomTokenGas(
-          tokenInfo.address,
+          tokenInfo?.address,
           setHexPrefix(recipientWalletAddress.value),
           sendAmount
         )
@@ -263,7 +280,7 @@ async function handleShowPreview() {
     <div v-else class="space-y-3 overflow-auto flex flex-col justify-between">
       <div class="flex flex-col space-y-3 sm:space-y-2">
         <div class="flex justify-between">
-          <p class="text-xl sm:text-sm">Send Tokens</p>
+          <p class="text-xl sm:text-sm font-semibold">Send Tokens</p>
           <button class="h-auto" @click="emits('close')">
             <img :src="getImage('close-icon')" alt="close icon" />
           </button>
@@ -274,7 +291,7 @@ async function handleShowPreview() {
         </p>
       </div>
       <div class="space-y-1">
-        <p class="text-xs text-zinc-400">Network</p>
+        <p class="text-xs text-zinc-400 font-semibold">Network</p>
         <p class="text-base sm:text-sm flex gap-2">
           <img
             :src="getImage(rpcStore.selectedRpcConfig.favicon)"
@@ -288,7 +305,10 @@ async function handleShowPreview() {
         @submit.prevent="handleShowPreview"
       >
         <div class="space-y-1">
-          <label class="text-xs text-zinc-400" for="recipientWalletAddress">
+          <label
+            class="text-xs text-zinc-400 font-semibold"
+            for="recipientWalletAddress"
+          >
             Recipient’s Wallet Address
           </label>
           <div
@@ -303,7 +323,7 @@ async function handleShowPreview() {
               v-model="recipientWalletAddress"
               required
               type="text"
-              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none"
+              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none overflow-hidden text-ellipsis"
               placeholder="6yhjtikn7..."
               @focus="isWalletAddressFocused = true"
               @blur="isWalletAddressFocused = false"
@@ -312,9 +332,11 @@ async function handleShowPreview() {
         </div>
         <div class="space-y-1">
           <div class="flex justify-between sm:flex-col sm:space-y-1">
-            <label class="text-xs text-zinc-400" for="amount"> Amount </label>
+            <label class="text-xs text-zinc-400 font-semibold" for="amount">
+              Amount
+            </label>
             <p class="space-x-1 text-xs text-zinc-400">
-              <span>Total Balance:</span>
+              <span class="font-semibold">Total Balance:</span>
               <span :title="selectedTokenBalance">{{
                 truncateToTwoDecimals(selectedTokenBalance)
               }}</span>

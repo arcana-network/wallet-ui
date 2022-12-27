@@ -6,8 +6,6 @@ import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
-import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import debounce from '@/utils/debounce'
 import { formatValueToUSD } from '@/utils/formatUSD'
 import { convertGweiToEth } from '@/utils/gweiToEth'
@@ -37,10 +35,6 @@ const props = defineProps({
 onMounted(init)
 
 const rpcStore = useRpcStore()
-const userStore = useUserStore()
-
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasFee = ref(0)
 const transactionTime = ref(null)
@@ -156,11 +150,13 @@ function handleCustomGasPriceInput(value) {
   </button>
   <div v-if="showCustomGasFeeInput" class="space-y-1">
     <div class="space-x-1 mb-2 text-xs text-zinc-400">
-      <span>Base Fee:</span>
+      <span class="font-semibold">Base Fee:</span>
       <span class="text-black dark:text-white">{{ props.baseFee }} Gwei</span>
     </div>
     <div class="flex justify-between sm:flex-col sm:space-y-1">
-      <label class="text-xs text-zinc-400" for="amount"> Custom Fee </label>
+      <label class="text-xs text-zinc-400 font-semibold" for="amount">
+        Set Custom Fee
+      </label>
       <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
         <span>Conversion Rate:</span>
         <span class="text-black dark:text-white">{{

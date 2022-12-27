@@ -2,17 +2,16 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
+import { NFT } from '@/models/NFT'
 import { store } from '@/store'
-import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
-const rpcStore = useRpcStore(store)
 
 type ChainId = string
 
@@ -73,6 +72,13 @@ type Activity = {
     amount: string
     symbol: string
   }
+  nft?: {
+    address: string
+    tokenId: string
+    imageUrl: string
+    collectionName: string
+    name: string
+  }
 }
 
 type ActivitiesState = {
@@ -91,6 +97,14 @@ type TransactionFetchParams = {
   txHash: string
   chainId: ChainId
   customToken?: CustomTokenActivity
+  recipientAddress?: string
+}
+
+type TransactionFetchNftParams = {
+  txHash: string
+  chainId: ChainId
+  nft: NFT
+  recipientAddress: string
 }
 
 function getTxOperation(
@@ -149,9 +163,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       txHash,
       chainId,
       customToken,
+      recipientAddress,
     }: TransactionFetchParams) {
-      const accountHandler = new AccountHandler(userStore.privateKey)
-      accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+      const accountHandler = getRequestHandler().getAccountHandler()
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
@@ -171,14 +185,68 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         date: new Date(),
         address: {
           from: remoteTransaction.from,
-          to: remoteTransaction.to,
+          to: recipientAddress || remoteTransaction.to,
         },
         customToken,
       }
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {
-        remoteTransaction.wait()
-        this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+        const txInterval = setInterval(async () => {
+          const remoteTransaction =
+            await accountHandler.provider.getTransaction(txHash)
+          if (remoteTransaction.blockNumber) {
+            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+            clearInterval(txInterval)
+          }
+        }, 1500)
+      }
+    },
+    async fetchAndSaveNFTActivityFromHash({
+      txHash,
+      chainId,
+      nft,
+      recipientAddress,
+    }: TransactionFetchNftParams) {
+      const accountHandler = getRequestHandler().getAccountHandler()
+      const remoteTransaction = await accountHandler.provider.getTransaction(
+        txHash
+      )
+      const activity: Activity = {
+        operation: 'Send',
+        txHash,
+        transaction: {
+          hash: txHash,
+          amount: remoteTransaction.value.toBigInt(),
+          nonce: remoteTransaction.nonce,
+          gasLimit: remoteTransaction.gasLimit.toBigInt(),
+          gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+          gasUsed: remoteTransaction.gasLimit.toBigInt(),
+          data: remoteTransaction.data,
+        },
+        status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+        date: new Date(),
+        address: {
+          from: remoteTransaction.from,
+          to: recipientAddress || remoteTransaction.to,
+        },
+        nft: {
+          address: nft.address,
+          tokenId: nft.tokenId,
+          imageUrl: nft.imageUrl,
+          name: nft.name,
+          collectionName: nft.collectionName,
+        },
+      }
+      this.saveActivity(chainId, activity)
+      if (!remoteTransaction.blockNumber) {
+        const txInterval = setInterval(async () => {
+          const remoteTransaction =
+            await accountHandler.provider.getTransaction(txHash)
+          if (remoteTransaction.blockNumber) {
+            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+            clearInterval(txInterval)
+          }
+        }, 1500)
       }
     },
     async saveFileActivity(
@@ -224,8 +292,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         ],
       }
 
-      const accountHandler = new AccountHandler(userStore.privateKey)
-      accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
+      const accountHandler = getRequestHandler().getAccountHandler()
       accountHandler.provider.once(filter, async (log) => {
         currentActivity.status = 'Success'
         currentActivity.txHash = log.transactionHash

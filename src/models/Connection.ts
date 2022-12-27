@@ -10,6 +10,7 @@ type RequestMethod =
   | 'eth_signTransaction'
   | 'eth_sendTransaction'
   | 'eth_accounts'
+  | 'eth_requestAccounts'
   | 'eth_getEncryptionPublicKey'
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
@@ -22,9 +23,11 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   eth_signTransaction: true,
   eth_sendTransaction: true,
   eth_accounts: false,
+  eth_requestAccounts: false,
   eth_getEncryptionPublicKey: false,
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
+  wallet_watchAsset: true,
 })
 
 function requirePermission(
@@ -45,7 +48,7 @@ type ProviderEvent =
 
 type RedirectParentConnectionApi = {
   redirect(url: string | null): Promise<void>
-  replyTo(parentAppUrl: string | null): Promise<void>
+  replyTo(parentAppUrl?: string | null): Promise<void>
   error(errorMessage: string, parentAppUrl: string): Promise<void>
 }
 
@@ -65,6 +68,7 @@ type ParentConnectionApi = {
 }
 type InitParentConnectionApi = {
   getParentUrl(): string
+  getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
 }
 

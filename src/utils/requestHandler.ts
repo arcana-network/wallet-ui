@@ -51,6 +51,10 @@ class RequestHandler {
     }
   }
 
+  public getAccountHandler() {
+    return this.accountHandler
+  }
+
   public setConnection(connection: Connection<ParentConnectionApi>): void {
     this.connection = connection
   }

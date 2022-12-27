@@ -7,4 +7,5 @@ export const methodAndAction = {
   eth_decrypt: 'Request Decryption',
   wallet_addEthereumChain: 'Add Network',
   wallet_switchEthereumChain: 'Switch Chain',
+  wallet_watchAsset: 'Add Token',
 }

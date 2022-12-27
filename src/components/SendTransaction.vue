@@ -11,9 +11,8 @@ import {
 } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
-import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
@@ -28,13 +27,9 @@ const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
-const userStore = useUserStore()
 const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
-
-const accountHandler = new AccountHandler(userStore.privateKey)
-accountHandler.setProvider(rpcStore.selectedRpcConfig.rpcUrls[0])
 
 const gasPrices: Ref<object> = ref({})
 
@@ -60,6 +55,7 @@ onMounted(async () => {
       const data = await getGasPrice(chainId)
       gasPrices.value = data
     }
+    const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
@@ -89,7 +85,7 @@ function handleSetGasPrice(value) {
   <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
       <div class="flex justify-between">
-        <p class="text-xl sm:text-sm">Send Transaction</p>
+        <p class="text-xl sm:text-sm font-semibold">Send Transaction</p>
       </div>
       <p class="text-xs text-zinc-400">
         {{ appStore.name }} requests your permission to send this transaction to
@@ -108,7 +104,10 @@ function handleSetGasPrice(value) {
       </p>
     </div>
     <div class="space-y-1">
-      <label class="text-xs text-zinc-400" for="recipientWalletAddress">
+      <label
+        class="text-xs text-zinc-400 font-semibold"
+        for="recipientWalletAddress"
+      >
         Origin
       </label>
       <p
