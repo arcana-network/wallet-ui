@@ -277,7 +277,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
       if (request.method === 'eth_sendTransaction') {
-        request.params[0].gasLimit = request.params[0].gas
+        request.params[0].gasLimit =
+          request.params[0].gas || request.params[0].gasLimit
         delete request.params[0].gas
       }
       try {
@@ -290,6 +291,16 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             toast.error(response.error)
           }
           return
+        } else {
+          const asyncMethods = [
+            'eth_sendTransaction',
+            'wallet_watchAsset',
+            'wallet_switchEthereumChain',
+            'wallet_addEthereumChain',
+          ]
+          if (asyncMethods.includes(request.method)) {
+            toast.success(`${request.method} execution completed`)
+          }
         }
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
