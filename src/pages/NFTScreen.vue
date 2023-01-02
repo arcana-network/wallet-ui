@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { getUniqueId } from 'json-rpc-engine'
-import { storeToRefs } from 'pinia'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
 import NFTView from '@/components/NFTView.vue'
@@ -11,7 +10,6 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
