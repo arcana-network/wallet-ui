@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 
+import AppLoader from '@/components/AppLoader.vue'
 import NFTView from '@/components/NFTView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
@@ -79,7 +80,7 @@ onBeforeRouteLeave((to) => {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="h-full">
     <UserWallet page="nft" @refresh="handleRefresh" />

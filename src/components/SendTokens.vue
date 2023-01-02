@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import {
@@ -80,7 +81,7 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  showLoader('Loading')
+  showLoader('Loading...')
   try {
     setTokenList()
     await fetchTokenBalance()
@@ -156,7 +157,7 @@ function setHexPrefix(value: string) {
 }
 
 async function handleSendToken() {
-  showLoader('Sending')
+  showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
@@ -261,7 +262,7 @@ async function handleShowPreview() {
 
 <template>
   <div v-if="loader.show" class="h-full flex justify-center items-center">
-    <p>Please Wait...</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="w-full">
     <SendTokensPreview

@@ -4,6 +4,7 @@ import type { Ref } from 'vue'
 import { ref, onMounted } from 'vue'
 
 import ActivityView from '@/components/ActivityView.vue'
+import AppLoader from '@/components/AppLoader.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useRpcStore } from '@/store/rpc'
@@ -85,7 +86,7 @@ async function getCurrencyExchangeRate() {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div
     v-else

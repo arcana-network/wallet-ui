@@ -6,6 +6,7 @@ import type { Connection } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
+import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
@@ -187,7 +188,7 @@ onBeforeRouteLeave((to) => {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex">
     <router-view class="flex-grow w-full"></router-view>
