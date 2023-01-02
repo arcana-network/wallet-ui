@@ -34,13 +34,13 @@ onMounted(() => {
     } else {
       getWalletBalance()
     }
+    setInterval(getWalletBalance, 2000)
   } catch (err) {
     console.log({ err })
   }
 })
 
 async function handleChainChange() {
-  console.log('Change chain')
   showLoader('Fetching Wallet Balance...')
   try {
     await getWalletBalance()
@@ -60,7 +60,11 @@ async function getWalletBalance() {
   }
 }
 
-rpcStore.$subscribe(handleChainChange)
+rpcStore.$subscribe((mutation) => {
+  if (mutation.events.key === 'selectedChainId') {
+    handleChainChange()
+  }
+})
 </script>
 
 <template>
