@@ -5,22 +5,17 @@ import { ref, onMounted } from 'vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
-import { useUserStore } from '@/store/user'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
-const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
+if (rpcStore.walletBalance) {
+  walletBalance.value = ethers.utils.formatEther(rpcStore.walletBalance)
+}
 const loader = ref({
   show: false,
   message: '',
 })
-const assets: {
-  name?: string
-  symbol: string
-  decimals: number
-  balance: string
-}[] = []
 
 function showLoader(message) {
   loader.value.show = true
@@ -33,27 +28,39 @@ function hideLoader() {
 }
 
 onMounted(() => {
-  getWalletBalance()
+  try {
+    if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
+      handleChainChange()
+    } else {
+      getWalletBalance()
+    }
+  } catch (err) {
+    console.log({ err })
+  }
 })
 
-rpcStore.$subscribe(getWalletBalance)
-
-async function getWalletBalance() {
-  showLoader('Fetching Wallet Balance')
+async function handleChainChange() {
+  console.log('Change chain')
+  showLoader('Fetching Wallet Balance...')
   try {
-    const accountHandler = getRequestHandler().getAccountHandler()
-    if (accountHandler) {
-      const balance = (await accountHandler.getBalance()) || '0'
-      rpcStore.setWalletBalance(balance.toString())
-      walletBalance.value = ethers.utils.formatEther(balance.toString())
-      assets.push({ ...rpcStore.nativeCurrency, balance: balance.toString() })
-    }
+    await getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {
     hideLoader()
   }
 }
+
+async function getWalletBalance() {
+  const accountHandler = getRequestHandler().getAccountHandler()
+  if (accountHandler) {
+    const balance = (await accountHandler.getBalance()) || '0'
+    rpcStore.setWalletBalance(balance.toString())
+    walletBalance.value = ethers.utils.formatEther(balance.toString())
+  }
+}
+
+rpcStore.$subscribe(handleChainChange)
 </script>
 
 <template>
