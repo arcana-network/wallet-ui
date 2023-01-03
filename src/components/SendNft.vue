@@ -49,7 +49,9 @@ const baseFee = ref('0')
 watch(
   () => gasFeeInGwei.value,
   () => {
-    gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    if (gasFeeInEth.value) {
+      gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
+    }
   }
 )
 
