@@ -61,8 +61,8 @@ async function getWalletBalance() {
   }
 }
 
-rpcStore.$subscribe((mutation) => {
-  if (mutation.events.key === 'selectedChainId') {
+rpcStore.$subscribe(() => {
+  if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
     handleChainChange()
   }
 })
