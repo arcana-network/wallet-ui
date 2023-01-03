@@ -2,6 +2,7 @@
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 
+import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
@@ -58,7 +59,7 @@ async function getWalletBalance() {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else>
     <UserWallet

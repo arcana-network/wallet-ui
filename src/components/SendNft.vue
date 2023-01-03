@@ -4,6 +4,7 @@ import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
 import { NFT } from '@/models/NFT'
@@ -69,7 +70,7 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  showLoader('Loading')
+  showLoader('Loading...')
   try {
     await fetchBaseFee()
     if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
@@ -111,7 +112,7 @@ function setHexPrefix(value: string) {
 }
 
 async function handleSendToken() {
-  showLoader('Sending')
+  showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
@@ -182,7 +183,7 @@ async function handleShowPreview() {
 
 <template>
   <div v-if="loader.show" class="h-full flex justify-center items-center">
-    <p>Please Wait...</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="w-full">
     <SendNftPreview

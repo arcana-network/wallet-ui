@@ -3,6 +3,7 @@ import { reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
 import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
@@ -162,7 +163,7 @@ watch(
       v-if="loader.show"
       class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
     >
-      <p class="sm:text-xs text-black dark:text-white">{{ loader.message }}</p>
+      <AppLoader :message="loader.message" />
     </div>
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
       <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>

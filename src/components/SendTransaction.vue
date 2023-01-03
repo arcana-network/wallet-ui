@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
 
+import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import {
@@ -80,7 +81,7 @@ function handleSetGasPrice(value) {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
