@@ -100,7 +100,7 @@ function openReceiveTokens(open) {
 
 async function getCurrencyExchangeRate() {
   showLoader('Fetching Currency Rate')
-  totalAmountInUSD.value = null
+  totalAmountInUSD.value = totalAmountInUSD.value || null
   try {
     if (currency.value) {
       const rate = await getExchangeRate(
@@ -132,6 +132,13 @@ watch(selectedChainId, () => {
     getCurrencyExchangeRate()
   }
 })
+
+watch(
+  () => props.walletBalance,
+  () => {
+    getCurrencyExchangeRate()
+  }
+)
 </script>
 
 <template>

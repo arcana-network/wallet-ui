@@ -191,6 +191,10 @@ onBeforeRouteLeave((to) => {
     <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex">
-    <router-view class="flex-grow w-full"></router-view>
+    <RouterView v-slot="{ Component }" class="flex-grow w-full">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </RouterView>
   </div>
 </template>

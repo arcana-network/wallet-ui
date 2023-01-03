@@ -43,6 +43,7 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
+  assets.length = 0
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
