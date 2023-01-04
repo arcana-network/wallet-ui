@@ -76,7 +76,10 @@ function handleAddToken() {
   router.push({ name: 'AddToken' })
 }
 
-onMounted(getAssetsBalance)
+onMounted(async () => {
+  await getAssetsBalance()
+  setInterval(getAssetsBalance, 2000)
+})
 
 rpcStore.$subscribe(getAssetsBalance)
 </script>
