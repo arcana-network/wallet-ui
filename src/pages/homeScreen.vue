@@ -61,6 +61,17 @@ async function getWalletBalance() {
   }
 }
 
+async function handleRefresh() {
+  showLoader('Refreshing wallet balance...')
+  try {
+    await getWalletBalance()
+  } catch (err) {
+    console.log({ err })
+  } finally {
+    hideLoader()
+  }
+}
+
 rpcStore.$subscribe(() => {
   if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
     handleChainChange()
@@ -76,7 +87,7 @@ rpcStore.$subscribe(() => {
     <UserWallet
       page="home"
       :wallet-balance="walletBalance"
-      @refresh="getWalletBalance"
+      @refresh="handleRefresh"
     />
     <div class="pb-5 flex flex-col gap-1">
       <div class="font-semibold">Assets</div>
