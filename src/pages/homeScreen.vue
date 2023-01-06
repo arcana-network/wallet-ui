@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
@@ -17,6 +17,7 @@ const loader = ref({
   show: false,
   message: '',
 })
+let balancePolling
 
 function showLoader(message) {
   loader.value.show = true
@@ -35,9 +36,15 @@ onMounted(() => {
     } else {
       getWalletBalance()
     }
-    setInterval(getWalletBalance, 2000)
+    balancePolling = setInterval(getWalletBalance, 2000)
   } catch (err) {
     console.log({ err })
+  }
+})
+
+onBeforeUnmount(() => {
+  if (balancePolling) {
+    clearInterval(balancePolling)
   }
 })
 
