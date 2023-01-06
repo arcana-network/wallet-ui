@@ -72,13 +72,25 @@ async function getAssetsBalance() {
   })
 }
 
+function updateAssetsBalance() {
+  assets.forEach(async (asset) => {
+    if (asset.address !== 'native') {
+      const balance = await getTokenBalance({
+        walletAddress: userStore.walletAddress,
+        contractAddress: asset.address,
+      })
+      asset.balance = formatTokenDecimals(balance, asset.decimals)
+    }
+  })
+}
+
 function handleAddToken() {
   router.push({ name: 'AddToken' })
 }
 
 onMounted(async () => {
   await getAssetsBalance()
-  setInterval(getAssetsBalance, 2000)
+  setInterval(updateAssetsBalance, 2000)
 })
 
 rpcStore.$subscribe(getAssetsBalance)
