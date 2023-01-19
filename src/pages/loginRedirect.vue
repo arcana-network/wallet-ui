@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SecretSharing, utils as KeyShareUtils } from '@arcana/key-helper'
 import { BN } from 'bn.js'
 import {
   encryptWithPublicKey,
@@ -8,7 +9,6 @@ import {
 import { Wallet } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
-import { SecretSharing, utils as KeyShareUtils } from 'sss'
 import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
