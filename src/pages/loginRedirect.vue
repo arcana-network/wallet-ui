@@ -49,34 +49,47 @@ async function init() {
       }
       const sss = new SecretSharing(2)
       const dkgShare = new BN(info.privateKey, 16)
-      const locallyStoredEncryptedShare = localStorage.getItem(
-        `encrypted-share-${appId}-${info.userInfo.id}`
-      )
-      if (locallyStoredEncryptedShare) {
-        const decryptedShare = await decryptWithPrivateKey(
-          dkgShare.toString(16),
-          JSON.parse(locallyStoredEncryptedShare) as Encrypted
+      const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
+      const nonce = (await getNonce(dkgWallet.address)).data
+      const signature = await dkgWallet.signMessage(String(nonce))
+      const metadata = (
+        await getMetadata({
+          address: dkgWallet.address,
+          signature,
+          appAddress: String(appId),
+        })
+      ).data
+      if (metadata?.metadata) {
+        const locallyStoredEncryptedShare = localStorage.getItem(
+          `encrypted-share-${appId}-${info.userInfo.id}`
         )
-        const privateKey = sss.combine([
-          [new BN(1), dkgShare],
-          [new BN(2), new BN(decryptedShare, 16)],
-        ])
-        const wallet = new Wallet(toHex(privateKey.toString(16)))
-        const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
-        const nonce = (await getNonce(dkgWallet.address)).data
-        const signature = await dkgWallet.signMessage(String(nonce))
-        const metadata = (
-          await getMetadata({
-            address: dkgWallet.address,
-            signature,
-            appAddress: String(appId),
-          })
-        ).data
-        const addressInMetadata = metadata.metadata.address
-        if (addressInMetadata === wallet.address) {
-          userInfo.privateKey = wallet.privateKey.replace('0x', '')
+        if (locallyStoredEncryptedShare) {
+          const decryptedShare = await decryptWithPrivateKey(
+            dkgShare.toString(16),
+            JSON.parse(locallyStoredEncryptedShare) as Encrypted
+          )
+          const privateKey = sss.combine([
+            [new BN(1), dkgShare],
+            [new BN(2), new BN(decryptedShare, 16)],
+          ])
+          const wallet = new Wallet(toHex(privateKey.toString(16)))
+          const addressInMetadata = metadata.metadata.address
+          if (addressInMetadata === wallet.address) {
+            userInfo.privateKey = wallet.privateKey.replace('0x', '')
+          } else {
+            throw new Error('Invalid shares found')
+          }
         } else {
-          throw new Error('Invalid shares found')
+          const decryptedShare = await decryptWithPrivateKey(
+            dkgShare.toString(16),
+            JSON.parse(metadata.metadata.encryptedShare.value) as Encrypted
+          )
+          const privateKey = sss.combine([
+            [new BN(1), dkgShare],
+            [new BN(2), new BN(decryptedShare, 16)],
+          ])
+          const wallet = new Wallet(toHex(privateKey.toString(16)))
+          userInfo.privateKey = wallet.privateKey.replace('0x', '')
         }
       } else {
         const randomShare = KeyShareUtils.randomNumber()
@@ -85,7 +98,6 @@ async function init() {
           [new BN(2), randomShare],
         ])
         const wallet = new Wallet(toHex(privateKey.toString(16)))
-        const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
         const nonce = (await getNonce(dkgWallet.address)).data
         const encryptedShare = await encryptWithPublicKey(
           dkgWallet.publicKey.replace('0x', ''),
