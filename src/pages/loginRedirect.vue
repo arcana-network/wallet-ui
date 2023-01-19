@@ -124,7 +124,6 @@ async function init() {
       sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
-      info.privateKey = userInfo.privateKey
       if (info.loginType === 'passwordless') {
         await handlePasswordlessLoginV2(info, connectionToParent).catch(
           async () => {
