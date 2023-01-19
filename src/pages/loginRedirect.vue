@@ -47,10 +47,11 @@ async function init() {
         loginType: info.loginType,
         privateKey: '',
       }
-      const sss = new SecretSharing(3, 2)
+      const sss = new SecretSharing(2)
       const dkgShare = new BN(info.privateKey, 16)
-      const locallyStoredEncryptedShare =
-        localStorage.getItem(`encrypted-share`)
+      const locallyStoredEncryptedShare = localStorage.getItem(
+        `encrypted-share-${appId}-${info.userInfo.id}`
+      )
       if (locallyStoredEncryptedShare) {
         const decryptedShare = await decryptWithPrivateKey(
           dkgShare.toString(16),
@@ -115,7 +116,10 @@ async function init() {
           appAddress: String(appId),
         })
         userInfo.privateKey = wallet.privateKey.replace('0x', '')
-        localStorage.setItem(`encrypted-share`, JSON.stringify(encryptedShare))
+        localStorage.setItem(
+          `encrypted-share-${appId}-${info.userInfo.id}`,
+          JSON.stringify(encryptedShare)
+        )
       }
       sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
