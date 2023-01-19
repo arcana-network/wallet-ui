@@ -1,16 +1,26 @@
 <script setup lang="ts">
+import { SecretSharing, utils as KeyShareUtils } from '@arcana/key-helper'
+import { BN } from 'bn.js'
+import {
+  encryptWithPublicKey,
+  decryptWithPrivateKey,
+  Encrypted,
+} from 'eth-crypto'
+import { Wallet } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { getNonce, getMetadata, setMetadata } from '@/services/metadata.service'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   handlePasswordlessLogin,
   handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
+import { toHex } from '@/utils/toHex'
 
 const route = useRoute()
 const { appId } = route.params
@@ -32,7 +42,86 @@ async function init() {
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
-      sessionStorage.setItem('userInfo', JSON.stringify(info))
+      const userInfo = {
+        userInfo: info.userInfo,
+        loginType: info.loginType,
+        privateKey: '',
+      }
+      const sss = new SecretSharing(2)
+      const dkgShare = new BN(info.privateKey, 16)
+      const locallyStoredEncryptedShare = localStorage.getItem(
+        `encrypted-share-${appId}-${info.userInfo.id}`
+      )
+      if (locallyStoredEncryptedShare) {
+        const decryptedShare = await decryptWithPrivateKey(
+          dkgShare.toString(16),
+          JSON.parse(locallyStoredEncryptedShare) as Encrypted
+        )
+        const privateKey = sss.combine([
+          [new BN(1), dkgShare],
+          [new BN(2), new BN(decryptedShare, 16)],
+        ])
+        const wallet = new Wallet(toHex(privateKey.toString(16)))
+        const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
+        const nonce = (await getNonce(dkgWallet.address)).data
+        const signature = await dkgWallet.signMessage(String(nonce))
+        const metadata = (
+          await getMetadata({
+            address: dkgWallet.address,
+            signature,
+            appAddress: String(appId),
+          })
+        ).data
+        const addressInMetadata = metadata.metadata.address
+        if (addressInMetadata === wallet.address) {
+          userInfo.privateKey = wallet.privateKey.replace('0x', '')
+        } else {
+          throw new Error('Invalid shares found')
+        }
+      } else {
+        const randomShare = KeyShareUtils.randomNumber()
+        const privateKey = sss.combine([
+          [new BN(1), dkgShare],
+          [new BN(2), randomShare],
+        ])
+        const wallet = new Wallet(toHex(privateKey.toString(16)))
+        const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
+        const nonce = (await getNonce(dkgWallet.address)).data
+        const encryptedShare = await encryptWithPublicKey(
+          dkgWallet.publicKey.replace('0x', ''),
+          randomShare.toString(16)
+        )
+
+        const signature = await dkgWallet.signMessage(
+          JSON.stringify({
+            address: wallet.address,
+            encryptedShare: {
+              index: 2,
+              value: JSON.stringify(encryptedShare),
+            },
+            nonce: Number(nonce),
+          })
+        )
+
+        await setMetadata({
+          address: dkgWallet.address,
+          signature,
+          metadata: {
+            address: wallet.address,
+            encryptedShare: {
+              index: 2,
+              value: JSON.stringify(encryptedShare),
+            },
+          },
+          appAddress: String(appId),
+        })
+        userInfo.privateKey = wallet.privateKey.replace('0x', '')
+        localStorage.setItem(
+          `encrypted-share-${appId}-${info.userInfo.id}`,
+          JSON.stringify(encryptedShare)
+        )
+      }
+      sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
       sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
