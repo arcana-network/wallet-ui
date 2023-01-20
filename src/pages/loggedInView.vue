@@ -81,7 +81,6 @@ async function initAccountHandler() {
       const requestHandler = getRequestHandler()
       if (requestHandler) {
         requestHandler.setConnection(parentConnection)
-
         const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
         const selectedChainId = Number(chainId)
         await requestHandler.setRpcConfig({
@@ -168,7 +167,10 @@ async function getRpcConfig() {
   try {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
-      const rpcConfig = await parentConnectionInstance.getRpcConfig()
+      let rpcConfig = await parentConnectionInstance.getRpcConfig()
+      if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
+        rpcConfig = CHAIN_LIST[0]
+      }
       rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
     }
   } catch (err) {
