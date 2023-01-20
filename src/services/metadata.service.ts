@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const gatewayUrl = process.env.VUE_APP_WALLET_GATEWAY
+let gatewayUrl = process.env.VUE_APP_WALLET_GATEWAY
+if (!gatewayUrl.endsWith('/')) {
+  gatewayUrl = gatewayUrl + '/'
+}
 
 type GetMetadataParams = {
   address: string
@@ -9,7 +12,7 @@ type GetMetadataParams = {
 }
 
 function getMetadata(data: GetMetadataParams) {
-  return axios.post(`${gatewayUrl}/api/v1/get-metadata/`, data)
+  return axios.post(`${gatewayUrl}api/v1/get-metadata/`, data)
 }
 
 type SetMetadataParams = {
@@ -26,11 +29,11 @@ type SetMetadataParams = {
 }
 
 function setMetadata(data: SetMetadataParams) {
-  return axios.post(`${gatewayUrl}/api/v1/set-metadata/`, data)
+  return axios.post(`${gatewayUrl}api/v1/set-metadata/`, data)
 }
 
 function getNonce(address: string) {
-  return axios.get(`${gatewayUrl}/api/v1/get-nonce/?address=${address}`)
+  return axios.get(`${gatewayUrl}api/v1/get-nonce/?address=${address}`)
 }
 
 export { getNonce, getMetadata, setMetadata }
