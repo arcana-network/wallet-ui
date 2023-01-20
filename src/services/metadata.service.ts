@@ -33,7 +33,7 @@ function setMetadata(data: SetMetadataParams) {
 
 function getNonce(address: string) {
   const url = new URL(`/api/v1/get-nonce/?address=${address}`, gatewayUrl)
-  return axios.post(url.toString())
+  return axios.get(url.toString())
 }
 
 export { getNonce, getMetadata, setMetadata }
