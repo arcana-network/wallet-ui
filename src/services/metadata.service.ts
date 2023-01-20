@@ -9,7 +9,8 @@ type GetMetadataParams = {
 }
 
 function getMetadata(data: GetMetadataParams) {
-  return axios.post(`${gatewayUrl}/api/v1/get-metadata/`, data)
+  const url = new URL('/api/v1/get-metadata/', gatewayUrl)
+  return axios.post(url.toString(), data)
 }
 
 type SetMetadataParams = {
@@ -26,11 +27,13 @@ type SetMetadataParams = {
 }
 
 function setMetadata(data: SetMetadataParams) {
-  return axios.post(`${gatewayUrl}/api/v1/set-metadata/`, data)
+  const url = new URL('/api/v1/set-metadata/', gatewayUrl)
+  return axios.post(url.toString(), data)
 }
 
 function getNonce(address: string) {
-  return axios.get(`${gatewayUrl}/api/v1/get-nonce/?address=${address}`)
+  const url = new URL(`/api/v1/get-nonce/?address=${address}`, gatewayUrl)
+  return axios.post(url.toString())
 }
 
 export { getNonce, getMetadata, setMetadata }
