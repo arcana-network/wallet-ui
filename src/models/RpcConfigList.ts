@@ -55,14 +55,6 @@ const CHAIN_LIST = [
     },
   },
   {
-    chainId: '40405',
-    rpcUrls: ['https://blockchain001-testnet.arcana.network'],
-    chainName: 'Arcana (Testnet)',
-    blockExplorerUrls: ['https://explorer.beta.arcana.network'],
-    favicon: 'arcana-icon',
-    isCustom: false,
-  },
-  {
     chainId: '11155111',
     rpcUrls: ['https://rpc.sepolia.org'],
     chainName: 'Sepolia (Testnet)',
@@ -76,19 +68,7 @@ const CHAIN_LIST = [
   },
 ]
 
-if (process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev') {
-  CHAIN_LIST.push({
-    chainId: '40404',
-    rpcUrls: ['https://blockchain-dev.arcana.network'],
-    chainName: 'Arcana Dev',
-    blockExplorerUrls: ['https://explorer.dev.arcana.network'],
-    favicon: 'arcana-icon',
-    isCustom: false,
-  })
-}
-
-const DEFAULT_CHAIN_ID =
-  process.env.VUE_APP_ARCANA_AUTH_NETWORK === 'dev' ? '40404' : '40405'
+const DEFAULT_CHAIN_ID = '1'
 
 export type { RpcConfigWallet }
 export { CHAIN_LIST, DEFAULT_CHAIN_ID }
