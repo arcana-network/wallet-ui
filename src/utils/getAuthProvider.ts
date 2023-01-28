@@ -6,6 +6,18 @@ const AUTH_NETWORK = process.env
 
 const REDIRECT_URL = process.env.VUE_APP_WALLET_AUTH_REDIRECT_URL
 
+let network
+
+if (AUTH_NETWORK === 'mainnet') {
+  network = {
+    authUrl: 'https://auth.arcana.network',
+    gatewayUrl: 'https://gateway.arcana.network',
+    walletUrl: 'https://wallet.arcana.network',
+  }
+} else {
+  network = AUTH_NETWORK
+}
+
 let authProvider: AuthProvider | null = null
 
 export async function getAuthProvider(appId: string): Promise<AuthProvider> {
@@ -13,7 +25,7 @@ export async function getAuthProvider(appId: string): Promise<AuthProvider> {
     authProvider = await AuthProvider.init({
       appId: appId,
       redirectUri: `${REDIRECT_URL}/${appId}/`,
-      network: AUTH_NETWORK,
+      network,
       flow: 'redirect',
       autoRedirect: false,
       debug: true,
