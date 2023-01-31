@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
+import AppLoader from '@/components/AppLoader.vue'
 import { NFT } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -34,7 +35,7 @@ function handleAddToken() {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex-grow">
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col min-h-full">

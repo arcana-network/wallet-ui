@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { Asset, AssetContract } from '@/models/Asset'
@@ -13,6 +13,7 @@ const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
 const assets: Asset[] = reactive([])
+let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = localStorage.getItem(
@@ -43,6 +44,7 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
+  assets.length = 0
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
@@ -71,11 +73,32 @@ async function getAssetsBalance() {
   })
 }
 
+function updateAssetsBalance() {
+  assets.forEach(async (asset) => {
+    if (asset.address !== 'native') {
+      const balance = await getTokenBalance({
+        walletAddress: userStore.walletAddress,
+        contractAddress: asset.address,
+      })
+      asset.balance = formatTokenDecimals(balance, asset.decimals)
+    }
+  })
+}
+
 function handleAddToken() {
   router.push({ name: 'AddToken' })
 }
 
-onMounted(getAssetsBalance)
+onMounted(async () => {
+  await getAssetsBalance()
+  assetsPolling = setInterval(updateAssetsBalance, 2000)
+})
+
+onBeforeUnmount(() => {
+  if (assetsPolling) {
+    clearInterval(assetsPolling)
+  }
+})
 
 rpcStore.$subscribe(getAssetsBalance)
 </script>

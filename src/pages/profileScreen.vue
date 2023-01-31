@@ -5,6 +5,7 @@ import { ref, toRefs } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -92,7 +93,7 @@ onBeforeRouteLeave((to) => {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex-grow">
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col min-h-full">

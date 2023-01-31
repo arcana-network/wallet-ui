@@ -45,27 +45,11 @@ const exchangeRate: Ref<number | null> = ref(null)
 const { currency } = storeToRefs(rpcStore)
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
-const loader = ref({
-  show: false,
-  message: '',
-})
-
-function showLoader(message) {
-  loader.value.show = true
-  loader.value.message = `${message}...`
-}
-
-function hideLoader() {
-  loader.value.show = false
-  loader.value.message = ''
-}
-
 function onFilterSelect(filter) {
   selectedFilter.value = filter.value
 }
 
 async function getCurrencyExchangeRate() {
-  showLoader('Fetching Currency Rate')
   try {
     if (currency.value) {
       const rate = await getExchangeRate(
@@ -77,18 +61,12 @@ async function getCurrencyExchangeRate() {
   } catch (err) {
     console.error(err)
     exchangeRate.value = null
-  } finally {
-    hideLoader()
   }
 }
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
-  </div>
   <div
-    v-else
     class="wallet__card p-4 rounded-[10px] space-y-5 flex flex-col overflow-auto"
     @click="showFilter = false"
   >

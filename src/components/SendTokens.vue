@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import {
@@ -48,7 +49,7 @@ const tokenList = ref([
   },
 ])
 const baseFee = ref('0')
-const selectedToken = ref(tokenList.value[0].symbol)
+const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
@@ -80,7 +81,7 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  showLoader('Loading')
+  showLoader('Loading...')
   try {
     setTokenList()
     await fetchTokenBalance()
@@ -115,7 +116,7 @@ async function fetchGasSliderValues() {
 
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
-    (item) => item.symbol === selectedToken.value
+    (item) => item.address === selectedToken.value.address
   )
 
   if (tokenInfo?.symbol === rpcStore.nativeCurrency.symbol) {
@@ -156,13 +157,13 @@ function setHexPrefix(value: string) {
 }
 
 async function handleSendToken() {
-  showLoader('Sending')
+  showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
-    if (selectedToken.value === rpcStore.nativeCurrency.symbol) {
+    if (selectedToken.value.symbol === rpcStore.nativeCurrency.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
@@ -180,10 +181,12 @@ async function handleSendToken() {
       })
     } else {
       const tokenInfo = tokenList.value.find(
-        (item) => item.symbol === selectedToken.value
+        (item) => item.address === selectedToken.value.address
       )
       const sendAmount = tokenInfo?.decimals
-        ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
+        ? `0x${(
+            Number(amount.value) * Math.pow(10, tokenInfo.decimals)
+          ).toString(16)}`
         : amount.value
       const transactionHash = await accountHandler.sendCustomToken(
         tokenInfo?.address,
@@ -227,7 +230,7 @@ async function handleShowPreview() {
     showLoader('Loading preview...')
     try {
       const accountHandler = getRequestHandler().getAccountHandler()
-      if (rpcStore.nativeCurrency.symbol === selectedToken.value) {
+      if (rpcStore.nativeCurrency.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
             from: userStore.walletAddress,
@@ -237,7 +240,7 @@ async function handleShowPreview() {
         ).toString()
       } else {
         const tokenInfo = tokenList.value.find(
-          (item) => item.symbol === selectedToken.value
+          (item) => item.address === selectedToken.value.address
         )
         const sendAmount = tokenInfo?.decimals
           ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
@@ -245,7 +248,7 @@ async function handleShowPreview() {
         estimatedGas.value = await accountHandler.estimateCustomTokenGas(
           tokenInfo?.address,
           setHexPrefix(recipientWalletAddress.value),
-          sendAmount
+          `0x${Number(sendAmount).toString(16)}`
         )
       }
     } catch (e) {
@@ -257,11 +260,15 @@ async function handleShowPreview() {
     toast.error('Please fill all values')
   }
 }
+
+function handleTokenChange(e) {
+  selectedToken.value = JSON.parse(e.target.value)
+}
 </script>
 
 <template>
   <div v-if="loader.show" class="h-full flex justify-center items-center">
-    <p>Please Wait...</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="w-full">
     <SendTokensPreview
@@ -271,7 +278,7 @@ async function handleShowPreview() {
         recipientWalletAddress: setHexPrefix(recipientWalletAddress),
         amount,
         gasFee: gasFeeInEth,
-        selectedToken,
+        selectedToken: selectedToken.symbol,
         estimatedGas,
       }"
       @close="showPreview = false"
@@ -368,17 +375,18 @@ async function handleShowPreview() {
               }"
             >
               <select
-                v-model="selectedToken"
+                :model-value="selectedToken.symbol"
                 name="tokens"
                 class="bg-transparent outline-none w-[6ch] text-ellipsis whitespace-nowrap overflow-hidden"
                 @focus="isAmountFocused = true"
                 @blur="isAmountFocused = false"
+                @change="handleTokenChange"
               >
                 <option
                   v-for="token in tokenList"
-                  :key="token.symbol"
+                  :key="token.address"
                   class="text-black hover:text-white"
-                  :value="token.symbol"
+                  :value="JSON.stringify(token)"
                 >
                   {{ token.symbol }}
                 </option>

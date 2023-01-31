@@ -262,4 +262,14 @@ button {
   color: #f9f9f9;
   background-color: #101010;
 }
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

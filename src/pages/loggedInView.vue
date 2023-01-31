@@ -6,6 +6,7 @@ import type { Connection } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
+import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
@@ -80,7 +81,6 @@ async function initAccountHandler() {
       const requestHandler = getRequestHandler()
       if (requestHandler) {
         requestHandler.setConnection(parentConnection)
-
         const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
         const selectedChainId = Number(chainId)
         await requestHandler.setRpcConfig({
@@ -167,7 +167,10 @@ async function getRpcConfig() {
   try {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
-      const rpcConfig = await parentConnectionInstance.getRpcConfig()
+      let rpcConfig = await parentConnectionInstance.getRpcConfig()
+      if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
+        rpcConfig = CHAIN_LIST[0]
+      }
       rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
     }
   } catch (err) {
@@ -187,9 +190,13 @@ onBeforeRouteLeave((to) => {
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
-    <p class="sm:text-xs">{{ loader.message }}</p>
+    <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex">
-    <router-view class="flex-grow w-full"></router-view>
+    <RouterView v-slot="{ Component }" class="flex-grow w-full">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </RouterView>
   </div>
 </template>

@@ -52,8 +52,11 @@ function handleGasPriceInput({ value, requestId }) {
 <template>
   <div v-if="areRequestsPendingForApproval" class="flex flex-col h-full gap-2">
     <div class="wallet__card rounded-[10px] flex flex-1 flex-col h-[80%]">
-      <div class="sign__messages-container">
-        <div :key="pendingRequest.request.id" class="sign__message-container">
+      <div v-if="pendingRequest" class="sign__messages-container">
+        <div
+          :key="Number(pendingRequest.request.id)"
+          class="sign__message-container"
+        >
           <SendTransaction
             v-if="isSendTransactionRequest(pendingRequest.request.id)"
             :request="pendingRequest"
@@ -80,6 +83,7 @@ function handleGasPriceInput({ value, requestId }) {
       </div>
     </div>
     <div
+      v-if="pendingRequest"
       class="sign__message-button-container flex justify-around -m-4 mt-0 p-4"
     >
       <button
