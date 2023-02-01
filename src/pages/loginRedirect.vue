@@ -49,7 +49,7 @@ async function init() {
       }
       const sss = new SecretSharing(2)
       const dkgShare = new BN(info.privateKey, 16)
-      const dkgWallet = new Wallet(toHex(dkgShare.toString(16)))
+      const dkgWallet = new Wallet(toHex(dkgShare.toString(16, 64)))
       const nonce = (await getNonce(dkgWallet.address)).data
       const signature = await dkgWallet.signMessage(String(nonce))
       const metadataResponse = (
@@ -67,14 +67,14 @@ async function init() {
           locallyStoredEncryptedShare ||
           metadataResponse.metadata.encryptedShare.value
         const decryptedShare = await decryptWithPrivateKey(
-          dkgShare.toString(16),
+          dkgShare.toString(16, 64),
           JSON.parse(encryptedShare) as Encrypted
         )
         const privateKey = sss.combine([
           [new BN(1), dkgShare],
           [new BN(2), new BN(decryptedShare, 16)],
         ])
-        const wallet = new Wallet(toHex(privateKey.toString(16)))
+        const wallet = new Wallet(toHex(privateKey.toString(16, 64)))
         const addressInMetadata = metadataResponse.metadata.address
         if (addressInMetadata === wallet.address) {
           userInfo.privateKey = wallet.privateKey.replace('0x', '')
@@ -87,11 +87,11 @@ async function init() {
           [new BN(1), dkgShare],
           [new BN(2), randomShare],
         ])
-        const wallet = new Wallet(toHex(privateKey.toString(16)))
+        const wallet = new Wallet(toHex(privateKey.toString(16, 64)))
         const nonce = (await getNonce(dkgWallet.address)).data
         const encryptedShare = await encryptWithPublicKey(
           dkgWallet.publicKey.replace('0x', ''),
-          randomShare.toString(16)
+          randomShare.toString(16, 64)
         )
 
         const signature = await dkgWallet.signMessage(
