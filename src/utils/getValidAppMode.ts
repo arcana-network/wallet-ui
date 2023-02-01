@@ -20,6 +20,7 @@ function getValidAppMode(
   appMode?: AppMode
 ): AppMode | undefined {
   const allowedModes = WALLET_TYPE_APP_MODE_MAPPINGS[walletType]
+  console.log({ appMode, walletType, allowedModes })
   if (appMode === undefined) return allowedModes[0]
   if (!allowedModes) return DEFAULT_APP_MODE[WalletType.NoUI]
   return allowedModes.includes(appMode) ? appMode : DEFAULT_APP_MODE[walletType]
