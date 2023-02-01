@@ -5,6 +5,7 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
+import { AccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
@@ -132,6 +133,23 @@ function getTxOperation(
   return 'Contract Interaction'
 }
 
+async function getRemoteTransaction(
+  accountHandler: AccountHandler,
+  txHash: string
+): Promise<TransactionResponse> {
+  return new Promise((resolve) => {
+    const txInterval = setInterval(async () => {
+      const remoteTransaction = await accountHandler.provider.getTransaction(
+        txHash
+      )
+      if (remoteTransaction) {
+        clearInterval(txInterval)
+        return resolve(remoteTransaction)
+      }
+    }, 1000)
+  })
+}
+
 export const useActivitiesStore = defineStore('activitiesStore', {
   state: (): ActivitiesState => ({
     activitiesByChainId: {},
@@ -166,7 +184,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
     }: TransactionFetchParams) {
       const accountHandler = getRequestHandler().getAccountHandler()
-      const remoteTransaction = await accountHandler.provider.getTransaction(
+      const remoteTransaction = await getRemoteTransaction(
+        accountHandler,
         txHash
       )
       const activity: Activity = {
