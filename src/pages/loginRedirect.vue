@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { GetInfoOutput } from '@arcana/auth-core'
 import { SecretSharing, utils as KeyShareUtils } from '@arcana/key-helper'
 import { BN } from 'bn.js'
 import {
@@ -42,7 +43,7 @@ async function init() {
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
-      const userInfo = {
+      const userInfo: GetInfoOutput = {
         userInfo: info.userInfo,
         loginType: info.loginType,
         privateKey: '',
@@ -131,7 +132,7 @@ async function init() {
           async () => {
             channel = new BroadcastChannel(`${appId}_login_notification`)
             await handlePasswordlessLogin(
-              info,
+              userInfo,
               messageId,
               parentAppUrl,
               connectionToParent,
@@ -141,7 +142,7 @@ async function init() {
         )
       } else {
         await handleSocialLogin(
-          info,
+          userInfo,
           messageId,
           parentAppUrl,
           connectionToParent
