@@ -227,7 +227,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
     }: TransactionFetchNftParams) {
       const accountHandler = getRequestHandler().getAccountHandler()
-      const remoteTransaction = await accountHandler.provider.getTransaction(
+      const remoteTransaction = await getRemoteTransaction(
+        accountHandler,
         txHash
       )
       const activity: Activity = {
