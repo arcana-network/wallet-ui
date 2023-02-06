@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import transakSDK from '@transak/transak-sdk'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -121,6 +122,26 @@ async function getCurrencyExchangeRate() {
   }
 }
 
+function handleBuy() {
+  const transak = new transakSDK({
+    apiKey: 'fb84b212-7da0-44dc-b402-3293d59e956f',
+    environment: 'STAGING',
+    walletAddress: userStore.walletAddress,
+    email: userStore.info.email || '',
+    network: 'ethereum',
+  })
+
+  transak.on(transak.ALL_EVENTS, (data) => {
+    console.log(data)
+  })
+
+  transak.on(transak.EVENTS.TRANSAK_WIDGET_CLOSE, (orderData) => {
+    transak.close()
+  })
+
+  transak.init()
+}
+
 onMounted(() => {
   if (props.walletBalance) {
     getCurrencyExchangeRate()
@@ -236,6 +257,12 @@ watch(
             @click="openSendTokens(true)"
           >
             Send
+          </button>
+          <button
+            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            @click="handleBuy"
+          >
+            Buy
           </button>
           <button
             class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
