@@ -146,7 +146,7 @@ async function getRemoteTransaction(
         clearInterval(txInterval)
         return resolve(remoteTransaction)
       }
-    }, 1000)
+    }, 3000)
   })
 }
 
@@ -217,7 +217,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }
-        }, 1500)
+        }, 3000)
       }
     },
     async fetchAndSaveNFTActivityFromHash({
@@ -266,7 +266,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }
-        }, 1500)
+        }, 3000)
       }
     },
     async saveFileActivity(
