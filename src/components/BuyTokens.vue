@@ -2,6 +2,7 @@
 import { ref, type Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
+import { openRampSdk } from '@/utils/rampsdk'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
 
@@ -28,31 +29,41 @@ async function handleTransak() {
   isLoading.value = false
   if (!transakStatus.closed) {
     showStatusModal.value = transakStatus.status
-    if (showStatusModal.value === 'success') {
-      statusText.value = {
-        title: 'Transaction Successful',
-        message:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-      }
-    } else if (showStatusModal.value === 'failed') {
-      statusText.value = {
-        title: 'Transaction failed',
-        message:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-      }
-    } else if (showStatusModal.value === 'cancelled') {
-      statusText.value = {
-        title: 'Transaction Cancelled',
-        message:
-          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-      }
+    handleStatusModalText()
+  }
+}
+
+function handleStatusModalText() {
+  if (showStatusModal.value === 'success') {
+    statusText.value = {
+      title: 'Transaction Successful',
+      message:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
+    }
+  } else if (showStatusModal.value === 'failed') {
+    statusText.value = {
+      title: 'Transaction failed',
+      message:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
+    }
+  } else if (showStatusModal.value === 'cancelled') {
+    statusText.value = {
+      title: 'Transaction Cancelled',
+      message:
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
     }
   }
+}
+
+async function handleRamp() {
+  openRampSdk()
 }
 
 function handleBuy() {
   if (selectedProvider.value === 'transak') {
     handleTransak()
+  } else if (selectedProvider.value === 'ramp') {
+    handleRamp()
   }
 }
 
