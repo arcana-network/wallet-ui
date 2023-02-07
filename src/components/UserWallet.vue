@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
+import BuyTokens from '@/components/BuyTokens.vue'
 import ChangeChain from '@/components/ChangeChain.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
@@ -29,7 +30,13 @@ const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | 'add-network' | 'edit-network' | false
+type ModalState =
+  | 'send'
+  | 'receive'
+  | 'add-network'
+  | 'edit-network'
+  | 'buy'
+  | false
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -119,6 +126,11 @@ async function getCurrencyExchangeRate() {
   } finally {
     hideLoader()
   }
+}
+
+function handleBuy(open: boolean) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'buy' : false
 }
 
 onMounted(() => {
@@ -232,13 +244,20 @@ watch(
         </div>
         <div class="flex space-x-3 mt-5">
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openSendTokens(true)"
           >
             Send
           </button>
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            v-if="walletBalance"
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            @click="handleBuy(true)"
+          >
+            Buy
+          </button>
+          <button
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openReceiveTokens(true)"
           >
             Receive
@@ -260,6 +279,7 @@ watch(
         v-if="showModal === 'edit-network'"
         @close="openEditNetwork(false)"
       />
+      <BuyTokens v-if="showModal === 'buy'" @close="handleBuy(false)" />
     </Teleport>
   </div>
 </template>
