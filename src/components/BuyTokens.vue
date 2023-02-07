@@ -5,6 +5,13 @@ import AppLoader from '@/components/AppLoader.vue'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
 
+type BuyTokenProps = {
+  transakNetwork?: string
+  rampNetwork?: string
+}
+
+const props = defineProps<BuyTokenProps>()
+
 const emit = defineEmits(['close'])
 const getImage = useImage()
 const selectedProvider: Ref<'transak' | 'ramp' | ''> = ref('')
@@ -17,7 +24,7 @@ const statusText = ref({
 
 async function handleTransak() {
   isLoading.value = true
-  const transakStatus: any = await openTransak()
+  const transakStatus: any = await openTransak(props.transakNetwork as string)
   isLoading.value = false
   if (!transakStatus.closed) {
     showStatusModal.value = transakStatus.status
@@ -113,8 +120,14 @@ function handleDone() {
             type="radio"
             value="transak"
             name="provider"
+            :disabled="!props.transakNetwork"
+            :class="{ 'opacity-80': !props.transakNetwork }"
           />
-          <label for="Transak" class="flex gap-2 items-center cursor-pointer">
+          <label
+            for="Transak"
+            class="flex gap-2 items-center cursor-pointer"
+            :class="{ 'opacity-50': !props.transakNetwork }"
+          >
             <img src="@/assets/images/transak.png" class="h-7 w-7" />
             <span class="text-base">Transak</span>
           </label>
@@ -126,9 +139,14 @@ function handleDone() {
             type="radio"
             value="ramp"
             name="provider"
-            disabled
+            :disabled="!props.rampNetwork"
+            :class="{ 'opacity-80': !props.rampNetwork }"
           />
-          <label for="Ramp" class="flex gap-2 items-center cursor-pointer">
+          <label
+            for="Ramp"
+            class="flex gap-2 items-center cursor-pointer"
+            :class="{ 'opacity-50': !props.rampNetwork }"
+          >
             <img src="@/assets/images/ramp.png" class="h-7 w-7" />
             <span class="text-base">Ramp</span>
           </label>

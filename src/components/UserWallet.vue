@@ -17,6 +17,7 @@ import {
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getTransakSupportedNetworks } from '@/utils/transak'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -46,6 +47,13 @@ const getImage = useImage()
 const showModal: Ref<ModalState> = ref(false)
 const { currency, selectedChainId } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
+
+const transakNetwork = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  return getTransakSupportedNetworks().find(
+    (network) => network.chainId === selectedChainId
+  )
+})
 
 const explorerUrl = computed(() => {
   if (
@@ -251,7 +259,8 @@ watch(
           </button>
           <button
             v-if="walletBalance"
-            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            :disabled="!transakNetwork"
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
             @click="handleBuy(true)"
           >
             Buy
@@ -279,7 +288,11 @@ watch(
         v-if="showModal === 'edit-network'"
         @close="openEditNetwork(false)"
       />
-      <BuyTokens v-if="showModal === 'buy'" @close="handleBuy(false)" />
+      <BuyTokens
+        v-if="showModal === 'buy'"
+        :transak-network="transakNetwork?.value"
+        @close="handleBuy(false)"
+      />
     </Teleport>
   </div>
 </template>

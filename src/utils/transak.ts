@@ -13,14 +13,14 @@ type TransakNetwork = {
 
 const transakSupportedNetworks: TransakNetwork[] = []
 
-async function openTransak() {
+async function openTransak(network: string) {
   return new Promise((resolve) => {
     const transak = new transakSDK({
       apiKey: process.env.VUE_APP_TRANSAK_API_KEY,
       environment: process.env.VUE_APP_TRANSAK_ENV,
       walletAddress: userStore.walletAddress,
       email: userStore.info.email || '',
-      network: 'ethereum',
+      network,
     })
 
     transak.on(transak.ALL_EVENTS, (data) => {
@@ -66,7 +66,6 @@ async function fetchTransakNetworks() {
         }
       }
     })
-    console.log(transakSupportedNetworks)
   }
 }
 
