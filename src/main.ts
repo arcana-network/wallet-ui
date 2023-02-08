@@ -1,3 +1,5 @@
+// Update auth-core sdk when merging to main, 1.0.0-beta.2
+
 import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
