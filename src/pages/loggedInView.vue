@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { ethers } from 'ethers'
 import type { Connection } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -28,6 +27,7 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
+import { fetchTransakNetworks } from '@/utils/transak'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -49,6 +49,7 @@ onMounted(async () => {
   await getRpcConfig()
   await getAccountDetails()
   loader.value.show = false
+  await fetchTransakNetworks()
 })
 
 async function getAccountDetails() {
