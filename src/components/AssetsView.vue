@@ -91,7 +91,7 @@ function handleAddToken() {
 
 onMounted(async () => {
   await getAssetsBalance()
-  assetsPolling = setInterval(updateAssetsBalance, 2000)
+  assetsPolling = setInterval(updateAssetsBalance, 4000)
 })
 
 onBeforeUnmount(() => {
