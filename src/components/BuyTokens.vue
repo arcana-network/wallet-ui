@@ -22,6 +22,7 @@ const statusText = ref({
   title: '',
   message: '',
 })
+const showRampContainer = ref(false)
 
 async function handleTransak() {
   isLoading.value = true
@@ -56,7 +57,15 @@ function handleStatusModalText() {
 }
 
 async function handleRamp() {
-  openRampSdk()
+  showRampContainer.value = true
+  isLoading.value = true
+  setTimeout(async () => {
+    const rampResponse: any = await openRampSdk(props.rampNetwork as string)
+    if (rampResponse.closed) {
+      isLoading.value = false
+      showRampContainer.value = false
+    }
+  }, 1) // Need timeout so #ramp-container is available for ramp network to embed
 }
 
 function handleBuy() {
@@ -172,6 +181,11 @@ function handleDone() {
         </div>
       </form>
     </div>
+    <div
+      v-if="showRampContainer"
+      id="ramp-container"
+      class="fixed inset-0 z-50 backdrop-blur"
+    ></div>
   </div>
 </template>
 

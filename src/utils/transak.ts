@@ -21,6 +21,8 @@ async function openTransak(network: string) {
       walletAddress: userStore.walletAddress,
       email: userStore.info.email || '',
       network,
+      widgetWidth: '100%',
+      themeColor: '#262626',
     })
 
     transak.on(transak.ALL_EVENTS, (data) => {
