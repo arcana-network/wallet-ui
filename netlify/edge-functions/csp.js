@@ -26,7 +26,6 @@ export default async (req, context) => {
   try {
     const appId = getAppId(req.url)
     const domain = await fetchDomain(appId)
-    console.log({ domain }, 'domain')
     if (domain) {
       headers.set('Content-Security-Policy', `frame-ancestors ${domain}`)
     }

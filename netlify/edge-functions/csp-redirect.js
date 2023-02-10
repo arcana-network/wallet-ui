@@ -4,7 +4,6 @@ export default async (_, context) => {
   const { headers } = res
   try {
     const redirect = new URL(process.env.VUE_APP_WALLET_AUTH_REDIRECT_URL)
-    console.log({ redirect }, 'redirect')
     headers.set('Content-Security-Policy', `frame-ancestors ${redirect.origin}`)
     return new Response(res.text(), { ...res, headers })
   } catch (e) {
