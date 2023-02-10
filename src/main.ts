@@ -44,6 +44,7 @@ if (
       }),
     ],
     tracesSampleRate: 1.0,
+    logErrors: false,
   })
 }
 
