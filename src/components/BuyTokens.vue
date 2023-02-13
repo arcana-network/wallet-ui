@@ -22,50 +22,33 @@ const statusText = ref({
   title: '',
   message: '',
 })
-const showRampContainer = ref(false)
 
-async function handleTransak() {
+function handleTransak() {
   isLoading.value = true
-  const transakStatus: any = await openTransak(props.transakNetwork as string)
-  isLoading.value = false
-  if (!transakStatus.closed) {
-    showStatusModal.value = transakStatus.status
-    handleStatusModalText()
-  }
+  openTransak(props.transakNetwork as string)
+  setTimeout(() => {
+    isLoading.value = false
+  }, 2000)
+  showStatusModal.value = 'success'
+  handleStatusModalText()
 }
 
 function handleStatusModalText() {
-  if (showStatusModal.value === 'success') {
-    statusText.value = {
-      title: 'Transaction Successful',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
-  } else if (showStatusModal.value === 'failed') {
-    statusText.value = {
-      title: 'Transaction failed',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
-  } else if (showStatusModal.value === 'cancelled') {
-    statusText.value = {
-      title: 'Transaction Cancelled',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
+  statusText.value = {
+    title: 'Transaction in progress',
+    message:
+      'Please complete your transaction in the other tab. Once done you can close this popup',
   }
 }
 
-async function handleRamp() {
-  showRampContainer.value = true
+function handleRamp() {
   isLoading.value = true
-  setTimeout(async () => {
-    const rampResponse: any = await openRampSdk(props.rampNetwork as string)
-    if (rampResponse.closed) {
-      isLoading.value = false
-      showRampContainer.value = false
-    }
-  }, 1) // Need timeout so #ramp-container is available for ramp network to embed
+  openRampSdk(props.rampNetwork as string)
+  setTimeout(() => {
+    isLoading.value = false
+  }, 2000)
+  showStatusModal.value = 'success'
+  handleStatusModalText()
 }
 
 function handleBuy() {
@@ -95,16 +78,7 @@ function handleDone() {
       v-else-if="showStatusModal"
       class="overflow-auto flex flex-col gap-8 justify-between p-1 pt-5"
     >
-      <img
-        v-if="showStatusModal === 'success'"
-        src="@/assets/images/success.svg"
-        class="h-32 w-32 self-center"
-      />
-      <img
-        v-else
-        src="@/assets/images/failed.svg"
-        class="h-32 w-32 self-center"
-      />
+      <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
       <div class="flex flex-col gap-3">
         <div class="modal-title font-semibold text-center">
           {{ statusText.title }}
@@ -117,7 +91,7 @@ function handleDone() {
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black h-9 sm:h-8 uppercase"
         @click.stop="handleDone"
       >
-        Done
+        Close
       </button>
     </div>
     <div v-else class="overflow-auto flex flex-col justify-between p-1">
@@ -181,11 +155,6 @@ function handleDone() {
         </div>
       </form>
     </div>
-    <div
-      v-if="showRampContainer"
-      id="ramp-container"
-      class="fixed inset-0 z-50 backdrop-blur"
-    ></div>
   </div>
 </template>
 
