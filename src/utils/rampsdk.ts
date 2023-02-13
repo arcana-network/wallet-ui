@@ -1,6 +1,3 @@
-import { RampInstantSDK } from '@ramp-network/ramp-instant-sdk'
-import { IHostConfig } from '@ramp-network/ramp-instant-sdk/dist/types/types'
-
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
 
@@ -47,37 +44,21 @@ const testnetSupportedChains: RampNetwork[] = [
 ]
 
 async function openRampSdk(network: string) {
-  return new Promise((resolve) => {
-    const swapAsset = `${network}_*`
-    const rampSdkParams: IHostConfig = {
-      hostAppName: 'Arcana OnRamp',
-      hostLogoUrl:
-        'https://uploads-ssl.webflow.com/63aa7f8ce3b3be42ed4f4a3f/63c1115844d4cffb40ebf7d3_favicon-32x32.png',
-      hostApiKey: process.env.VUE_APP_RAMP_API_KEY,
-      swapAsset,
-      enabledFlows: ['ONRAMP'],
-      userAddress: userStore.walletAddress,
-      userEmailAddress: userStore.info.email || '',
-      variant: 'embedded-mobile',
-      containerNode: document.getElementById('ramp-container') as HTMLElement,
-    }
-    if (process.env.VUE_APP_RAMP_ENV === 'STAGING') {
-      rampSdkParams.url = 'https://app.demo.ramp.network'
-    }
-    const rampInstant = new RampInstantSDK(rampSdkParams)
-    rampInstant.on('*', (event) => {
-      if (event.type === 'WIDGET_CLOSE') {
-        return resolve({ closed: true })
-      }
-      if (event.type === 'WIDGET_CONFIG_FAILED') {
-        rampInstant.close()
-      }
-      // if (event.type === 'PURCHASE_CREATED') {
-      //   console.log(event)
-      // }
-    })
-    rampInstant.show()
-  })
+  const swapAsset = `${network}_*`
+
+  const rampUrl = new URL('https://buy.ramp.network')
+  rampUrl.searchParams.append('hostAppName', 'Arcana OnRamp')
+  rampUrl.searchParams.append(
+    'hostLogoUrl',
+    'https://uploads-ssl.webflow.com/63aa7f8ce3b3be42ed4f4a3f/63c1115844d4cffb40ebf7d3_favicon-32x32.png'
+  )
+  rampUrl.searchParams.append('hostApiKey', process.env.VUE_APP_RAMP_API_KEY)
+  rampUrl.searchParams.append('swapAsset', swapAsset)
+  rampUrl.searchParams.append('enabledFlows', 'ONRAMP')
+  rampUrl.searchParams.append('userAddress', userStore.walletAddress)
+  rampUrl.searchParams.append('userEmailAddress', userStore.info.email || '')
+
+  window.open(rampUrl.toString(), '_blank')
 }
 
 function getRampSupportedNetworks() {
