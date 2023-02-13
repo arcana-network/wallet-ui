@@ -46,7 +46,12 @@ const testnetSupportedChains: RampNetwork[] = [
 async function openRampSdk(network: string) {
   const swapAsset = `${network}_*`
 
-  const rampUrl = new URL('https://buy.ramp.network')
+  const Ramp =
+    process.env.VUE_APP_RAMP_ENV === 'STAGING'
+      ? 'https://app.demo.ramp.network'
+      : 'https://buy.ramp.network'
+
+  const rampUrl = new URL(Ramp)
   rampUrl.searchParams.append('hostAppName', 'Arcana OnRamp')
   rampUrl.searchParams.append(
     'hostLogoUrl',
@@ -54,7 +59,7 @@ async function openRampSdk(network: string) {
   )
   rampUrl.searchParams.append('hostApiKey', process.env.VUE_APP_RAMP_API_KEY)
   rampUrl.searchParams.append('swapAsset', swapAsset)
-  rampUrl.searchParams.append('enabledFlows', 'ONRAMP')
+  // rampUrl.searchParams.append('enabledFlows', 'ONRAMP')
   rampUrl.searchParams.append('userAddress', userStore.walletAddress)
   rampUrl.searchParams.append('userEmailAddress', userStore.info.email || '')
 
