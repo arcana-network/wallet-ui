@@ -61,7 +61,6 @@ async function openRampSdk(network: string) {
   rampUrl.searchParams.append('swapAsset', swapAsset)
   rampUrl.searchParams.append('userAddress', userStore.walletAddress)
   rampUrl.searchParams.append('userEmailAddress', userStore.info.email || '')
-  //
   window.open(rampUrl.toString(), '_blank')
 }
 
