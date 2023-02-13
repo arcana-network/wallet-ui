@@ -59,7 +59,6 @@ async function openRampSdk(network: string) {
   )
   rampUrl.searchParams.append('hostApiKey', process.env.VUE_APP_RAMP_API_KEY)
   rampUrl.searchParams.append('swapAsset', swapAsset)
-  // rampUrl.searchParams.append('enabledFlows', 'ONRAMP')
   rampUrl.searchParams.append('userAddress', userStore.walletAddress)
   rampUrl.searchParams.append('userEmailAddress', userStore.info.email || '')
 
