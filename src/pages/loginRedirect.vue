@@ -21,10 +21,12 @@ import {
   handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
+import { getStorage } from '@/utils/storageWrapper'
 import { toHex } from '@/utils/toHex'
 
 const route = useRoute()
 const { appId } = route.params
+const storage = getStorage()
 
 let channel: BroadcastChannel | null = null
 
@@ -124,8 +126,8 @@ async function init() {
           JSON.stringify(encryptedShare)
         )
       }
-      sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
-      sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+      storage.session.setItem('userInfo', JSON.stringify(userInfo))
+      storage.session.setItem('isLoggedIn', JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
         await handlePasswordlessLoginV2(info, connectionToParent).catch(

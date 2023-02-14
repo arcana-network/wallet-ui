@@ -11,6 +11,9 @@ import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getStorage } from '@/utils/storageWrapper'
+
+console.log('Init page', getStorage())
 
 const route = useRoute()
 const user = useUserStore()

@@ -16,6 +16,7 @@ import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getStorage } from '@/utils/storageWrapper'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -138,7 +139,7 @@ function setTokenList() {
   const chainId = rpcStore.selectedChainId
   const walletAddress = userStore.walletAddress
   const localStoreKey = `${walletAddress}/${chainId}/asset-contracts`
-  const contractsDetails = localStorage.getItem(localStoreKey)
+  const contractsDetails = getStorage().local.getItem(localStoreKey)
   if (contractsDetails) {
     const contracts = JSON.parse(contractsDetails)
     tokenList.value.push(...contracts)
