@@ -11,7 +11,7 @@ module.exports = defineConfig({
         stream: require.resolve('stream-browserify'),
       },
     },
-    devtool: process.env.SOURCEMAPS ? 'source-map' : false,
+    devtool: process.env.VUE_APP_SOURCEMAPS ? 'source-map' : false,
     plugins: [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
