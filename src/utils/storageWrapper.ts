@@ -23,10 +23,6 @@ class StorageWrapper {
   removeItem(key: string) {
     return this.clientStorage.removeItem(`${this.appAddress}-${key}`)
   }
-
-  clear() {
-    return this.clientStorage.clear()
-  }
 }
 
 type StorageInstance = {
