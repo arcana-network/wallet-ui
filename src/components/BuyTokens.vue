@@ -26,29 +26,25 @@ const statusText = ref({
 function handleTransak() {
   isLoading.value = true
   openTransak(props.transakNetwork as string)
-  setTimeout(() => {
-    isLoading.value = false
-  }, 2000)
-  showStatusModal.value = 'success'
-  handleStatusModalText()
+  handleStatusModalText('Transak')
 }
 
-function handleStatusModalText() {
+function handleStatusModalText(provider: 'Transak' | 'Ramp') {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 1500)
+  showStatusModal.value = 'success'
   statusText.value = {
-    title: 'Transaction in progress',
+    title: `You selected ${provider}`,
     message:
-      'Please complete your transaction in the other tab. Once done you can close this popup',
+      'Your buy transaction is in progress in another browser tab. Meanwhile, you can close this popup and resume wallet access.',
   }
 }
 
 function handleRamp() {
   isLoading.value = true
   openRampSdk(props.rampNetwork as string)
-  setTimeout(() => {
-    isLoading.value = false
-  }, 2000)
-  showStatusModal.value = 'success'
-  handleStatusModalText()
+  handleStatusModalText('Ramp')
 }
 
 function handleBuy() {
@@ -97,13 +93,14 @@ function handleDone() {
     <div v-else class="overflow-auto flex flex-col justify-between p-1">
       <div class="flex flex-col space-y-3 sm:space-y-2">
         <div class="flex justify-between">
-          <p class="text-xl sm:text-sm font-semibold">Buy Tokens</p>
+          <p class="text-xl sm:text-sm font-semibold">Select Provider</p>
           <button class="h-auto" @click="emit('close')">
             <img :src="getImage('close-icon')" alt="close icon" />
           </button>
         </div>
         <p class="text-xs text-zinc-400">
-          Select one of the providers below to purchase tokens
+          You will be taken to the provider website in a different tab once you
+          choose the provider and click PROCEED.
         </p>
       </div>
       <form class="flex flex-col gap-6 mt-8" @submit.prevent="handleBuy">
