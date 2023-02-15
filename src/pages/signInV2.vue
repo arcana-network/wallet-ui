@@ -95,7 +95,6 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
-  console.log('storeAndUserInfo.', storage)
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)

@@ -7,6 +7,7 @@ import {
   getCredentialKey,
   setCredential,
 } from '@/utils/PasswordlessLoginHandler'
+import { getStorage } from '@/utils/storageWrapper'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
 const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
@@ -83,12 +84,13 @@ async function handlePasswordlessLoginV2(
   info: GetInfoOutput,
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
-  const params = localStorage.getItem('CURRENT_LOGIN_INFO')
+  const storage = getStorage()
+  const params = storage.local.getItem('CURRENT_LOGIN_INFO')
   if (!params) {
     console.log('params not found in local storage')
     throw new Error('No passwordless login init')
   }
-  localStorage.removeItem('CURRENT_LOGIN_INFO')
+  storage.local.removeItem('CURRENT_LOGIN_INFO')
   const data = JSON.parse(params)
 
   const publicKey = await getCredentialKey(data.sessionId)
