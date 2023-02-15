@@ -11,6 +11,7 @@ import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const user = useUserStore()
@@ -39,6 +40,7 @@ onUnmounted(() => {
 let authProvider: AuthProvider | null = null
 
 async function init() {
+  initStorage()
   isLoading.value = true
   try {
     app.setAppId(`${appId}`)
@@ -55,7 +57,7 @@ async function init() {
       )
     } else {
       const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      localStorage.setItem('parentAppUrl', parentAppUrl)
+      getStorage().local.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
     isLoading.value = false
@@ -73,7 +75,7 @@ async function handlePasswordlessLoginRequest(email: string) {
   if (isEmailValid) {
     const connection = await parentConnection?.promise
     const params = await connection?.getPasswordlessParams()
-    localStorage.setItem('CURRENT_LOGIN_INFO', JSON.stringify(params))
+    getStorage().local.setItem('CURRENT_LOGIN_INFO', JSON.stringify(params))
     const authProvider = await getAuthProvider(app.id)
     return await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,

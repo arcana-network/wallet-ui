@@ -2,7 +2,7 @@
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { ref, toRefs } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -16,10 +16,10 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const appStore = useAppStore()
-const router = useRouter()
 const toast = useToast()
 const rpcStore = useRpcStore()
 const modalStore = useModalStore()
@@ -39,6 +39,7 @@ const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
+const storage = getStorage()
 
 async function copyToClipboard(value: string, message: string) {
   try {
@@ -53,10 +54,9 @@ async function handleLogout() {
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
+  storage.session.removeItem('userInfo')
+  storage.session.removeItem('isLoggedIn')
   parentConnectionInstance?.onEvent('disconnect')
-  setTimeout(() => {
-    router.push(`/${appId}/login`)
-  })
 }
 
 function handleProceed() {

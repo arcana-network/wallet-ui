@@ -13,6 +13,7 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
 
@@ -207,9 +208,10 @@ function addNetwork(request, keeper) {
 async function addToken(request, keeper) {
   const params = request.params.options
   const ercType = request.params.type?.toLowerCase()
+  const storage = getStorage()
   if (ercType === 'erc20') {
     const { tokenContract } = await validateAddTokensParams(params)
-    const assetContractsString = localStorage.getItem(
+    const assetContractsString = storage.local.getItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
     )
     let assetContracts: AssetContract[] = []
@@ -217,7 +219,7 @@ async function addToken(request, keeper) {
       assetContracts = JSON.parse(assetContractsString) as AssetContract[]
     }
     assetContracts.push({ ...tokenContract })
-    localStorage.setItem(
+    storage.local.setItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
       JSON.stringify(assetContracts)
     )
@@ -227,7 +229,7 @@ async function addToken(request, keeper) {
     })
   } else if (ercType === 'erc721' || ercType === 'erc1155') {
     const { nft } = await validateAddNftParams(ercType, params)
-    const nftsString = localStorage.getItem(
+    const nftsString = storage.local.getItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
     )
     let nfts: NFT[] = []
@@ -253,7 +255,7 @@ async function addToken(request, keeper) {
       }
       return 0
     })
-    localStorage.setItem(
+    storage.local.setItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
       JSON.stringify(nfts)
     )

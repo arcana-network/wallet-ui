@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, onMounted, watch, computed } from 'vue'
+import { toRefs, ref, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -7,11 +7,9 @@ import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
-import { useUserStore } from '@/store/user'
 
 import '@/index.css'
 
-const user = useUserStore()
 const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
@@ -20,8 +18,6 @@ const { theme } = toRefs(app)
 const isLoading = ref(false)
 const route = useRoute()
 
-onMounted(init)
-
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
 })
@@ -29,31 +25,15 @@ const showRequestPage = computed(() => {
 watch(showRequestPage, () => {
   if (showRequestPage.value) {
     modal.show = false
-    router.push({ name: 'requests' })
+    router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
-
-async function init() {
-  isLoading.value = true
-  try {
-    const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}')
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn')
-
-    if (isLoggedIn) {
-      user.setUserInfo(userInfo)
-      user.setLoginStatus(true)
-    }
-  } finally {
-    isLoading.value = false
-  }
-}
 </script>
 
 <template>
   <div v-if="isLoading" class="flex col justify-center items-center h-full">
     <div>Loading...</div>
   </div>
-  <!-- TODO: Replace it with loading indicator -->
   <div
     v-else
     class="flex flex-col h-full"

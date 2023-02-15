@@ -7,6 +7,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
+import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
@@ -16,7 +17,7 @@ const assets: Asset[] = reactive([])
 let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
-  const assetContracts = localStorage.getItem(
+  const assetContracts = getStorage().local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {

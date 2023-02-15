@@ -6,9 +6,11 @@ import type { NFT } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { checkOwnership } from '@/utils/nftUtils'
+import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
+const storage = getStorage()
 
 type NFTViewProps = {
   refreshState?: boolean
@@ -25,7 +27,7 @@ const loader = reactive({
 })
 
 function fetchStoredNfts(): NFT[] {
-  const storedNftsString = localStorage.getItem(
+  const storedNftsString = storage.local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
   if (storedNftsString) {
@@ -67,7 +69,7 @@ async function getNFTAssets() {
     (nft, index) => !nftsToRemoveIndex.includes(index)
   )
 
-  localStorage.setItem(
+  storage.local.setItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
     JSON.stringify(nfts.value)
   )
