@@ -21,12 +21,10 @@ import {
   handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
-import { getStorage } from '@/utils/storageWrapper'
 import { toHex } from '@/utils/toHex'
 
 const route = useRoute()
 const { appId } = route.params
-const storage = getStorage()
 
 let channel: BroadcastChannel | null = null
 
@@ -64,7 +62,7 @@ async function init() {
       ).data
       if (metadataResponse?.metadata) {
         const locallyStoredEncryptedShare = localStorage.getItem(
-          `encrypted-share-${appId}-${info.userInfo.id}`
+          `${appId}-encrypted-share-${info.userInfo.id}`
         )
         const encryptedShare =
           locallyStoredEncryptedShare ||
@@ -81,6 +79,12 @@ async function init() {
         const addressInMetadata = metadataResponse.metadata.address
         if (addressInMetadata === wallet.address) {
           userInfo.privateKey = wallet.privateKey.replace('0x', '')
+          if (!locallyStoredEncryptedShare) {
+            localStorage.setItem(
+              `${appId}-encrypted-share-${info.userInfo.id}`,
+              JSON.stringify(encryptedShare)
+            )
+          }
         } else {
           throw new Error('Invalid shares found')
         }
@@ -122,15 +126,15 @@ async function init() {
         })
         userInfo.privateKey = wallet.privateKey.replace('0x', '')
         localStorage.setItem(
-          `encrypted-share-${appId}-${info.userInfo.id}`,
+          `${appId}-encrypted-share-${info.userInfo.id}`,
           JSON.stringify(encryptedShare)
         )
       }
-      storage.session.setItem('userInfo', JSON.stringify(userInfo))
-      storage.session.setItem('isLoggedIn', JSON.stringify(true))
+      sessionStorage.setItem(`${appId}-userInfo`, JSON.stringify(userInfo))
+      sessionStorage.setItem(`${appId}-isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
-        await handlePasswordlessLoginV2(info, connectionToParent).catch(
+        await handlePasswordlessLoginV2(userInfo, connectionToParent).catch(
           async () => {
             channel = new BroadcastChannel(`${appId}_login_notification`)
             await handlePasswordlessLogin(
