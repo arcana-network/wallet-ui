@@ -82,7 +82,7 @@ async function init() {
           if (!locallyStoredEncryptedShare) {
             localStorage.setItem(
               `${appId}-encrypted-share-${info.userInfo.id}`,
-              JSON.stringify(encryptedShare)
+              encryptedShare
             )
           }
         } else {
