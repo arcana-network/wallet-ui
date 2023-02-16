@@ -5,6 +5,8 @@ import { AuthProvider } from '@arcana/auth-core'
 import type { LoginType, UserInfo } from '@arcana/auth-core/types/types'
 import { defineStore } from 'pinia'
 
+import { getStorage } from '@/utils/storageWrapper'
+
 type UserState = {
   isLoggedIn: boolean
   info: UserInfo
@@ -56,6 +58,9 @@ export const useUserStore = defineStore('user', {
     },
     async handleLogout(authProvider: AuthProvider): Promise<void> {
       await authProvider.logout()
+      const storage = getStorage()
+      storage.session.removeItem('userInfo')
+      storage.session.removeItem('isLoggedIn')
       this.$reset()
     },
     setWalletAddress(walletAddress: string): void {
