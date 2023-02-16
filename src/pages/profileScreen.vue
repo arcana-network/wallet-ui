@@ -16,7 +16,6 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const appStore = useAppStore()
@@ -39,7 +38,6 @@ const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
-const storage = getStorage()
 
 async function copyToClipboard(value: string, message: string) {
   try {
@@ -54,8 +52,6 @@ async function handleLogout() {
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
-  storage.session.removeItem('userInfo')
-  storage.session.removeItem('isLoggedIn')
   parentConnectionInstance?.onEvent('disconnect')
 }
 
