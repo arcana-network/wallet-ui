@@ -55,7 +55,7 @@ async function openRampSdk(network: string) {
   rampUrl.searchParams.append('hostAppName', 'Arcana OnRamp')
   rampUrl.searchParams.append(
     'hostLogoUrl',
-    'https://uploads-ssl.webflow.com/63aa7f8ce3b3be42ed4f4a3f/63c1115844d4cffb40ebf7d3_favicon-32x32.png'
+    'https://arcana-front.s3.ap-south-1.amazonaws.com/Black+Logo-Transparent+Backgroung-Horizontal.png'
   )
   rampUrl.searchParams.append('hostApiKey', process.env.VUE_APP_RAMP_API_KEY)
   rampUrl.searchParams.append('swapAsset', swapAsset)
