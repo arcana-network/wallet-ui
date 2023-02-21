@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, watch, computed } from 'vue'
+import { toRefs, ref, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -7,6 +7,7 @@ import BaseModal from '@/components/BaseModal.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
+import { fetchTransakNetworks } from '@/utils/transak'
 
 import '@/index.css'
 
@@ -20,6 +21,10 @@ const route = useRoute()
 
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
+})
+
+onBeforeMount(async () => {
+  await fetchTransakNetworks()
 })
 
 watch(showRequestPage, () => {
