@@ -7,6 +7,7 @@ import type { NFT } from '@/models/NFT'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getStorage } from '@/utils/storageWrapper'
 
 type ModalState = 'send-nft' | false
 
@@ -21,7 +22,7 @@ const searchQuery = ref('')
 const filteredNfts: Ref<NFT[]> = ref([])
 
 function fetchStoredNfts(): NFT[] {
-  const storedNftsString = localStorage.getItem(
+  const storedNftsString = getStorage().local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
   if (storedNftsString) {

@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import type { Theme } from '@/models/Theme'
 
 type AppState = {
-  id: string | null
+  id: string
   name: string
   theme: Theme
   parentAppUrl: string | null
@@ -14,7 +14,7 @@ type AppState = {
 export const useAppStore = defineStore('app', {
   state: () =>
     ({
-      id: null,
+      id: '',
       theme: 'light',
       parentAppUrl: null,
     } as AppState),

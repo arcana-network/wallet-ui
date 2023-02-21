@@ -7,11 +7,15 @@ import AppLoader from '@/components/AppLoader.vue'
 import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
+import { getStorage } from '@/utils/storageWrapper'
 
 const router = useRouter()
+const app = useAppStore()
+const storage = getStorage()
 const isDisabled = reactive({
   symbol: false,
   decimals: false,
@@ -62,7 +66,7 @@ async function addTokenContract() {
       loader.show = false
       return toast.error('Enter all the details to continue')
     }
-    const assetContractsString = localStorage.getItem(
+    const assetContractsString = storage.local.getItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
     )
     let assetContracts: AssetContract[] = []
@@ -70,13 +74,13 @@ async function addTokenContract() {
       assetContracts = JSON.parse(assetContractsString) as AssetContract[]
     }
     assetContracts.push({ ...tokenContract })
-    localStorage.setItem(
+    storage.local.setItem(
       `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
       JSON.stringify(assetContracts)
     )
     loader.show = false
     toast.success('Token Added successfully')
-    router.push({ name: 'home' })
+    router.push({ name: 'home', params: { appId: app.id } })
   } else {
     loader.show = false
     toast.error('Invalid contract address')
@@ -84,7 +88,7 @@ async function addTokenContract() {
 }
 
 function isContractInLocalStorage() {
-  const assetContractsString = localStorage.getItem(
+  const assetContractsString = storage.local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContractsString) {

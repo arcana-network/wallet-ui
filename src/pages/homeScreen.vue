@@ -36,7 +36,7 @@ onMounted(() => {
     } else {
       getWalletBalance()
     }
-    balancePolling = setInterval(getWalletBalance, 2000)
+    balancePolling = setInterval(getWalletBalance, 4000)
   } catch (err) {
     console.log({ err })
   }

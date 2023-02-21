@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
+import BuyTokens from '@/components/BuyTokens.vue'
 import ChangeChain from '@/components/ChangeChain.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
@@ -16,6 +17,9 @@ import {
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { HIDE_ON_RAMP } from '@/utils/constants'
+import { getRampSupportedNetworks } from '@/utils/rampsdk'
+import { getTransakSupportedNetworks } from '@/utils/transak'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
@@ -29,7 +33,13 @@ const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-type ModalState = 'send' | 'receive' | 'add-network' | 'edit-network' | false
+type ModalState =
+  | 'send'
+  | 'receive'
+  | 'add-network'
+  | 'edit-network'
+  | 'buy'
+  | false
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -39,6 +49,20 @@ const getImage = useImage()
 const showModal: Ref<ModalState> = ref(false)
 const { currency, selectedChainId } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
+
+const transakNetwork = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  return getTransakSupportedNetworks().find(
+    (network) => network.chainId === selectedChainId
+  )
+})
+
+const rampNetwork = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  return getRampSupportedNetworks().find(
+    (network) => network.chainId === selectedChainId
+  )
+})
 
 const explorerUrl = computed(() => {
   if (
@@ -119,6 +143,11 @@ async function getCurrencyExchangeRate() {
   } finally {
     hideLoader()
   }
+}
+
+function handleBuy(open: boolean) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'buy' : false
 }
 
 onMounted(() => {
@@ -232,13 +261,21 @@ watch(
         </div>
         <div class="flex space-x-3 mt-5">
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openSendTokens(true)"
           >
             Send
           </button>
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
+            v-if="walletBalance && !HIDE_ON_RAMP"
+            :disabled="!transakNetwork && !rampNetwork"
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
+            @click="handleBuy(true)"
+          >
+            Buy
+          </button>
+          <button
+            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
             @click="openReceiveTokens(true)"
           >
             Receive
@@ -259,6 +296,12 @@ watch(
       <EditNetwork
         v-if="showModal === 'edit-network'"
         @close="openEditNetwork(false)"
+      />
+      <BuyTokens
+        v-if="showModal === 'buy'"
+        :transak-network="transakNetwork?.value"
+        :ramp-network="rampNetwork?.value"
+        @close="handleBuy(false)"
       />
     </Teleport>
   </div>

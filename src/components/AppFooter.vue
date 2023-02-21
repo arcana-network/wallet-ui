@@ -63,7 +63,7 @@ function getAppropriateIcon(iconName, pathName) {
           }"
         />
       </router-link>
-      <router-link to="/activities" title="Activities">
+      <router-link :to="{ name: 'activities' }" title="Activities">
         <img
           :src="getAppropriateIcon('thunder-icon', 'activities')"
           alt="activities"

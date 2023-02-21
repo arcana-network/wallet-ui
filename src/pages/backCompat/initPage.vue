@@ -11,6 +11,7 @@ import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const user = useUserStore()
@@ -23,6 +24,8 @@ const {
     value: { appId },
   },
 } = toRefs(route)
+
+initStorage(String(appId))
 
 const penpalMethods = {
   triggerSocialLogin: (type: SocialLoginType) => handleSocialLoginRequest(type),
@@ -55,7 +58,7 @@ async function init() {
       )
     } else {
       const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      localStorage.setItem('parentAppUrl', parentAppUrl)
+      getStorage().local.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
     isLoading.value = false

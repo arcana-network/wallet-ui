@@ -2,7 +2,7 @@
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { ref, toRefs } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -19,7 +19,6 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
 const appStore = useAppStore()
-const router = useRouter()
 const toast = useToast()
 const rpcStore = useRpcStore()
 const modalStore = useModalStore()
@@ -54,9 +53,6 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
-  setTimeout(() => {
-    router.push(`/${appId}/login`)
-  })
 }
 
 function handleProceed() {

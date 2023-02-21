@@ -21,10 +21,12 @@ import {
   handlePasswordlessLoginV2,
   handleSocialLogin,
 } from '@/utils/redirectUtils'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 import { toHex } from '@/utils/toHex'
 
 const route = useRoute()
 const { appId } = route.params
+initStorage(String(appId))
 
 let channel: BroadcastChannel | null = null
 
@@ -32,7 +34,8 @@ onMounted(init)
 onUnmounted(cleanup)
 
 async function init() {
-  const parentAppUrl = localStorage.getItem('parentAppUrl')
+  const storage = getStorage()
+  const parentAppUrl = storage.local.getItem('parentAppUrl')
   // TODO: Fix this V, throw error n stuff
   if (!parentAppUrl) {
     return
@@ -61,8 +64,8 @@ async function init() {
         })
       ).data
       if (metadataResponse?.metadata) {
-        const locallyStoredEncryptedShare = localStorage.getItem(
-          `encrypted-share-${appId}-${info.userInfo.id}`
+        const locallyStoredEncryptedShare = storage.local.getItem(
+          `encrypted-share-${info.userInfo.id}`
         )
         const encryptedShare =
           locallyStoredEncryptedShare ||
@@ -79,6 +82,12 @@ async function init() {
         const addressInMetadata = metadataResponse.metadata.address
         if (addressInMetadata === wallet.address) {
           userInfo.privateKey = wallet.privateKey.replace('0x', '')
+          if (!locallyStoredEncryptedShare) {
+            storage.local.setItem(
+              `encrypted-share-${info.userInfo.id}`,
+              encryptedShare
+            )
+          }
         } else {
           throw new Error('Invalid shares found')
         }
@@ -119,16 +128,16 @@ async function init() {
           appAddress: String(appId),
         })
         userInfo.privateKey = wallet.privateKey.replace('0x', '')
-        localStorage.setItem(
-          `encrypted-share-${appId}-${info.userInfo.id}`,
+        storage.local.setItem(
+          `encrypted-share-${info.userInfo.id}`,
           JSON.stringify(encryptedShare)
         )
       }
-      sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
-      sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+      storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
+      storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === 'passwordless') {
-        await handlePasswordlessLoginV2(info, connectionToParent).catch(
+        await handlePasswordlessLoginV2(userInfo, connectionToParent).catch(
           async () => {
             channel = new BroadcastChannel(`${appId}_login_notification`)
             await handlePasswordlessLogin(

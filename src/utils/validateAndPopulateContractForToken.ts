@@ -1,6 +1,7 @@
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
+import { getStorage } from '@/utils/storageWrapper'
 
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
   (address) => ({
@@ -10,7 +11,7 @@ const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
 )
 
 function isContractInLocalStorage(walletAddress, chainId, tokenContract) {
-  const assetContractsString = localStorage.getItem(
+  const assetContractsString = getStorage().local.getItem(
     `${walletAddress}/${chainId}/asset-contracts`
   )
   if (assetContractsString === null) return false
