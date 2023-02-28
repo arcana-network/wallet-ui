@@ -7,6 +7,7 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
+import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
@@ -25,6 +26,7 @@ const modalStore = useModalStore()
 const parentConnectionStore = useParentConnectionStore()
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 const showPrivateKeyCautionModal = ref(false)
+const showMFAProceedModal = ref(false)
 const showExportKeyModal = ref(false)
 const loader = ref({
   show: false,
@@ -80,6 +82,15 @@ function handlePrivateKeyDownload() {
     type: 'text/plain',
   })
   downloadFile(`${walletAddress.value}-private-key.txt`, fileData)
+}
+
+function handleShowMFAProceedModal(show: boolean) {
+  modalStore.setShowModal(show)
+  showMFAProceedModal.value = show
+}
+
+function handleMFASetupClick() {
+  handleShowMFAProceedModal(false)
 }
 
 onBeforeRouteLeave((to) => {
@@ -146,7 +157,7 @@ onBeforeRouteLeave((to) => {
             <p class="home__body-content-label">Multifactor Authentication</p>
             <button
               class="home__body-content-value h-max w-max"
-              @click.stop="handleShowPrivateKeyCautionModal"
+              @click.stop="handleShowMFAProceedModal(true)"
             >
               <span v-if="true">Setup Now</span>
               <span v-else>Update Security Questions</span>
@@ -180,6 +191,11 @@ onBeforeRouteLeave((to) => {
         @copy="copyToClipboard(privateKey, 'Private key copied')"
         @download="handlePrivateKeyDownload"
         @close="handleHideExportKeyModal"
+      />
+      <MFAProceedModal
+        v-if="showMFAProceedModal"
+        @proceed="handleMFASetupClick"
+        @close="handleShowMFAProceedModal(false)"
       />
     </Teleport>
   </div>
