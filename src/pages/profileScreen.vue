@@ -142,6 +142,21 @@ onBeforeRouteLeave((to) => {
               />
             </button>
           </div>
+          <div class="flex flex-col gap-1">
+            <p class="home__body-content-label">Multifactor Authentication</p>
+            <button
+              class="home__body-content-value h-max w-max"
+              @click.stop="handleShowPrivateKeyCautionModal"
+            >
+              <span v-if="true">Setup Now</span>
+              <span v-else>Update Security Questions</span>
+              <img
+                src="@/assets/images/export.svg"
+                alt="Click to export"
+                class="w-6 aspect-square ml-3 invert dark:invert-0"
+              />
+            </button>
+          </div>
         </div>
         <div class="flex w-full text-sm sm:text-xs justify-center">
           <button
