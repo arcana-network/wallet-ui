@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type Theme } from '@arcana/auth'
 import { toRefs, ref, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -18,6 +19,11 @@ const router = useRouter()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
 const route = useRoute()
+
+const url = new URL(window.location.href)
+if (url.searchParams.get('theme')) {
+  theme.value = url.searchParams.get('theme') as Theme
+}
 
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval

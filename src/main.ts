@@ -2,6 +2,7 @@ import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
+import { createHead } from 'unhead'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
@@ -55,5 +56,7 @@ if (process.env.NODE_ENV === 'production') {
     config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
   })
 }
+
+createHead()
 
 walletApp.mount('#app')

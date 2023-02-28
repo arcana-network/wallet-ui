@@ -10,6 +10,7 @@ import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
+import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
@@ -37,6 +38,11 @@ const routes = [
   {
     path: '/:appId/v2/init/',
     component: InitPageV2,
+  },
+  {
+    path: '/:appId/mfa/setup',
+    component: MFASetup,
+    name: 'MFASetup',
   },
   {
     path: '/loggedin',

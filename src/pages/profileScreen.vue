@@ -2,7 +2,7 @@
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { ref, toRefs } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -19,6 +19,7 @@ import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 
 const user = useUserStore()
+const router = useRouter()
 const appStore = useAppStore()
 const toast = useToast()
 const rpcStore = useRpcStore()
@@ -90,6 +91,14 @@ function handleShowMFAProceedModal(show: boolean) {
 }
 
 function handleMFASetupClick() {
+  const mfaSetupPath = router.resolve({
+    name: 'MFASetup',
+    params: { appId: appStore.id },
+    query: {
+      theme: appStore.theme,
+    },
+  })
+  window.open(mfaSetupPath.href, '_blank')
   handleShowMFAProceedModal(false)
 }
 
