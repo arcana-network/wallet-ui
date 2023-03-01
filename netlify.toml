@@ -14,3 +14,6 @@
       style-src 'self' 'unsafe-inline' https://*.cloudfront.net https://fonts.googleapis.com;
       frame-src *.arcana.network *.transak.com *.ramp.network;
     '''
+[[edge_functions]]
+  function = "set-response-header"
+  path = "/*"
