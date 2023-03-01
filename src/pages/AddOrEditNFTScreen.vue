@@ -17,12 +17,14 @@ import {
   getTokenUri,
   checkOwnership,
 } from '@/utils/nftUtils'
+import { getStorage } from '@/utils/storageWrapper'
 import { useImage } from '@/utils/useImage'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const getImage = useImage()
+const storage = getStorage()
 
 type EditNFTProps = {
   collectionName?: string
@@ -90,7 +92,7 @@ async function handleSubmit() {
     return toast.error('Token belongs to Ethereum Mainnet')
   }
 
-  const storedNftStrings = localStorage.getItem(
+  const storedNftStrings = storage.local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
   let storedNfts: NFT[] = storedNftStrings?.length
@@ -193,7 +195,7 @@ async function handleSubmit() {
         return 0
       })
 
-      localStorage.setItem(
+      storage.local.setItem(
         `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
         JSON.stringify(storedNfts)
       )
@@ -211,7 +213,7 @@ async function handleSubmit() {
 function handleDeleteNft() {
   loader.show = true
   loader.message = 'Deleting NFT...'
-  const storedNftStrings = localStorage.getItem(
+  const storedNftStrings = storage.local.getItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
   )
   let storedNfts: NFT[] = storedNftStrings?.length
@@ -241,7 +243,7 @@ function handleDeleteNft() {
     return 0
   })
 
-  localStorage.setItem(
+  storage.local.setItem(
     `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
     JSON.stringify(storedNfts)
   )

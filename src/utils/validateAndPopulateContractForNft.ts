@@ -7,6 +7,7 @@ import {
   getCollectionName,
   getTokenUri,
 } from '@/utils/nftUtils'
+import { getStorage } from '@/utils/storageWrapper'
 
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
   (address) => ({
@@ -16,7 +17,9 @@ const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
 )
 
 function isNftInLocalStorage(walletAddress, chainId, tokenContract) {
-  const nftString = localStorage.getItem(`${walletAddress}/${chainId}/nfts`)
+  const nftString = getStorage().local.getItem(
+    `${walletAddress}/${chainId}/nfts`
+  )
   if (nftString === null) return false
 
   const nfts = JSON.parse(nftString) as NFT[]

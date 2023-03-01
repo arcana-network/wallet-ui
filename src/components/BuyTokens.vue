@@ -22,50 +22,29 @@ const statusText = ref({
   title: '',
   message: '',
 })
-const showRampContainer = ref(false)
 
-async function handleTransak() {
+function handleTransak() {
   isLoading.value = true
-  const transakStatus: any = await openTransak(props.transakNetwork as string)
-  isLoading.value = false
-  if (!transakStatus.closed) {
-    showStatusModal.value = transakStatus.status
-    handleStatusModalText()
+  openTransak(props.transakNetwork as string)
+  handleStatusModalText('Transak')
+}
+
+function handleStatusModalText(provider: 'Transak' | 'Ramp') {
+  setTimeout(() => {
+    isLoading.value = false
+  }, 1500)
+  showStatusModal.value = 'success'
+  statusText.value = {
+    title: `You selected ${provider}`,
+    message:
+      'Your buy transaction is in progress in another browser tab. Meanwhile, you can close this popup and resume wallet access.',
   }
 }
 
-function handleStatusModalText() {
-  if (showStatusModal.value === 'success') {
-    statusText.value = {
-      title: 'Transaction Successful',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
-  } else if (showStatusModal.value === 'failed') {
-    statusText.value = {
-      title: 'Transaction failed',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
-  } else if (showStatusModal.value === 'cancelled') {
-    statusText.value = {
-      title: 'Transaction Cancelled',
-      message:
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur tellus nisi, pellentesque id vulputate sed, luctus ',
-    }
-  }
-}
-
-async function handleRamp() {
-  showRampContainer.value = true
+function handleRamp() {
   isLoading.value = true
-  setTimeout(async () => {
-    const rampResponse: any = await openRampSdk(props.rampNetwork as string)
-    if (rampResponse.closed) {
-      isLoading.value = false
-      showRampContainer.value = false
-    }
-  }, 1) // Need timeout so #ramp-container is available for ramp network to embed
+  openRampSdk(props.rampNetwork as string)
+  handleStatusModalText('Ramp')
 }
 
 function handleBuy() {
@@ -95,16 +74,7 @@ function handleDone() {
       v-else-if="showStatusModal"
       class="overflow-auto flex flex-col gap-8 justify-between p-1 pt-5"
     >
-      <img
-        v-if="showStatusModal === 'success'"
-        src="@/assets/images/success.svg"
-        class="h-32 w-32 self-center"
-      />
-      <img
-        v-else
-        src="@/assets/images/failed.svg"
-        class="h-32 w-32 self-center"
-      />
+      <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
       <div class="flex flex-col gap-3">
         <div class="modal-title font-semibold text-center">
           {{ statusText.title }}
@@ -117,19 +87,20 @@ function handleDone() {
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black h-9 sm:h-8 uppercase"
         @click.stop="handleDone"
       >
-        Done
+        Close
       </button>
     </div>
     <div v-else class="overflow-auto flex flex-col justify-between p-1">
       <div class="flex flex-col space-y-3 sm:space-y-2">
         <div class="flex justify-between">
-          <p class="text-xl sm:text-sm font-semibold">Buy Tokens</p>
+          <p class="text-xl sm:text-sm font-semibold">Select Provider</p>
           <button class="h-auto" @click="emit('close')">
             <img :src="getImage('close-icon')" alt="close icon" />
           </button>
         </div>
         <p class="text-xs text-zinc-400">
-          Select one of the providers below to purchase tokens
+          You will be taken to the provider website in a different tab once you
+          choose the provider and click PROCEED.
         </p>
       </div>
       <form class="flex flex-col gap-6 mt-8" @submit.prevent="handleBuy">
@@ -181,11 +152,6 @@ function handleDone() {
         </div>
       </form>
     </div>
-    <div
-      v-if="showRampContainer"
-      id="ramp-container"
-      class="fixed inset-0 z-50 backdrop-blur"
-    ></div>
   </div>
 </template>
 

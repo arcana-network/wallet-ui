@@ -27,7 +27,6 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
-import { fetchTransakNetworks } from '@/utils/transak'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -49,7 +48,6 @@ onMounted(async () => {
   await getRpcConfig()
   await getAccountDetails()
   loader.value.show = false
-  await fetchTransakNetworks()
 })
 
 async function getAccountDetails() {

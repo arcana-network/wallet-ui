@@ -14,6 +14,7 @@ import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { PasswordlessLoginHandler } from '@/utils/PasswordlessLoginHandler'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
@@ -23,6 +24,8 @@ const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 let channel: BroadcastChannel | null = null
+initStorage()
+const storage = getStorage()
 
 const userEmailInput = ref('')
 const passwordlessForm = ref(null)
@@ -92,11 +95,11 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
-  sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
-  sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+  storage.session.setItem('userInfo', JSON.stringify(userInfo))
+  storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  router.push('/')
+  router.push({ name: 'home' })
 }
 
 const channelEventHandler = (ev: MessageEvent) => {
@@ -140,8 +143,13 @@ async function init() {
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    if (user.isLoggedIn) {
-      router.push('/')
+    const userInfo = JSON.parse(storage.session.getItem('userInfo') || '{}')
+    const isLoggedIn = storage.session.getItem('isLoggedIn')
+
+    if (isLoggedIn) {
+      user.setUserInfo(userInfo)
+      user.setLoginStatus(true)
+      router.push({ name: 'home' })
     } else {
       parentConnection = createParentConnection({
         ...penpalMethods,
@@ -242,7 +250,7 @@ function onEnterPress() {
             <OauthLogin
               v-if="availableLogins.length"
               :available-logins="availableLogins"
-              @oauth-click="(type) => handleSocialLoginRequest(type, 'wallet')"
+              @oauth-click="(type) => handleSocialLoginRequest(type)"
             />
             <p v-else class="signin__footer-text-error">
               {{ LOGINS_FETCHING_ERROR_TEXT }}

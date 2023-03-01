@@ -6,6 +6,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import { NFT } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getStorage } from '@/utils/storageWrapper'
 import { useImage } from '@/utils/useImage'
 
 const router = useRouter()
@@ -18,7 +19,7 @@ const loader = reactive({
   message: '',
 })
 
-const storedNftsString = localStorage.getItem(
+const storedNftsString = getStorage().local.getItem(
   `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
 )
 

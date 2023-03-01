@@ -16,6 +16,7 @@ import { useUserStore } from '@/store/user'
 import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,6 +43,9 @@ const {
     value: { appId },
   },
 } = toRefs(route)
+
+initStorage(String(appId))
+const storage = getStorage()
 
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
@@ -70,8 +74,8 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
-  sessionStorage.setItem('userInfo', JSON.stringify(userInfo))
-  sessionStorage.setItem('isLoggedIn', JSON.stringify(true))
+  storage.session.setItem('userInfo', JSON.stringify(userInfo))
+  storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   router.push('/')
@@ -118,8 +122,13 @@ async function init() {
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    if (user.isLoggedIn) {
-      router.push('/')
+    const userInfo = JSON.parse(storage.session.getItem('userInfo') || '{}')
+    const isLoggedIn = storage.session.getItem('isLoggedIn')
+
+    if (isLoggedIn) {
+      user.setUserInfo(userInfo)
+      user.setLoginStatus(true)
+      router.push({ name: 'home' })
     } else {
       parentConnection = createParentConnection({
         ...penpalMethods,

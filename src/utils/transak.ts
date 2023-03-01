@@ -1,4 +1,3 @@
-import transakSDK from '@transak/transak-sdk'
 import axios from 'axios'
 
 import { store } from '@/store'
@@ -13,34 +12,20 @@ type TransakNetwork = {
 
 const transakSupportedNetworks: TransakNetwork[] = []
 
-async function openTransak(network: string) {
-  return new Promise((resolve) => {
-    const transak = new transakSDK({
-      apiKey: process.env.VUE_APP_TRANSAK_API_KEY,
-      environment: process.env.VUE_APP_TRANSAK_ENV,
-      walletAddress: userStore.walletAddress,
-      email: userStore.info.email || '',
-      network,
-      widgetWidth: '100%',
-      themeColor: '#262626',
-    })
+function openTransak(network: string) {
+  const Transak =
+    process.env.VUE_APP_TRANSAK_ENV === 'STAGING'
+      ? 'https://global-stg.transak.com'
+      : 'https://global.transak.com'
 
-    transak.on(transak.ALL_EVENTS, (data) => {
-      if (data.eventName === 'TRANSAK_ORDER_SUCCESSFUL') {
-        resolve({ status: 'success', data: data.status })
-      } else if (data.eventName === 'TRANSAK_ORDER_FAILED') {
-        resolve({ status: 'failed', data: data.status })
-      } else if (data.eventName === 'TRANSAK_ORDER_CANCELLED') {
-        resolve({ status: 'cancelled', data: data.status })
-      } else if (data.eventName === 'TRANSAK_WIDGET_CLOSE') {
-        transak.close()
-        resolve({ closed: true })
-        return
-      }
-    })
+  const transakUrl = new URL(Transak)
+  transakUrl.searchParams.append('apiKey', process.env.VUE_APP_TRANSAK_API_KEY)
+  transakUrl.searchParams.append('walletAddress', userStore.walletAddress)
+  transakUrl.searchParams.append('email', userStore.info.email || '')
+  transakUrl.searchParams.append('network', network)
+  transakUrl.searchParams.append('themeColor', '#262626')
 
-    transak.init()
-  })
+  window.open(transakUrl.toString(), '_blank')
 }
 
 async function fetchTransakNetworks() {
