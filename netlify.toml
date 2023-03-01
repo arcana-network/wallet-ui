@@ -15,5 +15,5 @@
       frame-src *.arcana.network *.transak.com *.ramp.network;
     '''
 [[edge_functions]]
-  function = "set-response-header"
   path = "/*"
+  function = "set-response-header"
