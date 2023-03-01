@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
-export default async (request) => {
-  return new Response('Hello, World!', {
-    headers: { 'content-type': 'text/html' },
-  })
+import type { Context } from 'https://edge.netlify.com'
+
+export default async (request: Request, context: Context) => {
+  request.headers.set('X-Your-Custom-Header', 'Your custom header value')
 }
