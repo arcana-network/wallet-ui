@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 import Activities from '@/pages/ActivitiesScreen.vue'
 import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
@@ -18,7 +18,7 @@ import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
     component: SignIn,
@@ -43,6 +43,9 @@ const routes = [
     path: '/:appId/mfa/setup',
     component: MFASetup,
     name: 'MFASetup',
+    meta: {
+      isFullPageView: true,
+    },
   },
   {
     path: '/loggedin',
