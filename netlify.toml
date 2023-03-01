@@ -17,3 +17,6 @@
 [[edge_functions]]
   path = "/*"
   function = "set-response-header"
+[[edge_functions]]
+  path = "/index.html"
+  function = "set-response-header"
