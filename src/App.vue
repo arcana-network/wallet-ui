@@ -55,7 +55,10 @@ watch(showRequestPage, () => {
       <BaseModal v-if="modal.show" />
     </div>
     <WalletFooter
-      v-if="route.name !== 'requests' || !requestStore.pendingRequest"
+      v-if="
+        !['requests', 'MFARequired'].includes(route.name as string) ||
+        !requestStore.pendingRequest
+      "
     />
   </div>
 </template>

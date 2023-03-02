@@ -27,7 +27,7 @@ const filteredQuestions = computed(() => {
     return [...questions]
   } else {
     return questions.filter((question) => {
-      if (question.toLowerCase().startsWith(query.value.toLowerCase())) {
+      if (question.toLowerCase().includes(query.value.toLowerCase())) {
         return question
       }
     })

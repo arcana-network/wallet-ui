@@ -47,6 +47,7 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  router.push({ name: 'MFARequired' })
   loader.value.show = false
 })
 

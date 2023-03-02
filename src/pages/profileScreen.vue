@@ -8,7 +8,10 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
+import MFAVerifiedModal from '@/components/MFAVerifiedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
+import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
+import TextBasedRecoveryModal from '@/components/TextBasedRecoveryModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
@@ -201,10 +204,24 @@ onBeforeRouteLeave((to) => {
         @download="handlePrivateKeyDownload"
         @close="handleHideExportKeyModal"
       />
-      <MFAProceedModal
+      <!-- <MFAProceedModal
         v-if="showMFAProceedModal"
         @proceed="handleMFASetupClick"
         @close="handleShowMFAProceedModal(false)"
+      /> -->
+      <!-- <MFAVerifiedModal
+        v-if="showMFAProceedModal"
+        @close="handleShowMFAProceedModal(false)"
+      /> -->
+      <!-- <TextBasedRecoveryModal
+        v-if="showMFAProceedModal"
+        @back="handleShowMFAProceedModal(false)"
+        @proceed="handleShowMFAProceedModal(false)"
+      /> -->
+      <SecurityQuestionRecoveryModal
+        v-if="showMFAProceedModal"
+        @back="handleShowMFAProceedModal(false)"
+        @proceed="handleShowMFAProceedModal(false)"
       />
     </Teleport>
   </div>

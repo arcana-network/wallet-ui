@@ -10,6 +10,7 @@ import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
+import MFARequiredScreen from '@/pages/MFARequiredScreen.vue'
 import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
@@ -51,6 +52,11 @@ const routes: RouteRecordRaw[] = [
     path: '/loggedin',
     component: LoggedInView,
     children: [
+      {
+        path: '/mfa/required',
+        component: MFARequiredScreen,
+        name: 'MFARequired',
+      },
       {
         name: 'home',
         path: '/',

@@ -32,7 +32,7 @@ function handleCancel() {
         <img src="@/assets/images/success.svg" />
       </div>
       <div class="flex flex-col text-center mt-10">
-        <h2 class="font-semibold mb-5 title mb-4">MFA Setup Complete</h2>
+        <h2 class="font-semibold mb-5 title">MFA Setup Complete</h2>
         <span class="description max-w-[26rem]"
           >You’re all set with Multi-Factor Authentication. You can back-up your
           answers to your security questions using one of the following methods
