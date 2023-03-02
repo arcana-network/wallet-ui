@@ -20,7 +20,6 @@ import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getTransakSupportedNetworks } from '@/utils/transak'
-import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 type UserWalletProps = {
@@ -242,16 +241,16 @@ watch(
                   {{ totalAmountInUSD }}
                 </p>
                 <div class="flex text-zinc-400 text-sm space-x-1">
-                  <p :title="props.walletBalance">
-                    {{ truncateToTwoDecimals(props.walletBalance) }}
+                  <p :title="props.walletBalance" class="truncate">
+                    {{ props.walletBalance }}
                   </p>
                   <p>{{ currency }}</p>
                 </div>
               </div>
               <div v-else>
                 <div class="flex text-2xl sm:text-base space-x-1">
-                  <p :title="props.walletBalance">
-                    {{ truncateToTwoDecimals(props.walletBalance) }}
+                  <p :title="props.walletBalance" class="truncate">
+                    {{ props.walletBalance }}
                   </p>
                   <p>{{ currency }}</p>
                 </div>

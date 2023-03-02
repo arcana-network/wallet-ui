@@ -17,7 +17,6 @@ import { getTokenBalance } from '@/utils/contractUtil'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
-import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['close'])
@@ -345,8 +344,8 @@ function handleTokenChange(e) {
             </label>
             <p class="space-x-1 text-xs text-zinc-400">
               <span class="font-semibold">Total Balance:</span>
-              <span :title="selectedTokenBalance">{{
-                truncateToTwoDecimals(selectedTokenBalance)
+              <span :title="selectedTokenBalance" class="truncate">{{
+                selectedTokenBalance
               }}</span>
             </p>
           </div>
