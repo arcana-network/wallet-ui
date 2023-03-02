@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption,
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const questions: string[] = [
   'What is your q1?',
@@ -19,49 +20,70 @@ const emit = defineEmits(['change'])
 
 const selectedQuestion = ref('')
 const isFocused = ref(false)
+const query = ref('')
+
+const filteredQuestions = computed(() => {
+  if (query.value === '') {
+    return [...questions]
+  } else {
+    return questions.filter((question) => {
+      if (question.toLowerCase().startsWith(query.value.toLowerCase())) {
+        return question
+      }
+    })
+  }
+})
+
+function handleChange(ev) {
+  query.value = ev.target.value
+  selectedQuestion.value = ev.target.value
+}
+
+function displayValue() {
+  return (question: unknown) => {
+    emit('change', question)
+    return question as string
+  }
+}
 </script>
 
 <template>
-  <Listbox v-slot="{ open }" v-model="selectedQuestion" nullable>
+  <Combobox v-slot="{ open }" v-model="selectedQuestion" nullable>
     <div class="relative">
       <div
-        class="relative w-full cursor-default overflow-hidden flex flex-nowrap rounded-[10px] input outline-none items-center"
+        class="relative w-full cursor-default overflow-hidden flex flex-nowrap rounded-[10px] input p-4 outline-none"
         :class="{
           'outline-black dark:outline-white outline-1 outline': isFocused,
         }"
       >
-        <ListboxButton
-          class="h-auto flex flex-nowrap items-center justify-between flex-1 p-4"
-        >
-          <span
-            v-if="selectedQuestion"
-            class="flex-1 border-none pr-3 text-base leading-5 bg-transparent text-left text-black dark:text-white truncate outline-none z-[1]"
-            >{{ selectedQuestion }}</span
-          >
-          <span
-            v-else
-            class="flex-1 border-none pr-3 text-base leading-5 bg-transparent text-left truncate outline-none z-[1] label"
-            >Select a question</span
-          >
+        <ComboboxInput
+          class="flex-1 border-none text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
+          placeholder="Enter Token Name or Symbol"
+          :display-value="displayValue()"
+          @change="handleChange"
+          @focus="isFocused = true"
+          @blur="isFocused = false"
+        />
+        <ComboboxButton class="h-auto align-middle">
           <img
             src="@/assets/images/arrow-gray.svg"
-            class="transition-all will-change-transform delay-300 items-center"
+            class="transition-all will-change-transform delay-300"
             :class="{ '-rotate-180': open }"
           />
-        </ListboxButton>
+        </ComboboxButton>
       </div>
       <TransitionRoot
         leave="transition ease-in duration-100"
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div v-show="open">
-          <ListboxOptions
+        <div v-show="open && filteredQuestions.length">
+          <ComboboxOptions
             class="absolute max-h-60 w-full p-2 debossed-card text-base focus:outline-black dark:focus:outline-white overflow-auto rounded-t-none rounded-r-none z-10"
             static
           >
-            <ListboxOption
-              v-for="question in questions"
+            <ComboboxOption
+              v-for="question in filteredQuestions"
               :key="question"
               v-slot="{ selected, active }"
               as="template"
@@ -80,10 +102,10 @@ const isFocused = ref(false)
                   {{ question }}
                 </span>
               </li>
-            </ListboxOption>
-          </ListboxOptions>
+            </ComboboxOption>
+          </ComboboxOptions>
         </div>
       </TransitionRoot>
     </div>
-  </Listbox>
+  </Combobox>
 </template>
