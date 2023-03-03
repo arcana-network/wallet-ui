@@ -39,6 +39,13 @@ watch(showRequestPage, () => {
     router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
+
+const showFooter = computed(() => {
+  return (
+    !['requests', 'MFARequired', 'MFARestore'].includes(route.name as string) ||
+    (route.name === 'requests' && !requestStore.pendingRequest)
+  )
+})
 </script>
 
 <template>
@@ -54,12 +61,7 @@ watch(showRequestPage, () => {
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
-    <WalletFooter
-      v-if="
-        !['requests', 'MFARequired'].includes(route.name as string) ||
-        !requestStore.pendingRequest
-      "
-    />
+    <WalletFooter v-if="showFooter" />
   </div>
 </template>
 

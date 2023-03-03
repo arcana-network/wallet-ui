@@ -2,8 +2,10 @@
 import { useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
+import { useUserStore } from '@/store/user'
 
 const appStore = useAppStore()
+const user = useUserStore()
 const router = useRouter()
 
 function handleProceed() {
@@ -12,6 +14,7 @@ function handleProceed() {
     params: { appId: appStore.id },
     query: {
       theme: appStore.theme,
+      email: user.info.email,
     },
   })
   window.open(mfaSetupPath.href, '_blank')
@@ -23,12 +26,14 @@ function handleProceed() {
     class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto p-4"
   >
     <div class="flex gap-2 items-center mb-2">
-      <div class="modal-title font-semibold">MFA Required</div>
+      <div class="modal-title font-bold">MFA Required</div>
     </div>
-    <div class="flex" style="font-size: var(--fs-350)">
-      As the dApp “{{ appStore.name }}” interacts with sensitive information, it
-      requires you to have Multi-Factor Authentication enabled. Would you like
-      to do so now?
+    <div class="flex">
+      <span style="font-size: var(--fs-350)">
+        As the dApp “{{ appStore.name }}” interacts with sensitive information,
+        it requires you to have Multi-Factor Authentication enabled. Would you
+        like to do so now?
+      </span>
     </div>
     <div class="flex mt-4 items-end justify-end">
       <button

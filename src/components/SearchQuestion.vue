@@ -58,7 +58,7 @@ function displayValue() {
       >
         <ComboboxInput
           class="flex-1 border-none text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
-          placeholder="Enter Token Name or Symbol"
+          placeholder="Enter or select the question"
           :display-value="displayValue()"
           @change="handleChange"
           @focus="isFocused = true"

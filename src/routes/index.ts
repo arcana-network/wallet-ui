@@ -11,6 +11,7 @@ import LoggedInView from '@/pages/loggedInView.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
 import MFARequiredScreen from '@/pages/MFARequiredScreen.vue'
+import MFARestoreScreen from '@/pages/MFARestoreScreen.vue'
 import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
@@ -56,6 +57,11 @@ const routes: RouteRecordRaw[] = [
         path: '/mfa/required',
         component: MFARequiredScreen,
         name: 'MFARequired',
+      },
+      {
+        path: '/mfa/restore',
+        component: MFARestoreScreen,
+        name: 'MFARestore',
       },
       {
         name: 'home',
