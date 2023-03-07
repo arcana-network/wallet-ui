@@ -325,7 +325,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       }
     }
   } else {
-    keeper.reply(request.method, {
+    await keeper.reply(request.method, {
+      jsonrpc: '2.0',
       error: 'user_deny',
       result: null,
       id: request.id,
@@ -337,7 +338,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (request.method === 'wallet_addEthereumChain') {
     const validationResponse = validateAddNetworkParams(request.params[0])
     if (!validationResponse.isValid) {
-      keeper.reply(request.method, {
+      await keeper.reply(request.method, {
+        jsonrpc: '2.0',
         error: validationResponse.error,
         result: null,
         id: request.id,
@@ -349,7 +351,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
-      keeper.reply(request.method, {
+      await keeper.reply(request.method, {
+        jsonrpc: '2.0',
         error: validationResponse.error,
         result: null,
         id: request.id,
@@ -367,12 +370,14 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = getEtherInvalidParamsError('required params missing')
     } else if (
-      parseInt(params.domain.chainId) !== parseInt(rpcStore.selectedChainId)
+      parseInt(params.domain.chainId) !==
+      parseInt(rpcStore.selectedRPCConfig.chainId)
     ) {
-      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedChainId}`
+      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig.chainId}`
     }
     if (error) {
-      keeper.reply(request.method, {
+      await keeper.reply(request.method, {
+        jsonrpc: '2.0',
         error,
         result: null,
         id: request.id,
@@ -386,7 +391,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     if (tokenType === 'erc20') {
       const validationResponse = await validateAddTokensParams(params)
       if (!validationResponse.isValid) {
-        keeper.reply(request.method, {
+        await keeper.reply(request.method, {
+          jsonrpc: '2.0',
           error: validationResponse.error,
           result: null,
           id: request.id,
@@ -396,7 +402,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     } else if (tokenType === 'erc721' || tokenType === 'erc1155') {
       const validationResponse = await validateAddNftParams(tokenType, params)
       if (!validationResponse.isValid) {
-        keeper.reply(request.method, {
+        await keeper.reply(request.method, {
+          jsonrpc: '2.0',
           error: validationResponse.error,
           result: null,
           id: request.id,
@@ -405,6 +412,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       }
     } else {
       return keeper.reply(request.method, {
+        jsonrpc: '2.0',
         id: request.id,
         result: null,
         error: `Asset of type '${request.params.type}' not supported`,
