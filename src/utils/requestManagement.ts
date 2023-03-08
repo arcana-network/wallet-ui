@@ -414,8 +414,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
-    const auth = await getAuthProvider(`${appStore.id}`)
-    await auth.showWallet()
+    const connectionInstance = await keeper.connection.promise
+    connectionInstance.openPopup()
   }
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
