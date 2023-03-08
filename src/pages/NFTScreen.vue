@@ -56,10 +56,16 @@ function setRpcConfigs() {
 async function getRpcConfig() {
   try {
     showLoader('Loading')
-    if (rpcStore.selectedChainId) return
+    if (rpcStore.selectedRPCConfig.chainId) return
     const parentConnectionInstance = await parentConnection?.promise
     const rpcConfig = await parentConnectionInstance?.getRpcConfig()
-    if (rpcConfig) rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
+    if (rpcConfig) {
+      rpcStore.setSelectedRPCConfig({
+        favicon: 'blockchain-icon',
+        isCustom: false,
+        ...rpcConfig,
+      })
+    }
   } catch (err) {
     console.log({ err })
   } finally {
