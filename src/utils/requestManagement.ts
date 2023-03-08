@@ -13,6 +13,7 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
@@ -412,6 +413,10 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     }
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
+  if (isPermissionRequired) {
+    const auth = await getAuthProvider(`${appStore.id}`)
+    await auth.showWallet()
+  }
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
