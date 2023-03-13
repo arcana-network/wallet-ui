@@ -14,7 +14,7 @@ defineProps<ViewerProps>()
   ></json-viewer>
 </template>
 
-<style lang="scss">
+<style>
 .json-viewer {
   font-size: var(--fs-300);
   font-weight: 400;
