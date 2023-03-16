@@ -47,7 +47,6 @@ function fetchNativeAsset() {
 async function getAssetsBalance() {
   assets.length = 0
   assets.push(fetchNativeAsset())
-  console.log({ assets })
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
     assets.push({
@@ -76,7 +75,6 @@ async function getAssetsBalance() {
 }
 
 function updateAssetsBalance() {
-  console.log({ assetsBeforeUpdate: assets })
   assets.forEach(async (asset) => {
     if (asset.address !== 'native') {
       const balance = await getTokenBalance({
@@ -86,7 +84,6 @@ function updateAssetsBalance() {
       asset.balance = formatTokenDecimals(balance, asset.decimals)
     }
   })
-  console.log({ updatedAssets: assets })
 }
 
 function handleAddToken() {
