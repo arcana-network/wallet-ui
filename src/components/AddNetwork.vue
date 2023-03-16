@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emit = defineEmits(['close'])
@@ -29,34 +31,54 @@ function isExistingRpcUrl(url) {
   })
 }
 
-function isExistingChainId(chainId) {
-  return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
+function isExistingChain(chainId) {
+  return rpcStore.rpcConfigList.find(
+    (chain) => Number(chain.chainId) === Number(chainId)
+  )
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
+  const existingChain = isExistingChain(chainId)
   if (isExistingRpcUrl(rpcUrl)) {
-    toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
-  } else if (isExistingChainId(Number(chainId))) {
-    toast.error(
-      `Chain ID - ${chainId} already exists, please use different one`
+    return toast.error(
+      `RPC URL - ${rpcUrl} already exists, please use different one`
     )
   } else {
-    const payload = {
-      chainName: rpcConfig.value.networkName,
-      chainId: rpcConfig.value.chainId,
-      blockExplorerUrls: [rpcConfig.value.explorerUrl],
-      rpcUrls: [rpcConfig.value.rpcUrl],
-      favicon: 'blockchain-icon',
-      nativeCurrency: {
-        symbol: rpcConfig.value.currencySymbol,
-        decimals: 18,
-      },
+    const provider = new ethers.providers.JsonRpcProvider(
+      rpcConfig.value.rpcUrl
+    )
+    const chainId = await provider.getNetwork()
+    if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
+      return toast(`Incorrect combination of chainId and rpcUrl`)
     }
-    rpcStore.addNetwork(payload)
-    rpcStore.setSelectedChainId(payload.chainId)
-    emit('close')
+    if (existingChain) {
+      rpcStore.setRpcConfig({
+        ...existingChain,
+        rpcUrls: [rpcConfig.value.rpcUrl],
+      })
+    } else {
+      const payload = {
+        chainName: rpcConfig.value.networkName,
+        chainId: rpcConfig.value.chainId,
+        blockExplorerUrls: [rpcConfig.value.explorerUrl],
+        rpcUrls: [rpcConfig.value.rpcUrl],
+        favicon: 'blockchain-icon',
+        nativeCurrency: {
+          symbol: rpcConfig.value.currencySymbol,
+          decimals: 18,
+        },
+        isCustom: true,
+      }
+      rpcStore.addNetwork(payload)
+      rpcStore.setSelectedChainId(payload.chainId)
+      await getRequestHandler().setRpcConfig({
+        ...payload,
+        chainId: Number(payload.chainId),
+      })
+      emit('close')
+    }
   }
 }
 </script>
