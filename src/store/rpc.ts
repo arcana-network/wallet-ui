@@ -97,6 +97,11 @@ export const useRpcStore = defineStore('rpcStore', {
     setSelectedRPCConfig(cfg: RpcConfigWallet): void {
       this.selectedRPCConfig = cfg
     },
+    setRpcConfig(config: RpcConfigWallet) {
+      if (this.rpcConfigs) {
+        this.rpcConfigs[Number(config.chainId)].rpcUrls = config.rpcUrls
+      }
+    },
     setRpcConfigs(list: Array<RpcConfigWallet>) {
       const configs = {}
       list.forEach((chainConfig) => {

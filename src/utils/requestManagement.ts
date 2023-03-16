@@ -14,6 +14,7 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
@@ -153,10 +154,7 @@ async function validateAddNetworkParams(networkInfo) {
       networkInfo.rpcUrls[0]
     )
     const chainId = await provider.getNetwork()
-    if (
-      isExistingChain(networkInfo.chainId) &&
-      Number(chainId) !== Number(networkInfo.chainId)
-    ) {
+    if (Number(chainId.chainId) !== Number(networkInfo.chainId)) {
       result.error = getEtherInvalidParamsError(
         `Incorrect combination of chainId and rpcUrl`
       )
@@ -186,7 +184,7 @@ async function validateAddNftParams(tokenType, params) {
   })
 }
 
-function addNetwork(request, keeper) {
+async function addNetwork(request, keeper) {
   const { method, params } = request
   const networkInfo = params[0]
   const name: string = networkInfo.chainName || ''
@@ -195,9 +193,14 @@ function addNetwork(request, keeper) {
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
   const existingChain = isExistingChain(chainId)
   if (existingChain) {
-    rpcStore.setSelectedRPCConfig({
+    rpcStore.setRpcConfig({
       ...existingChain,
       rpcUrls,
+    })
+    rpcStore.setSelectedChainId(existingChain.chainId)
+    await getRequestHandler().setRpcConfig({
+      ...existingChain,
+      chainId: Number(existingChain.chainId),
     })
   } else {
     const payload = {
@@ -214,6 +217,10 @@ function addNetwork(request, keeper) {
     }
     rpcStore.addNetwork(payload)
     rpcStore.setSelectedChainId(payload.chainId)
+    await getRequestHandler().setRpcConfig({
+      ...payload,
+      chainId: Number(payload.chainId),
+    })
   }
   if (!reqStore.areRequestsPendingForApproval) {
     router.push({ name: 'home' })

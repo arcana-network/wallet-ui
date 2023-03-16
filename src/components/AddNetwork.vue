@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emit = defineEmits(['close'])
@@ -49,11 +50,11 @@ async function handleSubmit() {
       rpcConfig.value.rpcUrl
     )
     const chainId = await provider.getNetwork()
-    if (Number(chainId) !== Number(rpcConfig.value.chainId)) {
+    if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
       return toast(`Incorrect combination of chainId and rpcUrl`)
     }
     if (existingChain) {
-      rpcStore.setSelectedRPCConfig({
+      rpcStore.setRpcConfig({
         ...existingChain,
         rpcUrls: [rpcConfig.value.rpcUrl],
       })
@@ -72,6 +73,10 @@ async function handleSubmit() {
       }
       rpcStore.addNetwork(payload)
       rpcStore.setSelectedChainId(payload.chainId)
+      await getRequestHandler().setRpcConfig({
+        ...payload,
+        chainId: Number(payload.chainId),
+      })
       emit('close')
     }
   }
