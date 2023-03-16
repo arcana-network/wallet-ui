@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
+import { ChainType } from '@arcana/auth/types/typings'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { onMounted, ref } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -98,11 +99,15 @@ async function initKeeper() {
   const pc = await parentConnection.promise
   const cfg = await pc.getAppConfig()
 
-  const accountHandler = new EthereumAccountHandler(
-    userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
-  )
-  setRequestHandler(accountHandler)
+  switch (cfg.chainType) {
+    case ChainType.ethereum_secp256k1: {
+      const accountHandler = new EthereumAccountHandler(
+        userStore.privateKey,
+        rpcStore.selectedRpcConfig.rpcUrls[0]
+      )
+      setRequestHandler(accountHandler)
+    }
+  }
 }
 
 async function initAccountHandler() {
