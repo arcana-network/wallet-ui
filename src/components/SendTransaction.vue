@@ -13,7 +13,7 @@ import {
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const props = defineProps({

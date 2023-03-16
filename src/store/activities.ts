@@ -5,12 +5,12 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
 
@@ -134,7 +134,7 @@ function getTxOperation(
 }
 
 async function getRemoteTransaction(
-  accountHandler: AccountHandler,
+  accountHandler: EthereumAccountHandler,
   txHash: string
 ): Promise<TransactionResponse> {
   return new Promise((resolve) => {

@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 
 import ABI from '@/abis/erc20.abi.json'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 type ContractParams = {
   walletAddress: string

@@ -4,7 +4,7 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import type { NFTContractType } from '@/models/NFT'
 import { useUserStore } from '@/store/user'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 type ContractParams = {
   tokenId: string

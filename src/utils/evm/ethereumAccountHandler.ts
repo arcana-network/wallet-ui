@@ -15,9 +15,9 @@ import {
   TransactionParams,
   TypedMessageParams,
   createWalletMiddleware,
-} from '@/utils/walletMiddleware'
+} from '@/utils/evm/walletMiddleware'
 
-class AccountHandler {
+class EthereumAccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
@@ -303,4 +303,4 @@ class AccountHandler {
   }
 }
 
-export { AccountHandler }
+export { EthereumAccountHandler }

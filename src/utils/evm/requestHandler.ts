@@ -18,7 +18,7 @@ import {
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
-import { AccountHandler } from '@/utils/accountHandler'
+import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
 
 interface RpcConfig {
   rpcUrls: string[]
@@ -34,7 +34,7 @@ interface RpcConfig {
 class RequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
-  constructor(private accountHandler: AccountHandler) {}
+  constructor(private accountHandler: EthereumAccountHandler) {}
 
   public async setRpcConfig(c: RpcConfig) {
     this.handler = this.initRpcEngine(c)
