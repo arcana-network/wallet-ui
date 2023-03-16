@@ -1,9 +1,9 @@
-import { AccountHandler } from '@/utils/accountHandler'
-import { RequestHandler } from '@/utils/requestHandler'
+import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
+import { RequestHandler } from '@/utils/evm/requestHandler'
 
 let requestHandler: RequestHandler | null
 
-const setRequestHandler = (accountHandler: AccountHandler) => {
+const setRequestHandler = (accountHandler: EthereumAccountHandler) => {
   if (!requestHandler) {
     requestHandler = new RequestHandler(accountHandler)
     return

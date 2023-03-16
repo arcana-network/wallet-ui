@@ -15,8 +15,8 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 import { convertGweiToEth } from '@/utils/gweiToEth'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {

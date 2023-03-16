@@ -8,7 +8,7 @@ import {
 import { ref, watch } from 'vue'
 
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['addNetwork', 'editNetwork'])

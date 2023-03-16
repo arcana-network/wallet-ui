@@ -6,7 +6,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')

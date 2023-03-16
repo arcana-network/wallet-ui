@@ -13,20 +13,20 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
 import { createParentConnection } from '@/utils/createParentConnection'
-import { getAuthProvider } from '@/utils/getAuthProvider'
-import getValidAppMode from '@/utils/getValidAppMode'
-import { getWalletType } from '@/utils/getwalletType'
+import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
 import {
   getRequestHandler,
   setRequestHandler,
-} from '@/utils/requestHandlerSingleton'
+} from '@/utils/evm/requestHandlerSingleton'
 import {
   getSendRequestFn,
   handleRequest,
   watchRequestQueue,
-} from '@/utils/requestManagement'
+} from '@/utils/evm/requestManagement'
+import { getAuthProvider } from '@/utils/getAuthProvider'
+import getValidAppMode from '@/utils/getValidAppMode'
+import { getWalletType } from '@/utils/getwalletType'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -55,7 +55,10 @@ async function getAccountDetails() {
 }
 
 async function initKeeper() {
-  const accountHandler = new AccountHandler(
+  const pc = await parentConnection.promise
+  const cfg = await pc.getAppConfig()
+
+  const accountHandler = new EthereumAccountHandler(
     userStore.privateKey,
     rpcStore.selectedRpcConfig.rpcUrls[0]
   )
