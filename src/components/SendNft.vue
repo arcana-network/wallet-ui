@@ -15,8 +15,8 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { getEthereumRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 import { convertGweiToEth } from '@/utils/gweiToEth'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
@@ -91,7 +91,7 @@ onUnmounted(() => {
 })
 
 async function fetchBaseFee() {
-  const accountHandler = getEthereumRequestHandler().getAccountHandler()
+  const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
 }
@@ -114,7 +114,7 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending...')
   try {
-    const accountHandler = getEthereumRequestHandler().getAccountHandler()
+    const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
@@ -159,7 +159,7 @@ async function handleShowPreview() {
   if (recipientWalletAddress.value && gasFeeInGwei.value) {
     showLoader('Loading preview...')
     try {
-      const accountHandler = getEthereumRequestHandler().getAccountHandler()
+      const accountHandler = getRequestHandler().getAccountHandler()
       estimatedGas.value = (
         await accountHandler.estimateNftGas(
           props.nft.type,

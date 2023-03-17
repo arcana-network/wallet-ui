@@ -13,7 +13,7 @@ import {
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
-import { getEthereumRequestHandler } from '@/utils/evm/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
@@ -56,7 +56,7 @@ onMounted(async () => {
       const data = await getGasPrice(chainId)
       gasPrices.value = data
     }
-    const accountHandler = getEthereumRequestHandler().getAccountHandler()
+    const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
