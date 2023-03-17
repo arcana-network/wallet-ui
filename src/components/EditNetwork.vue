@@ -15,7 +15,7 @@ const rpcStore = useRpcStore()
 const toast = useToast()
 
 const getImage = useImage()
-const rpcConfigForEdit = rpcStore.getRpcConfig(props.chainId)
+const rpcConfigForEdit = rpcStore.getRpcConfig(Number(props.chainId))
 
 const rpcConfig = ref({
   chainName: rpcConfigForEdit?.chainName,
@@ -27,7 +27,7 @@ const rpcConfig = ref({
 
 function isExistingRpcUrl(url: string) {
   const exisitingRpcUrls = rpcStore.rpcConfigList
-    .filter((chain) => Number(chain.chainId) !== props.chainId)
+    .filter((chain) => Number(chain.chainId) !== Number(props.chainId))
     .map((chain) => chain.rpcUrls)
     .flat()
 
@@ -66,7 +66,10 @@ function handleSubmit() {
         decimals: 18,
       },
     }
-    rpcStore.editNetwork(props.chainId, payload)
+    rpcStore.editNetwork(Number(props.chainId), payload)
+    if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
+      rpcStore.setSelectedRPCConfig(payload)
+    }
     if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
       getRequestHandler().setRpcConfig({
         ...payload,
@@ -83,7 +86,7 @@ function deleteNetwork() {
       'This network is current selected, please chose a different one and try again'
     )
   } else {
-    rpcStore.deleteNetwork(props.chainId)
+    rpcStore.deleteNetwork(Number(props.chainId))
     emit('close')
   }
 }
