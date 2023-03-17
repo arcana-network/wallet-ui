@@ -175,9 +175,9 @@ async function getRpcConfig() {
           (chain) => Number(chain.chainId) === Number(rpcConfig.chainId)
         )
         rpcStore.setSelectedRPCConfig({
+          ...rpcConfig,
           favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
           isCustom: false,
-          ...rpcConfig,
         })
       }
     }

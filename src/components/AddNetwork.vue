@@ -3,9 +3,7 @@ import { ethers } from 'ethers'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emit = defineEmits(['close'])
@@ -13,7 +11,6 @@ const emit = defineEmits(['close'])
 const rpcStore = useRpcStore()
 const getImage = useImage()
 const toast = useToast()
-const modalStore = useModalStore()
 
 const rpcConfig = ref({
   networkName: '',
@@ -61,13 +58,7 @@ async function handleSubmit() {
         rpcUrls: [rpcConfig.value.rpcUrl],
       })
       rpcStore.setSelectedChainId(existingChain.chainId)
-      await getRequestHandler().setRpcConfig({
-        ...existingChain,
-        rpcUrls: [rpcConfig.value.rpcUrl],
-        chainId: Number(existingChain.chainId),
-      })
     } else {
-      console.log('Adding custom network')
       const payload = {
         chainName: rpcConfig.value.networkName,
         chainId: rpcConfig.value.chainId,
@@ -80,15 +71,9 @@ async function handleSubmit() {
         },
         isCustom: true,
       }
-      console.log({ payload })
       rpcStore.addNetwork(payload)
       rpcStore.setSelectedChainId(payload.chainId)
-      await getRequestHandler().setRpcConfig({
-        ...payload,
-        chainId: Number(payload.chainId),
-      })
     }
-    modalStore.setShowModal(false)
     emit('close')
   }
 }

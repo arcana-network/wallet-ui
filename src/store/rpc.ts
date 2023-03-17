@@ -72,8 +72,10 @@ export const useRpcStore = defineStore('rpcStore', {
       return selectedRpcConfig.chainId === `1`
     },
   },
-
   actions: {
+    getRpcConfig(chainId: number) {
+      return this.rpcConfigs ? this.rpcConfigs[Number(chainId)] : null
+    },
     addNetwork(rpcConfig: RpcConfigWallet): void {
       if (this.rpcConfigs)
         this.rpcConfigs[rpcConfig.chainId] = { ...rpcConfig, isCustom: true }

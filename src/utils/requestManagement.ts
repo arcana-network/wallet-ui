@@ -150,18 +150,8 @@ async function validateAddNetworkParams(networkInfo) {
       `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
     )
   } else {
-    const provider = new ethers.providers.JsonRpcProvider(
-      networkInfo.rpcUrls[0]
-    )
-    const chainId = await provider.getNetwork()
-    if (Number(chainId.chainId) !== Number(networkInfo.chainId)) {
-      result.error = getEtherInvalidParamsError(
-        `Incorrect combination of chainId and rpcUrl`
-      )
-    } else {
-      result.error = ''
-      result.isValid = true
-    }
+    result.error = ''
+    result.isValid = true
   }
   return result
 }
