@@ -179,6 +179,11 @@ async function getRpcConfig() {
           favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
           isCustom: false,
         })
+        rpcStore.setRpcConfig({
+          ...rpcConfig,
+          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
+          isCustom: false,
+        })
       }
     }
   } catch (err) {

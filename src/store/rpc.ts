@@ -8,6 +8,7 @@ type RpcConfigs = {
 
 type RpcConfigState = {
   selectedRPCConfig: RpcConfigWallet
+  selectedChainId: string | number
   walletBalance: string
   walletBalanceChainId: string
   rpcConfigs: RpcConfigs | null
@@ -18,6 +19,7 @@ export const useRpcStore = defineStore('rpcStore', {
   state: () =>
     ({
       selectedRPCConfig: CHAIN_LIST[0],
+      selectedChainId: CHAIN_LIST[0].chainId,
       walletBalance: '',
       rpcConfigs: null,
       editChainId: null,
@@ -95,9 +97,11 @@ export const useRpcStore = defineStore('rpcStore', {
       this.selectedRPCConfig = this.rpcConfigs
         ? this.rpcConfigs[chainId]
         : this.selectedRPCConfig
+      this.selectedChainId = Number(chainId)
     },
     setSelectedRPCConfig(cfg: RpcConfigWallet): void {
       this.selectedRPCConfig = cfg
+      this.selectedChainId = Number(cfg.chainId)
     },
     setRpcConfig(config: RpcConfigWallet) {
       if (this.rpcConfigs) {
