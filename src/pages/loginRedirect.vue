@@ -36,6 +36,7 @@ onUnmounted(cleanup)
 async function init() {
   const storage = getStorage()
   const parentAppUrl = storage.local.getItem('parentAppUrl')
+  const loginSrc = storage.local.getItem('loginSrc')
   // TODO: Fix this V, throw error n stuff
   if (!parentAppUrl) {
     return
@@ -150,6 +151,10 @@ async function init() {
           }
         )
       } else {
+        if (loginSrc === 'rn') {
+          await connectionToParent.goToWallet()
+          return
+        }
         await handleSocialLogin(
           userInfo,
           messageId,

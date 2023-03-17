@@ -22,12 +22,27 @@ defineProps({
     required: true,
   },
 })
+
+const stateChangeRequests = [
+  methodAndAction.wallet_addEthereumChain,
+  methodAndAction.wallet_switchEthereumChain,
+  methodAndAction.wallet_watchAsset,
+]
+
+function getTitle(requestMethod: string) {
+  if (stateChangeRequests.includes(requestMethod)) {
+    return requestMethod
+  }
+  return 'Sign Message'
+}
 </script>
 
 <template>
   <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex items-baseline">
-      <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm">Sign Message</h1>
+      <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm capitalize">
+        {{ getTitle(methodAndAction[request.request.method]) }}
+      </h1>
       <DateTime :datetime="request.receivedTime" />
     </div>
     <p class="font-normal text-sm sm:text-xs">

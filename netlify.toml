@@ -8,9 +8,9 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Content-Security-Policy = '''
-      font-src 'self' fonts.gstatic.com gstatic.com *.gstatic.com;
-      img-src 'self' data:;
+      font-src 'self' https://*.cloudfront.net data:;
+      img-src 'self' data: https:;
       script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
-      style-src 'self' 'unsafe-inline' https://*.cloudfront.net https://fonts.googleapis.com;
+      style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
       frame-src *.arcana.network *.transak.com *.ramp.network;
     '''

@@ -171,7 +171,16 @@ async function getRpcConfig() {
       if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
         rpcConfig = CHAIN_LIST[0]
       }
-      rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
+      if (rpcConfig) {
+        const selectedChain = CHAIN_LIST.find(
+          (chain) => Number(chain.chainId) === Number(rpcConfig.chainId)
+        )
+        rpcStore.setSelectedRPCConfig({
+          ...rpcConfig,
+          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
+          isCustom: false,
+        })
+      }
     }
   } catch (err) {
     console.log({ err })

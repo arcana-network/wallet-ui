@@ -1,17 +1,13 @@
 import { defineStore } from 'pinia'
 
-import {
-  RpcConfigWallet,
-  DEFAULT_CHAIN_ID,
-  CHAIN_LIST,
-} from '@/models/RpcConfigList'
+import { RpcConfigWallet, CHAIN_LIST } from '@/models/RpcConfigList'
 
 type RpcConfigs = {
   [chainId: number]: RpcConfigWallet
 }
 
 type RpcConfigState = {
-  selectedChainId: string
+  selectedRPCConfig: RpcConfigWallet
   walletBalance: string
   walletBalanceChainId: string
   rpcConfigs: RpcConfigs | null
@@ -21,7 +17,7 @@ type RpcConfigState = {
 export const useRpcStore = defineStore('rpcStore', {
   state: () =>
     ({
-      selectedChainId: DEFAULT_CHAIN_ID,
+      selectedRPCConfig: CHAIN_LIST[0],
       walletBalance: '',
       rpcConfigs: null,
       editChainId: null,
@@ -61,10 +57,7 @@ export const useRpcStore = defineStore('rpcStore', {
       }
     },
     selectedRpcConfig(state: RpcConfigState): RpcConfigWallet {
-      const { selectedChainId, rpcConfigs } = state
-      if (this.rpcConfigs) return this.rpcConfigs[selectedChainId]
-      else if (rpcConfigs) return rpcConfigs[DEFAULT_CHAIN_ID]
-      else return CHAIN_LIST[0]
+      return state.selectedRPCConfig
     },
     rpcConfigList(state: RpcConfigState): Array<RpcConfigWallet> {
       return Object.values(state.rpcConfigs || {})
@@ -79,8 +72,10 @@ export const useRpcStore = defineStore('rpcStore', {
       return selectedRpcConfig.chainId === `1`
     },
   },
-
   actions: {
+    getRpcConfig(chainId: number) {
+      return this.rpcConfigs ? this.rpcConfigs[Number(chainId)] : null
+    },
     addNetwork(rpcConfig: RpcConfigWallet): void {
       if (this.rpcConfigs)
         this.rpcConfigs[rpcConfig.chainId] = { ...rpcConfig, isCustom: true }
@@ -92,12 +87,22 @@ export const useRpcStore = defineStore('rpcStore', {
     deleteNetwork(chainId: number): void {
       if (this.rpcConfigs) delete this.rpcConfigs[chainId]
     },
-    setSelectedChainId(chainId: string): void {
-      this.selectedChainId = chainId
-    },
     setWalletBalance(balance): void {
       this.walletBalance = balance
-      this.walletBalanceChainId = this.selectedChainId
+      this.walletBalanceChainId = this.selectedRPCConfig.chainId
+    },
+    setSelectedChainId(chainId: string): void {
+      this.selectedRPCConfig = this.rpcConfigs
+        ? this.rpcConfigs[chainId]
+        : this.selectedRPCConfig
+    },
+    setSelectedRPCConfig(cfg: RpcConfigWallet): void {
+      this.selectedRPCConfig = cfg
+    },
+    setRpcConfig(config: RpcConfigWallet) {
+      if (this.rpcConfigs) {
+        this.rpcConfigs[Number(config.chainId)].rpcUrls = config.rpcUrls
+      }
     },
     setRpcConfigs(list: Array<RpcConfigWallet>) {
       const configs = {}

@@ -18,7 +18,9 @@ module.exports = defineConfig({
       }),
     ],
     devServer: {
-      webSocketServer: 'sockjs',
+      client: {
+        webSocketURL: 'auto://0.0.0.0:0/ws',
+      },
     },
   },
 })

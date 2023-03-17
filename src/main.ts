@@ -12,6 +12,8 @@ import App from '@/App.vue'
 import { router } from '@/routes/index'
 import { store } from '@/store'
 
+import '@fontsource/montserrat/variable.css'
+import '@fontsource/sora/variable.css'
 import 'vue-toastification/dist/index.css'
 
 const toastOptions = {

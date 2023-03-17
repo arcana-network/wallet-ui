@@ -66,8 +66,6 @@ const showFooter = computed(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@100;400;600;700&display=block');
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&display=block');
 @import '@/assets/css/reset.css';
 
 :root {
@@ -185,7 +183,7 @@ const showFooter = computed(() => {
 
 body {
   height: 100vh;
-  font-family: Sora, sans-serif;
+  font-family: SoraVariable, sans-serif;
 }
 
 #app {
@@ -196,14 +194,14 @@ body {
 button {
   height: 40px;
 
-  /* TODO: Brainstrom on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
+  /* TODO: Brainstorm on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
   cursor: pointer;
   background: transparent;
   outline: none;
 }
 
 .font-montserrat {
-  font-family: Montserrat, sans-serif;
+  font-family: MontserratVariable, sans-serif;
 }
 
 .color-secondary {
