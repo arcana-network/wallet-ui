@@ -18,7 +18,9 @@ let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = getStorage().local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    `${userStore.walletAddress}/${Number(
+      rpcStore.selectedRpcConfig?.chainId
+    )}/asset-contracts`
   )
   if (assetContracts) {
     return JSON.parse(assetContracts) as AssetContract[]
