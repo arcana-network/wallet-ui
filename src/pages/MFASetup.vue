@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Theme } from '@arcana/auth'
-import { useHeadSafe } from 'unhead'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -12,20 +11,16 @@ const showPinScreen = ref(false)
 const showError = ref(false)
 
 onMounted(() => {
-  // alert(
-  //   JSON.stringify(
-  //     JSON.parse(
-  //       sessionStorage.getItem(route.params.appId + '-userInfo') as string
-  //     ).userInfo
-  //   )
-  // )
+  alert(
+    JSON.stringify(
+      JSON.parse(
+        sessionStorage.getItem(route.params.appId + '-userInfo') as string
+      ).userInfo
+    )
+  )
 })
 
 document.documentElement.classList.add(theme)
-
-useHeadSafe({
-  title: 'Setup Multifactor Authentication | Arcana Wallet',
-})
 
 function handleCancel() {
   window.close()
