@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
+import { AppMode, ChainType } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { ChainType } from '@arcana/auth/types/typings'
 import type { Connection } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
@@ -16,10 +15,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
-import {
-  getEthereumRequestHandler,
-  setEthereumRequestHandler,
-} from '@/utils/evm/requestHandlerSingleton'
+import { EthereumRequestHandler } from '@/utils/evm/requestHandler'
 import {
   getSendRequestFn,
   handleRequest,
@@ -28,6 +24,10 @@ import {
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import {
+  getRequestHandler,
+  setRequestHandler,
+} from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -60,12 +60,12 @@ async function initKeeper() {
   const cfg = await pc.getAppConfig()
 
   switch (cfg.chainType) {
-    case ChainType.ethereum_secp256k1: {
+    case ChainType.evm_secp256k1: {
       const accountHandler = new EthereumAccountHandler(
         userStore.privateKey,
         rpcStore.selectedRpcConfig.rpcUrls[0]
       )
-      setEthereumRequestHandler(accountHandler)
+      setRequestHandler(new EthereumRequestHandler(accountHandler))
     }
   }
 }
@@ -76,9 +76,7 @@ async function initAccountHandler() {
       const parentConnectionInstance = await parentConnection.promise
 
       if (!userStore.walletAddress) {
-        const account = getEthereumRequestHandler()
-          .getAccountHandler()
-          .getAccount()
+        const account = getRequestHandler().getAccountHandler().getAccount()
         userStore.setWalletAddress(account.address)
       }
 
@@ -87,7 +85,7 @@ async function initAccountHandler() {
         setAppMode(walletType, parentConnectionInstance)
       }
 
-      const requestHandler = getEthereumRequestHandler()
+      const requestHandler = getRequestHandler()
       if (requestHandler) {
         requestHandler.setConnection(parentConnection)
         const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
@@ -114,7 +112,7 @@ function connectToParent() {
     handleRequest,
     requestStore,
     appStore,
-    getEthereumRequestHandler()
+    getRequestHandler()
   )
   parentConnection = createParentConnection({
     isLoggedIn: () => userStore.isLoggedIn,
@@ -142,9 +140,7 @@ async function setTheme() {
 }
 
 function getUserInfo() {
-  const accountDetails = getEthereumRequestHandler()
-    .getAccountHandler()
-    .getAccount()
+  const accountDetails = getRequestHandler().getAccountHandler().getAccount()
   return {
     ...userStore.info,
     ...accountDetails,

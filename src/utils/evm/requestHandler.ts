@@ -76,7 +76,7 @@ class EthereumRequestHandler {
   ) {
     const c = await this.getConnection('onMethodResponse')
     if (!(c instanceof Error)) {
-      c.onMethodResponse(method, response)
+      await c.onMethodResponse(method, response)
     }
   }
 

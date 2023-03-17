@@ -8,7 +8,7 @@ import {
 import { ref, watch } from 'vue'
 
 import { useRpcStore } from '@/store/rpc'
-import { getEthereumRequestHandler } from '@/utils/evm/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['addNetwork', 'editNetwork'])
@@ -21,7 +21,7 @@ async function setChain() {
   const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
 
   const selectedChainId = Number(chainId)
-  await getEthereumRequestHandler().setRpcConfig({
+  await getRequestHandler().setRpcConfig({
     ...rpcConfig,
     chainId: selectedChainId,
   })
