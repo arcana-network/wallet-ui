@@ -31,7 +31,7 @@ interface RpcConfig {
   }
 }
 
-class RequestHandler {
+class EthereumRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   constructor(private accountHandler: EthereumAccountHandler) {}
@@ -165,4 +165,4 @@ const addHexPrefix = (i: string) =>
 const removeHexPrefix = (i: string) =>
   i.startsWith(HEX_PREFIX) ? i.substring(2) : i
 
-export { RequestHandler }
+export { EthereumRequestHandler }
