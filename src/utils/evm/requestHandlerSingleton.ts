@@ -1,28 +1,32 @@
 import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
-import { RequestHandler } from '@/utils/evm/requestHandler'
+import { EthereumRequestHandler } from '@/utils/evm/requestHandler'
 
-let requestHandler: RequestHandler | null
+let requestHandler: EthereumRequestHandler | null
 
-const setRequestHandler = (accountHandler: EthereumAccountHandler) => {
+const setEthereumRequestHandler = (accountHandler: EthereumAccountHandler) => {
   if (!requestHandler) {
-    requestHandler = new RequestHandler(accountHandler)
+    requestHandler = new EthereumRequestHandler(accountHandler)
     return
   }
-  throw new Error('RequestHandler already initialized.')
+  throw new Error('EthereumRequestHandler already initialized.')
 }
 
-const getRequestHandler = () => {
+const getEthereumRequestHandler = () => {
   if (!requestHandler) {
-    throw new Error('RequestHandler not initialized yet.')
+    throw new Error('EthereumRequestHandler not initialized yet.')
   }
   return requestHandler
 }
 
-const deleteRequestHandler = () => {
+const deleteEthereumRequestHandler = () => {
   if (!requestHandler) {
-    throw new Error('RequestHandler not initialized yet.')
+    throw new Error('EthereumRequestHandler not initialized yet.')
   }
   requestHandler = null
 }
 
-export { setRequestHandler, getRequestHandler, deleteRequestHandler }
+export {
+  setEthereumRequestHandler,
+  getEthereumRequestHandler,
+  deleteEthereumRequestHandler,
+}

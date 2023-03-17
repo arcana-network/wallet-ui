@@ -10,7 +10,7 @@ import {
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
 import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
-import { getRequestHandler } from '@/utils/evm/requestHandlerSingleton'
+import { getEthereumRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
 
@@ -183,7 +183,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       customToken,
       recipientAddress,
     }: TransactionFetchParams) {
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler = getEthereumRequestHandler().getAccountHandler()
       const remoteTransaction = await getRemoteTransaction(
         accountHandler,
         txHash
@@ -226,7 +226,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       nft,
       recipientAddress,
     }: TransactionFetchNftParams) {
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler = getEthereumRequestHandler().getAccountHandler()
       const remoteTransaction = await getRemoteTransaction(
         accountHandler,
         txHash
@@ -312,7 +312,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         ],
       }
 
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler = getEthereumRequestHandler().getAccountHandler()
       accountHandler.provider.once(filter, async (log) => {
         currentActivity.status = 'Success'
         currentActivity.txHash = log.transactionHash

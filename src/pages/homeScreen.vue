@@ -6,6 +6,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
+import { getEthereumRequestHandler } from '@/utils/evm/requestHandlerSingleton'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
@@ -53,6 +54,18 @@ async function handleChainChange() {
   }
 }
 
+<<<<<<< HEAD
+=======
+async function getWalletBalance() {
+  const accountHandler = getEthereumRequestHandler().getAccountHandler()
+  if (accountHandler) {
+    const balance = (await accountHandler.getBalance()) || '0'
+    rpcStore.setWalletBalance(balance.toString())
+    walletBalance.value = ethers.utils.formatEther(balance.toString())
+  }
+}
+
+>>>>>>> 1dafae4 (Rename a bunch of other things)
 async function handleRefresh() {
   showLoader('Refreshing wallet balance...')
   try {

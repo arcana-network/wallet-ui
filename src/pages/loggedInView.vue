@@ -19,8 +19,8 @@ import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
 import {
-  getRequestHandler,
-  setRequestHandler,
+  getEthereumRequestHandler,
+  setEthereumRequestHandler,
 } from '@/utils/evm/requestHandlerSingleton'
 import {
   getSendRequestFn,
@@ -105,7 +105,7 @@ async function initKeeper() {
         userStore.privateKey,
         rpcStore.selectedRpcConfig.rpcUrls[0]
       )
-      setRequestHandler(accountHandler)
+      setEthereumRequestHandler(accountHandler)
     }
   }
 }
@@ -116,7 +116,9 @@ async function initAccountHandler() {
       const parentConnectionInstance = await parentConnection.promise
 
       if (!userStore.walletAddress) {
-        const account = getRequestHandler().getAccountHandler().getAccount()
+        const account = getEthereumRequestHandler()
+          .getAccountHandler()
+          .getAccount()
         userStore.setWalletAddress(account.address)
       }
 
@@ -125,7 +127,7 @@ async function initAccountHandler() {
         setAppMode(walletType, parentConnectionInstance)
       }
 
-      const requestHandler = getRequestHandler()
+      const requestHandler = getEthereumRequestHandler()
       if (requestHandler) {
         requestHandler.setConnection(parentConnection)
         const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
@@ -152,7 +154,7 @@ function connectToParent() {
     handleRequest,
     requestStore,
     appStore,
-    getRequestHandler()
+    getEthereumRequestHandler()
   )
   parentConnection = createParentConnection({
     isLoggedIn: () => userStore.isLoggedIn,
@@ -180,7 +182,9 @@ async function setTheme() {
 }
 
 function getUserInfo() {
-  const accountDetails = getRequestHandler().getAccountHandler().getAccount()
+  const accountDetails = getEthereumRequestHandler()
+    .getAccountHandler()
+    .getAccount()
   return {
     ...userStore.info,
     ...accountDetails,
