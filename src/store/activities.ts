@@ -9,7 +9,7 @@ import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
 } from '@/utils/contractFunctionToOperationMap'
-import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
+import { IAccountHandler } from '@/utils/requestHandlerInterfaces'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
@@ -134,7 +134,7 @@ function getTxOperation(
 }
 
 async function getRemoteTransaction(
-  accountHandler: EthereumAccountHandler,
+  accountHandler: IAccountHandler,
   txHash: string
 ): Promise<TransactionResponse> {
   return new Promise((resolve) => {
