@@ -1,8 +1,8 @@
-import { EthereumRequestHandler } from '@/utils/evm/requestHandler'
+import { IRequestHandler } from '@/utils/requestHandlerInterfaces'
 
-let requestHandler: EthereumRequestHandler | null
+let requestHandler: IRequestHandler | null
 
-function setRequestHandler(handler: EthereumRequestHandler) {
+function setRequestHandler(handler: IRequestHandler) {
   if (!requestHandler) {
     requestHandler = handler
     return
@@ -11,7 +11,7 @@ function setRequestHandler(handler: EthereumRequestHandler) {
   throw new Error('RequestHandler already initialized')
 }
 
-function getRequestHandler(): EthereumRequestHandler {
+function getRequestHandler(): IRequestHandler {
   if (!requestHandler) {
     throw new Error('RequestHandler not initialized yet')
   }

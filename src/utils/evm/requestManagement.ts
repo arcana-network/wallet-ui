@@ -190,7 +190,7 @@ async function addNetwork(request, keeper) {
     rpcStore.setSelectedChainId(existingChain.chainId)
     await getRequestHandler().setRpcConfig({
       ...existingChain,
-      chainId: Number(existingChain.chainId),
+      chainId: existingChain.chainId,
     })
   } else {
     const payload = {
@@ -209,7 +209,7 @@ async function addNetwork(request, keeper) {
     rpcStore.setSelectedChainId(payload.chainId)
     await getRequestHandler().setRpcConfig({
       ...payload,
-      chainId: Number(payload.chainId),
+      chainId: payload.chainId,
     })
   }
   if (!reqStore.areRequestsPendingForApproval) {
