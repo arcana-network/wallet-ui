@@ -1,3 +1,4 @@
+import type { RpcConfig } from '@arcana/auth'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
   createFetchMiddleware,
@@ -19,17 +20,6 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { EthereumAccountHandler } from '@/utils/evm/ethereumAccountHandler'
-
-interface RpcConfig {
-  rpcUrls: string[]
-  chainId: number
-  chainName?: string
-  blockExplorerUrls?: string[]
-  nativeCurrency?: {
-    symbol: string
-    decimals: number
-  }
-}
 
 class EthereumRequestHandler {
   private handler?: JsonRpcEngine
