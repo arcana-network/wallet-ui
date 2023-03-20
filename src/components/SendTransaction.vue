@@ -57,9 +57,7 @@ onMounted(async () => {
       gasPrices.value = data
     }
     const accountHandler = getRequestHandler().getAccountHandler()
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
+    const baseGasPrice = (await accountHandler.getGasPrice()).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
   } catch (err) {
     console.log({ err })

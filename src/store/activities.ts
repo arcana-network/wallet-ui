@@ -139,9 +139,7 @@ async function getRemoteTransaction(
 ): Promise<TransactionResponse> {
   return new Promise((resolve) => {
     const txInterval = setInterval(async () => {
-      const remoteTransaction = await accountHandler.provider.getTransaction(
-        txHash
-      )
+      const remoteTransaction = await accountHandler.getTransaction(txHash)
       if (remoteTransaction) {
         clearInterval(txInterval)
         return resolve(remoteTransaction)
@@ -211,8 +209,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {
         const txInterval = setInterval(async () => {
-          const remoteTransaction =
-            await accountHandler.provider.getTransaction(txHash)
+          const remoteTransaction = await accountHandler.getTransaction(txHash)
           if (remoteTransaction.blockNumber) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
@@ -260,8 +257,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       this.saveActivity(chainId, activity)
       if (!remoteTransaction.blockNumber) {
         const txInterval = setInterval(async () => {
-          const remoteTransaction =
-            await accountHandler.provider.getTransaction(txHash)
+          const remoteTransaction = await accountHandler.getTransaction(txHash)
           if (remoteTransaction.blockNumber) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)

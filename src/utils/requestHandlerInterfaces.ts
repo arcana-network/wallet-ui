@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { TransactionResponse } from '@ethersproject/abstract-provider'
 import type { MessageParams, TransactionParams } from 'eth-json-rpc-middleware'
 import type { ethers } from 'ethers'
 import type { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
@@ -23,8 +24,6 @@ interface IRequestHandler {
 }
 
 interface IAccountHandler {
-  wallet: ethers.Wallet
-  provider: ethers.providers.JsonRpcProvider
   getBalance(): Promise<ethers.BigNumber>
   setProvider(url: string): void
   asMiddleware(): import('json-rpc-engine').JsonRpcMiddleware<string, unknown>
@@ -70,6 +69,7 @@ interface IAccountHandler {
   }
   getAddress(): string[]
   getChainId(): Promise<number>
+  getTransaction(tHash: string | Uint8Array): Promise<TransactionResponse>
 }
 
 export type { IRequestHandler, IAccountHandler }
