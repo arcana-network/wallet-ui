@@ -3,21 +3,15 @@ import { useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import { AUTH_URL } from '@/utils/constants'
 
 const appStore = useAppStore()
 const user = useUserStore()
 const router = useRouter()
 
 function handleProceed() {
-  const mfaSetupPath = router.resolve({
-    name: 'MFASetup',
-    params: { appId: appStore.id },
-    query: {
-      theme: appStore.theme,
-      email: user.info.email,
-    },
-  })
-  window.open(mfaSetupPath.href, '_blank')
+  const mfaSetupPath = new URL('mfa/ksdkjasdh/setup', AUTH_URL)
+  window.open(mfaSetupPath.toString(), '_blank')
 }
 </script>
 
