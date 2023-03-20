@@ -106,7 +106,7 @@ onUnmounted(() => {
 
 async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
-  const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
+  const baseGasPrice = (await accountHandler.getGasPrice()).toString()
   baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
 }
 
@@ -233,7 +233,7 @@ async function handleShowPreview() {
       const accountHandler = getRequestHandler().getAccountHandler()
       if (rpcStore.nativeCurrency.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
-          await accountHandler.provider.estimateGas({
+          await accountHandler.estimateGas({
             from: userStore.walletAddress,
             to: setHexPrefix(recipientWalletAddress.value),
             value: ethers.utils.parseUnits(amount.value, 'ether'),
