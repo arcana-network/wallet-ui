@@ -15,7 +15,12 @@ type SymbolDecimalResponse = {
 
 async function getTokenBalance(data: ContractParams): Promise<string> {
   const accountHandler = getRequestHandler().getAccountHandler()
-  return (await accountHandler.getTokenBalance(data.contractAddress)).toString()
+  return (
+    await accountHandler.getTokenBalance(
+      data.contractAddress,
+      data.walletAddress
+    )
+  ).toString()
 }
 
 async function getTokenSymbolAndDecimals(

@@ -71,7 +71,8 @@ interface IAccountHandler {
   getChainId(): Promise<number>
   getTransaction(tHash: string | Uint8Array): Promise<TransactionResponse>
   getTokenBalance(
-    contractAddress: string | Uint8Array
+    contractAddress: string | Uint8Array,
+    walletAddress: string | Uint8Array
   ): Promise<ethers.BigNumberish>
   getTokenDecimals(contractAddress: string | Uint8Array): Promise<number>
   getTokenSymbol(contractAddress: string | Uint8Array): Promise<string>

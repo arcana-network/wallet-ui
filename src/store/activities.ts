@@ -265,54 +265,14 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         }, 3000)
       }
     },
+
+    // TODO eliminate
     async saveFileActivity(
       chainId: ChainId,
       fileTransaction: ContractFileActivityMessage,
       forwarderAddress: string
     ) {
-      const fileKeysFromContract = getFileKeysFromContract(
-        fileTransaction.tx.method
-      )
-
-      let file
-      if (fileKeysFromContract.did) {
-        const { did, ruleHash, recipient } = fileKeysFromContract
-        file = {
-          did: fileTransaction.details[did],
-          ruleHash: ruleHash && fileTransaction.details[ruleHash],
-          recipient: recipient && fileTransaction.details[recipient],
-        }
-      }
-      const activity: Activity = {
-        operation: fileKeysFromContract.operation,
-        status: 'Pending',
-        date: new Date(),
-        address: {
-          from: userStore.walletAddress,
-        },
-        file,
-      }
-      this.saveActivity(chainId, activity)
-      const currentActivity = this.activitiesByChainId[chainId][0]
-
-      const filter: EventFilter = {
-        address: forwarderAddress,
-        topics: [
-          CONTRACT_EVENT_CODE,
-          ethers.utils.hexZeroPad(fileTransaction.tx.from, 32),
-          ethers.utils.hexZeroPad(fileTransaction.tx.to, 32),
-          ethers.utils.hexZeroPad(
-            BigNumber.from(fileTransaction.tx.nonce).toHexString(),
-            32
-          ),
-        ],
-      }
-
-      const accountHandler = getRequestHandler().getAccountHandler()
-      accountHandler.provider.once(filter, async (log) => {
-        currentActivity.status = 'Success'
-        currentActivity.txHash = log.transactionHash
-      })
+      return null
     },
   },
 })
