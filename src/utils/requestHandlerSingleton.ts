@@ -1,4 +1,4 @@
-import { IRequestHandler } from '@/utils/requestHandlerInterfaces'
+import type { IRequestHandler } from '@/utils/requestHandlerInterfaces'
 
 let requestHandler: IRequestHandler | null
 

@@ -1,5 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
-import { TransactionResponse } from '@ethersproject/abstract-provider'
+import type { TransactionResponse } from '@ethersproject/abstract-provider'
 import type { MessageParams, TransactionParams } from 'eth-json-rpc-middleware'
 import type { ethers } from 'ethers'
 import type { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
