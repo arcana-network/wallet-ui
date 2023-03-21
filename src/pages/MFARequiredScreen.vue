@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-
 import { useAppStore } from '@/store/app'
-import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
+import { getWindowFeatures } from '@/utils/popupProps'
 
 const appStore = useAppStore()
-const user = useUserStore()
-const router = useRouter()
 
 function handleProceed() {
   const mfaSetupPath = new URL('mfa/ksdkjasdh/setup', AUTH_URL)
-  window.open(mfaSetupPath.toString(), '_blank')
+  window.open(mfaSetupPath.toString(), '_blank', getWindowFeatures())
 }
 </script>
 
