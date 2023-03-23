@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Buffer } from 'buffer'
+
 import { AppMode, ChainType } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import type { Connection } from 'penpal'
@@ -28,6 +30,8 @@ import {
   getRequestHandler,
   setRequestHandler,
 } from '@/utils/requestHandlerSingleton'
+import { SolanaAccountHandler } from '@/utils/solana/solanaAccountHandler'
+import { SolanaRequestHandler } from '@/utils/solana/solanaRequestHandler'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -66,6 +70,15 @@ async function initKeeper() {
         rpcStore.selectedRpcConfig.rpcUrls[0]
       )
       setRequestHandler(new EthereumRequestHandler(accountHandler))
+      break
+    }
+    case ChainType.solana_cv25519: {
+      const accountHandler = new SolanaAccountHandler(
+        Buffer.from(userStore.privateKey, 'hex'),
+        rpcStore.selectedRPCConfig.rpcUrls[0]
+      )
+      setRequestHandler(new SolanaRequestHandler(accountHandler))
+      break
     }
   }
 }
