@@ -1,6 +1,11 @@
 import type { RpcConfig } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
-import { Connection, Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js'
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import bs58 from 'bs58'
 import type { MessageParams } from 'eth-json-rpc-middleware'
 import { ethers } from 'ethers'
@@ -63,6 +68,23 @@ export class SolanaAccountHandler {
 
     // how unfortunate
     return Buffer.from(await ed25519Sign(params.data, k))
+  }
+
+  async sendTransactionWrapper(params: MessageParams): Promise<string> {
+    const deserialized = VersionedTransaction.deserialize(
+      Buffer.from(params.data, 'hex')
+    )
+    return this.conn.sendTransaction(deserialized)
+  }
+
+  async personalSignWrapper(params: MessageParams): Promise<string> {
+    const k = this.getKPForAddr(params.from)
+    if (!(k instanceof Buffer)) {
+      // TODO fix
+      throw new Error('???')
+    }
+
+    return Buffer.from(await ed25519Sign(params.data, k)).toString('hex')
   }
 
   getAccountsWrapper(): Promise<string[]> {
