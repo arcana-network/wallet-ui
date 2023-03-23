@@ -59,7 +59,7 @@ interface IAccountHandler {
   getAccountsWrapper: () => Promise<string[]>
   getEthSignWrapper: (p: MessageParams) => Promise<string>
   getEncryptionPublicKeyWrapper: (from: string) => Promise<string>
-  signTransactionWrapper: (p: TransactionParams) => Promise<string>
+  signTransactionWrapper: (p: MessageParams) => Promise<string>
   personalSignWrapper: (p: MessageParams) => Promise<string>
   decryptWrapper: (p: MessageParams) => Promise<string>
   signTypedMessageV4Wrapper: (p: TypedMessageParams) => Promise<string>

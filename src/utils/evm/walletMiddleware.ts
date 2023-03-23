@@ -1,5 +1,5 @@
+import sigUtil from '@metamask/eth-sig-util'
 import { ethErrors } from 'eth-rpc-errors'
-import sigUtil from 'eth-sig-util'
 import {
   createAsyncMiddleware,
   createScaffoldMiddleware,
@@ -43,7 +43,7 @@ interface WalletMiddlewareOptions {
   ) => Promise<string>
   processTransaction?: (txParams: TransactionParams) => Promise<string>
   processSignTransaction?: (
-    txParams: TransactionParams,
+    txParams: MessageParams,
     req: JsonRpcRequest<unknown>
   ) => Promise<string>
   processTypedMessage?: (
@@ -154,8 +154,7 @@ function createWalletMiddleware({
       throw ethErrors.rpc.methodNotSupported()
     }
 
-    const txParams: TransactionParams =
-      (req.params as TransactionParams[])[0] || {}
+    const txParams: MessageParams = (req.params as MessageParams[])[0] || {}
     txParams.from = await validateAndNormalizeKeyholder(
       txParams.from as string,
       req
@@ -319,14 +318,10 @@ function createWalletMiddleware({
     const signature: string = (req.params as string)[1]
     const extraParams: Record<string, unknown> =
       (req.params as Record<string, unknown>[])[2] || {}
-    const msgParams: sigUtil.SignedMsgParams<string> = {
-      ...extraParams,
-      sig: signature,
+    res.result = sigUtil.recoverPersonalSignature({
       data: message,
-    }
-    const signerAddress: string = sigUtil.recoverPersonalSignature(msgParams)
-
-    res.result = signerAddress
+      signature,
+    })
   }
 
   async function encryptionPublicKey(
@@ -386,7 +381,7 @@ function createWalletMiddleware({
     address: string,
     req: JsonRpcRequest<unknown>
   ): Promise<string> {
-    if (typeof address === 'string' && address.length > 0) {
+    if (address.length > 0) {
       // ensure address is included in provided accounts
       const accounts: string[] = await getAccounts(req)
       const normalizedAccounts: string[] = accounts.map((_address) =>

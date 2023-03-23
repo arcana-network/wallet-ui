@@ -1,11 +1,12 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
-import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
   personalSign,
-  signTypedData_v4 as signTypedDataV4,
-} from 'eth-sig-util'
-import { stripHexPrefix, ecsign, setLengthLeft } from 'ethereumjs-util'
+  signTypedData,
+  SignTypedDataVersion,
+} from '@metamask/eth-sig-util'
+import { cipher, decryptWithPrivateKey } from 'eth-crypto'
+import { ecsign, setLengthLeft, stripHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
@@ -13,10 +14,10 @@ import ERC20ABI from '@/abis/erc20.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
 import {
+  createWalletMiddleware,
   MessageParams,
   TransactionParams,
   TypedMessageParams,
-  createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
 
 class EthereumAccountHandler {
@@ -157,7 +158,7 @@ class EthereumAccountHandler {
     return this.getPublicKey(from)
   }
 
-  signTransactionWrapper = async (p: TransactionParams): Promise<string> => {
+  signTransactionWrapper = async (p: MessageParams): Promise<string> => {
     return await this.signTransaction(p, p.from)
   }
 
@@ -258,35 +259,26 @@ class EthereumAccountHandler {
   }
 
   private async sign(address: string, msg: string): Promise<string> {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signature = ecsign(
-          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-        )
-        const rawMessageSig = concatSig(
-          signature.v as unknown as Buffer,
-          signature.r,
-          signature.s
-        )
-        return rawMessageSig
-      } else {
-        throw new Error('No Wallet found for the provided address')
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (!wallet) {
+      throw new Error('No Wallet found for the provided address')
     }
+
+    const signature = ecsign(
+      setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+      Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+    )
+    return concatSig(signature.v as unknown as Buffer, signature.r, signature.s)
   }
 
   private async personalSign(address: string, msg: string) {
     try {
       const wallet = this.getWallet(address)
       if (wallet) {
-        const signature = personalSign(
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-          { data: msg }
-        )
+        const signature = personalSign({
+          privateKey: Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+          data: msg,
+        })
         return signature
       } else {
         throw new Error('No Wallet found for the provided address')
@@ -346,11 +338,11 @@ class EthereumAccountHandler {
     const wallet = this.getWallet(address)
     if (wallet) {
       const parsedData = JSON.parse(data)
-      const signature = signTypedDataV4(
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-        { data: parsedData }
-      )
-      return signature
+      return signTypedData({
+        privateKey: Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        data: parsedData,
+        version: SignTypedDataVersion.V4,
+      })
     } else {
       throw new Error('No Wallet found for the provided address')
     }
