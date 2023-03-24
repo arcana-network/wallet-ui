@@ -27,6 +27,7 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
+import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -47,7 +48,11 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
-  router.push({ name: 'MFARequired' })
+  if (getStorage().local.getItem('mfa-dnd') === '1') {
+    router.push({ name: 'home' })
+  } else {
+    router.push({ name: 'MFARequired' })
+  }
   loader.value.show = false
 })
 

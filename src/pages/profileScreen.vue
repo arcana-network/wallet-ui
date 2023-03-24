@@ -16,8 +16,10 @@ import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getWindowFeatures } from '@/utils/popupProps'
 
 const user = useUserStore()
 const router = useRouter()
@@ -92,16 +94,8 @@ function handleShowMFAProceedModal(show: boolean) {
 }
 
 function handleMFASetupClick() {
-  const mfaSetupPath = router.resolve({
-    name: 'MFASetup',
-    params: { appId: appStore.id },
-    query: {
-      theme: appStore.theme,
-      email: user.info.email,
-    },
-  })
-  window.open(mfaSetupPath.href, '_blank')
-  handleShowMFAProceedModal(false)
+  const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
+  window.open(mfaSetupPath.toString(), '_blank', getWindowFeatures())
 }
 
 onBeforeRouteLeave((to) => {
@@ -203,15 +197,15 @@ onBeforeRouteLeave((to) => {
         @download="handlePrivateKeyDownload"
         @close="handleHideExportKeyModal"
       />
-      <!-- <MFAProceedModal
+      <MFAProceedModal
         v-if="showMFAProceedModal"
         @proceed="handleMFASetupClick"
         @close="handleShowMFAProceedModal(false)"
-      /> -->
-      <MFAVerifiedModal
+      />
+      <!-- <MFAVerifiedModal
         v-if="showMFAProceedModal"
         @close="handleShowMFAProceedModal(false)"
-      />
+      /> -->
     </Teleport>
   </div>
 </template>

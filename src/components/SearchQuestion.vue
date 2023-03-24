@@ -9,12 +9,13 @@ import {
 } from '@headlessui/vue'
 import { ref, computed } from 'vue'
 
-const questions: string[] = [
-  'What is your q1?',
-  'What is your q2?',
-  'What is your q3?',
-  'What is your q4?',
-]
+type SearchQuestionProps = {
+  questions: {
+    [key: number]: string
+  }
+}
+
+const props = defineProps<SearchQuestionProps>()
 
 const emit = defineEmits(['change'])
 
@@ -22,12 +23,16 @@ const selectedQuestion = ref('')
 const isFocused = ref(false)
 const query = ref('')
 
+const questions = computed(() => {
+  return Object.entries(props.questions)
+})
+
 const filteredQuestions = computed(() => {
   if (query.value === '') {
-    return [...questions]
+    return [...questions.value]
   } else {
-    return questions.filter((question) => {
-      if (question.toLowerCase().includes(query.value.toLowerCase())) {
+    return questions.value.filter((question) => {
+      if (question[1].toLowerCase().includes(query.value.toLowerCase())) {
         return question
       }
     })
@@ -41,8 +46,12 @@ function handleChange(ev) {
 
 function displayValue() {
   return (question: unknown) => {
+    if (typeof question === 'string') {
+      emit('change', [-1, question])
+      return question
+    }
     emit('change', question)
-    return question as string
+    return question[1] as string
   }
 }
 </script>
@@ -84,7 +93,7 @@ function displayValue() {
           >
             <ComboboxOption
               v-for="question in filteredQuestions"
-              :key="question"
+              :key="question[1]"
               v-slot="{ selected, active }"
               as="template"
               :value="question"
@@ -96,10 +105,11 @@ function displayValue() {
                 }"
               >
                 <span
-                  class="block truncate max-w-[60%]"
+                  class="block truncate"
                   :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :title="question[1]"
                 >
-                  {{ question }}
+                  {{ question[1] }}
                 </span>
               </li>
             </ComboboxOption>

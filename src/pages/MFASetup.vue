@@ -1,26 +1,104 @@
 <script setup lang="ts">
 import { Theme } from '@arcana/auth'
-import { ref, onMounted } from 'vue'
+import {
+  Core,
+  SecurityQuestionModule,
+  utils as KeyHelperUtils,
+} from '@arcana/key-helper'
+import { ref, onBeforeMount, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SearchQuestion from '@/components/SearchQuestion.vue'
+import { GATEWAY_URL } from '@/utils/constants'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const theme = route.query.theme as Theme
 const showPinScreen = ref(false)
 const showError = ref(false)
+const pinToEncryptMFAShare = ref('')
+const securityQuestionModule = new SecurityQuestionModule(3)
+let globalQuestions: Ref<{
+  [key: number]: string
+}> = ref({})
+const totalQuestions = 5
+const selectedQuestions: {
+  [key: string]: string
+}[] = new Array(totalQuestions)
 
-onMounted(() => {
-  alert(
-    JSON.stringify(
-      JSON.parse(
-        sessionStorage.getItem(route.params.appId + '-userInfo') as string
-      ).userInfo
+initStorage(String(route.params.appId))
+document.documentElement.classList.add(theme)
+
+onBeforeMount(async () => {
+  const dkgShare = JSON.parse(getStorage().local.getItem('pk') as string)
+  if (new Date() < new Date(dkgShare.exp)) {
+    const core = new Core(
+      dkgShare.pk,
+      String(route.query.email),
+      String(route.params.appId),
+      GATEWAY_URL
     )
-  )
+    await core.init()
+    securityQuestionModule.init(core)
+    globalQuestions.value = await securityQuestionModule.getGlobalQuestions()
+  } else {
+    console.log('Expired')
+  }
 })
 
-document.documentElement.classList.add(theme)
+function addSelectedQuestion(index: number, value: any) {
+  const keyValue =
+    value[0] === -1 ? KeyHelperUtils.randomNumber().toString() : value[0]
+  const customQuestion = value[0] === -1 ? value[1] : undefined
+  if (selectedQuestions[index - 1]) {
+    selectedQuestions[index - 1]['key'] = keyValue
+    selectedQuestions[index - 1]['customQuestion'] = customQuestion
+  } else {
+    selectedQuestions[index - 1] = { key: keyValue, customQuestion }
+  }
+}
+
+function addAnswer(index: number, value: string) {
+  if (selectedQuestions[index - 1]) {
+    selectedQuestions[index - 1]['value'] = value
+  } else {
+    selectedQuestions[index - 1] = { value }
+  }
+}
+
+async function createShare(pin?: string) {
+  const answers = selectedQuestions.reduce((obj, val) => {
+    obj[val.key] = val.value
+    return obj
+  }, {})
+  const customQuestions = selectedQuestions.reduce((obj, val) => {
+    if (val.customQuestion) obj[val.key] = val.customQuestion
+    return obj
+  }, {})
+  console.log({ answers, customQuestions, pin })
+  const createShareProps: any = { answers }
+  if (Object.keys(customQuestions).length) {
+    createShareProps.customQuestions = customQuestions
+  }
+  if (pin) {
+    createShareProps.password = pin
+  }
+  return await securityQuestionModule.createShare(createShareProps)
+}
+
+async function handleSubmit() {
+  showPinScreen.value = true
+}
+
+async function handleDownload() {
+  const encryptedText = await createShare(pinToEncryptMFAShare.value)
+  console.log(encryptedText)
+}
+
+async function handleDone() {
+  const encryptedText = await createShare(pinToEncryptMFAShare.value)
+  console.log(encryptedText)
+}
 
 function handleCancel() {
   window.close()
@@ -48,32 +126,21 @@ function handleCancel() {
         <div class="flex flex-col gap-1">
           <label>Pin to use for encryption</label>
           <input
+            v-model.trim="pinToEncryptMFAShare"
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
           />
           <span
             class="text-sm sm:text-xs pl-1 text-red-600"
             :class="{ invisible: !showError }"
-            >This is an error</span
-          >
-        </div>
-        <div class="flex flex-col gap-1">
-          <label>Email ID</label>
-          <input
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-            placeholder="Enter the email id"
-          />
-          <span
-            class="text-sm sm:text-xs pl-1 text-red-600"
-            :class="{ invisible: !showError }"
-            >This is an error</span
+            >Pin should be 6 characters long</span
           >
         </div>
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
           class="text-sm sm:text-xs flex gap-2 uppercase text-black dark:text-white font-semibold items-center"
-          @click.stop="showError = !showError"
+          @click.stop="handleDownload"
         >
           <img
             src="@/assets/images/download.svg"
@@ -83,6 +150,7 @@ function handleCancel() {
         </button>
         <button
           class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[18rem] font-semibold uppercase"
+          @click.stop="handleDone"
         >
           Done
         </button>
@@ -95,39 +163,27 @@ function handleCancel() {
   >
     <h2 class="font-semibold mb-5 title uppercase m-8">Security Questions</h2>
     <hr />
-    <form class="flex flex-col p-8 gap-4" @submit.prevent="void 0">
-      <div class="flex flex-col gap-1">
-        <label>Question 1</label>
-        <SearchQuestion />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Answer 1</label>
-        <input
-          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-          placeholder="Enter the answer"
-        />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Question 2</label>
-        <SearchQuestion />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Answer 2</label>
-        <input
-          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-          placeholder="Enter the answer"
-        />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Question 3</label>
-        <SearchQuestion />
-      </div>
-      <div class="flex flex-col gap-1">
-        <label>Answer 3</label>
-        <input
-          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-          placeholder="Enter the answer"
-        />
+    <form class="flex flex-col p-8 gap-4" @submit.prevent="handleSubmit">
+      <div
+        v-for="i in totalQuestions"
+        :key="`Security-Question-${i}`"
+        class="flex flex-col gap-4"
+      >
+        <div class="flex flex-col gap-1">
+          <label>Question {{ i }}</label>
+          <SearchQuestion
+            :questions="globalQuestions"
+            @change="addSelectedQuestion(i, $event)"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label>Answer {{ i }}</label>
+          <input
+            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
+            placeholder="Enter the answer"
+            @input="addAnswer(i, $event.target?.value)"
+          />
+        </div>
       </div>
       <div class="flex justify-end gap-2 mt-12">
         <button
@@ -138,7 +194,6 @@ function handleCancel() {
         </button>
         <button
           class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[144px] font-semibold uppercase"
-          @click.stop="showPinScreen = true"
         >
           Save
         </button>
