@@ -1,5 +1,4 @@
-import type { RpcConfig } from '@arcana/auth'
-import { ChainType } from '@arcana/auth'
+import type { RpcConfig, ChainType } from '@arcana/auth'
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
 import type { ethers } from 'ethers'
 import type { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
