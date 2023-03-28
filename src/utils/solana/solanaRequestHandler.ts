@@ -1,20 +1,10 @@
 import type { RpcConfig } from '@arcana/auth'
-import { PollingBlockTracker, Provider } from 'eth-block-tracker'
-import {
-  createFetchMiddleware,
-  providerFromMiddleware,
-  createBlockRefMiddleware,
-  createRetryOnEmptyMiddleware,
-  createInflightCacheMiddleware,
-  createBlockCacheMiddleware,
-  createBlockTrackerInspectorMiddleware,
-} from 'eth-json-rpc-middleware'
+import bs58 from 'bs58'
 import {
   JsonRpcEngine,
   JsonRpcRequest,
   PendingJsonRpcResponse,
-  createScaffoldMiddleware,
-  JsonRpcMiddleware,
+  createAsyncMiddleware,
 } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
@@ -27,8 +17,8 @@ class SolanaRequestHandler {
   constructor(private accountHandler: SolanaAccountHandler) {}
 
   public async setRpcConfig(c: RpcConfig) {
-    this.handler = this.initRpcEngine(c)
-    await this.accountHandler.setProvider(c.rpcUrls[0])
+    await this.accountHandler.setRpcConfig(c)
+    this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
     // this.emitEvent('chainChanged', { chainId })
@@ -37,7 +27,7 @@ class SolanaRequestHandler {
   public async emitEvent(e: string, params?: ProviderEvent) {
     const c = await this.getConnection('onEvent')
     if (!(c instanceof Error)) {
-      c.onEvent(e, params)
+      await c.onEvent(e, params)
     }
   }
 
@@ -89,70 +79,55 @@ class SolanaRequestHandler {
     return response
   }
 
-  private initRpcEngine(c: RpcConfig): JsonRpcEngine {
+  // 1st is the actual data and the 2nd is the address used
+
+  private principalHandler = async (
+    req: JsonRpcRequest<[string, string]>,
+    res: PendingJsonRpcResponse<string | string[]>,
+    next: () => void
+  ) => {
+    if (req.params == null) {
+      throw new Error('???')
+    }
+    switch (req.method) {
+      case 'getAccounts': {
+        res.result = await this.accountHandler.getAccounts()
+        break
+      }
+      case 'signAndSendTransaction': {
+        const data = Buffer.from(bs58.decode(req.params[0]))
+        res.result = await this.accountHandler.signAndSendTransaction(
+          req.params[1],
+          data
+        )
+        break
+      }
+      case 'signTransaction': {
+        const data = Buffer.from(bs58.decode(req.params[0]))
+        res.result = bs58.encode(
+          await this.accountHandler.signTransaction(req.params[1], data)
+        )
+        break
+      }
+      case 'signMessage': {
+        const data = Buffer.from(bs58.decode(req.params[0]))
+        res.result = bs58.encode(
+          await this.accountHandler.signMessage(req.params[1], data)
+        )
+        break
+      }
+      default: {
+        throw new Error('Invalid method')
+      }
+    }
+    next()
+  }
+
+  private initRpcEngine() {
     const engine = new JsonRpcEngine()
-    const networkMiddleware = this.getNetAndChainMiddleware(c.chainId)
-    engine.push(networkMiddleware)
-
-    // const walletMiddleware = this.accountHandler.asMiddleware()
-    // engine.push(walletMiddleware)
-
-    const fetchMiddleware = createFetchMiddleware({
-      rpcUrl: c.rpcUrls[0],
-    })
-    engine.push(fetchMiddleware)
-
-    const blockProvider = providerFromMiddleware(fetchMiddleware)
-    const blockTracker = new PollingBlockTracker({
-      provider: blockProvider as Provider,
-      pollingInterval: 1000,
-    })
-
-    const blockRefMiddleware = createBlockRefMiddleware({
-      blockTracker,
-      provider: blockProvider,
-    })
-    engine.push(blockRefMiddleware)
-
-    const blockRetryOnEmptyMiddleware = createRetryOnEmptyMiddleware({
-      blockTracker,
-      provider: blockProvider,
-    })
-    engine.push(blockRetryOnEmptyMiddleware)
-
-    const cacheMiddleware = createInflightCacheMiddleware()
-    engine.push(cacheMiddleware)
-
-    const blockCacheMiddleware = createBlockCacheMiddleware({ blockTracker })
-    engine.push(blockCacheMiddleware)
-
-    const blockTrackMiddleware = createBlockTrackerInspectorMiddleware({
-      blockTracker,
-    })
-    engine.push(blockTrackMiddleware)
+    engine.push(createAsyncMiddleware(this.principalHandler))
     return engine
   }
-
-  private getNetAndChainMiddleware(chainId: number | string) {
-    const hexChainId = getHexFromNumber(Number(chainId))
-    return createScaffoldMiddleware({
-      eth_chainId: hexChainId,
-      net_version: chainId,
-    }) as JsonRpcMiddleware<string, unknown>
-  }
 }
-
-const getHexFromNumber = (n: number, prefix = true): string => {
-  const h = n.toString(16)
-  return prefix ? addHexPrefix(h) : removeHexPrefix(h)
-}
-
-const HEX_PREFIX = '0x'
-
-const addHexPrefix = (i: string) =>
-  i.startsWith(HEX_PREFIX) ? i : `${HEX_PREFIX}${i}`
-
-const removeHexPrefix = (i: string) =>
-  i.startsWith(HEX_PREFIX) ? i.substring(2) : i
 
 export { SolanaRequestHandler }

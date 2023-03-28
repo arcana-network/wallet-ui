@@ -1,15 +1,15 @@
 import type { RpcConfig } from '@arcana/auth'
+import { ChainType } from '@arcana/auth'
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
-import type { MessageParams, TransactionParams } from 'eth-json-rpc-middleware'
 import type { ethers } from 'ethers'
 import type { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
 import type { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import type { NFTContractType } from '@/models/NFT'
-import type { TypedMessageParams } from '@/utils/evm/walletMiddleware'
 
 interface IRequestHandler {
+  chainType: ChainType
   setRpcConfig(c: RpcConfig): Promise<void>
   emitEvent(e: string, params?: ProviderEvent): Promise<void>
   getAccountHandler(): IAccountHandler
@@ -55,14 +55,6 @@ interface IAccountHandler {
     tokenId: string,
     amount: number
   ) => Promise<string>
-  sendTransactionWrapper: (p: TransactionParams) => Promise<string>
-  getAccountsWrapper: () => Promise<string[]>
-  getEthSignWrapper: (p: MessageParams) => Promise<string>
-  getEncryptionPublicKeyWrapper: (from: string) => Promise<string>
-  signTransactionWrapper: (p: MessageParams) => Promise<string>
-  personalSignWrapper: (p: MessageParams) => Promise<string>
-  decryptWrapper: (p: MessageParams) => Promise<string>
-  signTypedMessageV4Wrapper: (p: TypedMessageParams) => Promise<string>
   getAccount(): {
     address: string
     publicKey: string
