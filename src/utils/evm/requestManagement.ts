@@ -1,7 +1,6 @@
 // Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -321,18 +320,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             toast.success(`${request.method} execution completed`)
           }
         }
-        if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
-          const params = JSON.parse(request.params[1])
-          if (params.domain.name === 'Arcana Forwarder') {
-            activitiesStore.saveFileActivity(
-              rpcStore.selectedRpcConfig?.chainId,
-              params.message,
-              params.domain.verifyingContract
-            )
-          }
-        }
         if (request.method === 'eth_sendTransaction' && response.result) {
-          activitiesStore.fetchAndSaveActivityFromHash({
+          await activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })

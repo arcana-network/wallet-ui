@@ -1,14 +1,9 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import {
-  CONTRACT_EVENT_CODE,
-  getFileKeysFromContract,
-} from '@/utils/contractFunctionToOperationMap'
 import { IAccountHandler } from '@/utils/requestHandlerInterfaces'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
@@ -29,19 +24,6 @@ type FileOps =
   | 'Transfer Ownership'
   | 'Delete'
   | 'Meta Transaction'
-
-type ContractFileActivityMessage = {
-  details: {
-    did: string
-    ephemeralWallet: string
-  }
-  tx: {
-    from: string
-    method: string
-    nonce: number
-    to: string
-  }
-}
 
 type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
 
@@ -264,15 +246,6 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           }
         }, 3000)
       }
-    },
-
-    // TODO eliminate
-    async saveFileActivity(
-      chainId: ChainId,
-      fileTransaction: ContractFileActivityMessage,
-      forwarderAddress: string
-    ) {
-      return null
     },
   },
 })

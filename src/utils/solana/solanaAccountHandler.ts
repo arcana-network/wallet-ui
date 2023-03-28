@@ -7,7 +7,6 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 import bs58 from 'bs58'
-import type { MessageParams } from 'eth-json-rpc-middleware'
 import { ethers } from 'ethers'
 
 export class SolanaAccountHandler {
@@ -45,7 +44,8 @@ export class SolanaAccountHandler {
   private getKPForAddr(addr: string) {
     // multiple addresses are not supported
     if (addr != this.address) {
-      return undefined
+      // ???
+      throw new Error('Address not found.')
     }
     return this.privateKey
   }
@@ -59,35 +59,39 @@ export class SolanaAccountHandler {
     this.conn = new Connection(str, 'confirmed')
   }
 
-  async signTransactionWrapper(params: MessageParams): Promise<Buffer> {
-    const k = this.getKPForAddr(params.from)
-    if (!(k instanceof Buffer)) {
-      // TODO fix
-      throw new Error('???')
-    }
-
+  async signTransaction(fromAddr: string, data: Buffer): Promise<Buffer> {
+    const k = this.getKPForAddr(fromAddr)
     // how unfortunate
-    return Buffer.from(await ed25519Sign(params.data, k))
+    return Buffer.from(await ed25519Sign(data, k))
   }
 
-  async sendTransactionWrapper(params: MessageParams): Promise<string> {
-    const deserialized = VersionedTransaction.deserialize(
-      Buffer.from(params.data, 'hex')
-    )
+  async sendTransaction(data: Buffer): Promise<string> {
+    const deserialized = VersionedTransaction.deserialize(data)
     return this.conn.sendTransaction(deserialized)
   }
 
-  async personalSignWrapper(params: MessageParams): Promise<string> {
-    const k = this.getKPForAddr(params.from)
+  async signAndSendTransaction(
+    fromAddr: string,
+    data: Buffer
+  ): Promise<string> {
+    const k = this.getKPForAddr(fromAddr)
+    const txActual = VersionedTransaction.deserialize(data)
+    const sig = await ed25519Sign(data, k)
+    txActual.addSignature(this.kp.publicKey, sig)
+    return await this.conn.sendTransaction(txActual)
+  }
+
+  async signMessage(fromAddr: string, message: Buffer): Promise<Buffer> {
+    const k = this.getKPForAddr(fromAddr)
     if (!(k instanceof Buffer)) {
       // TODO fix
       throw new Error('???')
     }
 
-    return Buffer.from(await ed25519Sign(params.data, k)).toString('hex')
+    return Buffer.from(await ed25519Sign(message, k))
   }
 
-  getAccountsWrapper(): Promise<string[]> {
+  getAccounts(): Promise<string[]> {
     return Promise.resolve([this.address])
   }
 
