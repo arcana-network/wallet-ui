@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { ChainType } from '@arcana/auth'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
   createFetchMiddleware,
@@ -32,6 +33,10 @@ class EthereumRequestHandler {
     // Emit `chainChanged` event
     const chainId = await this.accountHandler.getChainId()
     this.emitEvent('chainChanged', { chainId })
+  }
+
+  get chainType() {
+    return ChainType.evm_secp256k1
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {

@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { ChainType } from '@arcana/auth'
 import bs58 from 'bs58'
 import {
   JsonRpcEngine,
@@ -15,6 +16,10 @@ class SolanaRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   constructor(private accountHandler: SolanaAccountHandler) {}
+
+  get chainType() {
+    return ChainType.solana_cv25519
+  }
 
   public async setRpcConfig(c: RpcConfig) {
     await this.accountHandler.setRpcConfig(c)
