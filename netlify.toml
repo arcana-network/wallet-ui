@@ -14,3 +14,16 @@
       style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
       frame-src *.arcana.network *.transak.com *.ramp.network;
     '''
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    cache-control = "max-age=31536000, immutable"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Content-Security-Policy = '''
+      font-src 'self' https://*.cloudfront.net data:;
+      img-src 'self' data: https:;
+      script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
+      frame-src *.arcana.network *.transak.com *.ramp.network;
+    '''
