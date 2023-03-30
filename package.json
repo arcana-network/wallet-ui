@@ -29,6 +29,7 @@
     "@ramp-network/ramp-instant-sdk": "^4.0.1",
     "@sentry/tracing": "^7.5.1",
     "@sentry/vue": "^7.5.1",
+    "@solana/spl-token": "^0.3.7",
     "@solana/web3.js": "^1.74.0",
     "@transak/transak-sdk": "^1.2.3",
     "assert": "^2.0.0",

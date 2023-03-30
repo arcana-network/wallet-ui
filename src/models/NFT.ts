@@ -1,4 +1,8 @@
-type NFTContractType = 'erc721' | 'erc1155'
+enum NFTContractType {
+  ERC721,
+  ERC1155,
+  SOLANA_SPL,
+}
 
 type NFTContract = {
   type: NFTContractType
@@ -17,4 +21,5 @@ type NFTContract = {
 
 type NFT = NFTContract & { balance?: number }
 
-export type { NFTContract, NFTContractType, NFT }
+export { NFTContractType }
+export type { NFTContract, NFT }

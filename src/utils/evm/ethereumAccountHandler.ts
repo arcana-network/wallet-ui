@@ -95,7 +95,7 @@ class EthereumAccountHandler {
     gasFees: string
   ) => {
     const signer = this.wallet.connect(this.provider)
-    if (ercStandard === 'erc1155') {
+    if (ercStandard === NFTContractType.ERC1155) {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
       const hexAmount = '0x' + Number(amount).toString(16)
       const tx = await contract.safeTransferFrom(
@@ -122,7 +122,7 @@ class EthereumAccountHandler {
     amount: number
   ) => {
     const signer = this.wallet.connect(this.provider)
-    if (ercStandard === 'erc1155') {
+    if (ercStandard === NFTContractType.ERC1155) {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
       const hexAmount = Number(amount).toString(16)
       return (

@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
-import type { NFTContractType } from '@/models/NFT'
+import { NFTContractType } from '@/models/NFT'
 import { useUserStore } from '@/store/user'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
@@ -42,9 +42,10 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
 
   const contract = new ethers.Contract(address, ERC165Abi, provider)
 
-  if (await contract.supportsInterface(ERC721InterfaceId)) return 'erc721'
+  if (await contract.supportsInterface(ERC721InterfaceId))
+    return NFTContractType.ERC721
   else if (await contract.supportsInterface(ERC1155InterfaceId))
-    return 'erc1155'
+    return NFTContractType.ERC1155
   return undefined
 }
 
@@ -77,9 +78,9 @@ async function get1155Uri(data: ContractParams): Promise<string> {
 }
 
 async function getTokenUri(ercStandard: NFTContractType, data: ContractParams) {
-  if (ercStandard === 'erc721') {
+  if (ercStandard === NFTContractType.ERC721) {
     return get721Uri(data)
-  } else if (ercStandard === 'erc1155') {
+  } else if (ercStandard === NFTContractType.ERC1155) {
     return get1155Uri(data)
   }
   return undefined
@@ -129,9 +130,9 @@ async function checkOwnership(
   const userStore = useUserStore()
   const walletAddress = userStore.walletAddress
 
-  if (ercStandard === 'erc721') {
+  if (ercStandard === NFTContractType.ERC721) {
     return await check721Ownership(data, walletAddress)
-  } else if (ercStandard === 'erc1155') {
+  } else if (ercStandard === NFTContractType.ERC1155) {
     return await check1155Ownership(data, walletAddress)
   }
   return {
