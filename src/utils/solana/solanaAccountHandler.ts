@@ -1,6 +1,6 @@
 import type { RpcConfig } from '@arcana/auth'
-import { ChainType } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
+import { transfer as transferSPL } from '@solana/spl-token'
 import {
   Connection,
   Keypair,
@@ -9,6 +9,8 @@ import {
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
+
+import { NFTContractType } from '@/models/NFT'
 
 export class SolanaAccountHandler {
   // conn and rpcConfig can be change
@@ -128,8 +130,23 @@ export class SolanaAccountHandler {
     contractAddress,
     recipientAddress,
     amount,
-    gasFees
+    gasFees,
+    contractType: NFTContractType
   ) => {
-    return null
+    switch (contractType) {
+      case NFTContractType.SOLANA_SPL:
+        return transferSPL(
+          this.conn,
+          this.kp,
+          contractAddress,
+          recipientAddress,
+          this.kp.publicKey,
+          1n
+        )
+      case NFTContractType.ERC1155:
+      case NFTContractType.ERC721:
+      default:
+        throw new Error('invalid contract type for Solana')
+    }
   }
 }

@@ -312,8 +312,6 @@ function createWalletMiddleware({
   ): Promise<void> {
     const message: string = (req.params as string)[0]
     const signature: string = (req.params as string)[1]
-    const extraParams: Record<string, unknown> =
-      (req.params as Record<string, unknown>[])[2] || {}
     res.result = sigUtil.recoverPersonalSignature({
       data: message,
       signature,

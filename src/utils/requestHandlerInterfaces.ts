@@ -29,15 +29,17 @@ interface IAccountHandler {
     contractAddress: any,
     recipientAddress: any,
     amount: any,
-    gasFees: any
+    gasFees: any,
+    contractType: NFTContractType
   ) => Promise<any>
   estimateCustomTokenGas: (
     contractAddress: any,
     recipientAddress: any,
-    amount: any
+    amount: any,
+    contractType: NFTContractType
   ) => Promise<string>
   sendNft: (
-    ercStandard: NFTContractType,
+    contractType: NFTContractType,
     contractAddress: string,
     from: string,
     to: string,
