@@ -151,7 +151,7 @@ async function init() {
           }
         )
       } else {
-        if (loginSrc === 'rn') {
+        if (loginSrc === 'rn' || loginSrc === 'flutter') {
           await connectionToParent.goToWallet()
           return
         }
