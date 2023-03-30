@@ -25,7 +25,6 @@ interface IRequestHandler {
 interface IAccountHandler {
   getBalance(): Promise<ethers.BigNumber>
   setProvider(url: string): void
-  asMiddleware(): import('json-rpc-engine').JsonRpcMiddleware<string, unknown>
   sendCustomToken: (
     contractAddress: any,
     recipientAddress: any,

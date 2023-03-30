@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { ChainType } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
 import {
   Connection,
@@ -120,5 +121,15 @@ export class SolanaAccountHandler {
   getTransaction(tHash: string | Uint8Array) {
     const h = this.coerceAmbiguousToString(tHash)
     return this.conn.getParsedTransaction(h)
+  }
+
+  // NFT-related functions below
+  sendCustomToken = async (
+    contractAddress,
+    recipientAddress,
+    amount,
+    gasFees
+  ) => {
+    return null
   }
 }
