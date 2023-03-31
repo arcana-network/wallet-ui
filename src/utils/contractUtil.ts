@@ -1,8 +1,10 @@
+import { NFTContractType } from '@/models/NFT'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type ContractParams = {
   walletAddress: string
   contractAddress: string
+  contractType: NFTContractType
 }
 
 type SymbolDecimalResponse = {
@@ -15,7 +17,8 @@ async function getTokenBalance(data: ContractParams): Promise<string> {
   return (
     await accountHandler.getTokenBalance(
       data.contractAddress,
-      data.walletAddress
+      data.walletAddress,
+      data.contractType
     )
   ).toString()
 }
@@ -25,8 +28,14 @@ async function getTokenSymbolAndDecimals(
 ): Promise<SymbolDecimalResponse> {
   const accountHandler = getRequestHandler().getAccountHandler()
 
-  const symbolPromise = accountHandler.getTokenSymbol(data.contractAddress)
-  const decimalsPromise = accountHandler.getTokenDecimals(data.contractAddress)
+  const symbolPromise = accountHandler.getTokenSymbol(
+    data.contractAddress,
+    data.contractType
+  )
+  const decimalsPromise = accountHandler.getTokenDecimals(
+    data.contractAddress,
+    data.contractType
+  )
 
   const [symbol, decimals] = await Promise.all([symbolPromise, decimalsPromise])
 
