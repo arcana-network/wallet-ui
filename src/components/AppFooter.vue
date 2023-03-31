@@ -29,7 +29,7 @@ function getAppropriateIcon(iconName, pathName) {
 
 <template>
   <footer
-    class="flex items-center justify-end py-4"
+    class="flex items-center justify-end py-4 rounded-b-xl"
     :class="{ 'justify-between': userStore.isLoggedIn }"
   >
     <div v-if="userStore.isLoggedIn" class="flex space-x-4">
