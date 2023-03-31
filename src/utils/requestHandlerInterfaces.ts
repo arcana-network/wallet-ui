@@ -64,10 +64,17 @@ interface IAccountHandler {
   getTransaction(tHash: string | Uint8Array): Promise<TransactionResponse>
   getTokenBalance(
     contractAddress: string | Uint8Array,
-    walletAddress: string | Uint8Array
+    walletAddress: string | Uint8Array,
+    contractType: NFTContractType
   ): Promise<ethers.BigNumberish>
-  getTokenDecimals(contractAddress: string | Uint8Array): Promise<number>
-  getTokenSymbol(contractAddress: string | Uint8Array): Promise<string>
+  getTokenDecimals(
+    contractAddress: string | Uint8Array,
+    contractType: NFTContractType
+  ): Promise<number>
+  getTokenSymbol(
+    contractAddress: string | Uint8Array,
+    contractType: NFTContractType
+  ): Promise<string>
 }
 
 export type { IRequestHandler, IAccountHandler }

@@ -1,11 +1,18 @@
 import type { RpcConfig } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
-import { transfer as transferSPL } from '@solana/spl-token'
+import {
+  transfer as transferSPL,
+  createTransferInstruction as createTransferTXSPL,
+  TOKEN_PROGRAM_ID,
+  AccountLayout,
+} from '@solana/spl-token'
 import {
   Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   VersionedTransaction,
+  Transaction as LegacyTransaction,
+  PublicKey,
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
@@ -98,6 +105,10 @@ export class SolanaAccountHandler {
     return Promise.resolve([this.address])
   }
 
+  getAddress(): Promise<string[]> {
+    return this.getAccounts()
+  }
+
   getEncryptionPublicKeyWrapper(from: string): Promise<string> {
     if (from != this.address) {
       /// ???
@@ -125,6 +136,14 @@ export class SolanaAccountHandler {
     return this.conn.getParsedTransaction(h)
   }
 
+  private readonly validTokens = [NFTContractType.SOLANA_SPL]
+
+  private assertTokenType(tt: NFTContractType) {
+    if (!this.validTokens.includes(tt)) {
+      throw new Error('invalid contract type for Solana')
+    }
+  }
+
   // NFT-related functions below
   sendCustomToken = async (
     contractAddress,
@@ -133,20 +152,59 @@ export class SolanaAccountHandler {
     gasFees,
     contractType: NFTContractType
   ) => {
-    switch (contractType) {
-      case NFTContractType.SOLANA_SPL:
-        return transferSPL(
-          this.conn,
-          this.kp,
-          contractAddress,
-          recipientAddress,
-          this.kp.publicKey,
-          1n
-        )
-      case NFTContractType.ERC1155:
-      case NFTContractType.ERC721:
-      default:
-        throw new Error('invalid contract type for Solana')
+    this.assertTokenType(contractType)
+    return transferSPL(
+      this.conn,
+      this.kp,
+      contractAddress,
+      recipientAddress,
+      this.kp.publicKey,
+      1n
+    )
+  }
+
+  estimateCustomTokenGas = async (
+    contractAddress: string,
+    recipientAddress: string,
+    amount: number | bigint,
+    contractType: NFTContractType
+  ): Promise<string> => {
+    this.assertTokenType(contractType)
+    const contractPK = new PublicKey(contractAddress)
+    const recipientPK = new PublicKey(recipientAddress)
+
+    const txIns = createTransferTXSPL(
+      this.kp.publicKey,
+      contractPK,
+      recipientPK,
+      amount
+    )
+    const tx = new LegacyTransaction()
+    tx.add(txIns)
+    const fee = tx.getEstimatedFee(this.conn)
+    if (fee == null) {
+      throw new Error('Fee could not be estimated')
     }
+    return fee.toString()
+  }
+
+  getTokenBalance = async (
+    contractAddress: string | Uint8Array,
+    walletAddress: string | Uint8Array,
+    contractType: NFTContractType
+  ) => {
+    this.assertTokenType(contractType)
+    const caPK = new PublicKey(contractAddress)
+
+    const list = await this.conn.getTokenAccountsByOwner(this.kp.publicKey, {
+      // TODO this needs to have an option for TOKEN-2022
+      programId: TOKEN_PROGRAM_ID,
+      mint: caPK,
+    })
+
+    return list.value.reduce((x, y) => {
+      const layout = AccountLayout.decode(y.account.data)
+      return x + layout.amount
+    }, 0n)
   }
 }
