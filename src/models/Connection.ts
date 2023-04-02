@@ -72,6 +72,7 @@ type InitParentConnectionApi = {
   getLoginSource(): string
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
+  setIframeStyle(styles: CSSStyleDeclaration): void
 }
 
 export { requirePermission, PERMISSIONS }
