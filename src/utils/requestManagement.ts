@@ -54,7 +54,7 @@ async function watchRequestQueue(keeper) {
         const request = processQueue.shift()
         if (request) processRequest(request, keeper)
         if (appMode === AppMode.Widget && pendingRequestCount === 0) {
-          connectionInstance.closePopup()
+          // connectionInstance.closePopup()
         }
         try {
           connectionInstance.sendPendingRequestCount(pendingRequestCount)
@@ -438,8 +438,8 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
-    const connectionInstance = await keeper.connection.promise
-    connectionInstance.openPopup()
+    // const connectionInstance = await keeper.connection.promise
+    // connectionInstance.openPopup()
   }
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
