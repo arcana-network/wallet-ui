@@ -35,6 +35,16 @@ export const useAppStore = defineStore('app', {
       expandWallet: true,
       walletPosition: 'right',
     } as AppState),
+  getters: {
+    iframeStyle: ({ expandWallet, walletPosition }) => {
+      const style: CSSStyleDeclaration = {}
+      style.height = expandWallet ? '80vh' : '46px'
+      style.width = expandWallet ? '360px' : '58px'
+      style.right = walletPosition === 'right' ? '0px' : ''
+      style.left = walletPosition === 'left' ? '0px' : ''
+      return style
+    },
+  },
   actions: {
     setAppId(id: string): void {
       this.id = id
