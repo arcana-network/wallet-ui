@@ -9,7 +9,7 @@ const getImage = useImage()
 const { walletPosition } = toRefs(appStore)
 
 function onClickOfButton() {
-  appStore.showWallet = true
+  appStore.expandWallet = true
 }
 </script>
 

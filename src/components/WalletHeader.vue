@@ -6,7 +6,7 @@ const appStore = useAppStore()
 const getImage = useImage()
 
 function shrinkWallet() {
-  appStore.showWallet = false
+  appStore.expandWallet = false
 }
 </script>
 
