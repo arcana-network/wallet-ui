@@ -8,7 +8,6 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
-import MFAVerifiedModal from '@/components/MFAVerifiedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
@@ -22,7 +21,6 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getWindowFeatures } from '@/utils/popupProps'
 
 const user = useUserStore()
-const router = useRouter()
 const appStore = useAppStore()
 const toast = useToast()
 const rpcStore = useRpcStore()
@@ -118,11 +116,15 @@ onBeforeRouteLeave((to) => {
         >
           <div v-if="name" class="flex flex-col gap-1">
             <p class="home__body-content-label">Name</p>
-            <p class="home__body-content-value">{{ name }}</p>
+            <p class="home__body-content-value text-ellipsis overflow-hidden">
+              {{ name }}
+            </p>
           </div>
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Email ID</p>
-            <p class="home__body-content-value">{{ email }}</p>
+            <p class="home__body-content-value text-ellipsis overflow-hidden">
+              {{ email }}
+            </p>
           </div>
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Network</p>
@@ -161,6 +163,7 @@ onBeforeRouteLeave((to) => {
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Multifactor Authentication</p>
             <button
+              v-if="!user.hasMfa"
               class="home__body-content-value h-max w-max"
               @click.stop="handleShowMFAProceedModal(true)"
             >
@@ -172,6 +175,9 @@ onBeforeRouteLeave((to) => {
                 class="w-6 aspect-square ml-3 invert dark:invert-0"
               />
             </button>
+            <span v-else class="home__body-content-value h-max w-max"
+              >In use</span
+            >
           </div>
         </div>
         <div class="flex w-full text-sm sm:text-xs justify-center">
@@ -202,10 +208,6 @@ onBeforeRouteLeave((to) => {
         @proceed="handleMFASetupClick"
         @close="handleShowMFAProceedModal(false)"
       />
-      <!-- <MFAVerifiedModal
-        v-if="showMFAProceedModal"
-        @close="handleShowMFAProceedModal(false)"
-      /> -->
     </Teleport>
   </div>
 </template>
