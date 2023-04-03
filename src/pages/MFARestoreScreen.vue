@@ -91,7 +91,7 @@ async function handleAnswerBasedRecovery(ev) {
     returnToParent(key)
   } catch (e) {
     console.error(e)
-    toast.error(e)
+    toast.error('Incorrect answers')
   } finally {
     loader.value = {
       show: false,
@@ -114,7 +114,7 @@ async function handlePinBasedRecovery(ev: any) {
     returnToParent(key)
   } catch (e) {
     console.error(e)
-    toast.error(e)
+    toast.error('Incorrect Pin')
   } finally {
     loader.value = {
       show: false,
