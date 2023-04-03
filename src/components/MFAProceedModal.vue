@@ -12,7 +12,7 @@ const emit = defineEmits(['proceed', 'close'])
         @click.stop="emit('close')"
       />
     </div>
-    <div class="modal-description mt-2 mb-10 flex flex-col gap-4">
+    <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
         This will allow you to download one of three key shares to your device
         and will improve the security of the wallet. The key share will also be
