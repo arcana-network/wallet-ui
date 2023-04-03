@@ -2,7 +2,7 @@
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
 import { ref, toRefs } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -19,6 +19,7 @@ import { AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getWindowFeatures } from '@/utils/popupProps'
+import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const appStore = useAppStore()
@@ -42,6 +43,9 @@ const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
+
+let mfaWindow: Window | null
+let cleanExit = false
 
 async function copyToClipboard(value: string, message: string) {
   try {
@@ -93,7 +97,55 @@ function handleShowMFAProceedModal(show: boolean) {
 
 function handleMFASetupClick() {
   const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
-  window.open(mfaSetupPath.toString(), '_blank', getWindowFeatures())
+  mfaWindow = window.open(
+    mfaSetupPath.toString(),
+    '_blank',
+    getWindowFeatures()
+  )
+
+  const handler = async (event: MessageEvent) => {
+    if (!event?.data?.status) {
+      return
+    }
+    cleanExit = true
+    const data = event.data
+
+    if (data.status === 'success') {
+      mfaWindow?.close()
+      getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
+      user.hasMfa = true
+      toast.success('MFA setup completed')
+      hideLoader()
+    } else if (data.status == 'error') {
+      mfaWindow?.close()
+      hideLoader()
+      toast.error('Error occured while setting up MFA. Please try again')
+    } else {
+      toast.error('Error occured while setting up MFA. Please try again')
+      console.log('Unexpected event')
+    }
+  }
+  window.addEventListener('message', handler, false)
+
+  loader.value = {
+    show: true,
+    message: 'Setting up MFA...',
+  }
+
+  const id = window.setInterval(() => {
+    if (!cleanExit && mfaWindow?.closed) {
+      console.error('User closed the popup')
+      hideLoader()
+      clearInterval(id)
+    }
+  }, 500)
+}
+
+function hideLoader() {
+  loader.value = {
+    show: false,
+    message: '',
+  }
 }
 
 onBeforeRouteLeave((to) => {
