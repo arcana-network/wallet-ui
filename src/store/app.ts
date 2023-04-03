@@ -61,5 +61,11 @@ export const useAppStore = defineStore('app', {
     setAppMode(validAppMode: AppMode): void {
       this.validAppMode = validAppMode
     },
+    setWalletPosition(position: WalletPosition): void {
+      this.walletPosition = position
+    },
+    setAppLogo(logo: AppLogo): void {
+      this.appLogo = logo
+    },
   },
 })
