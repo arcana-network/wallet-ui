@@ -47,6 +47,7 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  appStore.showWallet = true
   loader.value.show = false
 })
 
@@ -120,12 +121,19 @@ async function setTheme() {
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const {
-      themeConfig: { theme },
+      themeConfig: {
+        theme,
+        assets: { logo },
+      },
       name: appName,
     } = await parentConnectionInstance.getAppConfig()
 
+    const walletPosition = await parentConnectionInstance.getWalletPosition()
+
     appStore.setTheme(theme)
+    appStore.setAppLogo(logo)
     appStore.setName(appName)
+    appStore.setWalletPosition(walletPosition)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
   }
@@ -197,7 +205,10 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
 }
 
 onBeforeRouteLeave((to) => {
-  if (to.path.includes('login')) parentConnection?.destroy()
+  if (to.path.includes('login')) {
+    appStore.showWallet = false
+    parentConnection?.destroy()
+  }
 })
 </script>
 
