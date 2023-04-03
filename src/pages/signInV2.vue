@@ -155,7 +155,15 @@ async function init() {
     const isLoggedIn = storage.session.getItem('isLoggedIn')
 
     if (isLoggedIn) {
-      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-hasMfa`)
+      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
+      const loginCount = storage.local.getItem(
+        `${userInfo.userInfo.id}-login-count`
+      )
+      const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
+      storage.local.setItem(
+        `${userInfo.userInfo.id}-login-count`,
+        String(newLoginCount)
+      )
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
       user.hasMfa = hasMfa === '1'

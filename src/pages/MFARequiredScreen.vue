@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -21,6 +20,7 @@ const loader = ref({
   message: '',
 })
 let mfaWindow: Window | null
+const storage = getStorage()
 
 async function handleProceed() {
   const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
@@ -38,7 +38,7 @@ async function handleProceed() {
 
     if (data.status === 'success') {
       mfaWindow?.close()
-      getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
+      storage.local.setItem(`${user.info.id}-has-mfa`, '1')
       user.hasMfa = true
       toast.success('MFA setup completed')
       hideLoader()
@@ -76,12 +76,14 @@ function hideLoader() {
 }
 
 function handleAskNever() {
-  getStorage().local.setItem('mfa-dnd', '1')
+  storage.local.setItem(`${user.info.id}-mfa-dnd`, '1')
   goToHome()
 }
 
 function handleSkip() {
-  getStorage().local.setItem('mfa-skip-exp', dayjs().add(3, 'days').toString())
+  const loginCount = storage.local.getItem(`${user.info.id}-login-count`)
+  const skipUntil = loginCount ? Number(loginCount) + 3 : 3
+  storage.local.setItem(`${user.info.id}-mfa-skip-until`, String(skipUntil))
   goToHome()
 }
 
