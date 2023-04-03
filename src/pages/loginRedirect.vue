@@ -8,6 +8,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { GATEWAY_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   handlePasswordlessLogin,
@@ -54,7 +55,7 @@ async function init() {
         info.privateKey,
         info.userInfo.id,
         String(appId),
-        'https://gateway-dev.arcana.network'
+        GATEWAY_URL
       )
       await core.init()
       const key = await core.getKey()

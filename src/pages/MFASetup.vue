@@ -80,9 +80,9 @@ function addSelectedQuestion(index: number, value: any) {
 
 function addAnswer(index: number, value: string) {
   if (selectedQuestions[index - 1]) {
-    selectedQuestions[index - 1]['value'] = value
+    selectedQuestions[index - 1]['value'] = value?.trim()
   } else {
-    selectedQuestions[index - 1] = { value }
+    selectedQuestions[index - 1] = { value: value?.trim() }
   }
 }
 
