@@ -1,7 +1,17 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { AppMode } from '@arcana/auth'
 import { defineStore } from 'pinia'
 
 import type { Theme } from '@/models/Theme'
+
+type WalletPosition = 'right' | 'left'
+
+type AppLogo = {
+  horizontal: string
+  vertical: string
+}
 
 type AppState = {
   id: string
@@ -9,6 +19,10 @@ type AppState = {
   theme: Theme
   parentAppUrl: string | null
   validAppMode: AppMode
+  showWallet: boolean
+  expandWallet: boolean
+  walletPosition: WalletPosition
+  appLogo: AppLogo
 }
 
 export const useAppStore = defineStore('app', {
@@ -17,6 +31,9 @@ export const useAppStore = defineStore('app', {
       id: '',
       theme: 'light',
       parentAppUrl: null,
+      showWallet: false,
+      expandWallet: true,
+      walletPosition: 'right',
     } as AppState),
   actions: {
     setAppId(id: string): void {
