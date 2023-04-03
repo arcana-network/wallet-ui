@@ -50,6 +50,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/:appId/mfa/restore',
+    component: MFARestoreScreen,
+    name: 'MFARestore',
+    meta: {
+      isFullPageView: true,
+    },
+  },
+  {
     path: '/loggedin',
     component: LoggedInView,
     children: [
@@ -57,11 +65,6 @@ const routes: RouteRecordRaw[] = [
         path: '/mfa/required',
         component: MFARequiredScreen,
         name: 'MFARequired',
-      },
-      {
-        path: '/mfa/restore',
-        component: MFARestoreScreen,
-        name: 'MFARestore',
       },
       {
         name: 'home',
