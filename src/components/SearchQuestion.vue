@@ -51,7 +51,7 @@ function displayValue() {
       return question
     }
     emit('change', question)
-    return question[1] as string
+    return question?.[1] as string
   }
 }
 </script>
