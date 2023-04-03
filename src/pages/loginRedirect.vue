@@ -44,6 +44,12 @@ async function init() {
         loginType: info.loginType,
         privateKey: '',
       }
+      storage.session.setItem(`info`, JSON.stringify(userInfo))
+      const exp = dayjs().add(1, 'day')
+      getStorage().local.setItem(
+        'pk',
+        JSON.stringify({ pk: info.privateKey, exp })
+      )
       const core = new Core(
         info.privateKey,
         info.userInfo.id,
@@ -51,12 +57,7 @@ async function init() {
         'https://gateway-dev.arcana.network'
       )
       await core.init()
-      const key = core.getKey()
-      const exp = dayjs().add(1, 'day')
-      getStorage().local.setItem(
-        'pk',
-        JSON.stringify({ pk: info.privateKey, exp })
-      )
+      const key = await core.getKey()
       userInfo.privateKey = key
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
@@ -91,7 +92,6 @@ async function init() {
       return
     }
   } catch (e) {
-    alert(e)
     if (e instanceof Error) {
       await reportError(e.message, parentAppUrl)
     }
