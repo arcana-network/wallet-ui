@@ -38,9 +38,6 @@ watch(showRequestPage, () => {
 </script>
 
 <template>
-  <div v-if="isLoading" class="flex col justify-center items-center h-full">
-    <div>Loading...</div>
-  </div>
   <div
     v-if="expandWallet"
     class="flex flex-col h-full"
