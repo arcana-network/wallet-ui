@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
+import type { Theme } from '@/models/Theme'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
@@ -18,6 +19,11 @@ const router = useRouter()
 const { theme } = toRefs(app)
 const isLoading = ref(false)
 const route = useRoute()
+
+const url = new URL(window.location.href)
+if (url.searchParams.get('theme')) {
+  theme.value = url.searchParams.get('theme') as Theme
+}
 
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
