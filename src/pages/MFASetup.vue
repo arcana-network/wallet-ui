@@ -98,6 +98,7 @@ async function createShare(pin: string) {
 
 function validatePin(pin?: string) {
   let returnValue = false
+  showPinError.value = ''
   if (!pin) {
     showPinError.value = 'Pin is required for encryption'
     return toast.error(showPinError.value)
@@ -125,7 +126,6 @@ function validatePin(pin?: string) {
 }
 
 async function handleSubmit() {
-  console.log(selectedQuestions)
   const isAllQuestionsAnswered = selectedQuestions.every(
     (question) => question.key?.trim() && question.value?.trim()
   )
