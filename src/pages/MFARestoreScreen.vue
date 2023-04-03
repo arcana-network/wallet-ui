@@ -40,6 +40,7 @@ let core: Core
 let dkgShare: {
   pk: string
   exp: string
+  id: string
 }
 let channel: BroadcastChannel
 const route = useRoute()
@@ -53,8 +54,7 @@ onBeforeMount(async () => {
     message: 'Loading metadata...',
   }
   dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  const userInfo = JSON.parse(storage.session.getItem('info') as string)
-  core = new Core(dkgShare.pk, userInfo.userInfo.id, appId, GATEWAY_URL)
+  core = new Core(dkgShare.pk, dkgShare.id, appId, GATEWAY_URL)
   securityQuestionModule.init(core)
   try {
     questions.value = await securityQuestionModule.getQuestions()

@@ -49,7 +49,7 @@ async function init() {
       const exp = dayjs().add(1, 'day')
       getStorage().local.setItem(
         'pk',
-        JSON.stringify({ pk: info.privateKey, exp })
+        JSON.stringify({ pk: info.privateKey, exp, id: userInfo.userInfo.id })
       )
       const core = new Core(
         info.privateKey,

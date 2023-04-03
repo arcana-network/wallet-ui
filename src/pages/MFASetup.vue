@@ -39,7 +39,6 @@ const selectedQuestions: CustomObject[] = new Array(totalQuestions)
 initStorage(String(route.params.appId))
 
 const storage = getStorage()
-const userInfo = JSON.parse(storage.session.getItem('userInfo') as string)
 
 document.documentElement.classList.add('dark')
 
@@ -52,7 +51,7 @@ onBeforeMount(async () => {
   if (new Date() < new Date(dkgShare.exp)) {
     const core = new Core(
       dkgShare.pk,
-      userInfo.userInfo.id,
+      dkgShare.id,
       String(route.params.appId),
       GATEWAY_URL
     )
