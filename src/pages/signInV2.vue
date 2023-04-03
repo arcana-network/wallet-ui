@@ -99,6 +99,14 @@ function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  const loginCount = storage.local.getItem(
+    `${userInfo.userInfo.id}-login-count`
+  )
+  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
+  storage.local.setItem(
+    `${userInfo.userInfo.id}-login-count`,
+    String(newLoginCount)
+  )
   router.push({ name: 'home' })
 }
 
@@ -156,14 +164,6 @@ async function init() {
 
     if (isLoggedIn) {
       const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
-      const loginCount = storage.local.getItem(
-        `${userInfo.userInfo.id}-login-count`
-      )
-      const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
-      storage.local.setItem(
-        `${userInfo.userInfo.id}-login-count`,
-        String(newLoginCount)
-      )
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
       user.hasMfa = hasMfa === '1'
