@@ -17,8 +17,7 @@ const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
 const router = useRouter()
-const { theme } = toRefs(app)
-const isLoading = ref(false)
+const { theme, expandWallet, showWallet } = toRefs(app)
 const route = useRoute()
 
 const showRequestPage = computed(() => {
