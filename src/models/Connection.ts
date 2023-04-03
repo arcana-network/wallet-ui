@@ -1,4 +1,4 @@
-import { AppConfig, AppMode, RpcConfig } from '@arcana/auth'
+import { AppConfig, AppMode, Position, RpcConfig } from '@arcana/auth'
 import type { SocialLoginType } from '@arcana/auth-core'
 import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 
@@ -66,6 +66,8 @@ type ParentConnectionApi = {
   getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
+  setIframeStyle(styles: CSSStyleDeclaration): void
+  getWalletPosition(): Position
 }
 type InitParentConnectionApi = {
   getParentUrl(): string
