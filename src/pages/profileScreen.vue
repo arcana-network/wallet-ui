@@ -115,6 +115,7 @@ function handleMFASetupClick() {
       getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
       user.hasMfa = true
       toast.success('MFA setup completed')
+      handleShowMFAProceedModal(false)
       hideLoader()
     } else if (data.status == 'error') {
       mfaWindow?.close()
