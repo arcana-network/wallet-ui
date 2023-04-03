@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const emit = defineEmits(['proceed', 'back'])
 
 const password = ref('')
+const toast = useToast()
 
 function handleProceed() {
+  if (!password.value) return toast.error('Enter the pin to continue')
   emit('proceed', {
     password: password.value,
   })
@@ -27,7 +30,7 @@ function handleProceed() {
       <div class="flex flex-col gap-1">
         <label>Enter the pin used for encryption</label>
         <input
-          v-model="password"
+          v-model.trim="password"
           class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
           placeholder="Enter a alphanumberic pin"
         />
