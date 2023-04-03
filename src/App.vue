@@ -4,6 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
+import WalletButton from '@/components/WalletButton.vue'
+import WalletHeader from '@/components/WalletHeader.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
@@ -40,10 +42,11 @@ watch(showRequestPage, () => {
     <div>Loading...</div>
   </div>
   <div
-    v-else
+    v-if="expandWallet"
     class="flex flex-col h-full"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
+    <WalletHeader />
     <div class="flex-grow wallet__container">
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
@@ -51,6 +54,9 @@ watch(showRequestPage, () => {
     <WalletFooter
       v-if="route.name !== 'requests' || !requestStore.pendingRequest"
     />
+  </div>
+  <div v-else :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']">
+    <WalletButton />
   </div>
 </template>
 
