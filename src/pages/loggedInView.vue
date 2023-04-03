@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
+import dayjs from 'dayjs'
 import type { Connection } from 'penpal'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onBeforeMount } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -27,6 +28,7 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
+import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -39,6 +41,12 @@ const loader = ref({
   message: 'Loading...',
 })
 let parentConnection: Connection<ParentConnectionApi>
+const storage = getStorage()
+
+onBeforeMount(() => {
+  userStore.hasMfa =
+    getStorage().local.getItem(`${userStore.info.id}-has-mfa`) === '1'
+})
 
 onMounted(async () => {
   setRpcConfigs()
@@ -47,6 +55,19 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  const mfaDnd = storage.local.getItem(`${userStore.info.id}-mfa-dnd`)
+  const mfaSkipUntil = storage.local.getItem(
+    `${userStore.info.id}-mfa-skip-until`
+  )
+  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
+  const hasMfaDnd = mfaDnd && mfaDnd === '1'
+  const hasMfaSkip =
+    mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
+  if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
+    router.push({ name: 'home' })
+  } else {
+    router.push({ name: 'MFARequired' })
+  }
   loader.value.show = false
 })
 

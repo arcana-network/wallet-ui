@@ -72,7 +72,7 @@ async function getCurrencyExchangeRate() {
   >
     <div class="flex justify-between relative items-center">
       <h1 class="font-semibold text-xl sm:text-sm">Activities</h1>
-      <div class="flex items-center space-x-1">
+      <div v-if="false" class="flex items-center space-x-1">
         <p
           v-if="selectedFilter != 'all'"
           class="bg-black text-gray-500 text-[10px] sm:text-[8px] p-1 rounded"
