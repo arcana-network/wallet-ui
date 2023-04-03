@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, ref, watch, computed, onBeforeMount } from 'vue'
+import { toRefs, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -8,6 +8,7 @@ import WalletButton from '@/components/WalletButton.vue'
 import WalletHeader from '@/components/WalletHeader.vue'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -16,6 +17,7 @@ import '@/index.css'
 const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
+const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
 const { theme, expandWallet, showWallet } = toRefs(app)
 const route = useRoute()
@@ -26,6 +28,25 @@ const showRequestPage = computed(() => {
 
 onBeforeMount(async () => {
   await fetchTransakNetworks()
+})
+
+watch(showWallet, async (newValue) => {
+  if (newValue) {
+    app.expandWallet = false
+    const parentConnectionInstance = await parentConnectionStore
+      .parentConnection?.promise
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  }
+})
+
+watch(expandWallet, async (newValue) => {
+  const parentConnectionInstance = await parentConnectionStore.parentConnection
+    ?.promise
+  if (newValue) {
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  } else {
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  }
 })
 
 watch(showRequestPage, () => {
