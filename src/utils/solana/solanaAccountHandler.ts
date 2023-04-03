@@ -3,6 +3,7 @@ import { sign as ed25519Sign } from '@noble/ed25519'
 import {
   transfer as transferSPL,
   createTransferInstruction as createTransferTXSPL,
+  getMint as getMintSPL,
   TOKEN_PROGRAM_ID,
   AccountLayout,
 } from '@solana/spl-token'
@@ -206,5 +207,16 @@ export class SolanaAccountHandler {
       const layout = AccountLayout.decode(y.account.data)
       return x + layout.amount
     }, 0n)
+  }
+
+  getTokenDecimals = async (
+    contractAddress: string | Uint8Array,
+    contractType: NFTContractType
+  ) => {
+    this.assertTokenType(contractType)
+    const caPK = new PublicKey(contractAddress)
+
+    const mint = await getMintSPL(this.conn, caPK)
+    return mint.decimals
   }
 }
