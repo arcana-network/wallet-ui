@@ -205,9 +205,8 @@ function handleCancel() {
       <div class="flex flex-col text-center mt-10">
         <h2 class="font-semibold mb-5 title">MFA Setup Complete</h2>
         <span class="description max-w-[26rem]"
-          >You’re all set with Multi-Factor Authentication. You can back-up your
-          answers to your security questions using one of the following methods
-          after you provide a PIN to encrypt the file.
+          >You’re all set with Multi-Factor Authentication. Please provide a pin
+          to encrypt and backup your answers to your security questions.
         </span>
       </div>
       <div class="flex flex-col mt-8 gap-4">

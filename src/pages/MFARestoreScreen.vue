@@ -178,9 +178,9 @@ onUnmounted(() => {
       <div class="modal-title font-bold">Enter MFA details to continue</div>
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
-      Changing devices or clearing your browser data can remove access to your
-      key share. Answer the security questions you set up, or provide the
-      encrypted text and encryption PIN in order to recover your key share.
+      We could not find the local MFA key information on this device.<br />
+      To recover, please answer the security questions or provide the PIN used
+      during the MFA setup.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
       <button

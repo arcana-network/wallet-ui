@@ -112,9 +112,9 @@ function goToHome() {
     </div>
     <div class="flex mt-4">
       <span style="font-size: var(--fs-300)">
-        As the dApp “{{ appStore.name }}” interacts with sensitive information,
-        it requires you to have Multi-Factor Authentication enabled. Would you
-        like to do so now?
+        MFA ensures that Arcana cannot access your private key. You'll be
+        prompted to setup security questions.<br />
+        WARNING: MFA cannot be disabled once enabled.
       </span>
     </div>
     <div class="flex flex-col mt-4 gap-2">

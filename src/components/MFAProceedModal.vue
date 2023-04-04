@@ -14,9 +14,9 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        This will allow you to download one of three key shares to your device
-        and will improve the security of the wallet. The key share will also be
-        secured using security questions in the following screens.
+        MFA ensures that Arcana cannot access your private key. You'll be
+        prompted to setup security questions.<br />
+        WARNING: MFA cannot be disabled once enabled.
       </p>
     </div>
     <div>
