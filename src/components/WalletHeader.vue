@@ -5,7 +5,7 @@ import { useImage } from '@/utils/useImage'
 const appStore = useAppStore()
 const getImage = useImage()
 
-function shrinkWallet() {
+function onClickOfArrow() {
   appStore.expandWallet = false
 }
 </script>
@@ -13,10 +13,10 @@ function shrinkWallet() {
 <template>
   <header class="flex justify-between rounded-t-xl">
     <div class="flex space-x-1 items-center">
-      <img :src="appStore.appLogo?.horizontal" alt="app logo" />
+      <!-- <img :src="appStore.appLogo?.horizontal" alt="app logo" /> -->
       <p>{{ appStore.name }}</p>
     </div>
-    <button class="h-auto" @click="shrinkWallet">
+    <button class="h-auto" @click="onClickOfArrow">
       <img :src="getImage('arrow-icon')" alt="arrow" />
     </button>
   </header>
