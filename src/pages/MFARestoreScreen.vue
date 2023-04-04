@@ -133,6 +133,7 @@ async function returnToParent(key: string) {
   storage.local.setItem(`${info.userInfo.id}-has-mfa`, '1')
   info.privateKey = key
   info.hasMfa = true
+  storage.local.removeItem('pk')
   const messageId = getUniqueId()
   if (info.loginType === 'passwordless') {
     await handlePasswordlessLoginV2(info, connectionToParent).catch(

@@ -176,6 +176,7 @@ async function handleDone() {
       show: false,
       message: '',
     }
+    storage.local.removeItem('pk')
     // eslint-disable-next-line no-undef
     connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
   }
