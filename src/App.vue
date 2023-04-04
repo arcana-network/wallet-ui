@@ -31,12 +31,10 @@ onBeforeMount(async () => {
 })
 
 watch(showWallet, async (newValue) => {
-  if (newValue) {
-    app.expandWallet = false
-    const parentConnectionInstance = await parentConnectionStore
-      .parentConnection?.promise
-    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
-  }
+  if (newValue) app.expandWallet = false
+  const parentConnectionInstance = await parentConnectionStore.parentConnection
+    ?.promise
+  await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
 })
 
 watch(expandWallet, async (newValue) => {
