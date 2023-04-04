@@ -134,6 +134,7 @@ function connectToParent() {
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
     getUserInfo,
+    expandWallet: () => (appStore.expandWallet = true),
   })
   parentConnectionStore.setParentConnection(parentConnection)
 }
