@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import { AppMode } from '@arcana/auth'
 import { defineStore } from 'pinia'
 
@@ -37,7 +34,7 @@ export const useAppStore = defineStore('app', {
     } as AppState),
   getters: {
     iframeStyle: ({ showWallet, expandWallet, walletPosition }) => {
-      const style: CSSStyleDeclaration = {}
+      const style: Partial<CSSStyleDeclaration> = {}
       style.height = showWallet ? (expandWallet ? '80vh' : '46px') : '0'
       style.width = showWallet ? (expandWallet ? '360px' : '58px') : '0'
       style.right = walletPosition === 'right' ? '0px' : ''
