@@ -171,19 +171,28 @@ async function handleDone() {
       show: true,
       message: 'Setting up MFA...',
     }
-    await createShare(pinToEncryptMFAShare.value)
+    try {
+      await createShare(pinToEncryptMFAShare.value)
+      storage.local.removeItem('pk')
+    } catch (e) {
+      // eslint-disable-next-line no-undef
+      return connectionToParent.error(e, process.env.VUE_APP_WALLET_DOMAIN)
+    }
     loader.value = {
       show: false,
       message: '',
     }
-    storage.local.removeItem('pk')
     // eslint-disable-next-line no-undef
     connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
   }
 }
 
 function handleCancel() {
-  window.close()
+  return connectionToParent.error(
+    'User cancelled the setup',
+    // eslint-disable-next-line no-undef
+    process.env.VUE_APP_WALLET_DOMAIN
+  )
 }
 </script>
 
