@@ -13,7 +13,7 @@ function onClickOfArrow() {
 <template>
   <header class="flex justify-between rounded-t-xl">
     <div class="flex space-x-1 items-center">
-      <!-- <img :src="appStore.appLogo?.horizontal" alt="app logo" /> -->
+      <img :src="appStore.appLogo?.horizontal" alt="app logo" class="h-9" />
       <p>{{ appStore.name }}</p>
     </div>
     <button class="h-auto" @click="onClickOfArrow">
