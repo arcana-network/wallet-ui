@@ -99,6 +99,14 @@ function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  const loginCount = storage.local.getItem(
+    `${userInfo.userInfo.id}-login-count`
+  )
+  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
+  storage.local.setItem(
+    `${userInfo.userInfo.id}-login-count`,
+    String(newLoginCount)
+  )
   router.push({ name: 'home' })
 }
 
@@ -113,7 +121,11 @@ const channelEventHandler = (ev: MessageEvent) => {
 }
 
 const windowEventHandler = (
-  ev: MessageEvent<{ status: string; messageId: number; info: GetInfoOutput }>
+  ev: MessageEvent<{
+    status: string
+    messageId: number
+    info: GetInfoOutput & { hasMfa?: boolean }
+  }>
 ) => {
   // eslint-disable-next-line no-undef
   if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
@@ -125,6 +137,10 @@ const windowEventHandler = (
       { targetOrigin: ev.origin }
     )
     storeUserInfoAndRedirect(ev.data.info)
+    if (ev.data.info.hasMfa) {
+      user.hasMfa = true
+      storage.local.setItem(`${ev.data.info.userInfo.id}-has-mfa`, '1')
+    }
   }
 }
 
@@ -147,8 +163,10 @@ async function init() {
     const isLoggedIn = storage.session.getItem('isLoggedIn')
 
     if (isLoggedIn) {
+      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
+      user.hasMfa = hasMfa === '1'
       router.push({ name: 'home' })
     } else {
       parentConnection = createParentConnection({

@@ -6,6 +6,7 @@ import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
 import WalletButton from '@/components/WalletButton.vue'
 import WalletHeader from '@/components/WalletHeader.vue'
+import type { Theme } from '@/models/Theme'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -21,6 +22,11 @@ const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
 const { theme, expandWallet, showWallet } = toRefs(app)
 const route = useRoute()
+
+const url = new URL(window.location.href)
+if (url.searchParams.get('theme')) {
+  theme.value = url.searchParams.get('theme') as Theme
+}
 
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
@@ -53,6 +59,13 @@ watch(showRequestPage, () => {
     router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
+
+const showFooter = computed(() => {
+  return (
+    !['requests', 'MFARequired', 'MFARestore'].includes(route.name as string) ||
+    (route.name === 'requests' && !requestStore.pendingRequest)
+  )
+})
 </script>
 
 <template>
@@ -66,9 +79,7 @@ watch(showRequestPage, () => {
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
-    <WalletFooter
-      v-if="route.name !== 'requests' || !requestStore.pendingRequest"
-    />
+    <WalletFooter v-if="showFooter" />
   </div>
   <div v-else :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']">
     <WalletButton />
