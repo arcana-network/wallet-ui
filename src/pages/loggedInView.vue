@@ -160,6 +160,7 @@ async function handleLogout(isV2 = false) {
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
     setTimeout(() => {
+      appStore.showWallet = false
       const route = isV2 ? `/${appStore.id}/v2/login` : `/${appStore.id}/login`
       router.push(route)
     })
@@ -205,10 +206,7 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
 }
 
 onBeforeRouteLeave((to) => {
-  if (to.path.includes('login')) {
-    appStore.showWallet = false
-    parentConnection?.destroy()
-  }
+  if (to.path.includes('login')) parentConnection?.destroy()
 })
 </script>
 
