@@ -171,19 +171,28 @@ async function handleDone() {
       show: true,
       message: 'Setting up MFA...',
     }
-    await createShare(pinToEncryptMFAShare.value)
+    try {
+      await createShare(pinToEncryptMFAShare.value)
+      storage.local.removeItem('pk')
+    } catch (e) {
+      // eslint-disable-next-line no-undef
+      return connectionToParent.error(e, process.env.VUE_APP_WALLET_DOMAIN)
+    }
     loader.value = {
       show: false,
       message: '',
     }
-    storage.local.removeItem('pk')
     // eslint-disable-next-line no-undef
     connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
   }
 }
 
 function handleCancel() {
-  window.close()
+  return connectionToParent.error(
+    'User cancelled the setup',
+    // eslint-disable-next-line no-undef
+    process.env.VUE_APP_WALLET_DOMAIN
+  )
 }
 </script>
 
@@ -205,9 +214,8 @@ function handleCancel() {
       <div class="flex flex-col text-center mt-10">
         <h2 class="font-semibold mb-5 title">MFA Setup Complete</h2>
         <span class="description max-w-[26rem]"
-          >You’re all set with Multi-Factor Authentication. You can back-up your
-          answers to your security questions using one of the following methods
-          after you provide a PIN to encrypt the file.
+          >You’re all set with Multi-Factor Authentication. Please provide a pin
+          to encrypt and backup your answers to your security questions.
         </span>
       </div>
       <div class="flex flex-col mt-8 gap-4">

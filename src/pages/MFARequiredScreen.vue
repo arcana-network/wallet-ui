@@ -23,6 +23,7 @@ let mfaWindow: Window | null
 const storage = getStorage()
 
 async function handleProceed() {
+  cleanExit = false
   const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
   mfaWindow = window.open(
     mfaSetupPath.toString(),
@@ -41,12 +42,14 @@ async function handleProceed() {
       storage.local.setItem(`${user.info.id}-has-mfa`, '1')
       user.hasMfa = true
       toast.success('MFA setup completed')
+      window.removeEventListener('message', handler, false)
       hideLoader()
       router.push({ name: 'home' })
     } else if (data.status == 'error') {
       mfaWindow?.close()
+      window.removeEventListener('message', handler, false)
       hideLoader()
-      toast.error('Error occured while setting up MFA. Please try again')
+      if (data.error !== 'User cancelled the setup') toast.error(data.error)
     } else {
       toast.error('Error occured while setting up MFA. Please try again')
       console.log('Unexpected event')
@@ -62,6 +65,7 @@ async function handleProceed() {
   const id = window.setInterval(() => {
     if (!cleanExit && mfaWindow?.closed) {
       console.error('User closed the popup')
+      window.removeEventListener('message', handler, false)
       hideLoader()
       clearInterval(id)
     }
@@ -112,9 +116,9 @@ function goToHome() {
     </div>
     <div class="flex mt-4">
       <span style="font-size: var(--fs-300)">
-        As the dApp “{{ appStore.name }}” interacts with sensitive information,
-        it requires you to have Multi-Factor Authentication enabled. Would you
-        like to do so now?
+        MFA ensures that Arcana cannot access your private key. You'll be
+        prompted to setup security questions.<br />
+        WARNING: MFA cannot be disabled once enabled.
       </span>
     </div>
     <div class="flex flex-col mt-4 gap-2">
