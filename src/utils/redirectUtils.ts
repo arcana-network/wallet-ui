@@ -91,7 +91,7 @@ function contactParentPage(
 }
 
 async function handlePasswordlessLoginV2(
-  info: GetInfoOutput,
+  info: GetInfoOutput & { hasMfa?: boolean },
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
   const storage = getStorage()
@@ -104,7 +104,10 @@ async function handlePasswordlessLoginV2(
   const data = JSON.parse(params)
 
   const publicKey = await getCredentialKey(data.sessionId)
-  const ciphertext = await encrypt(info.privateKey, publicKey)
+  let ciphertext = await encrypt(info.privateKey, publicKey)
+  if (info.hasMfa) {
+    ciphertext = `${ciphertext}:has-mfa`
+  }
   await setCredential(data.setToken, data.sessionId, ciphertext)
   connection.replyTo()
 }
