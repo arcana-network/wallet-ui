@@ -52,7 +52,7 @@ const initPasswordlessLogin = (email: string) => {
   }
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
-  passwordlessLoginHandler.start().then(({ privateKey, email }) => {
+  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa }) => {
     storeUserInfoAndRedirect({
       loginType: SocialLoginType.passwordless,
       userInfo: {
@@ -62,6 +62,7 @@ const initPasswordlessLogin = (email: string) => {
         name: '',
       },
       privateKey,
+      hasMfa,
     })
   })
   return params
@@ -94,11 +95,17 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
+function storeUserInfoAndRedirect(
+  userInfo: GetInfoOutput & { hasMfa?: boolean }
+) {
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  if (userInfo.hasMfa) {
+    user.hasMfa = true
+    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+  }
   const loginCount = storage.local.getItem(
     `${userInfo.userInfo.id}-login-count`
   )
