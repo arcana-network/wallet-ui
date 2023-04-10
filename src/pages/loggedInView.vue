@@ -151,12 +151,18 @@ async function setTheme() {
       name: appName,
     } = await parentConnectionInstance.getAppConfig()
 
-    const walletPosition = await parentConnectionInstance.getWalletPosition()
+    if (parentConnectionInstance.getSDKVersion) {
+      appStore.sdkVersion = await parentConnectionInstance.getSDKVersion()
+    }
+
+    if (appStore.sdkVersion === 'v3') {
+      const walletPosition = await parentConnectionInstance.getWalletPosition()
+      appStore.setWalletPosition(walletPosition)
+    }
 
     appStore.setTheme(theme)
     appStore.setAppLogo(logo)
     appStore.setName(appName)
-    appStore.setWalletPosition(walletPosition)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
   }
@@ -177,6 +183,7 @@ async function setAppMode(walletType, parentConnectionInstance) {
 }
 
 async function handleLogout(isV2 = false) {
+  appStore.sdkVersion = 'v2'
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const authProvider = await getAuthProvider(appStore.id as string)
