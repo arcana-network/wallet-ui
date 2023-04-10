@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import dayjs from 'dayjs'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
