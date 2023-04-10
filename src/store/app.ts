@@ -1,6 +1,7 @@
 import { AppMode } from '@arcana/auth'
 import { defineStore } from 'pinia'
 
+import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
 
 type WalletPosition = 'right' | 'left'
@@ -21,6 +22,7 @@ type AppState = {
   walletPosition: WalletPosition
   appLogo: AppLogo
   compactMode: boolean
+  sdkVersion: SDKVersion | null
 }
 
 export const useAppStore = defineStore('app', {
@@ -33,6 +35,7 @@ export const useAppStore = defineStore('app', {
       expandWallet: true,
       walletPosition: 'right',
       compactMode: false,
+      sdkVersion: null,
     } as AppState),
   getters: {
     iframeStyle: ({ showWallet, expandWallet, walletPosition }) => {
