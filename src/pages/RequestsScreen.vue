@@ -4,9 +4,11 @@ import { useToast } from 'vue-toastification'
 import Popper from 'vue3-popper'
 
 import ChargeInfo from '@/components/ChargeInfo.vue'
+import RequestScreenCompact from '@/components/RequestScreenCompact.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useImage } from '@/utils/useImage'
@@ -15,6 +17,7 @@ const getImage = useImage()
 const requestStore = useRequestStore()
 const toast = useToast()
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 
 const { pendingRequest, areRequestsPendingForApproval } = toRefs(requestStore)
 
@@ -51,39 +54,46 @@ function handleGasPriceInput({ value, requestId }) {
 
 <template>
   <div v-if="areRequestsPendingForApproval" class="flex flex-col h-full gap-2">
-    <div class="wallet__card rounded-[10px] flex flex-1 flex-col h-[80%]">
-      <div v-if="pendingRequest" class="sign__messages-container">
-        <div
-          :key="Number(pendingRequest.request.id)"
-          class="sign__message-container"
-        >
-          <SendTransaction
-            v-if="isSendTransactionRequest(pendingRequest.request.id)"
-            :request="pendingRequest"
-            @gas-price-input="handleGasPriceInput"
-          />
-          <SignMessage v-else :request="pendingRequest" />
-          <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
-            <p class="sign__message-info-text">
-              You are not going to be charged!
-              <Popper arrow hover>
-                <button>
-                  <img
-                    class="sign__message-info-icon"
-                    :src="getImage('info-icon')"
-                  />
-                </button>
-                <template #content>
-                  <ChargeInfo />
-                </template>
-              </Popper>
-            </p>
-          </div>
+    <div
+      v-if="pendingRequest && !appStore.compactMode"
+      class="sign__messages-container wallet__card rounded-[10px] flex flex-1 flex-col h-[80%]"
+    >
+      <div
+        :key="Number(pendingRequest.request.id)"
+        class="sign__message-container"
+      >
+        <SendTransaction
+          v-if="isSendTransactionRequest(pendingRequest.request.id)"
+          :request="pendingRequest"
+          @gas-price-input="handleGasPriceInput"
+        />
+        <SignMessage v-else :request="pendingRequest" />
+        <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
+          <p class="sign__message-info-text">
+            You are not going to be charged!
+            <Popper arrow hover>
+              <button>
+                <img
+                  class="sign__message-info-icon"
+                  :src="getImage('info-icon')"
+                />
+              </button>
+              <template #content>
+                <ChargeInfo />
+              </template>
+            </Popper>
+          </p>
         </div>
       </div>
     </div>
+    <RequestScreenCompact
+      v-else
+      :request="pendingRequest"
+      @reject="() => onRejectClick(pendingRequest.request.id)"
+      @approve="() => onApproveClick(pendingRequest.request.id)"
+    />
     <div
-      v-if="pendingRequest"
+      v-if="pendingRequest && !appStore.compactMode"
       class="sign__message-button-container flex justify-around -m-4 mt-0 p-4"
     >
       <button
