@@ -20,6 +20,7 @@ type AppState = {
   expandWallet: boolean
   walletPosition: WalletPosition
   appLogo: AppLogo
+  compactMode: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -31,6 +32,7 @@ export const useAppStore = defineStore('app', {
       showWallet: false,
       expandWallet: true,
       walletPosition: 'right',
+      compactMode: false,
     } as AppState),
   getters: {
     iframeStyle: ({ showWallet, expandWallet, walletPosition }) => {
