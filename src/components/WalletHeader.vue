@@ -5,9 +5,7 @@ import { useImage } from '@/utils/useImage'
 const appStore = useAppStore()
 const getImage = useImage()
 
-function onClickOfArrow() {
-  appStore.expandWallet = false
-}
+const emits = defineEmits(['click'])
 </script>
 
 <template>
@@ -19,6 +17,7 @@ function onClickOfArrow() {
     <button
       class="h-auto"
       :class="[appStore.compactMode ? 'rotate-180' : 'rotate-0']"
+      @click="emits('click')"
     >
       <img :src="getImage('arrow-icon')" alt="arrow" />
     </button>
