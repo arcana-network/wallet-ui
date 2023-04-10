@@ -1,7 +1,6 @@
 // Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -11,6 +10,7 @@ import { NFT } from '@/models/NFT'
 import { router } from '@/routes'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -24,6 +24,7 @@ const rpcStore = useRpcStore(store)
 const userStore = useUserStore(store)
 const toast = useToast()
 const reqStore = useRequestStore()
+const appStore = useAppStore()
 
 function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   return function sendRequest(request) {
@@ -54,7 +55,10 @@ async function watchRequestQueue(keeper) {
         const request = processQueue.shift()
         if (request) processRequest(request, keeper)
         if (appMode === AppMode.Widget && pendingRequestCount === 0) {
-          // connectionInstance.closePopup()
+          if (appStore.sdkVersion !== 'v3') connectionInstance.closePopup()
+        } else if (pendingRequestCount === 0) {
+          appStore.expandWallet = false
+          appStore.compactMode = false
         }
         try {
           connectionInstance.sendPendingRequestCount(pendingRequestCount)
@@ -438,9 +442,16 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
-    // const connectionInstance = await keeper.connection.promise
-    // connectionInstance.openPopup()
+    if (appStore.sdkVersion === 'v3') {
+      appStore.expandWallet = true
+      appStore.compactMode =
+        isPermissionRequired && request.method !== 'eth_sendTransaction'
+    } else {
+      const connectionInstance = await keeper.connection.promise
+      connectionInstance.openPopup()
+    }
   }
+
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 
