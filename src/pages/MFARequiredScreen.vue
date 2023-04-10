@@ -107,18 +107,12 @@ function goToHome() {
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Setup MFA</div>
-      <img
-        src="@/assets/images/close-icon.svg"
-        class="cursor-pointer invert dark:invert-0"
-        @click.stop="handleSkip"
-      />
+      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
     </div>
     <div class="flex mt-4">
       <span style="font-size: var(--fs-300)">
-        MFA ensures that Arcana cannot access your private key. You'll be
-        prompted to setup security questions.<br />
-        WARNING: MFA cannot be disabled once enabled.
+        “{{ appStore.name }}” requires Two Factor Authentication (2FA) enabled
+        in your wallet before you use the app. Would you like to do so now?
       </span>
     </div>
     <div class="flex flex-col mt-4 gap-2">
@@ -131,11 +125,18 @@ function goToHome() {
       </button>
       <div class="flex justify-center gap-4">
         <button
-          class="text-xs sm:text-xs font-medium text-black bg-transparent dark:text-white"
+          class="text-xs sm:text-xs font-medium text-black bg-transparent dark:text-white uppercase"
           type="submit"
           @click.stop="handleAskNever"
         >
-          Don't ask me again
+          Don’t ask again
+        </button>
+        <button
+          class="text-xs sm:text-xs font-medium text-black bg-transparent dark:text-white uppercase"
+          type="submit"
+          @click.stop="handleSkip"
+        >
+          Skip
         </button>
       </div>
     </div>

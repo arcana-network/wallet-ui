@@ -102,12 +102,22 @@ function handleProceed() {
           />
         </div>
       </div>
-      <button
-        class="mt-4 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
-        type="submit"
-      >
-        Proceed
-      </button>
+      <div class="flex flex-col gap-4">
+        <button
+          class="mt-4 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
+          type="submit"
+        >
+          Proceed
+        </button>
+        <div class="flex justify-center">
+          <button
+            class="text-sm sm:text-xs font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
+            @click.stop="emit('back')"
+          >
+            Back
+          </button>
+        </div>
+      </div>
     </form>
   </div>
 </template>

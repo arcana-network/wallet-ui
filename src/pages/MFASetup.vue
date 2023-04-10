@@ -212,10 +212,13 @@ function handleCancel() {
         <img src="@/assets/images/success.svg" />
       </div>
       <div class="flex flex-col text-center mt-10">
-        <h2 class="font-semibold mb-5 title">MFA Setup Complete</h2>
+        <h2 class="font-semibold mb-5 title">
+          ENHANCED WALLET SECURITY ENABLED
+        </h2>
         <span class="description max-w-[26rem]"
-          >You’re all set with Multi-Factor Authentication. Please provide a pin
-          to encrypt and backup your answers to your security questions.
+          >You’re all set with Two-Factor Authentication. If you change browsers
+          or devices in the future, you may be asked to answer the questions you
+          have created in the previous step.
         </span>
       </div>
       <div class="flex flex-col mt-8 gap-4">

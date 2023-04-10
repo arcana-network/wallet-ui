@@ -24,11 +24,11 @@ function handleProceed() {
           class="-rotate-90 invert dark:invert-0"
         />
       </button>
-      <div class="modal-title font-semibold">Pin Based Recovery</div>
+      <div class="modal-title font-semibold">Recovery PIN</div>
     </div>
     <form class="flex flex-col gap-4" @submit.prevent="handleProceed">
       <div class="flex flex-col gap-1">
-        <label>Enter the pin used for encryption</label>
+        <label>Type in the PIN used during setup</label>
         <input
           v-model.trim="password"
           class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
