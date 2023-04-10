@@ -38,12 +38,26 @@ export const useAppStore = defineStore('app', {
       sdkVersion: null,
     } as AppState),
   getters: {
-    iframeStyle: ({ showWallet, expandWallet, walletPosition }) => {
+    iframeStyle: ({
+      showWallet,
+      expandWallet,
+      walletPosition,
+      compactMode,
+    }) => {
       const style: Partial<CSSStyleDeclaration> = {}
-      style.height = showWallet ? (expandWallet ? '80vh' : '46px') : '0'
+      style.height = showWallet
+        ? expandWallet
+          ? compactMode
+            ? '200px'
+            : '80vh'
+          : '46px'
+        : '0'
       style.width = showWallet ? (expandWallet ? '360px' : '58px') : '0'
-      style.right = walletPosition === 'right' ? '0px' : ''
-      style.left = walletPosition === 'left' ? '0px' : ''
+      style.right =
+        walletPosition === 'right' ? (expandWallet ? '18px' : '0px') : ''
+      style.left =
+        walletPosition === 'left' ? (expandWallet ? '18px' : '0px') : ''
+      style.bottom = '4px'
       return style
     },
   },
