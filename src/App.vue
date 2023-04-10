@@ -36,25 +36,23 @@ onBeforeMount(async () => {
   await fetchTransakNetworks()
 })
 
-watch(showWallet, async (newValue) => {
-  if (newValue) app.expandWallet = false
+async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+}
+
+watch(showWallet, async (newValue) => {
+  if (newValue) app.expandWallet = false
+  setIframeStyle()
 })
 
-watch(expandWallet, async (newValue) => {
-  const parentConnectionInstance = await parentConnectionStore.parentConnection
-    ?.promise
+watch(expandWallet, setIframeStyle)
+
+watch(compactMode, setIframeStyle)
+
+watch(showRequestPage, (newValue) => {
   if (newValue) {
-    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
-  } else {
-    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
-  }
-})
-
-watch(showRequestPage, () => {
-  if (showRequestPage.value) {
     modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
