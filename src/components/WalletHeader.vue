@@ -16,7 +16,10 @@ function onClickOfArrow() {
       <img :src="appStore.appLogo?.horizontal" alt="app logo" class="h-9" />
       <p>{{ appStore.name }}</p>
     </div>
-    <button class="h-auto" @click="onClickOfArrow">
+    <button
+      class="h-auto"
+      :class="[appStore.compactMode ? 'rotate-180' : 'rotate-0']"
+    >
       <img :src="getImage('arrow-icon')" alt="arrow" />
     </button>
   </header>
