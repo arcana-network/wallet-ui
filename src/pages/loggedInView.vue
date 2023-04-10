@@ -64,7 +64,9 @@ onMounted(async () => {
   const hasMfaDnd = mfaDnd && mfaDnd === '1'
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
+  if (requestStore.areRequestsPendingForApproval) {
+    router.push({ name: 'requests', params: { appId: appStore.id } })
+  } else if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
     router.push({ name: 'home' })
   } else {
     router.push({ name: 'MFARequired' })
