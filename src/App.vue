@@ -65,23 +65,47 @@ const showFooter = computed(() => {
     !app.compactMode
   )
 })
+
+function onClickOfHeader() {
+  if (app.compactMode) app.compactMode = false
+  else app.expandWallet = false
+}
 </script>
 
 <template>
+  <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
+    <div
+      v-if="expandWallet"
+      class="flex flex-col h-full"
+      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+    >
+      <WalletHeader @click="onClickOfHeader" />
+      <div
+        class="flex-grow wallet__container"
+        :class="{ 'rounded-b-xl': compactMode }"
+      >
+        <RouterView class="min-h-full" />
+        <BaseModal v-if="modal.show" />
+      </div>
+      <WalletFooter v-if="showFooter" />
+    </div>
+    <div v-else :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']">
+      <WalletButton />
+    </div>
+  </div>
   <div
-    v-if="expandWallet"
+    v-else
     class="flex flex-col h-full"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <WalletHeader />
-    <div class="flex-grow wallet__container">
+    <div
+      class="flex-grow wallet__container"
+      :class="{ 'rounded-b-xl': compactMode }"
+    >
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
     <WalletFooter v-if="showFooter" />
-  </div>
-  <div v-else :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']">
-    <WalletButton />
   </div>
 </template>
 
