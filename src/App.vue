@@ -20,7 +20,7 @@ const modal = useModalStore()
 const requestStore = useRequestStore()
 const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
-const { theme, expandWallet, showWallet } = toRefs(app)
+const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 
 const url = new URL(window.location.href)
