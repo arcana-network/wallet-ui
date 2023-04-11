@@ -16,6 +16,7 @@ declare namespace NodeJS {
     VUE_APP_SENTRY_TRACING_ORIGINS: string
     VUE_APP_WALLET_RPC_URL: string
     VUE_APP_WALLET_SOLANA_RPC_URL: string
+    VUE_APP_WALLET_SUI_RPC_URL: string
     VUE_APP_CONTRACT_EVENT_CODE: string
     VUE_APP_WALLET_DOMAIN: string
     VUE_APP_ARCANA_DOCS_URL: string
