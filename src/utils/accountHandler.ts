@@ -225,6 +225,26 @@ class AccountHandler {
     }
   }
 
+  public async speedUpTransaction(
+    address: string,
+    txHash: string,
+    factor: number
+  ) {
+    if (factor < 1 || factor > 2) {
+      throw new Error('Invalid factor')
+    }
+    const wallet = this.getWallet(address)
+    if (wallet == null) {
+      throw new Error('Invalid address')
+    }
+    const p = await wallet.provider.getTransaction(txHash)
+    if (p.gasPrice == null) {
+      throw new Error('Invalid gas price')
+    }
+    p.gasPrice = p.gasPrice.mul(factor)
+    return await this.sendTransactionWrapper(p)
+  }
+
   private async personalSign(address: string, msg: string) {
     try {
       const wallet = this.getWallet(address)
