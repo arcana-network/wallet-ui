@@ -5,7 +5,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="px-1 py-2">
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Setup MFA</div>
+      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
       <img
         src="@/assets/images/close-icon.svg"
         class="cursor-pointer invert dark:invert-0"
@@ -14,9 +14,9 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        MFA ensures that Arcana cannot access your private key. You'll be
-        prompted to setup security questions.<br />
-        WARNING: MFA cannot be disabled once enabled.
+        Setup answers to security questions in the next step to turn on 2FA. You
+        will need to provide the same answers the first time you login on a new
+        browser or device.
       </p>
     </div>
     <div>
