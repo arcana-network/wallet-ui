@@ -5,6 +5,7 @@ import { useToast } from 'vue-toastification'
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 
 const password = ref('')
+const passwordType = ref('password')
 const toast = useToast()
 
 function handleProceed() {
@@ -29,11 +30,28 @@ function handleProceed() {
     <form class="flex flex-col gap-4" @submit.prevent="handleProceed">
       <div class="flex flex-col gap-1">
         <label>Type in the PIN used during setup</label>
-        <input
-          v-model.trim="password"
-          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-          placeholder="Enter a alphanumberic pin"
-        />
+        <div class="relative">
+          <input
+            v-model.trim="password"
+            :type="passwordType"
+            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            placeholder="Enter a alphanumberic pin"
+          />
+          <img
+            v-if="passwordType === 'password'"
+            src="@/assets/images/show-eye.png"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            title="Show password"
+            @click.stop="passwordType = 'text'"
+          />
+          <img
+            v-else
+            src="@/assets/images/hide-eye.png"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            title="Hide password"
+            @click.stop="passwordType = 'password'"
+          />
+        </div>
       </div>
       <button
         class="mt-1 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"

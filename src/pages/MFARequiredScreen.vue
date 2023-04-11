@@ -97,47 +97,47 @@ function goToHome() {
 </script>
 
 <template>
-  <div
-    class="wallet__card rounded-[10px] w-full max-w-[40rem] m-auto h-max min-h-max overflow-y-auto p-4"
-  >
-    <div
-      v-show="loader.show"
-      class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
-    >
-      <AppLoader :message="loader.message" />
-    </div>
-    <div class="flex justify-between">
-      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
-    </div>
-    <div class="flex mt-4">
-      <span style="font-size: var(--fs-300)">
-        “{{ appStore.name }}” requires Two Factor Authentication (2FA) enabled
-        in your wallet before you use the app. Would you like to do so now?
-      </span>
-    </div>
-    <div class="flex flex-col mt-4 gap-2">
-      <button
-        class="text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
-        type="submit"
-        @click.stop="handleProceed"
+  <div class="w-full overflow-y-auto flex">
+    <div class="wallet__card rounded-[10px] p-4 m-auto h-max min-h-max">
+      <div
+        v-show="loader.show"
+        class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
       >
-        Proceed
-      </button>
-      <div class="flex justify-center gap-8">
+        <AppLoader :message="loader.message" />
+      </div>
+      <div class="flex justify-between">
+        <div class="modal-title font-semibold">Enhanced Wallet Security</div>
+      </div>
+      <div class="flex mt-4">
+        <span style="font-size: var(--fs-300)">
+          “{{ appStore.name }}” requires Two Factor Authentication (2FA) enabled
+          in your wallet before you use the app. Would you like to do so now?
+        </span>
+      </div>
+      <div class="flex flex-col mt-4 gap-2">
         <button
-          class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
+          class="text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
           type="submit"
-          @click.stop="handleAskNever"
+          @click.stop="handleProceed"
         >
-          Don’t ask again
+          Proceed
         </button>
-        <button
-          class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
-          type="submit"
-          @click.stop="handleSkip"
-        >
-          Skip for now
-        </button>
+        <div class="flex justify-center gap-8">
+          <button
+            class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
+            type="submit"
+            @click.stop="handleAskNever"
+          >
+            Don’t ask again
+          </button>
+          <button
+            class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
+            type="submit"
+            @click.stop="handleSkip"
+          >
+            Skip for now
+          </button>
+        </div>
       </div>
     </div>
   </div>
