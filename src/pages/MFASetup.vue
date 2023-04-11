@@ -37,6 +37,9 @@ let globalQuestions: Ref<CustomObject> = ref({})
 const totalQuestions = 5
 const selectedQuestions: CustomObject[] = new Array(totalQuestions)
 const error: Ref<boolean[]> = ref(new Array(totalQuestions).fill(false))
+const customPlaceholders: Ref<string[]> = ref(
+  new Array(totalQuestions).fill('Enter the answer')
+)
 
 initStorage(String(route.params.appId))
 
@@ -70,6 +73,8 @@ function addSelectedQuestion(index: number, value: any) {
     const keyValue =
       value[0] === -1 ? KeyHelperUtils.randomNumber().toString() : value[0]
     const customQuestion = value[0] === -1 ? value[1] : undefined
+    const example = value[1]?.example ? value[1].example : 'Enter the answer'
+    customPlaceholders.value[index - 1] = example
     if (selectedQuestions[index - 1]) {
       selectedQuestions[index - 1]['key'] = keyValue
       selectedQuestions[index - 1]['customQuestion'] = customQuestion
@@ -266,9 +271,9 @@ function handlePinBack() {
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="description max-w-[26rem]"
-          >You’re all set with Two-Factor Authentication. If you change browsers
-          or devices in the future, you may be asked to answer the questions you
-          have created in the previous step.
+          >You're all set with Two-Factor Authentication. If you change browsers
+          or devices in the future, you may be asked to either answer the
+          security questions or the PIN created in the last step.
         </span>
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
@@ -361,7 +366,7 @@ function handlePinBack() {
           <label>Answer {{ i }}</label>
           <input
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-            placeholder="Enter the answer"
+            :placeholder="customPlaceholders[i - 1]"
             :value="getAnswer(i)"
             @input="addAnswer(i, $event.target?.value)"
           />

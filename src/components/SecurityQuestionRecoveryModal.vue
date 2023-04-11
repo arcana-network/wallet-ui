@@ -9,7 +9,10 @@ const props = defineProps<{
   questions: {
     index: string
     kind: 'global' | 'custom'
-    question?: string
+    question: {
+      question: string
+      example: string
+    }
   }[]
 }>()
 const toast = useToast()
@@ -20,10 +23,11 @@ const answers: Ref<
     answer: string
   }[]
 > = ref([])
+const customPlaceholders: Ref<string[]> = ref([])
 
 const selectedQuestions = computed(() => {
   return props.questions.reduce((obj, arr) => {
-    obj[arr.index] = arr.question
+    obj[arr.index] = arr.question?.question || arr.question
     return obj
   }, {})
 })
@@ -32,14 +36,20 @@ onBeforeMount(() => {
   answers.value = props.questions
     .slice(0, 3)
     .map((question) => ({ index: question.index, answer: '' }))
+  customPlaceholders.value = props.questions
+    .slice(0, 3)
+    .map((question) => question.question.example)
 })
 
 function getSelectedQuestion(question: any) {
-  return [question.index, question.question]
+  return [question.index, question.question?.question || question.question]
 }
 
 function handleQuestionChange(index: number, ev: any) {
   answers.value[index].index = ev[0]
+  customPlaceholders.value[index] =
+    props.questions.find((question) => question.index === ev[0])?.question
+      .example || 'Enter the answer'
 }
 
 function handleProceed() {
@@ -98,6 +108,7 @@ function handleProceed() {
           <label>Answer {{ n }}</label>
           <input
             v-model.trim="answers[n - 1].answer"
+            :placeholder="customPlaceholders[n - 1]"
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
           />
         </div>
