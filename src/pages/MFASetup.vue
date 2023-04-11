@@ -30,6 +30,7 @@ const showPinScreen = ref(false)
 const showSuccessScreen = ref(false)
 const showPinError = ref('')
 const pinToEncryptMFAShare = ref('')
+const passwordType = ref('password')
 
 const securityQuestionModule = new SecurityQuestionModule(3)
 
@@ -306,11 +307,28 @@ function handlePinBack() {
     >
       <div class="flex flex-col gap-1">
         <label>Pin to use for encryption</label>
-        <input
-          v-model.trim="pinToEncryptMFAShare"
-          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-          placeholder="Enter a alphanumberic pin, minimum 6 characters"
-        />
+        <div class="relative">
+          <input
+            v-model.trim="pinToEncryptMFAShare"
+            :type="passwordType"
+            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            placeholder="Enter a alphanumberic pin, minimum 6 characters"
+          />
+          <img
+            v-if="passwordType === 'password'"
+            src="@/assets/images/show-eye.png"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            title="Show password"
+            @click.stop="passwordType = 'text'"
+          />
+          <img
+            v-else
+            src="@/assets/images/hide-eye.png"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            title="Hide password"
+            @click.stop="passwordType = 'password'"
+          />
+        </div>
         <span
           class="text-sm sm:text-xs pl-1 text-red-600"
           :class="{ invisible: !showPinError }"
