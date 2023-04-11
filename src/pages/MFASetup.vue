@@ -317,14 +317,14 @@ function handlePinBack() {
           <img
             v-if="passwordType === 'password'"
             src="@/assets/images/show-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
             title="Show password"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
             src="@/assets/images/hide-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer"
+            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
             title="Hide password"
             @click.stop="passwordType = 'password'"
           />
