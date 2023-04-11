@@ -179,8 +179,8 @@ onUnmounted(() => {
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
       Changing devices or clearing your browser data can remove access to your
-      key share stored in it. Recover it by answering the security questions of
-      enter PIN.
+      key share stored in it. Recover it by answering the security questions or
+      enter the PIN.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
       <button

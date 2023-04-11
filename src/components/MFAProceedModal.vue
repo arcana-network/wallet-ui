@@ -14,9 +14,9 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Setup answers to security questions in the next step to turn on 2FA. You
-        will need to provide the same answers the first time you login on a new
-        browser or device.
+        Turn on 2FA by setting up security questions and a PIN. You can use
+        either method to authenticate a new browser or device that you use the
+        wallet on.
       </p>
     </div>
     <div>

@@ -266,9 +266,9 @@ function handlePinBack() {
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="description max-w-[26rem]"
-          >You’re all set with Two-Factor Authentication. If you change browsers
-          or devices in the future, you may be asked to answer the questions you
-          have created in the previous step.
+          >You're all set with Two-Factor Authentication. If you change browsers
+          or devices in the future, you may be asked to either answer the
+          security questions or the PIN created in the last step.
         </span>
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
