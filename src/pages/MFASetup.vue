@@ -37,6 +37,9 @@ let globalQuestions: Ref<CustomObject> = ref({})
 const totalQuestions = 5
 const selectedQuestions: CustomObject[] = new Array(totalQuestions)
 const error: Ref<boolean[]> = ref(new Array(totalQuestions).fill(false))
+const customPlaceholders: Ref<string[]> = ref(
+  new Array(totalQuestions).fill('Enter the answer')
+)
 
 initStorage(String(route.params.appId))
 
@@ -70,6 +73,8 @@ function addSelectedQuestion(index: number, value: any) {
     const keyValue =
       value[0] === -1 ? KeyHelperUtils.randomNumber().toString() : value[0]
     const customQuestion = value[0] === -1 ? value[1] : undefined
+    const example = value[1]?.example ? value[1].example : 'Enter the answer'
+    customPlaceholders.value[index - 1] = example
     if (selectedQuestions[index - 1]) {
       selectedQuestions[index - 1]['key'] = keyValue
       selectedQuestions[index - 1]['customQuestion'] = customQuestion
@@ -361,7 +366,7 @@ function handlePinBack() {
           <label>Answer {{ i }}</label>
           <input
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-            placeholder="Enter the answer"
+            :placeholder="customPlaceholders[i - 1]"
             :value="getAnswer(i)"
             @input="addAnswer(i, $event.target?.value)"
           />
