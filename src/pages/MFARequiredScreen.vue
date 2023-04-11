@@ -123,20 +123,20 @@ function goToHome() {
       >
         Proceed
       </button>
-      <div class="flex justify-center gap-4">
+      <div class="flex justify-center gap-8">
         <button
-          class="text-xs sm:text-xs font-medium text-black bg-transparent dark:text-white uppercase"
+          class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
           type="submit"
           @click.stop="handleAskNever"
         >
           Don’t ask again
         </button>
         <button
-          class="text-xs sm:text-xs font-medium text-black bg-transparent dark:text-white uppercase"
+          class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
           type="submit"
           @click.stop="handleSkip"
         >
-          Skip
+          Skip for now
         </button>
       </div>
     </div>

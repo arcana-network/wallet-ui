@@ -204,11 +204,13 @@ onUnmounted(() => {
         :questions="questions"
         @back="handleBack"
         @proceed="handleAnswerBasedRecovery"
+        @switch-alternate="recoveryMethod = 'pin-based'"
       />
       <PinBasedRecoveryModal
         v-if="recoveryMethod === 'pin-based'"
         @back="handleBack"
         @proceed="handlePinBasedRecovery"
+        @switch-alternate="recoveryMethod = 'question-based'"
       />
     </Teleport>
   </div>

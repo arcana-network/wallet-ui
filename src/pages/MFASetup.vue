@@ -27,6 +27,7 @@ const loader = ref({
 })
 
 const showPinScreen = ref(false)
+const showSuccessScreen = ref(false)
 const showPinError = ref('')
 const pinToEncryptMFAShare = ref('')
 
@@ -35,6 +36,7 @@ const securityQuestionModule = new SecurityQuestionModule(3)
 let globalQuestions: Ref<CustomObject> = ref({})
 const totalQuestions = 5
 const selectedQuestions: CustomObject[] = new Array(totalQuestions)
+const error: Ref<boolean[]> = ref(new Array(totalQuestions).fill(false))
 
 initStorage(String(route.params.appId))
 
@@ -75,6 +77,28 @@ function addSelectedQuestion(index: number, value: any) {
       selectedQuestions[index - 1] = { key: keyValue, customQuestion }
     }
   }
+  if (isQuestionRepeated(index)) {
+    error.value[index - 1] = true
+  } else {
+    error.value[index - 1] = false
+  }
+}
+
+function getSelectedQuestion(index: number) {
+  if (selectedQuestions[index - 1]) {
+    return (
+      selectedQuestions[index - 1]['customQuestion'] ||
+      globalQuestions.value[selectedQuestions[index - 1]['key']]
+    )
+  }
+  return ''
+}
+
+function getAnswer(index: number) {
+  if (selectedQuestions[index - 1]) {
+    return selectedQuestions[index - 1]['value']
+  }
+  return ''
 }
 
 function addAnswer(index: number, value: string) {
@@ -124,6 +148,27 @@ function validatePin(pin?: string) {
   return returnValue
 }
 
+function isQuestionRepeated(index: number) {
+  if (selectedQuestions[index - 1]?.key) {
+    for (let i = 0; i < selectedQuestions.length; i++) {
+      if (i !== index - 1) {
+        if (selectedQuestions[i]?.key === selectedQuestions[index - 1]?.key) {
+          return true
+        }
+        if (selectedQuestions[index - 1]?.customQuestion?.trim()) {
+          if (
+            selectedQuestions[i]?.customQuestion?.trim() ===
+            selectedQuestions[index - 1]?.customQuestion?.trim()
+          ) {
+            return true
+          }
+        }
+      }
+    }
+  }
+  return false
+}
+
 async function handleSubmit() {
   const isAllQuestionsAnswered = selectedQuestions.every(
     (question) => question.key?.trim() && question.value?.trim()
@@ -163,7 +208,7 @@ async function handleSubmit() {
   showPinScreen.value = true
 }
 
-async function handleDone() {
+async function handlePinProceed() {
   const isPinValid = validatePin(pinToEncryptMFAShare.value)
 
   if (isPinValid) {
@@ -182,9 +227,15 @@ async function handleDone() {
       show: false,
       message: '',
     }
-    // eslint-disable-next-line no-undef
-    connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
+    showPinScreen.value = false
+    showSuccessScreen.value = true
   }
+}
+
+async function handleDone() {
+  // eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef
+  return connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
 }
 
 function handleCancel() {
@@ -194,19 +245,18 @@ function handleCancel() {
     process.env.VUE_APP_WALLET_DOMAIN
   )
 }
+
+function handlePinBack() {
+  showSuccessScreen.value = false
+  showPinScreen.value = false
+}
 </script>
 
 <template>
   <div
-    v-if="showPinScreen"
+    v-if="showSuccessScreen"
     class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max px-2 py-12 overflow-y-auto"
   >
-    <div
-      v-show="loader.show"
-      class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
-    >
-      <AppLoader :message="loader.message" />
-    </div>
     <div class="flex flex-col max-w-[30rem] mx-auto">
       <div class="flex justify-center">
         <img src="@/assets/images/success.svg" />
@@ -221,21 +271,6 @@ function handleCancel() {
           have created in the previous step.
         </span>
       </div>
-      <div class="flex flex-col mt-8 gap-4">
-        <div class="flex flex-col gap-1">
-          <label>Pin to use for encryption</label>
-          <input
-            v-model.trim="pinToEncryptMFAShare"
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-            placeholder="Enter a alphanumberic pin, minimum 6 characters"
-          />
-          <span
-            class="text-sm sm:text-xs pl-1 text-red-600"
-            :class="{ invisible: !showPinError }"
-            >{{ showPinError }}</span
-          >
-        </div>
-      </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
           class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[18rem] font-semibold uppercase"
@@ -247,10 +282,60 @@ function handleCancel() {
     </div>
   </div>
   <div
+    v-else-if="showPinScreen"
+    class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto"
+  >
+    <div
+      v-show="loader.show"
+      class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
+    >
+      <AppLoader :message="loader.message" />
+    </div>
+    <h2 class="font-semibold mb-5 title uppercase m-8">
+      RECOVERY METHOD 2: PIN
+    </h2>
+    <hr />
+    <form
+      class="flex flex-col mt-8 gap-4 px-8 pb-8"
+      @submit.prevent="handlePinProceed"
+    >
+      <div class="flex flex-col gap-1">
+        <label>Pin to use for encryption</label>
+        <input
+          v-model.trim="pinToEncryptMFAShare"
+          class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
+          placeholder="Enter a alphanumberic pin, minimum 6 characters"
+        />
+        <span
+          class="text-sm sm:text-xs pl-1 text-red-600"
+          :class="{ invisible: !showPinError }"
+          >{{ showPinError }}</span
+        >
+      </div>
+      <div class="flex justify-end gap-4">
+        <button
+          type="reset"
+          class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white w-full max-w-[144px] font-semibold uppercase"
+          @click.stop="handlePinBack"
+        >
+          Back
+        </button>
+        <button
+          type="submit"
+          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[144px] font-semibold uppercase"
+        >
+          Proceed
+        </button>
+      </div>
+    </form>
+  </div>
+  <div
     v-else
     class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto"
   >
-    <h2 class="font-semibold mb-5 title uppercase m-8">Security Questions</h2>
+    <h2 class="font-semibold mb-5 title uppercase m-8">
+      RECOVERY METHOD 1: Security Questions
+    </h2>
     <hr />
     <form class="flex flex-col p-8 gap-12" @submit.prevent="handleSubmit">
       <div
@@ -262,14 +347,22 @@ function handleCancel() {
           <label>Question {{ i }}</label>
           <SearchQuestion
             :questions="globalQuestions"
+            :value="getSelectedQuestion(i)"
             @change="addSelectedQuestion(i, $event)"
           />
+          <div
+            v-if="error[i - 1]"
+            class="mt-1 ml-2 text-red-500 text-xs font-medium"
+          >
+            Questions cannot be repeated
+          </div>
         </div>
         <div class="flex flex-col gap-1">
           <label>Answer {{ i }}</label>
           <input
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
             placeholder="Enter the answer"
+            :value="getAnswer(i)"
             @input="addAnswer(i, $event.target?.value)"
           />
         </div>
@@ -286,7 +379,7 @@ function handleCancel() {
           type="submit"
           class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[144px] font-semibold uppercase"
         >
-          Save
+          Proceed
         </button>
       </div>
     </form>

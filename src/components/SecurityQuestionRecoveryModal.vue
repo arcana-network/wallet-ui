@@ -4,7 +4,7 @@ import { useToast } from 'vue-toastification'
 
 import SelectQuestion from '@/components/SelectQuestion.vue'
 
-const emit = defineEmits(['proceed', 'back'])
+const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 const props = defineProps<{
   questions: {
     index: string
@@ -70,7 +70,7 @@ function handleProceed() {
 </script>
 
 <template>
-  <div class="px-1 py-2 overflow-y-auto">
+  <div class="px-1 py-2">
     <div class="flex gap-2 items-center mb-5">
       <button @click.stop="emit('back')">
         <img
@@ -109,14 +109,12 @@ function handleProceed() {
         >
           Proceed
         </button>
-        <div class="flex justify-center">
-          <button
-            class="text-sm sm:text-xs font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
-            @click.stop="emit('back')"
-          >
-            Back
-          </button>
-        </div>
+        <button
+          class="font-semibold capitalize text-sm sm:text-xs"
+          @click.stop="emit('switch-alternate')"
+        >
+          Enter security PIN Instead
+        </button>
       </div>
     </form>
   </div>

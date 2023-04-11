@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-const emit = defineEmits(['proceed', 'back'])
+const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 
 const password = ref('')
 const toast = useToast()
@@ -40,6 +40,12 @@ function handleProceed() {
         type="submit"
       >
         Proceed
+      </button>
+      <button
+        class="font-semibold capitalize text-sm sm:text-xs"
+        @click.stop="emit('switch-alternate')"
+      >
+        Answer Security Questions Instead
       </button>
     </form>
   </div>

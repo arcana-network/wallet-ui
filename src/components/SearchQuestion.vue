@@ -7,12 +7,13 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 type SearchQuestionProps = {
   questions: {
     [key: number]: string
   }
+  value?: string
 }
 
 const props = defineProps<SearchQuestionProps>()
@@ -36,6 +37,12 @@ const filteredQuestions = computed(() => {
         return question
       }
     })
+  }
+})
+
+onMounted(() => {
+  if (props.value) {
+    selectedQuestion.value = props.value
   }
 })
 
