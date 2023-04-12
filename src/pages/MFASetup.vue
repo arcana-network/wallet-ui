@@ -224,6 +224,8 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
+      const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+      storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
       storage.local.removeItem('pk')
     } catch (e) {
       // eslint-disable-next-line no-undef
@@ -239,7 +241,6 @@ async function handlePinProceed() {
 }
 
 async function handleDone() {
-  // eslint-disable-next-line no-undef
   // eslint-disable-next-line no-undef
   return connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
 }
