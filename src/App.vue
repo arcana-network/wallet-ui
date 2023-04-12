@@ -89,7 +89,11 @@ function onClickOfHeader() {
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
-    <div v-else :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']">
+    <div
+      v-else
+      class="h-full"
+      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+    >
       <WalletButton />
     </div>
   </div>
