@@ -58,7 +58,7 @@ export const useAppStore = defineStore('app', {
       style.left =
         walletPosition === 'left' ? (expandWallet ? '18px' : '2px') : ''
       style.bottom = '4px'
-      style.transition = 'height 300ms ease-in-out, width 300ms ease-in-out'
+      style.transition = 'all 300ms ease-in-out'
       return style
     },
   },
