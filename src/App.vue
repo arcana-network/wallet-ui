@@ -60,8 +60,10 @@ watch(showRequestPage, (newValue) => {
 
 const showFooter = computed(() => {
   return (
-    !['requests', 'MFARequired', 'MFARestore'].includes(route.name as string) ||
-    (route.name === 'requests' && !requestStore.pendingRequest) ||
+    (!['requests', 'MFARequired', 'MFARestore'].includes(
+      route.name as string
+    ) ||
+      (route.name === 'requests' && !requestStore.pendingRequest)) &&
     !app.compactMode
   )
 })
