@@ -6,7 +6,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
-import { AUTH_URL } from '@/utils/constants'
+import { AUTH_URL, DOCS_URL } from '@/utils/constants'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -110,8 +110,15 @@ function goToHome() {
       </div>
       <div class="flex mt-4">
         <span style="font-size: var(--fs-300)">
-          “{{ appStore.name }}” requires Two Factor Authentication (2FA) enabled
-          in your wallet before you use the app. Would you like to do so now?
+          “{{ appStore.name }}” suggests enabling Two Factor Authentication
+          (2FA) in your wallet for added security when logging in to new
+          browsers or devices.
+          <a
+            :href="`${DOCS_URL}/concepts/mfa.html`"
+            target="_blank"
+            class="text-blue-500 font-semibold cursor-pointer"
+            >LEARN MORE</a
+          >
         </span>
       </div>
       <div class="flex flex-col mt-4 gap-2">
