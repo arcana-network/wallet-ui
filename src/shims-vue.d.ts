@@ -24,6 +24,7 @@ declare namespace NodeJS {
     VUE_APP_RAMP_API_KEY: string
     VUE_APP_RAMP_ENV: 'STAGING' | 'PRODUCTION'
     VUE_APP_HIDE_ON_RAMP: 'true' | undefined
+    VUE_APP_ANKR_PREMIUM_API_URL: string
   }
 }
 
