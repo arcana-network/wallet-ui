@@ -26,7 +26,7 @@ type AnkrNFT = {
   symbol: string
   tokenId: string
   tokenUrl: string
-  traits: AnkrTrait[]
+  traits?: AnkrTrait[]
   nextPageToken: string
 }
 
@@ -45,10 +45,9 @@ const ANKR_BLOCKCHAIN_TO_CHAIN_ID = new Map([
 ])
 
 class NFTDB {
-  storage: StorageWrapper
-  list: NFTItem[]
-  walletAddress: string
-  initialized = false
+  private readonly storage: StorageWrapper
+  private readonly walletAddress: string
+  public list: NFTItem[]
 
   static async create(storage: StorageWrapper, walletAddress: string) {
     let existing: NFTItem[]
@@ -113,7 +112,7 @@ class NFTDB {
             collectionName: r.collectionName,
             name: r.name,
             imageUrl: r.imageUrl,
-            attributes: r.traits.map((k) => ({
+            attributes: r.traits?.map((k) => ({
               trait: k.trait_type,
               value: k.value,
             })),
