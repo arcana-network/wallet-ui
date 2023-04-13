@@ -70,7 +70,6 @@ function setMFABannerState() {
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
   if (requestStore.areRequestsPendingForApproval) {
-    console.log('requests pending')
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
     router.push({ name: 'home' })
