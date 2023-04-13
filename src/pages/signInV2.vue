@@ -196,7 +196,6 @@ async function init() {
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)
         const isEnabled = await securityQuestionModule.isEnabled()
-        console.log({ isEnabled })
         user.hasMfa = isEnabled
       }
       user.setUserInfo(userInfo)
