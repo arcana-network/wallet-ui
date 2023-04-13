@@ -17,7 +17,7 @@ function handleProceed() {
 </script>
 
 <template>
-  <div class="px-8 py-2">
+  <div class="px-4 py-2">
     <div class="flex gap-2 items-center mb-5">
       <button @click.stop="emit('back')">
         <img
