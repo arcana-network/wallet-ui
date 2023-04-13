@@ -101,7 +101,7 @@ const showFooter = computed(() => {
   --fs-400: 16px;
   --fs-350: 14px;
   --fs-300: 12px;
-  --fs-250: 10px;
+  --fs-250: 12px;
   --p-500: 20px;
   --p-450: 18px;
   --p-400: 16px;
@@ -119,7 +119,7 @@ const showFooter = computed(() => {
     --fs-400: 12px;
     --fs-350: 10px;
     --fs-300: 8px;
-    --fs-250: 6px;
+    --fs-250: 8px;
     --p-500: 16px;
     --p-550: 14px;
     --p-400: 12px;

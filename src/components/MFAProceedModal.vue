@@ -7,7 +7,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="px-1 py-2">
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
+      <div class="modal-title font-semibold">Enhance Wallet Security</div>
       <img
         src="@/assets/images/close-icon.svg"
         class="cursor-pointer invert dark:invert-0"
@@ -16,8 +16,10 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Enable Two Factor Authentication (2FA) in your wallet for added security
-        when logging in to new browsers or devices.<a
+        Turn on 2FA by setting up security questions and a PIN. You will need to
+        enter either of them to authenticate when you login to a new device or
+        browser.
+        <a
           :href="`${DOCS_URL}/concepts/mfa.html`"
           target="_blank"
           class="text-blue-500 font-semibold cursor-pointer"
