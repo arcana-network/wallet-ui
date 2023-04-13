@@ -218,7 +218,7 @@ onBeforeRouteLeave((to) => {
             </button>
           </div>
           <div class="flex flex-col gap-1">
-            <p class="home__body-content-label">Enhanced Wallet Security</p>
+            <p class="home__body-content-label">Enhance Wallet Security</p>
             <button
               v-if="!user.hasMfa"
               class="home__body-content-value h-max w-max"

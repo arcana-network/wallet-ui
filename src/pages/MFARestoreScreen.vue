@@ -175,12 +175,13 @@ onUnmounted(() => {
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex gap-2 items-center mb-2">
-      <div class="modal-title font-bold">Unauthenticated Device or Browser</div>
+      <div class="modal-title font-bold">
+        New Device/Browser Detected: Verify Login
+      </div>
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
-      Changing devices or clearing your browser data can remove access to your
-      key share stored in it. Recover it by answering the security questions or
-      enter the PIN.
+      Enter your previously setup 2FA PIN or answer the security questions to
+      verify your login to this new device/browser.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
       <button
