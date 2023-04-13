@@ -180,7 +180,7 @@ onUnmounted(() => {
       </div>
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
-      Enter your previously setup 2FA PIN or answer the security questions to
+      Enter your previously setup MFA PIN or answer the security questions to
       verify your login to this new device/browser.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
