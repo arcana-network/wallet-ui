@@ -273,9 +273,9 @@ function handlePinBack() {
           ENHANCE WALLET SECURITY ENABLED
         </h2>
         <span class="description max-w-[26rem]"
-          >You're all set with Two-Factor Authentication. If you change browsers
-          or devices in the future, you may be asked to either answer the
-          security questions or enter the pin created in the last step.
+          >You're all set with Multi-factor Authentication. If you change
+          browsers or devices in the future, you may be asked to either answer
+          the security questions or enter the pin created in the last step.
         </span>
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
@@ -303,8 +303,8 @@ function handlePinBack() {
     </h2>
     <hr />
     <div class="mt-6 px-8 description">
-      Enter a 6 digit, alpha-numeric pin that you can use to retrieve your
-      wallet if you move to a new device or browser.
+      Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
+      if you move to a new device or browser.
     </div>
     <form
       class="flex flex-col mt-6 gap-4 px-8 pb-8"

@@ -110,8 +110,8 @@ function goToHome() {
       </div>
       <div class="description mt-2 mb-6 flex flex-col gap-4">
         <span>
-          “{{ appStore.name }}” suggests enabling Two Factor Authentication
-          (2FA) in your wallet for added security when logging in to new
+          “{{ appStore.name }}” suggests enabling Multi-factor Authentication
+          (MFA) in your wallet for added security when logging in to new
           browsers or devices.
           <a
             :href="`${DOCS_URL}/concepts/mfa.html`"
@@ -127,7 +127,7 @@ function goToHome() {
           type="submit"
           @click.stop="handleProceed"
         >
-          Setup 2FA
+          Setup MFA
         </button>
         <div class="flex justify-center gap-6">
           <button

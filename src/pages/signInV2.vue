@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -10,6 +11,7 @@ import OauthLogin from '@/components/oauthLogin.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import { GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -52,7 +54,7 @@ const initPasswordlessLogin = (email: string) => {
   }
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
-  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa }) => {
+  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa, pk }) => {
     storeUserInfoAndRedirect({
       loginType: SocialLoginType.passwordless,
       userInfo: {
@@ -62,6 +64,7 @@ const initPasswordlessLogin = (email: string) => {
         name: '',
       },
       privateKey,
+      pk,
       hasMfa,
     })
   })
@@ -95,13 +98,25 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-function storeUserInfoAndRedirect(
-  userInfo: GetInfoOutput & { hasMfa?: boolean }
+async function storeUserInfoAndRedirect(
+  userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
 ) {
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  if (!userInfo.hasMfa && userInfo.pk) {
+    const core = new Core(
+      userInfo.pk,
+      userInfo.userInfo.id,
+      `${appId}`,
+      GATEWAY_URL
+    )
+    const securityQuestionModule = new SecurityQuestionModule(3)
+    securityQuestionModule.init(core)
+    const isEnabled = await securityQuestionModule.isEnabled()
+    user.hasMfa = isEnabled
+  }
   if (userInfo.hasMfa) {
     user.hasMfa = true
     storage.local.setItem(`${user.info.id}-has-mfa`, '1')
@@ -171,6 +186,18 @@ async function init() {
 
     if (isLoggedIn) {
       const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
+      if (!hasMfa && userInfo.pk) {
+        const core = new Core(
+          userInfo.pk,
+          userInfo.userInfo.id,
+          `${appId}`,
+          GATEWAY_URL
+        )
+        const securityQuestionModule = new SecurityQuestionModule(3)
+        securityQuestionModule.init(core)
+        const isEnabled = await securityQuestionModule.isEnabled()
+        user.hasMfa = isEnabled
+      }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
       user.hasMfa = hasMfa === '1'

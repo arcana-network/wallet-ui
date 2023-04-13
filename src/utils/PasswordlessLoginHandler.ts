@@ -35,6 +35,7 @@ class PasswordlessLoginHandler {
 
   start = (): Promise<{
     privateKey: string
+    pk: string
     email: string
     hasMfa: boolean
   }> => {
@@ -50,8 +51,10 @@ class PasswordlessLoginHandler {
                 originalCiphertext,
                 this.key.privateKey
               )
+              const { privateKey, pk } = JSON.parse(plaintext)
               resolve({
-                privateKey: plaintext,
+                privateKey,
+                pk,
                 email: this.email,
                 hasMfa: hasMfa === 'has-mfa',
               })

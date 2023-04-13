@@ -16,7 +16,7 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Turn on 2FA by setting up security questions and a PIN. You will need to
+        Turn on MFA by setting up security questions and a PIN. You will need to
         enter either of them to authenticate when you login to a new device or
         browser.
         <a
