@@ -7,12 +7,13 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 type SearchQuestionProps = {
   questions: {
     [key: number]: string
   }
+  value?: string
 }
 
 const props = defineProps<SearchQuestionProps>()
@@ -32,10 +33,18 @@ const filteredQuestions = computed(() => {
     return [...questions.value]
   } else {
     return questions.value.filter((question) => {
-      if (question[1].toLowerCase().includes(query.value.toLowerCase())) {
+      if (
+        question[1].question.toLowerCase().includes(query.value.toLowerCase())
+      ) {
         return question
       }
     })
+  }
+})
+
+onMounted(() => {
+  if (props.value) {
+    selectedQuestion.value = props.value
   }
 })
 
@@ -51,7 +60,7 @@ function displayValue() {
       return question
     }
     emit('change', question)
-    return question?.[1] as string
+    return question?.[1].question as string
   }
 }
 </script>
@@ -109,7 +118,7 @@ function displayValue() {
                   :class="{ 'font-medium': selected, 'font-normal': !selected }"
                   :title="question[1]"
                 >
-                  {{ question[1] }}
+                  {{ question[1].question }}
                 </span>
               </li>
             </ComboboxOption>

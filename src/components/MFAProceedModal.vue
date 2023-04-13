@@ -5,7 +5,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="px-1 py-2">
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Setup MFA</div>
+      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
       <img
         src="@/assets/images/close-icon.svg"
         class="cursor-pointer invert dark:invert-0"
@@ -14,9 +14,9 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        This will allow you to download one of three key shares to your device
-        and will improve the security of the wallet. The key share will also be
-        secured using security questions in the following screens.
+        Turn on 2FA by setting up security questions and a PIN. You can use
+        either method to authenticate a new browser or device that you use the
+        wallet on.
       </p>
     </div>
     <div>

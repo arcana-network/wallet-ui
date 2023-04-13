@@ -4,12 +4,15 @@ import { useToast } from 'vue-toastification'
 
 import SelectQuestion from '@/components/SelectQuestion.vue'
 
-const emit = defineEmits(['proceed', 'back'])
+const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 const props = defineProps<{
   questions: {
     index: string
     kind: 'global' | 'custom'
-    question?: string
+    question: {
+      question: string
+      example: string
+    }
   }[]
 }>()
 const toast = useToast()
@@ -20,10 +23,11 @@ const answers: Ref<
     answer: string
   }[]
 > = ref([])
+const customPlaceholders: Ref<string[]> = ref([])
 
 const selectedQuestions = computed(() => {
   return props.questions.reduce((obj, arr) => {
-    obj[arr.index] = arr.question
+    obj[arr.index] = arr.question?.question || arr.question
     return obj
   }, {})
 })
@@ -32,14 +36,20 @@ onBeforeMount(() => {
   answers.value = props.questions
     .slice(0, 3)
     .map((question) => ({ index: question.index, answer: '' }))
+  customPlaceholders.value = props.questions
+    .slice(0, 3)
+    .map((question) => question.question.example)
 })
 
 function getSelectedQuestion(question: any) {
-  return [question.index, question.question]
+  return [question.index, question.question?.question || question.question]
 }
 
 function handleQuestionChange(index: number, ev: any) {
   answers.value[index].index = ev[0]
+  customPlaceholders.value[index] =
+    props.questions.find((question) => question.index === ev[0])?.question
+      .example || 'Enter the answer'
 }
 
 function handleProceed() {
@@ -70,7 +80,7 @@ function handleProceed() {
 </script>
 
 <template>
-  <div class="px-1 py-2 overflow-y-auto">
+  <div class="px-1 py-2">
     <div class="flex gap-2 items-center mb-5">
       <button @click.stop="emit('back')">
         <img
@@ -98,16 +108,25 @@ function handleProceed() {
           <label>Answer {{ n }}</label>
           <input
             v-model.trim="answers[n - 1].answer"
+            :placeholder="customPlaceholders[n - 1]"
             class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
           />
         </div>
       </div>
-      <button
-        class="mt-4 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
-        type="submit"
-      >
-        Proceed
-      </button>
+      <div class="flex flex-col gap-4">
+        <button
+          class="mt-4 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
+          type="submit"
+        >
+          Proceed
+        </button>
+        <button
+          class="font-semibold capitalize text-sm sm:text-xs"
+          @click.stop="emit('switch-alternate')"
+        >
+          Enter security PIN Instead
+        </button>
+      </div>
     </form>
   </div>
 </template>

@@ -40,7 +40,7 @@ async function init() {
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
-      const userInfo: GetInfoOutput = {
+      const userInfo: GetInfoOutput & { hasMfa?: boolean } = {
         userInfo: info.userInfo,
         loginType: info.loginType,
         privateKey: '',
@@ -60,6 +60,8 @@ async function init() {
       await core.init()
       const key = await core.getKey()
       userInfo.privateKey = key
+      userInfo.hasMfa =
+        storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()

@@ -175,12 +175,12 @@ onUnmounted(() => {
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex gap-2 items-center mb-2">
-      <div class="modal-title font-bold">Enter MFA details to continue</div>
+      <div class="modal-title font-bold">Unauthenticated Device or Browser</div>
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
       Changing devices or clearing your browser data can remove access to your
-      key share. Answer the security questions you set up, or provide the
-      encrypted text and encryption PIN in order to recover your key share.
+      key share stored in it. Recover it by answering the security questions or
+      enter the PIN.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
       <button
@@ -188,7 +188,7 @@ onUnmounted(() => {
         type="submit"
         @click.stop="handleProceed('pin-based')"
       >
-        Provide Pin
+        Enter Pin
       </button>
       <button
         class="text-sm sm:text-xs font-semibold text-black bg-transparent dark:text-white h-10 sm:h-8 uppercase"
@@ -204,11 +204,13 @@ onUnmounted(() => {
         :questions="questions"
         @back="handleBack"
         @proceed="handleAnswerBasedRecovery"
+        @switch-alternate="recoveryMethod = 'pin-based'"
       />
       <PinBasedRecoveryModal
         v-if="recoveryMethod === 'pin-based'"
         @back="handleBack"
         @proceed="handlePinBasedRecovery"
+        @switch-alternate="recoveryMethod = 'question-based'"
       />
     </Teleport>
   </div>
