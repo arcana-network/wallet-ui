@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DOCS_URL } from '@/utils/constants'
+
 const emit = defineEmits(['proceed', 'close'])
 </script>
 
@@ -14,9 +16,13 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Turn on 2FA by setting up security questions and a PIN. You can use
-        either method to authenticate a new browser or device that you use the
-        wallet on.
+        Enable Two Factor Authentication (2FA) in your wallet for added security
+        when logging in to new browsers or devices.<a
+          :href="`${DOCS_URL}/concepts/mfa.html`"
+          target="_blank"
+          class="text-blue-500 font-semibold cursor-pointer"
+          >LEARN MORE</a
+        >
       </p>
     </div>
     <div>
