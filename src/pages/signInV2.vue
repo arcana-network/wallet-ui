@@ -11,7 +11,7 @@ import OauthLogin from '@/components/oauthLogin.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -110,7 +110,8 @@ async function storeUserInfoAndRedirect(
       userInfo.pk,
       userInfo.userInfo.id,
       `${appId}`,
-      GATEWAY_URL
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
     )
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
@@ -191,7 +192,8 @@ async function init() {
           userInfo.pk,
           userInfo.userInfo.id,
           `${appId}`,
-          GATEWAY_URL
+          GATEWAY_URL,
+          AUTH_NETWORK === 'dev'
         )
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)
