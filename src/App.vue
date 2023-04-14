@@ -11,6 +11,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
 
 import '@/index.css'
@@ -33,7 +34,11 @@ const showRequestPage = computed(() => {
 })
 
 onBeforeMount(async () => {
-  await fetchTransakNetworks()
+  try {
+    await Promise.all([fetchTransakNetworks(), initializeOnRampMoney()])
+  } catch (e) {
+    console.error('Failed to initialize one or more on-ramps:', e)
+  }
 })
 
 async function setIframeStyle() {
