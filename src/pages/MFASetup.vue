@@ -12,7 +12,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -59,7 +59,8 @@ onBeforeMount(async () => {
       dkgShare.pk,
       dkgShare.id,
       String(route.params.appId),
-      GATEWAY_URL
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
     )
     await core.init()
     securityQuestionModule.init(core)

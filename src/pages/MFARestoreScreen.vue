@@ -11,7 +11,7 @@ import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useModalStore } from '@/store/modal'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import {
   handlePasswordlessLogin,
   handlePasswordlessLoginV2,
@@ -54,7 +54,13 @@ onBeforeMount(async () => {
     message: 'Loading metadata...',
   }
   dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  core = new Core(dkgShare.pk, dkgShare.id, appId, GATEWAY_URL)
+  core = new Core(
+    dkgShare.pk,
+    dkgShare.id,
+    appId,
+    GATEWAY_URL,
+    AUTH_NETWORK === 'dev'
+  )
   securityQuestionModule.init(core)
   try {
     questions.value = await securityQuestionModule.getQuestions()
