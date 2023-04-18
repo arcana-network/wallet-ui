@@ -105,19 +105,19 @@ async function storeUserInfoAndRedirect(
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  if (!userInfo.hasMfa && userInfo.pk) {
-    const core = new Core(
-      userInfo.pk,
-      userInfo.userInfo.id,
-      `${appId}`,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
-    const securityQuestionModule = new SecurityQuestionModule(3)
-    securityQuestionModule.init(core)
-    const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
-  }
+  // if (!userInfo.hasMfa && userInfo.pk) {
+  //   const core = new Core(
+  //     userInfo.pk,
+  //     userInfo.userInfo.id,
+  //     `${appId}`,
+  //     GATEWAY_URL,
+  //     AUTH_NETWORK === 'dev'
+  //   )
+  //   const securityQuestionModule = new SecurityQuestionModule(3)
+  //   securityQuestionModule.init(core)
+  //   const isEnabled = await securityQuestionModule.isEnabled()
+  //   user.hasMfa = isEnabled
+  // }
   if (userInfo.hasMfa) {
     user.hasMfa = true
     storage.local.setItem(`${user.info.id}-has-mfa`, '1')
