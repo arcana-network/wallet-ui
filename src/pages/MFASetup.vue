@@ -271,7 +271,7 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col text-center items-center mt-10">
         <h2 class="font-semibold mb-5 title">
-          ENHANCE WALLET SECURITY ENABLED
+          ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="description max-w-[26rem]"
           >You're all set with Multi-factor Authentication. If you change
