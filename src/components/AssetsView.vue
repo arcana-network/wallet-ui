@@ -18,9 +18,7 @@ let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = getStorage().local.getItem(
-    `${userStore.walletAddress}/${Number(
-      rpcStore.selectedRpcConfig?.chainId
-    )}/asset-contracts`
+    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
   )
   if (assetContracts) {
     return JSON.parse(assetContracts) as AssetContract[]
@@ -108,7 +106,7 @@ rpcStore.$subscribe(getAssetsBalance)
 
 <template>
   <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
-    <div v-if="assets.length" class="flex flex-col py-5 gap-5">
+    <div class="flex flex-col py-5 gap-5">
       <div
         v-for="asset in assets"
         :key="`asset-${asset.symbol}`"
@@ -133,11 +131,6 @@ rpcStore.$subscribe(getAssetsBalance)
           {{ asset.symbol }}
         </div>
       </div>
-    </div>
-    <div v-else class="flex flex-col flex-grow py-5 gap-5">
-      <span class="color-secondary m-auto font-semibold text-sm sm:text-xs"
-        >No tokens added</span
-      >
     </div>
     <div class="flex justify-center">
       <div

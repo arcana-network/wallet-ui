@@ -12,7 +12,6 @@ type UserState = {
   info: UserInfo
   privateKey: string
   walletAddress: string
-  hasMfa: boolean
 }
 
 type PasswordLessLoginOptions = {
@@ -26,7 +25,6 @@ export const useUserStore = defineStore('user', {
       info: {},
       privateKey: '',
       walletAddress: '',
-      hasMfa: false,
     } as UserState),
   getters: {
     walletAddressShrinked(state: UserState): string {

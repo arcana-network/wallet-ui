@@ -7,7 +7,6 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
-import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
@@ -15,11 +14,8 @@ import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import { getWindowFeatures } from '@/utils/popupProps'
-import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const appStore = useAppStore()
@@ -29,7 +25,6 @@ const modalStore = useModalStore()
 const parentConnectionStore = useParentConnectionStore()
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 const showPrivateKeyCautionModal = ref(false)
-const showMFAProceedModal = ref(false)
 const showExportKeyModal = ref(false)
 const loader = ref({
   show: false,
@@ -43,9 +38,6 @@ const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
-
-let mfaWindow: Window | null
-let cleanExit = false
 
 async function copyToClipboard(value: string, message: string) {
   try {
@@ -90,69 +82,6 @@ function handlePrivateKeyDownload() {
   downloadFile(`${walletAddress.value}-private-key.txt`, fileData)
 }
 
-function handleShowMFAProceedModal(show: boolean) {
-  modalStore.setShowModal(show)
-  showMFAProceedModal.value = show
-}
-
-function handleMFASetupClick() {
-  cleanExit = false
-  const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
-  mfaWindow = window.open(
-    mfaSetupPath.toString(),
-    '_blank',
-    getWindowFeatures()
-  )
-
-  const handler = async (event: MessageEvent) => {
-    if (!event?.data?.status) {
-      return
-    }
-    cleanExit = true
-    const data = event.data
-
-    if (data.status === 'success') {
-      mfaWindow?.close()
-      getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
-      user.hasMfa = true
-      toast.success('MFA setup completed')
-      window.removeEventListener('message', handler, false)
-      handleShowMFAProceedModal(false)
-      hideLoader()
-    } else if (data.status == 'error') {
-      mfaWindow?.close()
-      window.removeEventListener('message', handler, false)
-      hideLoader()
-      if (data.error !== 'User cancelled the setup') toast.error(data.error)
-    } else {
-      toast.error('Error occured while setting up MFA. Please try again')
-      console.log('Unexpected event')
-    }
-  }
-  window.addEventListener('message', handler, false)
-
-  loader.value = {
-    show: true,
-    message: 'Setting up MFA...',
-  }
-
-  const id = window.setInterval(() => {
-    if (!cleanExit && mfaWindow?.closed) {
-      console.error('User closed the popup')
-      window.removeEventListener('message', handler, false)
-      hideLoader()
-      clearInterval(id)
-    }
-  }, 500)
-}
-
-function hideLoader() {
-  loader.value = {
-    show: false,
-    message: '',
-  }
-}
-
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -173,15 +102,11 @@ onBeforeRouteLeave((to) => {
         >
           <div v-if="name" class="flex flex-col gap-1">
             <p class="home__body-content-label">Name</p>
-            <p class="home__body-content-value text-ellipsis overflow-hidden">
-              {{ name }}
-            </p>
+            <p class="home__body-content-value">{{ name }}</p>
           </div>
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Email ID</p>
-            <p class="home__body-content-value text-ellipsis overflow-hidden">
-              {{ email }}
-            </p>
+            <p class="home__body-content-value">{{ email }}</p>
           </div>
           <div class="flex flex-col gap-1">
             <p class="home__body-content-label">Network</p>
@@ -217,25 +142,6 @@ onBeforeRouteLeave((to) => {
               />
             </button>
           </div>
-          <div class="flex flex-col gap-1">
-            <p class="home__body-content-label">Enhance Wallet Security</p>
-            <button
-              v-if="!user.hasMfa"
-              class="home__body-content-value h-max w-max"
-              @click.stop="handleShowMFAProceedModal(true)"
-            >
-              <span v-if="true">Setup Now</span>
-              <span v-else>Update Security Questions</span>
-              <img
-                src="@/assets/images/export.svg"
-                alt="Click to export"
-                class="w-6 aspect-square ml-3 invert dark:invert-0"
-              />
-            </button>
-            <span v-else class="home__body-content-value h-max w-max"
-              >In use</span
-            >
-          </div>
         </div>
         <div class="flex w-full text-sm sm:text-xs justify-center">
           <button
@@ -259,11 +165,6 @@ onBeforeRouteLeave((to) => {
         @copy="copyToClipboard(privateKey, 'Private key copied')"
         @download="handlePrivateKeyDownload"
         @close="handleHideExportKeyModal"
-      />
-      <MFAProceedModal
-        v-if="showMFAProceedModal"
-        @proceed="handleMFASetupClick"
-        @close="handleShowMFAProceedModal(false)"
       />
     </Teleport>
   </div>

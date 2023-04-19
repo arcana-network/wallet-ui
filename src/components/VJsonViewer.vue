@@ -14,26 +14,26 @@ defineProps<ViewerProps>()
   ></json-viewer>
 </template>
 
-<style>
+<style lang="scss">
 .json-viewer {
   font-size: var(--fs-300);
   font-weight: 400;
   background: transparent;
-}
 
-.jv-code {
-  padding: 0 !important;
-}
+  .jv-code {
+    padding: 0 !important;
+  }
 
-.jv-key {
-  color: var(--fg-color);
-}
+  .jv-key {
+    color: var(--fg-color);
+  }
 
-.jv-push {
-  color: var(--fg-color);
-}
+  .jv-push {
+    color: var(--fg-color);
+  }
 
-.jv-string {
-  word-break: break-all;
+  .jv-string {
+    word-break: break-all;
+  }
 }
 </style>

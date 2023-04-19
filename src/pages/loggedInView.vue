@@ -2,7 +2,7 @@
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -27,12 +27,10 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
-import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
-const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
 const router = useRouter()
@@ -41,12 +39,6 @@ const loader = ref({
   message: 'Loading...',
 })
 let parentConnection: Connection<ParentConnectionApi>
-const storage = getStorage()
-
-onBeforeMount(() => {
-  userStore.hasMfa =
-    getStorage().local.getItem(`${userStore.info.id}-has-mfa`) === '1'
-})
 
 onMounted(async () => {
   setRpcConfigs()
@@ -55,24 +47,8 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
-  setMFABannerState()
-  router.push({ name: 'home' })
   loader.value.show = false
 })
-
-function setMFABannerState() {
-  const mfaDnd = storage.local.getItem(`${userStore.info.id}-mfa-dnd`)
-  const mfaSkipUntil = storage.local.getItem(
-    `${userStore.info.id}-mfa-skip-until`
-  )
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
-  const hasMfaDnd = mfaDnd && mfaDnd === '1'
-  const hasMfaSkip =
-    mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip) {
-    showMfaBanner.value = true
-  }
-}
 
 async function getAccountDetails() {
   await initAccountHandler()
@@ -194,21 +170,7 @@ async function getRpcConfig() {
       if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
         rpcConfig = CHAIN_LIST[0]
       }
-      if (rpcConfig) {
-        const selectedChain = CHAIN_LIST.find(
-          (chain) => Number(chain.chainId) === Number(rpcConfig.chainId)
-        )
-        rpcStore.setSelectedRPCConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
-        rpcStore.setRpcConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
-      }
+      rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
     }
   } catch (err) {
     console.log({ err })
@@ -220,21 +182,6 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
-function handleSkip() {
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
-  const skipUntil = loginCount ? Number(loginCount) + 3 : 3
-  storage.local.setItem(
-    `${userStore.info.id}-mfa-skip-until`,
-    String(skipUntil)
-  )
-  showMfaBanner.value = false
-}
-
-function handleMFACreation() {
-  router.push({ name: 'MFARequired' })
-  showMfaBanner.value = false
-}
-
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -244,26 +191,7 @@ onBeforeRouteLeave((to) => {
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <AppLoader :message="loader.message" />
   </div>
-  <div v-else class="flex flex-col gap-2">
-    <Transition name="fade" mode="out-in">
-      <button
-        v-if="showMfaBanner"
-        class="bg-blue-700 rounded-lg p-4 flex justify-between items-center cursor-pointer"
-        @click.stop="handleMFACreation"
-      >
-        <div class="flex items-center gap-2">
-          <span class="font-semibold text-white text-sm"
-            >Enhance your wallet security</span
-          >
-          <img src="@/assets/images/export.svg" class="w-5" />
-        </div>
-        <img
-          src="@/assets/images/close-icon.svg"
-          class="w-6 -mr-[0.5rem]"
-          @click.stop="handleSkip"
-        />
-      </button>
-    </Transition>
+  <div v-else class="flex">
     <RouterView v-slot="{ Component }" class="flex-grow w-full">
       <Transition name="fade" mode="out-in">
         <component :is="Component" />
