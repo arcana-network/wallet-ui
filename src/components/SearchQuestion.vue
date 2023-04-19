@@ -7,58 +7,66 @@ import {
   ComboboxOption,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-import type { EthAssetContract } from '@/models/Asset'
-
-type SearchAssetProps = {
-  tokens: EthAssetContract[]
+type SearchQuestionProps = {
+  questions: {
+    [key: number]: string
+  }
+  value?: string
 }
 
-const props = defineProps<SearchAssetProps>()
+const props = defineProps<SearchQuestionProps>()
+
 const emit = defineEmits(['change'])
-const ethTokens = [...props.tokens].sort((token1, token2) => {
-  if (token1.symbol > token2.symbol) {
-    return 1
-  }
-  if (token2.symbol > token1.symbol) {
-    return -1
-  }
-  return 0
+
+const selectedQuestion = ref('')
+const isFocused = ref(false)
+const query = ref('')
+
+const questions = computed(() => {
+  return Object.entries(props.questions)
 })
 
-const selectedToken = ref('')
-const query = ref('')
-const isFocused = ref(false)
-
-const filteredTokens = computed(() => {
+const filteredQuestions = computed(() => {
   if (query.value === '') {
-    return [...ethTokens]
+    return [...questions.value]
   } else {
-    return ethTokens.filter((token) => {
-      if (token.symbol.toLowerCase().startsWith(query.value.toLowerCase())) {
-        return token
-      }
-      if (token.name?.toLowerCase().startsWith(query.value.toLowerCase())) {
-        return token
+    return questions.value.filter((question) => {
+      if (
+        question[1].question.toLowerCase().includes(query.value.toLowerCase())
+      ) {
+        return question
       }
     })
   }
 })
 
+onMounted(() => {
+  if (props.value) {
+    selectedQuestion.value = props.value
+  }
+})
+
+function handleChange(ev) {
+  query.value = ev.target.value
+  selectedQuestion.value = ev.target.value
+}
+
 function displayValue() {
-  return (tokenSymbol: unknown) => {
-    const tokenContract = filteredTokens.value.find(
-      (token) => token.symbol === (tokenSymbol as string)
-    )
-    emit('change', tokenContract)
-    return tokenSymbol as string
+  return (question: unknown) => {
+    if (typeof question === 'string') {
+      emit('change', [-1, question])
+      return question
+    }
+    emit('change', question)
+    return question?.[1].question as string
   }
 }
 </script>
 
 <template>
-  <Combobox v-slot="{ open }" v-model="selectedToken" nullable>
+  <Combobox v-slot="{ open }" v-model="selectedQuestion" nullable>
     <div class="relative">
       <div
         class="relative w-full cursor-default overflow-hidden flex flex-nowrap rounded-[10px] input p-4 outline-none"
@@ -66,12 +74,11 @@ function displayValue() {
           'outline-black dark:outline-white outline-1 outline': isFocused,
         }"
       >
-        <img src="@/assets/images/search-icon.svg" />
         <ComboboxInput
-          class="flex-1 border-none px-3 text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
-          placeholder="Enter Token Name or Symbol"
+          class="flex-1 border-none text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
+          placeholder="Enter or select the question"
           :display-value="displayValue()"
-          @change="query = $event.target.value"
+          @change="handleChange"
           @focus="isFocused = true"
           @blur="isFocused = false"
         />
@@ -88,17 +95,17 @@ function displayValue() {
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div v-show="open">
+        <div v-show="open && filteredQuestions.length">
           <ComboboxOptions
-            class="absolute max-h-60 w-full debossed-card text-base focus:outline-black dark:focus:outline-white overflow-auto rounded-t-none rounded-r-none mt-1 pt-2"
+            class="absolute max-h-60 w-full p-2 debossed-card text-base focus:outline-black dark:focus:outline-white overflow-auto rounded-t-none rounded-r-none z-10"
             static
           >
             <ComboboxOption
-              v-for="token in filteredTokens"
-              :key="token.symbol"
+              v-for="question in filteredQuestions"
+              :key="question[1]"
               v-slot="{ selected, active }"
               as="template"
-              :value="token.symbol"
+              :value="question"
             >
               <li
                 class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
@@ -107,15 +114,11 @@ function displayValue() {
                 }"
               >
                 <span
-                  class="block truncate max-w-[60%]"
+                  class="block truncate"
                   :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :title="question[1]"
                 >
-                  {{ token.name }}
-                </span>
-                <span
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
-                >
-                  {{ token.symbol }}
+                  {{ question[1].question }}
                 </span>
               </li>
             </ComboboxOption>

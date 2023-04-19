@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
+import type { Theme } from '@/models/Theme'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRequestStore } from '@/store/request'
@@ -19,6 +20,11 @@ const { theme } = toRefs(app)
 const isLoading = ref(false)
 const route = useRoute()
 
+const url = new URL(window.location.href)
+if (url.searchParams.get('theme')) {
+  theme.value = url.searchParams.get('theme') as Theme
+}
+
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
 })
@@ -32,6 +38,13 @@ watch(showRequestPage, () => {
     modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
+})
+
+const showFooter = computed(() => {
+  return (
+    !['requests', 'MFARequired', 'MFARestore'].includes(route.name as string) ||
+    (route.name === 'requests' && !requestStore.pendingRequest)
+  )
 })
 </script>
 
@@ -48,9 +61,7 @@ watch(showRequestPage, () => {
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
-    <WalletFooter
-      v-if="route.name !== 'requests' || !requestStore.pendingRequest"
-    />
+    <WalletFooter v-if="showFooter" />
   </div>
 </template>
 
@@ -90,7 +101,7 @@ watch(showRequestPage, () => {
   --fs-400: 16px;
   --fs-350: 14px;
   --fs-300: 12px;
-  --fs-250: 10px;
+  --fs-250: 12px;
   --p-500: 20px;
   --p-450: 18px;
   --p-400: 16px;
@@ -108,7 +119,7 @@ watch(showRequestPage, () => {
     --fs-400: 12px;
     --fs-350: 10px;
     --fs-300: 8px;
-    --fs-250: 6px;
+    --fs-250: 8px;
     --p-500: 16px;
     --p-550: 14px;
     --p-400: 12px;

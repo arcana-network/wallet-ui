@@ -6,15 +6,12 @@ import { onBeforeRouteLeave } from 'vue-router'
 import AppLoader from '@/components/AppLoader.vue'
 import NFTView from '@/components/NFTView.vue'
 import UserWallet from '@/components/UserWallet.vue'
-import { CHAIN_LIST } from '@/models/RpcConfigList'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
-import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
-const rpcStore = useRpcStore()
 const parentConnectionStore = useParentConnectionStore()
 const refreshState = ref(false)
 const loader = ref({
@@ -35,37 +32,7 @@ const helpOtherTabsLogin = () => {
 
 onMounted(async () => {
   helpOtherTabsLogin()
-  setRpcConfigs()
-  await getRpcConfig()
 })
-
-function showLoader(message) {
-  loader.value.show = true
-  loader.value.message = `${message}...`
-}
-
-function hideLoader() {
-  loader.value.show = false
-  loader.value.message = ''
-}
-
-function setRpcConfigs() {
-  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
-}
-
-async function getRpcConfig() {
-  try {
-    showLoader('Loading')
-    if (rpcStore.selectedChainId) return
-    const parentConnectionInstance = await parentConnection?.promise
-    const rpcConfig = await parentConnectionInstance?.getRpcConfig()
-    if (rpcConfig) rpcStore.setSelectedChainId(`${parseInt(rpcConfig.chainId)}`)
-  } catch (err) {
-    console.log({ err })
-  } finally {
-    hideLoader()
-  }
-}
 
 async function handleRefresh() {
   refreshState.value = true
