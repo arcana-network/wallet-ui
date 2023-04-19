@@ -7,25 +7,22 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="px-1 py-2">
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Export Private Key</div>
+      <div class="modal-title font-semibold">Enhance Wallet Security</div>
       <img
         src="@/assets/images/close-icon.svg"
         class="cursor-pointer invert dark:invert-0"
         @click.stop="emit('close')"
       />
     </div>
-    <div class="modal-description mt-2 mb-10 flex flex-col gap-4">
+    <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Use this utility to export your private keys to create a backup or to
-        use your address with other wallet providers.
-      </p>
-      <p>
-        Please store your keys in a safe place as anyone with access to it can
-        take over your wallet.
+        Turn on MFA by setting up security questions and a PIN. You will need to
+        enter either of them to authenticate when you login to a new device or
+        browser.
         <a
-          :href="`${DOCS_URL}/howto/wallet_exkey.html`"
+          :href="`${DOCS_URL}/concepts/mfa.html`"
           target="_blank"
-          class="text-blue-500 cursor-pointer"
+          class="text-blue-500 font-semibold cursor-pointer"
           >LEARN MORE</a
         >
       </p>

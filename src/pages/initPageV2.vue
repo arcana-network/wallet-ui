@@ -57,7 +57,9 @@ async function init() {
       )
     } else {
       const parentAppUrl = await parentConnectionInstance.getParentUrl()
+      const loginSrc = await parentConnectionInstance.getLoginSource()
       getStorage().local.setItem('parentAppUrl', parentAppUrl)
+      getStorage().local.setItem('loginSrc', loginSrc)
     }
   } finally {
     isLoading.value = false
