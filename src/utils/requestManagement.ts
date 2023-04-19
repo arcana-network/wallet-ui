@@ -1,7 +1,6 @@
 // Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -14,7 +13,6 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
@@ -86,7 +84,7 @@ async function switchChain(request, keeper) {
     result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
     id: request.id,
   })
-  router.push({ name: 'home' })
+  // router.push({ name: 'home' })
 }
 
 function isExistingRpcUrl(url) {
@@ -99,10 +97,8 @@ function isExistingRpcUrl(url) {
   })
 }
 
-function isExistingChain(chainId) {
-  return rpcStore.rpcConfigList.find(
-    (chain) => Number(chain.chainId) === Number(chainId)
-  )
+function isExistingChainId(chainId) {
+  return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
 function validateSwitchChainParams({ chainId }) {
@@ -127,7 +123,7 @@ function validateSwitchChainParams({ chainId }) {
   return result
 }
 
-async function validateAddNetworkParams(networkInfo) {
+function validateAddNetworkParams(networkInfo) {
   const result: { isValid: boolean; error: unknown } = {
     isValid: false,
     error: null,
@@ -148,6 +144,10 @@ async function validateAddNetworkParams(networkInfo) {
   } else if (isExistingRpcUrl(networkInfo.rpcUrls[0])) {
     result.error = getEtherInvalidParamsError(
       `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
+    )
+  } else if (isExistingChainId(parseInt(networkInfo.chainId))) {
+    result.error = getEtherInvalidParamsError(
+      `Chain ID - ${networkInfo.chainId} already exists, please use different one`
     )
   } else {
     result.error = ''
@@ -174,44 +174,27 @@ async function validateAddNftParams(tokenType, params) {
   })
 }
 
-async function addNetwork(request, keeper) {
+function addNetwork(request, keeper) {
   const { method, params } = request
   const networkInfo = params[0]
   const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
-  const chainId = networkInfo.chainId
+  const chainId = parseInt(networkInfo.chainId) || 0
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
-  const existingChain = isExistingChain(chainId)
-  if (existingChain) {
-    rpcStore.setRpcConfig({
-      ...existingChain,
-      rpcUrls,
-    })
-    rpcStore.setSelectedChainId(existingChain.chainId)
-    await getRequestHandler().setRpcConfig({
-      ...existingChain,
-      chainId: Number(existingChain.chainId),
-    })
-  } else {
-    const payload = {
-      chainName: name,
-      chainId,
-      blockExplorerUrls: networkInfo.blockExplorerUrls,
-      rpcUrls: rpcUrls,
-      favicon: 'blockchain-icon',
-      isCustom: true,
-      nativeCurrency: {
-        symbol: symbol,
-        decimals: networkInfo.nativeCurrency.decimals || 18,
-      },
-    }
-    rpcStore.addNetwork(payload)
-    rpcStore.setSelectedChainId(payload.chainId)
-    await getRequestHandler().setRpcConfig({
-      ...payload,
-      chainId: Number(payload.chainId),
-    })
+
+  const payload = {
+    chainName: name,
+    chainId: String(chainId),
+    blockExplorerUrls: networkInfo.blockExplorerUrls,
+    rpcUrls: rpcUrls,
+    favicon: 'blockchain-icon',
+    isCustom: true,
+    nativeCurrency: {
+      symbol: symbol,
+      decimals: networkInfo.nativeCurrency.decimals || 18,
+    },
   }
+  rpcStore.addNetwork(payload)
   if (!reqStore.areRequestsPendingForApproval) {
     router.push({ name: 'home' })
   }
@@ -342,8 +325,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       }
     }
   } else {
-    await keeper.reply(request.method, {
-      jsonrpc: '2.0',
+    keeper.reply(request.method, {
       error: 'user_deny',
       result: null,
       id: request.id,
@@ -353,10 +335,9 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 
 async function handleRequest(request, requestStore, appStore, keeper) {
   if (request.method === 'wallet_addEthereumChain') {
-    const validationResponse = await validateAddNetworkParams(request.params[0])
+    const validationResponse = validateAddNetworkParams(request.params[0])
     if (!validationResponse.isValid) {
-      await keeper.reply(request.method, {
-        jsonrpc: '2.0',
+      keeper.reply(request.method, {
         error: validationResponse.error,
         result: null,
         id: request.id,
@@ -368,8 +349,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
-      await keeper.reply(request.method, {
-        jsonrpc: '2.0',
+      keeper.reply(request.method, {
         error: validationResponse.error,
         result: null,
         id: request.id,
@@ -387,14 +367,12 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = getEtherInvalidParamsError('required params missing')
     } else if (
-      parseInt(params.domain.chainId) !==
-      parseInt(rpcStore.selectedRPCConfig.chainId)
+      parseInt(params.domain.chainId) !== parseInt(rpcStore.selectedChainId)
     ) {
-      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig.chainId}`
+      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedChainId}`
     }
     if (error) {
-      await keeper.reply(request.method, {
-        jsonrpc: '2.0',
+      keeper.reply(request.method, {
         error,
         result: null,
         id: request.id,
@@ -408,8 +386,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     if (tokenType === 'erc20') {
       const validationResponse = await validateAddTokensParams(params)
       if (!validationResponse.isValid) {
-        await keeper.reply(request.method, {
-          jsonrpc: '2.0',
+        keeper.reply(request.method, {
           error: validationResponse.error,
           result: null,
           id: request.id,
@@ -419,8 +396,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     } else if (tokenType === 'erc721' || tokenType === 'erc1155') {
       const validationResponse = await validateAddNftParams(tokenType, params)
       if (!validationResponse.isValid) {
-        await keeper.reply(request.method, {
-          jsonrpc: '2.0',
+        keeper.reply(request.method, {
           error: validationResponse.error,
           result: null,
           id: request.id,
@@ -429,7 +405,6 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       }
     } else {
       return keeper.reply(request.method, {
-        jsonrpc: '2.0',
         id: request.id,
         result: null,
         error: `Asset of type '${request.params.type}' not supported`,
@@ -437,10 +412,6 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     }
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
-  if (isPermissionRequired) {
-    const connectionInstance = await keeper.connection.promise
-    connectionInstance.openPopup()
-  }
   requestStore.addRequests(request, isPermissionRequired, new Date())
 }
 

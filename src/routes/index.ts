@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 
 import Activities from '@/pages/ActivitiesScreen.vue'
 import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
@@ -10,9 +10,6 @@ import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
 import LoginRedirect from '@/pages/loginRedirect.vue'
 import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
-import MFARequiredScreen from '@/pages/MFARequiredScreen.vue'
-import MFARestoreScreen from '@/pages/MFARestoreScreen.vue'
-import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
@@ -20,7 +17,7 @@ import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 
-const routes: RouteRecordRaw[] = [
+const routes = [
   {
     path: '/:appId/login',
     component: SignIn,
@@ -42,30 +39,9 @@ const routes: RouteRecordRaw[] = [
     component: InitPageV2,
   },
   {
-    path: '/:appId/mfa/setup',
-    component: MFASetup,
-    name: 'MFASetup',
-    meta: {
-      isFullPageView: true,
-    },
-  },
-  {
-    path: '/:appId/mfa/restore',
-    component: MFARestoreScreen,
-    name: 'MFARestore',
-    meta: {
-      isFullPageView: true,
-    },
-  },
-  {
     path: '/loggedin',
     component: LoggedInView,
     children: [
-      {
-        path: '/mfa/required',
-        component: MFARequiredScreen,
-        name: 'MFARequired',
-      },
       {
         name: 'home',
         path: '/',

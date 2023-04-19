@@ -60,7 +60,7 @@ watch(selectedChain, async () => {
 
     <div
       v-if="open"
-      class="debossed-card p-3 sm:p-1 h-48 rounded-[10px] mt-1 divide-y-[1px] divide-gray-600 flex flex-col z-10 relative"
+      class="debossed-card p-3 sm:p-1 h-48 rounded-[10px] -mt-2 divide-y-[1px] divide-gray-600 flex flex-col"
     >
       <ListboxOptions
         class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg py-2 flex-1 overflow-auto"

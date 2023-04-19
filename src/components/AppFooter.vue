@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
@@ -9,10 +9,10 @@ import { useImage } from '@/utils/useImage'
 const getImage = useImage()
 const userStore = useUserStore()
 const appStore = useAppStore()
-const route = useRoute()
+const router = useRouter()
 
 const currentRoute = computed(() => {
-  return route.name
+  return router.currentRoute.value.name
 })
 
 function isCurrentRoute(pathName) {

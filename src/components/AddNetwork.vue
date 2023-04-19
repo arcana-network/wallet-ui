@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -30,50 +29,33 @@ function isExistingRpcUrl(url) {
   })
 }
 
-function isExistingChain(chainId) {
-  return rpcStore.rpcConfigList.find(
-    (chain) => Number(chain.chainId) === Number(chainId)
-  )
+function isExistingChainId(chainId) {
+  return rpcStore.rpcConfigList.some((chain) => chain.chainId === chainId)
 }
 
-async function handleSubmit() {
+function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
-  const existingChain = isExistingChain(chainId)
   if (isExistingRpcUrl(rpcUrl)) {
-    return toast.error(
-      `RPC URL - ${rpcUrl} already exists, please use different one`
+    toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
+  } else if (isExistingChainId(Number(chainId))) {
+    toast.error(
+      `Chain ID - ${chainId} already exists, please use different one`
     )
   } else {
-    const provider = new ethers.providers.JsonRpcProvider(
-      rpcConfig.value.rpcUrl
-    )
-    const chainId = await provider.getNetwork()
-    if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
-      return toast(`Incorrect combination of chainId and rpcUrl`)
+    const payload = {
+      chainName: rpcConfig.value.networkName,
+      chainId: rpcConfig.value.chainId,
+      blockExplorerUrls: [rpcConfig.value.explorerUrl],
+      rpcUrls: [rpcConfig.value.rpcUrl],
+      favicon: 'blockchain-icon',
+      nativeCurrency: {
+        symbol: rpcConfig.value.currencySymbol,
+        decimals: 18,
+      },
     }
-    if (existingChain) {
-      rpcStore.setRpcConfig({
-        ...existingChain,
-        rpcUrls: [rpcConfig.value.rpcUrl],
-      })
-      rpcStore.setSelectedChainId(existingChain.chainId)
-    } else {
-      const payload = {
-        chainName: rpcConfig.value.networkName,
-        chainId: rpcConfig.value.chainId,
-        blockExplorerUrls: [rpcConfig.value.explorerUrl],
-        rpcUrls: [rpcConfig.value.rpcUrl],
-        favicon: 'blockchain-icon',
-        nativeCurrency: {
-          symbol: rpcConfig.value.currencySymbol,
-          decimals: 18,
-        },
-        isCustom: true,
-      }
-      rpcStore.addNetwork(payload)
-      rpcStore.setSelectedChainId(payload.chainId)
-    }
+    rpcStore.addNetwork(payload)
+    rpcStore.setSelectedChainId(payload.chainId)
     emit('close')
   }
 }

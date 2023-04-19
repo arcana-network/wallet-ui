@@ -4,7 +4,7 @@
   >
     <div
       id="modal-container"
-      class="container p-3 sm:p-2 w-full max-w-[40rem] rounded-lg overflow-auto max-h-full"
+      class="container p-3 sm:p-2 min-w-full rounded-lg overflow-auto max-h-full"
     ></div>
   </div>
 </template>

@@ -2,7 +2,6 @@ const { defineConfig } = require('@vue/cli-service')
 const webpack = require('webpack')
 
 module.exports = defineConfig({
-  assetsDir: 'assets',
   transpileDependencies: true,
   configureWebpack: {
     resolve: {
@@ -19,9 +18,7 @@ module.exports = defineConfig({
       }),
     ],
     devServer: {
-      client: {
-        webSocketURL: 'auto://0.0.0.0:0/ws',
-      },
+      webSocketServer: 'sockjs',
     },
   },
 })

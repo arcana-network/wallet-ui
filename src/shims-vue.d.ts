@@ -7,7 +7,7 @@ declare module '*.vue' {
 
 declare namespace NodeJS {
   interface ProcessEnv {
-    VUE_APP_WALLET_AUTH_URL: string
+    VUE_APP_WALLET_AUTH_REDIRECT_URL: string
     VUE_APP_GOOGLE_ANALYTICS_ID: string
     VUE_APP_ENABLE_PENPAL_DEBUG: 'true' | 'false'
     VUE_APP_ARCANA_AUTH_NETWORK: 'testnet' | 'dev'

@@ -3,31 +3,28 @@ import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
 const emit = defineEmits(['close'])
-const props = defineProps<{
-  chainId: number
-}>()
 
 const rpcStore = useRpcStore()
 const toast = useToast()
 
 const getImage = useImage()
-const rpcConfigForEdit = rpcStore.getRpcConfig(Number(props.chainId))
+const editChainId = rpcStore.editChainId
+const rpcConfigForEdit = rpcStore.rpcConfigForEdit
 
 const rpcConfig = ref({
   chainName: rpcConfigForEdit?.chainName,
   chainId: rpcConfigForEdit?.chainId,
   rpcUrl: rpcConfigForEdit?.rpcUrls[0],
   currencySymbol: rpcConfigForEdit?.nativeCurrency?.symbol,
-  explorerUrl: rpcConfigForEdit?.blockExplorerUrls?.[0],
+  explorerUrl: rpcConfigForEdit?.blockExplorerUrls[0],
 })
 
-function isExistingRpcUrl(url: string) {
+function isExistingRpcUrl(url) {
   const exisitingRpcUrls = rpcStore.rpcConfigList
-    .filter((chain) => Number(chain.chainId) !== Number(props.chainId))
+    .filter((chain) => chain.chainId !== editChainId)
     .map((chain) => chain.rpcUrls)
     .flat()
 
@@ -36,57 +33,46 @@ function isExistingRpcUrl(url: string) {
   })
 }
 
-function isExistingChainId(chainId: number) {
+function isExistingChainId(chainId) {
   return rpcStore.rpcConfigList.some(
-    (chain) =>
-      Number(chain.chainId) === chainId &&
-      Number(chain.chainId) !== Number(props.chainId)
+    (chain) => chain.chainId === chainId && chain.chainId !== editChainId
   )
 }
 
 function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
-  if (isExistingRpcUrl(rpcUrl as string)) {
+  if (isExistingRpcUrl(rpcUrl)) {
     toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
-  } else if (isExistingChainId(Number(rpcConfig.value.chainId))) {
+  } else if (isExistingChainId(Number(chainId))) {
     toast.error(
       `Chain ID - ${chainId} already exists, please use different one`
     )
   } else {
     const payload = {
       chainName: rpcConfig.value.chainName,
-      chainId: rpcConfig.value.chainId as string,
-      blockExplorerUrls: [rpcConfig.value.explorerUrl as string],
-      rpcUrls: [rpcConfig.value.rpcUrl as string],
-      favicon: rpcConfigForEdit?.favicon as string,
+      chainId: Number(rpcConfig.value.chainId),
+      blockExplorerUrls: [rpcConfig.value.explorerUrl],
+      rpcUrls: [rpcConfig.value.rpcUrl],
+      favicon: rpcConfigForEdit?.favicon,
       isCustom: true,
       nativeCurrency: {
-        symbol: rpcConfig.value.currencySymbol as string,
+        symbol: rpcConfig.value.currencySymbol,
         decimals: 18,
       },
     }
-    rpcStore.editNetwork(Number(props.chainId), payload)
-    if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
-      rpcStore.setSelectedRPCConfig(payload)
-    }
-    if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
-      getRequestHandler().setRpcConfig({
-        ...payload,
-        chainId: Number(payload.chainId),
-      })
-    }
+    rpcStore.editNetwork(editChainId, payload)
     emit('close')
   }
 }
 
 function deleteNetwork() {
-  if (Number(rpcStore.selectedRpcConfig.chainId) === Number(props.chainId)) {
+  if (rpcStore.selectedChainId === editChainId) {
     toast.error(
       'This network is current selected, please chose a different one and try again'
     )
   } else {
-    rpcStore.deleteNetwork(Number(props.chainId))
+    rpcStore.deleteNetwork(editChainId)
     emit('close')
   }
 }
@@ -97,7 +83,7 @@ function deleteNetwork() {
     <div class="flex justify-between">
       <p class="text-xl sm:text-sm font-semibold">Edit Network</p>
       <button
-        v-if="rpcConfigForEdit?.isCustom"
+        v-if="rpcConfigForEdit.isCustom"
         class="h-auto"
         @click="deleteNetwork"
       >

@@ -23,7 +23,7 @@ const emit = defineEmits(['proceed', 'close'])
         Please store your keys in a safe place as anyone with access to it can
         take over your wallet.
         <a
-          :href="`${DOCS_URL}/howto/wallet_exkey.html`"
+          :href="`${DOCS_URL}/walletexportkey`"
           target="_blank"
           class="text-blue-500 cursor-pointer"
           >LEARN MORE</a
