@@ -6,7 +6,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
@@ -17,7 +16,6 @@ const loader = ref({
   show: false,
   message: '',
 })
-let balancePolling, balancePollingEliminationTimeout
 
 function showLoader(message) {
   loader.value.show = true
@@ -34,29 +32,20 @@ onMounted(() => {
     if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
       handleChainChange()
     } else {
-      getWalletBalance()
+      rpcStore.getWalletBalance()
     }
-    setUpBalancePolling()
+    rpcStore.setUpBalancePolling()
   } catch (err) {
     console.log({ err })
   }
 })
 
-onBeforeUnmount(() => {
-  if (balancePolling != null) {
-    clearInterval(balancePolling)
-    balancePolling = null
-  }
-  if (balancePollingEliminationTimeout != null) {
-    clearTimeout(balancePollingEliminationTimeout)
-    balancePollingEliminationTimeout = null
-  }
-})
+onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
-    await getWalletBalance()
+    await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {
@@ -64,29 +53,10 @@ async function handleChainChange() {
   }
 }
 
-async function getWalletBalance() {
-  const accountHandler = getRequestHandler().getAccountHandler()
-  if (accountHandler) {
-    const balance = (await accountHandler.getBalance()) || '0'
-    rpcStore.setWalletBalance(balance.toString())
-    walletBalance.value = ethers.utils.formatEther(balance.toString())
-  }
-}
-
-async function setUpBalancePolling() {
-  // Poll every 10 seconds
-  balancePolling = setInterval(getWalletBalance, 10 * 1000)
-  balancePollingEliminationTimeout = setTimeout(() => {
-    if (balancePolling != null) {
-      clearInterval(balancePolling)
-    }
-  }, 10 * 60 * 1000)
-}
-
 async function handleRefresh() {
   showLoader('Refreshing wallet balance...')
   try {
-    await getWalletBalance()
+    await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {
