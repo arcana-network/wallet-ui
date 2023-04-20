@@ -17,7 +17,7 @@ const loader = ref({
   show: false,
   message: '',
 })
-let balancePolling
+let balancePolling, balancePollingEliminationTimeout
 
 function showLoader(message) {
   loader.value.show = true
@@ -36,15 +36,20 @@ onMounted(() => {
     } else {
       getWalletBalance()
     }
-    balancePolling = setInterval(getWalletBalance, 4000)
+    setUpBalancePolling()
   } catch (err) {
     console.log({ err })
   }
 })
 
 onBeforeUnmount(() => {
-  if (balancePolling) {
+  if (balancePolling != null) {
     clearInterval(balancePolling)
+    balancePolling = null
+  }
+  if (balancePollingEliminationTimeout != null) {
+    clearTimeout(balancePollingEliminationTimeout)
+    balancePollingEliminationTimeout = null
   }
 })
 
@@ -66,6 +71,16 @@ async function getWalletBalance() {
     rpcStore.setWalletBalance(balance.toString())
     walletBalance.value = ethers.utils.formatEther(balance.toString())
   }
+}
+
+async function setUpBalancePolling() {
+  // Poll every 10 seconds
+  balancePolling = setInterval(getWalletBalance, 10 * 1000)
+  balancePollingEliminationTimeout = setTimeout(() => {
+    if (balancePolling != null) {
+      clearInterval(balancePolling)
+    }
+  }, 10 * 60 * 1000)
 }
 
 async function handleRefresh() {

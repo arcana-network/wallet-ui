@@ -45,7 +45,7 @@ async function handleSubmit() {
       `RPC URL - ${rpcUrl} already exists, please use different one`
     )
   } else {
-    const provider = new ethers.providers.JsonRpcProvider(
+    const provider = new ethers.providers.StaticJsonRpcProvider(
       rpcConfig.value.rpcUrl
     )
     const chainId = await provider.getNetwork()
