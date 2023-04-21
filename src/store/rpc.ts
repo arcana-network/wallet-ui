@@ -145,8 +145,9 @@ export const useRpcStore = defineStore('rpcStore', {
       }
     },
 
-    setUpBalancePolling() {
+    async setUpBalancePolling() {
       this.cleanUpBalancePolling()
+      await this.getWalletBalance()
       // Poll every 10 seconds
       this.walletBalancePollingIntervalID = setInterval(
         this.getWalletBalance.bind(this),
