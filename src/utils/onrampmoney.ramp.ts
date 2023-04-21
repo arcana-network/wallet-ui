@@ -35,18 +35,16 @@ const CHAIN_ID_TOKEN_IDS_MAP = new Map<
   Map<number, OnRampMoneyCoinObject>
 >()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
-const API_URL =
-  process.env.VUE_APP_ON_RAMP_MONEY_API_URL ??
-  'https://api.onramp.money/onramp/'
+const API_URL = new URL(
+  '/api/v1/onramp-coin-config',
+  process.env.VUE_APP_WALLET_GATEWAY
+).href
 
 async function initializeOnRampMoney() {
   const resp = await axios({
     method: 'GET',
-    baseURL: API_URL,
-    url: '/api/v2/buy/public/allConfig',
+    url: API_URL,
   })
-  // eslint-disable-next-line no-debugger
-  debugger
 
   const allCoinConfig = resp.data.data.allCoinConfig as OnRampMoneyCoinObject[]
   for (const [actualID, coin] of Object.entries(allCoinConfig)) {
