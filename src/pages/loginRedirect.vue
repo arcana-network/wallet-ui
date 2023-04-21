@@ -81,7 +81,11 @@ async function init() {
           }
         )
       } else {
-        if (loginSrc === 'rn' || loginSrc === 'flutter') {
+        if (
+          loginSrc === 'rn' ||
+          loginSrc === 'flutter' ||
+          loginSrc === 'unity'
+        ) {
           await connectionToParent.goToWallet()
           return
         }
