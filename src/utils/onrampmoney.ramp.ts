@@ -29,14 +29,10 @@ type OnRampMoneyNetworkObject = {
   nativeToken: number
 }
 
-// Chain ID -> Coin ID -> token object (?)
-const CHAIN_ID_TOKEN_IDS_MAP = new Map<
-  number,
-  Map<number, OnRampMoneyCoinObject>
->()
+const COIN_CONFIG = new Map<number, OnRampMoneyCoinObject>()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
 const API_URL = new URL(
-  '/api/v1/onramp-coin-config',
+  '/api/v1/onramp-coin-config/',
   process.env.VUE_APP_WALLET_GATEWAY
 ).href
 
@@ -49,18 +45,17 @@ async function initializeOnRampMoney() {
   const allCoinConfig = resp.data.data.allCoinConfig as OnRampMoneyCoinObject[]
   for (const [actualID, coin] of Object.entries(allCoinConfig)) {
     coin.actualID = actualID
-    for (const network of coin.networks) {
-      let tMap = CHAIN_ID_TOKEN_IDS_MAP.get(network)
-      if (tMap == null) {
-        tMap = new Map<number, OnRampMoneyCoinObject>()
-        CHAIN_ID_TOKEN_IDS_MAP.set(network, tMap)
-      }
-      tMap.set(coin.coinId, coin)
-    }
+    COIN_CONFIG.set(coin.coinId, coin)
   }
 
-  const netConfigs = resp.data.data.networkConfig as OnRampMoneyNetworkObject[]
-  for (const netConfig of netConfigs) {
+  const netConfigs = resp.data.data.networkConfig as Record<
+    string,
+    OnRampMoneyNetworkObject
+  >
+  for (const [, netConfig] of Object.entries(netConfigs)) {
+    if (netConfig.networkId == null || netConfig.networkId === -1) {
+      continue
+    }
     CHAIN_ID_CONFIG.set(netConfig.networkId, netConfig)
   }
 }
@@ -74,9 +69,7 @@ async function openOnRampMoneyHostedUI(chainId: number) {
   if (netConfig == null) {
     throw new OnRampMoneyException('Unsupported chain')
   }
-  const nativeToken = CHAIN_ID_TOKEN_IDS_MAP.get(chainId)?.get(
-    netConfig.nativeToken
-  )
+  const nativeToken = COIN_CONFIG.get(netConfig.nativeToken)
   if (nativeToken == null) {
     // should not be possible
     throw new OnRampMoneyException()

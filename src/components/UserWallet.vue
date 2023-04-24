@@ -18,6 +18,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
+import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
@@ -52,6 +53,8 @@ const { currency } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
 const chainSelectedForEdit: Ref<number | null> = ref(null)
 
+/* Why are these calculated here? These should be contained within the BuyTokens component, it's not the UserWallet's responsibility */
+
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
@@ -65,6 +68,17 @@ const rampNetwork = computed(() => {
     (network) => network.chainId === selectedChainId
   )
 })
+
+const onRampMoney = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  if (isSupportedByOnRampMoney(selectedChainId)) {
+    return selectedChainId
+  } else {
+    return false
+  }
+})
+
+// See above
 
 const explorerUrl = computed(() => {
   if (
@@ -311,6 +325,7 @@ watch(
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
         :ramp-network="rampNetwork?.value"
+        :on-ramp-money="onRampMoney"
         @close="handleBuy(false)"
       />
     </Teleport>
