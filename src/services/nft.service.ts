@@ -78,6 +78,7 @@ class NFTDB {
             jsonrpc: '2.0',
             method: 'ankr_getNFTsByOwner',
             params: {
+              blockchain: Array.from(ANKR_BLOCKCHAIN_TO_CHAIN_ID.keys()),
               walletAddress,
               pageSize: 1000,
               pageToken:
