@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 
 import { RpcConfigWallet, CHAIN_LIST } from '@/models/RpcConfigList'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+
+const BALANCE_POLLING_INTERVAL = 10 * 1000
+const BALANCE_POLLING_DURATION = 10 * 60 * 1000
 
 type RpcConfigs = {
   [chainId: number]: RpcConfigWallet
@@ -9,8 +13,12 @@ type RpcConfigs = {
 type RpcConfigState = {
   selectedRPCConfig: RpcConfigWallet
   selectedChainId: string | number
+
   walletBalance: string
   walletBalanceChainId: string
+  walletBalancePollingIntervalID: NodeJS.Timer | null
+  walletBalancePollingCleanupID: NodeJS.Timer | null
+
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
 }
@@ -20,7 +28,12 @@ export const useRpcStore = defineStore('rpcStore', {
     ({
       selectedRPCConfig: CHAIN_LIST[0],
       selectedChainId: CHAIN_LIST[0].chainId,
+
       walletBalance: '',
+      walletBalanceChainId: '',
+      walletBalancePollingCleanupID: null,
+      walletBalancePollingIntervalID: null,
+
       rpcConfigs: null,
       editChainId: null,
     } as RpcConfigState),
@@ -114,6 +127,40 @@ export const useRpcStore = defineStore('rpcStore', {
         configs[chainConfig.chainId] = chainConfig
       })
       this.rpcConfigs = configs
+    },
+
+    async getWalletBalance() {
+      const accountHandler = getRequestHandler().getAccountHandler()
+      if (accountHandler) {
+        const balance = (await accountHandler.getBalance()) || '0'
+        this.setWalletBalance(balance.toString())
+      }
+    },
+
+    cleanUpBalancePolling() {
+      if (this.walletBalancePollingIntervalID != null) {
+        clearInterval(this.walletBalancePollingIntervalID)
+        this.walletBalancePollingIntervalID = null
+      }
+      if (this.walletBalancePollingCleanupID != null) {
+        clearTimeout(this.walletBalancePollingCleanupID)
+        this.walletBalancePollingCleanupID = null
+      }
+    },
+
+    async setUpBalancePolling() {
+      this.cleanUpBalancePolling()
+      await this.getWalletBalance()
+      // Poll every 10 seconds
+      this.walletBalancePollingIntervalID = setInterval(
+        this.getWalletBalance.bind(this),
+        BALANCE_POLLING_INTERVAL
+      )
+      this.walletBalancePollingCleanupID = setTimeout(() => {
+        if (this.walletBalancePollingIntervalID != null) {
+          clearInterval(this.walletBalancePollingIntervalID)
+        }
+      }, BALANCE_POLLING_DURATION)
     },
   },
 })

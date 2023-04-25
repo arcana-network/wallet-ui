@@ -8,6 +8,8 @@ import {
   PendingJsonRpcResponse,
 } from 'json-rpc-engine'
 
+import { useRpcStore } from '@/store/rpc'
+
 interface TransactionParams {
   from: string
 }
@@ -141,6 +143,7 @@ function createWalletMiddleware({
       req
     )
     res.result = await processTransaction(txParams)
+    await useRpcStore().setUpBalancePolling()
   }
 
   async function signTransaction(
@@ -158,6 +161,7 @@ function createWalletMiddleware({
       req
     )
     res.result = await processSignTransaction(txParams, req)
+    await useRpcStore().setUpBalancePolling()
   }
 
   //
