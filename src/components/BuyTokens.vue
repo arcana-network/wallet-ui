@@ -10,7 +10,7 @@ import { useImage } from '@/utils/useImage'
 type BuyTokenProps = {
   transakNetwork?: string
   rampNetwork?: string
-  onRampMoney?: number
+  onRampMoney: number | false | undefined
 }
 
 const props = defineProps<BuyTokenProps>()
@@ -50,7 +50,7 @@ function handleRamp() {
 }
 
 function handleOnRampMoney() {
-  if (props.onRampMoney == null) {
+  if (props.onRampMoney === undefined || props.onRampMoney === false) {
     throw new Error('!!!')
   }
   isLoading.value = true
@@ -162,13 +162,13 @@ function handleDone() {
             type="radio"
             value="onramp.money"
             name="provider"
-            :disabled="!props.onRampMoney"
+            :disabled="props.onRampMoney === false"
             :class="{ 'opacity-80': !props.onRampMoney }"
           />
           <label
             for="OnRampMoney"
             class="flex gap-2 items-center cursor-pointer"
-            :class="{ 'opacity-50': !props.onRampMoney }"
+            :class="{ 'opacity-50': props.onRampMoney === false }"
           >
             <img src="@/assets/images/ramp.png" class="h-7 w-7" />
             <span class="text-base">onramp.money</span>
