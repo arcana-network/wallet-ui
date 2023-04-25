@@ -3,6 +3,9 @@ import { defineStore } from 'pinia'
 import { RpcConfigWallet, CHAIN_LIST } from '@/models/RpcConfigList'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
+const BALANCE_POLLING_INTERVAL = 10 * 1000
+const BALANCE_POLLING_DURATION = 10 * 60 * 1000
+
 type RpcConfigs = {
   [chainId: number]: RpcConfigWallet
 }
@@ -151,13 +154,13 @@ export const useRpcStore = defineStore('rpcStore', {
       // Poll every 10 seconds
       this.walletBalancePollingIntervalID = setInterval(
         this.getWalletBalance.bind(this),
-        10 * 1000
+        BALANCE_POLLING_INTERVAL
       )
       this.walletBalancePollingCleanupID = setTimeout(() => {
         if (this.walletBalancePollingIntervalID != null) {
           clearInterval(this.walletBalancePollingIntervalID)
         }
-      }, 10 * 60 * 1000)
+      }, BALANCE_POLLING_DURATION)
     },
   },
 })
