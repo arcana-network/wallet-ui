@@ -3,6 +3,8 @@ import { onMounted, ref, type Ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
+import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
+import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { checkOwnership } from '@/utils/nftUtils'
@@ -11,6 +13,7 @@ import { getStorage } from '@/utils/storageWrapper'
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const storage = getStorage()
+let nftDB: NFTDB
 
 type NFTViewProps = {
   refreshState?: boolean
@@ -26,71 +29,46 @@ const loader = reactive({
   message: 'Loading saved NFTs...',
 })
 
-function fetchStoredNfts(): NFT[] {
-  const storedNftsString = storage.local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
-  )
-  if (storedNftsString) {
-    return (JSON.parse(storedNftsString) as NFT[]).filter(
-      (contract) => contract.type === 'erc721' || contract.type === 'erc1155'
-    )
-  } else {
-    return []
+function sanitizeUrl(url?: string) {
+  if (url && url.includes('ipfs://')) {
+    return modifyIpfsUrl(url)
   }
+  return url
 }
 
 async function getNFTAssets() {
   loader.show = true
-  nfts.value = []
-  const storedNfts = fetchStoredNfts()
-  storedNfts.forEach((nft) => {
-    nfts.value.push({
-      type: nft.type,
-      name: nft.name,
-      balance: nft.balance,
-      imageUrl: nft.imageUrl,
-      animationUrl: nft.animationUrl,
-      description: nft.description,
-      collectionName: nft.collectionName,
-      tokenId: nft.tokenId,
-      address: nft.address,
-      attributes: nft.attributes,
+  nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+  nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+  nfts.value = await Promise.all(
+    nfts.value.filter(async (nft) => {
+      const isOwned = await checkOwnership(nft.type, {
+        tokenId: nft.tokenId,
+        contractAddress: nft.address,
+      })
+      if (!isOwned.owner) {
+        nftDB.removeNFT(nft, Number(rpcStore.selectedChainId))
+      }
+      return isOwned
     })
-  })
-  const nftsToRemoveIndex: number[] = []
-  const nftCheckOwnerPromises: Promise<any>[] = []
-  nfts.value.forEach((nft, index) => {
-    nftCheckOwnerPromises.push(checkNftOwnership(nft, index, nftsToRemoveIndex))
-  })
-
-  await Promise.all(nftCheckOwnerPromises)
-
-  nfts.value = nfts.value.filter(
-    (nft, index) => !nftsToRemoveIndex.includes(index)
   )
-
-  storage.local.setItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
-    JSON.stringify(nfts.value)
+  nfts.value = await Promise.all(
+    nfts.value.map(async (nft) => {
+      const nftDetails = await getNFTDetails(nft.tokenUrl, nft.tokenId)
+      nftDetails.name = nftDetails.name || `#${nft.tokenId}`
+      nftDetails.imageUrl = sanitizeUrl(
+        nftDetails.image_url || nftDetails.image
+      )
+      nftDetails.animationUrl = sanitizeUrl(
+        nftDetails.animation_url || nftDetails.animations
+      )
+      return {
+        ...nft,
+        ...nftDetails,
+      }
+    })
   )
-
   loader.show = false
-}
-
-async function checkNftOwnership(
-  nft: NFT,
-  index: number,
-  nftsToRemoveIndex: number[]
-) {
-  const hasOwnership = await checkOwnership(nft.type, {
-    tokenId: nft.tokenId,
-    contractAddress: nft.address,
-  })
-  if (hasOwnership.owner) {
-    nft.balance = hasOwnership.balance
-  } else {
-    nftsToRemoveIndex.push(index)
-  }
 }
 
 function handleManageNFT() {
@@ -101,8 +79,10 @@ function getNftDetailValues(nft: NFT) {
   const attributes = nft.attributes?.length
     ? JSON.stringify(nft.attributes)
     : ''
+  const autodetected = JSON.stringify(nft.autodetected)
   return {
     ...nft,
+    autodetected,
     attributes,
   }
 }

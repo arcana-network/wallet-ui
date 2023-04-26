@@ -4,6 +4,7 @@ import type { NFT } from '@/models/NFT'
 import type { StorageWrapper } from '@/utils/storageWrapper'
 
 const NFT_DB_KEY = 'nft_list'
+const NFT_PAGE_SIZE = 50
 
 type NFTItem = NFT & {
   autodetected: boolean
@@ -26,6 +27,7 @@ type AnkrNFT = {
   symbol: string
   tokenId: string
   tokenUrl: string
+  animationUrl?: string
   traits?: AnkrTrait[]
   nextPageToken: string
 }
@@ -50,18 +52,12 @@ class NFTDB {
   public list: NFTItem[]
 
   static async create(storage: StorageWrapper, walletAddress: string) {
-    let existing: NFTItem[]
+    let existingNfts: NFTItem[]
     const realKey = `${walletAddress}-${NFT_DB_KEY}`
 
-    {
-      const j = storage.getItem(realKey)
-      if (j == null) {
-        existing = []
-      } else {
-        existing = JSON.parse(j)
-      }
-    }
-    existing = existing.filter((x) => !x.autodetected)
+    const nftsInStorage = storage.getItem(realKey)
+    existingNfts = nftsInStorage ? JSON.parse(nftsInStorage) : []
+    existingNfts = existingNfts.filter((nft) => !nft.autodetected)
 
     try {
       let npToken: null | boolean | string = null
@@ -80,7 +76,7 @@ class NFTDB {
             params: {
               blockchain: Array.from(ANKR_BLOCKCHAIN_TO_CHAIN_ID.keys()),
               walletAddress,
-              pageSize: 1000,
+              pageSize: NFT_PAGE_SIZE,
               pageToken:
                 npToken != null || npToken != false ? npToken : undefined,
             },
@@ -106,7 +102,7 @@ class NFTDB {
             continue
           }
 
-          existing.push({
+          existingNfts.push({
             type: contractType,
             address: r.contractAddress,
             tokenId: r.tokenId,
@@ -119,6 +115,7 @@ class NFTDB {
             })),
             autodetected: true,
             chainId,
+            tokenUrl: r.tokenUrl,
           })
         }
         npToken =
@@ -130,9 +127,9 @@ class NFTDB {
       console.error('Caught error while trying to get NFTs:', e)
     }
 
-    storage.setItem(realKey, JSON.stringify(existing))
+    storage.setItem(realKey, JSON.stringify(existingNfts))
 
-    return new NFTDB(storage, walletAddress, existing)
+    return new NFTDB(storage, walletAddress, existingNfts)
   }
 
   constructor(
@@ -153,15 +150,26 @@ class NFTDB {
     this.storage.setItem(this.storageKey, JSON.stringify(this.list))
   }
 
-  public getNFTs(chainId: number): NFT[] {
+  public getNFTs(chainId: number): NFTItem[] {
     return this.list.filter((x) => x.chainId == chainId)
   }
 
   public addNFT(item: NFT, chainId: number) {
+    const index = this.list.findIndex((x) => {
+      return (
+        x.chainId === chainId &&
+        x.address.toLowerCase() === item.address.toLowerCase() &&
+        x.tokenId === item.tokenId
+      )
+    })
+    if (index !== -1) {
+      throw new Error('NFT already exists')
+    }
     this.list.push({
       ...item,
       autodetected: false,
       chainId,
+      tokenUrl: '',
     })
     this.synchronizeToStorage()
   }
@@ -170,7 +178,7 @@ class NFTDB {
     const act = this.list.find((x) => {
       return (
         x.chainId === chainId &&
-        x.address === item.address &&
+        x.address.toLowerCase() === item.address.toLowerCase() &&
         x.tokenId === item.tokenId
       )
     })
@@ -180,6 +188,21 @@ class NFTDB {
     for (const k of Object.keys(item)) {
       act[k] = item[k]
     }
+    this.synchronizeToStorage()
+  }
+
+  public removeNFT(item: NFT, chainId: number) {
+    const index = this.list.findIndex((x) => {
+      return (
+        x.chainId === chainId &&
+        x.address.toLowerCase() === item.address.toLowerCase() &&
+        x.tokenId === item.tokenId
+      )
+    })
+    if (index === -1) {
+      throw new Error('Could not find the relevant NFT')
+    }
+    this.list.splice(index, 1)
     this.synchronizeToStorage()
   }
 }
