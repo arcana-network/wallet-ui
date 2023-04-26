@@ -20,6 +20,7 @@ type OnRampMoneyCoinObject = {
     }
   }
   networks: number[]
+  networkIDs: string[]
 }
 
 type OnRampMoneyNetworkObject = {
@@ -30,6 +31,7 @@ type OnRampMoneyNetworkObject = {
 }
 
 const COIN_CONFIG = new Map<number, OnRampMoneyCoinObject>()
+const SECONDARY_COIN_LOOKUP = new Map<string, OnRampMoneyCoinObject>()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
 const API_URL = new URL(
   '/api/v1/onramp-coin-config/',
@@ -42,21 +44,30 @@ async function initializeOnRampMoney() {
     url: API_URL,
   })
 
-  const allCoinConfig = resp.data.data.allCoinConfig as OnRampMoneyCoinObject[]
-  for (const [actualID, coin] of Object.entries(allCoinConfig)) {
-    coin.actualID = actualID
-    COIN_CONFIG.set(coin.coinId, coin)
-  }
-
   const netConfigs = resp.data.data.networkConfig as Record<
     string,
     OnRampMoneyNetworkObject
   >
-  for (const [, netConfig] of Object.entries(netConfigs)) {
-    if (netConfig.networkId == null || netConfig.networkId === -1) {
-      continue
+  for (const [key, netConfig] of Object.entries(netConfigs)) {
+    CHAIN_ID_CONFIG.set(parseInt(key), netConfig)
+  }
+
+  const allCoinConfig = resp.data.data.allCoinConfig as OnRampMoneyCoinObject[]
+  for (const [actualID, coin] of Object.entries(allCoinConfig)) {
+    coin.actualID = actualID
+
+    for (const net of coin.networks) {
+      if (CHAIN_ID_CONFIG.has(net)) {
+        const v = CHAIN_ID_CONFIG.get(net)
+        if (v == null) {
+          continue
+        }
+        coin.networkIDs.push(v.chainSymbol)
+      }
     }
-    CHAIN_ID_CONFIG.set(netConfig.networkId, netConfig)
+
+    COIN_CONFIG.set(coin.coinId, coin)
+    SECONDARY_COIN_LOOKUP.set(actualID, coin)
   }
 }
 
@@ -69,11 +80,14 @@ async function openOnRampMoneyHostedUI(chainId: number) {
   if (netConfig == null) {
     throw new OnRampMoneyException('Unsupported chain')
   }
-  const nativeToken = COIN_CONFIG.get(netConfig.nativeToken)
+  let nativeToken = COIN_CONFIG.get(netConfig.nativeToken)
   if (nativeToken == null) {
-    // should not be possible
-    throw new OnRampMoneyException()
+    nativeToken = SECONDARY_COIN_LOOKUP.get(netConfig.chainSymbol)
   }
+  if (nativeToken == null) {
+    throw new OnRampMoneyException('Could not find native token')
+  }
+
   const uStore = useUserStore()
 
   const baseURL = new URL(process.env.VUE_APP_ON_RAMP_MONEY_URL)
