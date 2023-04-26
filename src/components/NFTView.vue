@@ -46,18 +46,13 @@ async function getNFTAssets() {
 
   await Promise.all(
     potentialNFTList.map(async (nft) => {
-      let _ownershipPromise:
-        | Promise<{ owner: boolean; balance: number }>
-        | undefined = undefined
-      if (!nft.autodetected) {
-        _ownershipPromise = checkOwnership(nft.type, {
-          tokenId: nft.tokenId,
-          contractAddress: nft.address,
-        })
-      }
-
       const [ownership, details] = await Promise.all([
-        _ownershipPromise,
+        nft.autodetected
+          ? undefined
+          : checkOwnership(nft.type, {
+              tokenId: nft.tokenId,
+              contractAddress: nft.address,
+            }),
         getNFTDetails(nft.tokenUrl, nft.tokenId),
       ])
       if (ownership != undefined && !ownership.owner) {
