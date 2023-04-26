@@ -172,13 +172,13 @@ async function handleSubmit() {
         tokenUrl: tokenUri,
       }
 
-      toast.success('NFT saved')
       nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
+      toast.success('NFT added')
 
       router.back()
     } catch (e) {
       console.error(e)
-      toast.error("Couldn't fetch NFT details")
+      toast.error(e)
     }
   } else {
     toast.error('Invalid token ID')
