@@ -39,33 +39,31 @@ function sanitizeUrl(url?: string) {
 async function getNFTAssets() {
   loader.show = true
   nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
-  nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
-  nfts.value = await Promise.all(
-    nfts.value.filter(async (nft) => {
-      const isOwned = await checkOwnership(nft.type, {
-        tokenId: nft.tokenId,
-        contractAddress: nft.address,
-      })
-      if (!isOwned.owner) {
-        nftDB.removeNFT(nft, Number(rpcStore.selectedChainId))
+  nfts.value = []
+
+  const potentialNFTList = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+  const chainId = Number(rpcStore.selectedChainId)
+
+  await Promise.all(
+    potentialNFTList.map(async (nft) => {
+      const [ownership, details] = await Promise.all([
+        checkOwnership(nft.type, {
+          tokenId: nft.tokenId,
+          contractAddress: nft.address,
+        }),
+        getNFTDetails(nft.tokenUrl, nft.tokenId),
+      ])
+      if (!ownership.owner) {
+        nftDB.removeNFT(nft, chainId)
+        return
       }
-      return isOwned
-    })
-  )
-  nfts.value = await Promise.all(
-    nfts.value.map(async (nft) => {
-      const nftDetails = await getNFTDetails(nft.tokenUrl, nft.tokenId)
-      nftDetails.name = nftDetails.name || `#${nft.tokenId}`
-      nftDetails.imageUrl = sanitizeUrl(
-        nftDetails.image_url || nftDetails.image
+
+      details.name = details.name || `#${nft.tokenId}`
+      details.imageUrl = sanitizeUrl(details.image_url || details.image)
+      details.animationUrl = sanitizeUrl(
+        details.animation_url || details.animations
       )
-      nftDetails.animationUrl = sanitizeUrl(
-        nftDetails.animation_url || nftDetails.animations
-      )
-      return {
-        ...nft,
-        ...nftDetails,
-      }
+      nfts.value.push(details)
     })
   )
   loader.show = false
