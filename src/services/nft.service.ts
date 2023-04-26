@@ -116,6 +116,7 @@ class NFTDB {
             autodetected: true,
             chainId,
             tokenUrl: r.tokenUrl,
+            balance: Number(r.quantity),
           })
         }
         npToken =
