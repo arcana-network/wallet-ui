@@ -30,7 +30,7 @@ const loader = reactive({
 })
 
 function sanitizeUrl(url?: string) {
-  if (url && url.includes('ipfs://')) {
+  if (url && url.startsWith('ipfs://')) {
     return modifyIpfsUrl(url)
   }
   return url
