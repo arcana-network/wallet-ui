@@ -27,7 +27,6 @@ const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 let channel: BroadcastChannel | null = null
 initStorage()
-const storage = getStorage()
 
 const userEmailInput = ref('')
 const passwordlessForm = ref(null)
@@ -101,6 +100,7 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
 ) {
+  const storage = getStorage()
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
@@ -150,6 +150,7 @@ const windowEventHandler = (
     info: GetInfoOutput & { hasMfa?: boolean }
   }>
 ) => {
+  const storage = getStorage()
   // eslint-disable-next-line no-undef
   if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
     return
@@ -170,6 +171,7 @@ const windowEventHandler = (
 async function init() {
   isLoading.value = true
   try {
+    const storage = getStorage()
     // channel listener
     channel = new BroadcastChannel(`${appId}_login_notification`)
     channel.addEventListener('message', channelEventHandler)
