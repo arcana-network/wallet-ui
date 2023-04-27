@@ -42,6 +42,8 @@ class RequestHandler {
     // Emit `chainChanged` event
     const chainId = await this.accountHandler.getChainId()
     this.emitEvent('chainChanged', { chainId })
+    // Emit `accountsChanged` event
+    this.emitEvent('accountsChanged', this.accountHandler.getAccount().address)
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {
