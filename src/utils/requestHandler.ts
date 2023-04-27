@@ -39,6 +39,8 @@ class RequestHandler {
   public async setRpcConfig(c: RpcConfig) {
     this.handler = this.initRpcEngine(c)
     this.accountHandler.setProvider(c.rpcUrls[0])
+    // Emit `accountsChanged` event
+    this.emitEvent('accountsChanged', this.accountHandler.getAccount().address)
     // Emit `chainChanged` event
     const chainId = await this.accountHandler.getChainId()
     this.emitEvent('chainChanged', { chainId })
