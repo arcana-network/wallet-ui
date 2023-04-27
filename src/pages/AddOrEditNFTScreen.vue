@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { onBeforeMount, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -9,6 +9,7 @@ import contractMap from '@/contract-map.json'
 import type { EthAssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
+import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import {
@@ -25,6 +26,8 @@ const router = useRouter()
 const toast = useToast()
 const getImage = useImage()
 const storage = getStorage()
+const rpcStore = useRpcStore()
+const userStore = useUserStore()
 
 type EditNFTProps = {
   collectionName?: string
@@ -34,7 +37,14 @@ type EditNFTProps = {
 
 const props = defineProps<EditNFTProps>()
 
-const canEdit = route.name === 'EditNft'
+let nftDB: NFTDB
+
+onBeforeMount(async () => {
+  nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+})
+
+const canEdit = false
+const canDelete = route.name === 'EditNft'
 const showAddressOutline = ref(false)
 
 const ethMainnetNftContracts: EthAssetContract[] = Object.keys(contractMap)
@@ -43,8 +53,6 @@ const ethMainnetNftContracts: EthAssetContract[] = Object.keys(contractMap)
     address,
   }))
   .filter((contract) => contract.erc721 === true || contract.erc1155 === true)
-const rpcStore = useRpcStore()
-const userStore = useUserStore()
 
 const loader = reactive({
   show: false,
@@ -92,12 +100,7 @@ async function handleSubmit() {
     return toast.error('Token belongs to Ethereum Mainnet')
   }
 
-  const storedNftStrings = storage.local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
-  )
-  let storedNfts: NFT[] = storedNftStrings?.length
-    ? JSON.parse(storedNftStrings)
-    : []
+  const storedNfts = nftDB.getNFTs(Number(rpcStore.selectedChainId))
 
   const existingStoredNft = storedNfts.find(
     (nft) =>
@@ -166,43 +169,16 @@ async function handleSubmit() {
         animationUrl: sanitizedAnimationUrl,
         attributes,
         balance: hasOwnership.balance,
+        tokenUrl: tokenUri,
       }
 
-      if (canEdit) {
-        storedNfts = storedNfts.filter(
-          (nft) =>
-            nft.address !== props.address || nft.tokenId !== props.tokenId
-        )
-      }
-      toast.success('NFT saved')
-      storedNfts.push(nftDetails)
-      storedNfts.sort((nft1, nft2) => {
-        if (nft1.tokenId > nft2.tokenId) {
-          return 1
-        }
-        if (nft2.tokenId > nft1.tokenId) {
-          return -1
-        }
-        return 0
-      })
-      storedNfts.sort((nft1, nft2) => {
-        if (nft1.collectionName > nft2.collectionName) {
-          return 1
-        }
-        if (nft2.collectionName > nft1.collectionName) {
-          return -1
-        }
-        return 0
-      })
+      nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
+      toast.success('NFT added')
 
-      storage.local.setItem(
-        `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
-        JSON.stringify(storedNfts)
-      )
       router.back()
     } catch (e) {
       console.error(e)
-      toast.error("Couldn't fetch NFT details")
+      toast.error(e)
     }
   } else {
     toast.error('Invalid token ID')
@@ -213,40 +189,15 @@ async function handleSubmit() {
 function handleDeleteNft() {
   loader.show = true
   loader.message = 'Deleting NFT...'
-  const storedNftStrings = storage.local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
+  const storedNfts = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+  const existingNft = storedNfts.find(
+    (nft) =>
+      nft.address.toLowerCase() === nftContract.address.toLowerCase() &&
+      nft.tokenId.toLowerCase() === nftContract.tokenId.toLowerCase()
   )
-  let storedNfts: NFT[] = storedNftStrings?.length
-    ? JSON.parse(storedNftStrings)
-    : []
-
-  storedNfts = storedNfts.filter(
-    (nft) => nft.address !== props.address || nft.tokenId !== props.tokenId
-  )
-
-  storedNfts.sort((nft1, nft2) => {
-    if (nft1.tokenId > nft2.tokenId) {
-      return 1
-    }
-    if (nft2.tokenId > nft1.tokenId) {
-      return -1
-    }
-    return 0
-  })
-  storedNfts.sort((nft1, nft2) => {
-    if (nft1.collectionName > nft2.collectionName) {
-      return 1
-    }
-    if (nft2.collectionName > nft1.collectionName) {
-      return -1
-    }
-    return 0
-  })
-
-  storage.local.setItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
-    JSON.stringify(storedNfts)
-  )
+  if (existingNft)
+    nftDB.removeNFT(existingNft, Number(rpcStore.selectedChainId))
+  toast.success('NFT deleted')
   router.back()
   loader.show = false
 }
@@ -278,7 +229,7 @@ watch(
       <AppLoader :message="loader.message" />
     </div>
     <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
-      <div v-if="canEdit" class="flex justify-between items-start">
+      <div v-if="canDelete" class="flex justify-between items-start">
         <h2 class="font-semibold mb-5 add-token__title">Edit NFT</h2>
         <img
           :src="getImage('trash-icon')"

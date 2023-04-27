@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onBeforeMount, reactive, ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import { NFT } from '@/models/NFT'
+import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getStorage } from '@/utils/storageWrapper'
@@ -18,12 +19,15 @@ const loader = reactive({
   show: false,
   message: '',
 })
+const storage = getStorage()
 
-const storedNftsString = getStorage().local.getItem(
-  `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
-)
+let nftDB: NFTDB
+const nfts: Ref<NFT[]> = ref([])
 
-const nfts: NFT[] = storedNftsString?.length ? JSON.parse(storedNftsString) : []
+onBeforeMount(async () => {
+  nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+  nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+})
 
 function handleClose() {
   router.back()
@@ -31,6 +35,19 @@ function handleClose() {
 
 function handleAddToken() {
   router.push({ name: 'AddNft' })
+}
+
+function handleEditToken(nft: NFT) {
+  if (!nft.autodetected) {
+    router.push({
+      name: 'EditNft',
+      params: {
+        address: nft.address,
+        collectionName: nft.collectionName,
+        tokenId: nft.tokenId,
+      },
+    })
+  }
 }
 </script>
 
@@ -55,22 +72,20 @@ function handleAddToken() {
               v-for="nft in nfts"
               :key="`nft-${nft.address}-${nft.tokenId}`"
               :title="`${nft.collectionName} (${nft.tokenId}) - ${nft.name}`"
-              class="cursor-pointer select-none p-3 rounded-[10px] flex justify-between gap-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white nft-container"
-              @click.stop="
-                router.push({
-                  name: 'EditNft',
-                  params: {
-                    address: nft.address,
-                    collectionName: nft.collectionName,
-                    tokenId: nft.tokenId,
-                  },
-                })
-              "
+              class="select-none p-3 rounded-[10px] flex justify-between gap-1 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white nft-container"
+              :class="{
+                'cursor-pointer': !nft.autodetected,
+              }"
+              @click.stop="handleEditToken(nft)"
             >
               <span class="overflow-hidden whitespace-nowrap text-ellipsis">
                 {{ nft.collectionName }} ({{ nft.tokenId }})
               </span>
-              <img :src="getImage('edit-icon')" class="opacity-0" />
+              <img
+                v-if="!nft.autodetected"
+                :src="getImage('edit-icon')"
+                class="opacity-0"
+              />
             </div>
           </div>
           <div v-else class="flex flex-col flex-grow">
