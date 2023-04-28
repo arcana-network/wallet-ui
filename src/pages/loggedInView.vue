@@ -5,7 +5,7 @@ import { AppMode, ChainType } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref } from 'vue'
+import { onMounted, onBeforeMount, ref } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -32,9 +32,9 @@ import {
   getRequestHandler,
   setRequestHandler,
 } from '@/utils/requestHandlerSingleton'
-import { getStorage } from '@/utils/storageWrapper'
 import { SolanaAccountHandler } from '@/utils/solana/solanaAccountHandler'
 import { SolanaRequestHandler } from '@/utils/solana/solanaRequestHandler'
+import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
