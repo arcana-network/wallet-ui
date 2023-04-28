@@ -1,5 +1,4 @@
 import type { RpcConfig } from '@arcana/auth'
-import { ChainType } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
 import {
   Connection,
