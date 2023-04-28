@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { GetInfoOutput } from '@arcana/auth-core'
-import { Core } from '@arcana/key-helper'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
@@ -64,6 +64,12 @@ async function init() {
       userInfo.hasMfa =
         storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
       userInfo.pk = info.privateKey
+      if (!userInfo.hasMfa) {
+        const securityQuestionModule = new SecurityQuestionModule(3)
+        securityQuestionModule.init(core)
+        const isEnabled = await securityQuestionModule.isEnabled()
+        userInfo.hasMfa = isEnabled
+      }
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
