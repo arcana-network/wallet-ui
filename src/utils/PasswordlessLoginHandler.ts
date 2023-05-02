@@ -35,7 +35,9 @@ class PasswordlessLoginHandler {
 
   start = (): Promise<{
     privateKey: string
+    pk: string
     email: string
+    hasMfa: boolean
   }> => {
     return new Promise((resolve, reject) => {
       this.createCredential().then(async () => {
@@ -44,10 +46,17 @@ class PasswordlessLoginHandler {
           try {
             const ciphertext = await this.checkCredentialSet()
             if (ciphertext) {
-              const plaintext = await decrypt(ciphertext, this.key.privateKey)
+              const [originalCiphertext, hasMfa] = ciphertext.split(':')
+              const plaintext = await decrypt(
+                originalCiphertext,
+                this.key.privateKey
+              )
+              const { privateKey, pk } = JSON.parse(plaintext)
               resolve({
-                privateKey: plaintext,
+                privateKey,
+                pk,
                 email: this.email,
+                hasMfa: hasMfa === 'has-mfa',
               })
             }
           } catch (e) {

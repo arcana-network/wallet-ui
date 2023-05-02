@@ -19,6 +19,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
@@ -47,8 +48,9 @@ const rpcStore = useRpcStore()
 const toast = useToast()
 const getImage = useImage()
 const showModal: Ref<ModalState> = ref(false)
-const { currency, selectedChainId } = storeToRefs(rpcStore)
+const { currency } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
+const chainSelectedForEdit: Ref<number | null> = ref(null)
 
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
@@ -103,9 +105,9 @@ function openAddNetwork(open) {
 }
 
 function openEditNetwork(open, chainId: number | null = null) {
+  chainSelectedForEdit.value = chainId
   modalStore.setShowModal(open)
   showModal.value = open ? 'edit-network' : false
-  rpcStore.editChainId = chainId
 }
 
 function openSendTokens(open) {
@@ -156,11 +158,18 @@ onMounted(() => {
   }
 })
 
-watch(selectedChainId, () => {
-  if (props.walletBalance) {
-    getCurrencyExchangeRate()
+watch(
+  () => rpcStore.selectedRPCConfig.chainId,
+  async () => {
+    await getRequestHandler().setRpcConfig({
+      ...rpcStore.selectedRPCConfig,
+      chainId: Number(rpcStore.selectedRPCConfig.chainId),
+    })
+    if (props.walletBalance) {
+      getCurrencyExchangeRate()
+    }
   }
-})
+)
 
 watch(
   () => props.walletBalance,
@@ -295,6 +304,7 @@ watch(
       />
       <EditNetwork
         v-if="showModal === 'edit-network'"
+        :chain-id="chainSelectedForEdit as number"
         @close="openEditNetwork(false)"
       />
       <BuyTokens

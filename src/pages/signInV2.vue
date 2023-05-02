@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, computed, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
@@ -10,6 +11,7 @@ import OauthLogin from '@/components/oauthLogin.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailSheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -25,7 +27,6 @@ const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 let channel: BroadcastChannel | null = null
 initStorage()
-const storage = getStorage()
 
 const userEmailInput = ref('')
 const passwordlessForm = ref(null)
@@ -52,7 +53,7 @@ const initPasswordlessLogin = (email: string) => {
   }
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
-  passwordlessLoginHandler.start().then(({ privateKey, email }) => {
+  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa, pk }) => {
     storeUserInfoAndRedirect({
       loginType: SocialLoginType.passwordless,
       userInfo: {
@@ -62,6 +63,8 @@ const initPasswordlessLogin = (email: string) => {
         name: '',
       },
       privateKey,
+      pk,
+      hasMfa,
     })
   })
   return params
@@ -94,11 +97,39 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return await authProvider.getAvailableLogins()
 }
 
-function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
+async function storeUserInfoAndRedirect(
+  userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
+) {
+  const storage = getStorage()
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  if (!userInfo.hasMfa && userInfo.pk) {
+    const core = new Core(
+      userInfo.pk,
+      userInfo.userInfo.id,
+      `${appId}`,
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
+    )
+    const securityQuestionModule = new SecurityQuestionModule(3)
+    securityQuestionModule.init(core)
+    const isEnabled = await securityQuestionModule.isEnabled()
+    user.hasMfa = isEnabled
+  }
+  if (userInfo.hasMfa) {
+    user.hasMfa = true
+    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+  }
+  const loginCount = storage.local.getItem(
+    `${userInfo.userInfo.id}-login-count`
+  )
+  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
+  storage.local.setItem(
+    `${userInfo.userInfo.id}-login-count`,
+    String(newLoginCount)
+  )
   router.push({ name: 'home' })
 }
 
@@ -113,8 +144,13 @@ const channelEventHandler = (ev: MessageEvent) => {
 }
 
 const windowEventHandler = (
-  ev: MessageEvent<{ status: string; messageId: number; info: GetInfoOutput }>
+  ev: MessageEvent<{
+    status: string
+    messageId: number
+    info: GetInfoOutput & { hasMfa?: boolean }
+  }>
 ) => {
+  const storage = getStorage()
   // eslint-disable-next-line no-undef
   if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
     return
@@ -125,12 +161,17 @@ const windowEventHandler = (
       { targetOrigin: ev.origin }
     )
     storeUserInfoAndRedirect(ev.data.info)
+    if (ev.data.info.hasMfa) {
+      user.hasMfa = true
+      storage.local.setItem(`${ev.data.info.userInfo.id}-has-mfa`, '1')
+    }
   }
 }
 
 async function init() {
   isLoading.value = true
   try {
+    const storage = getStorage()
     // channel listener
     channel = new BroadcastChannel(`${appId}_login_notification`)
     channel.addEventListener('message', channelEventHandler)
@@ -147,8 +188,23 @@ async function init() {
     const isLoggedIn = storage.session.getItem('isLoggedIn')
 
     if (isLoggedIn) {
+      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
+      if (!hasMfa && userInfo.pk) {
+        const core = new Core(
+          userInfo.pk,
+          userInfo.userInfo.id,
+          `${appId}`,
+          GATEWAY_URL,
+          AUTH_NETWORK === 'dev'
+        )
+        const securityQuestionModule = new SecurityQuestionModule(3)
+        securityQuestionModule.init(core)
+        const isEnabled = await securityQuestionModule.isEnabled()
+        user.hasMfa = isEnabled
+      }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
+      user.hasMfa = hasMfa === '1'
       router.push({ name: 'home' })
     } else {
       parentConnection = createParentConnection({

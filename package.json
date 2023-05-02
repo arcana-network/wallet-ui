@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@arcana/auth": "^0.1.3",
-    "@arcana/auth-core": "^1.0.0-beta.5",
-    "@arcana/key-helper": "^1.0.0-beta.2",
+    "@arcana/auth-core": "^1.0.0-beta.6",
+    "@arcana/key-helper": "^1.0.0-beta.7",
     "@ethereumjs/tx": "^3.4.0",
     "@fontsource/montserrat": "^4.5.14",
     "@fontsource/sora": "^4.5.12",

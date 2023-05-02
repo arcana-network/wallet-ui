@@ -12,6 +12,12 @@ import { getStorage } from '@/utils/storageWrapper'
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
 const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
 
+const LOGIN_INFO = 'LOGIN_INFO'
+const LOGIN_INFO_ACK = 'LOGIN_INFO_ACK'
+const MFA_SETUP = 'MFA_SETUP'
+const MFA_SETUP_ACK = 'MFA_SETUP_ACK'
+const ACK = [LOGIN_INFO_ACK, MFA_SETUP_ACK]
+
 function contactUsingBroadcastChannel(
   channel: BroadcastChannel,
   info: GetInfoOutput,
@@ -37,7 +43,11 @@ function contactUsingBroadcastChannel(
   })
 }
 
-function contactParentPage(info: GetInfoOutput, messageId: number) {
+function contactParentPage(
+  info: GetInfoOutput,
+  messageId: number,
+  status: string
+) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       return reject('request timed out')
@@ -52,7 +62,7 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
           }
 
           if (
-            ev.data?.status === 'LOGIN_INFO_ACK' &&
+            ACK.includes(ev.data?.status) &&
             ev.data?.messageId == messageId
           ) {
             return resolve('ok')
@@ -63,7 +73,7 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
         try {
           window.parent.opener.frames[i].postMessage(
             {
-              status: 'LOGIN_INFO',
+              status,
               info,
               messageId: messageId,
             },
@@ -81,7 +91,7 @@ function contactParentPage(info: GetInfoOutput, messageId: number) {
 }
 
 async function handlePasswordlessLoginV2(
-  info: GetInfoOutput,
+  info: GetInfoOutput & { hasMfa?: boolean; pk?: string },
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
   const storage = getStorage()
@@ -94,7 +104,14 @@ async function handlePasswordlessLoginV2(
   const data = JSON.parse(params)
 
   const publicKey = await getCredentialKey(data.sessionId)
-  const ciphertext = await encrypt(info.privateKey, publicKey)
+  const dataToEncrypt = {
+    privateKey: info.privateKey,
+    pk: info.pk,
+  }
+  let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
+  if (info.hasMfa) {
+    ciphertext = `${ciphertext}:has-mfa`
+  }
   await setCredential(data.setToken, data.sessionId, ciphertext)
   connection.replyTo()
 }
@@ -106,7 +123,7 @@ async function handleSocialLogin(
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
   try {
-    await contactParentPage(info, messageId)
+    await contactParentPage(info, messageId, LOGIN_INFO)
     connection.replyTo(parentAppUrl)
   } catch (e) {
     console.log('A very unexpected error occurred', e)
@@ -133,4 +150,13 @@ async function handlePasswordlessLogin(
     connection.redirect(url.toString())
   }
 }
-export { handlePasswordlessLogin, handlePasswordlessLoginV2, handleSocialLogin }
+export {
+  handlePasswordlessLogin,
+  handlePasswordlessLoginV2,
+  handleSocialLogin,
+  contactParentPage,
+  MFA_SETUP,
+  LOGIN_INFO,
+  MFA_SETUP_ACK,
+  LOGIN_INFO_ACK,
+}
