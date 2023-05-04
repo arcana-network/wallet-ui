@@ -10,8 +10,8 @@ const emits = defineEmits(['click'])
 
 <template>
   <header class="flex justify-between rounded-t-xl">
-    <div class="flex space-x-1 items-center">
-      <img :src="appStore.appLogo?.horizontal" alt="app logo" class="h-9" />
+    <div class="flex space-x-3 items-center">
+      <img :src="appStore.appLogo?.horizontal" alt="app logo" class="h-8" />
       <p>{{ appStore.name }}</p>
     </div>
     <button
