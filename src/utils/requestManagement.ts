@@ -444,8 +444,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
       appStore.expandWallet = true
-      appStore.compactMode =
-        isPermissionRequired && request.method !== 'eth_sendTransaction'
+      appStore.compactMode = isPermissionRequired
     } else {
       const connectionInstance = await keeper.connection.promise
       connectionInstance.openPopup()
