@@ -1,7 +1,7 @@
 import { ethers } from 'ethers'
 
 const getContract = (rpcUrl, appAddress) => {
-  const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+  const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   return new ethers.Contract(
     appAddress,
     ['function walletType() view returns (uint)'],

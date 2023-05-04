@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { GetInfoOutput } from '@arcana/auth-core'
-import { Core } from '@arcana/key-helper'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
@@ -8,7 +8,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   handlePasswordlessLogin,
@@ -40,7 +40,7 @@ async function init() {
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
-      const userInfo: GetInfoOutput & { hasMfa?: boolean } = {
+      const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
         userInfo: info.userInfo,
         loginType: info.loginType,
         privateKey: '',
@@ -55,13 +55,21 @@ async function init() {
         info.privateKey,
         info.userInfo.id,
         String(appId),
-        GATEWAY_URL
+        GATEWAY_URL,
+        AUTH_NETWORK === 'dev'
       )
       await core.init()
       const key = await core.getKey()
       userInfo.privateKey = key
       userInfo.hasMfa =
         storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
+      userInfo.pk = info.privateKey
+      if (!userInfo.hasMfa) {
+        const securityQuestionModule = new SecurityQuestionModule(3)
+        securityQuestionModule.init(core)
+        const isEnabled = await securityQuestionModule.isEnabled()
+        userInfo.hasMfa = isEnabled
+      }
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
@@ -79,7 +87,11 @@ async function init() {
           }
         )
       } else {
-        if (loginSrc === 'rn' || loginSrc === 'flutter') {
+        if (
+          loginSrc === 'rn' ||
+          loginSrc === 'flutter' ||
+          loginSrc === 'unity'
+        ) {
           await connectionToParent.goToWallet()
           return
         }

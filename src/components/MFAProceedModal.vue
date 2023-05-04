@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { DOCS_URL } from '@/utils/constants'
+
 const emit = defineEmits(['proceed', 'close'])
 </script>
 
 <template>
   <div class="px-1 py-2">
     <div class="flex justify-between">
-      <div class="modal-title font-semibold">Enhanced Wallet Security</div>
+      <div class="modal-title font-semibold">Enhance Wallet Security</div>
       <img
         src="@/assets/images/close-icon.svg"
         class="cursor-pointer invert dark:invert-0"
@@ -14,9 +16,15 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
       <p>
-        Turn on 2FA by setting up security questions and a PIN. You can use
-        either method to authenticate a new browser or device that you use the
-        wallet on.
+        Turn on MFA by setting up security questions and a PIN. You will need to
+        enter either of them to authenticate when you login to a new device or
+        browser.
+        <a
+          :href="`${DOCS_URL}/concepts/mfa.html`"
+          target="_blank"
+          class="text-blue-500 font-semibold cursor-pointer"
+          >LEARN MORE</a
+        >
       </p>
     </div>
     <div>

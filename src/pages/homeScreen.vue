@@ -6,7 +6,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
@@ -17,7 +16,6 @@ const loader = ref({
   show: false,
   message: '',
 })
-let balancePolling
 
 function showLoader(message) {
   loader.value.show = true
@@ -34,24 +32,20 @@ onMounted(() => {
     if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
       handleChainChange()
     } else {
-      getWalletBalance()
+      rpcStore.getWalletBalance()
     }
-    balancePolling = setInterval(getWalletBalance, 4000)
+    rpcStore.setUpBalancePolling()
   } catch (err) {
     console.log({ err })
   }
 })
 
-onBeforeUnmount(() => {
-  if (balancePolling) {
-    clearInterval(balancePolling)
-  }
-})
+onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
-    await getWalletBalance()
+    await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {
@@ -59,19 +53,10 @@ async function handleChainChange() {
   }
 }
 
-async function getWalletBalance() {
-  const accountHandler = getRequestHandler().getAccountHandler()
-  if (accountHandler) {
-    const balance = (await accountHandler.getBalance()) || '0'
-    rpcStore.setWalletBalance(balance.toString())
-    walletBalance.value = ethers.utils.formatEther(balance.toString())
-  }
-}
-
 async function handleRefresh() {
   showLoader('Refreshing wallet balance...')
   try {
-    await getWalletBalance()
+    await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {

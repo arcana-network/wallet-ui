@@ -12,7 +12,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -59,7 +59,8 @@ onBeforeMount(async () => {
       dkgShare.pk,
       dkgShare.id,
       String(route.params.appId),
-      GATEWAY_URL
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
     )
     await core.init()
     securityQuestionModule.init(core)
@@ -273,9 +274,9 @@ function handlePinBack() {
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="description max-w-[26rem]"
-          >You're all set with Two-Factor Authentication. If you change browsers
-          or devices in the future, you may be asked to either answer the
-          security questions or the PIN created in the last step.
+          >You're all set with Multi-factor Authentication. If you change
+          browsers or devices in the future, you may be asked to either answer
+          the security questions or enter the pin created in the last step.
         </span>
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
@@ -302,8 +303,12 @@ function handlePinBack() {
       RECOVERY METHOD 2: PIN
     </h2>
     <hr />
+    <div class="mt-6 px-8 description">
+      Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
+      if you move to a new device or browser.
+    </div>
     <form
-      class="flex flex-col mt-8 gap-4 px-8 pb-8"
+      class="flex flex-col mt-6 gap-4 px-8 pb-8"
       @submit.prevent="handlePinProceed"
     >
       <div class="flex flex-col gap-1">

@@ -11,7 +11,7 @@ import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useModalStore } from '@/store/modal'
-import { GATEWAY_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import {
   handlePasswordlessLogin,
   handlePasswordlessLoginV2,
@@ -54,7 +54,13 @@ onBeforeMount(async () => {
     message: 'Loading metadata...',
   }
   dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  core = new Core(dkgShare.pk, dkgShare.id, appId, GATEWAY_URL)
+  core = new Core(
+    dkgShare.pk,
+    dkgShare.id,
+    appId,
+    GATEWAY_URL,
+    AUTH_NETWORK === 'dev'
+  )
   securityQuestionModule.init(core)
   try {
     questions.value = await securityQuestionModule.getQuestions()
@@ -149,7 +155,7 @@ async function returnToParent(key: string) {
       }
     )
   } else {
-    if (loginSrc === 'rn') {
+    if (loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity') {
       await connectionToParent.goToWallet()
       return
     }
@@ -175,12 +181,13 @@ onUnmounted(() => {
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex gap-2 items-center mb-2">
-      <div class="modal-title font-bold">Unauthenticated Device or Browser</div>
+      <div class="modal-title font-bold">
+        New Device/Browser Detected: Verify Login
+      </div>
     </div>
     <div class="flex" style="font-size: var(--fs-300)">
-      Changing devices or clearing your browser data can remove access to your
-      key share stored in it. Recover it by answering the security questions or
-      enter the PIN.
+      Enter your previously setup MFA PIN or answer the security questions to
+      verify your login to this new device/browser.
     </div>
     <div class="flex mt-4 items-end justify-end gap-8">
       <button

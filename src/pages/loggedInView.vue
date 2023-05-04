@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -14,6 +15,7 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AccountHandler } from '@/utils/accountHandler'
+import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
@@ -56,11 +58,26 @@ onMounted(async () => {
   await getRpcConfig()
   await getAccountDetails()
   appStore.showWallet = true
-  setMFABannerState()
+  await setMFABannerState()
+  // router.push({ name: 'home' })
   loader.value.show = false
 })
 
-function setMFABannerState() {
+async function setMFABannerState() {
+  if (!userStore.hasMfa) {
+    const userInfo = JSON.parse(storage.session.getItem('userInfo') as string)
+    const core = new Core(
+      userInfo.pk,
+      userStore.info.id,
+      appStore.id,
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
+    )
+    const securityQuestionModule = new SecurityQuestionModule(3)
+    securityQuestionModule.init(core)
+    const isEnabled = await securityQuestionModule.isEnabled()
+    userStore.hasMfa = isEnabled
+  }
   const mfaDnd = storage.local.getItem(`${userStore.info.id}-mfa-dnd`)
   const mfaSkipUntil = storage.local.getItem(
     `${userStore.info.id}-mfa-skip-until`

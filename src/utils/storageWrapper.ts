@@ -44,3 +44,4 @@ function initStorage(appId?: string) {
 }
 
 export { getStorage, initStorage }
+export type { StorageWrapper }

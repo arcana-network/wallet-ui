@@ -106,12 +106,12 @@ function goToHome() {
         <AppLoader :message="loader.message" />
       </div>
       <div class="flex justify-between">
-        <div class="modal-title font-semibold">Enhanced Wallet Security</div>
+        <div class="title font-semibold">Enhance Wallet Security</div>
       </div>
-      <div class="flex mt-4">
-        <span style="font-size: var(--fs-300)">
-          “{{ appStore.name }}” suggests enabling Two Factor Authentication
-          (2FA) in your wallet for added security when logging in to new
+      <div class="description mt-2 mb-6 flex flex-col gap-4">
+        <span>
+          “{{ appStore.name }}” suggests enabling Multi-factor Authentication
+          (MFA) in your wallet for added security when logging in to new
           browsers or devices.
           <a
             :href="`${DOCS_URL}/concepts/mfa.html`"
@@ -127,22 +127,22 @@ function goToHome() {
           type="submit"
           @click.stop="handleProceed"
         >
-          Proceed
+          Setup MFA
         </button>
-        <div class="flex justify-center gap-8">
-          <button
-            class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
-            type="submit"
-            @click.stop="handleAskNever"
-          >
-            Don’t ask again
-          </button>
+        <div class="flex justify-center gap-6">
           <button
             class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
             type="submit"
             @click.stop="handleSkip"
           >
             Skip for now
+          </button>
+          <button
+            class="text-xs sm:text-xs font-semibold text-black bg-transparent dark:text-white uppercase"
+            type="submit"
+            @click.stop="handleAskNever"
+          >
+            Don’t show again
           </button>
         </div>
       </div>
