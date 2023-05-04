@@ -30,7 +30,7 @@ function getTitle(requestMethod: string) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-4 sm:space-y-3 rounded-b-xl">
+  <div class="flex flex-1 flex-col space-y-2 rounded-b-xl">
     <div class="flex items-baseline">
       <h1 class="flex-1 m-0 font-semibold text-base sm:text-sm capitalize">
         {{ getTitle(methodAndAction[request.request.method]) }}
