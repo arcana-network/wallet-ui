@@ -4,7 +4,6 @@ import { useToast } from 'vue-toastification'
 import Popper from 'vue3-popper'
 
 import ChargeInfo from '@/components/ChargeInfo.vue'
-import RequestScreenCompact from '@/components/RequestScreenCompact.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
@@ -55,8 +54,9 @@ function handleGasPriceInput({ value, requestId }) {
 <template>
   <div v-if="areRequestsPendingForApproval" class="flex flex-col h-full gap-2">
     <div
-      v-if="pendingRequest && !appStore.compactMode"
-      class="sign__messages-container wallet__card rounded-[10px] flex flex-1 flex-col h-[80%]"
+      v-if="pendingRequest"
+      class="sign__messages-container rounded-[10px] flex flex-1 flex-col h-[80%]"
+      :class="{ wallet__card: !appStore.compactMode }"
     >
       <div
         :key="Number(pendingRequest.request.id)"
@@ -66,8 +66,15 @@ function handleGasPriceInput({ value, requestId }) {
           v-if="isSendTransactionRequest(pendingRequest.request.id)"
           :request="pendingRequest"
           @gas-price-input="handleGasPriceInput"
+          @reject="() => onRejectClick(pendingRequest.request.id)"
+          @approve="() => onApproveClick(pendingRequest.request.id)"
         />
-        <SignMessage v-else :request="pendingRequest" />
+        <SignMessage
+          v-else
+          :request="pendingRequest"
+          @reject="() => onRejectClick(pendingRequest.request.id)"
+          @approve="() => onApproveClick(pendingRequest.request.id)"
+        />
         <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
           <p class="sign__message-info-text">
             You are not going to be charged!
@@ -86,12 +93,6 @@ function handleGasPriceInput({ value, requestId }) {
         </div>
       </div>
     </div>
-    <RequestScreenCompact
-      v-else
-      :request="pendingRequest"
-      @reject="() => onRejectClick(pendingRequest.request.id)"
-      @approve="() => onApproveClick(pendingRequest.request.id)"
-    />
     <div
       v-if="pendingRequest && !appStore.compactMode"
       class="sign__message-button-container flex justify-around -m-4 mt-0 p-4"
