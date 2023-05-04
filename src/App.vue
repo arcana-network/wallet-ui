@@ -83,8 +83,8 @@ function onClickOfHeader() {
     >
       <WalletHeader @click="onClickOfHeader" />
       <div
-        class="flex-grow wallet__container"
-        :class="{ 'rounded-b-xl': compactMode }"
+        class="flex-grow wallet__container p-4"
+        :class="{ 'rounded-b-xl p-0': compactMode }"
       >
         <RouterView class="min-h-full" />
         <BaseModal v-if="modal.show" />
@@ -105,8 +105,8 @@ function onClickOfHeader() {
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
     <div
-      class="flex-grow wallet__container"
-      :class="{ 'rounded-b-xl': compactMode }"
+      class="flex-grow wallet__container p-4"
+      :class="{ 'rounded-b-xl p-0': compactMode }"
     >
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
@@ -280,7 +280,6 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: var(--p-400);
   overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
