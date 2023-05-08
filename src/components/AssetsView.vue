@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { onMounted, reactive, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -33,10 +34,7 @@ function fetchNativeAsset() {
   return {
     address: 'native',
     name: rpcStore.nativeCurrency.name,
-    balance: formatTokenDecimals(
-      rpcStore.walletBalance,
-      rpcStore.nativeCurrency.decimals
-    ),
+    balance: Number(ethers.utils.formatEther(rpcStore.walletBalance)),
     decimals: rpcStore.nativeCurrency.decimals,
     symbol: rpcStore.nativeCurrency.symbol,
     logo:
@@ -92,6 +90,10 @@ function handleAddToken() {
   router.push({ name: 'AddToken' })
 }
 
+function isNative(asset: Asset) {
+  return asset.address === 'native'
+}
+
 onMounted(async () => {
   await getAssetsBalance()
   assetsPolling = setInterval(updateAssetsBalance, 4000)
@@ -127,7 +129,11 @@ rpcStore.$subscribe(getAssetsBalance)
         </div>
         <div
           class="assets-view__asset-balance flex flex-wrap leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis"
-          :title="`${asset.balance.toFixed(asset.decimals)} ${asset.symbol}`"
+          :title="`${
+            isNative(asset)
+              ? ethers.utils.formatEther(rpcStore.walletBalance)
+              : asset.balance.toFixed(asset.decimals)
+          } ${asset.symbol}`"
         >
           {{ beautifyBalance(asset.balance) }}
           {{ asset.symbol }}
