@@ -53,7 +53,7 @@ async function watchRequestQueue(keeper) {
       }
       if (processQueue.length > 0) {
         const request = processQueue.shift()
-        if (request) processRequest(request, keeper)
+        if (request) await processRequest(request, keeper)
         if (appMode === AppMode.Widget && pendingRequestCount === 0) {
           if (appStore.sdkVersion !== 'v3') connectionInstance.closePopup()
         } else if (pendingRequestCount === 0) {
