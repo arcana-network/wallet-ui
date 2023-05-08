@@ -77,7 +77,7 @@ function onClickOfHeader() {
 <template>
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
     <div
-      v-if="expandWallet"
+      v-show="expandWallet"
       class="flex flex-col h-full"
       :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
     >
@@ -92,7 +92,7 @@ function onClickOfHeader() {
       <WalletFooter v-if="showFooter" />
     </div>
     <div
-      v-else
+      v-show="!expandWallet"
       class="h-full"
       :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
     >
