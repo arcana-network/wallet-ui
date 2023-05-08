@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Wallet } from 'ethers'
 import { computed, toRefs } from 'vue'
 
 import RequestCountBadge from '@/components/RequestCountBadge.vue'
@@ -30,9 +31,10 @@ const showRequestCountBadge = computed(() => {
       <RequestCountBadge :request-count="requestCount" />
     </div>
     <button
-      class="container | absolute bottom-0 right-0 w-14 h-11 flex justify-center items-center cursor-pointer"
+      class="container | absolute bottom-0 w-14 h-11 flex justify-center items-center cursor-pointer"
       :class="[
         walletPosition === 'right' ? 'rounded-l-[10px]' : 'rounded-r-[10px]',
+        walletPosition === 'right' ? 'right-0' : 'left-0',
       ]"
       @click="onClickOfButton"
     >
