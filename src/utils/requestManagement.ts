@@ -14,6 +14,7 @@ import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { TOAST_TIME_OUT } from '@/utils/constants'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
@@ -25,6 +26,14 @@ const userStore = useUserStore(store)
 const toast = useToast()
 const reqStore = useRequestStore()
 const appStore = useAppStore()
+
+async function showToast(type, message) {
+  return new Promise((res) => {
+    if (type === 'error') toast.error(message)
+    if (type === 'success') toast.success(message)
+    setTimeout(() => res(true), TOAST_TIME_OUT)
+  })
+}
 
 function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
   return function sendRequest(request) {
@@ -46,11 +55,6 @@ async function watchRequestQueue(keeper) {
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
       const appMode = await connectionInstance.getAppMode()
-      try {
-        connectionInstance.sendPendingRequestCount(pendingRequestCount)
-      } catch (err) {
-        console.error({ err })
-      }
       if (processQueue.length > 0) {
         const request = processQueue.shift()
         if (request) await processRequest(request, keeper)
@@ -59,11 +63,6 @@ async function watchRequestQueue(keeper) {
         } else if (pendingRequestCount === 0) {
           appStore.expandWallet = false
           appStore.compactMode = false
-        }
-        try {
-          connectionInstance.sendPendingRequestCount(pendingRequestCount)
-        } catch (err) {
-          console.error({ err })
         }
       }
     },
@@ -306,12 +305,12 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       }
       try {
         const response = await keeper.request(request)
-        keeper.reply(request.method, response)
+        await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError?.code) {
-            toast.error(response.error.data.originalError.code)
+            await showToast('error', response.error.data.originalError.code)
           } else {
-            toast.error(response.error)
+            await showToast('error', response.error)
           }
           return
         } else {
@@ -322,13 +321,14 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             'wallet_addEthereumChain',
           ]
           if (asyncMethods.includes(request.method)) {
-            toast.success(`${request.method} execution completed`)
+            const message = `${request.method} execution completed`
+            await showToast('success', message)
           }
         }
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
-            activitiesStore.saveFileActivity(
+            await activitiesStore.saveFileActivity(
               rpcStore.selectedRpcConfig?.chainId,
               params.message,
               params.domain.verifyingContract
@@ -336,7 +336,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           }
         }
         if (request.method === 'eth_sendTransaction' && response.result) {
-          activitiesStore.fetchAndSaveActivityFromHash({
+          await activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
