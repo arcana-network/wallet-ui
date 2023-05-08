@@ -65,7 +65,7 @@ async function getNFTAssets() {
       details.animationUrl = sanitizeUrl(
         details.animation_url || details.animations
       )
-      nfts.value.push(details)
+      nfts.value.push({ ...nft, ...details })
     })
   )
   loader.show = false

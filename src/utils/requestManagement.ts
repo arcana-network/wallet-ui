@@ -1,14 +1,13 @@
 // Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import type { AssetContract } from '@/models/Asset'
 import { requirePermission } from '@/models/Connection'
-import { NFT } from '@/models/NFT'
 import { router } from '@/routes'
+import { NFTDB } from '@/services/nft.service'
 import { store } from '@/store'
 import { useActivitiesStore } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
@@ -246,36 +245,11 @@ async function addToken(request, keeper) {
     })
   } else if (ercType === 'erc721' || ercType === 'erc1155') {
     const { nft } = await validateAddNftParams(ercType, params)
-    const nftsString = storage.local.getItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
+    const nftDB = await NFTDB.create(
+      getStorage().local,
+      userStore.walletAddress
     )
-    let nfts: NFT[] = []
-    if (nftsString) {
-      nfts = JSON.parse(nftsString) as NFT[]
-    }
-    nfts.push({ ...nft })
-    nfts.sort((nft1, nft2) => {
-      if (nft1.tokenId > nft2.tokenId) {
-        return 1
-      }
-      if (nft2.tokenId > nft1.tokenId) {
-        return -1
-      }
-      return 0
-    })
-    nfts.sort((nft1, nft2) => {
-      if (nft1.collectionName > nft2.collectionName) {
-        return 1
-      }
-      if (nft2.collectionName > nft1.collectionName) {
-        return -1
-      }
-      return 0
-    })
-    storage.local.setItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`,
-      JSON.stringify(nfts)
-    )
+    nftDB.addNFT(nft, Number(rpcStore.selectedChainId))
     keeper.reply(request.method, {
       result: 'Token Added successfully',
       id: request.id,
