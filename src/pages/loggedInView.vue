@@ -90,11 +90,9 @@ async function setMFABannerState() {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
     router.push({ name: 'home' })
-  } else {
-    router.push({ name: 'MFARequired' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip) {
-    showMfaBanner.value = true
+    showMfaBanner.value = true && !appStore.compactMode
   }
 }
 
