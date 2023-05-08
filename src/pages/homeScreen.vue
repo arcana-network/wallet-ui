@@ -89,9 +89,3 @@ rpcStore.$subscribe(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.section-title {
-  font-size: var(--fs-400);
-}
-</style>
