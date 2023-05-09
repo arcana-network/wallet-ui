@@ -9,7 +9,7 @@ const GATEWAY_URL = process.env.VUE_APP_WALLET_GATEWAY
 const AUTH_NETWORK = process.env
   .VUE_APP_ARCANA_AUTH_NETWORK as InitParams['network']
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-const GAS_FEE_UNIT = 'GWEI'
+const GAS_FEE_UNIT = 'Gwei'
 const GAS_PRICE_SPEED_MAP = {
   slow: { wait: 'safeLowWait', price: 'safeLow' },
   standard: { wait: 'avgWait', price: 'average' },
