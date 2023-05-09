@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 
 import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import SignMessageCompact from '@/components/SignMessageCompact.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
@@ -23,6 +24,8 @@ defineProps({
   },
 })
 
+const emits = defineEmits(['reject', 'approve'])
+
 const stateChangeRequests = [
   methodAndAction.wallet_addEthereumChain,
   methodAndAction.wallet_switchEthereumChain,
@@ -38,7 +41,13 @@ function getTitle(requestMethod: string) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
+  <SignMessageCompact
+    v-if="appStore.compactMode"
+    :request="request"
+    @approve="emits('approve')"
+    @reject="emits('reject')"
+  />
+  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex items-baseline">
       <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm capitalize">
         {{ getTitle(methodAndAction[request.request.method]) }}

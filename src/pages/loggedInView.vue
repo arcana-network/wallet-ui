@@ -57,8 +57,9 @@ onMounted(async () => {
   await setTheme()
   await getRpcConfig()
   await getAccountDetails()
+  appStore.showWallet = true
   await setMFABannerState()
-  router.push({ name: 'home' })
+  // router.push({ name: 'home' })
   loader.value.show = false
 })
 
@@ -85,7 +86,12 @@ async function setMFABannerState() {
   const hasMfaDnd = mfaDnd && mfaDnd === '1'
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip) {
+  if (requestStore.areRequestsPendingForApproval) {
+    router.push({ name: 'requests', params: { appId: appStore.id } })
+  } else if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
+    router.push({ name: 'home' })
+  }
+  if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
   }
 }
@@ -152,6 +158,7 @@ function connectToParent() {
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
     getUserInfo,
+    expandWallet: () => (appStore.expandWallet = true),
   })
   parentConnectionStore.setParentConnection(parentConnection)
 }
@@ -160,11 +167,24 @@ async function setTheme() {
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const {
-      themeConfig: { theme },
+      themeConfig: {
+        theme,
+        assets: { logo },
+      },
       name: appName,
     } = await parentConnectionInstance.getAppConfig()
 
+    if (parentConnectionInstance.getSDKVersion) {
+      appStore.sdkVersion = await parentConnectionInstance.getSDKVersion()
+    }
+
+    if (appStore.sdkVersion === 'v3') {
+      const walletPosition = await parentConnectionInstance.getWalletPosition()
+      appStore.setWalletPosition(walletPosition)
+    }
+
     appStore.setTheme(theme)
+    appStore.setAppLogo(logo)
     appStore.setName(appName)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
@@ -185,16 +205,14 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode as AppMode)
 }
 
-async function handleLogout(isV2 = false) {
+async function handleLogout() {
+  appStore.sdkVersion = 'v2'
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
-    setTimeout(() => {
-      const route = isV2 ? `/${appStore.id}/v2/login` : `/${appStore.id}/login`
-      router.push(route)
-    })
+    appStore.showWallet = false
   }
 }
 
