@@ -60,6 +60,21 @@ onMounted(async () => {
   appStore.showWallet = true
   await setMFABannerState()
   // router.push({ name: 'home' })
+  const requestHandler = getRequestHandler()
+  if (requestHandler) {
+    requestHandler.setConnection(parentConnection)
+    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+    const selectedChainId = Number(chainId)
+    await requestHandler.setRpcConfig({
+      chainId: selectedChainId,
+      ...rpcConfig,
+    })
+    const parentConnectionInstance = await parentConnection.promise
+    parentConnectionInstance.onEvent('connect', {
+      chainId: selectedChainId,
+    })
+    watchRequestQueue(requestHandler)
+  }
   loader.value.show = false
 })
 
@@ -88,7 +103,7 @@ async function setMFABannerState() {
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
-  } else if (userStore.hasMfa || hasMfaDnd || hasMfaSkip) {
+  } else {
     router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
@@ -121,23 +136,6 @@ async function initAccountHandler() {
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
         setAppMode(walletType, parentConnectionInstance)
-      }
-
-      const requestHandler = getRequestHandler()
-      if (requestHandler) {
-        requestHandler.setConnection(parentConnection)
-        const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
-        const selectedChainId = Number(chainId)
-        await requestHandler.setRpcConfig({
-          chainId: selectedChainId,
-          ...rpcConfig,
-        })
-
-        watchRequestQueue(requestHandler)
-
-        parentConnectionInstance.onEvent('connect', {
-          chainId: selectedChainId,
-        })
       }
     }
   } catch (err) {

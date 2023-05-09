@@ -2,6 +2,7 @@ import contractMap from '@/contract-map.json'
 import { EthAssetContract } from '@/models/Asset'
 import type { NFT } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
+import { NFTDB } from '@/services/nft.service'
 import {
   checkOwnership,
   getCollectionName,
@@ -16,15 +17,7 @@ const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
   })
 )
 
-function isNftInLocalStorage(walletAddress, chainId, tokenContract) {
-  const nftString = getStorage().local.getItem(
-    `${walletAddress}/${chainId}/nfts`
-  )
-  if (nftString === null) return false
-
-  const nfts = JSON.parse(nftString) as NFT[]
-  if (!Array.isArray(nfts)) return false
-
+function isNftInDB(nfts, tokenContract) {
   const tokenId = tokenContract.tokenId || tokenContract.token_id
 
   return nfts.find(
@@ -62,7 +55,10 @@ async function validateAndPopulateContractForNft({
     result.error = 'Required params missing'
     return result
   }
-  if (isNftInLocalStorage(walletAddress, chainId, nftContract)) {
+  const nftDB = await NFTDB.create(getStorage().local, walletAddress)
+  const nfts = nftDB.getNFTs(Number(chainId))
+
+  if (isNftInDB(nfts, nftContract)) {
     result.error = 'Token already added'
     result.isValid = false
     return result
