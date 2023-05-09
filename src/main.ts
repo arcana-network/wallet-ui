@@ -10,13 +10,14 @@ import Toast from 'vue-toastification'
 import App from '@/App.vue'
 import { router } from '@/routes/index'
 import { store } from '@/store'
+import { TOAST_TIME_OUT } from '@/utils/constants'
 
 import '@fontsource/montserrat/variable.css'
 import '@fontsource/sora/variable.css'
 import 'vue-toastification/dist/index.css'
 
 const toastOptions = {
-  timeout: 2500,
+  timeout: TOAST_TIME_OUT,
   closeOnClick: false,
   pauseOnFocusLoss: false,
   pauseOnHover: true,
