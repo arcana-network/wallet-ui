@@ -164,7 +164,7 @@ async function getDetailedNFTs(nftDB: NFTDB, chainId: number) {
             }),
         getNFTDetails(nft.tokenUrl, nft.tokenId),
       ])
-      if ((ownership != undefined && !ownership.owner) || !details) {
+      if (!ownership?.owner || !details) {
         nftDB.removeNFT(nft, chainId)
         return
       }
