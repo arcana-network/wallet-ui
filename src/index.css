@@ -2,5 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  button {
+    @apply outline-none
+          cursor-pointer disabled:cursor-not-allowed
+          transition-all duration-200 ease-in-out
+          disabled:opacity-60;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply dark:bg-white-100 dark:active:bg-gray-400 dark:text-black-200 dark:hover:shadow-sm dark:hover:shadow-dark-100
+          rounded-sm;
+  }
+
+  .btn-secondary {
+    @apply dark:active:bg-gray-500 dark:text-white-200 dark:hover:shadow-sm dark:hover:shadow-dark-100
+          box-border dark:border-white-200 border-default rounded-sm;
+  }
+
+  .btn-tertiary {
+    @apply dark:text-white-100 dark:hover:dark-text-shadow-100;
+  }
+
+  .btn-quaternery {
+    @apply dark:bg-black-100 dark:text-white-100 dark:active:text-gray-400 dark:hover:dark-text-shadow-100
+          box-border dark:border-gray-200 border-default;
+  }
+}
+
 @layer utilities {
+  .dark-text-shadow-100 {
+    text-shadow: 0 0 6px rgb(236 236 236 / 45%);
+  }
 }
