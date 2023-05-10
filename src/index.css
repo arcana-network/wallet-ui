@@ -2,7 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 300;
+  src: url('@/assets/fonts/OnestLight1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/OnestRegular1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/OnestMedium1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/OnestBold1602-hint.woff') format('woff');
+}
+
 @layer base {
+  body {
+    @apply font-onest text-black-100 dark:text-white-100;
+  }
+
   button {
     @apply outline-none
           cursor-pointer disabled:cursor-not-allowed
@@ -35,5 +67,9 @@
 @layer utilities {
   .dark-text-shadow-100 {
     text-shadow: 0 0 6px rgb(236 236 236 / 45%);
+  }
+
+  .font-onest {
+    font-family: Onest, sans-serif;
   }
 }

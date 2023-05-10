@@ -118,7 +118,6 @@ function onClickOfHeader() {
 
 body {
   height: 100vh;
-  font-family: SoraVariable, sans-serif;
 }
 
 #app {
