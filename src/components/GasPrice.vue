@@ -90,20 +90,18 @@ function handleGasPriceSelect(value = '') {
 
 function handleCustomGasPriceInput(value) {
   disableSlider.value = true
-  if (value) {
-    const amountInputEl = document.querySelector(
-      '#custom-gas-fee-amount'
-    ) as HTMLInputElement
-    if (value < Number(props.baseFee)) {
-      return amountInputEl.setCustomValidity(
-        'Amount must not be less than base fee.'
-      )
-    } else {
-      amountInputEl.setCustomValidity('')
-      gasFee.value = value
-      emits('gasPriceInput', gasFee.value)
-    }
+  const amountInputEl = document.querySelector(
+    '#custom-gas-fee-amount'
+  ) as HTMLInputElement
+  if (!value && value !== 0) {
+    amountInputEl.setCustomValidity('Enter the gas fees to continue.')
+  } else if (value < Number(props.baseFee)) {
+    amountInputEl.setCustomValidity('Gas fees must not be less than base fees.')
+  } else {
+    amountInputEl.setCustomValidity('')
   }
+  gasFee.value = value
+  emits('gasPriceInput', gasFee.value)
 }
 </script>
 
