@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
@@ -69,6 +69,15 @@ rpcStore.$subscribe(() => {
     handleChainChange()
   }
 })
+
+watch(
+  () => rpcStore.walletBalance,
+  () => {
+    if (rpcStore.walletBalance) {
+      walletBalance.value = ethers.utils.formatEther(rpcStore.walletBalance)
+    }
+  }
+)
 </script>
 
 <template>
@@ -89,9 +98,3 @@ rpcStore.$subscribe(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.section-title {
-  font-size: var(--fs-400);
-}
-</style>

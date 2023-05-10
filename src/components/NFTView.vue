@@ -3,11 +3,10 @@ import { onMounted, ref, type Ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
-import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { checkOwnership } from '@/utils/nftUtils'
+import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -29,45 +28,11 @@ const loader = reactive({
   message: 'Loading saved NFTs...',
 })
 
-function sanitizeUrl(url?: string) {
-  if (url && url.startsWith('ipfs://')) {
-    return modifyIpfsUrl(url)
-  }
-  return url
-}
-
 async function getNFTAssets() {
   loader.show = true
   nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
-  nfts.value = []
+  nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
 
-  const potentialNFTList = nftDB.getNFTs(Number(rpcStore.selectedChainId))
-  const chainId = Number(rpcStore.selectedChainId)
-
-  await Promise.all(
-    potentialNFTList.map(async (nft) => {
-      const [ownership, details] = await Promise.all([
-        nft.autodetected
-          ? undefined
-          : checkOwnership(nft.type, {
-              tokenId: nft.tokenId,
-              contractAddress: nft.address,
-            }),
-        getNFTDetails(nft.tokenUrl, nft.tokenId),
-      ])
-      if (ownership != undefined && !ownership.owner) {
-        nftDB.removeNFT(nft, chainId)
-        return
-      }
-
-      details.name = details.name || `#${nft.tokenId}`
-      details.imageUrl = sanitizeUrl(details.image_url || details.image)
-      details.animationUrl = sanitizeUrl(
-        details.animation_url || details.animations
-      )
-      nfts.value.push(details)
-    })
-  )
   loader.show = false
 }
 

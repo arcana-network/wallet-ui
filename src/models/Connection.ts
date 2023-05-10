@@ -1,6 +1,8 @@
-import { AppConfig, AppMode, RpcConfig } from '@arcana/auth'
+import { AppConfig, AppMode, Position, RpcConfig } from '@arcana/auth'
 import type { SocialLoginType } from '@arcana/auth-core'
 import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
+
+type SDKVersion = 'v2' | 'v3'
 
 type RequestMethod =
   | 'eth_sign'
@@ -66,12 +68,16 @@ type ParentConnectionApi = {
   getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
+  setIframeStyle(styles: CSSStyleDeclaration): void
+  getWalletPosition(): Position
+  getSDKVersion(): SDKVersion
 }
 type InitParentConnectionApi = {
   getParentUrl(): string
   getLoginSource(): string
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
+  setIframeStyle(styles: CSSStyleDeclaration): void
 }
 
 export { requirePermission, PERMISSIONS }
@@ -82,4 +88,5 @@ export type {
   InitParentConnectionApi,
   RequestMethod,
   ProviderEvent,
+  SDKVersion,
 }

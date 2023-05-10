@@ -16,7 +16,13 @@ async function getNFTDetails(tokenUri: string, tokenId: string) {
   } else {
     url = tokenUri
   }
-  return (await axios.get(url)).data
+
+  try {
+    return (await axios.get(url)).data
+  } catch (e) {
+    console.error(e)
+    return null
+  }
 }
 
 function modifyIpfsUrl(url: string) {

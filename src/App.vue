@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { toRefs, ref, watch, computed, onBeforeMount } from 'vue'
+import { toRefs, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
+import WalletButton from '@/components/WalletButton.vue'
+import WalletHeader from '@/components/WalletHeader.vue'
 import type { Theme } from '@/models/Theme'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -15,9 +18,9 @@ import '@/index.css'
 const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
+const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
-const { theme } = toRefs(app)
-const isLoading = ref(false)
+const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 
 const url = new URL(window.location.href)
@@ -33,8 +36,23 @@ onBeforeMount(async () => {
   await fetchTransakNetworks()
 })
 
-watch(showRequestPage, () => {
-  if (showRequestPage.value) {
+async function setIframeStyle() {
+  const parentConnectionInstance = await parentConnectionStore.parentConnection
+    ?.promise
+  await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+}
+
+watch(showWallet, async (newValue) => {
+  if (newValue) app.expandWallet = false
+  setIframeStyle()
+})
+
+watch(expandWallet, setIframeStyle)
+
+watch(compactMode, setIframeStyle)
+
+watch(showRequestPage, (newValue) => {
+  if (newValue) {
     modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
@@ -42,22 +60,54 @@ watch(showRequestPage, () => {
 
 const showFooter = computed(() => {
   return (
-    !['requests', 'MFARequired', 'MFARestore'].includes(route.name as string) ||
-    (route.name === 'requests' && !requestStore.pendingRequest)
+    (!['requests', 'MFARequired', 'MFARestore'].includes(
+      route.name as string
+    ) ||
+      (route.name === 'requests' && !requestStore.pendingRequest)) &&
+    !app.compactMode
   )
 })
+
+function onClickOfHeader() {
+  if (app.compactMode) app.compactMode = false
+  else app.expandWallet = false
+}
 </script>
 
 <template>
-  <div v-if="isLoading" class="flex col justify-center items-center h-full">
-    <div>Loading...</div>
+  <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
+    <div
+      v-show="expandWallet"
+      class="flex flex-col h-full"
+      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+    >
+      <WalletHeader @click="onClickOfHeader" />
+      <div
+        class="flex-grow wallet__container p-4"
+        :class="{ 'rounded-b-xl p-0': compactMode }"
+      >
+        <RouterView class="min-h-full" />
+        <BaseModal v-if="modal.show" />
+      </div>
+      <WalletFooter v-if="showFooter" />
+    </div>
+    <div
+      v-show="!expandWallet"
+      class="h-full"
+      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+    >
+      <WalletButton />
+    </div>
   </div>
   <div
     v-else
     class="flex flex-col h-full"
     :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
   >
-    <div class="flex-grow wallet__container">
+    <div
+      class="flex-grow wallet__container p-4"
+      :class="{ 'rounded-b-xl p-0': compactMode }"
+    >
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />
     </div>
@@ -92,7 +142,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: var(--p-400);
   overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
