@@ -31,7 +31,6 @@ type OnRampMoneyNetworkObject = {
 }
 
 const COIN_CONFIG = new Map<number, OnRampMoneyCoinObject>()
-const SECONDARY_COIN_LOOKUP = new Map<string, OnRampMoneyCoinObject>()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
 const API_URL = new URL(
   '/api/v1/onramp-coin-config/',
@@ -67,7 +66,6 @@ async function initializeOnRampMoney() {
     }
 
     COIN_CONFIG.set(coin.coinId, coin)
-    SECONDARY_COIN_LOOKUP.set(actualID, coin)
   }
 }
 
@@ -80,10 +78,7 @@ async function openOnRampMoneyHostedUI(chainId: number) {
   if (netConfig == null) {
     throw new OnRampMoneyException('Unsupported chain')
   }
-  let nativeToken = COIN_CONFIG.get(netConfig.nativeToken)
-  if (nativeToken == null) {
-    nativeToken = SECONDARY_COIN_LOOKUP.get(netConfig.chainSymbol)
-  }
+  const nativeToken = COIN_CONFIG.get(netConfig.nativeToken)
   if (nativeToken == null) {
     throw new OnRampMoneyException('Could not find native token')
   }
