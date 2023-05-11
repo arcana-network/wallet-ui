@@ -70,7 +70,12 @@ async function initializeOnRampMoney() {
 }
 
 function isSupportedByOnRampMoney(chainId: number) {
-  return CHAIN_ID_CONFIG.has(chainId)
+  const cfg = CHAIN_ID_CONFIG.get(chainId)
+  if (cfg == null || cfg.nativeToken === -1) {
+    return false
+  }
+  const tok = COIN_CONFIG.get(cfg.nativeToken)
+  return tok != null
 }
 
 async function openOnRampMoneyHostedUI(chainId: number) {

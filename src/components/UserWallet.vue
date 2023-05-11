@@ -53,7 +53,7 @@ const { currency } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
 const chainSelectedForEdit: Ref<number | null> = ref(null)
 
-/* Why are these calculated here? These should be contained within the BuyTokens component, it's not the UserWallet's responsibility */
+// TODO: move these to something else scoped to onramps
 
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
