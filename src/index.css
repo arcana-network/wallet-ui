@@ -32,7 +32,7 @@
 
 @layer base {
   body {
-    @apply font-onest text-black-100 dark:text-white-100;
+    @apply font-onest text-black-100 dark:text-white-100 leading-normal;
   }
 
   button {
@@ -40,6 +40,10 @@
           cursor-pointer disabled:cursor-not-allowed
           transition-all duration-200 ease-in-out
           disabled:opacity-60;
+  }
+
+  nav {
+    @apply dark:bg-black-400;
   }
 }
 
@@ -61,6 +65,18 @@
   .btn-quaternery {
     @apply dark:bg-black-100 dark:text-white-100 dark:active:text-gray-400 dark:hover:dark-text-shadow-100
           box-border dark:border-gray-200 border-default;
+  }
+
+  .card {
+    @apply dark:bg-black-200 dark:border-gray-200 border rounded-md;
+  }
+
+  .input-field {
+    @apply dark:bg-gray-300 rounded-sm;
+  }
+
+  .input-active {
+    @apply outline-1 dark:outline-white-200;
   }
 }
 
