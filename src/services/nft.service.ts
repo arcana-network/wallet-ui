@@ -170,7 +170,6 @@ class NFTDB {
       ...item,
       autodetected: false,
       chainId,
-      tokenUrl: '',
     })
     this.synchronizeToStorage()
   }
