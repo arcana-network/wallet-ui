@@ -27,7 +27,6 @@
     "@ramp-network/ramp-instant-sdk": "^4.0.1",
     "@sentry/tracing": "^7.5.1",
     "@sentry/vue": "^7.5.1",
-    "@transak/transak-sdk": "^1.2.3",
     "assert": "^2.0.0",
     "axios": "^0.27.2",
     "bignumber.js": "^9.1.0",

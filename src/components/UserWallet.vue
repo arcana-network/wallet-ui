@@ -18,6 +18,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
+import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
@@ -52,6 +53,8 @@ const { currency } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
 const chainSelectedForEdit: Ref<number | null> = ref(null)
 
+// TODO: move these to something else scoped to onramps
+
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
@@ -65,6 +68,17 @@ const rampNetwork = computed(() => {
     (network) => network.chainId === selectedChainId
   )
 })
+
+const onRampMoney = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  if (isSupportedByOnRampMoney(selectedChainId)) {
+    return selectedChainId
+  } else {
+    return false
+  }
+})
+
+// See above
 
 const explorerUrl = computed(() => {
   if (
@@ -277,7 +291,7 @@ watch(
           </button>
           <button
             v-if="walletBalance && !HIDE_ON_RAMP"
-            :disabled="!transakNetwork && !rampNetwork"
+            :disabled="!transakNetwork && !rampNetwork && onRampMoney !== false"
             class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
             @click="handleBuy(true)"
           >
@@ -311,6 +325,7 @@ watch(
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
         :ramp-network="rampNetwork?.value"
+        :on-ramp-money="onRampMoney"
         @close="handleBuy(false)"
       />
     </Teleport>
