@@ -59,6 +59,21 @@ onMounted(async () => {
   await getAccountDetails()
   await setMFABannerState()
   router.push({ name: 'home' })
+  const requestHandler = getRequestHandler()
+  if (requestHandler) {
+    requestHandler.setConnection(parentConnection)
+    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+    const selectedChainId = Number(chainId)
+    await requestHandler.setRpcConfig({
+      chainId: selectedChainId,
+      ...rpcConfig,
+    })
+    const parentConnectionInstance = await parentConnection.promise
+    parentConnectionInstance.onEvent('connect', {
+      chainId: selectedChainId,
+    })
+    watchRequestQueue(requestHandler)
+  }
   loader.value.show = false
 })
 
@@ -115,23 +130,6 @@ async function initAccountHandler() {
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
         setAppMode(walletType, parentConnectionInstance)
-      }
-
-      const requestHandler = getRequestHandler()
-      if (requestHandler) {
-        requestHandler.setConnection(parentConnection)
-        const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
-        const selectedChainId = Number(chainId)
-        await requestHandler.setRpcConfig({
-          chainId: selectedChainId,
-          ...rpcConfig,
-        })
-
-        watchRequestQueue(requestHandler)
-
-        parentConnectionInstance.onEvent('connect', {
-          chainId: selectedChainId,
-        })
       }
     }
   } catch (err) {
