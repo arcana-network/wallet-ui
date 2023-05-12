@@ -39,7 +39,7 @@ export const advancedInfo = (method: string, params: string | string[]) => {
       data = params[1]
     }
   } else if (method == 'personal_sign') {
-    data = hex2a(params[0])
+    data = params[0]
   } else if (method == 'eth_signTypedData_v4' && isJson(params[1])) {
     const jsonData = JSON.parse(params[1])
     if (jsonData.domain.name == 'Arcana Forwarder') {
