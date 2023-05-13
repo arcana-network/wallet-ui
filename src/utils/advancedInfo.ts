@@ -1,4 +1,4 @@
-import { isHexString } from 'ethereumjs-util'
+import { stripHexPrefix, isHexString } from 'ethereumjs-util'
 
 function isJson(str: string) {
   try {
@@ -9,12 +9,8 @@ function isJson(str: string) {
   return true
 }
 
-function hex2a(hexx) {
-  const hex = hexx.toString().replace('0x', '')
-  let str = ''
-  for (let i = 0; i < hex.length; i += 2)
-    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16))
-  return str
+function hex2a(hexx: string) {
+  return Buffer.from(stripHexPrefix(hexx), 'hex').toString()
 }
 
 export const advancedInfo = (method: string, params: string | string[]) => {
