@@ -84,7 +84,7 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     isEthereumMainnet() {
       const selectedRpcConfig: RpcConfigWallet = this.selectedRpcConfig
-      return selectedRpcConfig.chainId === `1`
+      return Number(selectedRpcConfig.chainId) === 1
     },
   },
   actions: {

@@ -131,16 +131,14 @@ rpcStore.$subscribe(getAssetsBalance)
             >
           </div>
           <div
-            class="gap-1 font-normal text-base leading-none text-right"
+            class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis"
             :title="`${
               isNative(asset)
                 ? ethers.utils.formatEther(rpcStore.walletBalance)
                 : asset.balance.toFixed(asset.decimals)
             } ${asset.symbol}`"
           >
-            <span class="overflow-hidden whitespace-nowrap text-ellipsis">{{
-              beautifyBalance(asset.balance)
-            }}</span>
+            {{ beautifyBalance(asset.balance) }}
             {{ asset.symbol }}
           </div>
         </div>
