@@ -44,7 +44,7 @@ function isExistingChainId(chainId: number) {
   )
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   const rpcUrl = rpcConfig.value.rpcUrl
   const chainId = rpcConfig.value.chainId
   if (isExistingRpcUrl(rpcUrl as string)) {
@@ -71,7 +71,7 @@ function handleSubmit() {
       rpcStore.setSelectedRPCConfig(payload)
     }
     if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
-      getRequestHandler().setRpcConfig({
+      await getRequestHandler().setRpcConfig({
         ...payload,
         chainId: Number(payload.chainId),
       })
