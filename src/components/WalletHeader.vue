@@ -8,7 +8,7 @@ const emits = defineEmits(['click'])
 </script>
 
 <template>
-  <header class="flex justify-between">
+  <header class="flex justify-between px-4 py-2">
     <div class="flex items-center gap-2">
       <img
         :src="appStore.appLogo?.horizontal"
@@ -17,14 +17,14 @@ const emits = defineEmits(['click'])
       />
       <span class="font-bold text-lg">{{ appStore.name }}</span>
     </div>
-    <div class="flex items-center gap-3">
+    <nav class="flex items-center gap-3">
       <button class="w-xl h-xl rounded-full">
         <img :src="`/chain-logos/ethereum-icon.png`" alt="Network Icon" />
       </button>
       <button class="w-xl h-xl">
         <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
       </button>
-    </div>
+    </nav>
     <!-- <button
       class="h-auto"
       :class="[appStore.compactMode ? 'rotate-180' : 'rotate-0']"
@@ -34,11 +34,3 @@ const emits = defineEmits(['click'])
     </button> -->
   </header>
 </template>
-
-<style scoped>
-header {
-  padding: var(--p-300);
-  color: var(--fg-color);
-  background: var(--container-bg-color);
-}
-</style>
