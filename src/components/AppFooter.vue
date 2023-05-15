@@ -2,15 +2,11 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-import { useImage } from '@/utils/useImage'
 
 const userStore = useUserStore()
-const appStore = useAppStore()
 const route = useRoute()
-const getImageOld = useImage()
 
 const currentRoute = computed(() => {
   return route.name
@@ -18,13 +14,6 @@ const currentRoute = computed(() => {
 
 function isCurrentRoute(pathName) {
   return currentRoute.value === pathName
-}
-
-function getAppropriateIcon(iconName, pathName) {
-  const isDark = appStore.theme === 'dark'
-  if (isCurrentRoute(pathName))
-    return getImage(iconName, isDark ? 'light' : 'dark')
-  else return getImage(iconName)
 }
 
 function getIcon(icon: string, pathName: string) {
