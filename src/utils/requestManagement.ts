@@ -77,16 +77,15 @@ function getEtherInvalidParamsError(msg) {
 async function switchChain(request, keeper) {
   const { chainId: id } = request.params[0]
   rpcStore.setSelectedChainId(`${parseInt(id)}`)
-  const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
 
-  const selectedChainId = Number(chainId)
+  const selectedChainId = Number(rpcStore.selectedRpcConfig?.chainId)
   await keeper.setRpcConfig({
-    ...rpcConfig,
+    ...rpcStore.selectedRpcConfig,
     chainId: selectedChainId,
   })
 
   keeper.reply(request.method, {
-    result: `Chain changed to ${rpcStore.selectedRpcConfig.chainName}`,
+    result: `Chain changed to ${rpcStore.selectedRpcConfig?.chainName}`,
     id: request.id,
   })
   router.push({ name: 'home' })
@@ -162,7 +161,7 @@ async function validateAddNetworkParams(networkInfo) {
 async function validateAddTokensParams(params) {
   return await validatePopulateContractForToken({
     walletAddress: userStore.walletAddress,
-    chainId: rpcStore.selectedRpcConfig.chainId,
+    chainId: rpcStore.selectedRpcConfig?.chainId,
     tokenContract: params,
     isEthereumMainnet: rpcStore.isEthereumMainnet,
   })
@@ -171,7 +170,7 @@ async function validateAddTokensParams(params) {
 async function validateAddNftParams(tokenType, params) {
   return await validatePopulateContractForNft({
     walletAddress: userStore.walletAddress,
-    chainId: rpcStore.selectedRpcConfig.chainId,
+    chainId: rpcStore.selectedRpcConfig?.chainId,
     nftContract: { type: tokenType, ...params },
     isEthereumMainnet: rpcStore.isEthereumMainnet,
   })
@@ -366,10 +365,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = getEtherInvalidParamsError('required params missing')
     } else if (
+      rpcStore.selectedRPCConfig?.chainId &&
       parseInt(params.domain.chainId) !==
-      parseInt(rpcStore.selectedRPCConfig.chainId)
+        parseInt(rpcStore.selectedRPCConfig.chainId)
     ) {
-      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig.chainId}`
+      error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }
     if (error) {
       await keeper.reply(request.method, {
