@@ -37,11 +37,15 @@ class RequestHandler {
   constructor(private accountHandler: AccountHandler) {}
 
   public async setRpcConfig(c: RpcConfig) {
-    this.handler = this.initRpcEngine(c)
-    this.accountHandler.setProvider(c.rpcUrls[0])
-    // Emit `chainChanged` event
-    const chainId = await this.accountHandler.getChainId()
-    this.emitEvent('chainChanged', { chainId })
+    try {
+      this.handler = this.initRpcEngine(c)
+      this.accountHandler.setProvider(c.rpcUrls[0])
+      // Emit `chainChanged` event
+      const chainId = await this.accountHandler.getChainId()
+      this.emitEvent('chainChanged', { chainId })
+    } catch (e) {
+      console.log({ e }, 'RequestHandler')
+    }
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {
