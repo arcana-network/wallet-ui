@@ -47,13 +47,17 @@ async function initializeOnRampMoney() {
     string,
     OnRampMoneyNetworkObject
   >
-  for (const [key, netConfig] of Object.entries(netConfigs)) {
-    CHAIN_ID_CONFIG.set(parseInt(key), netConfig)
+  for (const netConfig of Object.values(netConfigs)) {
+    CHAIN_ID_CONFIG.set(netConfig.networkId, netConfig)
   }
 
-  const allCoinConfig = resp.data.data.allCoinConfig as OnRampMoneyCoinObject[]
+  const allCoinConfig = resp.data.data.allCoinConfig as Record<
+    string,
+    OnRampMoneyCoinObject
+  >
   for (const [actualID, coin] of Object.entries(allCoinConfig)) {
     coin.actualID = actualID
+    coin.networkIDs = []
 
     for (const net of coin.networks) {
       if (CHAIN_ID_CONFIG.has(net)) {
@@ -64,7 +68,6 @@ async function initializeOnRampMoney() {
         coin.networkIDs.push(v.chainSymbol)
       }
     }
-
     COIN_CONFIG.set(coin.coinId, coin)
   }
 }

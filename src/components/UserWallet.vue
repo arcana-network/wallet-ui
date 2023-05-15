@@ -291,7 +291,7 @@ watch(
           </button>
           <button
             v-if="walletBalance && !HIDE_ON_RAMP"
-            :disabled="!transakNetwork && !rampNetwork && onRampMoney !== false"
+            :disabled="!transakNetwork && !rampNetwork && onRampMoney === false"
             class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
             @click="handleBuy(true)"
           >
