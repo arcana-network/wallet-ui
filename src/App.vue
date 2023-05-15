@@ -11,6 +11,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -87,8 +88,9 @@ function onClickOfHeader() {
         class="flex-grow wallet__container p-4"
         :class="{ 'rounded-b-xl p-0': compactMode }"
       >
-        <RouterView class="min-h-full" />
+        <RouterView class="min-h-fullxs flex-grow" />
         <BaseModal v-if="modal.show" />
+        <img :src="getImage('secured-by-arcana.svg')" class="h-xs" />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
@@ -133,7 +135,6 @@ body {
 .wallet__container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
