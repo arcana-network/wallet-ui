@@ -8,6 +8,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
+import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -109,67 +110,51 @@ rpcStore.$subscribe(getAssetsBalance)
 </script>
 
 <template>
-  <div class="flex flex-col px-4 divide-y-[1px] divide-gray-600">
-    <div v-if="assets.length" class="flex flex-col py-5 gap-5">
-      <div
-        v-for="asset in assets"
-        :key="`asset-${asset.symbol}`"
-        class="flex justify-between items-center"
-      >
-        <div class="flex items-center gap-3">
-          <img
-            :src="getIconAsset(`token-logos/${asset.logo}`)"
-            class="w-[1.25rem] aspect-square rounded-full"
-          />
-          <span
-            class="assets-view__asset-name leading-none overflow-hidden whitespace-nowrap text-ellipsis"
-            :title="asset.name"
-            >{{ asset.name }}</span
-          >
-        </div>
+  <div class="flex flex-col gap-3">
+    <span class="uppercase font-lg font-bold">Assets</span>
+    <div class="card flex flex-col overflow-hidden">
+      <div v-if="assets.length" class="flex flex-col gap-4 p-4">
         <div
-          class="assets-view__asset-balance flex flex-wrap leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis"
-          :title="`${
-            isNative(asset)
-              ? ethers.utils.formatEther(rpcStore.walletBalance)
-              : asset.balance.toFixed(asset.decimals)
-          } ${asset.symbol}`"
+          v-for="asset in assets"
+          :key="`asset-${asset.symbol}`"
+          class="flex justify-between items-center"
         >
-          {{ beautifyBalance(asset.balance) }}
-          {{ asset.symbol }}
+          <div class="flex items-center gap-3">
+            <img
+              :src="getIconAsset(`token-logos/${asset.logo}`)"
+              class="w-[1.25rem] aspect-square rounded-full"
+            />
+            <span
+              class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"
+              :title="asset.name"
+              >{{ asset.name }}</span
+            >
+          </div>
+          <div
+            class="gap-1 font-normal text-base leading-none text-right"
+            :title="`${
+              isNative(asset)
+                ? ethers.utils.formatEther(rpcStore.walletBalance)
+                : asset.balance.toFixed(asset.decimals)
+            } ${asset.symbol}`"
+          >
+            <span class="overflow-hidden whitespace-nowrap text-ellipsis">{{
+              beautifyBalance(asset.balance)
+            }}</span>
+            {{ asset.symbol }}
+          </div>
         </div>
       </div>
-    </div>
-    <div v-else class="flex flex-col flex-grow py-5 gap-5">
-      <span class="color-secondary m-auto font-semibold text-sm sm:text-xs"
-        >No tokens added</span
-      >
-    </div>
-    <div class="flex justify-center">
-      <div
-        class="flex py-4 gap-2 items-center cursor-pointer"
+      <div v-else class="flex flex-col flex-grow py-5 gap-5">
+        <span class="m-auto font-normal text-base">No tokens added</span>
+      </div>
+      <button
+        class="flex py-3 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0"
         @click.stop="handleAddToken"
       >
-        <img src="@/assets/images/plus.svg" class="invert dark:invert-0" />
-        <span class="assets-view__add-token-text leading-[1]">New</span>
-      </div>
+        <img :src="getImage('plus.svg')" class="h-lg w-lg" />
+        <span class="text-sm font-normal">New</span>
+      </button>
     </div>
   </div>
 </template>
-
-<style>
-.assets-view__add-token-text,
-.assets-view__asset-name,
-.assets-view__asset-balance {
-  font-size: var(--fs-350);
-}
-
-.assets-view__asset-name {
-  max-width: 12ch;
-  line-height: 1.5;
-}
-
-.assets-view__asset-balance {
-  max-width: 10ch;
-}
-</style>
