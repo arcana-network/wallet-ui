@@ -3,8 +3,6 @@ import { useAppStore } from '@/store/app'
 import { getImage } from '@/utils/getImage'
 
 const appStore = useAppStore()
-
-const emits = defineEmits(['click'])
 </script>
 
 <template>
@@ -25,12 +23,5 @@ const emits = defineEmits(['click'])
         <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
       </button>
     </nav>
-    <!-- <button
-      class="h-auto"
-      :class="[appStore.compactMode ? 'rotate-180' : 'rotate-0']"
-      @click="emits('click')"
-    >
-      <img :src="getImageOld('arrow-icon')" alt="arrow" />
-    </button> -->
   </header>
 </template>
