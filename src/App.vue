@@ -90,7 +90,7 @@ function onClickOfHeader() {
       >
         <RouterView class="min-h-fullxs flex-grow" />
         <BaseModal v-if="modal.show" />
-        <img :src="getImage('secured-by-arcana.svg')" class="h-xs" />
+        <img :src="getImage('secured-by-arcana.svg')" class="h-xs mb-2" />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
