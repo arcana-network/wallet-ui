@@ -1,6 +1,7 @@
 // Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
+import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -129,8 +130,28 @@ function validateSwitchChainParams({ chainId }) {
   return result
 }
 
-async function validateAddNetworkParams(networkInfo) {
+async function validateRPCandChainID(rpcURL, chainId) {
   const result: { isValid: boolean; error: unknown } = {
+    isValid: false,
+    error: null,
+  }
+  try {
+    const provider = new ethers.providers.StaticJsonRpcProvider(rpcURL)
+    const { chainId: fetchedChainId } = await provider.getNetwork()
+    const isValidChainId = Number(fetchedChainId) === Number(chainId)
+    result.isValid = isValidChainId
+    result.error = isValidChainId
+      ? ''
+      : 'Incorrect combination of chainId and rpcUrl'
+  } catch (e) {
+    result.isValid = false
+    result.error = 'Invalid RPC URL'
+  }
+  return result
+}
+
+async function validateAddNetworkParams(networkInfo) {
+  let result: { isValid: boolean; error: unknown } = {
     isValid: false,
     error: null,
   }
@@ -152,8 +173,10 @@ async function validateAddNetworkParams(networkInfo) {
       `RPC URL - ${networkInfo.rpcUrls[0]} already exists, please use different one`
     )
   } else {
-    result.error = ''
-    result.isValid = true
+    result = await validateRPCandChainID(
+      networkInfo.rpcUrls[0],
+      networkInfo.chainId
+    )
   }
   return result
 }
