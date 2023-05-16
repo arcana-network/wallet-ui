@@ -90,7 +90,7 @@ watch(
       :wallet-balance="walletBalance"
       @refresh="handleRefresh"
     />
-    <div class="my-8">
+    <div class="my-6">
       <AssetsView />
     </div>
   </div>
