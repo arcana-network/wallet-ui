@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ethers } from 'ethers'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -44,39 +45,57 @@ function isExistingChainId(chainId: number) {
   )
 }
 
+async function validateRPCandChainID(rpcUrl, chainId) {
+  const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+  const { chainId: fetchedChainId } = await provider.getNetwork()
+  return Number(fetchedChainId) === Number(chainId)
+}
+
 async function handleSubmit() {
-  const rpcUrl = rpcConfig.value.rpcUrl
-  const chainId = rpcConfig.value.chainId
-  if (isExistingRpcUrl(rpcUrl as string)) {
-    toast.error(`RPC URL - ${rpcUrl} already exists, please use different one`)
-  } else if (isExistingChainId(Number(rpcConfig.value.chainId))) {
-    toast.error(
-      `Chain ID - ${chainId} already exists, please use different one`
-    )
-  } else {
-    const payload = {
-      chainName: rpcConfig.value.chainName,
-      chainId: rpcConfig.value.chainId as string,
-      blockExplorerUrls: [rpcConfig.value.explorerUrl as string],
-      rpcUrls: [rpcConfig.value.rpcUrl as string],
-      favicon: rpcConfigForEdit?.favicon as string,
-      isCustom: true,
-      nativeCurrency: {
-        symbol: rpcConfig.value.currencySymbol as string,
-        decimals: 18,
-      },
+  try {
+    const rpcUrl = rpcConfig.value.rpcUrl
+    const chainId = rpcConfig.value.chainId
+    if (isExistingRpcUrl(rpcUrl as string)) {
+      toast.error(
+        `RPC URL - ${rpcUrl} already exists, please use different one`
+      )
+    } else if (isExistingChainId(Number(rpcConfig.value.chainId))) {
+      toast.error(
+        `Chain ID - ${chainId} already exists, please use different one`
+      )
+    } else if (!(await validateRPCandChainID(rpcUrl, chainId))) {
+      toast(`Incorrect combination of chain Id and RPC URL`)
+    } else {
+      const payload = {
+        chainName: rpcConfig.value.chainName,
+        chainId: rpcConfig.value.chainId as string,
+        blockExplorerUrls: [rpcConfig.value.explorerUrl as string],
+        rpcUrls: [rpcConfig.value.rpcUrl as string],
+        favicon: rpcConfigForEdit?.favicon as string,
+        isCustom: true,
+        nativeCurrency: {
+          symbol: rpcConfig.value.currencySymbol as string,
+          decimals: 18,
+        },
+      }
+      rpcStore.editNetwork(Number(props.chainId), payload)
+      if (
+        Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)
+      ) {
+        rpcStore.setSelectedRPCConfig(payload)
+      }
+      if (
+        Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)
+      ) {
+        await getRequestHandler().setRpcConfig({
+          ...payload,
+          chainId: Number(payload.chainId),
+        })
+      }
+      emit('close')
     }
-    rpcStore.editNetwork(Number(props.chainId), payload)
-    if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
-      rpcStore.setSelectedRPCConfig(payload)
-    }
-    if (Number(props.chainId) === Number(rpcStore.selectedRPCConfig.chainId)) {
-      await getRequestHandler().setRpcConfig({
-        ...payload,
-        chainId: Number(payload.chainId),
-      })
-    }
-    emit('close')
+  } catch (e) {
+    toast.error('Invalid RPC URL')
   }
 }
 
