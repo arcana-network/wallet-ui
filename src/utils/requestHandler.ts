@@ -44,7 +44,7 @@ class RequestHandler {
       const chainId = await this.accountHandler.getChainId()
       this.emitEvent('chainChanged', { chainId })
     } catch (e) {
-      console.log({ e }, 'RequestHandler')
+      console.log({ e })
     }
   }
 
