@@ -29,14 +29,14 @@ function openReceiveTokens(open) {
         />
         <span class="font-bold text-lg">{{ appStore.name }}</span>
       </div>
-      <nav class="flex items-center gap-3">
+      <div class="flex items-center gap-3">
         <button class="w-xl h-xl rounded-full">
           <img :src="`/chain-logos/ethereum-icon.png`" alt="Network Icon" />
         </button>
         <button class="w-xl h-xl" @click.stop="openReceiveTokens(true)">
           <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
         </button>
-      </nav>
+      </div>
     </header>
     <Teleport v-if="showModal" to="#modal-container">
       <ReceiveTokens
