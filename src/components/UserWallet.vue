@@ -2,12 +2,10 @@
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
-import SendTokens from '@/components/SendTokens.vue'
 import {
   getExchangeRate,
   CurrencySymbol,
@@ -16,7 +14,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
+// import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
@@ -64,12 +62,13 @@ const rampNetwork = computed(() => {
 })
 
 const onRampMoney = computed(() => {
-  const selectedChainId = Number(rpcStore.selectedChainId)
-  if (isSupportedByOnRampMoney(selectedChainId)) {
-    return selectedChainId
-  } else {
-    return false
-  }
+  // const selectedChainId = Number(rpcStore.selectedChainId)
+  // if (isSupportedByOnRampMoney(selectedChainId)) {
+  //   return selectedChainId
+  // } else {
+  //   return false
+  // }
+  return false
 })
 
 function showLoader(message: string) {
@@ -95,12 +94,11 @@ function openEditNetwork(open, chainId: number | null = null) {
   showModal.value = open ? 'edit-network' : false
 }
 
-function openSendTokens(open) {
+function goToSendTokens() {
   if (props.page === 'nft') {
-    return router.push({ name: 'SelectNft' })
+    router.push({ name: 'SelectNft' })
   } else {
-    modalStore.setShowModal(open)
-    showModal.value = open ? 'send' : false
+    router.push({ name: 'SendTokens' })
   }
 }
 
@@ -210,7 +208,7 @@ watch(
       <div class="mt-6 flex gap-3">
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          @click.stop="openSendTokens(true)"
+          @click.stop="goToSendTokens()"
         >
           <img :src="getImage('send-icon.svg')" class="w-md h-md" />
           Send
@@ -226,7 +224,6 @@ watch(
       </div>
     </div>
     <Teleport v-if="showModal" to="#modal-container">
-      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
       <AddNetwork
         v-if="showModal === 'add-network'"
         @close="openAddNetwork(false)"
@@ -240,7 +237,7 @@ watch(
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
         :ramp-network="rampNetwork?.value"
-        :on-ramp-money="onRampMoney"
+        :on-ramp-money="(onRampMoney as false)"
         @close="handleBuy(false)"
       />
     </Teleport>

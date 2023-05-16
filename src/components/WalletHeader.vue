@@ -38,11 +38,8 @@ function openReceiveTokens(open) {
         </button>
       </div>
     </header>
-    <Teleport v-if="showModal" to="#modal-container">
-      <ReceiveTokens
-        v-if="showModal === 'receive'"
-        @close="openReceiveTokens(false)"
-      />
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <ReceiveTokens v-if="showModal === 'receive'" />
     </Teleport>
   </div>
 </template>
