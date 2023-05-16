@@ -81,7 +81,7 @@ function onClickOfHeader() {
 
 <template>
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
-    <div v-show="expandWallet" class="flex flex-col h-full dark:bg-black-100">
+    <div v-show="expandWallet" class="flex flex-col h-full dark:bg-black-300">
       <WalletHeader @click="onClickOfHeader" />
       <div
         class="flex-grow wallet__container p-4"
@@ -92,11 +92,11 @@ function onClickOfHeader() {
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
-    <div v-show="!expandWallet" class="h-full dark:bg-black-100">
+    <div v-show="!expandWallet" class="h-full dark:bg-black-300">
       <WalletButton />
     </div>
   </div>
-  <div v-else class="flex flex-col h-full dark:bg-black-100">
+  <div v-else class="flex flex-col h-full dark:bg-black-300">
     <div
       class="flex-grow wallet__container p-4"
       :class="{ 'rounded-b-xl p-0': compactMode }"
