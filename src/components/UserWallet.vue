@@ -119,9 +119,15 @@ function openAddNetwork(open) {
 }
 
 function openEditNetwork(open, chainId: number | null = null) {
-  chainSelectedForEdit.value = chainId
-  modalStore.setShowModal(open)
-  showModal.value = open ? 'edit-network' : false
+  if (Number(rpcStore.selectedRpcConfig.chainId) === Number(chainId)) {
+    toast.error(
+      'This network is current selected, please chose a different one and try again'
+    )
+  } else {
+    chainSelectedForEdit.value = chainId
+    modalStore.setShowModal(open)
+    showModal.value = open ? 'edit-network' : false
+  }
 }
 
 function openSendTokens(open) {
