@@ -51,7 +51,7 @@ async function handleSubmit() {
       )
       const chainId = await provider.getNetwork()
       if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
-        return toast(`Incorrect combination of chainId and rpcUrl`)
+        return toast(`Incorrect combination of chain Id and RPC URL`)
       }
       if (existingChain) {
         rpcStore.setRpcConfig({

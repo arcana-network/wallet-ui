@@ -142,7 +142,7 @@ async function validateRPCandChainID(rpcURL, chainId) {
     result.isValid = isValidChainId
     result.error = isValidChainId
       ? ''
-      : 'Incorrect combination of chainId and rpcUrl'
+      : 'Incorrect combination of chain Id and RPC URL'
   } catch (e) {
     result.isValid = false
     result.error = 'Invalid RPC URL'
