@@ -82,8 +82,16 @@ function onClickOfHeader() {
 
 <template>
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
-    <div v-show="expandWallet" class="flex flex-col h-full dark:bg-black-300">
-      <WalletHeader @click="onClickOfHeader" />
+    <div
+      v-show="expandWallet"
+      class="flex flex-col h-full dark:bg-black-300 rounded-md overflow-hidden"
+    >
+      <div class="flex justify-center mt-2 mb-2">
+        <button @click="onClickOfHeader">
+          <img src="@/assets/images/collapse-arrow.svg" />
+        </button>
+      </div>
+      <WalletHeader />
       <div
         class="flex-grow wallet__container p-4"
         :class="{ 'rounded-b-xl p-0': compactMode }"
@@ -94,7 +102,7 @@ function onClickOfHeader() {
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
-    <div v-show="!expandWallet" class="h-full dark:bg-black-300">
+    <div v-show="!expandWallet" class="h-full dark:bg-black-300 rounded-t-sm">
       <WalletButton />
     </div>
   </div>
@@ -111,16 +119,19 @@ function onClickOfHeader() {
 </template>
 
 <style>
-::-webkit-scrollbar {
-  width: 0.75rem;
-  height: 0.75rem;
+*::-webkit-scrollbar {
+  width: 0.15rem;
+  height: 0.15rem;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color);
-  background-clip: padding-box;
-  border: 0.25rem solid transparent;
+*::-webkit-scrollbar-thumb {
+  background-color: #8d8d8d00;
   border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: #8d8d8dff;
 }
 
 body {

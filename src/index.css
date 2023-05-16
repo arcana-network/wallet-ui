@@ -68,7 +68,7 @@
   }
 
   .input-field {
-    @apply dark:bg-gray-300 rounded-sm;
+    @apply dark:bg-gray-300 rounded-sm p-[10px];
   }
 
   .input-active {
