@@ -68,7 +68,7 @@ type ParentConnectionApi = {
   getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
-  setIframeStyle(styles: CSSStyleDeclaration): void
+  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
   getWalletPosition(): Position
   getSDKVersion(): SDKVersion
 }
@@ -77,7 +77,7 @@ type InitParentConnectionApi = {
   getLoginSource(): string
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
-  setIframeStyle(styles: CSSStyleDeclaration): void
+  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 
 export { requirePermission, PERMISSIONS }
