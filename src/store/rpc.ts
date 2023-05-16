@@ -98,7 +98,11 @@ export const useRpcStore = defineStore('rpcStore', {
       else this.rpcConfigs = { [rpcConfig.chainId]: rpcConfig }
     },
     editNetwork(chainId: number, rpcConfig: RpcConfigWallet): void {
-      if (this.rpcConfigs) this.rpcConfigs[chainId] = rpcConfig
+      if (this.rpcConfigs) {
+        if (Number(rpcConfig.chainId) !== Number(chainId))
+          delete this.rpcConfigs[rpcConfig.chainId]
+        else this.rpcConfigs[rpcConfig.chainId] = rpcConfig
+      }
     },
     deleteNetwork(chainId: number): void {
       if (this.rpcConfigs) delete this.rpcConfigs[chainId]
