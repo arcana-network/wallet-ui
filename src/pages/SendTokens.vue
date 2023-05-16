@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
-import SendTokensPreview from '@/components/SendTokensPreview.vue'
+// import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import {
   getGasPrice,
   GAS_AVAILABLE_CHAIN_IDS,
@@ -14,19 +15,19 @@ import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
+import { getImage } from '@/utils/getImage'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 import { useImage } from '@/utils/useImage'
 
-const emits = defineEmits(['close'])
-
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
 const activitiesStore = useActivitiesStore()
-const getImage = useImage()
+const router = useRouter()
+const getImageOld = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
@@ -213,7 +214,6 @@ async function handleSendToken() {
     }
   } finally {
     showPreview.value = false
-    emits('close')
     hideLoader()
     clearForm()
   }
@@ -271,8 +271,100 @@ function handleTokenChange(e) {
   <div v-if="loader.show" class="h-full flex justify-center items-center">
     <AppLoader :message="loader.message" />
   </div>
-  <div v-else class="w-full">
-    <SendTokensPreview
+  <div v-else class="flex flex-col gap-8">
+    <div class="relative flex justify-center items-center">
+      <button class="absolute left-0" @click.stop="router.go(-1)">
+        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+      </button>
+      <span class="text-lg font-bold">Send Token</span>
+    </div>
+    <form class="flex flex-col gap-8" @submit.prevent="void 0">
+      <label class="text-sm font-medium" for="recipientWalletAddress">
+        Recipient’s Wallet Address
+      </label>
+      <input
+        id="recipientWalletAddress"
+        v-model="recipientWalletAddress"
+        required
+        type="text"
+        class="input-field font-normal text-base"
+        :class="{ 'input-field-active': isWalletAddressFocused }"
+        placeholder="Enter Recipient’s Wallet Address"
+        @focus="isWalletAddressFocused = true"
+        @blur="isWalletAddressFocused = false"
+      />
+      <div class="space-y-1">
+        <div class="flex justify-between sm:flex-col sm:space-y-1">
+          <label class="text-xs text-zinc-400 font-semibold" for="amount">
+            Amount
+          </label>
+          <p class="space-x-1 text-xs text-zinc-400">
+            <span class="font-semibold">Total Balance:</span>
+            <span :title="selectedTokenBalance">{{
+              truncateToTwoDecimals(selectedTokenBalance)
+            }}</span>
+          </p>
+        </div>
+        <div
+          class="flex space-x-1 p-2 sm:p-1 input rounded-lg"
+          :class="{
+            'outline-black dark:outline-white outline-1 outline':
+              isAmountFocused,
+          }"
+        >
+          <input
+            id="amount"
+            v-model="amount"
+            autocomplete="off"
+            required
+            type="text"
+            class="text-base sm:text-sm bg-transparent w-full rounded-lg border-none outline-none"
+            placeholder="0.5"
+            @focus="isAmountFocused = true"
+            @blur="isAmountFocused = false"
+          />
+          <div
+            v-if="tokenList.length"
+            class="p-2"
+            :class="{
+              'border-l-[1px] border-l-slate-400 px-1': tokenList.length,
+            }"
+          >
+            <select
+              :model-value="selectedToken.symbol"
+              name="tokens"
+              class="bg-transparent outline-none w-[6ch] text-ellipsis whitespace-nowrap overflow-hidden"
+              @focus="isAmountFocused = true"
+              @blur="isAmountFocused = false"
+              @change="handleTokenChange"
+            >
+              <option
+                v-for="token in tokenList"
+                :key="token.address"
+                class="text-black hover:text-white"
+                :value="JSON.stringify(token)"
+              >
+                {{ token.symbol }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <GasPrice
+        :gas-price="gasFeeInGwei"
+        :gas-prices="gasPrices"
+        :base-fee="baseFee"
+        @gas-price-input="handleSetGasPrice"
+      />
+      <div class="flex justify-center">
+        <button
+          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
+        >
+          Proceed
+        </button>
+      </div>
+    </form>
+    <!-- <SendTokensPreview
       v-if="showPreview"
       :preview-data="{
         senderWalletAddress: userStore.walletAddress,
@@ -284,131 +376,6 @@ function handleTokenChange(e) {
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
-    />
-    <div v-else class="space-y-3 overflow-auto flex flex-col justify-between">
-      <div class="flex flex-col space-y-3 sm:space-y-2">
-        <div class="flex justify-between">
-          <p class="text-xl sm:text-sm font-semibold">Send Tokens</p>
-          <button class="h-auto" @click="emits('close')">
-            <img :src="getImage('close-icon')" alt="close icon" />
-          </button>
-        </div>
-        <p class="text-xs text-zinc-400">
-          Transfer tokens to the specified address. Please specify gas while
-          transferring.
-        </p>
-      </div>
-      <div class="space-y-1">
-        <p class="text-xs text-zinc-400 font-semibold">Network</p>
-        <p class="text-base sm:text-sm flex gap-2">
-          <img
-            :src="getImage(rpcStore.selectedRpcConfig.favicon)"
-            class="w-6 h-6"
-          />
-          {{ rpcStore.selectedRpcConfig?.chainName }}
-        </p>
-      </div>
-      <form
-        class="space-y-4 sm:space-y-3 px-[1px]"
-        @submit.prevent="handleShowPreview"
-      >
-        <div class="space-y-1">
-          <label
-            class="text-xs text-zinc-400 font-semibold"
-            for="recipientWalletAddress"
-          >
-            Recipient’s Wallet Address
-          </label>
-          <div
-            class="flex space-x-1 px-2 py-4 sm:p-1 input rounded-lg"
-            :class="{
-              'outline-black dark:outline-white outline-1 outline':
-                isWalletAddressFocused,
-            }"
-          >
-            <input
-              id="recipientWalletAddress"
-              v-model="recipientWalletAddress"
-              required
-              type="text"
-              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none overflow-hidden text-ellipsis"
-              placeholder="6yhjtikn7..."
-              @focus="isWalletAddressFocused = true"
-              @blur="isWalletAddressFocused = false"
-            />
-          </div>
-        </div>
-        <div class="space-y-1">
-          <div class="flex justify-between sm:flex-col sm:space-y-1">
-            <label class="text-xs text-zinc-400 font-semibold" for="amount">
-              Amount
-            </label>
-            <p class="space-x-1 text-xs text-zinc-400">
-              <span class="font-semibold">Total Balance:</span>
-              <span :title="selectedTokenBalance">{{
-                truncateToTwoDecimals(selectedTokenBalance)
-              }}</span>
-            </p>
-          </div>
-          <div
-            class="flex space-x-1 p-2 sm:p-1 input rounded-lg"
-            :class="{
-              'outline-black dark:outline-white outline-1 outline':
-                isAmountFocused,
-            }"
-          >
-            <input
-              id="amount"
-              v-model="amount"
-              autocomplete="off"
-              required
-              type="text"
-              class="text-base sm:text-sm bg-transparent w-full rounded-lg border-none outline-none"
-              placeholder="0.5"
-              @focus="isAmountFocused = true"
-              @blur="isAmountFocused = false"
-            />
-            <div
-              v-if="tokenList.length"
-              class="p-2"
-              :class="{
-                'border-l-[1px] border-l-slate-400 px-1': tokenList.length,
-              }"
-            >
-              <select
-                :model-value="selectedToken.symbol"
-                name="tokens"
-                class="bg-transparent outline-none w-[6ch] text-ellipsis whitespace-nowrap overflow-hidden"
-                @focus="isAmountFocused = true"
-                @blur="isAmountFocused = false"
-                @change="handleTokenChange"
-              >
-                <option
-                  v-for="token in tokenList"
-                  :key="token.address"
-                  class="text-black hover:text-white"
-                  :value="JSON.stringify(token)"
-                >
-                  {{ token.symbol }}
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <GasPrice
-          :gas-price="gasFeeInGwei"
-          :gas-prices="gasPrices"
-          :base-fee="baseFee"
-          @gas-price-input="handleSetGasPrice"
-        />
-        <div class="flex justify-center">
-          <button
-            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
-          >
-            Proceed
-          </button>
-        </div>
-      </form>
-    </div>
+    /> -->
   </div>
 </template>
