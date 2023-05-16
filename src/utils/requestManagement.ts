@@ -204,7 +204,7 @@ async function addNetwork(request, keeper) {
   const networkInfo = params[0]
   const name: string = networkInfo.chainName || ''
   const rpcUrls: string[] = networkInfo.rpcUrls || []
-  const chainId = networkInfo.chainId
+  const chainId = `${Number(networkInfo.chainId)}`
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
   const existingChain = isExistingChain(chainId)
   if (existingChain) {
