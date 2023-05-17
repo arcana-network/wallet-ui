@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
+import { isMobileViewport } from '@/utils/isMobileViewport'
 
 type WalletPosition = 'right' | 'left'
 
@@ -44,21 +45,31 @@ export const useAppStore = defineStore('app', {
       walletPosition,
       compactMode,
     }) => {
-      const style: Partial<CSSStyleDeclaration> = {}
-      style.height = showWallet
-        ? expandWallet
-          ? compactMode
-            ? '200px'
-            : '80vh'
-          : '20px'
-        : '0'
-      style.width = showWallet ? (expandWallet ? '360px' : '100px') : '0'
-      style.right = walletPosition === 'right' ? '30px' : ''
-      style.left = walletPosition === 'left' ? '30px' : ''
-      style.bottom = expandWallet ? '30px' : '0'
-      style.transition = 'all 300ms ease-in-out'
-      style.position = 'fixed'
-      return style
+      return function getCompatibleStyles() {
+        const mobileViewport = isMobileViewport()
+        const style: Partial<CSSStyleDeclaration> = {}
+        style.height = showWallet
+          ? expandWallet
+            ? compactMode
+              ? '200px'
+              : '80vh'
+            : '20px'
+          : '0'
+        style.width = showWallet
+          ? expandWallet
+            ? mobileViewport
+              ? '100%'
+              : '360px'
+            : '100px'
+          : '0'
+        style.right =
+          walletPosition === 'right' && !mobileViewport ? '30px' : ''
+        style.left = walletPosition === 'left' && !mobileViewport ? '30px' : ''
+        style.bottom = expandWallet && !mobileViewport ? '30px' : '0'
+        style.transition = 'all 300ms ease-in-out'
+        style.position = 'fixed'
+        return style
+      }
     },
   },
   actions: {

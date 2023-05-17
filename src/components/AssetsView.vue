@@ -117,7 +117,7 @@ rpcStore.$subscribe(getAssetsBalance)
     <div class="card flex flex-col overflow-hidden">
       <div
         v-if="assets.length"
-        class="flex flex-col gap-4 p-4 max-h-[120px] overflow-y-auto"
+        class="flex flex-col gap-4 p-3 m-1 max-h-[120px] overflow-y-auto"
       >
         <div
           v-for="asset in assets"
