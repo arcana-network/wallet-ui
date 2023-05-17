@@ -9,11 +9,11 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
-import { useImage } from '@/utils/useImage'
+// import { useImage } from '@/utils/useImage'
 
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
-const getImage = useImage()
+// const getImage = useImage()
 
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 
@@ -61,10 +61,10 @@ function getTitle(requestMethod: string) {
     <div>
       <p class="text-sm sm:text-xs text-zinc-400 font-semibold">Network</p>
       <p class="text-base sm:text-sm flex gap-2">
-        <img
+        <!-- <img
           :src="getImage(rpcStore.selectedRpcConfig.favicon)"
           class="w-6 h-6"
-        />
+        /> -->
         {{ selectedRpcConfig.chainName }}
       </p>
     </div>
