@@ -27,7 +27,7 @@ function getIcon(icon: string, pathName: string) {
 
 <template>
   <footer class="flex items-center px-12 py-2 dark:bg-black-400">
-    <div v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
+    <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link
         :to="{ name: 'home' }"
         title="Assets"
@@ -103,6 +103,6 @@ function getIcon(icon: string, pathName: string) {
           >Activity</span
         >
       </router-link>
-    </div>
+    </nav>
   </footer>
 </template>

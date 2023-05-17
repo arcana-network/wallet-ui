@@ -32,8 +32,8 @@ export const useUserStore = defineStore('user', {
     walletAddressShrinked(state: UserState): string {
       const { walletAddress } = state
       const walletAddressLength = walletAddress.length
-      return `${walletAddress.slice(0, 7)}....${walletAddress.slice(
-        walletAddressLength - 7
+      return `${walletAddress.slice(0, 5)}....${walletAddress.slice(
+        walletAddressLength - 5
       )}`
     },
   },

@@ -58,6 +58,7 @@ module.exports = {
         xl: '24px',
         xxl: '32px',
         xxxl: '34px',
+        fullxs: 'calc(100vh - 14px)',
       },
       borderWidth: {
         1: '1px',

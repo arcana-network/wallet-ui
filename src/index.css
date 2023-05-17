@@ -41,10 +41,6 @@
           transition-all duration-200 ease-in-out
           disabled:opacity-60;
   }
-
-  nav {
-    @apply dark:bg-black-400;
-  }
 }
 
 @layer components {
