@@ -27,7 +27,11 @@ const showRequestCountBadge = computed(() => {
 
 <template>
   <div class="h-full relative">
-    <div v-if="showRequestCountBadge" class="z-[999] absolute top-4 left-2">
+    <div
+      v-if="showRequestCountBadge"
+      class="z-[999] absolute top-4"
+      :class="[walletPosition === 'right' ? 'left-2' : 'right-2']"
+    >
       <RequestCountBadge :request-count="requestCount" />
     </div>
     <button
