@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, watch } from 'vue'
 
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
 import { useAppStore } from '@/store/app'
@@ -16,6 +16,13 @@ function openReceiveTokens(open) {
   modalStore.setShowModal(open)
   showModal.value = open ? 'receive' : false
 }
+
+watch(
+  () => modalStore.show,
+  (show) => {
+    if (!show) showModal.value = false
+  }
+)
 </script>
 
 <template>

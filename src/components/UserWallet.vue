@@ -165,6 +165,13 @@ watch(
     getCurrencyExchangeRate()
   }
 )
+
+watch(
+  () => modalStore.show,
+  (show) => {
+    if (!show) showModal.value = false
+  }
+)
 </script>
 
 <template>

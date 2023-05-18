@@ -290,7 +290,7 @@ function handleTokenChange(e) {
       <span class="text-lg font-bold">Send Token</span>
     </div>
     <form
-      class="flex flex-col flex-grow justify-between"
+      class="flex flex-col flex-grow justify-between mt-8"
       @submit.prevent="showPreview = true"
     >
       <div class="flex flex-col gap-7">

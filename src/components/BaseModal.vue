@@ -4,11 +4,14 @@ import { ref } from 'vue'
 import { useModalStore } from '@/store/modal'
 import { getImage } from '@/utils/getImage'
 
+const modalContainer = ref(null)
+
 const canModalCollapse = ref(false)
 const modalStore = useModalStore()
 
 function handleCollapse() {
   canModalCollapse.value = true
+  modalContainer.value.innerHTMl = ''
   setTimeout(() => modalStore.setShowModal(false), 300)
 }
 </script>
@@ -24,7 +27,7 @@ function handleCollapse() {
           <img :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
-      <div id="modal-container" class="p-4"></div>
+      <div id="modal-container" ref="modalContainer" class="p-4"></div>
     </div>
   </div>
 </template>
