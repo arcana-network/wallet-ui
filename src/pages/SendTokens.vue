@@ -205,6 +205,7 @@ async function handleSendToken() {
         recipientAddress: setHexPrefix(recipientWalletAddress.value),
       })
     }
+    clearForm()
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
     if (err && err.reason) {
@@ -213,7 +214,6 @@ async function handleSendToken() {
   } finally {
     showPreview.value = false
     hideLoader()
-    clearForm()
   }
 }
 

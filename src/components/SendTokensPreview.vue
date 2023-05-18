@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BigNumber from 'bignumber.js'
 
+import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
@@ -74,13 +75,6 @@ function truncateAddress(address: string) {
         </div>
       </div>
     </div>
-    <div class="flex justify-between">
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
-        @click="emits('submit')"
-      >
-        Send
-      </button>
-    </div>
+    <SwipeToAction @success="emits('submit')" />
   </div>
 </template>
