@@ -239,7 +239,9 @@ async function setRpcConfigs() {
 
 async function getRpcConfig() {
   try {
-    let rpcConfig = enabledChainList.value.find((chain) => chain.defaultChain)
+    let rpcConfig =
+      enabledChainList.value.find((chain) => chain.defaultChain) ||
+      enabledChainList.value[0] // some time, chain list don't have default chain
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
     await getRequestHandler().setRpcConfig(rpcConfig)
