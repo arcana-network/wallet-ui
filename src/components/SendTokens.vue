@@ -301,10 +301,10 @@ function handleTokenChange(e) {
       <div class="space-y-1">
         <p class="text-xs text-zinc-400 font-semibold">Network</p>
         <p class="text-base sm:text-sm flex gap-2">
-          <img
+          <!-- <img
             :src="getImage(rpcStore.selectedRpcConfig.favicon)"
             class="w-6 h-6"
-          />
+          /> -->
           {{ rpcStore.selectedRpcConfig?.chainName }}
         </p>
       </div>
