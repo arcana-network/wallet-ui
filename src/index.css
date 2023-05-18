@@ -44,6 +44,11 @@
           transition-all duration-200 ease-in-out
           disabled:opacity-60;
   }
+
+  input,
+  select {
+    @apply bg-transparent outline-none shadow-none dark:placeholder:text-gray-100 font-normal text-base p-[10px];
+  }
 }
 
 @layer components {
@@ -71,11 +76,11 @@
   }
 
   .input-field {
-    @apply dark:bg-gray-300 rounded-sm p-[10px];
+    @apply dark:bg-gray-300 rounded-sm flex items-center;
   }
 
   .input-active {
-    @apply outline-1 dark:outline-white-200;
+    @apply outline-1 dark:outline-white-200 outline;
   }
 }
 

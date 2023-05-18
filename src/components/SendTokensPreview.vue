@@ -3,9 +3,8 @@ import BigNumber from 'bignumber.js'
 
 import { PreviewData } from '@/models/SendTokenPreview'
 import { useRpcStore } from '@/store/rpc'
-import { useImage } from '@/utils/useImage'
+import { getImage } from '@/utils/getImage'
 
-const getImage = useImage()
 const rpcStore = useRpcStore()
 
 const emits = defineEmits(['close', 'submit'])
@@ -27,69 +26,55 @@ const sendAmount =
     : 0
 
 const totalAmount = sendAmount + txFees
+
+function truncateAddress(address: string) {
+  return `${address.slice(0, 5)}....${address.slice(-5)}`
+}
 </script>
 
 <template>
-  <div class="space-y-3 overflow-auto flex flex-col">
-    <div class="flex flex-col space-y-3 sm:space-y-2">
-      <p class="text-xl sm:text-sm font-semibold">Preview</p>
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">
-        {{ rpcStore.selectedRpcConfig?.chainName }}
-      </p>
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Sender’s Wallet Address</p>
-      <p class="text-base truncate">
-        {{ props.previewData.senderWalletAddress }}
-      </p>
-    </div>
-    <div class="flex justify-center">
-      <img :src="getImage('arrow-down-icon')" alt="arrow down icon" />
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Recipient’s Wallet Address</p>
-      <p class="text-sm truncate">
-        {{ props.previewData.recipientWalletAddress }}
-      </p>
-    </div>
-    <div class="space-y-3">
-      <div class="flex justify-between text-xs text-zinc-400">
-        <p>Items</p>
-        <p>Amount</p>
+  <div class="flex flex-col justify-between">
+    <div class="flex flex-col gap-7">
+      <div class="relative flex justify-center items-center">
+        <button class="absolute left-0" @click.stop="emits('close')">
+          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        </button>
+        <span class="text-lg font-bold">Confirm Transfer</span>
       </div>
-      <div class="space-y-[10px]">
-        <div class="flex justify-between text-sm sm:text-xs font-normal">
-          <p>Send Amount</p>
-          <p>
-            {{ props.previewData.amount }}
-            {{ props.previewData.selectedToken }}
-          </p>
+      <div class="flex justify-between items-center">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm font-medium text-gray-100"
+            >Sender’s Address</span
+          >
+          <span class="text-base">
+            {{ truncateAddress(props.previewData.senderWalletAddress) }}
+          </span>
         </div>
-        <div class="flex justify-between text-sm sm:text-xs font-normal">
-          <p>Gas Fees</p>
-          <p>{{ txFees }} {{ nativeCurrency }}</p>
+        <img :src="getImage('forward-arrow.svg')" class="w-6 h-6" />
+        <div class="flex flex-col gap-1">
+          <span class="text-sm font-medium text-gray-100"
+            >Recipient’s Address</span
+          >
+          <span class="text-base">
+            {{ truncateAddress(props.previewData.recipientWalletAddress) }}
+          </span>
         </div>
       </div>
-      <div
-        class="flex justify-between text-sm sm:text-xs font-normal border-y-[1px] border-x-0 border-zinc-400 py-4"
-      >
-        <p>Total:</p>
-        <p>
-          {{ new BigNumber(totalAmount).toFixed() }}
-          {{ nativeCurrency }}
-        </p>
+      <div class="flex flex-col gap-5">
+        <div class="flex justify-between">
+          <span class="text-base font-normal text-gray-100">Send Amount</span>
+          <span class="text-base"
+            >{{ props.previewData.amount }}
+            {{ props.previewData.selectedToken }}</span
+          >
+        </div>
+        <div class="flex justify-between">
+          <span class="text-base font-normal text-gray-100">Gas Fees</span>
+          <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
+        </div>
       </div>
     </div>
     <div class="flex justify-between">
-      <button
-        class="text-sm sm:text-xs rounded-xl border-2 border-black dark:border-white bg-transparent text-black dark:text-white w-36 h-9 sm:w-20 sm:h-8 uppercase"
-        @click="emits('close')"
-      >
-        Back
-      </button>
       <button
         class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
         @click="emits('submit')"

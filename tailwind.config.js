@@ -39,6 +39,7 @@ module.exports = {
           300: '#313131',
           400: '#dcdcdc',
           500: '#2c2c2c',
+          600: '#3b3b3b',
         },
       },
       width: {
@@ -75,6 +76,9 @@ module.exports = {
         dark: {
           100: 'rgba(126, 126, 126, 0.25)',
         },
+      },
+      content: {
+        blank: '""',
       },
     },
   },

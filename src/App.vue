@@ -67,7 +67,7 @@ watch(showRequestPage, (newValue) => {
 
 const showFooter = computed(() => {
   return (
-    (!['requests', 'MFARequired', 'MFARestore'].includes(
+    (!['requests', 'MFARequired', 'MFARestore', 'SendTokens'].includes(
       route.name as string
     ) ||
       (route.name === 'requests' && !requestStore.pendingRequest)) &&
@@ -90,7 +90,8 @@ function onClickOfHeader() {
     >
       <div class="flex justify-center mt-2 mb-2">
         <button class="flex flex-grow justify-center" @click="onClickOfHeader">
-          <img src="@/assets/images/collapse-arrow.svg" />
+          <img v-if="compactMode" :src="getImage('expand-arrow.svg')" />
+          <img v-else :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
       <WalletHeader />
@@ -100,7 +101,11 @@ function onClickOfHeader() {
       >
         <RouterView class="min-h-fullxs flex-grow" />
         <BaseModal v-if="modal.show" />
-        <img :src="getImage('secured-by-arcana.svg')" class="h-xs mb-2" />
+        <img
+          v-if="showFooter"
+          :src="getImage('secured-by-arcana.svg')"
+          class="h-xs mb-2"
+        />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { useModalStore } from '@/store/modal'
+import { getImage } from '@/utils/getImage'
 
 const canModalCollapse = ref(false)
 const modalStore = useModalStore()
@@ -20,7 +21,7 @@ function handleCollapse() {
     >
       <div class="flex justify-center">
         <button @click="handleCollapse">
-          <img src="@/assets/images/collapse-arrow.svg" />
+          <img :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
       <div id="modal-container" class="p-4"></div>

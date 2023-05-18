@@ -223,7 +223,7 @@ watch(
         </button>
       </div>
     </div>
-    <Teleport v-if="showModal" to="#modal-container">
+    <Teleport v-if="modalStore.show" to="#modal-container">
       <AddNetwork
         v-if="showModal === 'add-network'"
         @close="openAddNetwork(false)"
