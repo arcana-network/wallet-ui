@@ -75,6 +75,6 @@ function truncateAddress(address: string) {
         </div>
       </div>
     </div>
-    <SwipeToAction @success="emits('submit')" />
+    <SwipeToAction message="Swipe to Transfer" @success="emits('submit')" />
   </div>
 </template>
