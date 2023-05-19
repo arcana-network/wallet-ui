@@ -6,7 +6,7 @@ import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import type { AssetContract } from '@/models/Asset'
-import { requirePermission } from '@/models/Connection'
+import { PERMISSIONS } from '@/models/Connection'
 import { router } from '@/routes'
 import { NFTDB } from '@/services/nft.service'
 import { store } from '@/store'
@@ -59,9 +59,10 @@ async function watchRequestQueue(keeper) {
       if (processQueue.length > 0) {
         const request = processQueue.shift()
         if (request) await processRequest(request, keeper)
+        const method = request?.request.method
         if (appMode === AppMode.Widget && pendingRequestCount === 0) {
           if (appStore.sdkVersion !== 'v3') connectionInstance.closePopup()
-        } else if (pendingRequestCount === 0) {
+        } else if (pendingRequestCount === 0 && method && PERMISSIONS[method]) {
           appStore.expandWallet = false
           appStore.compactMode = false
         }
