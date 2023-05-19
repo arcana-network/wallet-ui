@@ -9,7 +9,7 @@ const emit = defineEmits(['proceed', 'close'])
     <div class="flex justify-between">
       <div class="text-lg font-bold">Export Private Key</div>
     </div>
-    <div class="text-xs flex flex-col gap-2">
+    <div class="text-sm text-gray-100 flex flex-col gap-2">
       <p>
         Use this utility to export your private keys to create a backup or to
         use your address with other wallet providers.
@@ -20,7 +20,7 @@ const emit = defineEmits(['proceed', 'close'])
         <a
           :href="`${DOCS_URL}/howto/wallet_exkey.html`"
           target="_blank"
-          class="text-blue-500 cursor-pointer"
+          class="font-bold text-white-100 cursor-pointer"
           >LEARN MORE</a
         >
       </p>

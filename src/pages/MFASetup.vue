@@ -13,6 +13,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { getImage } from '@/utils/getImage'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -301,7 +302,7 @@ function handlePinBack() {
     </div>
     <h2 class="font-bold text-lg uppercase m-8">RECOVERY METHOD 2: PIN</h2>
     <hr />
-    <div class="m-8 text-base">
+    <div class="m-8 text-sm text-gray-100">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
       if you move to a new device or browser.
     </div>
@@ -320,15 +321,15 @@ function handlePinBack() {
           />
           <img
             v-if="passwordType === 'password'"
-            src="@/assets/images/show-eye.png"
-            class="absolute top-0 right-0 p-1 pr-2 cursor-pointer invert dark:invert-0"
+            :src="getImage('eye.svg')"
+            class="absolute top-0 right-0 m-3 w-lg h-lg cursor-pointer"
             title="Show password"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
-            src="@/assets/images/hide-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
+            :src="getImage('eye-off.svg')"
+            class="absolute top-0 right-0 m-3 w-lg h-lg cursor-pointer"
             title="Hide password"
             @click.stop="passwordType = 'password'"
           />

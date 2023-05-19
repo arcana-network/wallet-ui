@@ -108,7 +108,7 @@ function goToHome() {
       <div class="flex justify-center">
         <div class="text-lg font-bold">Enhance Wallet Security</div>
       </div>
-      <div class="mt-2 mb-6 flex flex-col gap-4 text-sm">
+      <div class="mt-2 mb-6 flex flex-col gap-4 text-sm text-gray-100">
         <span>
           “{{ appStore.name }}” suggests enabling Multi-factor Authentication
           (MFA) in your wallet for added security when logging in to new
@@ -116,7 +116,7 @@ function goToHome() {
           <a
             :href="`${DOCS_URL}/concepts/mfa.html`"
             target="_blank"
-            class="text-blue-500 font-semibold cursor-pointer"
+            class="text-white-100 font-bold cursor-pointer"
             >LEARN MORE</a
           >
         </span>
