@@ -4,7 +4,13 @@ import {
   personalSign,
   signTypedData_v4 as signTypedDataV4,
 } from 'eth-sig-util'
-import { stripHexPrefix, ecsign, setLengthLeft } from 'ethereumjs-util'
+import {
+  isHexString,
+  addHexPrefix,
+  stripHexPrefix,
+  ecsign,
+  setLengthLeft,
+} from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
@@ -227,11 +233,14 @@ class AccountHandler {
 
   private async personalSign(address: string, msg: string) {
     try {
+      const msgToSign = isHexString(msg)
+        ? addHexPrefix(msg)
+        : addHexPrefix(Buffer.from(msg).toString('hex'))
       const wallet = this.getWallet(address)
       if (wallet) {
         const signature = personalSign(
           Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-          { data: msg }
+          { data: msgToSign }
         )
         return signature
       } else {
