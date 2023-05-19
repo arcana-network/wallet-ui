@@ -35,7 +35,9 @@ function fetchNativeAsset() {
   return {
     address: 'native',
     name: rpcStore.nativeCurrency.name,
-    balance: Number(ethers.utils.formatEther(rpcStore.walletBalance)),
+    balance: !rpcStore.walletBalance
+      ? 0
+      : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
     decimals: rpcStore.nativeCurrency.decimals,
     symbol: rpcStore.nativeCurrency.symbol,
     logo:
@@ -113,7 +115,10 @@ rpcStore.$subscribe(getAssetsBalance)
   <div class="flex flex-col gap-3">
     <span class="uppercase font-lg font-bold">Assets</span>
     <div class="card flex flex-col overflow-hidden">
-      <div v-if="assets.length" class="flex flex-col gap-4 p-4">
+      <div
+        v-if="assets.length"
+        class="flex flex-col gap-4 p-3 m-1 max-h-[120px] overflow-y-auto"
+      >
         <div
           v-for="asset in assets"
           :key="`asset-${asset.symbol}`"

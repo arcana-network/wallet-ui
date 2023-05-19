@@ -1,11 +1,34 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+import { useModalStore } from '@/store/modal'
+import { getImage } from '@/utils/getImage'
+
+const modalContainer = ref(null)
+
+const canModalCollapse = ref(false)
+const modalStore = useModalStore()
+
+function handleCollapse() {
+  canModalCollapse.value = true
+  modalContainer.value.innerHTMl = ''
+  setTimeout(() => modalStore.setShowModal(false), 300)
+}
+</script>
+
 <template>
-  <div
-    class="backdrop-blur-sm fixed flex justify-center items-center inset-0 z-50 p-3 overlay"
-  >
+  <div class="fixed flex justify-center items-center inset-0 z-50 p-3 overlay">
     <div
-      id="modal-container"
-      class="container p-3 sm:p-2 w-full max-w-[40rem] rounded-lg overflow-auto max-h-full"
-    ></div>
+      class="card absolute flex flex-col pt-2"
+      :class="{ collapse: canModalCollapse }"
+    >
+      <div class="flex justify-center">
+        <button @click="handleCollapse">
+          <img :src="getImage('collapse-arrow.svg')" />
+        </button>
+      </div>
+      <div id="modal-container" ref="modalContainer" class="p-4"></div>
+    </div>
   </div>
 </template>
 
@@ -14,8 +37,33 @@
   background: rgb(18 18 18 / 90%);
 }
 
-.container {
-  background: var(--card-bg);
-  box-shadow: var(--card-shadow);
+.card {
+  bottom: -100%;
+  transition: all 0.3s ease-in-out;
+  animation: slide-up 0.3s ease-in-out forwards;
+}
+
+.collapse {
+  animation: slide-down 0.3s ease-in-out forwards;
+}
+
+@keyframes slide-up {
+  0% {
+    bottom: -100%;
+  }
+
+  100% {
+    bottom: 0;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    bottom: 0;
+  }
+
+  100% {
+    bottom: -100%;
+  }
 }
 </style>
