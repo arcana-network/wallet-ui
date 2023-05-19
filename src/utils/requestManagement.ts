@@ -6,7 +6,7 @@ import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import type { AssetContract } from '@/models/Asset'
-import { PERMISSIONS } from '@/models/Connection'
+import { PERMISSIONS, requirePermission } from '@/models/Connection'
 import { router } from '@/routes'
 import { NFTDB } from '@/services/nft.service'
 import { store } from '@/store'
