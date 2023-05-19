@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
 import { storeToRefs } from 'pinia'
-import { ref, toRefs } from 'vue'
+import { ref, toRefs, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -158,13 +158,24 @@ function hideLoader() {
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
+
+watch(
+  () => modalStore.show,
+  () => {
+    if (!modalStore.show) {
+      showPrivateKeyCautionModal.value = false
+      showExportKeyModal.value = false
+      showMFAProceedModal.value = false
+    }
+  }
+)
 </script>
 
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <AppLoader :message="loader.message" />
   </div>
-  <div v-else class="flex-grow flex flex-col gap-5">
+  <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
       <span class="text-lg font-bold">Profile</span>
     </div>
@@ -203,7 +214,10 @@ onBeforeRouteLeave((to) => {
       </div>
       <div class="flex flex-col gap-1">
         <span class="text-sm text-gray-100">Private Key</span>
-        <button class="flex gap-1">
+        <button
+          class="flex gap-1"
+          @click.stop="handleShowPrivateKeyCautionModal"
+        >
           <span class="text-lg font-bold"> Export Key </span>
           <img
             :src="getImage('copy.svg')"
@@ -233,7 +247,7 @@ onBeforeRouteLeave((to) => {
       </div>
       <div class="flex">
         <button
-          class="flex flex-grow justify-center items-center btn-secondary p-3"
+          class="flex flex-grow justify-center items-center btn-secondary p-3 font-bold text-sm uppercase"
           @click="handleLogout"
         >
           Logout

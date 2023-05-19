@@ -234,13 +234,4 @@ label {
 hr {
   border-top: 1px solid #8d8d8d20;
 }
-
-.title {
-  font-size: var(--fs-500);
-}
-
-.description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
 </style>
