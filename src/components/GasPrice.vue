@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { type Ref, onMounted, ref, watch } from 'vue'
 
-import GasPriceSlider from '@/components/GasPriceSlider.vue'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
@@ -34,16 +33,13 @@ const props = defineProps({
   },
 })
 
-onMounted(init)
-
 const rpcStore = useRpcStore()
 
 const gasFee = ref(0)
 const transactionTime = ref(null)
 const conversionRate = ref('')
 const isGasPriceFocused = ref(false)
-
-const disableSlider = ref(true)
+const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
 
 const getConversionRateDebounced = debounce(getConversionRate)
 
@@ -54,13 +50,9 @@ watch(gasFee, () => {
 const getImage = useImage()
 const showCustomGasFeeInput = ref(false)
 
-const showSlider = GAS_AVAILABLE_CHAIN_IDS.includes(
+const hasGasStation = GAS_AVAILABLE_CHAIN_IDS.includes(
   Number(rpcStore.selectedChainId)
 )
-
-async function init() {
-  showCustomGasFeeInput.value = !showSlider
-}
 
 async function getConversionRate(gasFee) {
   if (rpcStore.currency === 'XAR') return (conversionRate.value = '0')
@@ -80,7 +72,6 @@ async function getConversionRate(gasFee) {
 }
 
 function handleGasPriceSelect(value = '') {
-  disableSlider.value = false
   const type = value.toLowerCase()
   const { wait, price } = GAS_PRICE_SPEED_MAP[type]
   gasFee.value = Number((props.gasPrices[price] / 10).toFixed(9))
@@ -89,7 +80,6 @@ function handleGasPriceSelect(value = '') {
 }
 
 function handleCustomGasPriceInput(value) {
-  disableSlider.value = true
   const amountInputEl = document.querySelector(
     '#custom-gas-fee-amount'
   ) as HTMLInputElement
@@ -106,44 +96,48 @@ function handleCustomGasPriceInput(value) {
 </script>
 
 <template>
-  <div v-if="showSlider" class="space-y-[10px]">
-    <div class="flex flex-col justify-between">
-      <div class="space-x-1 flex items-baseline">
-        <span class="text-xs text-zinc-400">Gas Fees</span>
-        <div class="space-x-1">
-          <span class="sm:text-xs">{{ disableSlider ? '-' : gasFee }}</span>
-          <span class="text-xs">{{ GAS_FEE_UNIT }}</span>
-        </div>
-      </div>
-      <div class="space-x-1">
-        <span class="text-xs text-zinc-400">Transaction Time:</span>
-        <span class="text-xs">
-          ~{{ disableSlider ? '-' : transactionTime }} mins
+  <div class="flex flex-col gap-1">
+    <div class="flex justify-between items-baseline">
+      <span class="text-sm font-medium">Gas Fees</span>
+      <div class="text-xs font-normal">
+        <span class="text-gray-100">Transaction Time:</span>
+        <span class="text-white-100">
+          ~{{ hasGasStation ? '-' : transactionTime }} mins
         </span>
       </div>
     </div>
-    <div class="px-6">
-      <GasPriceSlider
-        :disable="disableSlider"
-        @select-gas-price="handleGasPriceSelect"
-      />
+    <div class="card flex p-1">
+      <div
+        class="p-1 w-full text-center text-gray-100 text-base font-normal cursor-pointer rounded-sm hover:bg-black-300"
+        :class="{
+          'bg-black-300 text-white-100': selectedGasMethod === 'normal',
+        }"
+        @click.stop="selectedGasMethod = 'normal'"
+      >
+        Normal
+      </div>
+      <div
+        class="p-1 w-full text-center text-gray-100 text-base font-normal cursor-pointer rounded-sm hover:bg-black-300"
+        :class="{
+          'cursor-not-allowed opacity-60 pointer-events-none': !hasGasStation,
+          'bg-black-300 text-white-100': selectedGasMethod === 'fast',
+        }"
+        @click.stop="hasGasStation ? (selectedGasMethod = 'fast') : void 0"
+      >
+        Fast
+      </div>
+      <div
+        class="p-1 w-full text-center text-gray-100 text-base font-normal cursor-pointer rounded-sm hover:bg-black-300"
+        :class="{
+          'bg-black-300 text-white-100': selectedGasMethod === 'custom',
+        }"
+        @click.stop="selectedGasMethod = 'custom'"
+      >
+        Custom
+      </div>
     </div>
   </div>
-  <button
-    v-if="showSlider"
-    class="flex justify-center items-center mx-auto"
-    style="margin-top: 2.5rem"
-    @click.prevent="showCustomGasFeeInput = !showCustomGasFeeInput"
-  >
-    <p class="text-xs">Advanced Option</p>
-    <img
-      :src="getImage('arrow-icon')"
-      alt="arrow icon"
-      class="w-4 transition-transform duration-500"
-      :class="{ 'rotate-180': showCustomGasFeeInput }"
-    />
-  </button>
-  <div v-if="showCustomGasFeeInput" class="space-y-1">
+  <div v-if="selectedGasMethod === 'custom'" class="space-y-1">
     <div class="space-x-1 mb-2 text-xs text-zinc-400">
       <span class="font-semibold">Base Fee:</span>
       <span class="text-black dark:text-white">{{ props.baseFee }} Gwei</span>

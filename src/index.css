@@ -1,5 +1,8 @@
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind base;
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind components;
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind utilities;
 
 @font-face {
@@ -42,8 +45,9 @@
           disabled:opacity-60;
   }
 
-  nav {
-    @apply dark:bg-black-400;
+  input,
+  select {
+    @apply bg-transparent outline-none shadow-none dark:placeholder:text-gray-100 font-normal text-base p-[10px];
   }
 }
 
@@ -72,11 +76,11 @@
   }
 
   .input-field {
-    @apply dark:bg-gray-300 rounded-sm;
+    @apply dark:bg-gray-300 rounded-sm flex items-center;
   }
 
   .input-active {
-    @apply outline-1 dark:outline-white-200;
+    @apply outline-1 dark:outline-white-200 outline;
   }
 }
 

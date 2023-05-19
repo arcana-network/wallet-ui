@@ -90,11 +90,8 @@ watch(
       :wallet-balance="walletBalance"
       @refresh="handleRefresh"
     />
-    <div class="pb-5 flex flex-col gap-1">
-      <div class="font-semibold">Assets</div>
-      <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
-        <AssetsView />
-      </div>
+    <div class="my-6">
+      <AssetsView />
     </div>
   </div>
 </template>

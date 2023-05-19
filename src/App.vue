@@ -11,6 +11,8 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { getImage } from '@/utils/getImage'
+import { isMobileViewport } from '@/utils/isMobileViewport'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -44,7 +46,7 @@ onBeforeMount(async () => {
 async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
-  await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
 }
 
 watch(showWallet, async (newValue) => {
@@ -65,7 +67,7 @@ watch(showRequestPage, (newValue) => {
 
 const showFooter = computed(() => {
   return (
-    (!['requests', 'MFARequired', 'MFARestore'].includes(
+    (!['requests', 'MFARequired', 'MFARestore', 'SendTokens'].includes(
       route.name as string
     ) ||
       (route.name === 'requests' && !requestStore.pendingRequest)) &&
@@ -81,22 +83,37 @@ function onClickOfHeader() {
 
 <template>
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
-    <div v-show="expandWallet" class="flex flex-col h-full dark:bg-black-100">
-      <WalletHeader @click="onClickOfHeader" />
+    <div
+      v-show="expandWallet"
+      class="flex flex-col h-full dark:bg-black-300 rounded-t-md overflow-hidden"
+      :class="{ 'rounded-md': !isMobileViewport() }"
+    >
+      <div class="flex justify-center mt-2 mb-2">
+        <button class="flex flex-grow justify-center" @click="onClickOfHeader">
+          <img v-if="compactMode" :src="getImage('expand-arrow.svg')" />
+          <img v-else :src="getImage('collapse-arrow.svg')" />
+        </button>
+      </div>
+      <WalletHeader />
       <div
-        class="flex-grow wallet__container p-4"
-        :class="{ 'rounded-b-xl p-0': compactMode }"
+        class="flex-grow wallet__container m-1 p-3"
+        :class="{ 'p-0': compactMode }"
       >
-        <RouterView class="min-h-full" />
+        <RouterView class="min-h-fullxs flex-grow" />
         <BaseModal v-if="modal.show" />
+        <img
+          v-if="showFooter"
+          :src="getImage('secured-by-arcana.svg')"
+          class="h-xs mb-2"
+        />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
-    <div v-show="!expandWallet" class="h-full dark:bg-black-100">
+    <div v-show="!expandWallet" class="h-full dark:bg-black-300 rounded-t-sm">
       <WalletButton />
     </div>
   </div>
-  <div v-else class="flex flex-col h-full dark:bg-black-100">
+  <div v-else class="flex flex-col h-full dark:bg-black-300">
     <div
       class="flex-grow wallet__container p-4"
       :class="{ 'rounded-b-xl p-0': compactMode }"
@@ -109,16 +126,19 @@ function onClickOfHeader() {
 </template>
 
 <style>
-::-webkit-scrollbar {
-  width: 0.75rem;
-  height: 0.75rem;
+*::-webkit-scrollbar {
+  width: 0.15rem;
+  height: 0.15rem;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color);
-  background-clip: padding-box;
-  border: 0.25rem solid transparent;
+*::-webkit-scrollbar-thumb {
+  background-color: #36363600;
   border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: #363636ff;
 }
 
 body {
@@ -133,7 +153,6 @@ body {
 .wallet__container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);

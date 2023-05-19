@@ -59,7 +59,7 @@ onMounted(async () => {
   await getAccountDetails()
   appStore.showWallet = true
   await setMFABannerState()
-  // router.push({ name: 'home' })
+  router.push({ name: 'home' })
   const requestHandler = getRequestHandler()
   if (requestHandler) {
     requestHandler.setConnection(parentConnection)
@@ -101,11 +101,6 @@ async function setMFABannerState() {
   const hasMfaDnd = mfaDnd && mfaDnd === '1'
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (requestStore.areRequestsPendingForApproval) {
-    router.push({ name: 'requests', params: { appId: appStore.id } })
-  } else {
-    router.push({ name: 'home' })
-  }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
   }
@@ -120,7 +115,11 @@ async function initKeeper() {
     userStore.privateKey,
     rpcStore.selectedRpcConfig.rpcUrls[0]
   )
-  setRequestHandler(accountHandler)
+  try {
+    setRequestHandler(accountHandler)
+  } catch (e) {
+    // Do nothing
+  }
 }
 
 async function initAccountHandler() {

@@ -67,7 +67,9 @@ async function addTokenContract() {
       return toast.error('Enter all the details to continue')
     }
     const assetContractsString = storage.local.getItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+      `${userStore.walletAddress}/${Number(
+        rpcStore.selectedRpcConfig?.chainId
+      )}/asset-contracts`
     )
     let assetContracts: AssetContract[] = []
     if (assetContractsString) {
@@ -75,7 +77,9 @@ async function addTokenContract() {
     }
     assetContracts.push({ ...tokenContract })
     storage.local.setItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
+      `${userStore.walletAddress}/${Number(
+        rpcStore.selectedRpcConfig?.chainId
+      )}/asset-contracts`,
       JSON.stringify(assetContracts)
     )
     loader.show = false
@@ -89,7 +93,9 @@ async function addTokenContract() {
 
 function isContractInLocalStorage() {
   const assetContractsString = storage.local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    `${userStore.walletAddress}/${Number(
+      rpcStore.selectedRpcConfig?.chainId
+    )}/asset-contracts`
   )
   if (assetContractsString) {
     const assetContracts = JSON.parse(assetContractsString) as AssetContract[]

@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import { Wallet } from 'ethers'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 
 import RequestCountBadge from '@/components/RequestCountBadge.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
-import { useImage } from '@/utils/useImage'
+import { getImage } from '@/utils/getImage'
 
 const appStore = useAppStore()
 const requestStore = useRequestStore()
-const getImage = useImage()
-const { walletPosition } = toRefs(appStore)
 
 function onClickOfButton() {
   appStore.expandWallet = true
@@ -31,18 +28,10 @@ const showRequestCountBadge = computed(() => {
       <RequestCountBadge :request-count="requestCount" />
     </div>
     <button
-      class="container | absolute bottom-0 w-14 h-11 flex justify-center items-center cursor-pointer"
-      :class="[
-        walletPosition === 'right' ? 'rounded-l-[10px]' : 'rounded-r-[10px]',
-        walletPosition === 'right' ? 'right-0' : 'left-0',
-      ]"
+      class="flex items-center justify-center flex-grow h-full w-full"
       @click="onClickOfButton"
     >
-      <img
-        :src="getImage('arrow-icon')"
-        alt="arrow icon"
-        :class="[walletPosition === 'right' ? 'rotate-90' : 'rotate-[270deg]']"
-      />
+      <img :src="getImage('expand-arrow.svg')" />
     </button>
   </div>
 </template>

@@ -36,7 +36,7 @@ async function setHeight() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   await parentConnectionInstance?.setIframeStyle({
-    ...appStore.iframeStyle,
+    ...appStore.iframeStyle(),
     height: '275px',
   })
 }
