@@ -216,14 +216,11 @@ watch(
         <span class="text-sm text-gray-100">Private Key</span>
         <button
           class="flex gap-1"
+          title="Click to export private key"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
           <span class="text-lg font-bold"> Export Key </span>
-          <img
-            :src="getImage('copy.svg')"
-            alt="Click to copy"
-            class="w-lg h-lg"
-          />
+          <img :src="getImage('external-link.svg')" class="w-lg h-lg" />
         </button>
       </div>
       <div class="flex flex-col gap-1">
@@ -232,15 +229,12 @@ watch(
           <button
             v-if="!user.hasMfa"
             class="text-lg font-bold"
+            title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
             <span v-if="true">Setup Now</span>
             <span v-else>Update Security Questions</span>
-            <img
-              :src="getImage('copy.svg')"
-              alt="Click to copy"
-              class="w-lg h-lg"
-            />
+            <img :src="getImage('external-link.svg')" class="w-lg h-lg" />
           </button>
           <span v-else class="text-lg font-bold">In use</span>
         </div>
