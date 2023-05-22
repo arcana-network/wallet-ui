@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Wallet } from 'ethers'
 import { computed, toRefs } from 'vue'
 
 import RequestCountBadge from '@/components/RequestCountBadge.vue'

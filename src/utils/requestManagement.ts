@@ -60,8 +60,12 @@ async function watchRequestQueue(keeper) {
         const request = processQueue.shift()
         if (request) await processRequest(request, keeper)
         const method = request?.request.method
-        if (appMode === AppMode.Widget && pendingRequestCount === 0) {
-          if (appStore.sdkVersion !== 'v3') connectionInstance.closePopup()
+        if (
+          appMode === AppMode.Widget &&
+          pendingRequestCount === 0 &&
+          appStore.sdkVersion !== 'v3'
+        ) {
+          connectionInstance.closePopup()
         } else if (pendingRequestCount === 0 && method && PERMISSIONS[method]) {
           appStore.expandWallet = false
           appStore.compactMode = false
