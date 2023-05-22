@@ -32,6 +32,9 @@ type OnRampMoneyNetworkObject = {
 
 const COIN_CONFIG = new Map<number, OnRampMoneyCoinObject>()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
+// Chains that onramp.money advertises support for, but doesn’t actually accept
+const CHAIN_ID_BLACKLIST = new Set([80001])
+
 const API_URL = new URL(
   '/api/v1/onramp-coin-config/',
   process.env.VUE_APP_WALLET_GATEWAY
@@ -48,6 +51,10 @@ async function initializeOnRampMoney() {
     OnRampMoneyNetworkObject
   >
   for (const netConfig of Object.values(netConfigs)) {
+    if (CHAIN_ID_BLACKLIST.has(netConfig.networkId)) {
+      continue
+    }
+
     CHAIN_ID_CONFIG.set(netConfig.networkId, netConfig)
   }
 
@@ -72,7 +79,11 @@ async function initializeOnRampMoney() {
   }
 }
 
-function isSupportedByOnRampMoney(chainId: number) {
+function isSupportedByOnRampMoney(chainId: number): boolean {
+  if (CHAIN_ID_BLACKLIST.has(chainId)) {
+    return false
+  }
+
   const cfg = CHAIN_ID_CONFIG.get(chainId)
   if (cfg == null || cfg.nativeToken === -1) {
     return false
