@@ -35,7 +35,7 @@
 
 @layer base {
   body {
-    @apply font-onest text-black-100 dark:text-white-100 leading-normal;
+    @apply font-onest text-black-500 dark:text-white-100 leading-normal;
   }
 
   button {
@@ -47,45 +47,51 @@
 
   input,
   select {
-    @apply bg-transparent outline-none shadow-none dark:placeholder:text-gray-100 font-normal text-base p-[10px];
+    @apply bg-transparent outline-none shadow-none placeholder:text-gray-100 font-normal text-base p-[10px];
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply dark:bg-white-100 dark:active:bg-gray-400 dark:text-black-200 dark:hover:shadow-sm dark:hover:shadow-dark-100
-          rounded-sm;
+    @apply bg-black-500 dark:bg-white-100 dark:active:bg-gray-400 text-white-100 dark:text-black-200 hover:shadow-sm
+    focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-sm;
   }
 
   .btn-secondary {
-    @apply dark:active:bg-gray-500 dark:text-white-200 dark:hover:shadow-sm dark:hover:shadow-dark-100
-          box-border dark:border-white-200 border-default rounded-sm;
+    @apply active:bg-gray-700 dark:active:bg-gray-500 text-black-500
+           dark:text-white-200 hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
+           focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 border-default rounded-sm;
   }
 
   .btn-tertiary {
-    @apply dark:text-white-100 dark:hover:dark-text-shadow-100;
+    @apply text-black-500 dark:text-white-100 hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100;
   }
 
   .btn-quaternery {
-    @apply dark:bg-black-100 dark:text-white-100 dark:active:text-gray-400 dark:hover:dark-text-shadow-100
-          box-border dark:border-gray-200 border-default;
+    @apply bg-white-300 dark:bg-black-100 text-black-100 dark:text-white-100 dark:active:text-gray-400
+           hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
+           box-border border-gray-800 dark:border-gray-200 border-default;
   }
 
   .card {
-    @apply dark:bg-black-200 dark:border-gray-200 border rounded-md;
+    @apply bg-white-400 dark:bg-black-200 border-gray-800 dark:border-gray-200 border rounded-md;
   }
 
   .input-field {
-    @apply dark:bg-gray-300 rounded-sm flex items-center;
+    @apply bg-white-400 dark:bg-gray-300 rounded-sm flex items-center;
   }
 
   .input-active {
-    @apply outline-1 dark:outline-white-200 outline;
+    @apply outline-1 outline-black-500 dark:outline-white-200 outline;
   }
 }
 
 @layer utilities {
   .dark-text-shadow-100 {
+    text-shadow: 0 0 6px rgb(236 236 236 / 45%);
+  }
+
+  .text-shadow-100 {
     text-shadow: 0 0 6px rgb(236 236 236 / 45%);
   }
 

@@ -26,7 +26,9 @@ function getIcon(icon: string, pathName: string) {
 </script>
 
 <template>
-  <footer class="flex items-center px-12 py-2 dark:bg-black-400">
+  <footer
+    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 border-t-1 dark:bg-black-400 dark:border-0"
+  >
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link
         :to="{ name: 'home' }"
@@ -35,7 +37,7 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-white-100': isCurrentRoute('home') }"
+          :class="{ 'bg-black-500 dark:bg-white-100': isCurrentRoute('home') }"
         >
           <img
             :src="getIcon('tokens-icon', 'home')"
@@ -45,7 +47,9 @@ function getIcon(icon: string, pathName: string) {
         </div>
         <span
           class="text-xs font-normal text-gray-100"
-          :class="{ 'text-white-100': isCurrentRoute('home') }"
+          :class="{
+            'text-black-300 dark:text-white-100': isCurrentRoute('home'),
+          }"
           >Tokens</span
         >
       </router-link>
@@ -56,13 +60,15 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-white-100': isCurrentRoute('Nfts') }"
+          :class="{ 'bg-black-500 dark:bg-white-100': isCurrentRoute('Nfts') }"
         >
           <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
         </div>
         <span
           class="text-xs font-normal text-gray-100"
-          :class="{ 'text-white-100': isCurrentRoute('Nfts') }"
+          :class="{
+            'text-black-300 dark:text-white-100': isCurrentRoute('Nfts'),
+          }"
           >NFT</span
         >
       </router-link>
@@ -73,13 +79,15 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-white-100': isCurrentRoute('profile') }"
+          :class="{ 'bg-black-500 bg-white-100': isCurrentRoute('profile') }"
         >
           <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
         </div>
         <span
           class="text-xs font-normal text-gray-100"
-          :class="{ 'text-white-100': isCurrentRoute('profile') }"
+          :class="{
+            'text-black-300 dark:text-white-100': isCurrentRoute('profile'),
+          }"
           >Profile</span
         >
       </router-link>
@@ -90,7 +98,9 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-white-100': isCurrentRoute('activities') }"
+          :class="{
+            'bg-black-500 dark:bg-white-100': isCurrentRoute('activities'),
+          }"
         >
           <img
             :src="getIcon('notifications-icon', 'activities')"
@@ -99,7 +109,9 @@ function getIcon(icon: string, pathName: string) {
         </div>
         <span
           class="text-xs font-normal text-gray-100"
-          :class="{ 'text-white-100': isCurrentRoute('activities') }"
+          :class="{
+            'text-black-300 dark:text-white-100': isCurrentRoute('activities'),
+          }"
           >Activity</span
         >
       </router-link>

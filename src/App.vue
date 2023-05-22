@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
 import { toRefs, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -24,14 +23,7 @@ const modal = useModalStore()
 const requestStore = useRequestStore()
 const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
-const {
-  theme,
-  expandWallet,
-  showWallet,
-  compactMode,
-  sdkVersion,
-  validAppMode,
-} = toRefs(app)
+const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 
 const url = new URL(window.location.href)
@@ -93,7 +85,7 @@ function onClickOfHeader() {
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
     <div
       v-show="expandWallet"
-      class="flex flex-col h-full dark:bg-black-300 rounded-t-md overflow-hidden"
+      class="flex flex-col h-full bg-white-300 dark:bg-black-300 rounded-t-md overflow-hidden"
       :class="{ 'rounded-md': !isMobileViewport() }"
     >
       <div class="flex justify-center mt-2 mb-2">
@@ -118,13 +110,13 @@ function onClickOfHeader() {
       <WalletFooter v-if="showFooter" />
     </div>
     <div
-      v-show="!expandWallet && validAppMode === AppMode.Full"
-      class="h-full dark:bg-black-300 rounded-t-sm"
+      v-show="!expandWallet"
+      class="h-full bg-white-300 dark:bg-black-300 rounded-t-sm"
     >
       <WalletButton />
     </div>
   </div>
-  <div v-else class="flex flex-col h-full dark:bg-black-300">
+  <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
     <div
       class="flex-grow wallet__container p-4"
       :class="{ 'rounded-b-xl p-0': compactMode }"

@@ -337,7 +337,7 @@ function handleTokenChange(e) {
             </div>
             <div class="text-gray-100 text-xs font-normal">
               Total Balance:
-              <span class="text-white-100"
+              <span class="text-black-500 dark:text-white-100"
                 >{{ Number(selectedTokenBalance) }}
                 {{ selectedToken.symbol }}</span
               >
@@ -355,7 +355,6 @@ function handleTokenChange(e) {
                 <option
                   v-for="token in tokenList"
                   :key="token.address"
-                  class="text-black hover:text-white"
                   :value="JSON.stringify(token)"
                 >
                   {{ token.symbol }}
