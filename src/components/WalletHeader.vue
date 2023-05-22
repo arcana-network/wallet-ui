@@ -6,12 +6,21 @@ const appStore = useAppStore()
 const getImage = useImage()
 
 const emits = defineEmits(['click'])
+
+function onLogoLoadingError(e) {
+  e.target.src = getImage('fallback-logo')
+}
 </script>
 
 <template>
   <header class="flex justify-between rounded-t-xl">
     <div class="flex space-x-3 items-center">
-      <img :src="appStore.appLogo?.horizontal" alt="app logo" class="h-8" />
+      <img
+        :src="appStore.appLogo?.horizontal"
+        alt="app logo"
+        class="h-8"
+        @error="onLogoLoadingError"
+      />
       <p>{{ appStore.name }}</p>
     </div>
     <button
