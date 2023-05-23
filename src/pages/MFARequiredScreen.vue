@@ -116,7 +116,7 @@ function goToHome() {
           <a
             :href="`${DOCS_URL}/concepts/mfa.html`"
             target="_blank"
-            class="text-white-100 font-bold cursor-pointer"
+            class="text-black-500 dark:text-white-100 font-bold cursor-pointer"
             >LEARN MORE</a
           >
         </span>

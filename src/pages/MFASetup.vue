@@ -316,20 +316,22 @@ function handlePinBack() {
           <input
             v-model.trim="pinToEncryptMFAShare"
             :type="passwordType"
-            class="text-base p-3 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
           />
           <img
             v-if="passwordType === 'password'"
             :src="getImage('eye.svg')"
-            class="absolute top-0 right-0 m-3 w-lg h-lg cursor-pointer"
+            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Show password"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
             :src="getImage('eye-off.svg')"
-            class="absolute top-0 right-0 m-3 w-lg h-lg cursor-pointer"
+            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Hide password"
             @click.stop="passwordType = 'password'"
           />
@@ -359,18 +361,21 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-bold text-lg uppercase m-8">
+      <h2 class="font-bold text-lg uppercase my-4 mx-8">
         RECOVERY METHOD 1: Security Questions
       </h2>
       <hr />
-      <form class="flex flex-col p-8 gap-8" @submit.prevent="handleSubmit">
+      <form
+        class="flex flex-col py-4 px-8 gap-6"
+        @submit.prevent="handleSubmit"
+      >
         <div
           v-for="i in totalQuestions"
           :key="`Security-Question-${i}`"
           class="flex flex-col gap-2"
         >
           <div class="flex flex-col gap-1">
-            <label class="font-medium text-sm">Question {{ i }}</label>
+            <label class="text-sm">Question {{ i }}</label>
             <SearchQuestion
               :questions="globalQuestions"
               :value="getSelectedQuestion(i)"
@@ -384,9 +389,9 @@ function handlePinBack() {
             </div>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="font-medium text-sm">Answer {{ i }}</label>
+            <label class="text-sm">Answer {{ i }}</label>
             <input
-              class="text-base p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap"
+              class="text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
               :placeholder="customPlaceholders[i - 1]"
               :value="getAnswer(i)"
               @input="addAnswer(i, $event.target?.value)"
@@ -396,14 +401,14 @@ function handlePinBack() {
         <div class="flex justify-end gap-4">
           <button
             type="reset"
-            class="btn-secondary text-sm font-bold uppercase p-2 w-[8rem]"
+            class="btn-secondary text-sm font-bold uppercase p-2 w-32"
             @click.stop="handleCancel"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="btn-primary text-sm font-bold uppercase p-2 w-[8rem]"
+            class="btn-primary text-sm font-bold uppercase p-2 w-32"
           >
             Proceed
           </button>
