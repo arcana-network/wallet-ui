@@ -117,7 +117,8 @@ function handleDone() {
           :class="{
             'opacity-60 cursor-not-allowed': !props.transakNetwork,
             'hover:border-gray-100 cursor-pointer': props.transakNetwork,
-            'border-gray-100 bg-black-300': selectedProvider === 'transak',
+            'border-gray-100 bg-white-300 dark:bg-black-300':
+              selectedProvider === 'transak',
           }"
           @click.stop="
             props.transakNetwork ? (selectedProvider = 'transak') : void 0
@@ -142,7 +143,8 @@ function handleDone() {
           :class="{
             'opacity-60 cursor-not-allowed': !props.rampNetwork,
             'hover:border-gray-100 cursor-pointer': props.rampNetwork,
-            'border-gray-100 bg-black-300': selectedProvider === 'ramp',
+            'border-gray-100 bg-white-300 dark:bg-black-300':
+              selectedProvider === 'ramp',
           }"
           @click.stop="props.rampNetwork ? (selectedProvider = 'ramp') : void 0"
         >
@@ -165,7 +167,8 @@ function handleDone() {
           :class="{
             'opacity-60 cursor-not-allowed': !props.onRampMoney,
             'hover:border-gray-100 cursor-pointer': props.onRampMoney,
-            'border-gray-100 bg-black-300': selectedProvider === 'onramp.money',
+            'border-gray-100 bg-white-300 dark:bg-black-300':
+              selectedProvider === 'onramp.money',
           }"
           @click.stop="
             props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0

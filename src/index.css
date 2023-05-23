@@ -98,4 +98,15 @@
   .font-onest {
     font-family: Onest, sans-serif;
   }
+
+  .glass-effect {
+    background: #eeeeee9e;
+    backdrop-filter: blur(3.5px);
+    @apply dark:glass-effect-dark;
+  }
+
+  .glass-effect-dark {
+    background: rgb(49 49 49 / 62%);
+    backdrop-filter: blur(3.5px);
+  }
 }

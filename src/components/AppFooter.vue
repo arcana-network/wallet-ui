@@ -79,7 +79,9 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-black-500 bg-white-100': isCurrentRoute('profile') }"
+          :class="{
+            'bg-black-500 dark:bg-white-100': isCurrentRoute('profile'),
+          }"
         >
           <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
         </div>
