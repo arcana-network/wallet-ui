@@ -57,6 +57,7 @@ onMounted(async () => {
     await getRpcConfig()
     initKeeper()
     connectToParent()
+    await getRpcConfigFromParent()
     await setTheme()
     await getAccountDetails()
     appStore.showWallet = true
@@ -245,6 +246,25 @@ async function getRpcConfig() {
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
     await getRequestHandler().setRpcConfig(rpcConfig)
+  } catch (err) {
+    console.log({ err })
+  }
+}
+
+async function getRpcConfigFromParent() {
+  try {
+    const parentConnectionInstance = await parentConnection.promise
+    const rpcConfig = await parentConnectionInstance.getRpcConfig()
+    if (rpcConfig) {
+      const chainId = Number(rpcConfig.chainId)
+      const chainToBeSet = enabledChainList.value.find(
+        (chain) => chain.chainId === chainId
+      )
+      if (chainToBeSet) {
+        rpcStore.setSelectedRPCConfig(chainToBeSet)
+        rpcStore.setRpcConfig(chainToBeSet)
+      }
+    }
   } catch (err) {
     console.log({ err })
   }
