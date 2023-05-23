@@ -24,7 +24,11 @@ const showRequestCountBadge = computed(() => {
 
 <template>
   <div class="h-full relative">
-    <div v-if="showRequestCountBadge" class="z-[999] absolute top-4 left-2">
+    <div
+      v-if="showRequestCountBadge"
+      class="z-[999] absolute top-0"
+      :class="[appStore.walletPosition === 'right' ? 'right-1' : 'left-1']"
+    >
       <RequestCountBadge :request-count="requestCount" />
     </div>
     <button

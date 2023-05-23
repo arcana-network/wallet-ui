@@ -27,6 +27,18 @@ function getTitle(requestMethod: string) {
   }
   return 'Sign Message'
 }
+
+function getPermissionText(method, request) {
+  const { params } = request
+  const { chainName } = params[0]
+  if (method === 'wallet_addEthereumChain') {
+    return `Adding Chain - ${chainName}`
+  } else if (method === 'wallet_switchEthereumChain') {
+    return `Switch Chain - ${chainName}`
+  } else {
+    return methodAndAction[method]
+  }
+}
 </script>
 
 <template>
@@ -38,7 +50,8 @@ function getTitle(requestMethod: string) {
       <DateTime :datetime="request.receivedTime" />
     </div>
     <p class="font-normal text-sm sm:text-xs">
-      {{ appStore.name }} requests your permission.
+      {{ appStore.name }} requests your permission for
+      {{ getPermissionText(request.request.method, request.request) }}
     </p>
     <div class="flex justify-end space-x-2 text-sm">
       <button class="uppercase" @click="emits('reject')">Reject</button>

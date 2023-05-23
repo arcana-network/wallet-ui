@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { toRefs, watch, computed, onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -33,6 +34,10 @@ if (url.searchParams.get('theme')) {
 
 const showRequestPage = computed(() => {
   return requestStore.areRequestsPendingForApproval
+})
+
+const showWalletButton = computed(() => {
+  return !app.expandWallet && app.validAppMode !== AppMode.Widget
 })
 
 onBeforeMount(async () => {
@@ -109,7 +114,10 @@ function onClickOfHeader() {
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
-    <div v-show="!expandWallet" class="h-full dark:bg-black-300 rounded-t-sm">
+    <div
+      v-show="showWalletButton"
+      class="h-full dark:bg-black-300 rounded-t-sm"
+    >
       <WalletButton />
     </div>
   </div>

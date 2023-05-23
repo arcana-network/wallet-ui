@@ -2,6 +2,7 @@
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
@@ -27,6 +28,7 @@ type UserWalletProps = {
 const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
+const toast = useToast()
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 type ModalState =
@@ -89,9 +91,17 @@ function openAddNetwork(open) {
 }
 
 function openEditNetwork(open, chainId: number | null = null) {
-  chainSelectedForEdit.value = chainId
-  modalStore.setShowModal(open)
-  showModal.value = open ? 'edit-network' : false
+  if (rpcStore.selectedRpcConfig) {
+    if (Number(rpcStore.selectedRpcConfig.chainId) === Number(chainId)) {
+      toast.error(
+        'This network is current selected, please chose a different one and try again'
+      )
+    } else {
+      chainSelectedForEdit.value = chainId
+      modalStore.setShowModal(open)
+      showModal.value = open ? 'edit-network' : false
+    }
+  }
 }
 
 function goToSendTokens() {
@@ -147,14 +157,16 @@ onMounted(() => {
 })
 
 watch(
-  () => rpcStore.selectedRPCConfig.chainId,
+  () => rpcStore.selectedRPCConfig?.chainId,
   async () => {
-    await getRequestHandler().setRpcConfig({
-      ...rpcStore.selectedRPCConfig,
-      chainId: Number(rpcStore.selectedRPCConfig.chainId),
-    })
-    if (props.walletBalance) {
-      getCurrencyExchangeRate()
+    if (rpcStore.selectedRPCConfig) {
+      await getRequestHandler().setRpcConfig({
+        ...rpcStore.selectedRPCConfig,
+        chainId: Number(rpcStore.selectedRPCConfig.chainId),
+      })
+      if (props.walletBalance) {
+        getCurrencyExchangeRate()
+      }
     }
   }
 )
