@@ -28,10 +28,14 @@ module.exports = {
           200: '#1f1f1f',
           300: '#141414',
           400: '#050505',
+          500: '#333333',
+          600: '#252525',
         },
         white: {
           100: '#ffffff',
           200: '#f7f7f7',
+          300: '#fcfcfc',
+          400: '#eff1f3',
         },
         gray: {
           100: '#8d8d8d',
@@ -40,6 +44,9 @@ module.exports = {
           400: '#dcdcdc',
           500: '#2c2c2c',
           600: '#3b3b3b',
+          700: '#eeeeee',
+          800: '#dbdbdb',
+          900: '#f5f5f5',
         },
       },
       width: {
@@ -71,6 +78,7 @@ module.exports = {
       },
       boxShadow: {
         sm: '0 0 8px 3px rgba(0, 0, 0, 0.05)',
+        smLight: '0 0 8px 3px rgba(126, 126, 126, 0.25)',
       },
       boxShadowColor: {
         dark: {

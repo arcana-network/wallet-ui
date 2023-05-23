@@ -49,28 +49,28 @@ initStorage(appId)
 const storage = getStorage()
 
 onBeforeMount(async () => {
-  // loader.value = {
-  //   show: true,
-  //   message: 'Loading metadata...',
-  // }
-  // dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  // core = new Core(
-  //   dkgShare.pk,
-  //   dkgShare.id,
-  //   appId,
-  //   GATEWAY_URL,
-  //   AUTH_NETWORK === 'dev'
-  // )
-  // securityQuestionModule.init(core)
-  // try {
-  //   questions.value = await securityQuestionModule.getQuestions()
-  // } catch (e) {
-  //   console.log(e)
-  // }
-  // loader.value = {
-  //   show: false,
-  //   message: '',
-  // }
+  loader.value = {
+    show: true,
+    message: 'Loading metadata...',
+  }
+  dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+  core = new Core(
+    dkgShare.pk,
+    dkgShare.id,
+    appId,
+    GATEWAY_URL,
+    AUTH_NETWORK === 'dev'
+  )
+  securityQuestionModule.init(core)
+  try {
+    questions.value = await securityQuestionModule.getQuestions()
+  } catch (e) {
+    console.log(e)
+  }
+  loader.value = {
+    show: false,
+    message: '',
+  }
 })
 
 function handleProceed(val: 'pin-based' | 'question-based') {

@@ -52,7 +52,7 @@ function handleDragStart(e) {
 </script>
 
 <template>
-  <div class="bg-gray-300 rounded-sm p-[2px]">
+  <div class="bg-white-400 dark:bg-gray-300 rounded-sm p-[2px]">
     <div
       class="relative rounded-sm overflow-hidden"
       @touchstart="handleDragStart"

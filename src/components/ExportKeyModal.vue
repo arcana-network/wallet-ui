@@ -41,11 +41,7 @@ const emit = defineEmits(['copy', 'download', 'close'])
         </div>
         <div
           class="absolute inset-0 rounded-sm transition-all duration-200 z-10"
-          :style="
-            showPK
-              ? ''
-              : `background: rgb(49 49 49 / 62%); backdrop-filter: blur(3.5px)`
-          "
+          :class="showPK ? '' : 'glass-effect'"
         ></div>
       </div>
     </div>
@@ -61,7 +57,7 @@ const emit = defineEmits(['copy', 'download', 'close'])
         class="flex gap-1 items-center justify-center btn-tertiary text-sm font-medium p-2"
         @click.stop="emit('download')"
       >
-        <img src="@/assets/images/download.svg" class="w-lg h-lg" />
+        <img :src="getImage('download.svg')" class="w-lg h-lg" />
         <span>Download</span>
       </button>
     </div>

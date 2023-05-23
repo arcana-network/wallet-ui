@@ -90,7 +90,7 @@ function onClickOfHeader() {
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
     <div
       v-show="expandWallet"
-      class="flex flex-col h-full dark:bg-black-300 rounded-t-md overflow-hidden"
+      class="flex flex-col h-full bg-white-300 dark:bg-black-300 rounded-t-md overflow-hidden"
       :class="{ 'rounded-md': !isMobileViewport() }"
     >
       <div class="flex justify-center mt-2 mb-2">
@@ -116,12 +116,12 @@ function onClickOfHeader() {
     </div>
     <div
       v-show="showWalletButton"
-      class="h-full dark:bg-black-300 rounded-t-sm"
+      class="h-full bg-white-300 dark:bg-black-300 rounded-t-sm"
     >
       <WalletButton />
     </div>
   </div>
-  <div v-else class="flex flex-col h-full dark:bg-black-300">
+  <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
     <div
       class="flex-grow wallet__container p-4"
       :class="{ 'rounded-b-xl p-0': compactMode }"

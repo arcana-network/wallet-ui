@@ -15,7 +15,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-// import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
+import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
@@ -64,13 +64,12 @@ const rampNetwork = computed(() => {
 })
 
 const onRampMoney = computed(() => {
-  // const selectedChainId = Number(rpcStore.selectedChainId)
-  // if (isSupportedByOnRampMoney(selectedChainId)) {
-  //   return selectedChainId
-  // } else {
-  //   return false
-  // }
-  return false
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  if (isSupportedByOnRampMoney(selectedChainId)) {
+    return selectedChainId
+  } else {
+    return false
+  }
 })
 
 function showLoader(message: string) {

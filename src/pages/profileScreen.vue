@@ -179,22 +179,22 @@ watch(
     <div class="flex justify-center align-center">
       <span class="text-lg font-bold">Profile</span>
     </div>
-    <div class="card p-4 flex flex-col gap-5">
-      <div v-if="name" class="flex flex-col gap-1">
+    <div class="card p-4 flex flex-col gap-4">
+      <div v-if="name" class="flex flex-col">
         <span class="text-sm text-gray-100">Name</span>
         <span class="text-lg font-bold">
           {{ name }}
         </span>
       </div>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col">
         <span class="text-sm text-gray-100">Email ID</span>
         <span class="text-lg font-bold">
           {{ email }}
         </span>
       </div>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col">
         <span class="text-sm text-gray-100">Wallet Address</span>
-        <div class="flex gap-1">
+        <div class="flex gap-2">
           <span class="text-lg font-bold">
             {{ walletAddressShrinked }}
           </span>
@@ -205,36 +205,36 @@ watch(
             "
           >
             <img
-              :src="getImage('copy.svg')"
+              :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-lg h-lg"
+              class="w-md h-md"
             />
           </button>
         </div>
       </div>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col">
         <span class="text-sm text-gray-100">Private Key</span>
         <button
-          class="flex gap-1"
+          class="flex gap-2 items-center"
           title="Click to export private key"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
           <span class="text-lg font-bold"> Export Key </span>
-          <img :src="getImage('external-link.svg')" class="w-lg h-lg" />
+          <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col">
         <span class="text-sm text-gray-100">Enhance Wallet Security</span>
-        <div class="flex gap-1">
+        <div>
           <button
             v-if="!user.hasMfa"
-            class="text-lg font-bold"
+            class="text-lg font-bold flex gap-2 items-center"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
             <span v-if="true">Setup Now</span>
             <span v-else>Update Security Questions</span>
-            <img :src="getImage('external-link.svg')" class="w-lg h-lg" />
+            <img :src="getImage('external-link.svg')" class="w-md h-md" />
           </button>
           <span v-else class="text-lg font-bold">In use</span>
         </div>
