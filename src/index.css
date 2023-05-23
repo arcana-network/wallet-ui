@@ -84,6 +84,23 @@
   .input-active {
     @apply outline-1 outline-black-500 dark:outline-white-200 outline;
   }
+
+  .radio {
+    @apply grid p-0 place-content-center w-xs h-xs bg-gray-800 dark:bg-gray-600 rounded-full appearance-none before:bg-black-500 dark:before:bg-white-100;
+  }
+
+  .radio::before {
+    width: 10px;
+    height: 10px;
+    content: '';
+    border-radius: 50%;
+    transition: 120ms transform ease-in-out;
+    transform: scale(0);
+  }
+
+  .radio:checked::before {
+    transform: scale(1);
+  }
 }
 
 @layer utilities {

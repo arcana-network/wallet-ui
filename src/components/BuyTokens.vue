@@ -113,12 +113,14 @@ function handleDone() {
       </div>
       <form class="flex flex-col gap-2 mt-5" @submit.prevent="handleBuy">
         <div
-          class="flex gap-3 p-4 items-center justify-between border border-1 border-gray-200 rounded-sm transition-all duration-300 ease-in-out"
+          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
           :class="{
             'opacity-60 cursor-not-allowed': !props.transakNetwork,
             'hover:border-gray-100 cursor-pointer': props.transakNetwork,
-            'border-gray-100 bg-white-300 dark:bg-black-300':
+            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
               selectedProvider === 'transak',
+            'border-gray-800 dark:border-gray-200':
+              selectedProvider !== 'transak',
           }"
           @click.stop="
             props.transakNetwork ? (selectedProvider = 'transak') : void 0
@@ -135,16 +137,17 @@ function handleDone() {
             value="transak"
             name="provider"
             :disabled="!props.transakNetwork"
-            class="grid p-0 place-content-center w-xs h-xs bg-gray-600 rounded-full appearance-none before:bg-white-100"
+            class="radio"
           />
         </div>
         <div
-          class="flex gap-3 p-4 items-center justify-between border border-1 border-gray-200 rounded-sm transition-all duration-300 ease-in-out"
+          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
           :class="{
             'opacity-60 cursor-not-allowed': !props.rampNetwork,
             'hover:border-gray-100 cursor-pointer': props.rampNetwork,
-            'border-gray-100 bg-white-300 dark:bg-black-300':
+            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
               selectedProvider === 'ramp',
+            'border-gray-800 dark:border-gray-200': selectedProvider !== 'ramp',
           }"
           @click.stop="props.rampNetwork ? (selectedProvider = 'ramp') : void 0"
         >
@@ -159,16 +162,18 @@ function handleDone() {
             value="ramp"
             name="provider"
             :disabled="!props.rampNetwork"
-            class="grid p-0 place-content-center w-xs h-xs bg-gray-600 rounded-full appearance-none before:bg-white-100"
+            class="radio"
           />
         </div>
         <div
-          class="flex gap-3 p-4 items-center justify-between border border-1 border-gray-200 rounded-sm transition-all duration-300 ease-in-out"
+          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
           :class="{
             'opacity-60 cursor-not-allowed': !props.onRampMoney,
             'hover:border-gray-100 cursor-pointer': props.onRampMoney,
-            'border-gray-100 bg-white-300 dark:bg-black-300':
+            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
               selectedProvider === 'onramp.money',
+            'border-gray-800 dark:border-gray-200':
+              selectedProvider !== 'onramp.money',
           }"
           @click.stop="
             props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0
@@ -189,7 +194,7 @@ function handleDone() {
             value="onramp.money"
             name="provider"
             :disabled="props.onRampMoney === false"
-            class="grid p-0 place-content-center w-xs h-xs bg-gray-600 rounded-full appearance-none before:bg-white-100"
+            class="radio"
           />
         </div>
         <div class="flex mt-8">
@@ -204,18 +209,3 @@ function handleDone() {
     </div>
   </div>
 </template>
-
-<style scoped>
-input[type='radio']::before {
-  width: 10px;
-  height: 10px;
-  content: '';
-  border-radius: 50%;
-  transition: 120ms transform ease-in-out;
-  transform: scale(0);
-}
-
-input[type='radio']:checked::before {
-  transform: scale(1);
-}
-</style>
