@@ -215,9 +215,4 @@ input[type='radio']::before {
 input[type='radio']:checked::before {
   transform: scale(1);
 }
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
 </style>

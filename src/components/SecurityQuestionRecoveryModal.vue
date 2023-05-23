@@ -130,21 +130,3 @@ function handleProceed() {
     </form>
   </div>
 </template>
-
-<style scoped>
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-
-label {
-  padding-left: 5px;
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-</style>

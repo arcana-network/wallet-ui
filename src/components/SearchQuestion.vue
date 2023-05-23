@@ -69,13 +69,13 @@ function displayValue() {
   <Combobox v-slot="{ open }" v-model="selectedQuestion" nullable>
     <div class="relative">
       <div
-        class="relative w-full cursor-default overflow-hidden flex flex-nowrap rounded-[10px] input p-4 outline-none"
+        class="relative w-full cursor-default overflow-hidden flex flex-nowrap input-field p-1 pr-2 outline-none"
         :class="{
           'outline-black dark:outline-white outline-1 outline': isFocused,
         }"
       >
         <ComboboxInput
-          class="flex-1 border-none text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
+          class="flex-1 border-none text-sm bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
           placeholder="Enter or select the question"
           :display-value="displayValue()"
           @change="handleChange"
@@ -108,7 +108,7 @@ function displayValue() {
               :value="question"
             >
               <li
-                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+                class="relative cursor-pointer select-none p-3 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800"
                 :class="{
                   'bg-zinc-200 dark:bg-zinc-800': active,
                 }"

@@ -37,14 +37,3 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
   </div>
 </template>
-
-<style scoped>
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-</style>
