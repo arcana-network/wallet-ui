@@ -19,7 +19,6 @@ import { getImage } from '@/utils/getImage'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
-import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -43,7 +42,7 @@ const loader = ref({
 })
 const tokenList = ref([
   {
-    symbol: rpcStore.nativeCurrency.symbol,
+    symbol: rpcStore.nativeCurrency?.symbol,
     decimals: 18,
     address: '',
   },
@@ -119,7 +118,7 @@ async function fetchTokenBalance() {
     (item) => item.address === selectedToken.value.address
   )
 
-  if (tokenInfo?.symbol === rpcStore.nativeCurrency.symbol) {
+  if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance
   } else {
     const balance = await getTokenBalance({
@@ -163,7 +162,7 @@ async function handleSendToken() {
     const gasFees = ethers.utils
       .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
       .toHexString()
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency.symbol) {
+    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
@@ -229,7 +228,7 @@ async function handleShowPreview() {
     showLoader('Loading preview...')
     try {
       const accountHandler = getRequestHandler().getAccountHandler()
-      if (rpcStore.nativeCurrency.symbol === selectedToken.value.symbol) {
+      if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
             from: userStore.walletAddress,
@@ -276,7 +275,7 @@ function handleTokenChange(e) {
       recipientWalletAddress: setHexPrefix(recipientWalletAddress),
       amount,
       gasFee: gasFeeInEth,
-      selectedToken: selectedToken.symbol,
+      selectedToken: selectedToken.symbol as string,
       estimatedGas,
     }"
     @close="showPreview = false"

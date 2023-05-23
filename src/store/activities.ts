@@ -96,7 +96,7 @@ type CustomTokenActivity = {
 
 type TransactionFetchParams = {
   txHash: string
-  chainId: ChainId
+  chainId: ChainId | undefined
   customToken?: CustomTokenActivity
   recipientAddress?: string
 }
@@ -160,11 +160,13 @@ export const useActivitiesStore = defineStore('activitiesStore', {
     },
   },
   actions: {
-    saveActivity(chainId: ChainId, activity: Activity) {
-      if (this.activitiesByChainId[chainId]) {
-        this.activitiesByChainId[chainId].unshift(activity)
-      } else {
-        this.activitiesByChainId[chainId] = [activity]
+    saveActivity(chainId: ChainId | undefined, activity: Activity) {
+      if (chainId) {
+        if (this.activitiesByChainId[chainId]) {
+          this.activitiesByChainId[chainId].unshift(activity)
+        } else {
+          this.activitiesByChainId[chainId] = [activity]
+        }
       }
     },
     updateActivityStatusByTxHash(
@@ -213,7 +215,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         const txInterval = setInterval(async () => {
           const remoteTransaction =
             await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction.blockNumber) {
+          if (remoteTransaction.blockNumber && chainId) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }
@@ -270,7 +272,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       }
     },
     async saveFileActivity(
-      chainId: ChainId,
+      chainId: ChainId | undefined,
       fileTransaction: ContractFileActivityMessage,
       forwarderAddress: string
     ) {
@@ -297,7 +299,10 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         file,
       }
       this.saveActivity(chainId, activity)
-      const currentActivity = this.activitiesByChainId[chainId][0]
+      let currentActivity
+      if (chainId) {
+        currentActivity = this.activitiesByChainId[chainId][0]
+      }
 
       const filter: EventFilter = {
         address: forwarderAddress,

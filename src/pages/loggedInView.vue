@@ -3,12 +3,13 @@ import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
-import { CHAIN_LIST } from '@/models/RpcConfigList'
+import { RpcConfigWallet } from '@/models/RpcConfigList'
+import { getEnabledChainList } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -44,6 +45,7 @@ const loader = ref({
 })
 let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
+const enabledChainList: Ref<any[]> = ref([])
 
 onBeforeMount(() => {
   userStore.hasMfa =
@@ -51,31 +53,38 @@ onBeforeMount(() => {
 })
 
 onMounted(async () => {
-  setRpcConfigs()
-  initKeeper()
-  connectToParent()
-  await setTheme()
-  await getRpcConfig()
-  await getAccountDetails()
-  appStore.showWallet = true
-  await setMFABannerState()
-  router.push({ name: 'home' })
-  const requestHandler = getRequestHandler()
-  if (requestHandler) {
-    requestHandler.setConnection(parentConnection)
-    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
-    const selectedChainId = Number(chainId)
-    await requestHandler.setRpcConfig({
-      chainId: selectedChainId,
-      ...rpcConfig,
-    })
-    const parentConnectionInstance = await parentConnection.promise
-    parentConnectionInstance.onEvent('connect', {
-      chainId: selectedChainId,
-    })
-    watchRequestQueue(requestHandler)
+  try {
+    await setRpcConfigs()
+    await getRpcConfig()
+    initKeeper()
+    connectToParent()
+    await getRpcConfigFromParent()
+    await setTheme()
+    await getAccountDetails()
+    appStore.showWallet = true
+    await setMFABannerState()
+    router.push({ name: 'home' })
+    const requestHandler = getRequestHandler()
+    if (requestHandler) {
+      requestHandler.setConnection(parentConnection)
+      const { chainId, ...rpcConfig } =
+        rpcStore.selectedRpcConfig as RpcConfigWallet
+      const selectedChainId = Number(chainId)
+      await requestHandler.setRpcConfig({
+        chainId: selectedChainId,
+        ...rpcConfig,
+      })
+      const parentConnectionInstance = await parentConnection.promise
+      parentConnectionInstance.onEvent('connect', {
+        chainId: selectedChainId,
+      })
+      watchRequestQueue(requestHandler)
+    }
+  } catch (e) {
+    console.log(e)
+  } finally {
+    loader.value.show = false
   }
-  loader.value.show = false
 })
 
 async function setMFABannerState() {
@@ -113,7 +122,7 @@ async function getAccountDetails() {
 async function initKeeper() {
   const accountHandler = new AccountHandler(
     userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
+    rpcStore.selectedRpcConfig?.rpcUrls[0]
   )
   try {
     setRequestHandler(accountHandler)
@@ -213,32 +222,49 @@ async function handleLogout() {
   }
 }
 
-function setRpcConfigs() {
-  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
+async function setRpcConfigs() {
+  const { chains } = await getEnabledChainList(appStore.id)
+  enabledChainList.value = chains.map((chain) => ({
+    chainId: chain.chain_id,
+    rpcUrls: [chain.rpc_url],
+    chainName: chain.name,
+    chainType: chain.chain_type,
+    blockExplorerUrls: [chain.exp_url],
+    isCustom: false,
+    nativeCurrency: {
+      symbol: chain.currency,
+      decimals: 18,
+    },
+    defaultChain: chain.default_chain,
+  }))
+  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 
 async function getRpcConfig() {
   try {
-    if (parentConnection) {
-      const parentConnectionInstance = await parentConnection.promise
-      let rpcConfig = await parentConnectionInstance.getRpcConfig()
-      if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
-        rpcConfig = CHAIN_LIST[0]
-      }
-      if (rpcConfig) {
-        const selectedChain = CHAIN_LIST.find(
-          (chain) => Number(chain.chainId) === Number(rpcConfig.chainId)
-        )
-        rpcStore.setSelectedRPCConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
-        rpcStore.setRpcConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
+    let rpcConfig =
+      enabledChainList.value.find((chain) => chain.defaultChain) ||
+      enabledChainList.value[0] // some time, chain list don't have default chain
+    rpcStore.setSelectedRPCConfig(rpcConfig)
+    rpcStore.setRpcConfig(rpcConfig)
+    await getRequestHandler().setRpcConfig(rpcConfig)
+  } catch (err) {
+    console.log({ err })
+  }
+}
+
+async function getRpcConfigFromParent() {
+  try {
+    const parentConnectionInstance = await parentConnection.promise
+    const rpcConfig = await parentConnectionInstance.getRpcConfig()
+    if (rpcConfig) {
+      const chainId = Number(rpcConfig.chainId)
+      const chainToBeSet = enabledChainList.value.find(
+        (chain) => chain.chainId === chainId
+      )
+      if (chainToBeSet) {
+        rpcStore.setSelectedRPCConfig(chainToBeSet)
+        rpcStore.setRpcConfig(chainToBeSet)
       }
     }
   } catch (err) {

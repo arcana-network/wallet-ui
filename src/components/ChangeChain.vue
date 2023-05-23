@@ -41,11 +41,11 @@ watch(selectedChain, async () => {
       }"
     >
       <div v-if="selectedChain" class="flex space-x-1 items-center">
-        <img
+        <!-- <img
           :src="getImage(selectedChain.favicon)"
           :alt="selectedChain.chainName"
           class="w-6 h-6"
-        />
+        /> -->
         <p class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch]">
           {{ selectedChain.chainName }}
         </p>
@@ -74,11 +74,11 @@ watch(selectedChain, async () => {
         >
           <div class="flex justify-between">
             <div class="flex space-x-1 items-center">
-              <img
+              <!-- <img
                 :src="getImage(chain.favicon)"
                 :alt="chain.chainName"
                 class="w-6 h-6"
-              />
+              /> -->
               <p
                 class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[20ch]"
               >
