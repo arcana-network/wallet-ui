@@ -90,8 +90,7 @@ function onClickOfHeader() {
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
     <div
       v-show="expandWallet"
-      class="flex flex-col h-full bg-white-300 dark:bg-black-300 rounded-t-md overflow-hidden"
-      :class="{ 'rounded-md': !isMobileViewport() }"
+      class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
       <div class="flex justify-center mt-2 mb-2">
         <button class="flex flex-grow justify-center" @click="onClickOfHeader">
@@ -100,10 +99,7 @@ function onClickOfHeader() {
         </button>
       </div>
       <WalletHeader />
-      <div
-        class="flex-grow wallet__container m-1 p-3"
-        :class="{ 'p-0': compactMode }"
-      >
+      <div class="flex-grow wallet__container m-1 p-3">
         <RouterView class="min-h-fullxs flex-grow" />
         <BaseModal v-if="modal.show" />
         <img
@@ -116,7 +112,7 @@ function onClickOfHeader() {
     </div>
     <div
       v-show="showWalletButton"
-      class="h-full bg-white-300 dark:bg-black-300 rounded-t-sm"
+      class="h-full bg-white-300 dark:bg-black-300"
     >
       <WalletButton />
     </div>
@@ -124,7 +120,7 @@ function onClickOfHeader() {
   <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
     <div
       class="flex-grow wallet__container p-4"
-      :class="{ 'rounded-b-xl p-0': compactMode }"
+      :class="{ 'p-0': compactMode }"
     >
       <RouterView class="min-h-full" />
       <BaseModal v-if="modal.show" />

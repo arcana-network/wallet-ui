@@ -68,6 +68,14 @@ export const useAppStore = defineStore('app', {
         style.bottom = expandWallet && !mobileViewport ? '30px' : '0'
         style.transition = 'all 300ms ease-in-out'
         style.position = 'fixed'
+        style.overflow = 'hidden'
+        style.borderRadius = mobileViewport ? '0' : '10px'
+        if (!compactMode && !expandWallet) {
+          style.borderBottomLeftRadius = '0'
+          style.borderBottomRightRadius = '0'
+          style.borderTopRightRadius = '5px'
+          style.borderTopLeftRadius = '5px'
+        }
         return style
       }
     },
