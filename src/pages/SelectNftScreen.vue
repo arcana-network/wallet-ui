@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 
 import SendNft from '@/components/SendNft.vue'
 import type { NFT } from '@/models/NFT'
+import { NFTDB } from '@/services/nft.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
 
 type ModalState = 'send-nft' | false
@@ -20,37 +22,11 @@ const showModal: Ref<ModalState> = ref(false)
 const modalStore = useModalStore()
 const searchQuery = ref('')
 const filteredNfts: Ref<NFT[]> = ref([])
-
-function fetchStoredNfts(): NFT[] {
-  const storedNftsString = getStorage().local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/nfts`
-  )
-  if (storedNftsString) {
-    return (JSON.parse(storedNftsString) as NFT[]).filter(
-      (contract) => contract.type === 'erc721' || contract.type === 'erc1155'
-    )
-  } else {
-    return []
-  }
-}
+const storage = getStorage()
+let nftDB: NFTDB
 
 async function getNFTAssets() {
-  nfts.value = []
-  const storedNfts = fetchStoredNfts()
-  storedNfts.forEach((nft) => {
-    nfts.value.push({
-      type: nft.type,
-      name: nft.name,
-      balance: nft.balance,
-      imageUrl: nft.imageUrl,
-      animationUrl: nft.animationUrl,
-      description: nft.description,
-      collectionName: nft.collectionName,
-      tokenId: nft.tokenId,
-      address: nft.address,
-      attributes: nft.attributes,
-    })
-  })
+  nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
   filteredNfts.value = [...nfts.value]
 }
 
@@ -82,7 +58,10 @@ watch(
   }
 )
 
-onMounted(getNFTAssets)
+onMounted(async () => {
+  nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+  await getNFTAssets()
+})
 
 rpcStore.$subscribe(getNFTAssets)
 </script>

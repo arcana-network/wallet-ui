@@ -155,7 +155,7 @@ async function returnToParent(key: string) {
       }
     )
   } else {
-    if (loginSrc === 'rn') {
+    if (loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity') {
       await connectionToParent.goToWallet()
       return
     }

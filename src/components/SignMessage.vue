@@ -3,16 +3,17 @@ import { storeToRefs } from 'pinia'
 
 import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import SignMessageCompact from '@/components/SignMessageCompact.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
-import { useImage } from '@/utils/useImage'
+// import { useImage } from '@/utils/useImage'
 
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
-const getImage = useImage()
+// const getImage = useImage()
 
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 
@@ -22,6 +23,8 @@ defineProps({
     required: true,
   },
 })
+
+const emits = defineEmits(['reject', 'approve'])
 
 const stateChangeRequests = [
   methodAndAction.wallet_addEthereumChain,
@@ -38,7 +41,13 @@ function getTitle(requestMethod: string) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-4 sm:space-y-3">
+  <SignMessageCompact
+    v-if="appStore.compactMode"
+    :request="request"
+    @approve="emits('approve')"
+    @reject="emits('reject')"
+  />
+  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex items-baseline">
       <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm capitalize">
         {{ getTitle(methodAndAction[request.request.method]) }}
@@ -52,10 +61,10 @@ function getTitle(requestMethod: string) {
     <div>
       <p class="text-sm sm:text-xs text-zinc-400 font-semibold">Network</p>
       <p class="text-base sm:text-sm flex gap-2">
-        <img
+        <!-- <img
           :src="getImage(rpcStore.selectedRpcConfig.favicon)"
           class="w-6 h-6"
-        />
+        /> -->
         {{ selectedRpcConfig.chainName }}
       </p>
     </div>

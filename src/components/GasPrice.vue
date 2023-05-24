@@ -6,13 +6,15 @@ import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
+import {
+  EXCHANGE_RATE_CURRENCY,
+  GAS_FEE_UNIT,
+  GAS_PRICE_SPEED_MAP,
+} from '@/utils/constants'
 import debounce from '@/utils/debounce'
 import { formatValueToUSD } from '@/utils/formatUSD'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { useImage } from '@/utils/useImage'
-
-const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
-const GAS_FEE_UNIT = 'GWEI'
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -51,11 +53,6 @@ watch(gasFee, () => {
 
 const getImage = useImage()
 const showCustomGasFeeInput = ref(false)
-const gasPriceLabelPropsMap = {
-  slow: { wait: 'safeLowWait', price: 'safeLow' },
-  standard: { wait: 'avgWait', price: 'average' },
-  fast: { wait: 'fastWait', price: 'fast' },
-}
 
 const showSlider = GAS_AVAILABLE_CHAIN_IDS.includes(
   Number(rpcStore.selectedChainId)
@@ -85,7 +82,7 @@ async function getConversionRate(gasFee) {
 function handleGasPriceSelect(value = '') {
   disableSlider.value = false
   const type = value.toLowerCase()
-  const { wait, price } = gasPriceLabelPropsMap[type]
+  const { wait, price } = GAS_PRICE_SPEED_MAP[type]
   gasFee.value = Number((props.gasPrices[price] / 10).toFixed(9))
   transactionTime.value = props.gasPrices[wait]
   emits('gasPriceInput', gasFee.value)
@@ -93,20 +90,18 @@ function handleGasPriceSelect(value = '') {
 
 function handleCustomGasPriceInput(value) {
   disableSlider.value = true
-  if (value) {
-    const amountInputEl = document.querySelector(
-      '#custom-gas-fee-amount'
-    ) as HTMLInputElement
-    if (value < Number(props.baseFee)) {
-      return amountInputEl.setCustomValidity(
-        'Amount must not be less than base fee.'
-      )
-    } else {
-      amountInputEl.setCustomValidity('')
-      gasFee.value = value
-      emits('gasPriceInput', gasFee.value)
-    }
+  const amountInputEl = document.querySelector(
+    '#custom-gas-fee-amount'
+  ) as HTMLInputElement
+  if (!value && value !== 0) {
+    amountInputEl.setCustomValidity('Enter the gas fees to continue.')
+  } else if (value < Number(props.baseFee)) {
+    amountInputEl.setCustomValidity('Gas fees must not be less than base fees.')
+  } else {
+    amountInputEl.setCustomValidity('')
   }
+  gasFee.value = value
+  emits('gasPriceInput', gasFee.value)
 }
 </script>
 

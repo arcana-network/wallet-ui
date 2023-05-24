@@ -2,7 +2,9 @@ import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
-import type { NFTContractType } from '@/models/NFT'
+import type { NFT, NFTContractType } from '@/models/NFT'
+import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
+import { NFTDB } from '@/services/nft.service'
 import { useUserStore } from '@/store/user'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
@@ -140,4 +142,52 @@ async function checkOwnership(
   }
 }
 
-export { getTokenUri, getERCStandard, getCollectionName, checkOwnership }
+function sanitizeUrl(url?: string) {
+  if (url && url.startsWith('ipfs://')) {
+    return modifyIpfsUrl(url)
+  }
+  return url
+}
+
+async function getDetailedNFTs(nftDB: NFTDB, chainId: number) {
+  const potentialNFTList = nftDB.getNFTs(chainId)
+  const nfts: NFT[] = []
+
+  await Promise.all(
+    potentialNFTList.map(async (nft) => {
+      const [ownership, details] = await Promise.all([
+        nft.autodetected
+          ? undefined
+          : checkOwnership(nft.type, {
+              tokenId: nft.tokenId,
+              contractAddress: nft.address,
+            }),
+        getNFTDetails(nft.tokenUrl, nft.tokenId),
+      ])
+
+      // Check for undefined because we don't want to remove the NFT if it's autodetected
+      // Ownership is undefined if autodetected
+      if ((ownership !== undefined && !ownership.owner) || !details) {
+        nftDB.removeNFT(nft, chainId)
+        return
+      }
+
+      details.name = details.name || `#${nft.tokenId}`
+      details.imageUrl = sanitizeUrl(details.image_url || details.image)
+      details.animationUrl = sanitizeUrl(
+        details.animation_url || details.animations
+      )
+      nfts.push({ ...nft, ...details })
+    })
+  )
+
+  return nfts
+}
+
+export {
+  getTokenUri,
+  getERCStandard,
+  getCollectionName,
+  checkOwnership,
+  getDetailedNFTs,
+}

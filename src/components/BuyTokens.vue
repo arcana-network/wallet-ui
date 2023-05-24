@@ -2,6 +2,7 @@
 import { ref, type Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
+import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
 import { openRampSdk } from '@/utils/rampsdk'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
@@ -9,13 +10,14 @@ import { useImage } from '@/utils/useImage'
 type BuyTokenProps = {
   transakNetwork?: string
   rampNetwork?: string
+  onRampMoney: number | false | undefined
 }
 
 const props = defineProps<BuyTokenProps>()
 
 const emit = defineEmits(['close'])
 const getImage = useImage()
-const selectedProvider: Ref<'transak' | 'ramp' | ''> = ref('')
+const selectedProvider: Ref<'transak' | 'ramp' | 'onramp.money' | ''> = ref('')
 const isLoading = ref(false)
 const showStatusModal: Ref<'success' | 'failed' | 'cancelled' | ''> = ref('')
 const statusText = ref({
@@ -29,7 +31,7 @@ function handleTransak() {
   handleStatusModalText('Transak')
 }
 
-function handleStatusModalText(provider: 'Transak' | 'Ramp') {
+function handleStatusModalText(provider: 'Transak' | 'Ramp' | 'onramp.money') {
   setTimeout(() => {
     isLoading.value = false
   }, 1500)
@@ -47,11 +49,22 @@ function handleRamp() {
   handleStatusModalText('Ramp')
 }
 
+function handleOnRampMoney() {
+  if (props.onRampMoney === undefined || props.onRampMoney === false) {
+    throw new Error('!!!')
+  }
+  isLoading.value = true
+  openOnRampMoneyHostedUI(props.onRampMoney)
+  handleStatusModalText('onramp.money')
+}
+
 function handleBuy() {
   if (selectedProvider.value === 'transak') {
     handleTransak()
   } else if (selectedProvider.value === 'ramp') {
     handleRamp()
+  } else if (selectedProvider.value === 'onramp.money') {
+    handleOnRampMoney()
   }
 }
 
@@ -140,6 +153,25 @@ function handleDone() {
           >
             <img src="@/assets/images/ramp.png" class="h-7 w-7" />
             <span class="text-base">Ramp</span>
+          </label>
+        </div>
+        <div class="flex gap-3 items-center">
+          <input
+            id="OnRampMoney"
+            v-model="selectedProvider"
+            type="radio"
+            value="onramp.money"
+            name="provider"
+            :disabled="props.onRampMoney === false"
+            :class="{ 'opacity-80': !props.onRampMoney }"
+          />
+          <label
+            for="OnRampMoney"
+            class="flex gap-2 items-center cursor-pointer"
+            :class="{ 'opacity-50': props.onRampMoney === false }"
+          >
+            <img src="@/assets/images/ramp.png" class="h-7 w-7" />
+            <span class="text-base">onramp.money</span>
           </label>
         </div>
         <div class="flex">
