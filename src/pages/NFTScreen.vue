@@ -5,7 +5,6 @@ import { onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import NFTView from '@/components/NFTView.vue'
-import UserWallet from '@/components/UserWallet.vue'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
@@ -48,7 +47,6 @@ onBeforeRouteLeave((to) => {
     <AppLoader :message="loader.message" />
   </div>
   <div v-else class="h-full">
-    <UserWallet page="nft" @refresh="handleRefresh" />
     <div class="pb-5 flex flex-col gap-1">
       <div class="font-semibold">Assets</div>
       <div class="wallet__card rounded-[10px] flex flex-col">
