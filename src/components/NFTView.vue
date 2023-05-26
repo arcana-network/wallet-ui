@@ -6,6 +6,7 @@ import type { NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -69,7 +70,7 @@ watch(
 
 <template>
   <div>
-    <div class="flex flex-col divide-y-[1px] max-h-72 divide-gray-600">
+    <div class="flex flex-col max-h-80">
       <div
         v-if="loader.show"
         class="flex justify-center items-center flex-1flex p-5"
@@ -78,11 +79,8 @@ watch(
           {{ loader.message }}
         </p>
       </div>
-      <div v-else class="overflow-y-scroll">
-        <div
-          v-if="nfts.length"
-          class="grid grid-cols-2 gap-[10px] pt-5 pb-4 mx-4 mr-[6px]"
-        >
+      <div v-else class="p-3 m-1 overflow-y-scroll">
+        <div v-if="nfts.length" class="grid grid-cols-2 gap-[10px]">
           <div
             v-for="nft in nfts"
             :key="`nft-${nft.address}-${nft.tokenId}`"
@@ -97,17 +95,17 @@ watch(
             "
           >
             <div
-              class="h-[136px] sm:h-[96px] rounded m-1 bg-center bg-cover"
+              class="h-[136px] rounded m-1 bg-center bg-cover"
               :style="{ 'background-image': `url(${nft.imageUrl})` }"
             ></div>
-            <div class="flex flex-col gap-1 p-[10px]">
+            <div class="flex flex-col px-2">
               <span
-                class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                class="text-gray-100 text-sm overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.name"
                 >{{ nft.name }}</span
               >
               <span
-                class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.collectionName"
                 >{{ nft.collectionName }}</span
               >
@@ -121,40 +119,15 @@ watch(
           >
         </div>
       </div>
-      <div class="flex justify-center mx-4">
-        <div
-          class="flex py-4 gap-2 items-center cursor-pointer flex-grow justify-center"
+      <div class="flex justify-center">
+        <button
+          class="btn-quaternery border-b-0 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
           @click.stop="handleManageNFT"
         >
-          <img
-            src="@/assets/images/settings.svg"
-            class="invert dark:invert-0"
-          />
+          <img :src="getImage('settings.svg')" />
           <span class="assets-view__add-token-text leading-[1]">Manage</span>
-        </div>
+        </button>
       </div>
     </div>
   </div>
 </template>
-
-<style>
-.assets-view__asset-name {
-  max-width: 12ch;
-  font-size: var(--fs-350);
-  line-height: 1.5;
-}
-
-.nft-card {
-  background: var(--nft-card-background);
-}
-
-.nft-card-title {
-  font-size: var(--fs-300);
-  color: var(--nft-card-title);
-}
-
-.nft-card-collection {
-  font-size: var(--fs-250);
-  color: var(--nft-card-collection);
-}
-</style>

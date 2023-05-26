@@ -305,7 +305,7 @@ onBeforeRouteLeave((to) => {
     <Transition name="fade" mode="out-in">
       <button
         v-if="showMfaBanner"
-        class="bg-blue-700 rounded-lg p-4 flex justify-between items-center cursor-pointer"
+        class="bg-blue-700 rounded-lg px-4 py-1 flex justify-between items-center cursor-pointer"
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">

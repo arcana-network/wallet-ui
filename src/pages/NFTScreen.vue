@@ -49,7 +49,7 @@ onBeforeRouteLeave((to) => {
   <div v-else class="h-full">
     <div class="pb-5 flex flex-col gap-1">
       <div class="font-semibold">Assets</div>
-      <div class="wallet__card rounded-[10px] flex flex-col">
+      <div class="card flex flex-col overflow-hidden">
         <NFTView
           :refresh-state="refreshState"
           @refreshed="refreshState = false"
