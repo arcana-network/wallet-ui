@@ -9,7 +9,7 @@ import type { InitParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
-import emailScheme from '@/utils/emailSheme'
+import emailScheme from '@/utils/emailScheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 

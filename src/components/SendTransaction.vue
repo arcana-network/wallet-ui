@@ -5,6 +5,7 @@ import type { Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
+import SendTransactionCompact from '@/components/SendTransactionCompact.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import {
   getGasPrice,
@@ -18,12 +19,12 @@ import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
   request: {
-    type: Request,
+    type: Object,
     required: true,
   },
 })
 
-const emits = defineEmits(['gasPriceInput'])
+const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
 const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
@@ -70,6 +71,7 @@ onMounted(async () => {
 })
 
 function handleSetGasPrice(value) {
+  console.log('handleSetGasPrice', { value })
   const requestId = props.request.request.id
   customGasPrice.value = value
   emits('gasPriceInput', {
@@ -83,6 +85,14 @@ function handleSetGasPrice(value) {
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <AppLoader :message="loader.message" />
   </div>
+  <SendTransactionCompact
+    v-else-if="appStore.compactMode"
+    :gas-price="customGasPrice"
+    :gas-prices="gasPrices"
+    :request="request"
+    @approve="emits('approve')"
+    @reject="emits('reject')"
+  />
   <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
     <div class="flex flex-col space-y-2">
       <div class="flex justify-between">
@@ -97,10 +107,10 @@ function handleSetGasPrice(value) {
     <div class="space-y-1">
       <p class="text-xs text-zinc-400">Network</p>
       <p class="text-base sm:text-sm flex gap-2">
-        <img
+        <!-- <img
           :src="getImage(rpcStore.selectedRpcConfig.favicon)"
           class="w-6 h-6"
-        />
+        /> -->
         {{ rpcStore.selectedRpcConfig?.chainName }}
       </p>
     </div>

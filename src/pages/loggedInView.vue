@@ -8,7 +8,7 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
-import { CHAIN_LIST } from '@/models/RpcConfigList'
+import { getEnabledChainList } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -44,6 +44,7 @@ const loader = ref({
 })
 let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
+const enabledChainList = ref([])
 
 onBeforeMount(() => {
   userStore.hasMfa =
@@ -51,30 +52,36 @@ onBeforeMount(() => {
 })
 
 onMounted(async () => {
-  setRpcConfigs()
-  initKeeper()
-  connectToParent()
-  await setTheme()
-  await getRpcConfig()
-  await getAccountDetails()
-  await setMFABannerState()
-  router.push({ name: 'home' })
-  const requestHandler = getRequestHandler()
-  if (requestHandler) {
-    requestHandler.setConnection(parentConnection)
-    const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
-    const selectedChainId = Number(chainId)
-    await requestHandler.setRpcConfig({
-      chainId: selectedChainId,
-      ...rpcConfig,
-    })
-    const parentConnectionInstance = await parentConnection.promise
-    parentConnectionInstance.onEvent('connect', {
-      chainId: selectedChainId,
-    })
-    watchRequestQueue(requestHandler)
+  try {
+    await setRpcConfigs()
+    await getRpcConfig()
+    initKeeper()
+    connectToParent()
+    await getRpcConfigFromParent()
+    await setTheme()
+    await getAccountDetails()
+    appStore.showWallet = true
+    await setMFABannerState()
+    const requestHandler = getRequestHandler()
+    if (requestHandler) {
+      requestHandler.setConnection(parentConnection)
+      const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+      const selectedChainId = Number(chainId)
+      await requestHandler.setRpcConfig({
+        chainId: selectedChainId,
+        ...rpcConfig,
+      })
+      const parentConnectionInstance = await parentConnection.promise
+      parentConnectionInstance.onEvent('connect', {
+        chainId: selectedChainId,
+      })
+      watchRequestQueue(requestHandler)
+    }
+  } catch (e) {
+    console.log(e)
+  } finally {
+    loader.value.show = false
   }
-  loader.value.show = false
 })
 
 async function setMFABannerState() {
@@ -100,7 +107,12 @@ async function setMFABannerState() {
   const hasMfaDnd = mfaDnd && mfaDnd === '1'
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip) {
+  if (requestStore.areRequestsPendingForApproval) {
+    router.push({ name: 'requests', params: { appId: appStore.id } })
+  } else {
+    router.push({ name: 'home' })
+  }
+  if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
   }
 }
@@ -150,6 +162,7 @@ function connectToParent() {
     getPublicKey: handleGetPublicKey,
     triggerLogout: handleLogout,
     getUserInfo,
+    expandWallet: () => (appStore.expandWallet = true),
   })
   parentConnectionStore.setParentConnection(parentConnection)
 }
@@ -158,11 +171,24 @@ async function setTheme() {
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const {
-      themeConfig: { theme },
+      themeConfig: {
+        theme,
+        assets: { logo },
+      },
       name: appName,
     } = await parentConnectionInstance.getAppConfig()
 
+    if (parentConnectionInstance.getSDKVersion) {
+      appStore.sdkVersion = await parentConnectionInstance.getSDKVersion()
+    }
+
+    if (appStore.sdkVersion === 'v3') {
+      const walletPosition = await parentConnectionInstance.getWalletPosition()
+      appStore.setWalletPosition(walletPosition)
+    }
+
     appStore.setTheme(theme)
+    appStore.setAppLogo(logo)
     appStore.setName(appName)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
@@ -183,45 +209,60 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode as AppMode)
 }
 
-async function handleLogout(isV2 = false) {
+async function handleLogout() {
+  appStore.sdkVersion = 'v2'
   if (parentConnection) {
     const parentConnectionInstance = await parentConnection.promise
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
-    setTimeout(() => {
-      const route = isV2 ? `/${appStore.id}/v2/login` : `/${appStore.id}/login`
-      router.push(route)
-    })
+    appStore.showWallet = false
   }
 }
 
-function setRpcConfigs() {
-  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(CHAIN_LIST)
+async function setRpcConfigs() {
+  const { chains } = await getEnabledChainList(appStore.id)
+  enabledChainList.value = chains.map((chain) => ({
+    chainId: chain.chain_id,
+    rpcUrls: [chain.rpc_url],
+    chainName: chain.name,
+    chainType: chain.chain_type,
+    blockExplorerUrls: [chain.exp_url],
+    isCustom: false,
+    nativeCurrency: {
+      symbol: chain.currency,
+      decimals: 18,
+    },
+    defaultChain: chain.default_chain,
+  }))
+  if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 
 async function getRpcConfig() {
   try {
-    if (parentConnection) {
-      const parentConnectionInstance = await parentConnection.promise
-      let rpcConfig = await parentConnectionInstance.getRpcConfig()
-      if ([40404, 40405].includes(Number(rpcConfig.chainId))) {
-        rpcConfig = CHAIN_LIST[0]
-      }
-      if (rpcConfig) {
-        const selectedChain = CHAIN_LIST.find(
-          (chain) => Number(chain.chainId) === Number(rpcConfig.chainId)
-        )
-        rpcStore.setSelectedRPCConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
-        rpcStore.setRpcConfig({
-          ...rpcConfig,
-          favicon: selectedChain ? selectedChain.favicon : 'blockchain-icon',
-          isCustom: false,
-        })
+    let rpcConfig =
+      enabledChainList.value.find((chain) => chain.defaultChain) ||
+      enabledChainList.value[0] // some time, chain list don't have default chain
+    rpcStore.setSelectedRPCConfig(rpcConfig)
+    rpcStore.setRpcConfig(rpcConfig)
+    await getRequestHandler().setRpcConfig(rpcConfig)
+  } catch (err) {
+    console.log({ err })
+  }
+}
+
+async function getRpcConfigFromParent() {
+  try {
+    const parentConnectionInstance = await parentConnection.promise
+    const rpcConfig = await parentConnectionInstance.getRpcConfig()
+    if (rpcConfig) {
+      const chainId = Number(rpcConfig.chainId)
+      const chainToBeSet = enabledChainList.value.find(
+        (chain) => chain.chainId === chainId
+      )
+      if (chainToBeSet) {
+        rpcStore.setSelectedRPCConfig(chainToBeSet)
+        rpcStore.setRpcConfig(chainToBeSet)
       }
     }
   } catch (err) {

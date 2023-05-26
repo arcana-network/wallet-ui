@@ -32,14 +32,14 @@ class AccountHandler {
     rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
   ) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+    this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   }
 
   getBalance() {
     return this.provider.getBalance(this.wallet.address)
   }
   setProvider(url: string) {
-    this.provider = new ethers.providers.JsonRpcProvider(url)
+    this.provider = new ethers.providers.StaticJsonRpcProvider(url)
   }
 
   asMiddleware() {

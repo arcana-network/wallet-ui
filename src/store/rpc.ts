@@ -1,16 +1,24 @@
 import { defineStore } from 'pinia'
 
-import { RpcConfigWallet, CHAIN_LIST } from '@/models/RpcConfigList'
+import { RpcConfigWallet } from '@/models/RpcConfigList'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+
+const BALANCE_POLLING_INTERVAL = 10 * 1000
+const BALANCE_POLLING_DURATION = 10 * 60 * 1000
 
 type RpcConfigs = {
   [chainId: number]: RpcConfigWallet
 }
 
 type RpcConfigState = {
-  selectedRPCConfig: RpcConfigWallet
-  selectedChainId: string | number
+  selectedRPCConfig: RpcConfigWallet | null
+  selectedChainId: string | number | null
+
   walletBalance: string
-  walletBalanceChainId: string
+  walletBalanceChainId: string | undefined
+  walletBalancePollingIntervalID: NodeJS.Timer | null
+  walletBalancePollingCleanupID: NodeJS.Timer | null
+
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
 }
@@ -18,9 +26,14 @@ type RpcConfigState = {
 export const useRpcStore = defineStore('rpcStore', {
   state: () =>
     ({
-      selectedRPCConfig: CHAIN_LIST[0],
-      selectedChainId: CHAIN_LIST[0].chainId,
+      selectedRPCConfig: null,
+      selectedChainId: null,
+
       walletBalance: '',
+      walletBalanceChainId: '',
+      walletBalancePollingCleanupID: null,
+      walletBalancePollingIntervalID: null,
+
       rpcConfigs: null,
       editChainId: null,
     } as RpcConfigState),
@@ -38,7 +51,8 @@ export const useRpcStore = defineStore('rpcStore', {
       return chainName.includes('arcana')
     },
     nativeCurrency() {
-      const rpcConfig: RpcConfigWallet = this.selectedRpcConfig
+      if (!this.selectedRPCConfig) return null
+      const rpcConfig: RpcConfigWallet | null = this.selectedRpcConfig
       if (this.isArcanaNetwork) {
         return {
           name: 'Arcana',
@@ -58,7 +72,7 @@ export const useRpcStore = defineStore('rpcStore', {
         decimals: 0,
       }
     },
-    selectedRpcConfig(state: RpcConfigState): RpcConfigWallet {
+    selectedRpcConfig(state: RpcConfigState): RpcConfigWallet | null {
       return state.selectedRPCConfig
     },
     rpcConfigList(state: RpcConfigState): Array<RpcConfigWallet> {
@@ -70,8 +84,8 @@ export const useRpcStore = defineStore('rpcStore', {
       return null
     },
     isEthereumMainnet() {
-      const selectedRpcConfig: RpcConfigWallet = this.selectedRpcConfig
-      return selectedRpcConfig.chainId === `1`
+      const selectedRpcConfig: RpcConfigWallet | null = this.selectedRpcConfig
+      return selectedRpcConfig?.chainId === `1`
     },
   },
   actions: {
@@ -84,14 +98,18 @@ export const useRpcStore = defineStore('rpcStore', {
       else this.rpcConfigs = { [rpcConfig.chainId]: rpcConfig }
     },
     editNetwork(chainId: number, rpcConfig: RpcConfigWallet): void {
-      if (this.rpcConfigs) this.rpcConfigs[chainId] = rpcConfig
+      if (this.rpcConfigs) {
+        if (Number(rpcConfig.chainId) !== Number(chainId))
+          delete this.rpcConfigs[rpcConfig.chainId]
+        else this.rpcConfigs[rpcConfig.chainId] = rpcConfig
+      }
     },
     deleteNetwork(chainId: number): void {
       if (this.rpcConfigs) delete this.rpcConfigs[chainId]
     },
     setWalletBalance(balance): void {
       this.walletBalance = balance
-      this.walletBalanceChainId = this.selectedRPCConfig.chainId
+      this.walletBalanceChainId = this.selectedRPCConfig?.chainId
     },
     setSelectedChainId(chainId: string): void {
       this.selectedRPCConfig = this.rpcConfigs
@@ -114,6 +132,40 @@ export const useRpcStore = defineStore('rpcStore', {
         configs[chainConfig.chainId] = chainConfig
       })
       this.rpcConfigs = configs
+    },
+
+    async getWalletBalance() {
+      const accountHandler = getRequestHandler().getAccountHandler()
+      if (accountHandler) {
+        const balance = (await accountHandler.getBalance()) || '0'
+        this.setWalletBalance(balance.toString())
+      }
+    },
+
+    cleanUpBalancePolling() {
+      if (this.walletBalancePollingIntervalID != null) {
+        clearInterval(this.walletBalancePollingIntervalID)
+        this.walletBalancePollingIntervalID = null
+      }
+      if (this.walletBalancePollingCleanupID != null) {
+        clearTimeout(this.walletBalancePollingCleanupID)
+        this.walletBalancePollingCleanupID = null
+      }
+    },
+
+    async setUpBalancePolling() {
+      this.cleanUpBalancePolling()
+      await this.getWalletBalance()
+      // Poll every 10 seconds
+      this.walletBalancePollingIntervalID = setInterval(
+        this.getWalletBalance.bind(this),
+        BALANCE_POLLING_INTERVAL
+      )
+      this.walletBalancePollingCleanupID = setTimeout(() => {
+        if (this.walletBalancePollingIntervalID != null) {
+          clearInterval(this.walletBalancePollingIntervalID)
+        }
+      }, BALANCE_POLLING_DURATION)
     },
   },
 })

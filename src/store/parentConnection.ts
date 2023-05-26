@@ -1,10 +1,15 @@
 import type { Connection } from 'penpal'
 import { defineStore } from 'pinia'
 
-import type { ParentConnectionApi } from '@/models/Connection'
+import type {
+  ParentConnectionApi,
+  InitParentConnectionApi,
+} from '@/models/Connection'
 
 type ParentConnectionState = {
-  parentConnection: Connection<ParentConnectionApi> | null
+  parentConnection: Connection<
+    ParentConnectionApi | InitParentConnectionApi
+  > | null
 }
 
 export const useParentConnectionStore = defineStore('parentConnection', {
@@ -13,7 +18,9 @@ export const useParentConnectionStore = defineStore('parentConnection', {
       parentConnection: null,
     } as ParentConnectionState),
   actions: {
-    setParentConnection(connection: Connection<ParentConnectionApi>): void {
+    setParentConnection(
+      connection: Connection<ParentConnectionApi | InitParentConnectionApi>
+    ): void {
       this.parentConnection = connection
     },
   },
