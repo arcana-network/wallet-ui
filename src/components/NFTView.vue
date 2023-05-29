@@ -70,10 +70,10 @@ watch(
 
 <template>
   <div>
-    <div class="flex flex-col max-h-80">
+    <div class="flex flex-col max-h-96">
       <div
         v-if="loader.show"
-        class="flex justify-center items-center flex-1flex p-5"
+        class="flex justify-center items-center flex-1 flex p-5"
       >
         <p class="m-auto font-semibold text-sm sm:text-xs px-4">
           {{ loader.message }}
