@@ -79,7 +79,7 @@ watch(
           {{ loader.message }}
         </p>
       </div>
-      <div v-else class="p-3 m-1 overflow-y-scroll">
+      <div v-else class="p-3 m-1 overflow-y-auto">
         <div v-if="nfts.length" class="grid grid-cols-2 gap-[10px]">
           <div
             v-for="nft in nfts"
@@ -88,7 +88,7 @@ watch(
             @click.stop="
               router.push({
                 name: 'NftDetails',
-                params: {
+                query: {
                   ...getNftDetailValues(nft),
                 },
               })

@@ -99,7 +99,7 @@ function handleCustomGasPriceInput(value) {
   <div class="flex flex-col gap-1">
     <div class="flex justify-between items-baseline">
       <span class="text-sm font-medium">Gas Fees</span>
-      <div class="text-xs font-normal">
+      <div v-if="false" class="text-xs font-normal">
         <span class="text-gray-100">Transaction Time:</span>
         <span class="text-black-500 dark:text-white-100">
           ~{{ hasGasStation ? '-' : transactionTime }} mins
@@ -143,46 +143,22 @@ function handleCustomGasPriceInput(value) {
       </div>
     </div>
   </div>
-  <div v-if="selectedGasMethod === 'custom'" class="space-y-1">
-    <div class="space-x-1 mb-2 text-xs text-zinc-400">
-      <span class="font-semibold">Base Fee:</span>
-      <span class="text-black dark:text-white">{{ props.baseFee }} Gwei</span>
-    </div>
-    <div class="flex justify-between sm:flex-col sm:space-y-1">
-      <label class="text-xs text-zinc-400 font-semibold" for="amount">
-        Set Custom Fee
-      </label>
-      <p v-if="rpcStore.currency" class="space-x-1 text-xs text-zinc-400">
-        <span>Conversion Rate:</span>
-        <span class="text-black dark:text-white">{{
-          conversionRate || 'NA'
-        }}</span>
-      </p>
-    </div>
-    <div
-      class="flex divide-x space-x-1 p-2 sm:p-1 input rounded-lg"
-      :class="{
-        'outline-black dark:outline-white outline-1 outline': isGasPriceFocused,
-      }"
-    >
-      <input
-        id="custom-gas-fee-amount"
-        :value="props.gasPrice"
-        autocomplete="off"
-        type="text"
-        class="text-base sm:text-sm bg-transparent w-full rounded-lg border-none outline-none"
-        placeholder="0.5"
-        @input="(evt) => handleCustomGasPriceInput(evt.target.value)"
-        @focus="isGasPriceFocused = true"
-        @blur="isGasPriceFocused = false"
-      />
-      <div class="p-2 border-l-[1px] border-l-slate-400 px-1">
-        <p
-          class="text-sm pl-1 w-[4.375rem] text-ellipsis whitespace-nowrap overflow-hidden"
-        >
-          {{ GAS_FEE_UNIT }}
-        </p>
-      </div>
+  <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-1">
+    <label class="text-sm font-medium" for="quantity"> Set Custom Fee </label>
+    <input
+      id="quantity"
+      v-model="gasFee"
+      required
+      type="text"
+      class="input-field"
+      :class="{ 'input-active': isGasPriceFocused }"
+      placeholder="Enter Recipient’s Wallet Address"
+      @focus="isGasPriceFocused = true"
+      @blur="isGasPriceFocused = false"
+    />
+    <div class="flex justify-end gap-1">
+      <span class="text-xs text-gray-100">Base Fee:</span>
+      <span class="text-xs">{{ props.baseFee }} Gwei</span>
     </div>
   </div>
 </template>

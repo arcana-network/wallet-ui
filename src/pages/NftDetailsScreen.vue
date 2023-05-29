@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
-import SendNft from '@/components/SendNft.vue'
 import type { NFTContractType } from '@/models/NFT'
 import { useModalStore } from '@/store/modal'
 import { getImage } from '@/utils/getImage'
@@ -17,6 +16,7 @@ type NftDetails = {
   imageUrl: string
   animationUrl?: string
   attributes?: string
+  balance?: string
 }
 
 type NftAttributes = {
@@ -26,10 +26,12 @@ type NftAttributes = {
 
 type ModalState = 'send-nft' | false
 
-const props = defineProps<NftDetails>()
 const router = useRouter()
+const route = useRoute()
 const showModal: Ref<ModalState> = ref(false)
 const modalStore = useModalStore()
+
+const props = route.query as NftDetails
 
 const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
   if (props.attributes) {
@@ -39,8 +41,7 @@ const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
 })
 
 function openNftModal() {
-  modalStore.setShowModal(true)
-  showModal.value = 'send-nft'
+  router.push({ name: 'SendNfts', params: { ...props } })
 }
 
 function handleClose() {
@@ -137,12 +138,5 @@ function handleClose() {
         </div>
       </div>
     </div>
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendNft
-        v-if="showModal === 'send-nft'"
-        :nft="{ ...props, attributes: nftAttributes }"
-        @close="handleClose"
-      />
-    </Teleport>
   </div>
 </template>
