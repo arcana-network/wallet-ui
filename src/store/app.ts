@@ -50,9 +50,9 @@ export const useAppStore = defineStore('app', {
           ? compactMode
             ? '200px'
             : '80vh'
-          : '66px'
+          : '44px'
         : '0'
-      style.width = showWallet ? (expandWallet ? '360px' : '68px') : '0'
+      style.width = showWallet ? (expandWallet ? '360px' : '56px') : '0'
       style.right =
         walletPosition === 'right' ? (expandWallet ? '18px' : '2px') : ''
       style.left =
