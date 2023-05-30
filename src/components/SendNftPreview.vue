@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useRpcStore } from '@/store/rpc'
+import { getImage } from '@/utils/getImage'
 import { useImage } from '@/utils/useImage'
 
-const getImage = useImage()
+const getImageOld = useImage()
 const rpcStore = useRpcStore()
 
 type NftPreviewProps = {
@@ -25,76 +27,59 @@ const nativeCurrency = rpcStore.nativeCurrency.symbol
 
 const txFees =
   Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
+
+function truncateAddress(address: string) {
+  return `${address.slice(0, 5)}....${address.slice(-5)}`
+}
 </script>
 
 <template>
-  <div class="space-y-4 overflow-auto flex flex-col">
-    <div class="flex flex-col space-y-3 sm:space-y-2">
-      <p class="text-xl sm:text-sm font-semibold">Preview</p>
-    </div>
-    <div class="w-full aspect-square rounded-[10px] overflow-hidden">
-      <img
-        :src="props.previewData.imageUrl"
-        class="object-cover object-center"
-      />
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm">
-        {{ rpcStore.selectedRpcConfig?.chainName }}
-      </p>
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400 font-semibold">Sender’s Wallet Address</p>
-      <p
-        class="text-base truncate"
-        :title="props.previewData.senderWalletAddress"
-      >
-        {{ props.previewData.senderWalletAddress }}
-      </p>
-    </div>
-    <div class="flex justify-center">
-      <img :src="getImage('arrow-down-icon')" alt="arrow down icon" />
-    </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400 font-semibold">
-        Recipient’s Wallet Address
-      </p>
-      <p
-        class="text-sm truncate"
-        :title="props.previewData.recipientWalletAddress"
-      >
-        {{ props.previewData.recipientWalletAddress }}
-      </p>
-    </div>
-    <div class="space-y-3">
-      <div class="space-y-[10px]">
-        <div
-          class="flex flex-col text-sm sm:text-xs font-normal flex-nowrap gap-1"
-        >
-          <p class="text-xs text-zinc-400 font-semibold">Gas Fees</p>
-          <p
-            :title="`${txFees} ${nativeCurrency}`"
-            class="overflow-hidden text-ellipsis whitespace-nowrap"
+  <div class="flex flex-col flex-grow justify-between">
+    <div class="flex flex-col flex-grow gap-7">
+      <div class="relative flex justify-center items-center">
+        <button class="absolute left-0" @click.stop="emits('close')">
+          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        </button>
+        <span class="text-lg font-bold">Confirm Transfer</span>
+      </div>
+      <div class="mx-auto w-16 aspect-square rounded-[10px] overflow-hidden">
+        <img
+          :src="props.previewData.imageUrl"
+          class="object-cover object-center w-full h-full"
+        />
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex flex-col gap-1">
+          <span class="text-sm font-medium text-gray-100"
+            >Sender’s Address</span
           >
-            {{ txFees }} {{ nativeCurrency }}
-          </p>
+          <span class="text-base">
+            {{ truncateAddress(props.previewData.senderWalletAddress) }}
+          </span>
+        </div>
+        <img :src="getImage('forward-arrow.svg')" class="w-6 h-6" />
+        <div class="flex flex-col gap-1">
+          <span class="text-sm font-medium text-gray-100"
+            >Recipient’s Address</span
+          >
+          <span class="text-base">
+            {{ truncateAddress(props.previewData.recipientWalletAddress) }}
+          </span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <div class="flex justify-between">
+          <span class="text-base font-normal text-gray-100">Quantity</span>
+          <span class="text-base">10</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-base font-normal text-gray-100">Gas Fee</span>
+          <span class="text-base"
+            >{{ props.previewData.gasFee }} {{ nativeCurrency }}</span
+          >
         </div>
       </div>
     </div>
-    <div class="flex justify-between">
-      <button
-        class="text-sm sm:text-xs rounded-xl border-2 border-black dark:border-white bg-transparent text-black dark:text-white w-36 h-9 sm:w-20 sm:h-8 uppercase"
-        @click="emits('close')"
-      >
-        Back
-      </button>
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
-        @click="emits('submit')"
-      >
-        Send
-      </button>
-    </div>
+    <SwipeToAction message="Swipe to Transfer" @success="emits('submit')" />
   </div>
 </template>

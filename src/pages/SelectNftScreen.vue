@@ -2,7 +2,6 @@
 import { onMounted, ref, type Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import SendNft from '@/components/SendNft.vue'
 import type { NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useModalStore } from '@/store/modal'
@@ -139,12 +138,5 @@ rpcStore.$subscribe(getNFTAssets)
         </div>
       </div>
     </div>
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendNft
-        v-if="showModal === 'send-nft' && selectedNft"
-        :nft="selectedNft"
-        @close="handleClose"
-      />
-    </Teleport>
   </div>
 </template>
