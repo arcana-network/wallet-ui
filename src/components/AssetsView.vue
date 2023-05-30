@@ -152,7 +152,7 @@ rpcStore.$subscribe(getAssetsBalance)
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
       <button
-        class="flex py-3 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0"
+        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0"
         @click.stop="handleAddToken"
       >
         <img :src="getImage('plus.svg')" class="h-lg w-lg" />
