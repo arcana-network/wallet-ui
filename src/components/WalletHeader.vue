@@ -28,13 +28,18 @@ watch(
 <template>
   <div>
     <header class="flex justify-between px-4 py-2">
-      <div class="flex items-center gap-2">
-        <img
-          :src="appStore.appLogo?.horizontal"
-          alt="App Logo"
-          class="w-xl h-xl"
-        />
-        <span class="font-bold text-lg">{{ appStore.name }}</span>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <img
+            :src="appStore.appLogo?.horizontal"
+            alt="App Logo"
+            class="w-xl h-xl"
+          />
+          <span class="font-bold text-lg">{{ appStore.name }}</span>
+        </div>
+        <div class="flex justify-start">
+          <img :src="getImage('secured-by-arcana.svg')" class="h-3 ml-8" />
+        </div>
       </div>
       <div class="flex items-center gap-3">
         <button class="w-xl h-xl rounded-full">
