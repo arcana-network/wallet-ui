@@ -100,7 +100,7 @@ function onClickOfHeader() {
       </div>
       <WalletHeader />
       <div class="flex-grow wallet__container m-1 p-3">
-        <RouterView class="min-h-fullxs flex-grow" />
+        <RouterView class="flex-grow" />
         <BaseModal v-if="modal.show" />
         <img
           v-if="showFooter"
