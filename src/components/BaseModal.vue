@@ -19,7 +19,7 @@ function handleCollapse() {
 <template>
   <div class="fixed flex justify-center items-center inset-0 z-50 p-3 overlay">
     <div
-      class="card max-h-[80%] absolute flex flex-col pt-2 w-full rounded-b-none"
+      class="card max-h-[90%] absolute flex flex-col pt-2 w-full rounded-b-none"
       :class="{ collapse: canModalCollapse }"
     >
       <div class="flex justify-center">

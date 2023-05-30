@@ -1,49 +1,74 @@
 <script setup lang="ts">
-import VueQrious from 'vue-qrious'
+import { ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { useUserStore } from '@/store/user'
-import { getImage } from '@/utils/getImage'
+import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useRpcStore } from '@/store/rpc'
 
-const userStore = useUserStore()
+const emit = defineEmits(['close'])
 const toast = useToast()
+const rpcStore = useRpcStore()
 
-async function copyToClipboard(value: string) {
-  try {
-    await navigator.clipboard.writeText(value)
-    toast.success('Wallet address copied')
-  } catch (err) {
-    toast.error('Failed to copy wallet address')
+const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
+
+watch(
+  () => selectedRPCConfig.value,
+  () => {
+    console.log('setting selected rpc config')
+    rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
+    emit('close')
   }
-}
+)
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col gap-5">
     <div class="flex items-center justify-center">
-      <p class="text-xl font-bold">Receive Tokens</p>
+      <p class="text-xl font-bold">Choose Network</p>
     </div>
-    <p class="text-xs text-gray-100 mt-5">
-      Scan QR code to copy your address in order to send tokens to this address.
-    </p>
-  </div>
-  <div
-    class="flex justify-center items-center mt-4 p-2 bg-white-100 rounded-sm"
-  >
-    <VueQrious
-      :value="userStore.walletAddress"
-      :size="400"
-      class="w-full h-full"
-    />
-  </div>
-  <div class="flex items-center justify-center gap-1 mt-6 mb-2">
-    <p class="text-sm font-medium">{{ userStore.walletAddressShrinked }}</p>
-    <button
-      class="h-sm w-sm"
-      title="Click to copy wallet address"
-      @click="copyToClipboard(userStore.walletAddress)"
-    >
-      <img :src="getImage('copy.svg')" alt="Copy wallet address" />
-    </button>
+    <div class="flex flex-col gap-4">
+      <div
+        v-for="chain in rpcStore.rpcConfigs"
+        :key="chain.chainId"
+        class="flex items-center gap-2"
+      >
+        <input
+          :id="chain.chainId"
+          v-model="selectedRPCConfig"
+          type="radio"
+          :value="chain"
+          name="chain"
+          class="radio"
+        />
+        <label class="flex items-center gap-2" :for="chain.chainId">
+          <img
+            :src="getChainLogoUrl(Number(chain.chainId))"
+            onerror="this.src = '/chain-logos/blockchain-icon.png'"
+            class="w-xl h-xl"
+          />
+          <span class="text-base">{{ chain.chainName }}</span>
+          <span v-if="chain.chainType === 'testnet'" class="testnet-tag">
+            Testnet
+          </span>
+        </label>
+      </div>
+      <button
+        class="btn-primary uppercase font-bold text-base py-2 mt-4"
+        @click.stop="void 0"
+      >
+        Add network
+      </button>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.testnet-tag {
+  padding: 1px 2px;
+  font-size: 8px;
+  color: #fe6827;
+  background: #fe682710;
+  border-radius: 2px;
+  border-radius: 10px;
+}
+</style>
