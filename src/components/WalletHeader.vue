@@ -13,7 +13,7 @@ function onLogoLoadingError(e) {
 </script>
 
 <template>
-  <header class="flex justify-between rounded-t-xl">
+  <header class="flex justify-between">
     <div class="flex space-x-3 items-center">
       <img
         :src="appStore.appLogo?.horizontal"
