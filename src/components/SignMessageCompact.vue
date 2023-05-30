@@ -32,9 +32,9 @@ function getPermissionText(method, request) {
   const { params } = request
   const { chainName } = params[0]
   if (method === 'wallet_addEthereumChain') {
-    return `Adding Chain - ${chainName}`
+    return chainName ? `Adding Chain - ${chainName}` : 'Adding Chain'
   } else if (method === 'wallet_switchEthereumChain') {
-    return `Switch Chain - ${chainName}`
+    return chainName ? `Switch Chain - ${chainName}` : 'Switch Chain'
   } else {
     return methodAndAction[method]
   }
