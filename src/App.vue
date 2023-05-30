@@ -22,7 +22,14 @@ const modal = useModalStore()
 const requestStore = useRequestStore()
 const parentConnectionStore = useParentConnectionStore()
 const router = useRouter()
-const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
+const {
+  theme,
+  expandWallet,
+  showWallet,
+  compactMode,
+  sdkVersion,
+  walletPosition,
+} = toRefs(app)
 const route = useRoute()
 
 const url = new URL(window.location.href)
@@ -49,7 +56,20 @@ onBeforeMount(async () => {
 async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
-  await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  const style = app.iframeStyle
+  if (showWalletButton.value) {
+    style.borderRadius = '0px'
+    if (walletPosition.value === 'right') {
+      style.borderTopLeftRadius = '10px'
+      style.borderBottomLeftRadius = '10px'
+    } else {
+      style.borderTopRightRadius = '10px'
+      style.borderBottomRightRadius = '10px'
+    }
+  } else {
+    style.borderRadius = '10px'
+  }
+  await parentConnectionInstance?.setIframeStyle(style)
 }
 
 watch(showWallet, async (newValue) => {
@@ -60,6 +80,8 @@ watch(showWallet, async (newValue) => {
 watch(expandWallet, setIframeStyle)
 
 watch(compactMode, setIframeStyle)
+
+watch(showWalletButton, setIframeStyle)
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {

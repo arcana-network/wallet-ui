@@ -28,17 +28,13 @@ const showRequestCountBadge = computed(() => {
   <div class="h-full relative">
     <div
       v-if="showRequestCountBadge"
-      class="z-[999] absolute top-4"
-      :class="[walletPosition === 'right' ? 'left-2' : 'right-2']"
+      class="z-[999] absolute top-0"
+      :class="[walletPosition === 'right' ? 'left-0' : 'right-0']"
     >
       <RequestCountBadge :request-count="requestCount" />
     </div>
     <button
       class="container | absolute bottom-0 w-14 h-11 flex justify-center items-center cursor-pointer"
-      :class="[
-        walletPosition === 'right' ? 'rounded-l-[10px]' : 'rounded-r-[10px]',
-        walletPosition === 'right' ? 'right-0' : 'left-0',
-      ]"
       @click="onClickOfButton"
     >
       <img
