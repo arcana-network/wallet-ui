@@ -34,12 +34,12 @@ function fetchStoredAssetContracts(): AssetContract[] {
 function fetchNativeAsset() {
   return {
     address: 'native',
-    name: rpcStore.nativeCurrency.name,
+    name: rpcStore.nativeCurrency?.name,
     balance: !rpcStore.walletBalance
       ? 0
       : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
-    decimals: rpcStore.nativeCurrency.decimals,
-    symbol: rpcStore.nativeCurrency.symbol,
+    decimals: rpcStore.nativeCurrency?.decimals as number,
+    symbol: rpcStore.nativeCurrency?.symbol as string,
     logo:
       rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
         ? `${rpcStore.selectedRpcConfig.favicon}.png`
