@@ -28,15 +28,11 @@ type ActivityView = Activity & {
 const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
 
 const activities: ComputedRef<ActivityView[]> = computed(() => {
-  const activitiesInStore = activitiesStore.activities(chainId)
+  const activitiesInStore = activitiesStore.activities(chainId as string)
   if (!activitiesInStore) {
     return []
   }
-  return [
-    ...activitiesInStore.filter((activity) =>
-      props.filterOperations.includes(activity.operation)
-    ),
-  ]
+  return [...activitiesInStore]
 })
 
 function getTransactionIcon(operation: TransactionOps | FileOps) {
@@ -120,11 +116,11 @@ function canShowDropdown(activity: Activity) {
             :title="activity.operation"
           />
         </div>
-        <div class="flex flex-col flex-grow gap-2">
+        <div class="flex flex-col flex-grow">
           <div class="flex">
             <span
               v-if="activity.customToken"
-              class="font-bold text-base leading-5"
+              class="font-bold text-base"
               :title="`${activity.operation} ${activity.customToken.symbol}`"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -132,7 +128,7 @@ function canShowDropdown(activity: Activity) {
             </span>
             <span
               v-else-if="activity.nft"
-              class="font-bold text-base leading-5"
+              class="font-bold text-base"
               :title="`${activity.operation} NFT`"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -140,7 +136,7 @@ function canShowDropdown(activity: Activity) {
             </span>
             <span
               v-else
-              class="font-bold text-base leading-5"
+              class="font-bold text-base"
               :title="activity.operation"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -156,22 +152,21 @@ function canShowDropdown(activity: Activity) {
           </div>
           <span
             v-if="activity.transaction && activity.address.to"
-            class="text-xs color-secondary"
+            class="text-sm text-gray-100"
             :title="activity.address.to"
             >To: {{ truncateMid(activity.address.to) }}</span
           >
           <span
             v-if="activity.file"
-            class="text-xs color-secondary"
+            class="text-sm text-gray-100"
             :title="activity.file.did"
             >File DID: {{ truncateMid(activity.file.did) }}</span
           >
-          <div class="flex text-xs color-secondary gap-1 items-center">
+          <div class="flex text-sm text-gray-100 gap-1 items-center">
             <span class="whitespace-nowrap">{{
-              dayjs(activity.date).format('MMM D')
+              dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
-            <img src="@/assets/images/gray-circle-filled.svg" />
-            <span>Status:</span>
+            <!-- <span>Status:</span>
             <span
               :class="
                 activity.status === 'Success'
@@ -180,7 +175,7 @@ function canShowDropdown(activity: Activity) {
               "
             >
               {{ activity.status }}
-            </span>
+            </span> -->
           </div>
         </div>
         <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
