@@ -29,7 +29,7 @@ export const useRpcStore = defineStore('rpcStore', {
       selectedRPCConfig: null,
       selectedChainId: null,
 
-      walletBalance: '',
+      walletBalance: '0',
       walletBalanceChainId: '',
       walletBalancePollingCleanupID: null,
       walletBalancePollingIntervalID: null,

@@ -49,7 +49,9 @@ onBeforeMount(async () => {
 async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
-  await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+  }
 }
 
 watch(showWallet, async (newValue) => {
