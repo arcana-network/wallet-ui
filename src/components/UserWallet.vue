@@ -19,7 +19,6 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
-import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
 import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
@@ -58,13 +57,6 @@ const chainSelectedForEdit: Ref<number | null> = ref(null)
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
-    (network) => network.chainId === selectedChainId
-  )
-})
-
-const rampNetwork = computed(() => {
-  const selectedChainId = Number(rpcStore.selectedChainId)
-  return getRampSupportedNetworks().find(
     (network) => network.chainId === selectedChainId
   )
 })
@@ -119,7 +111,7 @@ function openAddNetwork(open) {
 }
 
 function openEditNetwork(open, chainId: number | null = null) {
-  if (Number(rpcStore.selectedRpcConfig.chainId) === Number(chainId)) {
+  if (Number(rpcStore.selectedRpcConfig?.chainId) === Number(chainId)) {
     toast.error(
       'This network is current selected, please chose a different one and try again'
     )
@@ -179,7 +171,7 @@ onMounted(() => {
 })
 
 watch(
-  () => rpcStore.selectedRPCConfig.chainId,
+  () => rpcStore.selectedRPCConfig?.chainId,
   async () => {
     await getRequestHandler().setRpcConfig({
       ...rpcStore.selectedRPCConfig,
@@ -297,7 +289,7 @@ watch(
           </button>
           <button
             v-if="walletBalance && !HIDE_ON_RAMP"
-            :disabled="!transakNetwork && !rampNetwork && onRampMoney === false"
+            :disabled="!transakNetwork && onRampMoney === false"
             class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
             @click="handleBuy(true)"
           >
@@ -330,7 +322,6 @@ watch(
       <BuyTokens
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
-        :ramp-network="rampNetwork?.value"
         :on-ramp-money="onRampMoney"
         @close="handleBuy(false)"
       />

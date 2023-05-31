@@ -3,13 +3,11 @@ import { ref, type Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
-import { openRampSdk } from '@/utils/rampsdk'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
 
 type BuyTokenProps = {
   transakNetwork?: string
-  rampNetwork?: string
   onRampMoney: number | false | undefined
 }
 
@@ -43,12 +41,6 @@ function handleStatusModalText(provider: 'Transak' | 'Ramp' | 'onramp.money') {
   }
 }
 
-function handleRamp() {
-  isLoading.value = true
-  openRampSdk(props.rampNetwork as string)
-  handleStatusModalText('Ramp')
-}
-
 function handleOnRampMoney() {
   if (props.onRampMoney === undefined || props.onRampMoney === false) {
     throw new Error('!!!')
@@ -61,8 +53,6 @@ function handleOnRampMoney() {
 function handleBuy() {
   if (selectedProvider.value === 'transak') {
     handleTransak()
-  } else if (selectedProvider.value === 'ramp') {
-    handleRamp()
   } else if (selectedProvider.value === 'onramp.money') {
     handleOnRampMoney()
   }
@@ -138,25 +128,6 @@ function handleDone() {
         </div>
         <div class="flex gap-3 items-center">
           <input
-            id="Ramp"
-            v-model="selectedProvider"
-            type="radio"
-            value="ramp"
-            name="provider"
-            :disabled="!props.rampNetwork"
-            :class="{ 'opacity-80': !props.rampNetwork }"
-          />
-          <label
-            for="Ramp"
-            class="flex gap-2 items-center cursor-pointer"
-            :class="{ 'opacity-50': !props.rampNetwork }"
-          >
-            <img src="@/assets/images/ramp.png" class="h-7 w-7" />
-            <span class="text-base">Ramp</span>
-          </label>
-        </div>
-        <div class="flex gap-3 items-center">
-          <input
             id="OnRampMoney"
             v-model="selectedProvider"
             type="radio"
@@ -170,7 +141,10 @@ function handleDone() {
             class="flex gap-2 items-center cursor-pointer"
             :class="{ 'opacity-50': props.onRampMoney === false }"
           >
-            <img src="@/assets/images/ramp.png" class="h-7 w-7" />
+            <img
+              src="@/assets/images/onrampmoney.png"
+              class="h-7 w-7 bg-[#F2F2F2] rounded-full"
+            />
             <span class="text-base">onramp.money</span>
           </label>
         </div>
