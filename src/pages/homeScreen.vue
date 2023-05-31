@@ -42,9 +42,14 @@ onMounted(() => {
 
 onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
+    await sleep(100)
     await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })

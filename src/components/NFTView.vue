@@ -124,7 +124,7 @@ watch(
           @click.stop="handleManageNFT"
         >
           <img :src="getImage('settings.svg')" />
-          <span class="assets-view__add-token-text leading-[1]">Manage</span>
+          <span class="text-sm">Manage</span>
         </button>
       </div>
     </div>

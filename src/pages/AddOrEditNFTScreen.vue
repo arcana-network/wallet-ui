@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onBeforeMount, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
-import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { EthAssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import {
@@ -19,20 +19,19 @@ import {
   checkOwnership,
 } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
-import { useImage } from '@/utils/useImage'
 
-const route = useRoute()
 const router = useRouter()
 const toast = useToast()
-const getImage = useImage()
 const storage = getStorage()
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
+const modalStore = useModalStore()
 
 type EditNFTProps = {
   collectionName?: string
   address?: string
   tokenId?: string
+  edit?: boolean
 }
 
 const props = defineProps<EditNFTProps>()
@@ -43,8 +42,6 @@ onBeforeMount(async () => {
   nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
 })
 
-const canEdit = false
-const canDelete = route.name === 'EditNft'
 const showAddressOutline = ref(false)
 
 const ethMainnetNftContracts: EthAssetContract[] = Object.keys(contractMap)
@@ -175,10 +172,10 @@ async function handleSubmit() {
       nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
       toast.success('NFT added')
 
-      router.back()
+      modalStore.setShowModal(false)
     } catch (e) {
       console.error(e)
-      toast.error(e)
+      toast.error(e as string)
     }
   } else {
     toast.error('Invalid token ID')
@@ -230,36 +227,19 @@ watch(
     </div>
     <div class="h-full flex flex-col gap-5">
       <div class="flex items-center justify-center">
-        <div v-if="canDelete" class="flex justify-between items-start">
+        <div v-if="props.edit" class="flex justify-between items-start">
           <span class="text-xl font-bold">Edit NFT</span>
-          <img
-            :src="getImage('trash-icon')"
-            class="cursor-pointer"
-            @click.stop="handleDeleteNft"
-          />
         </div>
         <span v-else class="text-xl font-bold">Add NFT</span>
       </div>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
-        <!-- <div v-if="rpcStore.isEthereumMainnet && !canEdit">
-          <div class="flex flex-col gap-1">
-            <label for="search-token" class="text-sm font-semibold label"
-              >Search Token</label
-            >
-            <SearchToken
-              :tokens="ethMainnetNftContracts"
-              @change="handleSearchToken"
-            />
-          </div>
-          <div class="text-center my-6">Add Custom NFT</div>
-        </div> -->
         <div class="flex flex-col gap-5 flex-grow">
           <div class="flex flex-col gap-1">
             <label for="token-contract-address" class="text-sm font-medium"
               >Collection Contract Address</label
             >
             <input
-              v-if="canEdit"
+              v-if="props.edit"
               id="token-contract-address"
               v-model.trim="nftContract.address"
               type="text"

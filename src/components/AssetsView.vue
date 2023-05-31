@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, reactive, onBeforeUnmount } from 'vue'
+import { onMounted, reactive, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { Asset, AssetContract } from '@/models/Asset'
+import AddTokenScreen from '@/pages/AddTokenScreen.vue'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
@@ -16,6 +18,8 @@ const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
 const assets: Asset[] = reactive([])
+const modalStore = useModalStore()
+const showModal = ref(false)
 let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
@@ -90,7 +94,8 @@ function updateAssetsBalance() {
 }
 
 function handleAddToken() {
-  router.push({ name: 'AddToken' })
+  modalStore.setShowModal(true)
+  showModal.value = true
 }
 
 function isNative(asset: Asset) {
@@ -109,6 +114,16 @@ onBeforeUnmount(() => {
 })
 
 rpcStore.$subscribe(getAssetsBalance)
+
+watch(
+  () => modalStore.show,
+  () => {
+    if (!modalStore.show) {
+      showModal.value = false
+      getAssetsBalance()
+    }
+  }
+)
 </script>
 
 <template>
@@ -159,5 +174,8 @@ rpcStore.$subscribe(getAssetsBalance)
         <span class="text-sm font-normal">New</span>
       </button>
     </div>
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <AddTokenScreen v-if="showModal" />
+    </Teleport>
   </div>
 </template>

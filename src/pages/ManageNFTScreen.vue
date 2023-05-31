@@ -17,6 +17,12 @@ const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const modalStore = useModalStore()
 const showModal = ref(false)
+const modalToShow: Ref<'add' | 'edit'> = ref('add')
+const editModalParams = ref({
+  address: '',
+  collectionName: '',
+  tokenId: '',
+})
 
 const loader = reactive({
   show: false,
@@ -35,19 +41,25 @@ onBeforeMount(async () => {
 function handleAddToken() {
   modalStore.setShowModal(true)
   showModal.value = true
+  modalToShow.value = 'add'
+  editModalParams.value = {
+    address: '',
+    collectionName: '',
+    tokenId: '',
+  }
 }
 
 function handleEditToken(nft: NFT) {
-  if (!nft.autodetected) {
-    router.push({
-      name: 'EditNft',
-      params: {
-        address: nft.address,
-        collectionName: nft.collectionName,
-        tokenId: nft.tokenId,
-      },
-    })
+  // if (!nft.autodetected) {
+  modalStore.setShowModal(true)
+  showModal.value = true
+  modalToShow.value = 'edit'
+  editModalParams.value = {
+    address: nft.address,
+    collectionName: nft.collectionName,
+    tokenId: nft.tokenId,
   }
+  // }
 }
 
 watch(
@@ -63,6 +75,12 @@ watch(
     nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
   }
 )
+
+function truncateNFTTokenId(tokenId: string) {
+  return tokenId.length > 24
+    ? `${tokenId.slice(0, 6)}...${tokenId.slice(-6)}`
+    : tokenId
+}
 </script>
 
 <template>
@@ -95,14 +113,10 @@ watch(
               }"
               @click.stop="handleEditToken(nft)"
             >
-              <span class="overflow-hidden whitespace-nowrap text-ellipsis">
-                {{ nft.collectionName }} ({{ nft.tokenId }})
+              <span class="overflow-hidden whitespace-nowrap">
+                {{ nft.collectionName }} ({{ truncateNFTTokenId(nft.tokenId) }})
               </span>
-              <img
-                v-if="!nft.autodetected"
-                :src="getImage('edit.svg')"
-                class="opacity-0"
-              />
+              <img :src="getImage('edit.svg')" class="opacity-0" />
             </div>
           </div>
           <div v-else class="flex flex-col flex-grow">
@@ -124,7 +138,13 @@ watch(
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
-      <AddOrEditNFTScreen v-if="showModal" />
+      <AddOrEditNFTScreen
+        v-if="showModal"
+        :edit="modalToShow === 'edit'"
+        :collection-name="editModalParams.collectionName"
+        :address="editModalParams.address"
+        :token-id="editModalParams.tokenId"
+      />
     </Teleport>
   </div>
 </template>
