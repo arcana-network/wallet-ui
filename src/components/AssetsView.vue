@@ -43,7 +43,7 @@ function fetchNativeAsset() {
     logo:
       rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
         ? `${rpcStore.selectedRpcConfig.favicon}.png`
-        : 'arcana-fallback-token-logo.svg',
+        : 'fallback-token.png',
   }
 }
 
@@ -57,7 +57,7 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
-      logo: contract.logo || 'arcana-fallback-token-logo.svg',
+      logo: contract.logo || 'fallback-token.png',
       decimals: contract.decimals,
     })
   })
@@ -127,7 +127,7 @@ rpcStore.$subscribe(getAssetsBalance)
           <div class="flex items-center gap-3">
             <img
               :src="getIconAsset(`token-logos/${asset.logo}`)"
-              class="w-[1.25rem] aspect-square rounded-full"
+              class="w-[1.25rem] aspect-square rounded-full select-none"
             />
             <span
               class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"
@@ -152,7 +152,7 @@ rpcStore.$subscribe(getAssetsBalance)
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
       <button
-        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0"
+        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0 border-t-1"
         @click.stop="handleAddToken"
       >
         <img :src="getImage('plus.svg')" class="h-lg w-lg" />

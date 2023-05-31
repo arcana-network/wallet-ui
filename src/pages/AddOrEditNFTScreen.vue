@@ -228,18 +228,20 @@ watch(
     >
       <AppLoader :message="loader.message" />
     </div>
-    <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
-      <div v-if="canDelete" class="flex justify-between items-start">
-        <h2 class="font-semibold mb-5 add-token__title">Edit NFT</h2>
-        <img
-          :src="getImage('trash-icon')"
-          class="cursor-pointer"
-          @click.stop="handleDeleteNft"
-        />
+    <div class="h-full flex flex-col gap-5">
+      <div class="flex items-center justify-center">
+        <div v-if="canDelete" class="flex justify-between items-start">
+          <span class="text-xl font-bold">Edit NFT</span>
+          <img
+            :src="getImage('trash-icon')"
+            class="cursor-pointer"
+            @click.stop="handleDeleteNft"
+          />
+        </div>
+        <span v-else class="text-xl font-bold">Add NFT</span>
       </div>
-      <h2 v-else class="font-semibold mb-5 add-token__title">Add NFT</h2>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
-        <div v-if="rpcStore.isEthereumMainnet && !canEdit">
+        <!-- <div v-if="rpcStore.isEthereumMainnet && !canEdit">
           <div class="flex flex-col gap-1">
             <label for="search-token" class="text-sm font-semibold label"
               >Search Token</label
@@ -250,12 +252,10 @@ watch(
             />
           </div>
           <div class="text-center my-6">Add Custom NFT</div>
-        </div>
+        </div> -->
         <div class="flex flex-col gap-5 flex-grow">
           <div class="flex flex-col gap-1">
-            <label
-              for="token-contract-address"
-              class="text-sm font-semibold label"
+            <label for="token-contract-address" class="text-sm font-medium"
               >Collection Contract Address</label
             >
             <input
@@ -264,78 +264,59 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed"
               required
               disabled
               autocomplete="off"
             />
-            <div
+            <input
               v-else
-              class="p-4 input flex"
-              :class="{
-                'outline-black dark:outline-white outline-1 outline':
-                  showAddressOutline,
-              }"
-            >
-              <input
-                id="token-contract-address"
-                v-model.trim="nftContract.address"
-                type="text"
-                placeholder="Paste the hexadecimal address"
-                class="text-base bg-transparent outline-none text-ellipsis overflow-hidden whitespace-nowrap flex-grow"
-                required
-                autocomplete="off"
-                @focus="showAddressOutline = true"
-                @blur="showAddressOutline = false"
-              />
-            </div>
+              id="token-contract-address"
+              v-model.trim="nftContract.address"
+              type="text"
+              placeholder="Paste the hexadecimal address"
+              class="input-field focus:input-active"
+              required
+              autocomplete="off"
+              @focus="showAddressOutline = true"
+              @blur="showAddressOutline = false"
+            />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-symbol" class="text-sm font-semibold label"
+            <label for="collection-name" class="text-sm font-medium"
               >Collection Name</label
             >
             <input
-              id="token-symbol"
+              id="collection-name"
               v-model="nftContract.name"
               type="text"
               placeholder="Provide the name"
-              class="text-base p-4 input cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed"
               required
               autocomplete="off"
               disabled
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-decimal" class="text-sm font-semibold label"
-              >Token ID</label
-            >
+            <label for="token-id" class="text-sm font-medium">Token ID</label>
             <input
-              id="token-decimal"
+              id="token-id"
               v-model="nftContract.tokenId"
               type="text"
               placeholder="Provide an ID"
-              class="text-base p-4 input"
+              class="input-field focus:input-active"
               min="0"
               step="1"
               required
               autocomplete="off"
             />
           </div>
-          <div class="flex space-x-3 mt-auto">
-            <button
-              type="reset"
-              class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white flex-1 font-semibold uppercase"
-              @click.stop="() => router.back()"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1 font-semibold uppercase"
-            >
-              Save
-            </button>
-          </div>
+          <button
+            type="submit"
+            class="btn-primary mt-8 text-base font-bold py-2 uppercase"
+          >
+            Save
+          </button>
         </div>
       </form>
     </div>

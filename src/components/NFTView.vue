@@ -73,9 +73,9 @@ watch(
     <div class="flex flex-col max-h-96">
       <div
         v-if="loader.show"
-        class="flex justify-center items-center flex-1 flex p-5"
+        class="flex justify-center items-center flex-1 flex p-3 m-1"
       >
-        <p class="m-auto font-semibold text-sm sm:text-xs px-4">
+        <p class="text-sm font-bold">
           {{ loader.message }}
         </p>
       </div>
@@ -112,9 +112,8 @@ watch(
             </div>
           </div>
         </div>
-        <div v-else class="flex justify-between p-5">
-          <span
-            class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+        <div v-else class="flex justify-between">
+          <span class="color-secondary m-auto font-bold text-sm"
             >No NFTs added</span
           >
         </div>

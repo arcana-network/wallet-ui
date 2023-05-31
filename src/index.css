@@ -42,7 +42,7 @@
     @apply outline-none
           cursor-pointer disabled:cursor-not-allowed
           transition-all duration-200 ease-in-out
-          disabled:opacity-60;
+          disabled:opacity-60 select-none;
   }
 
   input,

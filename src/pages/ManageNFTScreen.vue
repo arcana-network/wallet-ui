@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, type Ref } from 'vue'
+import { onBeforeMount, reactive, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import { NFT } from '@/models/NFT'
+import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
 import { NFTDB } from '@/services/nft.service'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
@@ -13,6 +15,8 @@ import { getStorage } from '@/utils/storageWrapper'
 const router = useRouter()
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
+const modalStore = useModalStore()
+const showModal = ref(false)
 
 const loader = reactive({
   show: false,
@@ -28,12 +32,9 @@ onBeforeMount(async () => {
   nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
 })
 
-function handleClose() {
-  router.back()
-}
-
 function handleAddToken() {
-  router.push({ name: 'AddNft' })
+  modalStore.setShowModal(true)
+  showModal.value = true
 }
 
 function handleEditToken(nft: NFT) {
@@ -48,6 +49,20 @@ function handleEditToken(nft: NFT) {
     })
   }
 }
+
+watch(
+  () => modalStore.show,
+  () => {
+    if (!modalStore.show) showModal.value = false
+  }
+)
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+  }
+)
 </script>
 
 <template>
@@ -57,7 +72,12 @@ function handleEditToken(nft: NFT) {
   <div v-else class="flex-grow mb-5">
     <div class="flex flex-1 flex-col min-h-full">
       <div class="flex flex-col items-center min-h-full flex-grow gap-5">
-        <h1 class="w-full text-center text-lg font-bold">Manage NFTs</h1>
+        <div class="relative flex justify-center items-center w-full">
+          <button class="absolute left-0" @click.stop="router.go(-1)">
+            <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          </button>
+          <span class="text-lg font-bold">Manage NFTs</span>
+        </div>
         <div
           class="card flex flex-col w-full h-full max-h-max text-left flex-grow overflow-hidden"
         >
@@ -103,6 +123,9 @@ function handleEditToken(nft: NFT) {
         </div>
       </div>
     </div>
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <AddOrEditNFTScreen v-if="showModal" />
+    </Teleport>
   </div>
 </template>
 

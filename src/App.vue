@@ -186,4 +186,24 @@ body {
 .fade-leave-to {
   opacity: 0;
 }
+
+.Vue-Toastification__toast {
+  min-height: unset !important;
+  padding: 0.5rem 1rem !important;
+  font-family: Onest, sans-serif !important;
+}
+
+.Vue-Toastification__icon {
+  width: 12px !important;
+  margin-right: 8px !important;
+}
+
+.Vue-Toastification__toast-body {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.Vue-Toastification__progress-bar {
+  height: 2px !important;
+}
 </style>
