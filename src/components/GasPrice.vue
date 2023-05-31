@@ -1,19 +1,8 @@
 <script setup lang="ts">
-import { type Ref, onMounted, ref, watch } from 'vue'
+import { type Ref, ref, watch } from 'vue'
 
-import type { CurrencySymbol } from '@/services/exchangeRate.service'
-import { getExchangeRate } from '@/services/exchangeRate.service'
 import { GAS_AVAILABLE_CHAIN_IDS } from '@/services/gasPrice.service'
 import { useRpcStore } from '@/store/rpc'
-import {
-  EXCHANGE_RATE_CURRENCY,
-  GAS_FEE_UNIT,
-  GAS_PRICE_SPEED_MAP,
-} from '@/utils/constants'
-import debounce from '@/utils/debounce'
-import { formatValueToUSD } from '@/utils/formatUSD'
-import { convertGweiToEth } from '@/utils/gweiToEth'
-import { useImage } from '@/utils/useImage'
 
 const emits = defineEmits(['gasPriceInput'])
 
@@ -37,61 +26,41 @@ const rpcStore = useRpcStore()
 
 const gasFee = ref(0)
 const transactionTime = ref(null)
-const conversionRate = ref('')
 const isGasPriceFocused = ref(false)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
-
-const getConversionRateDebounced = debounce(getConversionRate)
-
-watch(gasFee, () => {
-  if (rpcStore.currency) getConversionRateDebounced(gasFee.value)
-})
-
-const getImage = useImage()
-const showCustomGasFeeInput = ref(false)
 
 const hasGasStation = GAS_AVAILABLE_CHAIN_IDS.includes(
   Number(rpcStore.selectedChainId)
 )
 
-async function getConversionRate(gasFee) {
-  if (rpcStore.currency === 'XAR') return (conversionRate.value = '0')
-  if (!gasFee) return (conversionRate.value = '0')
-  try {
-    const rate =
-      (await getExchangeRate(
-        rpcStore.currency as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )) || 0
-    const gasFeeInEth = convertGweiToEth(gasFee)
-    conversionRate.value = formatValueToUSD(Number(gasFeeInEth) * rate)
-  } catch (err) {
-    console.log(err)
-    conversionRate.value = '0'
+watch(
+  () => selectedGasMethod,
+  () => {
+    handleGasPriceSelect(selectedGasMethod.value)
   }
-}
+)
 
-function handleGasPriceSelect(value = '') {
-  const type = value.toLowerCase()
-  const { wait, price } = GAS_PRICE_SPEED_MAP[type]
-  gasFee.value = Number((props.gasPrices[price] / 10).toFixed(9))
-  transactionTime.value = props.gasPrices[wait]
+function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
+  if (gasMethod === 'normal' || gasMethod === 'custom') {
+    gasFee.value = Number(props.baseFee)
+  } else if (gasMethod === 'fast') {
+    gasFee.value = Number(props.baseFee) * 3
+  }
   emits('gasPriceInput', gasFee.value)
 }
 
-function handleCustomGasPriceInput(value) {
+function handleCustomGasPriceInput() {
   const amountInputEl = document.querySelector(
     '#custom-gas-fee-amount'
   ) as HTMLInputElement
-  if (!value && value !== 0) {
+  if (!gasFee.value && gasFee.value !== 0) {
     amountInputEl.setCustomValidity('Enter the gas fees to continue.')
-  } else if (value < Number(props.baseFee)) {
+  } else if (gasFee.value < Number(props.baseFee)) {
     amountInputEl.setCustomValidity('Gas fees must not be less than base fees.')
   } else {
     amountInputEl.setCustomValidity('')
+    emits('gasPriceInput', gasFee.value)
   }
-  gasFee.value = value
-  emits('gasPriceInput', gasFee.value)
 }
 </script>
 
@@ -108,7 +77,7 @@ function handleCustomGasPriceInput(value) {
     </div>
     <div class="card flex p-1">
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
           'bg-black-500 dark:bg-black-300 text-white-100':
             selectedGasMethod === 'normal',
@@ -119,7 +88,7 @@ function handleCustomGasPriceInput(value) {
         Normal
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
           'cursor-not-allowed opacity-60 pointer-events-none': !hasGasStation,
           'bg-black-500 dark:bg-black-300 text-white-100':
@@ -131,7 +100,7 @@ function handleCustomGasPriceInput(value) {
         Fast
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
           'bg-black-500 dark:bg-black-300 text-white-100':
             selectedGasMethod === 'custom',
@@ -155,6 +124,7 @@ function handleCustomGasPriceInput(value) {
       placeholder="Enter Recipient’s Wallet Address"
       @focus="isGasPriceFocused = true"
       @blur="isGasPriceFocused = false"
+      @input="handleCustomGasPriceInput()"
     />
     <div class="flex justify-end gap-1">
       <span class="text-xs text-gray-100">Base Fee:</span>

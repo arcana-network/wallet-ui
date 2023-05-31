@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, reactive, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, reactive, onBeforeUnmount, ref, watch } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
+import AddTokenScreen from '@/pages/AddTokenScreen.vue'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
+import { sleep } from '@/utils/sleep'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
-const router = useRouter()
 const assets: Asset[] = reactive([])
+const modalStore = useModalStore()
+const showModal = ref(false)
 let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = getStorage().local.getItem(
     `${userStore.walletAddress}/${Number(
-      rpcStore.selectedRpcConfig?.chainId
+      rpcStore.selectedRPCConfig?.chainId
     )}/asset-contracts`
   )
+  console.log(assetContracts)
   if (assetContracts) {
     return JSON.parse(assetContracts) as AssetContract[]
   } else {
@@ -34,20 +38,22 @@ function fetchStoredAssetContracts(): AssetContract[] {
 function fetchNativeAsset() {
   return {
     address: 'native',
-    name: rpcStore.nativeCurrency.name,
+    name: rpcStore.nativeCurrency?.name,
     balance: !rpcStore.walletBalance
       ? 0
       : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
-    decimals: rpcStore.nativeCurrency.decimals,
-    symbol: rpcStore.nativeCurrency.symbol,
+    decimals: rpcStore.nativeCurrency?.decimals as number,
+    symbol: rpcStore.nativeCurrency?.symbol as string,
     logo:
       rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
         ? `${rpcStore.selectedRpcConfig.favicon}.png`
-        : 'arcana-fallback-token-logo.svg',
+        : 'fallback-token.png',
   }
 }
 
 async function getAssetsBalance() {
+  console.log('Calling get Assets balance', rpcStore.selectedRPCConfig)
+  await sleep(100)
   assets.length = 0
   assets.push(fetchNativeAsset())
   const storedAssetContracts = fetchStoredAssetContracts()
@@ -57,7 +63,7 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
-      logo: contract.logo || 'arcana-fallback-token-logo.svg',
+      logo: contract.logo || 'fallback-token.png',
       decimals: contract.decimals,
     })
   })
@@ -79,6 +85,7 @@ async function getAssetsBalance() {
 
 function updateAssetsBalance() {
   assets.forEach(async (asset) => {
+    console.log('Updating asset balance', asset)
     if (asset.address !== 'native') {
       const balance = await getTokenBalance({
         walletAddress: userStore.walletAddress,
@@ -90,7 +97,8 @@ function updateAssetsBalance() {
 }
 
 function handleAddToken() {
-  router.push({ name: 'AddToken' })
+  modalStore.setShowModal(true)
+  showModal.value = true
 }
 
 function isNative(asset: Asset) {
@@ -98,17 +106,27 @@ function isNative(asset: Asset) {
 }
 
 onMounted(async () => {
+  console.log('Assets view mounted')
   await getAssetsBalance()
-  assetsPolling = setInterval(updateAssetsBalance, 4000)
 })
 
 onBeforeUnmount(() => {
-  if (assetsPolling) {
-    clearInterval(assetsPolling)
-  }
+  console.log("Assets view's unmounted")
+  clearInterval(assetsPolling)
 })
 
 rpcStore.$subscribe(getAssetsBalance)
+
+watch(
+  () => modalStore.show,
+  async () => {
+    if (!modalStore.show) {
+      showModal.value = false
+      clearInterval(assetsPolling)
+      await getAssetsBalance()
+    }
+  }
+)
 </script>
 
 <template>
@@ -127,7 +145,7 @@ rpcStore.$subscribe(getAssetsBalance)
           <div class="flex items-center gap-3">
             <img
               :src="getIconAsset(`token-logos/${asset.logo}`)"
-              class="w-[1.25rem] aspect-square rounded-full"
+              class="w-[1.25rem] aspect-square rounded-full select-none"
             />
             <span
               class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"
@@ -152,12 +170,15 @@ rpcStore.$subscribe(getAssetsBalance)
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
       <button
-        class="flex py-3 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0"
+        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0 border-t-1"
         @click.stop="handleAddToken"
       >
         <img :src="getImage('plus.svg')" class="h-lg w-lg" />
         <span class="text-sm font-normal">New</span>
       </button>
     </div>
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <AddTokenScreen v-if="showModal" />
+    </Teleport>
   </div>
 </template>

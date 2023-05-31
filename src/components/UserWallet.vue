@@ -183,6 +183,15 @@ watch(
     if (!show) showModal.value = false
   }
 )
+
+async function copyToClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    toast.success('Wallet address copied')
+  } catch (err) {
+    toast.error('Failed to copy wallet address')
+  }
+}
 </script>
 
 <template>
@@ -191,12 +200,15 @@ watch(
       <div class="flex justify-between items-center">
         <div class="flex gap-1">
           <img
-            src="@/assets/images/address-pic.svg"
+            src="@/assets/images/fallback-logo-dark-mode.png"
             class="w-xl h-xl rounded-full"
           />
           <span class="font-bold text-lg">{{
             userStore.walletAddressShrinked
           }}</span>
+          <button @click.stop="copyToClipboard(userStore.walletAddress)">
+            <img :src="getImage('copy.svg')" class="w-xl h-xl" />
+          </button>
         </div>
         <button class="w-xl h-xl rounded-full" @click.stop="handleRefresh()">
           <img :src="getImage('refresh.svg')" />

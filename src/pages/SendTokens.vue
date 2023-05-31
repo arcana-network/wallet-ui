@@ -166,7 +166,7 @@ async function handleSendToken() {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-        gasPrice: gasFees,
+        // gasPrice: gasFees,
         from: userStore.walletAddress,
       }
 
@@ -249,11 +249,16 @@ async function handleShowPreview() {
           `0x${Number(sendAmount).toString(16)}`
         )
       }
+      gasFeeInEth.value = ethers.utils
+        .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
+        .toString()
+      showPreview.value = true
     } catch (e) {
+      toast.error(e as string)
       console.error({ e })
+    } finally {
+      hideLoader()
     }
-    hideLoader()
-    showPreview.value = true
   } else {
     toast.error('Please fill all values')
   }
@@ -290,7 +295,7 @@ function handleTokenChange(e) {
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
-      @submit.prevent="showPreview = true"
+      @submit.prevent="handleShowPreview"
     >
       <div class="flex flex-col gap-7">
         <div class="flex flex-col gap-1">
@@ -322,7 +327,7 @@ function handleTokenChange(e) {
                 autocomplete="off"
                 required
                 type="text"
-                placeholder="0"
+                placeholder="0.1"
                 @focus="isAmountFocused = true"
                 @blur="isAmountFocused = false"
               />

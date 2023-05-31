@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
 import { getImage } from '@/utils/getImage'
 
@@ -10,13 +10,17 @@ const props = defineProps<SwipeToActionProps>()
 const emit = defineEmits(['success'])
 const translateUntil = ref('calc(-80%)')
 const isDragging = ref(false)
-const swiperEl = ref(null)
+const swiperEl: Ref<HTMLDivElement | null> = ref(null)
 
 function handleDrag(e) {
   if (isDragging.value) {
-    const swiperX = swiperEl.value.getBoundingClientRect().x
-    const swiperContainer = swiperEl.value.parentElement.getBoundingClientRect()
-    if (e.clientX >= swiperContainer.right || swiperX >= swiperContainer.x) {
+    const swiperX = swiperEl.value?.getBoundingClientRect().x
+    const swiperContainer =
+      swiperEl.value?.parentElement?.getBoundingClientRect()
+    if (
+      (swiperContainer && e.clientX >= swiperContainer.right) ||
+      (swiperX && swiperContainer && swiperX >= swiperContainer.x)
+    ) {
       translateUntil.value = 'calc(0%)'
       emit('success')
       return
@@ -32,10 +36,10 @@ function handleDrag(e) {
 }
 
 function handleDragEnd() {
-  const swiperX = swiperEl.value.getBoundingClientRect().x
+  const swiperX = swiperEl.value?.getBoundingClientRect().x
   const swiperContainerX =
-    swiperEl.value.parentElement.getBoundingClientRect().x
-  if (swiperX < swiperContainerX - 60) {
+    swiperEl.value?.parentElement?.getBoundingClientRect().x
+  if (swiperX && swiperContainerX && swiperX < swiperContainerX - 60) {
     translateUntil.value = 'calc(-80%)'
   } else {
     translateUntil.value = 'calc(0%)'
@@ -45,7 +49,10 @@ function handleDragEnd() {
 }
 
 function handleDragStart(e) {
-  if (e.clientX <= swiperEl.value.getBoundingClientRect().right) {
+  if (
+    swiperEl.value &&
+    e.clientX <= swiperEl.value.getBoundingClientRect().right
+  ) {
     isDragging.value = true
   }
 }
@@ -63,7 +70,7 @@ function handleDragStart(e) {
       @touchmove="handleDrag"
     >
       <div
-        class="flex items-center justify-center text-xs font-normal text-gray-100 p-[10px]"
+        class="flex items-center justify-center text-xs font-normal text-gray-100 p-[10px] select-none"
       >
         {{ props.message || 'Swipe to Continue' }}
       </div>
@@ -72,18 +79,18 @@ function handleDragStart(e) {
         class="absolute btn-primary inset-0 z-10 cursor-pointer transition-all duration-300 ease-in-out flex justify-end"
         :style="{ transform: `translateX(${translateUntil})` }"
       >
-        <div class="flex items-center justify-center w-[20%]">
+        <div class="flex items-center justify-center w-[20%] select-none">
           <img
             :src="getImage('slider-right.svg')"
-            class="opacity-0 animate-1"
+            class="opacity-0 animate-1 select-none"
           />
           <img
             :src="getImage('slider-right.svg')"
-            class="opacity-0 animate-2"
+            class="opacity-0 animate-2 select-none"
           />
           <img
             :src="getImage('slider-right.svg')"
-            class="opacity-0 animate-3"
+            class="opacity-0 animate-3 select-none"
           />
         </div>
       </div>

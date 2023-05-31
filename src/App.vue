@@ -13,7 +13,6 @@ import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { getImage } from '@/utils/getImage'
-import { isMobileViewport } from '@/utils/isMobileViewport'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -102,11 +101,6 @@ function onClickOfHeader() {
       <div class="flex-grow wallet__container m-1 p-3">
         <RouterView class="flex-grow" />
         <BaseModal v-if="modal.show" />
-        <img
-          v-if="showFooter"
-          :src="getImage('secured-by-arcana.svg')"
-          class="h-xs mb-2"
-        />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
@@ -191,5 +185,25 @@ body {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+.Vue-Toastification__toast {
+  min-height: unset !important;
+  padding: 0.5rem 1rem !important;
+  font-family: Onest, sans-serif !important;
+}
+
+.Vue-Toastification__icon {
+  width: 12px !important;
+  margin-right: 8px !important;
+}
+
+.Vue-Toastification__toast-body {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.Vue-Toastification__progress-bar {
+  height: 2px !important;
 }
 </style>
