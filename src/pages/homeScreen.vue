@@ -6,6 +6,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
+import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
@@ -41,10 +42,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(rpcStore.cleanUpBalancePolling)
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')

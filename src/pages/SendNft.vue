@@ -18,7 +18,6 @@ import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
   type: NFTContractType
@@ -40,7 +39,6 @@ const showPreview = ref(false)
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
 const activitiesStore = useActivitiesStore()
-const getImageOld = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const chainId = Number(rpcStore.selectedChainId)
@@ -145,7 +143,7 @@ async function handleSendToken() {
     }
     nft.attributes = props.attributes ? JSON.parse(props.attributes) : []
     await activitiesStore.fetchAndSaveNFTActivityFromHash({
-      chainId: rpcStore.selectedRpcConfig?.chainId,
+      chainId: rpcStore.selectedRpcConfig?.chainId as string,
       txHash,
       nft,
       recipientAddress: setHexPrefix(recipientWalletAddress.value),
@@ -186,11 +184,16 @@ async function handleShowPreview() {
           1
         )
       ).toString()
+      gasFeeInEth.value = ethers.utils
+        .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
+        .toString()
+      showPreview.value = true
     } catch (e) {
       console.error({ e })
+      toast.error(e as string)
+    } finally {
+      hideLoader()
     }
-    hideLoader()
-    showPreview.value = true
   } else {
     toast.error('Please fill all values')
   }
@@ -228,7 +231,7 @@ async function handleShowPreview() {
       </div>
       <form
         class="flex flex-col flex-grow justify-between gap-5"
-        @submit.prevent="showPreview = true"
+        @submit.prevent="handleShowPreview"
       >
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1">
