@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, watch, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
-import { useAppStore } from '@/store/app'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
+import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
 
-const router = useRouter()
-const app = useAppStore()
 const storage = getStorage()
 const isDisabled = reactive({
   symbol: false,
   decimals: false,
 })
+const modalStore = useModalStore()
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap)
   .map((address) => ({
     ...contractMap[address],
@@ -33,6 +32,7 @@ const loader = reactive({
   show: false,
   message: 'Saving token...',
 })
+const expandSection = ref(false)
 
 const tokenContract: AssetContract = reactive({
   address: '',
@@ -50,10 +50,6 @@ function handleSearchToken(selectedTokenContract: EthAssetContract) {
   }
 }
 
-function handleCancel() {
-  router.back()
-}
-
 async function addTokenContract() {
   loader.show = true
   const isValidContract = await validateAndPopulateContract()
@@ -67,7 +63,9 @@ async function addTokenContract() {
       return toast.error('Enter all the details to continue')
     }
     const assetContractsString = storage.local.getItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+      `${userStore.walletAddress}/${Number(
+        rpcStore.selectedRpcConfig?.chainId
+      )}/asset-contracts`
     )
     let assetContracts: AssetContract[] = []
     if (assetContractsString) {
@@ -75,12 +73,14 @@ async function addTokenContract() {
     }
     assetContracts.push({ ...tokenContract })
     storage.local.setItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
+      `${userStore.walletAddress}/${Number(
+        rpcStore.selectedRpcConfig?.chainId
+      )}/asset-contracts`,
       JSON.stringify(assetContracts)
     )
     loader.show = false
     toast.success('Token Added successfully')
-    router.push({ name: 'home', params: { appId: app.id } })
+    modalStore.setShowModal(false)
   } else {
     loader.show = false
     toast.error('Invalid contract address')
@@ -89,7 +89,9 @@ async function addTokenContract() {
 
 function isContractInLocalStorage() {
   const assetContractsString = storage.local.getItem(
-    `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    `${userStore.walletAddress}/${Number(
+      rpcStore.selectedRpcConfig?.chainId
+    )}/asset-contracts`
   )
   if (assetContractsString) {
     const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
@@ -162,19 +164,19 @@ watch(
 </script>
 
 <template>
-  <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
+  <div class="flex flex-1 flex-col">
     <div
       v-if="loader.show"
       class="fixed inset-0 flex justify-center items-center z-50 opacity-90 backdrop-blur bg-white dark:bg-black"
     >
       <AppLoader :message="loader.message" />
     </div>
-    <div class="p-4 sm:p-2 h-full flex flex-col overflow-auto">
-      <h2 class="font-semibold mb-5 add-token__title">Add a Token</h2>
+    <div class="flex flex-col gap-4">
+      <h2 class="text-xl font-bold text-center">Add a Token</h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
-            <label for="search-token" class="text-sm font-semibold label"
+            <label for="search-token" class="text-sm font-medium"
               >Search Token</label
             >
             <SearchToken
@@ -182,13 +184,27 @@ watch(
               @change="handleSearchToken"
             />
           </div>
-          <div class="text-center my-6">Add Custom Token</div>
+          <div class="flex justify-center items-center my-4">
+            <button
+              class="flex justify-center items-center"
+              type="button"
+              @click.stop="expandSection = !expandSection"
+            >
+              <span class="text-sm font-normal">Add Custom Token</span>
+              <img
+                :src="getImage('arrow-down.svg')"
+                class="w-xl h-xl transition-all will-change-transform duration-200"
+                :class="{ '-rotate-180': expandSection }"
+              />
+            </button>
+          </div>
         </div>
-        <div class="flex flex-col gap-5">
+        <div
+          v-if="expandSection || !rpcStore.isEthereumMainnet"
+          class="flex flex-col gap-4"
+        >
           <div class="flex flex-col gap-1">
-            <label
-              for="token-contract-address"
-              class="text-sm font-semibold label"
+            <label for="token-contract-address" class="text-sm font-medium"
               >Token Contract Address</label
             >
             <input
@@ -196,13 +212,13 @@ watch(
               v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
-              class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
+              class="input-field focus:input-active"
               required
               autocomplete="off"
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-symbol" class="text-sm font-semibold label"
+            <label for="token-symbol" class="text-sm font-medium"
               >Token Symbol</label
             >
             <input
@@ -210,7 +226,7 @@ watch(
               v-model="tokenContract.symbol"
               type="text"
               placeholder="Eg. XAR"
-              class="text-base p-4 input"
+              class="input-field focus:input-active"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
@@ -218,7 +234,7 @@ watch(
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-decimal" class="text-sm font-semibold label"
+            <label for="token-decimal" class="text-sm font-medium"
               >Token Decimal</label
             >
             <input
@@ -226,7 +242,7 @@ watch(
               v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
-              class="text-base p-4 input"
+              class="input-field focus:input-active"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"
@@ -235,21 +251,12 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <div class="flex space-x-3">
-            <button
-              type="reset"
-              class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white flex-1 font-semibold uppercase"
-              @click.stop="handleCancel"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black flex-1 font-semibold uppercase"
-            >
-              Save
-            </button>
-          </div>
+          <button
+            type="submit"
+            class="btn-primary uppercase font-bold text-base p-2 mt-5"
+          >
+            Save
+          </button>
         </div>
       </form>
     </div>
@@ -257,10 +264,6 @@ watch(
 </template>
 
 <style scoped>
-.add-token__title {
-  font-size: var(--fs-500);
-}
-
 #search-token::-webkit-calendar-picker-indicator,
 #search-token::-webkit-list-button {
   display: none !important;

@@ -10,6 +10,7 @@ import {
 import { ref, computed } from 'vue'
 
 import type { EthAssetContract } from '@/models/Asset'
+import { getImage } from '@/utils/getImage'
 
 type SearchAssetProps = {
   tokens: EthAssetContract[]
@@ -59,26 +60,26 @@ function displayValue() {
 
 <template>
   <Combobox v-slot="{ open }" v-model="selectedToken" nullable>
-    <div class="relative">
+    <div class="relative z-10">
       <div
-        class="relative w-full cursor-default overflow-hidden flex flex-nowrap rounded-[10px] input p-4 outline-none"
+        class="relative w-full cursor-default overflow-hidden flex flex-nowrap input-field focus:input-active px-2"
         :class="{
           'outline-black dark:outline-white outline-1 outline': isFocused,
         }"
       >
-        <img src="@/assets/images/search-icon.svg" />
+        <img :src="getImage('search.svg')" class="w-sm h-sm select-none" />
         <ComboboxInput
-          class="flex-1 border-none px-3 text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none"
+          class="flex-1 border-none px-2 text-base bg-transparent text-left justify-between truncate"
           placeholder="Enter Token Name or Symbol"
           :display-value="displayValue()"
           @change="query = $event.target.value"
           @focus="isFocused = true"
           @blur="isFocused = false"
         />
-        <ComboboxButton class="h-auto align-middle">
+        <ComboboxButton class="h-auto align-middle select-none">
           <img
-            src="@/assets/images/arrow-gray.svg"
-            class="transition-all will-change-transform delay-300"
+            :src="getImage('arrow-down.svg')"
+            class="w-xl h-xl transition-all will-change-transform duration-200"
             :class="{ '-rotate-180': open }"
           />
         </ComboboxButton>
@@ -90,7 +91,7 @@ function displayValue() {
       >
         <div v-show="open">
           <ComboboxOptions
-            class="absolute max-h-60 w-full debossed-card text-base focus:outline-black dark:focus:outline-white overflow-auto rounded-t-none rounded-r-none mt-1 pt-2"
+            class="absolute max-h-60 w-full card bg-gray-200 text-sm overflow-y-auto rounded-t-none mt-1 pt-2 px-1"
             static
           >
             <ComboboxOption
@@ -101,9 +102,9 @@ function displayValue() {
               :value="token.symbol"
             >
               <li
-                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-white-300 dark:hover:bg-black-300 text-black dark:text-white"
                 :class="{
-                  'bg-zinc-200 dark:bg-zinc-800': active,
+                  'bg-white-100 dark:bg-black-100': active,
                 }"
               >
                 <span

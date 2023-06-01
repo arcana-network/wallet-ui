@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DateTime from '@/components/DateTime.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { methodAndAction } from '@/utils/method'
@@ -42,20 +41,31 @@ function getPermissionText(method, request) {
 </script>
 
 <template>
-  <div class="flex flex-1 flex-col space-y-2 rounded-b-xl">
-    <div class="flex items-baseline">
-      <h1 class="flex-1 m-0 font-semibold text-base sm:text-sm capitalize">
-        {{ getTitle(methodAndAction[request.request.method]) }}
-      </h1>
-      <DateTime :datetime="request.receivedTime" />
+  <div class="card p-4 flex flex-col gap-8">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center justify-center">
+        <h1 class="m-0 font-bold text-lg capitalize">
+          {{ getTitle(methodAndAction[request.request.method]) }}
+        </h1>
+      </div>
+      <p class="text-sm text-center">
+        {{ appStore.name }} requests your permission for
+        {{ getPermissionText(request.request.method, request.request) }}
+      </p>
     </div>
-    <p class="font-normal text-sm sm:text-xs">
-      {{ appStore.name }} requests your permission for
-      {{ getPermissionText(request.request.method, request.request) }}
-    </p>
-    <div class="flex justify-end space-x-2 text-sm">
-      <button class="uppercase" @click="emits('reject')">Reject</button>
-      <button class="uppercase" @click="emits('approve')">Approve</button>
+    <div class="flex justify-end gap-4 text-sm font-bold">
+      <button
+        class="uppercase btn-secondary w-full p-2"
+        @click="emits('reject')"
+      >
+        Reject
+      </button>
+      <button
+        class="uppercase btn-primary w-full p-2"
+        @click="emits('approve')"
+      >
+        Approve
+      </button>
     </div>
   </div>
 </template>

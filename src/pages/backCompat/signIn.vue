@@ -78,7 +78,7 @@ function storeUserInfoAndRedirect(userInfo: GetInfoOutput) {
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  router.push('/')
+  router.push({ name: 'home' })
 }
 
 const channelEventHandler = (ev: MessageEvent) => {

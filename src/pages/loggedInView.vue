@@ -3,11 +3,12 @@ import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -44,7 +45,7 @@ const loader = ref({
 })
 let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
-const enabledChainList = ref([])
+const enabledChainList: Ref<any[]> = ref([])
 
 onBeforeMount(() => {
   userStore.hasMfa =
@@ -62,10 +63,12 @@ onMounted(async () => {
     await getAccountDetails()
     appStore.showWallet = true
     await setMFABannerState()
+    router.push({ name: 'home' })
     const requestHandler = getRequestHandler()
     if (requestHandler) {
       requestHandler.setConnection(parentConnection)
-      const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+      const { chainId, ...rpcConfig } =
+        rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
       await requestHandler.setRpcConfig({
         chainId: selectedChainId,
@@ -107,11 +110,6 @@ async function setMFABannerState() {
   const hasMfaDnd = mfaDnd && mfaDnd === '1'
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  if (requestStore.areRequestsPendingForApproval) {
-    router.push({ name: 'requests', params: { appId: appStore.id } })
-  } else {
-    router.push({ name: 'home' })
-  }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
   }
@@ -124,9 +122,13 @@ async function getAccountDetails() {
 async function initKeeper() {
   const accountHandler = new AccountHandler(
     userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
+    rpcStore.selectedRpcConfig?.rpcUrls[0]
   )
-  setRequestHandler(accountHandler)
+  try {
+    setRequestHandler(accountHandler)
+  } catch (e) {
+    // Do nothing
+  }
 }
 
 async function initAccountHandler() {
@@ -303,11 +305,11 @@ onBeforeRouteLeave((to) => {
     <Transition name="fade" mode="out-in">
       <button
         v-if="showMfaBanner"
-        class="bg-blue-700 rounded-lg p-4 flex justify-between items-center cursor-pointer"
+        class="bg-blue-700 rounded-lg px-4 py-1 flex justify-between items-center cursor-pointer"
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-white text-sm"
+          <span class="font-semibold text-white-100 text-sm"
             >Enhance your wallet security</span
           >
           <img src="@/assets/images/export.svg" class="w-5" />

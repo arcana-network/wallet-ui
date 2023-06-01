@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { getImage } from '@/utils/getImage'
+
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 
 const password = ref('')
@@ -34,55 +36,41 @@ function handleProceed() {
           <input
             v-model.trim="password"
             :type="passwordType"
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active"
             placeholder="Enter a alphanumberic pin"
           />
           <img
             v-if="passwordType === 'password'"
-            src="@/assets/images/show-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
+            :src="getImage('eye.svg')"
+            class="absolute top-[50%] right-3 w-4 cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Show password"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
-            src="@/assets/images/hide-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
+            :src="getImage('eye-off.svg')"
+            class="absolute top-[50%] right-3 w-4 cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Hide password"
             @click.stop="passwordType = 'password'"
           />
         </div>
       </div>
-      <button
-        class="mt-1 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
-        type="submit"
-      >
-        Proceed
-      </button>
-      <button
-        class="font-semibold capitalize text-sm sm:text-xs"
-        @click.stop="emit('switch-alternate')"
-      >
-        Answer Security Questions Instead
-      </button>
+      <div class="flex flex-col mt-1 justify-center items-center gap-4">
+        <button
+          class="mt-1 text-sm btn-primary p-2 uppercase w-48"
+          type="submit"
+        >
+          Proceed
+        </button>
+        <button
+          class="font-semibold capitalize text-sm btn-tertiary"
+          @click.stop="emit('switch-alternate')"
+        >
+          Answer Security Questions Instead
+        </button>
+      </div>
     </form>
   </div>
 </template>
-
-<style scoped>
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-
-label {
-  padding-left: 5px;
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-</style>
