@@ -101,9 +101,12 @@ function handleSetGasPrice(value) {
         you approve the transaction?
       </p>
     </div>
-    <SignMessageAdvancedInfo
-      :info="advancedInfo(request.request.method, request.request.params[0])"
-    />
+    <div class="flex flex-col gap-1">
+      <div class="text-sm">Message</div>
+      <SignMessageAdvancedInfo
+        :info="advancedInfo(request.request.method, request.request.params[0])"
+      />
+    </div>
     <GasPrice
       :gas-price="customGasPrice"
       :gas-prices="gasPrices"

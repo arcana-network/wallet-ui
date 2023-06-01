@@ -7,9 +7,15 @@ type ViewerProps = {
 
 const props = defineProps<ViewerProps>()
 
+console.log(props)
+
 const jsonValue = computed(() => {
   if (typeof props.value === 'string') {
-    return JSON.parse(props.value)
+    try {
+      return JSON.parse(props.value)
+    } catch (e) {
+      return props.value
+    }
   }
   if (props.value instanceof Array) {
     return props.value[0]
@@ -43,28 +49,33 @@ function isString(value: any) {
 
 <template>
   <div class="flex flex-col">
-    <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
-      <span class="jv-key">{{ propKey }}:</span>
-      <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
-        <div
-          v-for="val in jsonValue[propKey]"
-          :key="JSON.stringify(val)"
-          class="ml-4"
-        >
-          <span v-if="isString(val)" class="jv-push">"{{ val }}"</span>
-          <VJsonViewer v-else :value="val" />
+    <div v-if="isString(jsonValue)" class="jv-push json-viewer">
+      {{ jsonValue }}
+    </div>
+    <div v-else class="flex flex-col">
+      <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
+        <span class="jv-key">{{ propKey }}:</span>
+        <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
+          <div
+            v-for="val in jsonValue[propKey]"
+            :key="JSON.stringify(val)"
+            class="ml-4"
+          >
+            <span v-if="isString(val)" class="jv-push">"{{ val }}"</span>
+            <VJsonViewer v-else :value="val" />
+          </div>
         </div>
-      </div>
-      <div v-else-if="hasObject(jsonValue[propKey])">
-        <div class="ml-4">
-          <VJsonViewer :value="jsonValue[propKey]" />
+        <div v-else-if="hasObject(jsonValue[propKey])">
+          <div class="ml-4">
+            <VJsonViewer :value="jsonValue[propKey]" />
+          </div>
         </div>
+        <span v-else class="jv-string jv-push ml-1">{{
+          isString(jsonValue[propKey])
+            ? `"${jsonValue[propKey]}"`
+            : jsonValue[propKey]
+        }}</span>
       </div>
-      <span v-else class="jv-string jv-push ml-1">{{
-        isString(jsonValue[propKey])
-          ? `"${jsonValue[propKey]}"`
-          : jsonValue[propKey]
-      }}</span>
     </div>
   </div>
 </template>

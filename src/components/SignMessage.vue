@@ -56,9 +56,12 @@ function getTitle(requestMethod: string) {
         {{ methodAndAction[request.request.method] }}
       </p>
     </div>
-    <SignMessageAdvancedInfo
-      :info="advancedInfo(request.request.method, request.request.params)"
-    />
+    <div class="flex flex-col gap-1">
+      <div class="text-sm">Message</div>
+      <SignMessageAdvancedInfo
+        :info="advancedInfo(request.request.method, request.request.params)"
+      />
+    </div>
     <div class="mt-auto flex gap-2">
       <button
         class="btn-secondary p-2 uppercase w-full text-sm font-bold"
