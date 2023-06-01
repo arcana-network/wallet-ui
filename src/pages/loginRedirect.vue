@@ -50,7 +50,6 @@ async function init() {
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
     if (
-      isV3(state) &&
       !isStandalone &&
       getLoginTypeFromState(state) !== SocialLoginType.passwordless
     ) {
