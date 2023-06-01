@@ -71,6 +71,7 @@ onMounted(async () => {
 })
 
 function handleSetGasPrice(value) {
+  console.log('handleSetGasPrice', { value })
   const requestId = props.request.request.id
   customGasPrice.value = value
   emits('gasPriceInput', {

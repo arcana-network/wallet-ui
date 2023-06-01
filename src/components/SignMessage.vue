@@ -8,11 +8,9 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
-// import { useImage } from '@/utils/useImage'
 
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
-// const getImage = useImage()
 
 const { selectedRpcConfig } = storeToRefs(rpcStore)
 
