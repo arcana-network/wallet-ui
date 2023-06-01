@@ -39,6 +39,10 @@ const disableSendLinkBtn = computed(() => {
 const LOGINS_FETCHING_ERROR_TEXT = `No logins configured. If you are the app admin, please configure login
 providers on the developer dashboard.`
 
+enum BearerAuthentication {
+  firebase = 'firebase',
+}
+
 const {
   params: {
     value: { appId },
@@ -77,6 +81,7 @@ const penpalMethods = {
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
   getAvailableLogins: () => [...availableLogins.value],
+  triggerBearerLogin: handleBearerLoginRequest,
 }
 
 const cleanup = () => {
@@ -249,6 +254,43 @@ async function handlePasswordlessLoginRequest(email: string) {
 
 async function handleSubmit() {
   handlePasswordlessLoginRequest(userEmailInput.value)
+}
+
+async function handleBearerLoginRequest(
+  type: BearerAuthentication,
+  _data: unknown
+) {
+  // Intentionally doing this to get the KeyReconstructor out of Auth SDK (which we shouldn't expose to external users)
+  // but would be OK to use internally
+  const ap = await getAuthProvider(app.id)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await ap.initKeyReconstructor()
+  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ap.keyReconstructor
+
+  switch (type) {
+    case BearerAuthentication.firebase: {
+      const data = _data as {
+        uid: string
+        token: string
+      }
+
+      const info = await kr.getPrivateKey({
+        verifier: BearerAuthentication.firebase,
+        id: data.uid,
+        idToken: data.token,
+      })
+
+      // TODO
+      console.log('Info:', info)
+
+      return true
+    }
+    default:
+      return false
+  }
 }
 
 function onEnterPress() {
