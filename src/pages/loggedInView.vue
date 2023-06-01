@@ -222,10 +222,7 @@ async function handleLogout() {
   }
 }
 
-let indexi = 0
-
 async function setRpcConfigs() {
-  console.log('setRpcConfigs', ++indexi)
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains.map((chain) => ({
     chainId: chain.chain_id,

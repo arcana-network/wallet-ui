@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
+import { useRequestStore } from '@/store/request'
 import { isMobileViewport } from '@/utils/isMobileViewport'
 
 type WalletPosition = 'right' | 'left'
@@ -46,12 +47,17 @@ export const useAppStore = defineStore('app', {
       compactMode,
     }) => {
       return function getCompatibleStyles() {
+        const requestStore = useRequestStore()
         const mobileViewport = isMobileViewport()
         const style: Partial<CSSStyleDeclaration> = {}
+
         style.height = showWallet
           ? expandWallet
             ? compactMode
-              ? '200px'
+              ? requestStore.pendingRequest?.request.method ===
+                'eth_sendTransaction'
+                ? '300px'
+                : '260px'
               : '80vh'
             : '20px'
           : '0'
