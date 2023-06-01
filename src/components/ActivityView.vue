@@ -106,11 +106,21 @@ function canShowDropdown(activity: Activity) {
     <li
       v-for="activity in activities"
       :key="activity.transaction?.hash || activity.file?.did"
-      class="flex flex-col gap-5"
+      class="flex flex-col gap-2"
     >
       <div class="flex">
         <div class="mr-3">
+          <div
+            v-if="activity.nft?.imageUrl"
+            class="rounded-sm w-xxxl h-xxxl overflow-hidden mt-1"
+          >
+            <img
+              :src="activity.nft.imageUrl"
+              class="object-contain object-center"
+            />
+          </div>
           <img
+            v-else
             :src="getTransactionIcon(activity.operation)"
             class="invert dark:invert-0"
             :title="activity.operation"
@@ -181,7 +191,7 @@ function canShowDropdown(activity: Activity) {
         <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
           <span
             v-if="activity.customToken"
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[6ch]"
+            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :class="
               activity.operation === 'Receive'
                 ? 'color-state-green'
@@ -193,7 +203,7 @@ function canShowDropdown(activity: Activity) {
           >
           <span
             v-else
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[6ch]"
+            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :class="
               activity.operation === 'Receive'
                 ? 'color-state-green'
@@ -217,17 +227,8 @@ function canShowDropdown(activity: Activity) {
       </div>
       <div
         v-if="canShowDropdown(activity) && activity.isExpanded"
-        class="flex flex-col"
+        class="flex flex-col card p-4"
       >
-        <hr
-          class="border-solid border-0 border-t-[1px] tab-view-border-color"
-          :class="{
-            'mb-5':
-              activity.file?.recipient ||
-              activity.file?.ruleHash ||
-              activity.transaction,
-          }"
-        />
         <div v-if="activity.file?.recipient">
           <div class="flex flex-col gap-[5px]">
             <span class="font-montserrat color-secondary text-xs font-semibold"
@@ -255,7 +256,7 @@ function canShowDropdown(activity: Activity) {
           </div>
         </div>
         <div v-else-if="activity.transaction">
-          <div class="flex flex-col gap-5">
+          <div class="flex flex-col gap-4">
             <div v-if="activity.nft" class="flex justify-center items-center">
               <img
                 :src="activity.nft.imageUrl"
@@ -264,13 +265,10 @@ function canShowDropdown(activity: Activity) {
               />
             </div>
             <div class="flex justify-between">
-              <div class="flex flex-col gap-[5px]">
+              <div class="flex flex-col gap-1">
+                <span class="text-sm text-gray-100">From</span>
                 <span
-                  class="font-montserrat color-secondary text-xs font-semibold"
-                  >From</span
-                >
-                <span
-                  class="text-base font-normal leading-5"
+                  class="text-base font-bold"
                   :title="activity.address.from"
                 >
                   {{ truncateMid(activity.address.from) }}
@@ -280,25 +278,16 @@ function canShowDropdown(activity: Activity) {
                 v-if="activity.address.to"
                 src="@/assets/images/arrow-right.svg"
               />
-              <div v-if="activity.address.to" class="flex flex-col gap-[5px]">
-                <span
-                  class="font-montserrat color-secondary text-xs font-semibold"
-                  >To</span
-                >
-                <span
-                  class="text-base font-normal leading-5"
-                  :title="activity.address.to"
-                >
+              <div v-if="activity.address.to" class="flex flex-col gap-1">
+                <span class="text-sm text-gray-100">To</span>
+                <span class="text-base font-bold" :title="activity.address.to">
                   {{ truncateMid(activity.address.to) }}
                 </span>
               </div>
             </div>
-            <div v-if="!activity.nft" class="flex flex-col gap-4">
-              <span
-                class="font-montserrat color-secondary text-xs font-semibold"
-                >Transaction Details</span
-              >
-              <div class="flex flex-col gap-5 text-base font-normal leading-5">
+            <div v-if="!activity.nft" class="flex flex-col gap-2">
+              <span class="text-sm text-gray-100">Transaction Details</span>
+              <div class="flex flex-col gap-2 text-base">
                 <div class="flex justify-between">
                   <span>Nonce</span>
                   <span>{{ activity.transaction.nonce }}</span>
@@ -306,7 +295,7 @@ function canShowDropdown(activity: Activity) {
                 <div class="flex justify-between">
                   <span>Amount</span>
                   <span
-                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
+                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${ethers.utils.formatEther(
                       activity.transaction.amount
                     )} ${rpcStore.currency}`"
@@ -325,7 +314,7 @@ function canShowDropdown(activity: Activity) {
                 <div class="flex justify-between">
                   <span>Gas Price</span>
                   <span
-                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
+                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${getAmount(
                       activity.transaction.gasPrice,
                       true
@@ -337,12 +326,10 @@ function canShowDropdown(activity: Activity) {
                   >
                 </div>
               </div>
-              <div
-                class="flex justify-between py-4 border-solid border-x-0 border-y-[1px] tab-view-border-color text-base font-bold leading-5"
-              >
+              <div class="flex justify-between mt-4 font-bold text-base">
                 <span>Total:</span>
                 <span
-                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[8ch]"
+                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                   :class="
                     activity.operation === 'Receive'
                       ? 'color-state-green'
@@ -360,7 +347,7 @@ function canShowDropdown(activity: Activity) {
         </div>
         <div
           v-if="explorerUrl && activity.txHash"
-          class="flex justify-center my-5"
+          class="flex justify-center mt-4"
         >
           <a
             :href="`${explorerUrl}/tx/${activity.txHash}`"
@@ -377,7 +364,7 @@ function canShowDropdown(activity: Activity) {
       </div>
     </li>
   </ul>
-  <div v-else class="flex justify-center text-center">
+  <div v-else class="flex justify-center text-center text-sm text-gray-100">
     You have no transactions
   </div>
 </template>

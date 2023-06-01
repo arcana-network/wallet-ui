@@ -46,6 +46,8 @@ const ANKR_BLOCKCHAIN_TO_CHAIN_ID = new Map([
   ['syscoin', 57],
 ])
 
+console.log(process.env.VUE_APP_ANKR_PREMIUM_API_URL)
+
 class NFTDB {
   private readonly storage: StorageWrapper
   private readonly walletAddress: string
