@@ -50,7 +50,9 @@ onBeforeMount(async () => {
 async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
-  await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
+  if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
+  }
 }
 
 watch(showWallet, async (newValue) => {
@@ -75,9 +77,13 @@ watch(requestStore.pendingRequests, () => {
 
 const showFooter = computed(() => {
   return (
-    (!['requests', 'MFARequired', 'MFARestore', 'SendTokens'].includes(
-      route.name as string
-    ) ||
+    (![
+      'requests',
+      'MFARequired',
+      'MFARestore',
+      'SendTokens',
+      'SendNfts',
+    ].includes(route.name as string) ||
       (route.name === 'requests' && !requestStore.pendingRequest)) &&
     !app.compactMode
   )

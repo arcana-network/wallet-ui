@@ -14,9 +14,9 @@ import {
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { HIDE_ON_RAMP } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
-import { getRampSupportedNetworks } from '@/utils/rampsdk'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
 
@@ -52,13 +52,6 @@ const chainSelectedForEdit: Ref<number | null> = ref(null)
 const transakNetwork = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
-    (network) => network.chainId === selectedChainId
-  )
-})
-
-const rampNetwork = computed(() => {
-  const selectedChainId = Number(rpcStore.selectedChainId)
-  return getRampSupportedNetworks().find(
     (network) => network.chainId === selectedChainId
   )
 })
@@ -245,7 +238,7 @@ async function copyToClipboard(value: string) {
         </button>
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          :disabled="!transakNetwork && !rampNetwork && onRampMoney === false"
+          :disabled="!transakNetwork && onRampMoney === false"
           @click.stop="handleBuy(true)"
         >
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
@@ -266,8 +259,7 @@ async function copyToClipboard(value: string) {
       <BuyTokens
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
-        :ramp-network="rampNetwork?.value"
-        :on-ramp-money="(onRampMoney as false)"
+        :on-ramp-money="onRampMoney"
         @close="handleBuy(false)"
       />
     </Teleport>

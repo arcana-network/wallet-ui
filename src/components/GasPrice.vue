@@ -61,6 +61,7 @@ function handleCustomGasPriceInput() {
     amountInputEl.setCustomValidity('')
     emits('gasPriceInput', gasFee.value)
   }
+  emits('gasPriceInput', gasFee.value)
 }
 </script>
 

@@ -73,14 +73,14 @@ watch(areRequestsPendingForApproval, () => {
           v-if="isSendTransactionRequest(pendingRequest.request.id)"
           :request="pendingRequest"
           @gas-price-input="handleGasPriceInput"
-          @reject="() => onRejectClick(pendingRequest.request.id)"
-          @approve="() => onApproveClick(pendingRequest.request.id)"
+          @reject="() => onRejectClick(pendingRequest?.request.id)"
+          @approve="() => onApproveClick(pendingRequest?.request.id)"
         />
         <SignMessage
           v-else
           :request="pendingRequest"
-          @reject="() => onRejectClick(pendingRequest.request.id)"
-          @approve="() => onApproveClick(pendingRequest.request.id)"
+          @reject="() => onRejectClick(pendingRequest?.request.id)"
+          @approve="() => onApproveClick(pendingRequest?.request.id)"
         />
         <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
           <p class="sign__message-info-text">
