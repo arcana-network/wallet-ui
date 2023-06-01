@@ -130,7 +130,8 @@ function canShowCollapseButton() {
     </div>
     <div
       v-show="showWalletButton"
-      class="h-full bg-white-300 dark:bg-black-300"
+      class="relative h-full bg-white-300 dark:bg-black-300"
+      style="z-index: 999999999"
     >
       <WalletButton />
     </div>
