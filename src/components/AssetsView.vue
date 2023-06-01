@@ -14,7 +14,7 @@ import { getIconAsset } from '@/utils/useImage'
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
-const assets: Asset[] = reactive([])
+let assets: Asset[] = reactive([])
 let assetsPolling
 
 function fetchStoredAssetContracts(): AssetContract[] {
@@ -45,8 +45,8 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  assets.length = 0
-  assets.push(fetchNativeAsset())
+  assets = [fetchNativeAsset()]
+
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
     assets.push({

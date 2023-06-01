@@ -1,7 +1,11 @@
 import { AccountHandler } from '@/utils/accountHandler'
 import { RequestHandler } from '@/utils/requestHandler'
 
-let requestHandler: RequestHandler | null
+let requestHandler: RequestHandler | null = null
+
+const requestHandlerExists = () => {
+  return requestHandler != null
+}
 
 const setRequestHandler = (accountHandler: AccountHandler) => {
   if (!requestHandler) {
@@ -25,4 +29,9 @@ const deleteRequestHandler = () => {
   requestHandler = null
 }
 
-export { setRequestHandler, getRequestHandler, deleteRequestHandler }
+export {
+  requestHandlerExists,
+  setRequestHandler,
+  getRequestHandler,
+  deleteRequestHandler,
+}

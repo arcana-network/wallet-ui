@@ -11,6 +11,7 @@ import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailScheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { catchupSigninPage } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
@@ -68,7 +69,10 @@ async function init() {
 
 async function handleSocialLoginRequest(type: SocialLoginType) {
   if (authProvider) {
-    return await user.handleSocialLogin(authProvider, type)
+    const { url, state } = await user.handleSocialLogin(authProvider, type)
+    console.log({ url, state })
+    await catchupSigninPage(state)
+    return url
   }
 }
 
@@ -85,4 +89,6 @@ async function handlePasswordlessLoginRequest(email: string) {
   }
 }
 </script>
-<template><div></div></template>
+<template>
+  <div></div>
+</template>

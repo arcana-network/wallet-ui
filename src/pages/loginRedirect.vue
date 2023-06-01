@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { GetInfoOutput } from '@arcana/auth-core'
+import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
@@ -11,9 +11,11 @@ import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
+  getStateFromUrl,
   handlePasswordlessLogin,
   handlePasswordlessLoginV2,
   handleSocialLogin,
+  verifyOpenerPage,
 } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
@@ -26,18 +28,35 @@ let channel: BroadcastChannel | null = null
 onMounted(init)
 onUnmounted(cleanup)
 
+const isV3 = (s: string) => {
+  return s.length > 10
+}
+
+const getLoginTypeFromState = (s: string) => {
+  return s.split('-')[0]
+}
 async function init() {
   const storage = getStorage()
   const parentAppUrl = storage.local.getItem('parentAppUrl')
   const loginSrc = storage.local.getItem('loginSrc')
+  const isStandalone =
+    loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   // TODO: Fix this V, throw error n stuff
   if (!parentAppUrl) {
     return
   }
   try {
+    const state = getStateFromUrl(route.fullPath)
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
-    const authProvider = await getAuthProvider(`${appId}`)
+    if (
+      isV3(state) &&
+      !isStandalone &&
+      getLoginTypeFromState(state) !== SocialLoginType.passwordless
+    ) {
+      await verifyOpenerPage(state)
+    }
+    const authProvider = await getAuthProvider(`${appId}`, !isV3(state))
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
@@ -73,7 +92,7 @@ async function init() {
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
-      if (info.loginType === 'passwordless') {
+      if (info.loginType === SocialLoginType.passwordless) {
         await handlePasswordlessLoginV2(userInfo, connectionToParent).catch(
           async () => {
             channel = new BroadcastChannel(`${appId}_login_notification`)
@@ -87,11 +106,7 @@ async function init() {
           }
         )
       } else {
-        if (
-          loginSrc === 'rn' ||
-          loginSrc === 'flutter' ||
-          loginSrc === 'unity'
-        ) {
+        if (isStandalone) {
           await connectionToParent.goToWallet()
           return
         }
@@ -107,8 +122,9 @@ async function init() {
       return
     }
   } catch (e) {
+    console.log({ e })
     if (e instanceof Error) {
-      await reportError(e.message, parentAppUrl)
+      // await reportError(e.message, parentAppUrl)
     }
   }
 }
