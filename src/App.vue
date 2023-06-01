@@ -87,6 +87,17 @@ function onClickOfHeader() {
   if (app.compactMode) app.compactMode = false
   else app.expandWallet = false
 }
+
+function canShowCollapseButton() {
+  if (
+    app.validAppMode === AppMode.Widget &&
+    !app.compactMode &&
+    requestStore.areRequestsPendingForApproval
+  ) {
+    return false
+  }
+  return true
+}
 </script>
 
 <template>
@@ -96,7 +107,11 @@ function onClickOfHeader() {
       class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
       <div class="flex justify-center mt-2 mb-2">
-        <button class="flex flex-grow justify-center" @click="onClickOfHeader">
+        <button
+          v-if="canShowCollapseButton()"
+          class="flex flex-grow justify-center"
+          @click="onClickOfHeader"
+        >
           <img v-if="compactMode" :src="getImage('expand-arrow.svg')" />
           <img v-else :src="getImage('collapse-arrow.svg')" />
         </button>
@@ -115,7 +130,8 @@ function onClickOfHeader() {
     </div>
     <div
       v-show="showWalletButton"
-      class="h-full bg-white-300 dark:bg-black-300"
+      class="relative h-full bg-white-300 dark:bg-black-300"
+      style="z-index: 999999999"
     >
       <WalletButton />
     </div>
