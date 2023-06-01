@@ -19,10 +19,6 @@ const app = useAppStore()
 const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<InitParentConnectionApi> | null = null
 
-enum BearerAuthentication {
-  firebase = 'firebase',
-}
-
 const {
   params: {
     value: { appId },
@@ -33,7 +29,6 @@ const penpalMethods = {
   triggerSocialLogin: (type: SocialLoginType) => handleSocialLoginRequest(type),
   triggerPasswordlessLogin: (email: string) =>
     handlePasswordlessLoginRequest(email),
-  triggerBearerLogin: handleBearerLoginRequest,
 }
 
 onMounted(init)
@@ -87,42 +82,6 @@ async function handlePasswordlessLoginRequest(email: string) {
     return await user.handlePasswordlessLogin(authProvider, email, {
       withUI: true,
     })
-  }
-}
-
-async function handleBearerLoginRequest(
-  type: BearerAuthentication,
-  _data: unknown
-) {
-  // Intentionally doing this to get the KeyReconstructor out of Auth SDK (which we shouldn't expose to external users)
-  // but would be OK to use internally
-  const ap = await getAuthProvider(app.id)
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  await ap.initKeyReconstructor()
-  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ap.keyReconstructor
-
-  switch (type) {
-    case BearerAuthentication.firebase: {
-      const data = _data as {
-        uid: string
-        token: string
-      }
-
-      const info = await kr.getPrivateKey({
-        verifier: BearerAuthentication.firebase,
-        id: data.uid,
-        idToken: data.token,
-      })
-
-      // TODO
-
-      return true
-    }
-    default:
-      return false
   }
 }
 </script>
