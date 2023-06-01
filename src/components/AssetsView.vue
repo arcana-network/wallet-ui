@@ -27,7 +27,6 @@ function fetchStoredAssetContracts(): AssetContract[] {
       rpcStore.selectedRPCConfig?.chainId
     )}/asset-contracts`
   )
-  console.log(assetContracts)
   if (assetContracts) {
     return JSON.parse(assetContracts) as AssetContract[]
   } else {
@@ -52,7 +51,6 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  console.log('Calling get Assets balance', rpcStore.selectedRPCConfig)
   await sleep(100)
   assets.length = 0
   assets.push(fetchNativeAsset())
@@ -85,7 +83,6 @@ async function getAssetsBalance() {
 
 function updateAssetsBalance() {
   assets.forEach(async (asset) => {
-    console.log('Updating asset balance', asset)
     if (asset.address !== 'native') {
       const balance = await getTokenBalance({
         walletAddress: userStore.walletAddress,
@@ -106,12 +103,10 @@ function isNative(asset: Asset) {
 }
 
 onMounted(async () => {
-  console.log('Assets view mounted')
   await getAssetsBalance()
 })
 
 onBeforeUnmount(() => {
-  console.log("Assets view's unmounted")
   clearInterval(assetsPolling)
 })
 

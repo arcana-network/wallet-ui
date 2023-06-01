@@ -14,7 +14,6 @@ const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
 watch(
   () => selectedRPCConfig.value,
   () => {
-    console.log('setting selected rpc config')
     rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
     emit('close')
   }

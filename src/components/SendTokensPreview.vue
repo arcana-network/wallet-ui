@@ -18,10 +18,8 @@ const props = defineProps({
 
 const nativeCurrency = rpcStore.nativeCurrency.symbol
 
-console.log(props.previewData)
 const txFees =
   Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
-console.log(txFees)
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
