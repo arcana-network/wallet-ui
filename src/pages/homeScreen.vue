@@ -95,7 +95,7 @@ watch(
       @refresh="handleRefresh"
     />
     <div class="my-6">
-      <AssetsView />
+      <AssetsView :refresh="refreshIconAnimating" />
     </div>
   </div>
 </template>
