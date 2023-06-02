@@ -4,7 +4,6 @@ import { ref, type Ref } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
 import { openTransak } from '@/utils/transak'
-import { useImage } from '@/utils/useImage'
 
 type BuyTokenProps = {
   transakNetwork?: string
@@ -14,7 +13,6 @@ type BuyTokenProps = {
 const props = defineProps<BuyTokenProps>()
 
 const emit = defineEmits(['close'])
-const getImage = useImage()
 const selectedProvider: Ref<'transak' | 'ramp' | 'onramp.money' | ''> = ref('')
 const isLoading = ref(false)
 const showStatusModal: Ref<'success' | 'failed' | 'cancelled' | ''> = ref('')
@@ -75,23 +73,17 @@ function handleDone() {
     <AppLoader v-if="isLoading" message="Processing..." />
     <div
       v-else-if="showStatusModal"
-      class="overflow-auto flex flex-col gap-8 justify-between p-1 pt-5"
+      class="overflow-auto flex flex-col gap-4 justify-between p-2"
     >
       <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
-      <div class="flex flex-col gap-3">
-        <div class="modal-title font-semibold text-center">
+      <div class="flex flex-col gap-2">
+        <div class="text-base font-bold text-center">
           {{ statusText.title }}
         </div>
-        <div class="modal-description text-center">
+        <div class="text-sm text-gray-100 text-center">
           {{ statusText.message }}
         </div>
       </div>
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black h-9 sm:h-8 uppercase"
-        @click.stop="handleDone"
-      >
-        Close
-      </button>
     </div>
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
