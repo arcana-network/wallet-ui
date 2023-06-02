@@ -80,7 +80,9 @@ const penpalMethods = {
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
-  getAvailableLogins: () => [...availableLogins.value],
+  getAvailableLogins: () => [
+    ...availableLogins.value.filter((item) => item !== 'firebase'),
+  ],
   triggerBearerLogin: handleBearerLoginRequest,
 }
 
