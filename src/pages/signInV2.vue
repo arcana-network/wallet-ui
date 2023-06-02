@@ -100,6 +100,8 @@ let authProvider: AuthProvider | null = null
 
 async function fetchAvailableLogins(authProvider: AuthProvider) {
   return (await authProvider.getAvailableLogins()).filter(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     (item) => item !== 'firebase'
   )
 }
@@ -290,13 +292,12 @@ async function handleBearerLoginRequest(
         loginType: 'firebase',
         hasMfa: false,
         privateKey: info.privateKey,
-        pk: info.publicKey,
+        pk: info.privateKey,
         userInfo: {
           id: data.uid,
         },
       }
-
-      storeUserInfoAndRedirect(userInfo)
+      await storeUserInfoAndRedirect(userInfo)
 
       return true
     }
