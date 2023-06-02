@@ -313,7 +313,9 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           if (response.error.data?.originalError) {
             await showToast(
               'error',
-              response.error.data.originalError.error.message
+              response.error.data.originalError?.error?.message ||
+                response.error.data.originalError?.code ||
+                'Something went wrong. Please try again'
             )
           } else {
             await showToast('error', response.error)
