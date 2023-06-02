@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
 
-import { getImage } from '@/utils/getImage'
+// import { getImage } from '@/utils/getImage'
 
 type SwipeToActionProps = {
   message?: string
 }
 const props = defineProps<SwipeToActionProps>()
-const emit = defineEmits(['success'])
+const emit = defineEmits(['success', 'approve', 'reject'])
 const translateUntil = ref('calc(-80%)')
 const isDragging = ref(false)
 const swiperEl: Ref<HTMLDivElement | null> = ref(null)
@@ -59,7 +59,7 @@ function handleDragStart(e) {
 </script>
 
 <template>
-  <div class="bg-white-400 dark:bg-gray-300 rounded-sm p-[2px]">
+  <!-- <div class="bg-white-400 dark:bg-gray-300 rounded-sm p-[2px]">
     <div
       class="relative rounded-sm overflow-hidden"
       @touchstart="handleDragStart"
@@ -95,6 +95,20 @@ function handleDragStart(e) {
         </div>
       </div>
     </div>
+  </div> -->
+  <div class="flex gap-2 items-center">
+    <button
+      class="btn-secondary w-full uppercase p-2 text-sm font-bold"
+      @click="emit('reject')"
+    >
+      Reject
+    </button>
+    <button
+      class="btn-primary w-full uppercase p-2 text-sm font-bold"
+      @click="emit('approve')"
+    >
+      Approve
+    </button>
   </div>
 </template>
 

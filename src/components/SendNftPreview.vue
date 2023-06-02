@@ -80,6 +80,6 @@ function truncateAddress(address: string) {
         </div>
       </div>
     </div>
-    <SwipeToAction message="Swipe to Transfer" @success="emits('submit')" />
+    <SwipeToAction @approve="emits('submit')" @reject="emits('close')" />
   </div>
 </template>

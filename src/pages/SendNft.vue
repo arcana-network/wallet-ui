@@ -148,7 +148,7 @@ async function handleSendToken() {
       nft,
       recipientAddress: setHexPrefix(recipientWalletAddress.value),
     })
-    router.back()
+    router.push({ name: 'Nfts' })
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
     if (err && err.reason) {
@@ -184,14 +184,14 @@ async function handleShowPreview() {
           1
         )
       ).toString()
+    } catch (e) {
+      console.error({ e })
+      toast.error('Cannot estimate gas fee. Please try again later.')
+    } finally {
       gasFeeInEth.value = ethers.utils
         .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
         .toString()
       showPreview.value = true
-    } catch (e) {
-      console.error({ e })
-      toast.error(e as string)
-    } finally {
       hideLoader()
     }
   } else {
