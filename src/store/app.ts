@@ -59,7 +59,7 @@ export const useAppStore = defineStore('app', {
                 ? '300px'
                 : '260px'
               : '80vh'
-            : '20px'
+            : '40px'
           : '0'
         style.width = showWallet
           ? expandWallet

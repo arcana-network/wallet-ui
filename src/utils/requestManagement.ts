@@ -308,9 +308,15 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       try {
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
+        console.log(response)
         if (response.error) {
-          if (response.error.data?.originalError?.code) {
-            await showToast('error', response.error.data.originalError.code)
+          if (response.error.data?.originalError) {
+            await showToast(
+              'error',
+              response.error.data.originalError?.error?.message ||
+                response.error.data.originalError?.code ||
+                'Something went wrong. Please try again'
+            )
           } else {
             await showToast('error', response.error)
           }

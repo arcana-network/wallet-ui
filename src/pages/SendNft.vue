@@ -148,7 +148,7 @@ async function handleSendToken() {
       nft,
       recipientAddress: setHexPrefix(recipientWalletAddress.value),
     })
-    router.back()
+    router.push({ name: 'Nfts' })
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
     if (err && err.reason) {
@@ -184,14 +184,14 @@ async function handleShowPreview() {
           1
         )
       ).toString()
+    } catch (e) {
+      console.error({ e })
+      toast.error('Cannot estimate gas fee. Please try again later.')
+    } finally {
       gasFeeInEth.value = ethers.utils
         .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
         .toString()
       showPreview.value = true
-    } catch (e) {
-      console.error({ e })
-      toast.error(e as string)
-    } finally {
       hideLoader()
     }
   } else {
@@ -221,7 +221,11 @@ async function handleShowPreview() {
     />
     <div v-else class="flex flex-col flex-grow justify-between gap-5">
       <div class="relative flex justify-center items-center">
-        <button class="absolute left-0" @click.stop="router.go(-1)">
+        <button
+          class="absolute left-0"
+          title="Click to go back"
+          @click.stop="router.go(-1)"
+        >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
         <span class="text-lg font-bold">Send Token</span>

@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
 
@@ -10,6 +11,7 @@ const toast = useToast()
 const rpcStore = useRpcStore()
 
 const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
+const showAddNetworkModal = ref(false)
 
 watch(
   () => selectedRPCConfig.value,
@@ -21,7 +23,8 @@ watch(
 </script>
 
 <template>
-  <div class="flex flex-col gap-5">
+  <AddNetwork v-if="showAddNetworkModal" @close="showAddNetworkModal = false" />
+  <div v-else class="flex flex-col gap-5">
     <div class="flex items-center justify-center">
       <p class="text-xl font-bold">Choose Network</p>
     </div>
@@ -53,7 +56,7 @@ watch(
       </div>
       <button
         class="btn-primary uppercase font-bold text-base py-2 mt-4"
-        @click.stop="void 0"
+        @click.stop="showAddNetworkModal = true"
       >
         Add network
       </button>

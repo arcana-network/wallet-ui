@@ -91,7 +91,11 @@ function truncateNFTTokenId(tokenId: string) {
     <div class="flex flex-1 flex-col min-h-full">
       <div class="flex flex-col items-center min-h-full flex-grow gap-5">
         <div class="relative flex justify-center items-center w-full">
-          <button class="absolute left-0" @click.stop="router.go(-1)">
+          <button
+            class="absolute left-0"
+            title="Click to go back"
+            @click.stop="router.go(-1)"
+          >
             <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
           </button>
           <span class="text-lg font-bold">Manage NFTs</span>

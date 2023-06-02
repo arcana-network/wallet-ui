@@ -15,7 +15,7 @@ const GAS_PRICE_SPEED_MAP = {
   standard: { wait: 'avgWait', price: 'average' },
   fast: { wait: 'fastWait', price: 'fast' },
 }
-const TOAST_TIME_OUT = 2500
+const TOAST_TIME_OUT = 5000
 
 export {
   DOCS_URL,

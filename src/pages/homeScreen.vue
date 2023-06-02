@@ -9,6 +9,7 @@ import { useRpcStore } from '@/store/rpc'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
+const refreshIconAnimating = ref(false)
 const walletBalance = ref('')
 if (rpcStore.walletBalance) {
   walletBalance.value = ethers.utils.formatEther(rpcStore.walletBalance)
@@ -56,13 +57,13 @@ async function handleChainChange() {
 }
 
 async function handleRefresh() {
-  showLoader('Refreshing wallet balance...')
+  refreshIconAnimating.value = true
   try {
     await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
   } finally {
-    hideLoader()
+    refreshIconAnimating.value = false
   }
 }
 
@@ -90,10 +91,11 @@ watch(
     <UserWallet
       page="home"
       :wallet-balance="walletBalance"
+      :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
     <div class="my-6">
-      <AssetsView />
+      <AssetsView :refresh="refreshIconAnimating" />
     </div>
   </div>
 </template>

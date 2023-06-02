@@ -23,6 +23,7 @@ import { getTransakSupportedNetworks } from '@/utils/transak'
 type UserWalletProps = {
   walletBalance?: string
   page: 'home' | 'nft'
+  refreshIconAnimating: boolean
 }
 
 const props = defineProps<UserWalletProps>()
@@ -199,33 +200,47 @@ async function copyToClipboard(value: string) {
           <span class="font-bold text-lg">{{
             userStore.walletAddressShrinked
           }}</span>
-          <button @click.stop="copyToClipboard(userStore.walletAddress)">
+          <button
+            title="Click to copy wallet address"
+            @click.stop="copyToClipboard(userStore.walletAddress)"
+          >
             <img :src="getImage('copy.svg')" class="w-xl h-xl" />
           </button>
         </div>
-        <button class="w-xl h-xl rounded-full" @click.stop="handleRefresh()">
-          <img :src="getImage('refresh.svg')" />
-        </button>
       </div>
       <div class="mt-4 flex flex-col">
         <span class="font-normal text-sm text-gray-100">Total Balance:</span>
-        <div>
-          <span class="font-bold text-xxl">{{
-            props.walletBalance?.split('.')[0]
-          }}</span>
-          <span
-            v-if="hasWalletBalanceAfterDecimals()"
-            class="font-bold text-xxl"
-            >.</span
+        <div class="flex items-center gap-4">
+          <div
+            class="transition-all duration-200"
+            :class="{ 'blur-sm': props.refreshIconAnimating }"
           >
-          <span
-            v-if="hasWalletBalanceAfterDecimals()"
-            class="font-bold text-base"
-            >{{ props.walletBalance?.split('.')[1] }}</span
+            <span class="font-bold text-xxl">{{
+              props.walletBalance?.split('.')[0]
+            }}</span>
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-bold text-xxl"
+              >.</span
+            >
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-bold text-base"
+              >{{ props.walletBalance?.split('.')[1] }}</span
+            >
+            <span v-if="currency" class="font-bold text-base ml-1">
+              {{ currency }}</span
+            >
+          </div>
+
+          <button
+            class="w-lg h-lg rounded-full"
+            :class="{ 'animate-spin': refreshIconAnimating }"
+            title="Click to refresh the balance"
+            @click.stop="handleRefresh()"
           >
-          <span v-if="currency" class="font-bold text-base ml-1">
-            {{ currency }}</span
-          >
+            <img :src="getImage('refresh.svg')" />
+          </button>
         </div>
       </div>
       <div class="mt-6 flex gap-3">

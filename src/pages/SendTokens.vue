@@ -166,7 +166,7 @@ async function handleSendToken() {
       const payload = {
         to: setHexPrefix(recipientWalletAddress.value),
         value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-        // gasPrice: gasFees,
+        gasPrice: gasFees,
         from: userStore.walletAddress,
       }
 
@@ -205,6 +205,7 @@ async function handleSendToken() {
       })
     }
     clearForm()
+    router.push({ name: 'home' })
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
     if (err && err.reason) {
@@ -249,14 +250,14 @@ async function handleShowPreview() {
           `0x${Number(sendAmount).toString(16)}`
         )
       }
+    } catch (e) {
+      toast.error('Cannot estimate gas fee. Please try again later.')
+      console.error({ e })
+    } finally {
       gasFeeInEth.value = ethers.utils
         .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
         .toString()
       showPreview.value = true
-    } catch (e) {
-      toast.error(e as string)
-      console.error({ e })
-    } finally {
       hideLoader()
     }
   } else {
@@ -288,7 +289,11 @@ function handleTokenChange(e) {
   />
   <div v-else class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
-      <button class="absolute left-0" @click.stop="router.go(-1)">
+      <button
+        class="absolute left-0"
+        title="Click to go back"
+        @click.stop="router.go(-1)"
+      >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
       <span class="text-lg font-bold">Send Token</span>
