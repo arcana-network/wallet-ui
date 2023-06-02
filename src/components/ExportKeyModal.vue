@@ -24,6 +24,7 @@ const emit = defineEmits(['copy', 'download', 'close'])
         <label class="font-bold text-sm">Private Key</label>
         <button
           class="btn-tertiary flex gap-1 items-center"
+          :title="showPK ? 'Click to hide' : 'Click to reveal'"
           @click="showPK = !showPK"
         >
           <img

@@ -96,7 +96,10 @@ function handleClose() {
                 {{ props.name }}
               </div>
               <div class="flex gap-1">
-                <button @click.stop="openNftModal">
+                <button
+                  title="Click to transfer this NFT"
+                  @click.stop="openNftModal"
+                >
                   <img :src="getImage('send.svg')" />
                 </button>
               </div>

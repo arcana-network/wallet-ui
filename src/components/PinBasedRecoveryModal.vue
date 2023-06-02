@@ -21,7 +21,7 @@ function handleProceed() {
 <template>
   <div class="px-4 py-2">
     <div class="flex gap-2 items-center mb-5">
-      <button @click.stop="emit('back')">
+      <button title="Click to go back" @click.stop="emit('back')">
         <img
           src="@/assets/images/arrow-white.svg"
           class="-rotate-90 invert dark:invert-0"

@@ -30,7 +30,11 @@ function truncateAddress(address: string) {
   <div class="flex flex-col justify-between">
     <div class="flex flex-col gap-7">
       <div class="relative flex justify-center items-center">
-        <button class="absolute left-0" @click.stop="emits('close')">
+        <button
+          class="absolute left-0"
+          title="Click to go back"
+          @click.stop="emits('close')"
+        >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
         <span class="text-lg font-bold">Confirm Transfer</span>
