@@ -284,7 +284,17 @@ async function handleBearerLoginRequest(
       })
 
       // TODO
-      console.log('Info:', info)
+      const userInfo = {
+        loginType: 'firebase',
+        hasMfa: false,
+        privateKey: info.privateKey,
+        pk: info.publicKey,
+        userInfo: {
+          id: data.uid,
+        },
+      }
+
+      storeUserInfoAndRedirect(userInfo)
 
       return true
     }
