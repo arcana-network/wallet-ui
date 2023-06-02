@@ -80,9 +80,7 @@ const penpalMethods = {
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
-  getAvailableLogins: () => [
-    ...availableLogins.value.filter((item) => item !== 'firebase'),
-  ],
+  getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
 }
 
@@ -101,7 +99,9 @@ onUnmounted(cleanup)
 let authProvider: AuthProvider | null = null
 
 async function fetchAvailableLogins(authProvider: AuthProvider) {
-  return await authProvider.getAvailableLogins()
+  return (await authProvider.getAvailableLogins()).filter(
+    (item) => item !== 'firebase'
+  )
 }
 
 async function storeUserInfoAndRedirect(
