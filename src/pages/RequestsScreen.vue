@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs } from 'vue'
+import { toRefs, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 import Popper from 'vue3-popper'
 
@@ -7,6 +7,7 @@ import ChargeInfo from '@/components/ChargeInfo.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
+import { router } from '@/routes'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -49,6 +50,12 @@ const isSendTransactionRequest = (requestId) => {
 function handleGasPriceInput({ value, requestId }) {
   requestStore.setGasFee(value, requestId)
 }
+
+watch(areRequestsPendingForApproval, () => {
+  if (!areRequestsPendingForApproval.value) {
+    router.push({ name: 'home' })
+  }
+})
 </script>
 
 <template>
@@ -66,14 +73,14 @@ function handleGasPriceInput({ value, requestId }) {
           v-if="isSendTransactionRequest(pendingRequest.request.id)"
           :request="pendingRequest"
           @gas-price-input="handleGasPriceInput"
-          @reject="() => onRejectClick(pendingRequest.request.id)"
-          @approve="() => onApproveClick(pendingRequest.request.id)"
+          @reject="() => onRejectClick(pendingRequest?.request.id)"
+          @approve="() => onApproveClick(pendingRequest?.request.id)"
         />
         <SignMessage
           v-else
           :request="pendingRequest"
-          @reject="() => onRejectClick(pendingRequest.request.id)"
-          @approve="() => onApproveClick(pendingRequest.request.id)"
+          @reject="() => onRejectClick(pendingRequest?.request.id)"
+          @approve="() => onApproveClick(pendingRequest?.request.id)"
         />
         <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
           <p class="sign__message-info-text">
@@ -92,23 +99,6 @@ function handleGasPriceInput({ value, requestId }) {
           </p>
         </div>
       </div>
-    </div>
-    <div
-      v-if="pendingRequest && !appStore.compactMode"
-      class="sign__message-button-container flex justify-around -m-4 mt-0 p-4"
-    >
-      <button
-        class="sign__message-button-reject uppercase"
-        @click="onRejectClick(pendingRequest.request.id)"
-      >
-        Reject
-      </button>
-      <button
-        class="sign__message-button-approve uppercase"
-        @click="onApproveClick(pendingRequest.request.id)"
-      >
-        Approve
-      </button>
     </div>
   </div>
   <SignMessageNoRequests v-else />

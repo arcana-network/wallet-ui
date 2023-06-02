@@ -5,31 +5,27 @@ const emit = defineEmits(['proceed', 'close'])
 </script>
 
 <template>
-  <div class="px-1 py-2">
-    <div class="flex justify-between">
-      <div class="modal-title font-semibold">Enhance Wallet Security</div>
-      <img
-        src="@/assets/images/close-icon.svg"
-        class="cursor-pointer invert dark:invert-0"
-        @click.stop="emit('close')"
-      />
+  <div class="px-1 py-2 flex flex-col gap-4">
+    <div class="flex justify-center">
+      <div class="font-bold text-lg">Enhance Wallet Security</div>
     </div>
-    <div class="modal-description mt-2 mb-5 flex flex-col gap-4">
+    <div class="text-sm text-gray-100 flex flex-col gap-2">
       <p>
         Turn on MFA by setting up security questions and a PIN. You will need to
         enter either of them to authenticate when you login to a new device or
         browser.
+        <br />
         <a
           :href="`${DOCS_URL}/concepts/mfa.html`"
           target="_blank"
-          class="text-blue-500 font-semibold cursor-pointer"
+          class="font-bold text-black-500 dark:text-white-100 cursor-pointer"
           >LEARN MORE</a
         >
       </p>
     </div>
     <div>
       <button
-        class="text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
+        class="uppercase text-sm font-bold p-3 btn-primary flex justify-center items-center w-full"
         @click.stop="emit('proceed')"
       >
         Proceed
@@ -37,14 +33,3 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
   </div>
 </template>
-
-<style scoped>
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-</style>

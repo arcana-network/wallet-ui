@@ -7,7 +7,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
-import { NFT } from '@/models/NFT'
+import { type NFTContractType } from '@/models/NFT'
 import {
   getGasPrice,
   GAS_AVAILABLE_CHAIN_IDS,
@@ -15,12 +15,21 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getImage } from '@/utils/getImage'
 import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
-  nft: NFT
+  type: NFTContractType
+  address: string
+  tokenId: string
+  collectionName: string
+  name: string
+  description?: string
+  imageUrl: string
+  animationUrl?: string
+  attributes?: string
+  balance?: number
 }
 
 const emit = defineEmits(['close'])
@@ -30,7 +39,6 @@ const showPreview = ref(false)
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
 const activitiesStore = useActivitiesStore()
-const getImage = useImage()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const chainId = Number(rpcStore.selectedChainId)
@@ -46,6 +54,8 @@ const loader = ref({
   message: '',
 })
 const baseFee = ref('0')
+const quantity = ref(1)
+const isQuantityFocused = ref(false)
 
 watch(
   () => gasFeeInGwei.value,
@@ -120,18 +130,22 @@ async function handleSendToken() {
       .toHexString()
 
     const txHash = await accountHandler.sendNft(
-      props.nft.type,
-      props.nft.address,
+      props.type,
+      props.address,
       userStore.walletAddress,
       setHexPrefix(recipientWalletAddress.value),
-      props.nft.tokenId,
+      props.tokenId,
       1,
       gasFees
     )
+    const nft = {
+      ...props,
+    }
+    nft.attributes = props.attributes ? JSON.parse(props.attributes) : []
     await activitiesStore.fetchAndSaveNFTActivityFromHash({
-      chainId: rpcStore.selectedRpcConfig?.chainId,
+      chainId: rpcStore.selectedRpcConfig?.chainId as string,
       txHash,
-      nft: props.nft,
+      nft,
       recipientAddress: setHexPrefix(recipientWalletAddress.value),
     })
     router.back()
@@ -162,19 +176,24 @@ async function handleShowPreview() {
       const accountHandler = getRequestHandler().getAccountHandler()
       estimatedGas.value = (
         await accountHandler.estimateNftGas(
-          props.nft.type,
-          props.nft.address,
+          props.type,
+          props.address,
           userStore.walletAddress,
           recipientWalletAddress.value,
-          props.nft.tokenId,
+          props.tokenId,
           1
         )
       ).toString()
+      gasFeeInEth.value = ethers.utils
+        .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
+        .toString()
+      showPreview.value = true
     } catch (e) {
       console.error({ e })
+      toast.error(e as string)
+    } finally {
+      hideLoader()
     }
-    hideLoader()
-    showPreview.value = true
   } else {
     toast.error('Please fill all values')
   }
@@ -185,7 +204,7 @@ async function handleShowPreview() {
   <div v-if="loader.show" class="h-full flex justify-center items-center">
     <AppLoader :message="loader.message" />
   </div>
-  <div v-else class="w-full">
+  <div v-else class="w-full flex flex-grow mb-5">
     <SendNftPreview
       v-if="showPreview"
       :preview-data="{
@@ -193,72 +212,74 @@ async function handleShowPreview() {
         recipientWalletAddress: setHexPrefix(recipientWalletAddress),
         gasFee: gasFeeInEth,
         estimatedGas,
-        nftContractAddress: props.nft.address,
-        tokenId: props.nft.tokenId,
-        imageUrl: props.nft.imageUrl,
+        nftContractAddress: props.address,
+        tokenId: props.tokenId,
+        imageUrl: props.imageUrl,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
     />
-    <div v-else class="space-y-3 overflow-auto flex flex-col justify-between">
-      <div class="flex flex-col space-y-3 sm:space-y-2">
-        <div class="flex justify-between">
-          <p class="text-xl sm:text-sm font-semibold">Send</p>
-          <button class="h-auto" @click="emit('close')">
-            <img :src="getImage('close-icon')" alt="close icon" />
-          </button>
-        </div>
+    <div v-else class="flex flex-col flex-grow justify-between gap-5">
+      <div class="relative flex justify-center items-center">
+        <button class="absolute left-0" @click.stop="router.go(-1)">
+          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        </button>
+        <span class="text-lg font-bold">Send Token</span>
       </div>
-      <div class="mt-4 flex justify-center">
-        <img :src="props.nft.imageUrl" class="rounded-[10px] w-24 h-24" />
+      <div class="flex justify-center">
+        <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
       </div>
       <form
-        class="space-y-4 sm:space-y-3 px-[1px]"
+        class="flex flex-col flex-grow justify-between gap-5"
         @submit.prevent="handleShowPreview"
       >
-        <div class="space-y-1">
-          <label
-            class="text-xs text-zinc-400 font-semibold"
-            for="recipientWalletAddress"
-          >
-            Recipient’s Wallet Address
-          </label>
-          <div
-            class="flex space-x-1 px-2 py-4 sm:p-1 input rounded-lg"
-            :class="{
-              'outline-black dark:outline-white outline-1 outline':
-                isWalletAddressFocused,
-            }"
-          >
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-medium" for="recipientWalletAddress">
+              Recipient’s Wallet Address
+            </label>
             <input
               id="recipientWalletAddress"
               v-model="recipientWalletAddress"
               required
               type="text"
-              class="text-base sm:text-sm w-full bg-transparent rounded-lg border-none outline-none overflow-hidden text-ellipsis"
-              placeholder="6yhjtikn7..."
+              class="input-field"
+              :class="{ 'input-active': isWalletAddressFocused }"
+              placeholder="Enter Recipient’s Wallet Address"
               @focus="isWalletAddressFocused = true"
               @blur="isWalletAddressFocused = false"
             />
           </div>
+          <div v-if="props.type === 'erc1155'" class="flex flex-col gap-1">
+            <label class="text-sm font-medium" for="quantity"> Quantity </label>
+            <input
+              id="quantity"
+              v-model="quantity"
+              required
+              type="text"
+              class="input-field"
+              :class="{ 'input-active': isQuantityFocused }"
+              placeholder="Enter Recipient’s Wallet Address"
+              @focus="isQuantityFocused = true"
+              @blur="isQuantityFocused = false"
+            />
+            <div class="flex justify-end gap-1">
+              <span class="text-xs text-gray-100">Total:</span>
+              <span class="text-xs">{{ props.balance }} copies</span>
+            </div>
+          </div>
+          <GasPrice
+            :gas-price="gasFeeInGwei"
+            :gas-prices="gasPrices"
+            :base-fee="baseFee"
+            @gas-price-input="handleSetGasPrice"
+          />
         </div>
-        <GasPrice
-          :gas-price="`${gasFeeInGwei}`"
-          :gas-prices="gasPrices"
-          :base-fee="baseFee"
-          @gas-price-input="handleSetGasPrice"
-        />
-        <div class="flex justify-between">
+        <div class="flex">
           <button
-            class="text-sm sm:text-xs rounded-xl border-2 border-black dark:border-white bg-transparent text-black dark:text-white w-36 h-9 sm:w-20 sm:h-8 uppercase"
-            @click.stop="emit('close')"
+            class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
           >
-            Cancel
-          </button>
-          <button
-            class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8 uppercase"
-          >
-            Proceed
+            Preview
           </button>
         </div>
       </form>

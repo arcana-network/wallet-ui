@@ -6,6 +6,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
 import { useRpcStore } from '@/store/rpc'
+import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
 const walletBalance = ref('')
@@ -45,6 +46,7 @@ onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
+    await sleep(100)
     await rpcStore.getWalletBalance()
   } catch (err) {
     console.log({ err })
@@ -90,11 +92,8 @@ watch(
       :wallet-balance="walletBalance"
       @refresh="handleRefresh"
     />
-    <div class="pb-5 flex flex-col gap-1">
-      <div class="font-semibold">Assets</div>
-      <div class="wallet__card rounded-[10px] flex flex-1 flex-col">
-        <AssetsView />
-      </div>
+    <div class="my-6">
+      <AssetsView />
     </div>
   </div>
 </template>

@@ -36,19 +36,19 @@ function handleChange(question: string[]) {
 <template>
   <Listbox v-model="selectedQuestionRef" @update:model-value="handleChange">
     <div
-      class="relative w-full cursor-default flex flex-nowrap rounded-[10px] input p-4 outline-none"
+      class="relative w-full cursor-default flex flex-nowrap rounded-sm input-field py-2 px-4 outline-none"
     >
       <ListboxButton
-        class="flex flex-1 border-none text-base leading-5 bg-transparent text-left justify-between text-black dark:text-white truncate outline-none h-auto"
+        class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto"
       >
         {{ selectedQuestionRef?.[1] }}
         <img
           src="@/assets/images/arrow-gray.svg"
-          class="transition-all will-change-transform delay-300"
+          class="transition-all will-change-transform delay-300 w-lg h-lg"
         />
       </ListboxButton>
       <ListboxOptions
-        class="absolute top-full left-0 max-h-60 w-full p-2 debossed-card text-base focus:outline-black dark:focus:outline-white overflow-auto rounded-t-none rounded-r-none z-10"
+        class="absolute top-full left-0 max-h-60 w-full py-2 px-1 card text-sm focus:outline-black-100 dark:focus:outline-white-100 overflow-auto rounded-t-none z-10"
       >
         <ListboxOption
           v-for="question in questions"
@@ -58,9 +58,9 @@ function handleChange(question: string[]) {
           :value="question"
         >
           <li
-            class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-zinc-200 dark:hover:bg-zinc-800 text-black dark:text-white"
+            class="relative cursor-pointer select-none py-2 px-3 rounded-sm flex justify-between items-center hover:bg-gray-200"
             :class="{
-              'bg-zinc-200 dark:bg-zinc-800': active,
+              'bg-gray-200': active,
             }"
           >
             <span

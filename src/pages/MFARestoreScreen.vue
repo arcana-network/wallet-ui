@@ -74,12 +74,10 @@ onBeforeMount(async () => {
 })
 
 function handleProceed(val: 'pin-based' | 'question-based') {
-  modalStore.setShowModal(true)
   recoveryMethod.value = val
 }
 
 function handleBack() {
-  modalStore.setShowModal(false)
   recoveryMethod.value = ''
 }
 
@@ -172,7 +170,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="wallet__card rounded-[10px] w-full max-w-[40rem] m-auto h-max min-h-max overflow-y-auto p-8"
+    class="card w-full max-w-[40rem] m-auto h-max min-h-max overflow-y-auto p-8"
   >
     <div
       v-show="loader.show"
@@ -180,46 +178,46 @@ onUnmounted(() => {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <div class="flex gap-2 items-center mb-2">
-      <div class="modal-title font-bold">
-        New Device/Browser Detected: Verify Login
+    <SecurityQuestionRecoveryModal
+      v-if="recoveryMethod === 'question-based'"
+      :questions="questions"
+      @back="handleBack"
+      @proceed="handleAnswerBasedRecovery"
+      @switch-alternate="recoveryMethod = 'pin-based'"
+    />
+    <PinBasedRecoveryModal
+      v-else-if="recoveryMethod === 'pin-based'"
+      @back="handleBack"
+      @proceed="handlePinBasedRecovery"
+      @switch-alternate="recoveryMethod = 'question-based'"
+    />
+    <div v-else>
+      <div class="flex gap-2 items-center mb-2">
+        <div class="text-lg font-bold">
+          New Device/Browser Detected: Verify Login
+        </div>
+      </div>
+      <div class="flex text-sm text-gray-100">
+        Enter your previously setup MFA PIN or answer the security questions to
+        verify your login to this new device/browser.
+      </div>
+      <div class="flex mt-4 items-end justify-end gap-8">
+        <button
+          class="text-sm font-bold text-sm btn-tertiary p-2 uppercase"
+          type="submit"
+          @click.stop="handleProceed('pin-based')"
+        >
+          Enter Pin
+        </button>
+        <button
+          class="text-sm font-bold text-sm btn-tertiary p-2 uppercase"
+          type="submit"
+          @click.stop="handleProceed('question-based')"
+        >
+          Answer Questions
+        </button>
       </div>
     </div>
-    <div class="flex" style="font-size: var(--fs-300)">
-      Enter your previously setup MFA PIN or answer the security questions to
-      verify your login to this new device/browser.
-    </div>
-    <div class="flex mt-4 items-end justify-end gap-8">
-      <button
-        class="text-sm sm:text-xs font-semibold text-black bg-transparent dark:text-white h-10 sm:h-8 uppercase"
-        type="submit"
-        @click.stop="handleProceed('pin-based')"
-      >
-        Enter Pin
-      </button>
-      <button
-        class="text-sm sm:text-xs font-semibold text-black bg-transparent dark:text-white h-10 sm:h-8 uppercase"
-        type="submit"
-        @click.stop="handleProceed('question-based')"
-      >
-        Answer Questions
-      </button>
-    </div>
-    <Teleport v-if="modalStore.show" to="#modal-container">
-      <SecurityQuestionRecoveryModal
-        v-if="recoveryMethod === 'question-based'"
-        :questions="questions"
-        @back="handleBack"
-        @proceed="handleAnswerBasedRecovery"
-        @switch-alternate="recoveryMethod = 'pin-based'"
-      />
-      <PinBasedRecoveryModal
-        v-if="recoveryMethod === 'pin-based'"
-        @back="handleBack"
-        @proceed="handlePinBasedRecovery"
-        @switch-alternate="recoveryMethod = 'question-based'"
-      />
-    </Teleport>
   </div>
 </template>
 
@@ -233,14 +231,5 @@ label {
 
 hr {
   border-top: 1px solid #8d8d8d20;
-}
-
-.title {
-  font-size: var(--fs-500);
-}
-
-.description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
 }
 </style>
