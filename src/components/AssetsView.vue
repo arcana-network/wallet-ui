@@ -21,6 +21,12 @@ const modalStore = useModalStore()
 const showModal = ref(false)
 let assetsPolling
 
+type AssetProps = {
+  refresh: boolean
+}
+
+const props = defineProps<AssetProps>()
+
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = getStorage().local.getItem(
     `${userStore.walletAddress}/${Number(
@@ -120,6 +126,13 @@ watch(
     }
   }
 )
+
+watch(
+  () => props.refresh,
+  async () => {
+    await getAssetsBalance()
+  }
+)
 </script>
 
 <template>
@@ -147,7 +160,7 @@ watch(
             >
           </div>
           <div
-            class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis"
+            class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis transition-all duration-200"
             :title="`${
               isNative(asset)
                 ? ethers.utils.formatEther(rpcStore.walletBalance)

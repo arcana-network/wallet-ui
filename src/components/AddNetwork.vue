@@ -4,12 +4,11 @@ import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
-import { useImage } from '@/utils/useImage'
+import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['close'])
 
 const rpcStore = useRpcStore()
-const getImage = useImage()
 const toast = useToast()
 
 const rpcConfig = ref({
@@ -84,16 +83,20 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="space-y-3">
-    <div class="flex justify-between">
-      <p class="text-xl sm:text-sm font-semibold">Add a Network</p>
-      <button class="h-auto" @click="emit('close')">
-        <img :src="getImage('close-icon')" alt="close form" />
+  <div class="flex flex-col gap-4">
+    <div class="relative flex justify-center items-center">
+      <button
+        class="absolute left-0"
+        title="Click to go back"
+        @click.stop="emit('close')"
+      >
+        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
+      <span class="text-lg font-bold">Add Network</span>
     </div>
-    <form class="space-y-3 sm:space-y-2" @submit.prevent="handleSubmit">
-      <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="networkName">
+    <form class="flex flex-col gap-2" @submit.prevent="handleSubmit">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="recipientWalletAddress">
           Network Name
         </label>
         <input
@@ -101,23 +104,23 @@ async function handleSubmit() {
           v-model="rpcConfig.networkName"
           required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
+          class="input-field focus:input-active"
           placeholder="e.g. Ethereum"
         />
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="rpcUrl"> RPC URL </label>
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="rpcUrl"> RPC URL </label>
         <input
           id="rpcUrl"
           v-model="rpcConfig.rpcUrl"
           required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. https://cloudflare-eth.com/"
+          class="input-field focus:input-active"
+          placeholder="e.g. https://rpc.ankr.com/eth"
         />
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="currencySymbol">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="currencySymbol">
           Currency Symbol
         </label>
         <input
@@ -125,37 +128,36 @@ async function handleSubmit() {
           v-model="rpcConfig.currencySymbol"
           required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
+          class="input-field focus:input-active"
           placeholder="e.g. ETH"
         />
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="chainId"> Chain ID </label>
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="chainId"> Chain ID </label>
         <input
           id="chainId"
           v-model="rpcConfig.chainId"
           required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. 1"
+          class="input-field focus:input-active"
+          placeholder="e.g. 0x1"
         />
       </div>
-      <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="explorerUrl">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium" for="explorerUrl">
           Explorer URL (Optional)
         </label>
         <input
           id="explorerUrl"
           v-model="rpcConfig.explorerUrl"
+          required
           type="text"
-          class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
-          placeholder="e.g. https://etherscan.io/"
+          class="input-field focus:input-active"
+          placeholder="e.g. https://etherscan.io"
         />
       </div>
-      <div class="flex justify-center">
-        <button
-          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8"
-        >
+      <div class="flex mt-5">
+        <button class="btn-primary w-full p-2 uppercase font-bold text-sm">
           Save
         </button>
       </div>

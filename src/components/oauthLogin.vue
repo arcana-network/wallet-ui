@@ -29,9 +29,7 @@ const emits = defineEmits(['oauthClick'])
         v-for="oauth in oauthLoginList"
         :key="oauth.value"
         @click="emits('oauthClick', oauth.value)"
-      >
-        <img class="wallet__signin-oauth-icon" :src="oauth.iconPath" />
-      </button>
+      ></button>
     </div>
   </div>
 </template>

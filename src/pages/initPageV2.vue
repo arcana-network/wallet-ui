@@ -57,7 +57,7 @@ async function init() {
     const parentConnectionInstance = await parentConnection.promise
 
     if (user.isLoggedIn) {
-      parentConnectionInstance.error(
+      await parentConnectionInstance.error(
         'User is already logged in! Redirecting back to app in 3'
       )
     } else {

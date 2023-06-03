@@ -142,10 +142,24 @@ function canShowCollapseButton() {
     </div>
     <div
       v-show="showWalletButton"
-      class="relative h-full bg-white-300 dark:bg-black-300"
-      style="z-index: 999999999"
+      class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300"
+      style="z-index: 999"
+      :class="{
+        'notification-animation': requestStore.areRequestsPendingForApproval,
+      }"
     >
-      <WalletButton />
+      <WalletButton class="relative z-1" />
+      <span
+        v-if="requestStore.areRequestsPendingForApproval"
+        class="absolute -top-[15vh] right-[20vh] flex h-3 w-3"
+      >
+        <span
+          class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75 duration-[4s]"
+        ></span>
+        <span
+          class="relative inline-flex rounded-full h-3 w-3 bg-red-600"
+        ></span>
+      </span>
     </div>
   </div>
   <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
@@ -226,21 +240,52 @@ body {
 
 .Vue-Toastification__toast {
   min-height: unset !important;
-  padding: 0.5rem 1rem !important;
+  padding: 1rem !important;
   font-family: Onest, sans-serif !important;
 }
 
 .Vue-Toastification__icon {
-  width: 12px !important;
+  width: 14px !important;
   margin-right: 8px !important;
 }
 
 .Vue-Toastification__toast-body {
-  font-size: 12px !important;
+  font-size: 14px !important;
   line-height: 1.5 !important;
 }
 
 .Vue-Toastification__progress-bar {
   height: 2px !important;
+}
+
+.notification-animation {
+  animation: notification 2s infinite;
+}
+
+@keyframes notification {
+  0% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
+
+  20% {
+    height: 85vh;
+    margin-top: 15vh;
+  }
+
+  30% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
+
+  40% {
+    height: 85vh;
+    margin-top: 15vh;
+  }
+
+  100% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
 }
 </style>

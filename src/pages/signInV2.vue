@@ -26,6 +26,10 @@ const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
 initStorage()
 
+enum BearerAuthentication {
+  firebase = 'firebase',
+}
+
 const {
   params: {
     value: { appId },
@@ -112,6 +116,7 @@ const penpalMethods = {
     availableLogins.value.includes(kind),
   getPublicKey: handleGetPublicKey,
   getAvailableLogins: () => [...availableLogins.value],
+  triggerBearerLogin: handleBearerLoginRequest,
 }
 
 const cleanup = () => {
@@ -126,7 +131,11 @@ onUnmounted(cleanup)
 let authProvider: AuthProvider | null = null
 
 async function fetchAvailableLogins(authProvider: AuthProvider) {
-  return await authProvider.getAvailableLogins()
+  return (await authProvider.getAvailableLogins()).filter(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    (item) => item !== 'firebase'
+  )
 }
 
 async function storeUserInfoAndRedirect(
@@ -290,6 +299,52 @@ async function init() {
 async function handleGetPublicKey(id, verifier) {
   const authProvider = await getAuthProvider(app.id)
   return await authProvider.getPublicKey({ id, verifier })
+}
+
+async function handleBearerLoginRequest(
+  type: BearerAuthentication,
+  _data: unknown
+) {
+  // Intentionally doing this to get the KeyReconstructor out of Auth SDK (which we shouldn't expose to external users)
+  // but would be OK to use internally
+  const ap = await getAuthProvider(app.id)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await ap.initKeyReconstructor()
+  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ap.keyReconstructor
+
+  switch (type) {
+    case BearerAuthentication.firebase: {
+      const data = _data as {
+        uid: string
+        token: string
+      }
+
+      const info = await kr.getPrivateKey({
+        verifier: BearerAuthentication.firebase,
+        id: data.uid,
+        idToken: data.token,
+      })
+
+      // TODO
+      const userInfo = {
+        loginType: 'firebase',
+        hasMfa: false,
+        privateKey: info.privateKey as string,
+        pk: info.privateKey as string,
+        userInfo: {
+          id: data.uid,
+        },
+      }
+      await storeUserInfoAndRedirect(userInfo)
+
+      return true
+    }
+    default:
+      return false
+  }
 }
 </script>
 

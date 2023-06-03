@@ -17,9 +17,11 @@ function handleCollapse() {
 </script>
 
 <template>
-  <div class="fixed flex justify-center items-center inset-0 z-50 p-3 overlay">
+  <div
+    class="fixed flex justify-center items-center inset-0 z-50 p-3 overlay isolate"
+  >
     <div
-      class="card max-h-[90%] absolute flex flex-col pt-2 w-full rounded-b-none"
+      class="card max-h-[90%] absolute flex flex-col pt-2 w-full rounded-b-none z-20"
       :class="{ collapse: canModalCollapse }"
     >
       <div class="flex justify-center">
@@ -33,6 +35,7 @@ function handleCollapse() {
         class="p-4 overflow-y-auto"
       ></div>
     </div>
+    <div class="absolute inset-0 z-10" @click="handleCollapse"></div>
   </div>
 </template>
 
