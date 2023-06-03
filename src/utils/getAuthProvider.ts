@@ -10,7 +10,7 @@ let authProvider: AuthProvider | null = null
 
 export async function getAuthProvider(
   appId: string,
-  shouldVerifyState = true
+  shouldVerifyState = false
 ): Promise<AuthProvider> {
   if (!authProvider) {
     authProvider = await AuthProvider.init({

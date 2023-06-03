@@ -67,8 +67,13 @@ async function watchRequestQueue(keeper) {
         ) {
           connectionInstance.closePopup()
         } else if (pendingRequestCount === 0 && method && PERMISSIONS[method]) {
-          appStore.expandWallet = false
-          appStore.compactMode = false
+          if (appStore.standaloneMode == 1) {
+            appStore.expandWallet = true
+            appStore.compactMode = false
+          } else {
+            appStore.expandWallet = false
+            appStore.compactMode = false
+          }
         }
       }
     },

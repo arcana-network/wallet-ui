@@ -13,11 +13,13 @@ const SOCIAL_TIMEOUT = 5000 // 5s timeout
 const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
 
 const LOGIN_INFO = 'LOGIN_INFO'
+const LOGIN_INFO_ACK = 'LOGIN_INFO_ACK'
 const LOGIN_VERIFY = 'LOGIN_VERIFY'
 const LOGIN_VERIFY_ACK = 'LOGIN_VERIFY_ACK'
 const LOGIN_INIT = 'LOGIN_INIT'
 const LOGIN_INIT_ACK = 'LOGIN_INIT_ACK'
-const LOGIN_INFO_ACK = 'LOGIN_INFO_ACK'
+const LOGIN_PWDL_INQ = 'LOGIN_PWDL_INQ'
+const LOGIN_PWDL_INQ_RES = 'LOGIN_PWDL_INQ_RES'
 const MFA_SETUP = 'MFA_SETUP'
 const MFA_SETUP_ACK = 'MFA_SETUP_ACK'
 const ACK = [LOGIN_INFO_ACK, MFA_SETUP_ACK]
@@ -44,6 +46,64 @@ function contactUsingBroadcastChannel(
       }
     )
     channel.postMessage({ status: 'LOGIN_INFO', info, messageId })
+  })
+}
+
+function fetchPasswordlessResponseFromSignIn({
+  sessionId,
+  setToken,
+}: {
+  sessionId: string
+  setToken: string
+}) {
+  return new Promise((resolve, reject) => {
+    const state = `passwordless-${sessionId}-${setToken}`
+    setTimeout(() => {
+      return reject('request timed out')
+    }, SOCIAL_TIMEOUT)
+
+    const listener = (
+      ev: MessageEvent<{
+        status: string
+        error: string | null
+        success: boolean
+      }>
+    ) => {
+      console.log({ ev: ev.data })
+      if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
+        return
+      }
+
+      if (ev.data?.status === LOGIN_PWDL_INQ_RES) {
+        window.removeEventListener('message', listener)
+        const { error = null, success = false } = ev.data
+        if (success) {
+          return resolve('ok')
+        } else {
+          return reject(error)
+        }
+      }
+    }
+    try {
+      const frameLength = window.parent.opener.frames.length
+      window.addEventListener('message', listener)
+      for (let i = 0; i < frameLength; i++) {
+        try {
+          window.parent.opener.frames[i].postMessage(
+            {
+              status: LOGIN_PWDL_INQ,
+              state,
+            },
+            process.env.VUE_APP_WALLET_DOMAIN
+          )
+        } catch (e) {
+          // Intentionally ignoring errors
+          continue
+        }
+      }
+    } catch (e) {
+      reject(new Error('Could not contact parent page, login did not succeed'))
+    }
   })
 }
 
@@ -183,18 +243,11 @@ function contactParentPage(
 
 async function handlePasswordlessLoginV2(
   info: GetInfoOutput & { hasMfa?: boolean; pk?: string },
+  state: string,
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
-  const storage = getStorage()
-  const params = storage.local.getItem('CURRENT_LOGIN_INFO')
-  if (!params) {
-    console.log('params not found in local storage')
-    throw new Error('No passwordless login init')
-  }
-  storage.local.removeItem('CURRENT_LOGIN_INFO')
-  const data = JSON.parse(params)
-
-  const publicKey = await getCredentialKey(data.sessionId)
+  const [, sessionId, setToken] = state.split('-')
+  const publicKey = await getCredentialKey(sessionId)
   const dataToEncrypt = {
     privateKey: info.privateKey,
     pk: info.pk,
@@ -203,25 +256,21 @@ async function handlePasswordlessLoginV2(
   if (info.hasMfa) {
     ciphertext = `${ciphertext}:has-mfa`
   }
-  await setCredential(data.setToken, data.sessionId, ciphertext)
+  await setCredential(setToken, sessionId, ciphertext)
   connection.replyTo()
 }
 
 async function handleSocialLogin(
   info: GetInfoOutput,
   messageId: number,
-  parentAppUrl: string,
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
   try {
     await contactParentPage(info, messageId, LOGIN_INFO)
-    connection.replyTo(parentAppUrl)
+    connection.replyTo()
   } catch (e) {
     console.log('A very unexpected error occurred', e)
-    connection.error(
-      'Could not login, an unexpected error occurred',
-      parentAppUrl
-    )
+    connection.error('Could not login, an unexpected error occurred')
   }
 }
 
@@ -263,6 +312,7 @@ export {
   handlePasswordlessLoginV2,
   handleSocialLogin,
   catchupSigninPage,
+  fetchPasswordlessResponseFromSignIn,
   contactParentPage,
   getStateFromUrl,
   verifyOpenerPage,

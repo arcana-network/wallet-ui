@@ -13,6 +13,7 @@ import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { decodeJSON } from '@/utils/hash'
 import { PasswordlessLoginHandler } from '@/utils/PasswordlessLoginHandler'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
@@ -29,27 +30,54 @@ const {
   params: {
     value: { appId },
   },
+  hash,
 } = toRefs(route)
 
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
+
+const parseHashAndSetSettings = () => {
+  if (hash.value) {
+    const settings = decodeJSON(hash.value.substring(1))
+    if (settings.standaloneMode) {
+      app.setStandalone(settings.standaloneMode)
+    }
+    if (settings.theme) {
+      app.setTheme(settings.theme)
+    }
+    if (settings.position) {
+      app.setWalletPosition(settings.position)
+    }
+  }
+}
+
+const LoginState = {
+  passwordless: {
+    success: false,
+    error: '',
+  },
+  social: '',
+}
 
 const initPasswordlessLogin = async (email: string) => {
   if (passwordlessLoginHandler) {
     passwordlessLoginHandler.cancel()
   }
   const provider = await getAuthProvider(appId as string)
-  const resp = await provider.loginWithOtp(email, {
-    withUI: false,
-  })
-  // if (resp && resp['success']) {
-
-  // } else if (resp && resp['error']) {
-
-  // }
 
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
+  const state = `passwordless-${params.sessionId}-${params.setToken}`
+  const response = await provider.loginWithPasswordlessStart({
+    email,
+    kind: 'link',
+    state,
+  })
+  LoginState.passwordless.success = response.success
+  if (!response.success) {
+    LoginState.passwordless.error = response.error ?? "Couldn't start login"
+    throw new Error(response.error)
+  }
   passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa, pk }) => {
     storeUserInfoAndRedirect({
       loginType: SocialLoginType.passwordless,
@@ -66,12 +94,11 @@ const initPasswordlessLogin = async (email: string) => {
   })
   return params
 }
-let currentLogin = ''
 
 const initSocialLogin = async (type: SocialLogins): Promise<string> => {
   const val = await authProvider?.loginWithSocial(type)
   if (val) {
-    currentLogin = val.state
+    LoginState.social = val.state
     return val.url
   }
   throw new Error("Couldn't get login url")
@@ -166,24 +193,33 @@ const windowEventHandler = (
       break
     }
     case 'LOGIN_VERIFY': {
-      console.log({ currentLogin, state: ev.data?.state })
       ev.source?.postMessage(
         {
           status: 'LOGIN_VERIFY_ACK',
-          verified: currentLogin === ev.data?.state,
+          verified: LoginState.social === ev.data?.state,
         }, // maybe send public key here
         { targetOrigin: ev.origin }
       )
       break
     }
     case 'LOGIN_INIT': {
-      console.log({ currentLogin, state: ev.data?.state })
       if (ev.data.state) {
-        currentLogin = ev.data.state
+        LoginState.social = ev.data.state
       }
       ev.source?.postMessage(
         {
           status: 'LOGIN_INIT_ACK',
+        }, // maybe send public key here
+        { targetOrigin: ev.origin }
+      )
+      break
+    }
+    case 'LOGIN_PWDL_INQ': {
+      ev.source?.postMessage(
+        {
+          status: 'LOGIN_PWDL_INQ_RES',
+          error: LoginState.passwordless.error,
+          success: LoginState.passwordless.success,
         }, // maybe send public key here
         { targetOrigin: ev.origin }
       )
@@ -196,6 +232,8 @@ async function init() {
   isLoading.value = true
   try {
     const storage = getStorage()
+
+    parseHashAndSetSettings()
 
     // window listener
     window.addEventListener('message', windowEventHandler)

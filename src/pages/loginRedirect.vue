@@ -28,23 +28,14 @@ let channel: BroadcastChannel | null = null
 onMounted(init)
 onUnmounted(cleanup)
 
-const isV3 = (s: string) => {
-  return s.length > 10
-}
-
 const getLoginTypeFromState = (s: string) => {
   return s.split('-')[0]
 }
 async function init() {
   const storage = getStorage()
-  const parentAppUrl = storage.local.getItem('parentAppUrl')
   const loginSrc = storage.local.getItem('loginSrc')
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
-  // TODO: Fix this V, throw error n stuff
-  if (!parentAppUrl) {
-    return
-  }
   try {
     const state = getStateFromUrl(route.fullPath)
     const connectionToParent =
@@ -55,7 +46,7 @@ async function init() {
     ) {
       await verifyOpenerPage(state)
     }
-    const authProvider = await getAuthProvider(`${appId}`, !isV3(state))
+    const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
@@ -92,32 +83,26 @@ async function init() {
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
       if (info.loginType === SocialLoginType.passwordless) {
-        await handlePasswordlessLoginV2(userInfo, connectionToParent).catch(
-          async () => {
-            channel = new BroadcastChannel(`${appId}_login_notification`)
-            await handlePasswordlessLogin(
-              userInfo,
-              messageId,
-              parentAppUrl,
-              connectionToParent,
-              channel
-            )
+        await handlePasswordlessLoginV2(
+          userInfo,
+          state,
+          connectionToParent
+        ).catch(async (e) => {
+          if (e instanceof Error) {
+            reportError(e.message)
+            return
           }
-        )
+          reportError(e)
+        })
       } else {
         if (isStandalone) {
           await connectionToParent.goToWallet()
           return
         }
-        await handleSocialLogin(
-          userInfo,
-          messageId,
-          parentAppUrl,
-          connectionToParent
-        )
+        await handleSocialLogin(userInfo, messageId, connectionToParent)
       }
     } else {
-      await reportError('Could not login, please try again', parentAppUrl)
+      await reportError('Could not login, please try again')
       return
     }
   } catch (e) {
@@ -133,11 +118,11 @@ function cleanup() {
     channel.close()
   }
 }
-async function reportError(errorMessage: string, parentUrl: string) {
+async function reportError(errorMessage: string) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
-  await connectionToParent.error(errorMessage, parentUrl)
+  await connectionToParent.error(errorMessage)
   return
 }
 </script>
