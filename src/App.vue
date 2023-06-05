@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { toRefs, watch, computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -48,6 +48,9 @@ onBeforeMount(async () => {
 })
 
 async function setIframeStyle() {
+  if (app.validAppMode === AppMode.NoUI) {
+    return
+  }
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
@@ -57,7 +60,7 @@ async function setIframeStyle() {
 
 watch(showWallet, async (newValue) => {
   if (newValue) app.expandWallet = false
-  setIframeStyle()
+  await setIframeStyle()
 })
 
 watch(expandWallet, setIframeStyle)
