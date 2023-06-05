@@ -29,7 +29,7 @@ type ActivityView = Activity & {
 }
 
 const parentConnectionStore = useParentConnectionStore()
-const handleExplorerClick = async (e: PointerEvent) => {
+const handleExplorerClick = async (e: MouseEvent) => {
   if (app.standaloneMode == 2) {
     const c = await parentConnectionStore.parentConnection?.promise
     if (e.target instanceof HTMLAnchorElement) {
