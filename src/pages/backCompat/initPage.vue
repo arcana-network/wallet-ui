@@ -11,6 +11,10 @@ import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
 import emailScheme from '@/utils/emailScheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import {
+  catchupSigninPage,
+  fetchPasswordlessResponseFromSignIn,
+} from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
@@ -32,6 +36,8 @@ const penpalMethods = {
   triggerPasswordlessLogin: (email: string) =>
     handlePasswordlessLoginRequest(email),
 }
+
+// let loginSrc = ''
 
 onMounted(init)
 
@@ -67,18 +73,24 @@ async function init() {
 
 async function handleSocialLoginRequest(type: SocialLoginType) {
   if (authProvider) {
-    return await user.handleSocialLogin(authProvider, type)
+    const { url, state } = await user.handleSocialLogin(authProvider, type)
+    await catchupSigninPage(state)
+    return url
   }
 }
 
 async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    const authProvider = await getAuthProvider(app.id)
-    return await user.handlePasswordlessLogin(authProvider, email, {
-      withUI: true,
-    })
+    const connection = await parentConnection?.promise
+    const params = await connection?.getPasswordlessParams()
+    if (!params) {
+      throw new Error('No params found')
+    }
+    return await fetchPasswordlessResponseFromSignIn(params)
   }
 }
 </script>
-<template><div></div></template>
+<template>
+  <div></div>
+</template>
