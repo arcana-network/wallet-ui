@@ -147,7 +147,7 @@ async function initAccountHandler() {
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
-        setAppMode(walletType, parentConnectionInstance)
+        await setAppMode(walletType, parentConnectionInstance)
       }
     }
   } catch (err) {
