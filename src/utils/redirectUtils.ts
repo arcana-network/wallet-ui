@@ -49,7 +49,7 @@ const interactWithIframe = <T>(
           return
         }
 
-        if (input.expectedResponseStatus.includes(ev.data?.status)) {
+        if (input.expectedResponseStatus.includes(ev.data.status)) {
           window.removeEventListener('message', listener)
           resolve(ev.data)
         }
