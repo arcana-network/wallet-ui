@@ -74,7 +74,7 @@ function truncateAddress(address: string) {
       <div class="flex flex-col gap-1">
         <div class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Quantity</span>
-          <span class="text-base">10</span>
+          <span class="text-base">{{ props.previewData.quantity || 1 }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
