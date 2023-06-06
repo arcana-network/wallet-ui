@@ -146,17 +146,6 @@ function canShowCollapseButton() {
       }"
     >
       <WalletButton class="relative z-1" />
-      <span
-        v-if="requestStore.areRequestsPendingForApproval"
-        class="absolute -top-[15vh] right-[20vh] flex h-3 w-3"
-      >
-        <span
-          class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75 duration-[4s]"
-        ></span>
-        <span
-          class="relative inline-flex rounded-full h-3 w-3 bg-red-600"
-        ></span>
-      </span>
     </div>
   </div>
   <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
