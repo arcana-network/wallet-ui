@@ -12,11 +12,7 @@ import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecovery
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useModalStore } from '@/store/modal'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
-import {
-  handlePasswordlessLogin,
-  handlePasswordlessLoginV2,
-  handleSocialLogin,
-} from '@/utils/redirectUtils'
+import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const modalStore = useModalStore()
@@ -132,33 +128,28 @@ async function returnToParent(key: string) {
     {}
   ).promise
   const info = JSON.parse(storage.session.getItem('info') as string)
-  const parentAppUrl = storage.local.getItem('parentAppUrl') as string
+  const state = storage.local.getItem('state') as string
   const loginSrc = storage.local.getItem('loginSrc')
+  const isStandalone =
+    loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   storage.local.setItem(`${info.userInfo.id}-has-mfa`, '1')
   info.privateKey = key
   info.hasMfa = true
   storage.local.removeItem('pk')
   const messageId = getUniqueId()
-  if (info.loginType === 'passwordless') {
-    await handlePasswordlessLoginV2(info, connectionToParent).catch(
-      async () => {
-        channel = new BroadcastChannel(`${appId}_login_notification`)
-        await handlePasswordlessLogin(
-          info,
-          messageId,
-          parentAppUrl,
-          connectionToParent,
-          channel
-        )
-      }
-    )
-  } else {
-    if (loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity') {
-      await connectionToParent.goToWallet()
+  await handleLogin({
+    state,
+    isStandalone,
+    userInfo: info,
+    messageId,
+    connection: connectionToParent,
+  }).catch(async (e) => {
+    if (e instanceof Error) {
+      reportError(e.message)
       return
     }
-    await handleSocialLogin(info, messageId, parentAppUrl, connectionToParent)
-  }
+    reportError(e)
+  })
 }
 
 onUnmounted(() => {

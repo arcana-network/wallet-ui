@@ -12,9 +12,7 @@ import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   getStateFromUrl,
-  handlePasswordlessLogin,
-  handlePasswordlessLoginV2,
-  handleSocialLogin,
+  handleLogin,
   verifyOpenerPage,
 } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -34,10 +32,12 @@ const getLoginTypeFromState = (s: string) => {
 async function init() {
   const storage = getStorage()
   const loginSrc = storage.local.getItem('loginSrc')
+
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   try {
     const state = getStateFromUrl(route.fullPath)
+    storage.session.setItem('state', state)
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
     if (
@@ -82,34 +82,26 @@ async function init() {
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
-      if (info.loginType === SocialLoginType.passwordless) {
-        await handlePasswordlessLoginV2(
-          userInfo,
-          state,
-          connectionToParent
-        ).catch(async (e) => {
-          if (e instanceof Error) {
-            reportError(e.message)
-            return
-          }
-          reportError(e)
-        })
-      } else {
-        if (isStandalone) {
-          await connectionToParent.goToWallet()
-          return
-        }
-        await handleSocialLogin(userInfo, messageId, connectionToParent)
-      }
+      await handleLogin({
+        connection: connectionToParent,
+        userInfo,
+        state,
+        messageId,
+        isStandalone,
+      })
+      storage.local.removeItem('loginSrc')
+      storage.session.removeItem('state')
     } else {
+      storage.local.removeItem('loginSrc')
       await reportError('Could not login, please try again')
       return
     }
   } catch (e) {
-    console.log({ e })
     if (e instanceof Error) {
-      // await reportError(e.message, parentAppUrl)
+      await reportError(e.message)
     }
+    await reportError(e as string)
+    storage.local.removeItem('loginSrc')
   }
 }
 
