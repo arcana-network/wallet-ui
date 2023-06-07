@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
@@ -134,7 +135,9 @@ function handleSetGasPrice(value) {
         </button>
       </div>
       <div
-        v-if="route.name === 'requests'"
+        v-if="
+          route.name === 'requests' && appStore.validAppMode === AppMode.Full
+        "
         class="flex items-center justify-center"
       >
         <button
