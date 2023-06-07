@@ -64,8 +64,15 @@ function handleEditToken(nft: NFT) {
 
 watch(
   () => modalStore.show,
-  () => {
-    if (!modalStore.show) showModal.value = false
+  async () => {
+    if (!modalStore.show) {
+      showModal.value = false
+      loader.show = true
+      loader.message = 'Loading NFTs...'
+      nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+      nfts.value = nftDB.getNFTs(Number(rpcStore.selectedChainId))
+      loader.show = false
+    }
   }
 )
 

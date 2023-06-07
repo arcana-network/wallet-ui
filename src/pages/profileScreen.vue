@@ -179,7 +179,7 @@ watch(
     <div class="flex justify-center align-center">
       <span class="text-lg font-bold">Profile</span>
     </div>
-    <div class="card p-4 flex flex-col gap-4">
+    <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
         <span class="text-sm text-gray-100">Name</span>
         <span class="text-lg font-bold">
@@ -241,7 +241,7 @@ watch(
       </div>
       <div class="flex">
         <button
-          class="flex flex-grow justify-center items-center btn-secondary p-3 font-bold text-sm uppercase"
+          class="flex flex-grow justify-center items-center btn-secondary p-2 font-bold text-sm uppercase"
           @click="handleLogout"
         >
           Logout

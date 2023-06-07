@@ -26,6 +26,7 @@ type AppState = {
   appLogo: AppLogo
   compactMode: boolean
   sdkVersion: SDKVersion | null
+  expandedByRequest: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -40,6 +41,7 @@ export const useAppStore = defineStore('app', {
       walletPosition: 'right',
       compactMode: false,
       sdkVersion: null,
+      expandedByRequest: false,
     } as AppState),
   getters: {
     iframeStyle: ({
@@ -58,8 +60,8 @@ export const useAppStore = defineStore('app', {
             ? compactMode
               ? requestStore.pendingRequest?.request.method ===
                 'eth_sendTransaction'
-                ? '300px'
-                : '260px'
+                ? '328px'
+                : '288px'
               : '80vh'
             : '40px'
           : '0'

@@ -215,6 +215,7 @@ async function handleShowPreview() {
         nftContractAddress: props.address,
         tokenId: props.tokenId,
         imageUrl: props.imageUrl,
+        quantity,
       }"
       @close="showPreview = false"
       @submit="handleSendToken"
