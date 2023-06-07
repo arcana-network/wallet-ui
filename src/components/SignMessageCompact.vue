@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { useRoute } from 'vue-router'
 
 import type { Request } from '@/models/Connection'
@@ -74,7 +75,9 @@ function getPermissionText(method, request) {
         </button>
       </div>
       <div
-        v-if="route.name === 'requests'"
+        v-if="
+          route.name === 'requests' && appStore.validAppMode === AppMode.Full
+        "
         class="flex items-center justify-center"
       >
         <button

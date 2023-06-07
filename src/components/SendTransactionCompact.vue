@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-import DateTime from '@/components/DateTime.vue'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -90,7 +90,9 @@ function getGasPriceInfo() {
         </button>
       </div>
       <div
-        v-if="route.name === 'requests'"
+        v-if="
+          route.name === 'requests' && appStore.validAppMode === AppMode.Full
+        "
         class="flex items-center justify-center"
       >
         <button
