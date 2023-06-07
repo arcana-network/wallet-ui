@@ -136,6 +136,9 @@ async function returnToParent(key: string) {
   info.privateKey = key
   info.hasMfa = true
   storage.local.removeItem('pk')
+  storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
+  storage.session.setItem(`userInfo`, JSON.stringify(info))
+
   const messageId = getUniqueId()
   await handleLogin({
     state,
@@ -149,6 +152,7 @@ async function returnToParent(key: string) {
       return
     }
     reportError(e)
+    storage.local.removeItem('loginSrc')
   })
 }
 
