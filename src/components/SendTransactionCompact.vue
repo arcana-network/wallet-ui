@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import DateTime from '@/components/DateTime.vue'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { GAS_FEE_UNIT, GAS_PRICE_SPEED_MAP } from '@/utils/constants'
 
@@ -14,6 +16,8 @@ const appStore = useAppStore()
 const parentConnectionStore = useParentConnectionStore()
 const gasFee = ref(0)
 const transactionTime = ref(null)
+const requestStore = useRequestStore()
+const route = useRoute()
 
 const props = defineProps({
   request: {
@@ -37,7 +41,6 @@ async function setHeight() {
     ?.promise
   await parentConnectionInstance?.setIframeStyle({
     ...appStore.iframeStyle(),
-    height: '300px',
   })
 }
 
@@ -71,19 +74,32 @@ function getGasPriceInfo() {
         </div>
       </div>
     </div>
-    <div class="flex gap-2 text-sm font-bold">
-      <button
-        class="uppercase w-full btn-secondary p-2"
-        @click="emits('reject')"
+    <div class="flex flex-col gap-4">
+      <div class="flex gap-2 text-sm font-bold">
+        <button
+          class="uppercase w-full btn-secondary p-2"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="uppercase w-full btn-primary p-2"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="route.name === 'requests'"
+        class="flex items-center justify-center"
       >
-        Reject
-      </button>
-      <button
-        class="uppercase w-full btn-primary p-2"
-        @click="emits('approve')"
-      >
-        Approve
-      </button>
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
     </div>
   </div>
 </template>

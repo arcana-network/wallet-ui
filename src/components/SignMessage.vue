@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageCompact from '@/components/SignMessageCompact.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
 
 const appStore = useAppStore()
-const rpcStore = useRpcStore()
-
-const { selectedRpcConfig } = storeToRefs(rpcStore)
+const requestStore = useRequestStore()
+const route = useRoute()
 
 defineProps({
   request: {
@@ -59,20 +59,41 @@ function getTitle(requestMethod: string) {
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
       />
+      <div class="flex justify-center mt-4">
+        <div
+          class="flex bg-gray-300 rounded-sm p-2 text-xs gap-1 text-gray-100"
+        >
+          <img src="@/assets/images/info-circle.svg" />
+          <span>You're not going to be charged</span>
+        </div>
+      </div>
     </div>
-    <div class="mt-auto flex gap-2">
-      <button
-        class="btn-secondary p-2 uppercase w-full text-sm font-bold"
-        @click="emits('reject')"
+    <div class="mt-auto flex flex-col gap-4">
+      <div class="flex gap-2">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="route.name === 'requests'"
+        class="flex items-center justify-center"
       >
-        Reject
-      </button>
-      <button
-        class="btn-primary p-2 uppercase w-full text-sm font-bold"
-        @click="emits('approve')"
-      >
-        Approve
-      </button>
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
     </div>
   </div>
 </template>

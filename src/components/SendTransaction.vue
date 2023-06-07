@@ -2,6 +2,7 @@
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
@@ -12,6 +13,7 @@ import {
   GAS_AVAILABLE_CHAIN_IDS,
 } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -32,6 +34,8 @@ const appStore = useAppStore()
 const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
+const requestStore = useRequestStore()
+const route = useRoute()
 
 const gasPrices: Ref<object> = ref({})
 
@@ -82,7 +86,7 @@ function handleSetGasPrice(value) {
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center flex-1">
+  <div v-if="loader.show" class="flex justify-center items-center flex-1 p-4">
     <AppLoader :message="loader.message" />
   </div>
   <SendTransactionCompact
@@ -114,19 +118,32 @@ function handleSetGasPrice(value) {
       :base-fee="baseFee"
       @gas-price-input="handleSetGasPrice"
     />
-    <div class="mt-auto flex gap-2">
-      <button
-        class="btn-secondary p-2 uppercase w-full text-sm font-bold"
-        @click="emits('reject')"
+    <div class="mt-auto flex flex-col gap-4">
+      <div class="flex gap-2">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="route.name === 'requests'"
+        class="flex items-center justify-center"
       >
-        Reject
-      </button>
-      <button
-        class="btn-primary p-2 uppercase w-full text-sm font-bold"
-        @click="emits('approve')"
-      >
-        Approve
-      </button>
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
     </div>
   </div>
 </template>

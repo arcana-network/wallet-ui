@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { methodAndAction } from '@/utils/method'
 
 defineProps({
@@ -13,6 +16,8 @@ defineProps({
 const emits = defineEmits(['reject', 'approve'])
 
 const appStore = useAppStore()
+const route = useRoute()
+const requestStore = useRequestStore()
 
 const stateChangeRequests = [
   methodAndAction.wallet_addEthereumChain,
@@ -53,19 +58,32 @@ function getPermissionText(method, request) {
         {{ getPermissionText(request.request.method, request.request) }}
       </p>
     </div>
-    <div class="flex justify-end gap-4 text-sm font-bold">
-      <button
-        class="uppercase btn-secondary w-full p-2"
-        @click="emits('reject')"
+    <div class="flex flex-col gap-4">
+      <div class="flex justify-end gap-4 text-sm font-bold">
+        <button
+          class="uppercase btn-secondary w-full p-2"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="uppercase btn-primary w-full p-2"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="route.name === 'requests'"
+        class="flex items-center justify-center"
       >
-        Reject
-      </button>
-      <button
-        class="uppercase btn-primary w-full p-2"
-        @click="emits('approve')"
-      >
-        Approve
-      </button>
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
     </div>
   </div>
 </template>
