@@ -56,24 +56,24 @@ async function handleProceed() {
         toast.error('Error occured while setting up MFA. Please try again')
         console.log('Unexpected event')
       }
-      window.addEventListener('message', handler, false)
-      loader.value = {
-        show: true,
-        message: 'Setting up MFA...',
-      }
-
-      const id = window.setInterval(() => {
-        if (!cleanExit && mfaWindow?.closed) {
-          console.error('User closed the popup')
-          window.removeEventListener('message', handler, false)
-          hideLoader()
-          clearInterval(id)
-        }
-      }, 500)
     }
+    window.addEventListener('message', handler, false)
+    loader.value = {
+      show: true,
+      message: 'Setting up MFA...',
+    }
+
+    const id = window.setInterval(() => {
+      if (!cleanExit && mfaWindow?.closed) {
+        console.error('User closed the popup')
+        window.removeEventListener('message', handler, false)
+        hideLoader()
+        clearInterval(id)
+      }
+    }, 500)
   } else {
     const c = await useParentConnectionStore().parentConnection?.promise
-    c?.uiEvent('mfa-setup', {})
+    c?.uiEvent('mfa_setup', {})
   }
 }
 
