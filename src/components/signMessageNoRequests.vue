@@ -1,19 +1,8 @@
-<script setup lang="ts">
-import { getIconAsset } from '@/utils/useImage'
-</script>
-
 <template>
   <div
     class="no-requests__container flex-1 flex flex-col content-center justify-center h-full"
   >
-    <img
-      :src="getIconAsset('no-pending-requests.svg')"
-      alt="Tick Icon"
-      class="w-20 h-20 mx-auto mb-5"
-    />
-    <p class="no-requests__text font-semibold text-center">
-      No Pending Requests!
-    </p>
+    <p class="no-requests__text font-semibold text-center"></p>
   </div>
 </template>
 
