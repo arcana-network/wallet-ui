@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { toRefs, watch, computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -48,6 +48,9 @@ onBeforeMount(async () => {
 })
 
 async function setIframeStyle() {
+  if (app.validAppMode === AppMode.NoUI) {
+    return
+  }
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
@@ -57,7 +60,7 @@ async function setIframeStyle() {
 
 watch(showWallet, async (newValue) => {
   if (newValue) app.expandWallet = false
-  setIframeStyle()
+  await setIframeStyle()
 })
 
 watch(expandWallet, setIframeStyle)
@@ -149,17 +152,6 @@ function canShowCollapseButton() {
       }"
     >
       <WalletButton class="relative z-1" />
-      <span
-        v-if="requestStore.areRequestsPendingForApproval"
-        class="absolute -top-[15vh] right-[20vh] flex h-3 w-3"
-      >
-        <span
-          class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-300 opacity-75 duration-[4s]"
-        ></span>
-        <span
-          class="relative inline-flex rounded-full h-3 w-3 bg-red-600"
-        ></span>
-      </span>
     </div>
   </div>
   <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
