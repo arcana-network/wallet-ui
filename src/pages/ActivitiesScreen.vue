@@ -4,9 +4,11 @@ import type { Ref } from 'vue'
 import { ref, onMounted, computed, type ComputedRef } from 'vue'
 
 import ActivityView from '@/components/ActivityView.vue'
+import SkippedRequestView from '@/components/SkippedRequestView.vue'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useActivitiesStore, type Activity } from '@/store/activities'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 
 const filters = [
@@ -35,6 +37,7 @@ onMounted(() => {
 })
 
 const rpcStore = useRpcStore()
+const requestStore = useRequestStore()
 
 const showFilter = ref(false)
 const selectedFilter = ref(filters[0].value)
@@ -73,6 +76,17 @@ async function getCurrencyExchangeRate() {
   <div class="flex flex-col gap-5" @click="showFilter = false">
     <div class="flex justify-between relative items-center">
       <h1 class="font-bold text-xl text-center flex-grow">Activities</h1>
+    </div>
+    <div
+      v-if="requestStore.skippedRequestsPendingForApprovalLength"
+      class="flex-1 flex flex-col gap-2"
+    >
+      <span class="text-xs text-gray-100 font-bold"
+        >Pending ({{
+          requestStore.skippedRequestsPendingForApprovalLength
+        }})</span
+      >
+      <SkippedRequestView />
     </div>
     <div class="flex-1 flex flex-col gap-2">
       <span class="text-xs text-gray-100 font-bold"

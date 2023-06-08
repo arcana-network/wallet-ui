@@ -62,18 +62,28 @@ async function watchRequestQueue(keeper) {
         const method = request?.request.method
         if (
           appMode === AppMode.Widget &&
-          pendingRequestCount === 0 &&
+          !pendingRequestCount &&
           appStore.sdkVersion !== 'v3'
         ) {
           connectionInstance.closePopup()
-        } else if (pendingRequestCount === 0 && method && PERMISSIONS[method]) {
+        } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
           if (appStore.standaloneMode == 1) {
             appStore.expandWallet = true
             appStore.compactMode = false
           } else {
-            appStore.expandWallet = false
             appStore.compactMode = false
+            if (appStore.expandedByRequest) {
+              appStore.expandedByRequest = false
+              appStore.expandWallet = false
+            }
           }
+        }
+      }
+      if (!pendingRequestCount) {
+        appStore.compactMode = false
+        if (appStore.expandedByRequest) {
+          appStore.expandedByRequest = false
+          appStore.expandWallet = appStore.standaloneMode !== 0
         }
       }
     },
@@ -457,6 +467,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
+      console.log('appStore.expandWallet', appStore.expandWallet)
+      if (!appStore.expandWallet) {
+        appStore.expandedByRequest = true
+      }
+      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {
