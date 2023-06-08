@@ -32,7 +32,6 @@ const getLoginTypeFromState = (s: string) => {
 async function init() {
   const storage = getStorage()
   const loginSrc = storage.local.getItem('loginSrc')
-
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   try {

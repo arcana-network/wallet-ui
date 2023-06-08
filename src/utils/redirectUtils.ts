@@ -42,6 +42,18 @@ const interactWithIframe = <T>(
     setTimeout(() => {
       return reject('request timed out')
     }, SOCIAL_TIMEOUT)
+    const listener = (
+      ev: MessageEvent<{ status: string; messageId: number }>
+    ) => {
+      if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
+        return
+      }
+
+      if (ACK.includes(ev.data?.status) && ev.data?.messageId == messageId) {
+        window.removeEventListener('message', listener)
+        return resolve('ok')
+      }
+    }
     try {
       const frameLength = window.parent.opener.frames.length
       const listener = (ev: MessageEvent<T & { status: string }>) => {
@@ -220,6 +232,23 @@ const handleLogin = async ({
     }
     await handleSocialLogin(userInfo, messageId, connection)
   }
+}
+
+const getStateFromUrl = (u: string) => {
+  let val = ''
+  console.log({ u })
+  const url = new URL(decodeURIComponent(u), process.env.VUE_APP_WALLET_DOMAIN)
+  console.log({ url })
+  const queryParams = url.searchParams
+  const hashParams = new URLSearchParams(url.hash.substring(1))
+  const key = 'state'
+  val = hashParams.get(key) ?? ''
+  if (!val) {
+    val = queryParams.get(key) ?? ''
+  }
+
+  console.log({ val })
+  return val
 }
 export {
   catchupSigninPage,

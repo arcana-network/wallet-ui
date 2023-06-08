@@ -33,10 +33,6 @@ onMounted(async () => {
   helpOtherTabsLogin()
 })
 
-async function handleRefresh() {
-  refreshState.value = true
-}
-
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
@@ -49,7 +45,7 @@ onBeforeRouteLeave((to) => {
   <div v-else class="h-full">
     <div class="pb-5 flex flex-col gap-3">
       <span class="font-lg font-bold">NFTs</span>
-      <div class="card flex flex-col overflow-hidden">
+      <div class="flex flex-col overflow-hidden">
         <NFTView
           :refresh-state="refreshState"
           @refreshed="refreshState = false"
