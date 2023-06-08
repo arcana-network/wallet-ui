@@ -42,18 +42,6 @@ const interactWithIframe = <T>(
     setTimeout(() => {
       return reject('request timed out')
     }, SOCIAL_TIMEOUT)
-    const listener = (
-      ev: MessageEvent<{ status: string; messageId: number }>
-    ) => {
-      if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
-        return
-      }
-
-      if (ACK.includes(ev.data?.status) && ev.data?.messageId == messageId) {
-        window.removeEventListener('message', listener)
-        return resolve('ok')
-      }
-    }
     try {
       const frameLength = window.parent.opener.frames.length
       const listener = (ev: MessageEvent<T & { status: string }>) => {
