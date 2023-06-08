@@ -96,7 +96,6 @@ async function init() {
       return
     }
   } catch (e) {
-    console.log({ e, type: typeof e })
     if (e instanceof Error) {
       await reportError(e.message)
     }
