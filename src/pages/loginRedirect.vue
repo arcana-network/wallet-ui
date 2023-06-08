@@ -8,7 +8,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   getStateFromUrl,
@@ -53,31 +53,36 @@ async function init() {
         loginType: info.loginType,
         privateKey: '',
       }
-      storage.session.setItem(`info`, JSON.stringify(userInfo))
+      storage.session.setItem('info', JSON.stringify(userInfo))
       const exp = dayjs().add(1, 'day')
       getStorage().local.setItem(
         'pk',
         JSON.stringify({ pk: info.privateKey, exp, id: userInfo.userInfo.id })
       )
-      const core = new Core(
-        info.privateKey,
-        info.userInfo.id,
-        String(appId),
-        GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
-      )
-      await core.init()
-      const key = await core.getKey()
-      userInfo.privateKey = key
-      userInfo.hasMfa =
-        storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
-      userInfo.pk = info.privateKey
-      if (!userInfo.hasMfa) {
-        const securityQuestionModule = new SecurityQuestionModule(3)
-        securityQuestionModule.init(core)
-        const isEnabled = await securityQuestionModule.isEnabled()
-        userInfo.hasMfa = isEnabled
+
+      // TODO find a comprehensive solution to this
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      if (authProvider.appConfig.mfa_enabled !== false) {
+        const core = new Core(
+          info.privateKey,
+          info.userInfo.id,
+          String(appId),
+          GATEWAY_URL,
+          AUTH_NETWORK === 'dev'
+        )
+        await core.init()
+        userInfo.privateKey = await core.getKey()
+        userInfo.hasMfa =
+          storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
+        userInfo.pk = info.privateKey
+        if (!userInfo.hasMfa) {
+          const securityQuestionModule = new SecurityQuestionModule(3)
+          securityQuestionModule.init(core)
+          userInfo.hasMfa = await securityQuestionModule.isEnabled()
+        }
       }
+
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
       storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
       const messageId = getUniqueId()
