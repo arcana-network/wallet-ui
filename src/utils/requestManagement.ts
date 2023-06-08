@@ -67,10 +67,15 @@ async function watchRequestQueue(keeper) {
         ) {
           connectionInstance.closePopup()
         } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
-          appStore.compactMode = false
-          if (appStore.expandedByRequest) {
-            appStore.expandedByRequest = false
-            appStore.expandWallet = false
+          if (appStore.standaloneMode == 1) {
+            appStore.expandWallet = true
+            appStore.compactMode = false
+          } else {
+            appStore.compactMode = false
+            if (appStore.expandedByRequest) {
+              appStore.expandedByRequest = false
+              appStore.expandWallet = false
+            }
           }
         }
       }
@@ -78,7 +83,7 @@ async function watchRequestQueue(keeper) {
         appStore.compactMode = false
         if (appStore.expandedByRequest) {
           appStore.expandedByRequest = false
-          appStore.expandWallet = false
+          appStore.expandWallet = appStore.standaloneMode !== 0
         }
       }
     },

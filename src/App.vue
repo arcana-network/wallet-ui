@@ -92,9 +92,15 @@ const showFooter = computed(() => {
   )
 })
 
-function onClickOfHeader() {
-  if (app.compactMode) app.compactMode = false
-  else app.expandWallet = false
+async function onClickOfHeader() {
+  const c = await parentConnectionStore.parentConnection?.promise
+  if (app.compactMode) {
+    app.compactMode = false
+  } else {
+    app.standaloneMode == 1 || app.standaloneMode == 2
+      ? c?.uiEvent('wallet_close', null)
+      : (app.expandWallet = false)
+  }
 }
 
 function canShowCollapseButton() {

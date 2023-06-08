@@ -97,55 +97,60 @@ function handleShowMFAProceedModal(show: boolean) {
   showMFAProceedModal.value = show
 }
 
-function handleMFASetupClick() {
+async function handleMFASetupClick() {
   cleanExit = false
   const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
-  mfaWindow = window.open(
-    mfaSetupPath.toString(),
-    '_blank',
-    getWindowFeatures()
-  )
+  if (appStore.standaloneMode == 0) {
+    mfaWindow = window.open(
+      mfaSetupPath.toString(),
+      '_blank',
+      getWindowFeatures()
+    )
 
-  const handler = async (event: MessageEvent) => {
-    if (!event?.data?.status) {
-      return
-    }
-    cleanExit = true
-    const data = event.data
+    const handler = async (event: MessageEvent) => {
+      if (!event?.data?.status) {
+        return
+      }
+      cleanExit = true
+      const data = event.data
 
-    if (data.status === 'success') {
-      mfaWindow?.close()
-      getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
-      user.hasMfa = true
-      toast.success('MFA setup completed')
-      window.removeEventListener('message', handler, false)
-      handleShowMFAProceedModal(false)
-      hideLoader()
-    } else if (data.status == 'error') {
-      mfaWindow?.close()
-      window.removeEventListener('message', handler, false)
-      hideLoader()
-      if (data.error !== 'User cancelled the setup') toast.error(data.error)
-    } else {
-      toast.error('Error occured while setting up MFA. Please try again')
-      console.log('Unexpected event')
+      if (data.status === 'success') {
+        mfaWindow?.close()
+        getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
+        user.hasMfa = true
+        toast.success('MFA setup completed')
+        window.removeEventListener('message', handler, false)
+        handleShowMFAProceedModal(false)
+        hideLoader()
+      } else if (data.status == 'error') {
+        mfaWindow?.close()
+        window.removeEventListener('message', handler, false)
+        hideLoader()
+        if (data.error !== 'User cancelled the setup') toast.error(data.error)
+      } else {
+        toast.error('Error occured while setting up MFA. Please try again')
+        console.log('Unexpected event')
+      }
     }
+    window.addEventListener('message', handler, false)
+
+    loader.value = {
+      show: true,
+      message: 'Setting up MFA...',
+    }
+
+    const id = window.setInterval(() => {
+      if (!cleanExit && mfaWindow?.closed) {
+        console.error('User closed the popup')
+        window.removeEventListener('message', handler, false)
+        hideLoader()
+        clearInterval(id)
+      }
+    }, 500)
+  } else {
+    const c = await useParentConnectionStore().parentConnection?.promise
+    c?.uiEvent('mfa_setup', {})
   }
-  window.addEventListener('message', handler, false)
-
-  loader.value = {
-    show: true,
-    message: 'Setting up MFA...',
-  }
-
-  const id = window.setInterval(() => {
-    if (!cleanExit && mfaWindow?.closed) {
-      console.error('User closed the popup')
-      window.removeEventListener('message', handler, false)
-      hideLoader()
-      clearInterval(id)
-    }
-  }, 500)
 }
 
 function hideLoader() {

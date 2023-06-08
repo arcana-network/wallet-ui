@@ -23,6 +23,7 @@ import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import {
   getRequestHandler,
+  requestHandlerExists,
   setRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import {
@@ -123,15 +124,13 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-async function initKeeper() {
-  const accountHandler = new AccountHandler(
-    userStore.privateKey,
-    rpcStore.selectedRpcConfig?.rpcUrls[0]
-  )
-  try {
+function initKeeper() {
+  if (!requestHandlerExists()) {
+    const accountHandler = new AccountHandler(
+      userStore.privateKey,
+      rpcStore.selectedRpcConfig.rpcUrls[0]
+    )
     setRequestHandler(accountHandler)
-  } catch (e) {
-    // Do nothing
   }
 }
 
@@ -251,7 +250,6 @@ async function getRpcConfig() {
       enabledChainList.value[0] // some time, chain list don't have default chain
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
-    await getRequestHandler().setRpcConfig(rpcConfig)
   } catch (err) {
     console.log({ err })
   }

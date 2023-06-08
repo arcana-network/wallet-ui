@@ -5,6 +5,8 @@ import { computed, ComputedRef } from 'vue'
 
 import { useActivitiesStore } from '@/store/activities'
 import type { Activity, TransactionOps, FileOps } from '@/store/activities'
+import { useAppStore } from '@/store/app'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { beautifyBalance } from '@/utils/formatTokenDecimals'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
@@ -15,6 +17,7 @@ type ActivityViewProps = {
   filterOperations: string[]
 }
 
+const app = useAppStore()
 const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
@@ -23,6 +26,17 @@ const chainId = rpcStore.selectedRpcConfig?.chainId
 
 type ActivityView = Activity & {
   isExpanded?: boolean
+}
+
+const parentConnectionStore = useParentConnectionStore()
+const handleExplorerClick = async (e: MouseEvent) => {
+  if (app.standaloneMode == 2) {
+    const c = await parentConnectionStore.parentConnection?.promise
+    if (e.target instanceof HTMLAnchorElement) {
+      c?.uiEvent('open_url', { url: e.target?.href })
+      e.preventDefault()
+    }
+  }
 }
 
 const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
@@ -353,6 +367,7 @@ function canShowDropdown(activity: Activity) {
             :href="`${explorerUrl}/tx/${activity.txHash}`"
             class="flex font-montserrat font-medium text-xs"
             target="_blank"
+            @click="handleExplorerClick"
           >
             View on Explorer
             <img

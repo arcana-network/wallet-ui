@@ -57,9 +57,7 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  await sleep(100)
-  assets.length = 0
-  assets.push(fetchNativeAsset())
+  const assets = [fetchNativeAsset()]
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
     assets.push({

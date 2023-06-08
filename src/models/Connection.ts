@@ -52,7 +52,7 @@ type RedirectParentConnectionApi = {
   redirect(url: string | null): Promise<void>
   replyTo(parentAppUrl?: string | null): Promise<void>
   goToWallet(): Promise<void>
-  error(errorMessage: string, parentAppUrl: string): Promise<void>
+  error(errorMessage: string): Promise<void>
 }
 
 type ParentConnectionApi = {
@@ -65,6 +65,7 @@ type ParentConnectionApi = {
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
   onEvent(event: string, params?: ProviderEvent): void
+  uiEvent(event: string, val: any): void
   getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
@@ -77,6 +78,7 @@ type InitParentConnectionApi = {
   getLoginSource(): string
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
+  uiEvent(event: string, val: any): void
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 

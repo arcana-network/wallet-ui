@@ -41,8 +41,9 @@ export const useUserStore = defineStore('user', {
     async handleSocialLogin(
       authProvider: AuthProvider,
       loginType: LoginType
-    ): Promise<void | string> {
-      return await authProvider.loginWithSocial(loginType)
+    ): Promise<{ url: string; state: string }> {
+      const { url, state } = await authProvider.loginWithSocial(loginType)
+      return { url, state }
     },
 
     async handlePasswordlessLogin(

@@ -15,7 +15,7 @@ class PasswordlessLoginHandler {
     address: string
   }
   constructor(private email: string) {
-    this.sessionId = uuid()
+    this.sessionId = '_' + Math.random().toString(36).substring(2, 11)
     this.key = getRandomPrivateKey()
     this.timer = undefined
   }

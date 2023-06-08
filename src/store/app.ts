@@ -17,6 +17,7 @@ type AppState = {
   id: string
   name: string
   theme: Theme
+  standaloneMode: 0 | 1 | 2
   parentAppUrl: string | null
   validAppMode: AppMode
   showWallet: boolean
@@ -35,6 +36,7 @@ export const useAppStore = defineStore('app', {
       theme: 'light',
       parentAppUrl: null,
       showWallet: false,
+      standaloneMode: 0,
       expandWallet: true,
       walletPosition: 'right',
       compactMode: false,
@@ -97,6 +99,9 @@ export const useAppStore = defineStore('app', {
     },
     setName(name: string): void {
       this.name = name
+    },
+    setStandalone(mode: 0 | 1 | 2): void {
+      this.standaloneMode = mode
     },
     setParentUrl(url: string): void {
       this.parentAppUrl = url
