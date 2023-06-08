@@ -364,8 +364,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
         }
-      } catch (error) {
-        console.error({ error })
+      } catch (err) {
+        console.error({ err })
       }
     }
   } else {
