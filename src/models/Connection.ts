@@ -42,7 +42,7 @@ function requirePermission(
 
 type ProviderEvent =
   | {
-      chainId: number
+      chainId: string | number
     }
   | string[]
   | string

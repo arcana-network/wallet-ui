@@ -74,10 +74,7 @@ onMounted(async () => {
         chainId: selectedChainId,
         ...rpcConfig,
       })
-      const parentConnectionInstance = await parentConnection.promise
-      parentConnectionInstance.onEvent('connect', {
-        chainId: selectedChainId,
-      })
+      await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
