@@ -234,22 +234,6 @@ const handleLogin = async ({
   }
 }
 
-const getStateFromUrl = (u: string) => {
-  let val = ''
-  console.log({ u })
-  const url = new URL(decodeURIComponent(u), process.env.VUE_APP_WALLET_DOMAIN)
-  console.log({ url })
-  const queryParams = url.searchParams
-  const hashParams = new URLSearchParams(url.hash.substring(1))
-  const key = 'state'
-  val = hashParams.get(key) ?? ''
-  if (!val) {
-    val = queryParams.get(key) ?? ''
-  }
-
-  console.log({ val })
-  return val
-}
 export {
   catchupSigninPage,
   fetchPasswordlessResponseFromSignIn,

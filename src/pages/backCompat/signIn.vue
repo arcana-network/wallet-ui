@@ -183,7 +183,6 @@ const windowEventHandler = (
   }>
 ) => {
   const storage = getStorage()
-  console.log({ ev: ev.data })
   // eslint-disable-next-line no-undef
   if (ev.origin !== process.env.VUE_APP_WALLET_DOMAIN) {
     return
