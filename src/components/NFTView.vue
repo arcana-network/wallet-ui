@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref, reactive, watch } from 'vue'
+import { onMounted, ref, type Ref, reactive, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
@@ -14,6 +14,7 @@ const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const storage = getStorage()
 let nftDB: NFTDB
+const searchTerm = ref('')
 
 type NFTViewProps = {
   refreshState?: boolean
@@ -33,7 +34,6 @@ async function getNFTAssets() {
   loader.show = true
   nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
   nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
-
   loader.show = false
 }
 
@@ -66,14 +66,38 @@ watch(
     }
   }
 )
+
+const filteredNFTs = computed(() => {
+  return nfts.value.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+})
+
+watch(filteredNFTs.value, () => {
+  console.log({ filteredNFTs })
+})
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-col max-h-96">
+  <div class="space-y-3">
+    <div v-if="!loader.show && nfts.length" class="flex flex-col space-y-1">
+      <label for="search-nft" class="text-sm">Search NFT</label>
+      <div class="card flex px-3 space-x-2">
+        <img :src="getImage('search.svg')" alt="search" />
+        <input
+          id="search-nft"
+          v-model="searchTerm"
+          class="w-full py-3 px-0"
+          placeholder="Type the name or ID of the NFT"
+        />
+      </div>
+    </div>
+    <div class="card flex flex-col max-h-96">
       <div
         v-if="loader.show"
-        class="flex justify-center items-center flex-1 flex p-3 m-1"
+        class="flex justify-center items-center flex-1 p-3 m-1"
       >
         <p class="text-sm font-bold">
           {{ loader.message }}
@@ -82,7 +106,7 @@ watch(
       <div v-else class="p-3 m-1 overflow-y-auto">
         <div v-if="nfts.length" class="grid grid-cols-2 gap-[10px]">
           <div
-            v-for="nft in nfts"
+            v-for="nft in filteredNFTs"
             :key="`nft-${nft.address}-${nft.tokenId}`"
             class="nft-card rounded cursor-pointer"
             @click.stop="
@@ -120,7 +144,7 @@ watch(
       </div>
       <div class="flex justify-center">
         <button
-          class="btn-quaternery border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
+          class="btn-quaternery border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
           @click.stop="handleManageNFT"
         >
           <img :src="getImage('settings.svg')" />
