@@ -203,7 +203,7 @@ watch(
       <div class="flex flex-col">
         <span class="text-sm text-gray-100">Email ID</span>
         <span class="text-lg font-bold">
-          {{ email }}
+          {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
