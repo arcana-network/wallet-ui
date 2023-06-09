@@ -10,6 +10,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
@@ -19,6 +20,7 @@ import { getStorage, initStorage } from '@/utils/storageWrapper'
 const modalStore = useModalStore()
 const user = useUserStore()
 const toast = useToast()
+const app = useAppStore()
 const recoveryMethod = ref('')
 const securityQuestionModule = new SecurityQuestionModule(3)
 let questions: Ref<
@@ -152,6 +154,9 @@ async function handleLocalRecovery(key: string) {
     `${userInfo.userInfo.id}-login-count`,
     String(newLoginCount)
   )
+  app.expandWallet = true
+  app.compactMode = false
+  app.expandRestoreScreen = false
 }
 
 async function handlePinBasedRecovery(ev: any) {
