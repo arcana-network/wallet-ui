@@ -6,7 +6,7 @@ import {
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
 import { ref, onBeforeMount, type Ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -14,6 +14,7 @@ import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -21,6 +22,7 @@ type CustomObject = {
 }
 
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 const loader = ref({
   show: false,
@@ -50,12 +52,30 @@ const storage = getStorage()
 document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
+let loginInfo
 
 onBeforeMount(async () => {
-  const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
-    .promise
-  if (new Date() < new Date(dkgShare.exp)) {
+  const loginInfoSession = storage.session.getItem('userInfo')
+  if (loginInfoSession) {
+    loginInfo = JSON.parse(loginInfoSession)
+  }
+  let dkgShare
+  if (loginInfo) {
+    dkgShare = {
+      pk: loginInfo.pk,
+      id: loginInfo.userInfo.id,
+    }
+  } else {
+    dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+  }
+  if (!isInAppLogin(loginInfo?.loginType)) {
+    connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
+      .promise
+  }
+  if (
+    isInAppLogin(loginInfo?.loginType) ||
+    new Date() < new Date(dkgShare.exp)
+  ) {
     const core = new Core(
       dkgShare.pk,
       dkgShare.id,
@@ -226,10 +246,15 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
-      const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-      storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
-      storage.local.removeItem('pk')
+      if (!isInAppLogin(loginInfo?.loginType)) {
+        const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+        storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
+        storage.local.removeItem('pk')
+      }
     } catch (e) {
+      if (isInAppLogin(loginInfo?.loginType)) {
+        return toast.error(e as string)
+      }
       // eslint-disable-next-line no-undef
       return connectionToParent.error(e, process.env.VUE_APP_WALLET_DOMAIN)
     }
@@ -243,11 +268,17 @@ async function handlePinProceed() {
 }
 
 async function handleDone() {
+  if (isInAppLogin(loginInfo?.loginType)) {
+    return router.push({ name: 'home' })
+  }
   // eslint-disable-next-line no-undef
   return connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
 }
 
 function handleCancel() {
+  if (isInAppLogin(loginInfo?.loginType)) {
+    return router.back()
+  }
   return connectionToParent.error(
     'User cancelled the setup',
     // eslint-disable-next-line no-undef
@@ -300,14 +331,14 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-bold text-lg uppercase m-8">RECOVERY METHOD 2: PIN</h2>
+    <h2 class="font-bold text-lg uppercase m-4">RECOVERY METHOD 2: PIN</h2>
     <hr />
-    <div class="m-8 text-sm text-gray-100">
+    <div class="m-4 text-sm text-gray-100">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
       if you move to a new device or browser.
     </div>
     <form
-      class="flex flex-col mt-6 gap-4 px-8 pb-8"
+      class="flex flex-col mt-6 gap-4 px-4 pb-8"
       @submit.prevent="handlePinProceed"
     >
       <div class="flex flex-col gap-1">
@@ -361,14 +392,11 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-bold text-lg uppercase my-4 mx-8">
+      <h2 class="font-bold text-base uppercase m-4">
         RECOVERY METHOD 1: Security Questions
       </h2>
       <hr />
-      <form
-        class="flex flex-col py-4 px-8 gap-6"
-        @submit.prevent="handleSubmit"
-      >
+      <form class="flex flex-col p-4 gap-6" @submit.prevent="handleSubmit">
         <div
           v-for="i in totalQuestions"
           :key="`Security-Question-${i}`"

@@ -3,20 +3,25 @@ import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { ref, onBeforeMount, onUnmounted, type Ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
+import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const modalStore = useModalStore()
+const user = useUserStore()
 const toast = useToast()
+const app = useAppStore()
 const recoveryMethod = ref('')
 const securityQuestionModule = new SecurityQuestionModule(3)
 let questions: Ref<
@@ -35,11 +40,13 @@ document.documentElement.classList.add('dark')
 let core: Core
 let dkgShare: {
   pk: string
-  exp: string
+  exp?: string
   id: string
 }
+let userInfoSession
 let channel: BroadcastChannel
 const route = useRoute()
+const router = useRouter()
 const appId = route.params.appId as string
 initStorage(appId)
 const storage = getStorage()
@@ -49,7 +56,18 @@ onBeforeMount(async () => {
     show: true,
     message: 'Loading metadata...',
   }
-  dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+  const localSession = storage.session.getItem('userInfo')
+  if (localSession) {
+    userInfoSession = JSON.parse(localSession)
+  }
+  if (isInAppLogin(userInfoSession?.loginType)) {
+    dkgShare = {
+      id: userInfoSession.userInfo.id,
+      pk: userInfoSession.pk,
+    }
+  } else {
+    dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+  }
   core = new Core(
     dkgShare.pk,
     dkgShare.id,
@@ -88,7 +106,12 @@ async function handleAnswerBasedRecovery(ev) {
       answers: ev.answers,
     })
     const key = await core.getKey(reconstructedShare)
-    returnToParent(key)
+    if (isInAppLogin(userInfoSession?.loginType)) {
+      await handleLocalRecovery(key)
+      router.push({ name: 'home' })
+    } else {
+      returnToParent(key)
+    }
   } catch (e) {
     console.error(e)
     toast.error('Incorrect answers')
@@ -98,6 +121,43 @@ async function handleAnswerBasedRecovery(ev) {
       message: '',
     }
   }
+}
+
+async function handleLocalRecovery(key: string) {
+  const userInfo = userInfoSession
+  userInfo.privateKey = key
+  storage.session.setItem('userInfo', JSON.stringify(userInfo))
+  storage.session.setItem('isLoggedIn', JSON.stringify(true))
+  user.setUserInfo(userInfo)
+  user.setLoginStatus(true)
+  if (!userInfo.hasMfa && userInfo.pk) {
+    const core = new Core(
+      userInfo.pk,
+      userInfo.userInfo.id,
+      `${appId}`,
+      GATEWAY_URL,
+      AUTH_NETWORK === 'dev'
+    )
+    const securityQuestionModule = new SecurityQuestionModule(3)
+    securityQuestionModule.init(core)
+    const isEnabled = await securityQuestionModule.isEnabled()
+    user.hasMfa = isEnabled
+  }
+  if (userInfo.hasMfa) {
+    user.hasMfa = true
+    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+  }
+  const loginCount = storage.local.getItem(
+    `${userInfo.userInfo.id}-login-count`
+  )
+  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
+  storage.local.setItem(
+    `${userInfo.userInfo.id}-login-count`,
+    String(newLoginCount)
+  )
+  app.expandWallet = true
+  app.compactMode = false
+  app.expandRestoreScreen = false
 }
 
 async function handlePinBasedRecovery(ev: any) {
@@ -111,7 +171,12 @@ async function handlePinBasedRecovery(ev: any) {
       password: ev.password,
     })
     const key = await core.getKey(reconstructedShare)
-    returnToParent(key)
+    if (isInAppLogin(userInfoSession?.loginType)) {
+      await handleLocalRecovery(key)
+      router.push({ name: 'home' })
+    } else {
+      returnToParent(key)
+    }
   } catch (e) {
     console.error(e)
     toast.error('Incorrect Pin')
@@ -165,7 +230,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="card w-full max-w-[40rem] m-auto h-max min-h-max overflow-y-auto p-8"
+    class="card w-full max-w-[40rem] m-auto h-max min-h-max overflow-y-auto p-4"
   >
     <div
       v-show="loader.show"

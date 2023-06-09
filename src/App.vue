@@ -118,7 +118,7 @@ function canShowCollapseButton() {
 <template>
   <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
     <div
-      v-show="expandWallet"
+      v-show="expandWallet || app.expandRestoreScreen"
       class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
       <div class="flex justify-center mt-2 mb-2">
