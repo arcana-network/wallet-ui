@@ -139,9 +139,32 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 async function storeUserInfoAndRedirect(
-  userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
+  userInfo: GetInfoOutput & {
+    hasMfa?: boolean
+    pk?: string
+  }
 ) {
   const storage = getStorage()
+  if ((userInfo.loginType as string) === 'firebase') {
+    try {
+      const core = new Core(
+        userInfo.pk as string,
+        userInfo.userInfo.id,
+        `${appId}`,
+        GATEWAY_URL,
+        AUTH_NETWORK === 'dev'
+      )
+      await core.init()
+    } catch (e) {
+      app.expandWallet = true
+      app.showWallet = true
+      storage.session.setItem('userInfo', JSON.stringify(userInfo))
+      return router.push({
+        name: 'MFARestore',
+        params: { appId: appId as string },
+      })
+    }
+  }
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
