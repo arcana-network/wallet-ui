@@ -14,6 +14,7 @@ import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -67,12 +68,12 @@ onBeforeMount(async () => {
   } else {
     dkgShare = JSON.parse(storage.local.getItem('pk') as string)
   }
-  if (loginInfo?.loginType !== 'firebase') {
+  if (!isInAppLogin(loginInfo?.loginType)) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
   if (
-    loginInfo?.loginType === 'firebase' ||
+    isInAppLogin(loginInfo?.loginType) ||
     new Date() < new Date(dkgShare.exp)
   ) {
     const core = new Core(
@@ -245,13 +246,13 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
-      if (loginInfo?.loginType !== 'firebase') {
+      if (!isInAppLogin(loginInfo?.loginType)) {
         const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
         storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
         storage.local.removeItem('pk')
       }
     } catch (e) {
-      if (loginInfo?.loginType === 'firebase') {
+      if (isInAppLogin(loginInfo?.loginType)) {
         return toast.error(e as string)
       }
       // eslint-disable-next-line no-undef
@@ -267,7 +268,7 @@ async function handlePinProceed() {
 }
 
 async function handleDone() {
-  if (loginInfo?.loginType === 'firebase') {
+  if (isInAppLogin(loginInfo?.loginType)) {
     return router.push({ name: 'home' })
   }
   // eslint-disable-next-line no-undef
@@ -275,7 +276,7 @@ async function handleDone() {
 }
 
 function handleCancel() {
-  if (loginInfo?.loginType === 'firebase') {
+  if (isInAppLogin(loginInfo?.loginType)) {
     return router.back()
   }
   return connectionToParent.error(

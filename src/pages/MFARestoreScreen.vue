@@ -14,6 +14,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
@@ -59,7 +60,7 @@ onBeforeMount(async () => {
   if (localSession) {
     userInfoSession = JSON.parse(localSession)
   }
-  if (userInfoSession?.loginType === 'firebase') {
+  if (isInAppLogin(userInfoSession?.loginType)) {
     dkgShare = {
       id: userInfoSession.userInfo.id,
       pk: userInfoSession.pk,
@@ -105,7 +106,7 @@ async function handleAnswerBasedRecovery(ev) {
       answers: ev.answers,
     })
     const key = await core.getKey(reconstructedShare)
-    if (userInfoSession?.loginType === 'firebase') {
+    if (isInAppLogin(userInfoSession?.loginType)) {
       await handleLocalRecovery(key)
       router.push({ name: 'home' })
     } else {
@@ -170,7 +171,7 @@ async function handlePinBasedRecovery(ev: any) {
       password: ev.password,
     })
     const key = await core.getKey(reconstructedShare)
-    if (userInfoSession?.loginType === 'firebase') {
+    if (isInAppLogin(userInfoSession?.loginType)) {
       await handleLocalRecovery(key)
       router.push({ name: 'home' })
     } else {

@@ -19,6 +19,7 @@ import { AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -102,7 +103,7 @@ async function handleMFASetupClick() {
   const { loginType } = JSON.parse(
     getStorage().session.getItem('userInfo') as string
   )
-  if (loginType === 'firebase') {
+  if (isInAppLogin(loginType)) {
     modalStore.setShowModal(false)
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {

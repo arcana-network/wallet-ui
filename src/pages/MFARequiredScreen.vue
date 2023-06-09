@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL, DOCS_URL } from '@/utils/constants'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -27,7 +28,7 @@ async function handleProceed() {
   const { loginType } = JSON.parse(
     storage.session.getItem('userInfo') as string
   )
-  if (loginType === 'firebase') {
+  if (isInAppLogin(loginType)) {
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {
     cleanExit = false
