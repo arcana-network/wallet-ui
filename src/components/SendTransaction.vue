@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { AppMode } from '@arcana/auth'
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
@@ -12,6 +14,7 @@ import {
   GAS_AVAILABLE_CHAIN_IDS,
 } from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -32,6 +35,8 @@ const appStore = useAppStore()
 const getImage = useImage()
 const baseFee = ref('0')
 const chainId = Number(rpcStore.selectedChainId)
+const requestStore = useRequestStore()
+const route = useRoute()
 
 const gasPrices: Ref<object> = ref({})
 
@@ -82,7 +87,7 @@ function handleSetGasPrice(value) {
 </script>
 
 <template>
-  <div v-if="loader.show" class="flex justify-center items-center flex-1">
+  <div v-if="loader.show" class="flex justify-center items-center flex-1 p-4">
     <AppLoader :message="loader.message" />
   </div>
   <SendTransactionCompact
@@ -93,39 +98,20 @@ function handleSetGasPrice(value) {
     @approve="emits('approve')"
     @reject="emits('reject')"
   />
-  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
+  <div v-else class="card p-4 flex flex-1 flex-col gap-4">
     <div class="flex flex-col space-y-2">
-      <div class="flex justify-between">
-        <p class="text-xl sm:text-sm font-semibold">Send Transaction</p>
-      </div>
-      <p class="text-xs text-zinc-400">
-        {{ appStore.name }} requests your permission to send this transaction to
-        the {{ rpcStore.selectedRpcConfig?.chainName }}. Please specify gas
-        while submitting the transaction.
+      <p class="text-lg text-center font-bold flex-grow">Send Transaction</p>
+      <p class="text-xs text-gray-100 text-center">
+        The application “{{ appStore.name }}” is requesting your permission to
+        send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}. Do
+        you approve the transaction?
       </p>
     </div>
-    <div class="space-y-1">
-      <p class="text-xs text-zinc-400">Network</p>
-      <p class="text-base sm:text-sm flex gap-2">
-        <!-- <img
-          :src="getImage(rpcStore.selectedRpcConfig.favicon)"
-          class="w-6 h-6"
-        /> -->
-        {{ rpcStore.selectedRpcConfig?.chainName }}
-      </p>
-    </div>
-    <div class="space-y-1">
-      <label
-        class="text-xs text-zinc-400 font-semibold"
-        for="recipientWalletAddress"
-      >
-        Origin
-      </label>
-      <p
-        class="max-w-full truncate text-base sm:text-sm text-zinc-400 rounded-lg p-3 sm:p-1 bg-gradient"
-      >
-        {{ request.request.params[0].from }}
-      </p>
+    <div class="flex flex-col gap-1">
+      <div class="text-sm">Message</div>
+      <SignMessageAdvancedInfo
+        :info="advancedInfo(request.request.method, request.request.params[0])"
+      />
     </div>
     <GasPrice
       :gas-price="customGasPrice"
@@ -133,8 +119,34 @@ function handleSetGasPrice(value) {
       :base-fee="baseFee"
       @gas-price-input="handleSetGasPrice"
     />
-    <SignMessageAdvancedInfo
-      :info="advancedInfo(request.request.method, request.request.params[0])"
-    />
+    <div class="mt-auto flex flex-col gap-4">
+      <div class="flex gap-2">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="
+          route.name === 'requests' && appStore.validAppMode === AppMode.Full
+        "
+        class="flex items-center justify-center"
+      >
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
+    </div>
   </div>
 </template>

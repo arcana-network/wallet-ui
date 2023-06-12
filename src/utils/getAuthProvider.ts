@@ -8,7 +8,10 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
-export async function getAuthProvider(appId: string): Promise<AuthProvider> {
+export async function getAuthProvider(
+  appId: string,
+  shouldVerifyState = false
+): Promise<AuthProvider> {
   if (!authProvider) {
     authProvider = await AuthProvider.init({
       appId: appId,
@@ -17,7 +20,9 @@ export async function getAuthProvider(appId: string): Promise<AuthProvider> {
       flow: 'redirect',
       autoRedirect: false,
       debug: true,
+      shouldVerifyState,
     })
   }
+  // authProvider.shouldVerifyState = shouldVerifyState
   return authProvider
 }

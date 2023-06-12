@@ -1,77 +1,129 @@
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind base;
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind components;
+/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind utilities;
 
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 300;
+  src: url('@/assets/fonts/OnestLight1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/OnestRegular1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/OnestMedium1602-hint.woff') format('woff');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/OnestBold1602-hint.woff') format('woff');
+}
+
+@layer base {
+  body {
+    @apply font-onest text-black-500 dark:text-white-100 leading-normal;
+  }
+
+  button {
+    @apply outline-none
+          cursor-pointer disabled:cursor-not-allowed
+          transition-all duration-200 ease-in-out
+          disabled:opacity-60 select-none;
+  }
+
+  input,
+  select {
+    @apply bg-transparent outline-none shadow-none placeholder:text-gray-100 font-normal text-base p-[10px];
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-black-500 dark:bg-white-100 dark:active:bg-gray-400 text-white-100 dark:text-black-200 hover:shadow-sm
+    focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-sm;
+  }
+
+  .btn-secondary {
+    @apply active:bg-gray-700 dark:active:bg-gray-500 text-black-500
+           dark:text-white-200 hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
+           focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 border-default rounded-sm;
+  }
+
+  .btn-tertiary {
+    @apply text-black-500 dark:text-white-100 hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100;
+  }
+
+  .btn-quaternery {
+    @apply bg-white-300 dark:bg-black-100 text-black-100 dark:text-white-100 dark:active:text-gray-400
+           hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
+           box-border border-gray-800 dark:border-gray-200 border-default;
+  }
+
+  .card {
+    @apply bg-white-400 dark:bg-black-200 border-gray-800 dark:border-gray-200 border rounded-md;
+  }
+
+  .input-field {
+    @apply bg-white-400 dark:bg-gray-300 rounded-sm flex items-center;
+  }
+
+  .input-active {
+    @apply outline-1 outline-black-500 dark:outline-white-200 outline;
+  }
+
+  .radio {
+    @apply grid p-0 place-content-center w-xs h-xs bg-gray-800 dark:bg-gray-600 rounded-full appearance-none before:bg-black-500 dark:before:bg-white-100;
+  }
+
+  .radio::before {
+    width: 10px;
+    height: 10px;
+    content: '';
+    border-radius: 50%;
+    transition: 120ms transform ease-in-out;
+    transform: scale(0);
+  }
+
+  .radio:checked::before {
+    transform: scale(1);
+  }
+}
+
 @layer utilities {
-  :root {
-    --bg-gradient-start-color: #eee;
-    --bg-gradient-stop-color: #eee;
-    --tab-shadow-color: inset 0 4px 4px rgb(0 0 0 / 25%);
-    --tab-container-shadow: inset -1px -1px 1px rgb(255 255 255 / 70%),
-      inset 1px 1px 2px rgb(0 0 0 / 5%);
-    --input-box-shadow: inset -1px -1px 1px rgb(255 255 255 / 70%),
-      inset 1px 1px 2px rgb(0 0 0 / 5%);
-    --tab-view-border-color: #aeaec0;
-    --nft-card-background: #dadada;
-    --nft-card-title: #aaa;
-    --nft-card-collection: #808080;
+  .dark-text-shadow-100 {
+    text-shadow: 0 0 6px rgb(236 236 236 / 45%);
   }
 
-  .dark {
-    --glow-start-color: rgb(247 247 247 / 30%);
-    --glow-middle-color: rgb(11 11 11 / 50%);
-    --glow-stop-color: rgb(28 28 28 / 84%);
-    --bg-gradient-start-color: #161616;
-    --bg-gradient-stop-color: #151515;
-    --tab-shadow-color: rgb(0 0 0 / 25%);
-    --tab-container-shadow: 5px 5px 10px rgb(0 0 0 / 15%);
-    --input-box-shadow: var(--debossed-box-shadow);
-    --tab-view-border-color: rgb(247 247 247 / 20%);
-    --nft-card-background: #202020;
+  .text-shadow-100 {
+    text-shadow: 0 0 6px rgb(236 236 236 / 45%);
   }
 
-  .tab-shadow {
-    box-shadow: inset 0 4px 4px var(--tab-shadow-color);
+  .font-onest {
+    font-family: Onest, sans-serif;
   }
 
-  .glow {
-    box-shadow: 0 0 12px 4px var(--glow-start-color),
-      inset 5px 5px 10px var(--glow-middle-color),
-      inset -50px 49px 29px 22px var(--glow-stop-color);
+  .glass-effect {
+    background: #eeeeee9e;
+    backdrop-filter: blur(3.5px);
+    @apply dark:glass-effect-dark;
   }
 
-  .glow {
-    box-shadow: 0 0 12px 4px var(--glow-start-color),
-      inset 5px 5px 10px var(--glow-middle-color),
-      inset -50px 49px 29px 22px var(--glow-stop-color);
-  }
-
-  .bg-gradient {
-    background: linear-gradient(
-      141.48deg,
-      var(--bg-gradient-start-color) -4.56%,
-      var(--bg-gradient-stop-color) 135.63%
-    );
-  }
-
-  .wallet__card {
-    background: var(--card-bg);
-    box-shadow: var(--card-shadow);
-  }
-
-  .label,
-  ::placeholder {
-    color: var(--color-philippine-gray);
-  }
-
-  .input,
-  .debossed-card {
-    background: var(--debossed-box-color);
-    border-radius: 10px;
-    box-shadow: var(--input-box-shadow);
-  }
-
-  .tab-view-border-color {
-    border-color: var(--tab-view-border-color);
+  .glass-effect-dark {
+    background: rgb(49 49 49 / 62%);
+    backdrop-filter: blur(3.5px);
   }
 }

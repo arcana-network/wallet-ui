@@ -6,10 +6,7 @@ import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
-import ChangeChain from '@/components/ChangeChain.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
-import ReceiveTokens from '@/components/ReceiveTokens.vue'
-import SendTokens from '@/components/SendTokens.vue'
 import {
   getExchangeRate,
   CurrencySymbol,
@@ -18,20 +15,21 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { HIDE_ON_RAMP } from '@/utils/constants'
+import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getTransakSupportedNetworks } from '@/utils/transak'
-import { truncateToTwoDecimals } from '@/utils/truncateToTwoDecimal'
-import { useImage } from '@/utils/useImage'
 
 type UserWalletProps = {
   walletBalance?: string
   page: 'home' | 'nft'
+  refreshIconAnimating: boolean
 }
 
 const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
+const toast = useToast()
 
 const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 type ModalState =
@@ -45,8 +43,6 @@ type ModalState =
 const userStore = useUserStore()
 const modalStore = useModalStore()
 const rpcStore = useRpcStore()
-const toast = useToast()
-const getImage = useImage()
 const showModal: Ref<ModalState> = ref(false)
 const { currency } = storeToRefs(rpcStore)
 const totalAmountInUSD: Ref<string | null> = ref(null)
@@ -70,29 +66,6 @@ const onRampMoney = computed(() => {
   }
 })
 
-// See above
-
-const explorerUrl = computed(() => {
-  if (
-    rpcStore.selectedRpcConfig &&
-    rpcStore.selectedRpcConfig.blockExplorerUrls?.length
-  ) {
-    const blockExplorerUrl = rpcStore.selectedRpcConfig.blockExplorerUrls[0]
-    const walletAddress = userStore.walletAddress
-    return `${blockExplorerUrl}/address/${walletAddress}`
-  }
-  return undefined
-})
-
-async function copyToClipboard(value: string) {
-  try {
-    await navigator.clipboard.writeText(value)
-    toast.success('Wallet address copied')
-  } catch (err) {
-    toast.error('Failed to copy wallet address')
-  }
-}
-
 function showLoader(message: string) {
   emit('show-loader', { message })
 }
@@ -111,29 +84,25 @@ function openAddNetwork(open) {
 }
 
 function openEditNetwork(open, chainId: number | null = null) {
-  if (Number(rpcStore.selectedRpcConfig?.chainId) === Number(chainId)) {
-    toast.error(
-      'This network is current selected, please chose a different one and try again'
-    )
-  } else {
-    chainSelectedForEdit.value = chainId
-    modalStore.setShowModal(open)
-    showModal.value = open ? 'edit-network' : false
+  if (rpcStore.selectedRpcConfig) {
+    if (Number(rpcStore.selectedRpcConfig.chainId) === Number(chainId)) {
+      toast.error(
+        'This network is current selected, please chose a different one and try again'
+      )
+    } else {
+      chainSelectedForEdit.value = chainId
+      modalStore.setShowModal(open)
+      showModal.value = open ? 'edit-network' : false
+    }
   }
 }
 
-function openSendTokens(open) {
+function goToSendTokens() {
   if (props.page === 'nft') {
-    return router.push({ name: 'SelectNft' })
+    router.push({ name: 'SelectNft' })
   } else {
-    modalStore.setShowModal(open)
-    showModal.value = open ? 'send' : false
+    router.push({ name: 'SendTokens' })
   }
-}
-
-function openReceiveTokens(open) {
-  modalStore.setShowModal(open)
-  showModal.value = open ? 'receive' : false
 }
 
 async function getCurrencyExchangeRate() {
@@ -164,6 +133,16 @@ function handleBuy(open: boolean) {
   showModal.value = open ? 'buy' : false
 }
 
+function hasWalletBalanceAfterDecimals() {
+  if (props.walletBalance?.includes('.')) {
+    const balance = props.walletBalance.split('.')
+    if (Number(balance[1]) > 0) {
+      return true
+    }
+  }
+  return false
+}
+
 onMounted(() => {
   if (props.walletBalance) {
     getCurrencyExchangeRate()
@@ -173,12 +152,14 @@ onMounted(() => {
 watch(
   () => rpcStore.selectedRPCConfig?.chainId,
   async () => {
-    await getRequestHandler().setRpcConfig({
-      ...rpcStore.selectedRPCConfig,
-      chainId: Number(rpcStore.selectedRPCConfig.chainId),
-    })
-    if (props.walletBalance) {
-      getCurrencyExchangeRate()
+    if (rpcStore.selectedRPCConfig) {
+      await getRequestHandler().setRpcConfig({
+        ...rpcStore.selectedRPCConfig,
+        chainId: Number(rpcStore.selectedRPCConfig.chainId),
+      })
+      if (props.walletBalance) {
+        getCurrencyExchangeRate()
+      }
     }
   }
 )
@@ -189,134 +170,105 @@ watch(
     getCurrencyExchangeRate()
   }
 )
+
+watch(
+  () => modalStore.show,
+  (show) => {
+    if (!show) showModal.value = false
+  }
+)
+
+async function copyToClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    toast.success('Wallet address copied')
+  } catch (err) {
+    toast.error('Failed to copy wallet address')
+  }
+}
 </script>
 
 <template>
   <div>
-    <div class="wallet__card rounded-[10px] flex flex-1 flex-col mb-6">
-      <div class="px-4 py-5 sm:p-2 h-full flex flex-col justify-between">
-        <div class="flex flex-col justify-center items-center space-y-2">
-          <div class="flex items-center space-x-1">
-            <p class="text-xl sm:text-sm">
-              {{ userStore.walletAddressShrinked }}
-            </p>
-            <button
-              class="h-4"
-              @click="copyToClipboard(userStore.walletAddress)"
-            >
-              <img
-                :src="getImage('copy-icon')"
-                alt="copy icon"
-                class="h-full"
-              />
-            </button>
-          </div>
-          <div class="flex items-center space-x-1 gap-4">
-            <a
-              v-if="explorerUrl"
-              :href="explorerUrl"
-              target="_blank"
-              class="flex items-center space-x-1"
-            >
-              <img
-                :src="getImage('arrow-up-right-icon')"
-                alt="Explore"
-                class="h-4"
-              />
-              <span class="text-xs">View on Explorer</span>
-            </a>
-            <button class="flex items-center" @click="handleRefresh">
-              <img
-                :src="getImage('refresh-icon')"
-                alt="Refresh wallet balance"
-                class="w-4"
-              />
-              <span class="text-xs">Refresh</span>
-            </button>
-          </div>
-        </div>
-        <div class="space-y-1 relative pb-14 sm:pb-8 mt-4">
-          <p class="text-xs text-zinc-400">Network</p>
-          <div class="w-full rounded-lg absolute">
-            <ChangeChain
-              @add-network="openAddNetwork(true)"
-              @edit-network="(chainId) => openEditNetwork(true, chainId)"
-            />
-          </div>
-        </div>
-        <div
-          v-if="props.walletBalance"
-          class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0 debossed-card mt-5"
-        >
-          <div
-            class="p-4 sm:p-2 h-full flex flex-col justify-between space-y-5 sm:space-y-3 overflow-auto"
-          >
-            <div
-              class="flex-1 w-full rounded-lg mx-auto flex flex-col justify-center items-center space-y-2 sm:space-y-0"
-            >
-              <p class="text-sm sm:text-xs">Total Balance</p>
-              <div
-                v-if="totalAmountInUSD"
-                class="space-y-2 sm:space-y-0 flex flex-col items-center"
-              >
-                <p class="text-2xl sm:text-base text-center">
-                  {{ totalAmountInUSD }}
-                </p>
-                <div class="flex text-zinc-400 text-sm space-x-1">
-                  <p :title="props.walletBalance">
-                    {{ truncateToTwoDecimals(props.walletBalance) }}
-                  </p>
-                  <p>{{ currency }}</p>
-                </div>
-              </div>
-              <div v-else>
-                <div class="flex text-2xl sm:text-base space-x-1">
-                  <p :title="props.walletBalance">
-                    {{ truncateToTwoDecimals(props.walletBalance) }}
-                  </p>
-                  <p>{{ currency }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="flex space-x-3 mt-5">
+    <div class="card p-4 flex flex-col">
+      <div class="flex justify-between items-center">
+        <div class="flex gap-1">
+          <img
+            src="@/assets/images/fallback-logo-dark-mode.png"
+            class="w-xl h-xl rounded-full"
+          />
+          <span class="font-bold text-lg">{{
+            userStore.walletAddressShrinked
+          }}</span>
           <button
-            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
-            @click="openSendTokens(true)"
+            title="Click to copy wallet address"
+            @click.stop="copyToClipboard(userStore.walletAddress)"
           >
-            Send
-          </button>
-          <button
-            v-if="walletBalance && !HIDE_ON_RAMP"
-            :disabled="!transakNetwork && onRampMoney === false"
-            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase disabled:opacity-50"
-            @click="handleBuy(true)"
-          >
-            Buy
-          </button>
-          <button
-            class="text-sm sm:text-xs font-semibold rounded-xl border-2 border-solid border-black dark:border-white flex-1 uppercase"
-            @click="openReceiveTokens(true)"
-          >
-            Receive
+            <img :src="getImage('copy.svg')" class="w-xl h-xl" />
           </button>
         </div>
       </div>
+      <div class="mt-4 flex flex-col">
+        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
+        <div class="flex items-center gap-4">
+          <div
+            class="transition-all duration-200"
+            :class="{ 'blur-sm': props.refreshIconAnimating }"
+          >
+            <span class="font-bold text-xxl">{{
+              props.walletBalance?.split('.')[0]
+            }}</span>
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-bold text-xxl"
+              >.</span
+            >
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-bold text-base"
+              >{{ props.walletBalance?.split('.')[1] }}</span
+            >
+            <span v-if="currency" class="font-bold text-base ml-1">
+              {{ currency }}</span
+            >
+          </div>
+
+          <button
+            class="w-lg h-lg rounded-full"
+            :class="{ 'animate-spin': refreshIconAnimating }"
+            title="Click to refresh the balance"
+            @click.stop="handleRefresh()"
+          >
+            <img :src="getImage('refresh.svg')" />
+          </button>
+        </div>
+      </div>
+      <div class="mt-6 flex gap-3">
+        <button
+          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          @click.stop="goToSendTokens()"
+        >
+          <img :src="getImage('send-icon.svg')" class="w-md h-md" />
+          Send
+        </button>
+        <button
+          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          :disabled="!transakNetwork && onRampMoney === false"
+          @click.stop="handleBuy(true)"
+        >
+          <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
+          Buy
+        </button>
+      </div>
     </div>
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendTokens v-if="showModal === 'send'" @close="openSendTokens(false)" />
-      <ReceiveTokens
-        v-if="showModal === 'receive'"
-        @close="openReceiveTokens(false)"
-      />
+    <Teleport v-if="modalStore.show" to="#modal-container">
       <AddNetwork
         v-if="showModal === 'add-network'"
         @close="openAddNetwork(false)"
       />
       <EditNetwork
         v-if="showModal === 'edit-network'"
-        :chain-id="chainSelectedForEdit as number"
+        :chain-id="(chainSelectedForEdit as number)"
         @close="openEditNetwork(false)"
       />
       <BuyTokens

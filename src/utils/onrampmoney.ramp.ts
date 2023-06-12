@@ -33,7 +33,7 @@ type OnRampMoneyNetworkObject = {
 const COIN_CONFIG = new Map<number, OnRampMoneyCoinObject>()
 const CHAIN_ID_CONFIG = new Map<number, OnRampMoneyNetworkObject>()
 // Chains that onramp.money advertises support for, but doesn’t actually accept
-const CHAIN_ID_BLACKLIST = new Set([80001])
+const CHAIN_ID_BLACKLIST = new Set([80001, 43114])
 
 const API_URL = new URL(
   '/api/v1/onramp-coin-config/',

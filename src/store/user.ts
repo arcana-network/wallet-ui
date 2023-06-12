@@ -32,8 +32,8 @@ export const useUserStore = defineStore('user', {
     walletAddressShrinked(state: UserState): string {
       const { walletAddress } = state
       const walletAddressLength = walletAddress.length
-      return `${walletAddress.slice(0, 7)}....${walletAddress.slice(
-        walletAddressLength - 7
+      return `${walletAddress.slice(0, 5)}....${walletAddress.slice(
+        walletAddressLength - 5
       )}`
     },
   },
@@ -41,9 +41,11 @@ export const useUserStore = defineStore('user', {
     async handleSocialLogin(
       authProvider: AuthProvider,
       loginType: LoginType
-    ): Promise<void | string> {
-      return await authProvider.loginWithSocial(loginType)
+    ): Promise<{ url: string; state: string }> {
+      const { url, state } = await authProvider.loginWithSocial(loginType)
+      return { url, state }
     },
+
     async handlePasswordlessLogin(
       authProvider: AuthProvider,
       email: string,

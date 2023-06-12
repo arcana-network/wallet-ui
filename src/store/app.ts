@@ -3,6 +3,8 @@ import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
+import { useRequestStore } from '@/store/request'
+import { isMobileViewport } from '@/utils/isMobileViewport'
 
 type WalletPosition = 'right' | 'left'
 
@@ -15,14 +17,17 @@ type AppState = {
   id: string
   name: string
   theme: Theme
+  standaloneMode: 0 | 1 | 2
   parentAppUrl: string | null
   validAppMode: AppMode
   showWallet: boolean
+  expandRestoreScreen: boolean
   expandWallet: boolean
   walletPosition: WalletPosition
   appLogo: AppLogo
   compactMode: boolean
   sdkVersion: SDKVersion | null
+  expandedByRequest: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -32,10 +37,13 @@ export const useAppStore = defineStore('app', {
       theme: 'light',
       parentAppUrl: null,
       showWallet: false,
+      standaloneMode: 0,
       expandWallet: true,
+      expandRestoreScreen: false,
       walletPosition: 'right',
       compactMode: false,
       sdkVersion: null,
+      expandedByRequest: false,
     } as AppState),
   getters: {
     iframeStyle: ({
@@ -43,23 +51,49 @@ export const useAppStore = defineStore('app', {
       expandWallet,
       walletPosition,
       compactMode,
+      expandRestoreScreen,
     }) => {
-      const style: Partial<CSSStyleDeclaration> = {}
-      style.height = showWallet
-        ? expandWallet
-          ? compactMode
-            ? '200px'
-            : '80vh'
-          : '66px'
-        : '0'
-      style.width = showWallet ? (expandWallet ? '360px' : '68px') : '0'
-      style.right =
-        walletPosition === 'right' ? (expandWallet ? '18px' : '2px') : ''
-      style.left =
-        walletPosition === 'left' ? (expandWallet ? '18px' : '2px') : ''
-      style.bottom = '4px'
-      style.transition = 'all 300ms ease-in-out'
-      return style
+      return function getCompatibleStyles() {
+        const requestStore = useRequestStore()
+        const mobileViewport = isMobileViewport()
+        const style: Partial<CSSStyleDeclaration> = {}
+
+        style.height = showWallet
+          ? expandWallet || expandRestoreScreen
+            ? compactMode
+              ? requestStore.pendingRequest?.request.method ===
+                'eth_sendTransaction'
+                ? '328px'
+                : '288px'
+              : '80vh'
+            : '40px'
+          : '0'
+        style.width = showWallet
+          ? expandWallet || expandRestoreScreen
+            ? mobileViewport
+              ? '100%'
+              : '360px'
+            : '100px'
+          : '0'
+        style.right =
+          walletPosition === 'right' && !mobileViewport ? '30px' : ''
+        style.left = walletPosition === 'left' && !mobileViewport ? '30px' : ''
+        style.bottom =
+          (expandWallet || expandRestoreScreen) && !mobileViewport
+            ? '30px'
+            : '0'
+        style.transition = 'all 300ms ease-in-out'
+        style.position = 'fixed'
+        style.overflow = 'hidden'
+        style.borderRadius = mobileViewport ? '0' : '10px'
+        if (!compactMode && !expandWallet && !expandRestoreScreen) {
+          style.borderBottomLeftRadius = '0'
+          style.borderBottomRightRadius = '0'
+          style.borderTopRightRadius = '5px'
+          style.borderTopLeftRadius = '5px'
+        }
+        return style
+      }
     },
   },
   actions: {
@@ -71,6 +105,9 @@ export const useAppStore = defineStore('app', {
     },
     setName(name: string): void {
       this.name = name
+    },
+    setStandalone(mode: 0 | 1 | 2): void {
+      this.standaloneMode = mode
     },
     setParentUrl(url: string): void {
       this.parentAppUrl = url
