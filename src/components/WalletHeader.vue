@@ -69,6 +69,7 @@ watch(
         <div class="flex flex-col items-start">
           <span
             class="font-bold text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            :title="appStore.name"
             >{{ appStore.name }}</span
           >
           <img
