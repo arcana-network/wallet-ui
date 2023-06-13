@@ -55,6 +55,10 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let loginInfo
 
 onBeforeMount(async () => {
+  console.log({
+    loginInfoSession: storage.session.getItem('userInfo'),
+    dkgShare: storage.local.getItem('pk'),
+  })
   const loginInfoSession = storage.session.getItem('userInfo')
   if (loginInfoSession) {
     loginInfo = JSON.parse(loginInfoSession)
