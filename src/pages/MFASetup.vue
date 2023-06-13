@@ -55,10 +55,6 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let loginInfo
 
 onBeforeMount(async () => {
-  console.log({
-    loginInfoSession: storage.session.getItem('userInfo'),
-    dkgShare: storage.local.getItem('pk'),
-  })
   const loginInfoSession = storage.session.getItem('userInfo')
   if (loginInfoSession) {
     loginInfo = JSON.parse(loginInfoSession)
@@ -76,23 +72,20 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  if (
-    isInAppLogin(loginInfo?.loginType) ||
-    new Date() < new Date(dkgShare.exp)
-  ) {
-    const core = new Core(
-      dkgShare.pk,
-      dkgShare.id,
-      String(route.params.appId),
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
+  const core = new Core(
+    dkgShare.pk,
+    dkgShare.id,
+    String(route.params.appId),
+    GATEWAY_URL,
+    AUTH_NETWORK === 'dev'
+  )
+  try {
     await core.init()
-    securityQuestionModule.init(core)
-    globalQuestions.value = await securityQuestionModule.getGlobalQuestions()
-  } else {
-    toast.error('Share expired. Please login again to continue')
+  } catch (e) {
+    toast.error(e as string)
   }
+  securityQuestionModule.init(core)
+  globalQuestions.value = await securityQuestionModule.getGlobalQuestions()
 })
 
 function addSelectedQuestion(index: number, value: any) {
