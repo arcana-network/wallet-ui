@@ -158,17 +158,15 @@ function connectToParent() {
     appStore,
     getRequestHandler()
   )
-  if (!parentConnectionStore.parentConnection) {
-    parentConnection = createParentConnection({
-      isLoggedIn: () => userStore.isLoggedIn,
-      sendRequest,
-      getPublicKey: handleGetPublicKey,
-      triggerLogout: handleLogout,
-      getUserInfo,
-      expandWallet: () => (appStore.expandWallet = true),
-    })
-    parentConnectionStore.setParentConnection(parentConnection)
-  }
+  parentConnection = createParentConnection({
+    isLoggedIn: () => userStore.isLoggedIn,
+    sendRequest,
+    getPublicKey: handleGetPublicKey,
+    triggerLogout: handleLogout,
+    getUserInfo,
+    expandWallet: () => (appStore.expandWallet = true),
+  })
+  parentConnectionStore.setParentConnection(parentConnection)
 }
 
 async function setTheme() {
@@ -256,23 +254,17 @@ async function getRpcConfig() {
 
 async function getRpcConfigFromParent() {
   try {
-    const parentConnectionInstance = await parentConnectionStore
-      .parentConnection?.promise
-    if (parentConnectionInstance) {
-      const rpcConfig = await parentConnectionInstance.getRpcConfig()
-      console.log({ rpcConfig })
-      if (rpcConfig) {
-        const chainId = Number(rpcConfig.chainId)
-        const chainToBeSet = enabledChainList.value.find(
-          (chain) => chain.chainId === chainId
-        )
-        if (chainToBeSet) {
-          rpcStore.setSelectedRPCConfig(chainToBeSet)
-          rpcStore.setRpcConfig(chainToBeSet)
-        }
+    const parentConnectionInstance = await parentConnection.promise
+    const rpcConfig = await parentConnectionInstance.getRpcConfig()
+    if (rpcConfig) {
+      const chainId = Number(rpcConfig.chainId)
+      const chainToBeSet = enabledChainList.value.find(
+        (chain) => chain.chainId === chainId
+      )
+      if (chainToBeSet) {
+        rpcStore.setSelectedRPCConfig(chainToBeSet)
+        rpcStore.setRpcConfig(chainToBeSet)
       }
-    } else {
-      console.error('parent connection not initialized')
     }
   } catch (err) {
     console.log({ err })
