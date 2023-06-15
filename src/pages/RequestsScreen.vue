@@ -22,17 +22,17 @@ const appStore = useAppStore()
 const { pendingRequest, areRequestsPendingForApproval } = toRefs(requestStore)
 
 const onApproveClick = (requestId) => {
-  if (isSendTransactionRequest(requestId)) {
-    const request = requestStore.pendingRequests[requestId].request
-    if (Array.isArray(request.params)) {
-      const param = request.params[0]
-      const gasPrice = String(param.gasPrice)
-      if (!gasPrice.length) {
-        toast.error('Please provide Gas Fee')
-        return
-      }
-    }
-  }
+  // if (isSendTransactionRequest(requestId)) {
+  //   const request = requestStore.pendingRequests[requestId].request
+  //   if (Array.isArray(request.params)) {
+  //     const param = request.params[0]
+  //     const gasPrice = String(param.gasPrice)
+  //     if (!gasPrice.length) {
+  //       toast.error('Please provide Gas Fee')
+  //       return
+  //     }
+  //   }
+  // }
   requestStore.approveRequest(requestId)
 }
 

@@ -65,7 +65,8 @@ export const useRequestStore = defineStore('request', {
       const request = this.pendingRequests[requestId].request
       if (Array.isArray(request.params)) {
         const param = request.params[0]
-        param.gasPrice = gasPrice
+        param.maxPriorityFeePerGas = '0x1'
+        param.maxFeePerGas = gasPrice
       }
     },
     skipRequest(requestId: string): void {

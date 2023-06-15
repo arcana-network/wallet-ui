@@ -321,6 +321,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         delete request.params[0].gas
       }
       try {
+        console.log({ request })
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
         console.log(response)
