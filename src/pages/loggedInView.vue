@@ -152,21 +152,22 @@ async function initAccountHandler() {
 }
 
 function connectToParent() {
-  const sendRequest = getSendRequestFn(
-    handleRequest,
-    requestStore,
-    appStore,
-    getRequestHandler()
-  )
-  parentConnection = createParentConnection({
-    isLoggedIn: () => userStore.isLoggedIn,
-    sendRequest,
-    getPublicKey: handleGetPublicKey,
-    triggerLogout: handleLogout,
-    getUserInfo,
-    expandWallet: () => (appStore.expandWallet = true),
-  })
-  parentConnectionStore.setParentConnection(parentConnection)
+  if (!parentConnection) {
+    parentConnection = createParentConnection({
+      isLoggedIn: () => userStore.isLoggedIn,
+      sendRequest: getSendRequestFn(
+        handleRequest,
+        requestStore,
+        appStore,
+        getRequestHandler()
+      ),
+      getPublicKey: handleGetPublicKey,
+      triggerLogout: handleLogout,
+      getUserInfo,
+      expandWallet: () => (appStore.expandWallet = true),
+    })
+    parentConnectionStore.setParentConnection(parentConnection)
+  }
 }
 
 async function setTheme() {
