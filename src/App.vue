@@ -223,8 +223,10 @@ body {
 
 .Vue-Toastification__toast {
   min-height: unset !important;
+  max-height: 120px !important;
   padding: 1rem !important;
   font-family: Onest, sans-serif !important;
+  text-overflow: ellipsis !important;
 }
 
 .Vue-Toastification__icon {
