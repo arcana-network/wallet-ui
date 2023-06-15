@@ -214,9 +214,9 @@ async function setAppMode(walletType, parentConnectionInstance) {
 }
 
 async function handleLogout() {
-  appStore.sdkVersion = 'v2'
-  if (parentConnection) {
-    const parentConnectionInstance = await parentConnection.promise
+  if (parentConnectionStore.parentConnection) {
+    const parentConnectionInstance = await parentConnectionStore
+      .parentConnection.promise
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
