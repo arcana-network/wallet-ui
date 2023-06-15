@@ -24,7 +24,7 @@ const showRequestCountBadge = computed(() => {
 <template>
   <div class="h-full relative">
     <button
-      class="flex items-center justify-center flex-grow h-full w-full"
+      class="flex items-start justify-center flex-grow h-full w-full pt-[6px]"
       @click="onClickOfButton"
     >
       <img :src="getImage('expand-arrow.svg')" />
