@@ -61,7 +61,7 @@ export const useRequestStore = defineStore('request', {
         this.processQueue.push({ request, isPermissionGranted: true })
       }
     },
-    setGasFee(gasPrice: string, requestId: string): void {
+    setGasFee(gasPrice: string | null, requestId: string): void {
       const request = this.pendingRequests[requestId].request
       if (Array.isArray(request.params)) {
         const param = request.params[0]

@@ -25,6 +25,8 @@ const props = defineProps({
 const rpcStore = useRpcStore()
 
 const gasFee = ref(0)
+const maxFeePerGas = ref(0)
+const maxPriorityFeePerGas = ref(0)
 const transactionTime = ref(null)
 const isGasPriceFocused = ref(false)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
@@ -77,7 +79,30 @@ function handleCustomGasPriceInput() {
       </div>
     </div>
     <div class="card flex p-1">
-      <!-- <div
+      <div
+        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        :class="{
+          'bg-black-500 dark:bg-black-300 text-white-100':
+            selectedGasMethod === 'normal',
+          'text-gray-100': selectedGasMethod !== 'normal',
+        }"
+        @click.stop="selectedGasMethod = 'normal'"
+      >
+        Normal
+      </div>
+      <div
+        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        :class="{
+          'cursor-not-allowed opacity-60 pointer-events-none': !hasGasStation,
+          'bg-black-500 dark:bg-black-300 text-white-100':
+            selectedGasMethod === 'fast',
+          'text-gray-100': selectedGasMethod !== 'fast',
+        }"
+        @click.stop="hasGasStation ? (selectedGasMethod = 'fast') : void 0"
+      >
+        Fast
+      </div>
+      <div
         class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
           'bg-black-500 dark:bg-black-300 text-white-100':
@@ -87,7 +112,7 @@ function handleCustomGasPriceInput() {
         @click.stop="selectedGasMethod = 'custom'"
       >
         Custom
-      </div> -->
+      </div>
     </div>
   </div>
   <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-1">
