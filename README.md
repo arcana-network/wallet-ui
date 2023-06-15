@@ -8,8 +8,10 @@
 <a title="MIT License" href="https://github.com/arcana-network/license/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue"/></a>
 <a title="Beta release" href="https://github.com/arcana-network/wallet-ui/releases"><img src="https://img.shields.io/github/v/release/arcana-network/wallet-ui?style=flat-square&color=28A745"/></a>
 <a title="Twitter" href="https://twitter.com/ArcanaNetwork"><img alt="Twitter URL" src="https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FArcanaNetwork"/></a>
+<!---
 <a title="CodeCov" href="https://codecov.io/gh/arcana-network/wallet-ui">
  <img src="https://codecov.io/gh/arcana-network/wallet-ui/branch/dev/graph/badge.svg?token=KmdjEs3enL"/></a>
+-->
 </p><p id="start" align="center">
 <a href="https://docs.beta.arcana.network/"><img src="https://raw.githubusercontent.com/arcana-network/branding/main/an_banner_docs.png" alt="Arcana Wallet UI"/></a>
 </p>
