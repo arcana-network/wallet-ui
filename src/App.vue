@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
@@ -121,6 +122,17 @@ function canShowCollapseButton() {
       v-show="expandWallet || app.expandRestoreScreen"
       class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
+      <div
+        v-if="AUTH_NETWORK !== 'mainnet'"
+        class="p-1 text-center"
+        style="background: #ff682620"
+      >
+        <span class="text-xs" style="color: #ff6826"
+          >This wallet is on Arcana
+          <span class="capitalize">{{ AUTH_NETWORK }}</span> and is meant for
+          testing only</span
+        >
+      </div>
       <div v-if="sdkVersion === 'v3'" class="flex justify-center mt-2 mb-2">
         <button
           v-if="canShowCollapseButton()"
