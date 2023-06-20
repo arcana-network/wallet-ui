@@ -5,6 +5,7 @@ import { RedirectParentConnectionApi } from '@/models/Connection'
 import { encrypt } from '@/utils/crypto'
 import {
   getCredentialKey,
+  getPasswordlessState,
   setCredential,
 } from '@/utils/PasswordlessLoginHandler'
 
@@ -82,7 +83,7 @@ const fetchPasswordlessResponseFromSignIn = async ({
   sessionId: string
   setToken: string
 }) => {
-  const state = `passwordless-${sessionId}-${setToken}`
+  const state = getPasswordlessState(sessionId, setToken)
   const data = await interactWithIframe<{
     status: string
     error: string | null
