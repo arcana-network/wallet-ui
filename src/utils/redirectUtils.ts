@@ -67,7 +67,6 @@ const interactWithIframe = <T>(
           )
         } catch (e) {
           // Intentionally ignoring errors
-          continue
         }
       }
     } catch (e) {
@@ -163,7 +162,7 @@ async function handlePasswordlessLoginV2(
     ciphertext = `${ciphertext}:has-mfa`
   }
   await setCredential(setToken, sessionId, ciphertext)
-  connection.replyTo()
+  await connection.replyTo()
 }
 
 async function handleSocialLogin(
@@ -173,20 +172,19 @@ async function handleSocialLogin(
 ) {
   try {
     await contactParentPage(info, messageId, LOGIN_INFO)
-    connection.replyTo()
+    await connection.replyTo()
   } catch (e) {
     console.log('A very unexpected error occurred', e)
-    connection.error('Could not login, an unexpected error occurred')
+    await connection.error('Could not login, an unexpected error occurred')
   }
 }
 
 const getStateFromUrl = (u: string) => {
-  let val = ''
   const url = new URL(decodeURIComponent(u), process.env.VUE_APP_WALLET_DOMAIN)
   const queryParams = url.searchParams
   const hashParams = new URLSearchParams(url.hash.substring(1))
   const key = 'state'
-  val = hashParams.get(key) ?? ''
+  let val = hashParams.get(key) ?? ''
   if (!val) {
     val = queryParams.get(key) ?? ''
   }
