@@ -1,5 +1,3 @@
-import { v4 as uuid } from 'uuid'
-
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
 
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL

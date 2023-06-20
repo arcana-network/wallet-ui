@@ -151,7 +151,7 @@ async function handlePasswordlessLoginV2(
   state: string,
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 ) {
-  const [, sessionId, setToken] = state.split('-')
+  const [sessionId, setToken] = state.split('-')
   const publicKey = await getCredentialKey(sessionId)
   const dataToEncrypt = {
     privateKey: info.privateKey,

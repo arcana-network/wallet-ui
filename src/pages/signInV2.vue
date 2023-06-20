@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType } from '@arcana/auth-core'
+import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, onUnmounted } from 'vue'
@@ -73,7 +73,10 @@ const initPasswordlessLogin = async (email: string) => {
 
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
-  const state = `passwordless-${params.sessionId}-${params.setToken}`
+  const state = encodeJSON({
+    t: SocialLoginType.passwordless,
+    i: `${params.sessionId}-${params.setToken}`,
+  })
   const response = await provider.loginWithPasswordlessStart({
     email,
     kind: 'link',
