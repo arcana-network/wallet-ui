@@ -90,6 +90,7 @@ async function init() {
         connection: connectionToParent,
         userInfo,
         state: stateInfo.i,
+        sessionID: uuid,
         messageId,
         isStandalone,
       })
