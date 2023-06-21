@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid'
+import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
 
@@ -142,4 +142,16 @@ const getCredentialKey = async (sessionId: string) => {
   return data.publicKey
 }
 
-export { PasswordlessLoginHandler, setCredential, getCredentialKey }
+const getPasswordlessState = (sessionId: string, setToken: string) => {
+  const state = encodeJSON({
+    t: SocialLoginType.passwordless,
+    i: `${sessionId}-${setToken}`,
+  })
+  return state
+}
+export {
+  PasswordlessLoginHandler,
+  getPasswordlessState,
+  setCredential,
+  getCredentialKey,
+}
