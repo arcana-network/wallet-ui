@@ -21,12 +21,19 @@ import {
   handleLogin,
   verifyOpenerPage,
 } from '@/utils/redirectUtils'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import {
+  getStorage,
+  getUserStorage,
+  initStorage,
+  initUserStorage,
+} from '@/utils/storageWrapper'
 
 const route = useRoute()
 const { appId } = route.params
 initStorage(String(appId))
+initUserStorage()
 
+const userStorage = getUserStorage()
 let channel: BroadcastChannel | null = null
 
 onMounted(init)
@@ -34,7 +41,7 @@ onUnmounted(cleanup)
 
 async function init() {
   const storage = getStorage()
-  const loginSrc = storage.local.getItem('loginSrc')
+  const loginSrc = userStorage.getLoginSrc()
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   try {
@@ -72,8 +79,8 @@ async function init() {
       )
       await core.init()
       userInfo.privateKey = await core.getKey()
-      userInfo.hasMfa =
-        storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
+      userInfo.hasMfa = userStorage.getHasMFA(userInfo.userInfo.id) === '1'
+      // storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
       userInfo.pk = info.privateKey
       if (!userInfo.hasMfa) {
         const securityQuestionModule = new SecurityQuestionModule(3)
@@ -82,9 +89,12 @@ async function init() {
       }
 
       const uuid = genUUID()
-      storage.local.setItem('userInfo', JSON.stringify(userInfo))
-      storage.local.setItem('isLoggedIn', JSON.stringify(true))
-      storage.local.setItem('sessionID', uuid)
+      userStorage.storeUserInfo(userInfo)
+      userStorage.setIsLoggedIn()
+      userStorage.setSession(uuid)
+      // storage.local.setItem('userInfo', JSON.stringify(userInfo))
+      // storage.local.setItem('isLoggedIn', JSON.stringify(true))
+      // storage.local.setItem('sessionID', uuid)
 
       const messageId = getUniqueId()
       await handleLogin({
@@ -95,10 +105,12 @@ async function init() {
         messageId,
         isStandalone,
       })
-      storage.local.removeItem('loginSrc')
+      userStorage.clearLoginSrc()
+      // storage.local.removeItem('loginSrc')
       storage.session.removeItem('state')
     } else {
-      storage.local.removeItem('loginSrc')
+      userStorage.clearLoginSrc()
+      // storage.local.removeItem('loginSrc')
       await reportError('Could not login, please try again')
       return
     }

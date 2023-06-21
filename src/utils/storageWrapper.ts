@@ -1,5 +1,7 @@
 import { useRoute } from 'vue-router'
 
+import { UserStorage } from '@/utils/storage'
+
 type StorageScope = 'local' | 'session'
 interface SimplifiedStorage {
   getItem(key: string): string | null
@@ -60,6 +62,15 @@ type StorageInstance = {
 }
 
 let storageInstance: StorageInstance
+let userStore: UserStorage
+
+function getUserStorage() {
+  return userStore
+}
+
+function initUserStorage() {
+  userStore = new UserStorage()
+}
 
 function getStorage() {
   return storageInstance
@@ -72,5 +83,5 @@ function initStorage(appId?: string) {
   }
 }
 
-export { getStorage, initStorage }
+export { getStorage, initStorage, getUserStorage, initUserStorage }
 export type { StorageWrapper }

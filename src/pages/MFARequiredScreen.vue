@@ -10,7 +10,7 @@ import { useUserStore } from '@/store/user'
 import { AUTH_URL, DOCS_URL } from '@/utils/constants'
 import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
-import { getStorage } from '@/utils/storageWrapper'
+import { getStorage, getUserStorage } from '@/utils/storageWrapper'
 
 const appStore = useAppStore()
 const user = useUserStore()
@@ -23,10 +23,14 @@ const loader = ref({
 })
 let mfaWindow: Window | null
 const storage = getStorage()
+const userStorage = getUserStorage()
 
 async function handleProceed() {
-  const { loginType } = JSON.parse(storage.local.getItem('userInfo') as string)
-  if (isInAppLogin(loginType)) {
+  const info = userStorage.getUserInfo()
+  if (!info) {
+    return
+  }
+  if (isInAppLogin(info.loginType)) {
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {
     cleanExit = false
