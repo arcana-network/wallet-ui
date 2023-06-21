@@ -35,14 +35,15 @@ function getTitle(requestMethod: string) {
 
 function getPermissionText(method, request) {
   const { params } = request
-  const { chainName } = params[0]
-  if (method === 'wallet_addEthereumChain') {
-    return chainName ? `Adding Chain - ${chainName}` : 'Adding Chain'
-  } else if (method === 'wallet_switchEthereumChain') {
-    return chainName ? `Switch Chain - ${chainName}` : 'Switch Chain'
-  } else {
-    return methodAndAction[method]
+  if (params instanceof Array && params[0]) {
+    const { chainName } = params[0]
+    if (method === 'wallet_addEthereumChain') {
+      return chainName ? `Adding Chain - ${chainName}` : 'Adding Chain'
+    } else if (method === 'wallet_switchEthereumChain') {
+      return chainName ? `Switch Chain - ${chainName}` : 'Switch Chain'
+    }
   }
+  return methodAndAction[method]
 }
 </script>
 
