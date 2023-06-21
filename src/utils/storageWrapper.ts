@@ -1,15 +1,44 @@
 import { useRoute } from 'vue-router'
 
 type StorageScope = 'local' | 'session'
+interface SimplifiedStorage {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+  removeItem(key: string): void
+}
+
+class InMemoryStorage {
+  map = new Map<string, string>()
+
+  getItem(key: string): string | null {
+    const v = this.map.get(key)
+    return v != null ? v : null
+  }
+
+  setItem(key: string, value: string): void {
+    this.map.set(key, value)
+  }
+
+  removeItem(key: string) {
+    this.map.delete(key)
+  }
+}
 
 class StorageWrapper {
   private readonly appAddress: string
-  private readonly clientStorage: Storage
+  private readonly clientStorage: SimplifiedStorage
 
   constructor(scope: StorageScope, appId?: string) {
     const route = useRoute()
     this.appAddress = appId ? appId : String(route.params.appId)
-    this.clientStorage = scope === 'local' ? localStorage : sessionStorage
+
+    const storage =
+      scope === 'local' ? window.localStorage : window.sessionStorage
+    if (storage == null || !storage.enabled) {
+      this.clientStorage = new InMemoryStorage()
+    } else {
+      this.clientStorage = storage
+    }
   }
 
   setItem(key: string, value: string) {
