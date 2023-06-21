@@ -209,6 +209,7 @@ const handleLogin = async (params: HandleLoginParams) => {
 }
 
 export {
+  interactWithIframe,
   catchupSigninPage,
   fetchPasswordlessResponseFromSignIn,
   handleLogin,

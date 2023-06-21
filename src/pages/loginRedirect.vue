@@ -84,7 +84,13 @@ async function init() {
       const uuid = genUUID()
       storage.local.setItem('userInfo', JSON.stringify(userInfo))
       storage.local.setItem('isLoggedIn', JSON.stringify(true))
-      storage.local.setItem('sessionID', uuid)
+      storage.local.setItem(
+        'session',
+        JSON.stringify({
+          sessionID: uuid,
+          timestamp: Date.now(),
+        })
+      )
 
       const messageId = getUniqueId()
       await handleLogin({
