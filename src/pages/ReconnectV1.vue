@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /*
 ---- Log-in
 1. loginRedirect.vue creates a session ID, asks the parent app's Auth SDK to store it. It's opaque.
@@ -14,4 +14,62 @@
 2. Check if the session ID is expired, if it's expired, delete the private keys and return an error
 3. Get the info from Local Storage & call contactParentPage
 */
+import { getUniqueId } from 'json-rpc-engine'
+import { onMounted } from 'vue'
+
+import {
+  interactWithIframe,
+  LOGIN_INFO,
+  LOGIN_INFO_ACK,
+  MFA_SETUP_ACK,
+} from '@/utils/redirectUtils'
+import { getStorage } from '@/utils/storageWrapper'
+
+const EXPIRY_MS = 60 * 60 * 1000
+
+onMounted(async () => {
+  // ... ???
+  const { sessionID: uSessionID } = {}
+  const storage = getStorage()
+
+  const { sessionID: actualSessionID, timestamp } = JSON.parse(
+    storage.local.getItem('session') ?? '{}'
+  )
+  const currentTS = Date.now()
+
+  if (actualSessionID == null) {
+    // not logged in, ???
+    return
+  }
+
+  // does this require constant-time comparison to ensure we don't leak information to a malicious application?
+  if (uSessionID !== actualSessionID) {
+    // ???
+    return
+  }
+
+  if (currentTS - timestamp > EXPIRY_MS) {
+    storage.local.removeItem('userInfo')
+    storage.local.removeItem('isLoggedIn')
+    storage.local.removeItem('session')
+    // ???
+    return
+  }
+
+  const userInfo = JSON.parse(storage.local.getItem('userInfo') ?? '{}')
+  const mid = getUniqueId()
+  const data = await interactWithIframe<{ messageId: number }>({
+    status: LOGIN_INFO,
+    params: {
+      sessionID: actualSessionID,
+      messageId: mid,
+      info: userInfo,
+    },
+    expectedResponseStatus: [LOGIN_INFO_ACK, MFA_SETUP_ACK],
+  })
+  if (data.messageId === mid) {
+    // ???
+    window.close()
+  }
+})
 </script>

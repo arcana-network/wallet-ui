@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import { UserStorage } from '@/utils/storage'
 
 type StorageScope = 'local' | 'session'
+
 interface SimplifiedStorage {
   getItem(key: string): string | null
   setItem(key: string, value: string): void

@@ -3,7 +3,7 @@ import { GetInfoOutput } from '@arcana/auth-core'
 enum StorageKey {
   UserInfo = 'userInfo',
   IsLoggedIn = 'isLoggedIn',
-  SessionID = 'sessionID',
+  Session = 'session',
   HasMFA = 'has-mfa',
   LoginSrc = 'loginSrc',
 }
@@ -29,6 +29,10 @@ class UserStorage {
     return this.storage.get<UserInfo>(StorageKey.UserInfo)
   }
 
+  clearUserInfo() {
+    this.storage.delete(StorageKey.UserInfo)
+  }
+
   setIsLoggedIn() {
     this.storage.set(StorageKey.IsLoggedIn, true)
   }
@@ -37,12 +41,22 @@ class UserStorage {
     return this.storage.get<boolean>(StorageKey.IsLoggedIn) ?? false
   }
 
-  setSession(id: string) {
-    this.storage.set(StorageKey.SessionID, id)
+  clearIsLoggedIn() {
+    this.storage.delete(StorageKey.IsLoggedIn)
+  }
+
+  setSession(val: { sessionID: string; timestamp: number }) {
+    this.storage.set(StorageKey.Session, val)
   }
 
   getSession() {
-    return this.storage.get<string>(StorageKey.SessionID)
+    return this.storage.get<{ sessionID: string; timestamp: number }>(
+      StorageKey.Session
+    )
+  }
+
+  clearSession() {
+    this.storage.delete(StorageKey.Session)
   }
 
   setHasMFA(id: string) {
