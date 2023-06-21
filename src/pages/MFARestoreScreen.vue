@@ -194,7 +194,7 @@ async function returnToParent(key: string) {
     {}
   ).promise
   const info = JSON.parse(storage.session.getItem('info') as string)
-  const state = storage.local.getItem('state') as string
+  const state = storage.session.getItem('state') as string
   const stateInfo = decodeJSON<StateInfo>(state)
   const loginSrc = storage.local.getItem('loginSrc')
   const isStandalone =
