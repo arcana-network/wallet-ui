@@ -254,8 +254,8 @@ async function init() {
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    const userInfo = JSON.parse(storage.session.getItem('userInfo') || '{}')
-    const isLoggedIn = storage.session.getItem('isLoggedIn')
+    const userInfo = JSON.parse(storage.local.getItem('userInfo') || '{}')
+    const isLoggedIn = storage.local.getItem('isLoggedIn')
 
     if (isLoggedIn) {
       const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)

@@ -82,9 +82,10 @@ async function init() {
       }
 
       const uuid = genUUID()
-      storage.session.setItem('userInfo', JSON.stringify(userInfo))
-      storage.session.setItem('isLoggedIn', JSON.stringify(true))
-      storage.session.setItem('sessionID', uuid)
+      storage.local.setItem('userInfo', JSON.stringify(userInfo))
+      storage.local.setItem('isLoggedIn', JSON.stringify(true))
+      storage.local.setItem('sessionID', uuid)
+
       const messageId = getUniqueId()
       await handleLogin({
         connection: connectionToParent,

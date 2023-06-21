@@ -86,7 +86,7 @@ onMounted(async () => {
 
 async function setMFABannerState() {
   if (!userStore.hasMfa) {
-    const userInfo = JSON.parse(storage.session.getItem('userInfo') as string)
+    const userInfo = JSON.parse(storage.local.getItem('userInfo') as string)
     const core = new Core(
       userInfo.pk,
       userStore.info.id,

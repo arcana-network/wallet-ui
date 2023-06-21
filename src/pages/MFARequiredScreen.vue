@@ -25,9 +25,7 @@ let mfaWindow: Window | null
 const storage = getStorage()
 
 async function handleProceed() {
-  const { loginType } = JSON.parse(
-    storage.session.getItem('userInfo') as string
-  )
+  const { loginType } = JSON.parse(storage.local.getItem('userInfo') as string)
   if (isInAppLogin(loginType)) {
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {

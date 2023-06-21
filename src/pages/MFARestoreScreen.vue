@@ -57,7 +57,7 @@ onBeforeMount(async () => {
     show: true,
     message: 'Loading metadata...',
   }
-  const localSession = storage.session.getItem('userInfo')
+  const localSession = storage.local.getItem('userInfo')
   if (localSession) {
     userInfoSession = JSON.parse(localSession)
   }
@@ -193,7 +193,7 @@ async function returnToParent(key: string) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
-  const info = JSON.parse(storage.session.getItem('info') as string)
+  const info = JSON.parse(storage.local.getItem('info') as string)
   const state = storage.local.getItem('state') as string
   const stateInfo = decodeJSON<StateInfo>(state)
   const loginSrc = storage.local.getItem('loginSrc')
