@@ -35,7 +35,19 @@ class StorageWrapper {
 
     const storage =
       scope === 'local' ? window.localStorage : window.sessionStorage
-    if (storage == null || !storage.enabled) {
+
+    let works = false
+    try {
+      storage.setItem('_', '_')
+      works = storage.getItem('_') === '_'
+    } catch (e) {
+      console.log(
+        "Local or session storage doesn't work, falling back to In-Memory storage."
+      )
+      console.error(e)
+    }
+
+    if (storage == null || !works) {
       this.clientStorage = new InMemoryStorage()
     } else {
       this.clientStorage = storage
