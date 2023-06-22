@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { SocialLoginType } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { toRefs, onMounted, ref, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
+import { onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { AUTH_NETWORK, AUTH_URL, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
@@ -19,7 +19,7 @@ import {
   getPasswordlessState,
   PasswordlessLoginHandler,
 } from '@/utils/PasswordlessLoginHandler'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import { getStorage, initStorage, StorageType } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
@@ -279,6 +279,21 @@ async function init() {
     authProvider = await getAuthProvider(`${appId}`)
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
+
+    // 3PC is disabled or wallet UI cannot store data by a policy decision
+    if (storage.local.storageType === StorageType.IN_MEMORY) {
+      parentConnection = createParentConnection({
+        ...penpalMethods,
+      })
+      parentConnectionStore.setParentConnection(parentConnection)
+      const parentConnectionInstance = await parentConnection.promise
+
+      const reconURL = new URL(`/reconnect/${app.id}/`, AUTH_URL)
+      await parentConnectionInstance.notifyNoStorage({
+        reconnectionURL: reconURL.href,
+      })
+      return
+    }
 
     const userInfo = JSON.parse(storage.local.getItem('userInfo') || '{}')
     const isLoggedIn = storage.local.getItem('isLoggedIn')

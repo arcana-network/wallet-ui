@@ -8,6 +8,11 @@ interface SimplifiedStorage {
   removeItem(key: string): void
 }
 
+enum StorageType {
+  BROWSER,
+  IN_MEMORY,
+}
+
 class InMemoryStorage {
   map = new Map<string, string>()
 
@@ -28,6 +33,7 @@ class InMemoryStorage {
 class StorageWrapper {
   private readonly appAddress: string
   private readonly clientStorage: SimplifiedStorage
+  public readonly storageType: StorageType
 
   constructor(scope: StorageScope, appId?: string) {
     const route = useRoute()
@@ -49,8 +55,10 @@ class StorageWrapper {
 
     if (storage == null || !works) {
       this.clientStorage = new InMemoryStorage()
+      this.storageType = StorageType.IN_MEMORY
     } else {
       this.clientStorage = storage
+      this.storageType = StorageType.BROWSER
     }
   }
 
@@ -85,5 +93,5 @@ function initStorage(appId?: string) {
   }
 }
 
-export { getStorage, initStorage }
+export { getStorage, initStorage, StorageType }
 export type { StorageWrapper }

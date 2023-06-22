@@ -39,7 +39,6 @@ function reportError(errorMessage) {
 }
 
 onMounted(async () => {
-  // ... ???
   const uSessionID = useRoute().query['sessionID']
   const storage = getStorage()
 
