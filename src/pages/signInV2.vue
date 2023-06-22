@@ -288,7 +288,7 @@ async function init() {
       parentConnectionStore.setParentConnection(parentConnection)
       const parentConnectionInstance = await parentConnection.promise
 
-      const reconURL = new URL(`/reconnect/${app.id}/`, AUTH_URL)
+      const reconURL = new URL(`/reconnect/${app.id}`, AUTH_URL)
       await parentConnectionInstance.notifyNoStorage({
         reconnectionURL: reconURL.href,
       })
