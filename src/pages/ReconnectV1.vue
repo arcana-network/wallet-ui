@@ -16,6 +16,7 @@
 */
 import { getUniqueId } from 'json-rpc-engine'
 import { onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 import {
   interactWithIframe,
@@ -27,9 +28,18 @@ import { getStorage } from '@/utils/storageWrapper'
 
 const EXPIRY_MS = 60 * 60 * 1000
 
+function reportError(errorMessage) {
+  window.parent.opener.postMessage(
+    {
+      status: 'RECONNECT_ERROR',
+      error: errorMessage,
+    },
+    '*'
+  )
+}
+
 onMounted(async () => {
-  // ... ???
-  const { sessionID: uSessionID } = {}
+  const uSessionID = useRoute().query['sessionID']
   const storage = getStorage()
 
   const { sessionID: actualSessionID, timestamp } = JSON.parse(
@@ -38,22 +48,20 @@ onMounted(async () => {
   const currentTS = Date.now()
 
   if (actualSessionID == null) {
-    // not logged in, ???
-    return
+    return reportError('Session ID missing, or logged out')
   }
 
   // does this require constant-time comparison to ensure we don't leak information to a malicious application?
   if (uSessionID !== actualSessionID) {
     // ???
-    return
+    return reportError('Session ID mismatch')
   }
 
   if (currentTS - timestamp > EXPIRY_MS) {
     storage.local.removeItem('userInfo')
     storage.local.removeItem('isLoggedIn')
     storage.local.removeItem('session')
-    // ???
-    return
+    return reportError('Session expired, try logging in again')
   }
 
   const userInfo = JSON.parse(storage.local.getItem('userInfo') ?? '{}')
@@ -68,7 +76,6 @@ onMounted(async () => {
     expectedResponseStatus: [LOGIN_INFO_ACK, MFA_SETUP_ACK],
   })
   if (data.messageId === mid) {
-    // ???
     window.close()
   }
 })

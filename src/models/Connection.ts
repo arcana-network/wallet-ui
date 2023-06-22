@@ -72,6 +72,7 @@ type ParentConnectionApi = {
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
   getWalletPosition(): Position
   getSDKVersion(): SDKVersion
+  notifyNoStorage({ reconnectionURL: string }): void
 }
 type InitParentConnectionApi = {
   getParentUrl(): string

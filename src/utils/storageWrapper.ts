@@ -10,6 +10,11 @@ interface SimplifiedStorage {
   removeItem(key: string): void
 }
 
+enum StorageType {
+  BROWSER,
+  IN_MEMORY,
+}
+
 class InMemoryStorage {
   map = new Map<string, string>()
 
@@ -30,6 +35,7 @@ class InMemoryStorage {
 class StorageWrapper {
   private readonly appAddress: string
   private readonly clientStorage: SimplifiedStorage
+  public readonly storageType: StorageType
 
   constructor(scope: StorageScope, appId?: string) {
     const route = useRoute()
@@ -37,10 +43,24 @@ class StorageWrapper {
 
     const storage =
       scope === 'local' ? window.localStorage : window.sessionStorage
-    if (storage == null || !storage.enabled) {
+
+    let works = false
+    try {
+      storage.setItem('_', '_')
+      works = storage.getItem('_') === '_'
+    } catch (e) {
+      console.log(
+        "Local or session storage doesn't work, falling back to In-Memory storage."
+      )
+      console.error(e)
+    }
+
+    if (storage == null || !works) {
       this.clientStorage = new InMemoryStorage()
+      this.storageType = StorageType.IN_MEMORY
     } else {
       this.clientStorage = storage
+      this.storageType = StorageType.BROWSER
     }
   }
 
