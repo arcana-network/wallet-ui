@@ -195,7 +195,7 @@ async function handleShowPreview() {
   if (!gas.value) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: `4`,
+      maxPriorityFeePerGas: String(4),
       gasLimit: 0,
     }
   }

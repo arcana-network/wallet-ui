@@ -74,10 +74,8 @@ export const useRequestStore = defineStore('request', {
         param.maxPriorityFeePerGas = gas?.maxPriorityFeePerGas
           ? Number(gas.maxPriorityFeePerGas)
           : 0
-        param.maxFeePerGas = gas?.maxFeePerGas
-          ? Number(gas.maxFeePerGas) + Number(gas.maxPriorityFeePerGas)
-          : 0
-        param.gasLimit = Number(gas?.gasLimit || 0)
+        param.maxFeePerGas = gas?.maxFeePerGas ? Number(gas.maxFeePerGas) : 0
+        param.gas = Number(gas?.gasLimit || 0)
         delete param.gasPrice
       }
     },
