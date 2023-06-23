@@ -55,21 +55,6 @@ function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
 }
 
 function handleCustomGasPriceInput() {
-  const amountInputEl = document.querySelector(
-    '#custom-gas-fee-amount'
-  ) as HTMLInputElement
-  if (!maxFeePerGas.value && maxFeePerGas.value !== 0) {
-    amountInputEl.setCustomValidity('Enter the gas fees to continue.')
-  } else if (maxFeePerGas.value < Number(props.baseFee)) {
-    amountInputEl.setCustomValidity('Gas fees must not be less than base fees.')
-  } else {
-    amountInputEl.setCustomValidity('')
-    emits('gasPriceInput', {
-      maxFeePerGas: maxFeePerGas.value,
-      maxPriorityFeePerGas: maxPriorityFeePerGas.value,
-      gasLimit: totalGasUsed.value,
-    })
-  }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
     maxPriorityFeePerGas: maxPriorityFeePerGas.value,
@@ -135,6 +120,7 @@ function handleCustomGasPriceInput() {
         type="text"
         class="input-field"
         placeholder="Enter total gas to be used"
+        @input="handleCustomGasPriceInput()"
       />
     </div>
     <div class="flex flex-col gap-1">
@@ -148,6 +134,7 @@ function handleCustomGasPriceInput() {
         type="text"
         class="input-field"
         placeholder="Enter Max priority fee per gas"
+        @input="handleCustomGasPriceInput()"
       />
     </div>
     <div class="flex flex-col gap-1">
