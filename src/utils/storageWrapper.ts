@@ -39,18 +39,17 @@ class StorageWrapper {
     const route = useRoute()
     this.appAddress = appId ? appId : String(route.params.appId)
 
-    const storage =
-      scope === 'local' ? window.localStorage : window.sessionStorage
-
+    let storage: Storage | null = null
     let works = false
     try {
+      storage = scope === 'local' ? window.localStorage : window.sessionStorage
       storage.setItem('_', '_')
       works = storage.getItem('_') === '_'
     } catch (e) {
       console.log(
-        "Local or session storage doesn't work, falling back to In-Memory storage."
+        "Local or session storage doesn't work, falling back to In-Memory storage.",
+        e
       )
-      console.error(e)
     }
 
     if (storage == null || !works) {

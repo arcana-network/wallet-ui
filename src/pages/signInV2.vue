@@ -200,7 +200,7 @@ async function storeUserInfoAndRedirect(
     `${userInfo.userInfo.id}-login-count`,
     String(newLoginCount)
   )
-  router.push({ name: 'home' })
+  await router.push({ name: 'home' })
 }
 
 const windowEventHandler = (
@@ -208,6 +208,7 @@ const windowEventHandler = (
     status: string
     messageId: number
     info: GetInfoOutput & { hasMfa?: boolean }
+    sessionID: string
     state?: string
   }>
 ) => {
@@ -227,6 +228,13 @@ const windowEventHandler = (
         user.hasMfa = true
         storage.local.setItem(`${ev.data.info.userInfo.id}-has-mfa`, '1')
       }
+      parentConnection?.promise
+        .then((ins) => {
+          return ins.setSessionID(ev.data.sessionID)
+        })
+        .catch((e) => {
+          console.error('Failed to set session ID!', e)
+        })
       break
     }
     case 'LOGIN_VERIFY': {
@@ -265,6 +273,14 @@ const windowEventHandler = (
   }
 }
 
+async function initializeParentConnection() {
+  parentConnection = createParentConnection({
+    ...penpalMethods,
+  })
+  parentConnectionStore.setParentConnection(parentConnection)
+  return parentConnection.promise
+}
+
 async function init() {
   isLoading.value = true
   try {
@@ -277,22 +293,15 @@ async function init() {
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
-
     availableLogins.value = await fetchAvailableLogins(authProvider)
+    const parentConnectionInstance = await initializeParentConnection()
 
     // 3PC is disabled or wallet UI cannot store data by a policy decision
     if (storage.local.storageType === StorageType.IN_MEMORY) {
-      parentConnection = createParentConnection({
-        ...penpalMethods,
-      })
-      parentConnectionStore.setParentConnection(parentConnection)
-      const parentConnectionInstance = await parentConnection.promise
-
       const reconURL = new URL(`/reconnect/${app.id}`, AUTH_URL)
       await parentConnectionInstance.notifyNoStorage({
         reconnectionURL: reconURL.href,
       })
-      return
     }
 
     const userInfo = JSON.parse(storage.local.getItem('userInfo') || '{}')
@@ -316,15 +325,8 @@ async function init() {
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
       user.hasMfa = hasMfa === '1'
-      router.push({ name: 'home' })
+      await router.push({ name: 'home' })
     } else {
-      parentConnection = createParentConnection({
-        ...penpalMethods,
-      })
-      parentConnectionStore.setParentConnection(parentConnection)
-
-      const parentConnectionInstance = await parentConnection.promise
-
       const {
         themeConfig: { theme },
         name: appName,

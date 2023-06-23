@@ -58,20 +58,24 @@ type RedirectParentConnectionApi = {
 type ParentConnectionApi = {
   getAppConfig(): AppConfig
   getRpcConfig(): RpcConfig
+  getParentUrl(): string
+  getAppMode(): Promise<AppMode>
+  getWalletPosition(): Position
+  getSDKVersion(): SDKVersion
+
+  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
+  setSessionID(sessionID: string): void
+
   onMethodResponse(
     method: string,
     response: PendingJsonRpcResponse<unknown>
   ): void
   sendPendingRequestCount(count: number): void
-  getParentUrl(): string
   onEvent(event: string, params?: ProviderEvent): void
   uiEvent(event: string, val: any): void
-  getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
-  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
-  getWalletPosition(): Position
-  getSDKVersion(): SDKVersion
+
   notifyNoStorage({ reconnectionURL: string }): void
 }
 type InitParentConnectionApi = {

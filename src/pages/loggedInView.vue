@@ -85,6 +85,9 @@ onMounted(async () => {
 })
 
 async function setMFABannerState() {
+  return null
+
+  // eslint-disable-next-line no-unreachable
   if (!userStore.hasMfa) {
     const userInfo = JSON.parse(storage.local.getItem('userInfo') as string)
     const core = new Core(
