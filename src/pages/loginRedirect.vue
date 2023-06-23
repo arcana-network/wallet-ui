@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
+import {
+  GetInfoOutput,
+  SocialLoginType,
+  StateInfo,
+  decodeJSON,
+} from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
@@ -26,9 +31,6 @@ let channel: BroadcastChannel | null = null
 onMounted(init)
 onUnmounted(cleanup)
 
-const getLoginTypeFromState = (s: string) => {
-  return s.split('-')[0]
-}
 async function init() {
   const storage = getStorage()
   const loginSrc = storage.local.getItem('loginSrc')
@@ -37,14 +39,15 @@ async function init() {
   try {
     const state = getStateFromUrl(route.fullPath)
     storage.session.setItem('state', state)
+    const stateInfo = decodeJSON<StateInfo>(state)
+
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
-    if (
-      !isStandalone &&
-      getLoginTypeFromState(state) !== SocialLoginType.passwordless
-    ) {
+
+    if (!isStandalone && stateInfo.t !== SocialLoginType.passwordless) {
       await verifyOpenerPage(state)
     }
+
     const authProvider = await getAuthProvider(`${appId}`)
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
@@ -84,7 +87,7 @@ async function init() {
       await handleLogin({
         connection: connectionToParent,
         userInfo,
-        state,
+        state: stateInfo.i,
         messageId,
         isStandalone,
       })

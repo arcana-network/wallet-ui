@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { StateInfo, decodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
@@ -193,7 +194,8 @@ async function returnToParent(key: string) {
     {}
   ).promise
   const info = JSON.parse(storage.session.getItem('info') as string)
-  const state = storage.local.getItem('state') as string
+  const state = storage.session.getItem('state') as string
+  const stateInfo = decodeJSON<StateInfo>(state)
   const loginSrc = storage.local.getItem('loginSrc')
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
@@ -206,7 +208,7 @@ async function returnToParent(key: string) {
 
   const messageId = getUniqueId()
   await handleLogin({
-    state,
+    state: stateInfo.i,
     isStandalone,
     userInfo: info,
     messageId,

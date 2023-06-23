@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
@@ -116,12 +117,23 @@ function canShowCollapseButton() {
 </script>
 
 <template>
-  <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
+  <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
       class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
-      <div class="flex justify-center mt-2 mb-2">
+      <div
+        v-if="AUTH_NETWORK !== 'mainnet'"
+        class="p-1 text-center"
+        style="background: #ff682620"
+      >
+        <span class="text-xs" style="color: #ff6826"
+          >This wallet is on Arcana
+          <span class="capitalize">{{ AUTH_NETWORK }}</span> and is meant for
+          testing only</span
+        >
+      </div>
+      <div v-if="sdkVersion === 'v3'" class="flex justify-center mt-2 mb-2">
         <button
           v-if="canShowCollapseButton()"
           class="flex flex-grow justify-center"
@@ -131,7 +143,7 @@ function canShowCollapseButton() {
           <img v-else :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
-      <WalletHeader v-if="route.name !== 'requests'" />
+      <WalletHeader v-if="sdkVersion === 'v3' && route.name !== 'requests'" />
       <div class="flex-grow wallet__container m-1 p-3">
         <RouterView class="flex-grow" />
         <img
@@ -144,6 +156,7 @@ function canShowCollapseButton() {
       <WalletFooter v-if="showFooter" />
     </div>
     <div
+      v-if="sdkVersion === 'v3'"
       v-show="showWalletButton"
       class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300 transition-all duration-500 hover:h-[100vh] hover:mt-0"
       style="z-index: 999"
@@ -153,16 +166,6 @@ function canShowCollapseButton() {
     >
       <WalletButton class="relative z-1" />
     </div>
-  </div>
-  <div v-else class="flex flex-col h-full bg-white-300 dark:bg-black-300">
-    <div
-      class="flex-grow wallet__container p-4"
-      :class="{ 'p-0': compactMode }"
-    >
-      <RouterView class="min-h-full" />
-      <BaseModal v-if="modal.show" />
-    </div>
-    <WalletFooter v-if="showFooter" />
   </div>
 </template>
 
@@ -232,8 +235,10 @@ body {
 
 .Vue-Toastification__toast {
   min-height: unset !important;
+  max-height: 120px !important;
   padding: 1rem !important;
   font-family: Onest, sans-serif !important;
+  text-overflow: ellipsis !important;
 }
 
 .Vue-Toastification__icon {
