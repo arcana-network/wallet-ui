@@ -16,6 +16,7 @@
 */
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
+import type { AsyncMethodReturns } from 'penpal'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -29,20 +30,19 @@ import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const EXPIRY_MS = 60 * 60 * 1000
 
-function reportError(errorMessage) {
-  console.error('!!!', errorMessage)
-  window.parent.opener.postMessage(
-    {
-      status: 'RECONNECT_ERROR',
-      error: errorMessage,
-    },
-    '*'
-  )
-}
-
 interface ParentInterface {
   getSessionID(): string
   requestExit(): void
+  reportError(txt: string): void
+}
+
+async function exitWithError(
+  connxn: AsyncMethodReturns<ParentInterface>,
+  error: string
+) {
+  await connxn.reportError(error)
+  // Remove?
+  await connxn.requestExit()
 }
 
 onMounted(async () => {
@@ -60,20 +60,20 @@ onMounted(async () => {
   const currentTS = Date.now()
 
   if (actualSessionID == null) {
-    return reportError('Session ID missing, or logged out')
+    return exitWithError(connxn, 'Session ID missing, or logged out')
   }
 
   // does this require constant-time comparison to ensure we don't leak information to a malicious application?
   if (uSessionID !== actualSessionID) {
     // ???
-    return reportError('Session ID mismatch')
+    return exitWithError(connxn, 'Session ID mismatch')
   }
 
   if (currentTS - timestamp > EXPIRY_MS) {
     storage.local.removeItem('userInfo')
     storage.local.removeItem('isLoggedIn')
     storage.local.removeItem('session')
-    return reportError('Session expired, try logging in again')
+    return exitWithError(connxn, 'Session expired, try logging in again')
   }
 
   const userInfo = JSON.parse(storage.local.getItem('userInfo') ?? '{}')
