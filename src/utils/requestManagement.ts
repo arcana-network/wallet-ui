@@ -325,7 +325,6 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         delete request.params[0].gas
       }
       try {
-        console.log({ request })
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
         if (response.error) {
@@ -471,11 +470,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
-      console.log('appStore.expandWallet', appStore.expandWallet)
       if (!appStore.expandWallet) {
         appStore.expandedByRequest = true
       }
-      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {

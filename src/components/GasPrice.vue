@@ -40,7 +40,6 @@ emits('gasPriceInput', {
 })
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
-  console.log('handleCustomGasPriceInput')
   if (gasMethod === 'normal' || gasMethod === 'custom') {
     maxPriorityFeePerGas.value = 4
     maxFeePerGas.value = Number(props.baseFee)

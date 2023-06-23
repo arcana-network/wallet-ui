@@ -83,7 +83,6 @@ export const useRequestStore = defineStore('request', {
     },
     skipRequest(requestId: string): void {
       this.skippedRequests[requestId] = this.pendingRequests[requestId]
-      console.log(this.skippedRequests)
       delete this.pendingRequests[requestId]
     },
     approveSkippedRequest(requestId: string): void {

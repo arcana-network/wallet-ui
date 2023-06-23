@@ -67,7 +67,6 @@ onMounted(async () => {
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
-    console.log({ baseGasPrice })
     gasLimit.value = (
       await accountHandler.provider.estimateGas({
         to: props.request.request.to,
@@ -90,7 +89,6 @@ onMounted(async () => {
 function handleSetGasPrice(value) {
   const requestId = props.request.request.id
   customGasPrice.value = value
-  console.log({ value })
   emits('gasPriceInput', {
     value: {
       maxFeePerGas: ethers.utils
