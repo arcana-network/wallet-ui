@@ -7,6 +7,12 @@ type PendingRequest = {
   isPermissionGranted: boolean
 }
 
+type EIP1559GasFee = {
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+  gasLimit: number
+}
+
 type RequestState = {
   pendingRequests: { [key: string]: PendingRequest }
   skippedRequests: { [key: string]: PendingRequest }
@@ -61,12 +67,18 @@ export const useRequestStore = defineStore('request', {
         this.processQueue.push({ request, isPermissionGranted: true })
       }
     },
-    setGasFee(gasPrice: string | null, requestId: string): void {
+    setGasFee(gas: EIP1559GasFee | null, requestId: string): void {
       const request = this.pendingRequests[requestId].request
       if (Array.isArray(request.params)) {
         const param = request.params[0]
-        param.maxPriorityFeePerGas = '0x1'
-        param.maxFeePerGas = gasPrice
+        param.maxPriorityFeePerGas = gas?.maxPriorityFeePerGas
+          ? Number(gas.maxPriorityFeePerGas)
+          : 0
+        param.maxFeePerGas = gas?.maxFeePerGas
+          ? Number(gas.maxFeePerGas) + Number(gas.maxPriorityFeePerGas)
+          : 0
+        param.gasLimit = Number(gas?.gasLimit || 0)
+        delete param.gasPrice
       }
     },
     skipRequest(requestId: string): void {
@@ -96,3 +108,5 @@ export const useRequestStore = defineStore('request', {
     },
   },
 })
+
+export type { EIP1559GasFee }

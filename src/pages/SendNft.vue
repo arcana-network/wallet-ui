@@ -13,6 +13,7 @@ import {
   GAS_AVAILABLE_CHAIN_IDS,
 } from '@/services/gasPrice.service'
 import { useActivitiesStore } from '@/store/activities'
+import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
@@ -45,7 +46,7 @@ const chainId = Number(rpcStore.selectedChainId)
 const router = useRouter()
 
 const recipientWalletAddress = ref('')
-const gasFeeInGwei = ref('')
+const gas: Ref<EIP1559GasFee | null> = ref(null)
 const gasFeeInEth = ref('')
 const estimatedGas = ref('0')
 const gasPrices: Ref<object> = ref({})
@@ -57,14 +58,21 @@ const baseFee = ref('0')
 const quantity = ref(1)
 const isQuantityFocused = ref(false)
 
-watch(
-  () => gasFeeInGwei.value,
-  () => {
-    if (gasFeeInEth.value) {
-      gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
-    }
+watch(gas, () => {
+  if (gasFeeInEth.value) {
+    gasFeeInEth.value = ethers.utils
+      .formatEther(
+        ethers.utils.parseUnits(
+          `${
+            Number(gas.value?.maxFeePerGas) +
+            Number(gas.value?.maxPriorityFeePerGas)
+          }`,
+          'gwei'
+        )
+      )
+      .toString()
   }
-)
+})
 
 function showLoader(message) {
   loader.value.show = true
@@ -88,6 +96,17 @@ onMounted(async () => {
       gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
     }
     baseFeePoll = setInterval(fetchBaseFee, 2000)
+    const accountHandler = getRequestHandler().getAccountHandler()
+    estimatedGas.value = (
+      await accountHandler.estimateNftGas(
+        props.type,
+        props.address,
+        userStore.walletAddress,
+        recipientWalletAddress.value,
+        props.tokenId,
+        1000
+      )
+    ).toString()
   } catch (err) {
     console.log({ err })
   } finally {
@@ -113,7 +132,7 @@ async function fetchGasSliderValues() {
 
 function clearForm() {
   recipientWalletAddress.value = ''
-  gasFeeInGwei.value = ''
+  gas.value = null
 }
 
 function setHexPrefix(value: string) {
@@ -126,7 +145,13 @@ async function handleSendToken() {
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
-      .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
+      .parseUnits(
+        `${
+          Number(gas.value?.maxFeePerGas) +
+          Number(gas.value?.maxPriorityFeePerGas)
+        }`,
+        'gwei'
+      )
       .toHexString()
 
     const txHash = await accountHandler.sendNft(
@@ -163,14 +188,18 @@ async function handleSendToken() {
 }
 
 function handleSetGasPrice(value) {
-  gasFeeInGwei.value = value
+  gas.value = value
 }
 
 async function handleShowPreview() {
-  if (!gasFeeInGwei.value) {
-    gasFeeInGwei.value = baseFee.value
+  if (!gas.value) {
+    gas.value = {
+      maxFeePerGas: baseFee.value,
+      maxPriorityFeePerGas: `4`,
+      gasLimit: 0,
+    }
   }
-  if (recipientWalletAddress.value && gasFeeInGwei.value) {
+  if (recipientWalletAddress.value && gas.value) {
     showLoader('Loading preview...')
     try {
       const accountHandler = getRequestHandler().getAccountHandler()
@@ -189,7 +218,15 @@ async function handleShowPreview() {
       toast.error('Cannot estimate gas fee. Please try again later.')
     } finally {
       gasFeeInEth.value = ethers.utils
-        .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
+        .formatEther(
+          ethers.utils.parseUnits(
+            `${
+              Number(gas.value?.maxFeePerGas) +
+              Number(gas.value?.maxPriorityFeePerGas)
+            }`,
+            'gwei'
+          )
+        )
         .toString()
       showPreview.value = true
       hideLoader()
@@ -274,9 +311,9 @@ async function handleShowPreview() {
             </div>
           </div>
           <GasPrice
-            :gas-price="gasFeeInGwei"
             :gas-prices="gasPrices"
             :base-fee="baseFee"
+            :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
           />
         </div>
