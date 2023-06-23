@@ -298,7 +298,7 @@ async function init() {
 
     // 3PC is disabled or wallet UI cannot store data by a policy decision
     if (storage.local.storageType === StorageType.IN_MEMORY) {
-      const reconURL = new URL(`/reconnect/${app.id}`, AUTH_URL)
+      const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
       await parentConnectionInstance.notifyNoStorage({
         reconnectionURL: reconURL.href,
       })

@@ -16,6 +16,7 @@ import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
+import ReconnectV1 from '@/pages/ReconnectV1.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SendNft from '@/pages/SendNft.vue'
@@ -42,6 +43,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/v2/init/',
     component: InitPageV2,
+  },
+  {
+    path: '/:appId/v1/reconnect/',
+    component: ReconnectV1,
   },
   {
     path: '/:appId/mfa/setup',

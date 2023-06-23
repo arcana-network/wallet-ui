@@ -15,6 +15,7 @@
 3. Get the info from Local Storage & call contactParentPage
 */
 import { getUniqueId } from 'json-rpc-engine'
+import { connectToParent } from 'penpal'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -24,11 +25,12 @@ import {
   LOGIN_INFO_ACK,
   MFA_SETUP_ACK,
 } from '@/utils/redirectUtils'
-import { getStorage } from '@/utils/storageWrapper'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const EXPIRY_MS = 60 * 60 * 1000
 
 function reportError(errorMessage) {
+  console.error('!!!', errorMessage)
   window.parent.opener.postMessage(
     {
       status: 'RECONNECT_ERROR',
@@ -38,9 +40,19 @@ function reportError(errorMessage) {
   )
 }
 
+interface ParentInterface {
+  getSessionID(): string
+  requestExit(): void
+}
+
 onMounted(async () => {
-  const uSessionID = useRoute().query['sessionID']
+  const route = useRoute()
+  const iface = connectToParent<ParentInterface>()
+  const connxn = await iface.promise
+
+  initStorage(String(route.params.appId))
   const storage = getStorage()
+  const uSessionID = await connxn.getSessionID()
 
   const { sessionID: actualSessionID, timestamp } = JSON.parse(
     storage.local.getItem('session') ?? '{}'
@@ -75,8 +87,6 @@ onMounted(async () => {
     },
     expectedResponseStatus: [LOGIN_INFO_ACK, MFA_SETUP_ACK],
   })
-  if (data.messageId === mid) {
-    window.close()
-  }
+  await connxn.requestExit()
 })
 </script>
