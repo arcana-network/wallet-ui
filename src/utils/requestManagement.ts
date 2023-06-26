@@ -30,9 +30,13 @@ const appStore = useAppStore()
 
 async function showToast(type, message) {
   return new Promise((res) => {
-    if (type === 'error') toast.error(message)
-    if (type === 'success') toast.success(message)
-    setTimeout(() => res(true), TOAST_TIME_OUT)
+    if (appStore.expandWallet) {
+      if (type === 'error') toast.error(message)
+      if (type === 'success') toast.success(message)
+      setTimeout(() => res(true), TOAST_TIME_OUT)
+    } else {
+      res(true)
+    }
   })
 }
 
@@ -62,13 +66,28 @@ async function watchRequestQueue(keeper) {
         const method = request?.request.method
         if (
           appMode === AppMode.Widget &&
-          pendingRequestCount === 0 &&
+          !pendingRequestCount &&
           appStore.sdkVersion !== 'v3'
         ) {
           connectionInstance.closePopup()
-        } else if (pendingRequestCount === 0 && method && PERMISSIONS[method]) {
-          appStore.expandWallet = false
-          appStore.compactMode = false
+        } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
+          if (appStore.standaloneMode == 1) {
+            appStore.expandWallet = true
+            appStore.compactMode = false
+          } else {
+            appStore.compactMode = false
+            if (appStore.expandedByRequest) {
+              appStore.expandedByRequest = false
+              appStore.expandWallet = false
+            }
+          }
+        }
+      }
+      if (!pendingRequestCount) {
+        appStore.compactMode = false
+        if (appStore.expandedByRequest) {
+          appStore.expandedByRequest = false
+          appStore.expandWallet = appStore.standaloneMode !== 0
         }
       }
     },
@@ -309,8 +328,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
         if (response.error) {
-          if (response.error.data?.originalError?.code) {
-            await showToast('error', response.error.data.originalError.code)
+          if (response.error.data?.originalError) {
+            await showToast(
+              'error',
+              response.error.data.originalError?.error?.message ||
+                response.error.data.originalError?.code ||
+                'Something went wrong. Please try again'
+            )
           } else {
             await showToast('error', response.error)
           }
@@ -343,8 +367,8 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
         }
-      } catch (error) {
-        console.error({ error })
+      } catch (err) {
+        console.error({ err })
       }
     }
   } else {
@@ -446,6 +470,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
+      console.log('appStore.expandWallet', appStore.expandWallet)
+      if (!appStore.expandWallet) {
+        appStore.expandedByRequest = true
+      }
+      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {

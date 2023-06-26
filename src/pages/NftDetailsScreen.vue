@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref, type ComputedRef, type Ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
-import SendNft from '@/components/SendNft.vue'
 import type { NFTContractType } from '@/models/NFT'
 import { useModalStore } from '@/store/modal'
+import { getImage } from '@/utils/getImage'
 
 type NftDetails = {
   type: NFTContractType
@@ -16,19 +16,22 @@ type NftDetails = {
   imageUrl: string
   animationUrl?: string
   attributes?: string
+  balance?: string
 }
 
 type NftAttributes = {
-  trait: string
+  trait_type: string
   value: string
 }
 
 type ModalState = 'send-nft' | false
 
-const props = defineProps<NftDetails>()
 const router = useRouter()
+const route = useRoute()
 const showModal: Ref<ModalState> = ref(false)
 const modalStore = useModalStore()
+
+const props = route.query as NftDetails
 
 const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
   if (props.attributes) {
@@ -38,8 +41,7 @@ const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
 })
 
 function openNftModal() {
-  modalStore.setShowModal(true)
-  showModal.value = 'send-nft'
+  router.push({ name: 'SendNfts', params: { ...props } })
 }
 
 function handleClose() {
@@ -88,50 +90,50 @@ function handleClose() {
           <div class="px-4 my-5">
             <div class="flex justify-between gap-3">
               <div
-                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-semibold nft-title"
+                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-semibold text-xl font-bold"
                 :title="props.name"
               >
                 {{ props.name }}
               </div>
-              <div class="flex gap-3">
-                <img
-                  src="@/assets/images/send.svg"
-                  class="cursor-pointer invert dark:invert-0"
+              <div class="flex gap-1">
+                <button
+                  title="Click to transfer this NFT"
                   @click.stop="openNftModal"
-                />
+                >
+                  <img :src="getImage('send.svg')" />
+                </button>
               </div>
             </div>
-            <div class="mt-5 flex flex-col gap-3">
-              <div class="font-semibold font-montserrat nft-label">
-                Description
-              </div>
-              <div v-if="props.description" class="nft-description font-normal">
+            <div class="mt-5 flex flex-col gap-1">
+              <div class="font-bold text-sm">Description</div>
+              <div
+                v-if="props.description"
+                class="text-xs text-gray-100 font-normal"
+              >
                 {{ props.description }}
               </div>
-              <span v-else class="nft-description font-normal">
+              <span v-else class="text-xs text-gray-100 font-normal">
                 No description provided
               </span>
             </div>
-            <div class="mt-5 flex flex-col gap-3">
-              <div class="font-semibold font-montserrat nft-label">
-                Attributes
-              </div>
+            <div class="mt-5 flex flex-col gap-1">
+              <div class="font-bold text-sm">Attributes</div>
               <div v-if="props.attributes?.length" class="flex gap-2 flex-wrap">
                 <div
                   v-for="attribute in nftAttributes"
-                  :key="`${attribute.trait}-${attribute.value}`"
-                  class="nft-attribute-box rounded-[10px] p-2 flex flex-col gap-1"
+                  :key="`${attribute.trait_type}-${attribute.value}`"
+                  class="rounded-lg py-2 px-3 flex flex-col bg-gray-200"
                   :title="JSON.stringify(attribute)"
                 >
-                  <div
-                    class="nft-attribute-trait font-semibold font-montserrat"
-                  >
-                    {{ attribute.trait }}
+                  <div class="text-xs text-gray-100 font-normal">
+                    {{ attribute.trait_type }}
                   </div>
-                  <div class="nft-attribute-value">{{ attribute.value }}</div>
+                  <div class="font-medium text-sm">
+                    {{ attribute.value }}
+                  </div>
                 </div>
               </div>
-              <div v-else class="nft-description font-normal">
+              <div v-else class="text-xs text-gray-100 font-normal">
                 No attributes provided
               </div>
             </div>
@@ -139,36 +141,5 @@ function handleClose() {
         </div>
       </div>
     </div>
-    <Teleport v-if="showModal" to="#modal-container">
-      <SendNft
-        v-if="showModal === 'send-nft'"
-        :nft="{ ...props, attributes: nftAttributes }"
-        @close="handleClose"
-      />
-    </Teleport>
   </div>
 </template>
-
-<style scoped>
-.nft-title {
-  font-size: var(--fs-500);
-}
-
-.nft-label {
-  font-size: var(--fs-300);
-}
-
-.nft-description,
-.nft-attribute-trait {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-
-.nft-attribute-value {
-  font-size: var(--fs-400);
-}
-
-.nft-attribute-box {
-  background: var(--debossed-box-color);
-}
-</style>

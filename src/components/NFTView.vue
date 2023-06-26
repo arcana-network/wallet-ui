@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref, reactive, watch } from 'vue'
+import { onMounted, ref, type Ref, reactive, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -13,6 +14,7 @@ const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const storage = getStorage()
 let nftDB: NFTDB
+const searchTerm = ref('')
 
 type NFTViewProps = {
   refreshState?: boolean
@@ -32,7 +34,6 @@ async function getNFTAssets() {
   loader.show = true
   nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
   nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
-
   loader.show = false
 }
 
@@ -65,96 +66,91 @@ watch(
     }
   }
 )
+
+const filteredNFTs = computed(() => {
+  return nfts.value.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+})
+
+watch(filteredNFTs.value, () => {
+  console.log({ filteredNFTs })
+})
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-col divide-y-[1px] max-h-72 divide-gray-600">
+  <div class="space-y-3">
+    <div v-if="!loader.show && nfts.length" class="flex flex-col space-y-1">
+      <label for="search-nft" class="text-sm">Search NFT</label>
+      <div class="card flex px-3 space-x-2">
+        <img :src="getImage('search.svg')" alt="search" />
+        <input
+          id="search-nft"
+          v-model="searchTerm"
+          class="w-full py-3 px-0"
+          placeholder="Type the name or ID of the NFT"
+        />
+      </div>
+    </div>
+    <div class="card flex flex-col max-h-96">
       <div
         v-if="loader.show"
-        class="flex justify-center items-center flex-1flex p-5"
+        class="flex justify-center items-center flex-1 p-3 m-1"
       >
-        <p class="m-auto font-semibold text-sm sm:text-xs px-4">
+        <p class="text-sm font-bold">
           {{ loader.message }}
         </p>
       </div>
-      <div v-else class="overflow-y-scroll">
-        <div
-          v-if="nfts.length"
-          class="grid grid-cols-2 gap-[10px] pt-5 pb-4 mx-4 mr-[6px]"
-        >
+      <div v-else class="p-3 m-1 overflow-y-auto">
+        <div v-if="nfts.length" class="grid grid-cols-2 gap-[10px]">
           <div
-            v-for="nft in nfts"
+            v-for="nft in filteredNFTs"
             :key="`nft-${nft.address}-${nft.tokenId}`"
             class="nft-card rounded cursor-pointer"
             @click.stop="
               router.push({
                 name: 'NftDetails',
-                params: {
+                query: {
                   ...getNftDetailValues(nft),
                 },
               })
             "
           >
             <div
-              class="h-[136px] sm:h-[96px] rounded m-1 bg-center bg-cover"
+              class="h-[136px] rounded m-1 bg-center bg-cover"
               :style="{ 'background-image': `url(${nft.imageUrl})` }"
             ></div>
-            <div class="flex flex-col gap-1 p-[10px]">
+            <div class="flex flex-col px-2">
               <span
-                class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                class="text-gray-100 text-sm overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.name"
                 >{{ nft.name }}</span
               >
               <span
-                class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.collectionName"
                 >{{ nft.collectionName }}</span
               >
             </div>
           </div>
         </div>
-        <div v-else class="flex justify-between p-5">
-          <span
-            class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+        <div v-else class="flex justify-between">
+          <span class="color-secondary m-auto font-bold text-sm"
             >No NFTs added</span
           >
         </div>
       </div>
-      <div class="flex justify-center mx-4">
-        <div
-          class="flex py-4 gap-2 items-center cursor-pointer flex-grow justify-center"
+      <div class="flex justify-center">
+        <button
+          class="btn-quaternery border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
           @click.stop="handleManageNFT"
         >
-          <img
-            src="@/assets/images/settings.svg"
-            class="invert dark:invert-0"
-          />
-          <span class="assets-view__add-token-text leading-[1]">Manage</span>
-        </div>
+          <img :src="getImage('settings.svg')" />
+          <span class="text-sm">Manage</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
-
-<style>
-.assets-view__asset-name {
-  max-width: 12ch;
-  font-size: var(--fs-350);
-  line-height: 1.5;
-}
-
-.nft-card {
-  background: var(--nft-card-background);
-}
-
-.nft-card-title {
-  font-size: var(--fs-300);
-  color: var(--nft-card-title);
-}
-
-.nft-card-collection {
-  font-size: var(--fs-250);
-  color: var(--nft-card-collection);
-}
-</style>

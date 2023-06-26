@@ -42,7 +42,7 @@ function requirePermission(
 
 type ProviderEvent =
   | {
-      chainId: number
+      chainId: string | number
     }
   | string[]
   | string
@@ -52,7 +52,7 @@ type RedirectParentConnectionApi = {
   redirect(url: string | null): Promise<void>
   replyTo(parentAppUrl?: string | null): Promise<void>
   goToWallet(): Promise<void>
-  error(errorMessage: string, parentAppUrl: string): Promise<void>
+  error(errorMessage: string): Promise<void>
 }
 
 type ParentConnectionApi = {
@@ -65,10 +65,11 @@ type ParentConnectionApi = {
   sendPendingRequestCount(count: number): void
   getParentUrl(): string
   onEvent(event: string, params?: ProviderEvent): void
+  uiEvent(event: string, val: any): void
   getAppMode(): Promise<AppMode>
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
-  setIframeStyle(styles: CSSStyleDeclaration): void
+  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
   getWalletPosition(): Position
   getSDKVersion(): SDKVersion
 }
@@ -77,7 +78,8 @@ type InitParentConnectionApi = {
   getLoginSource(): string
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
-  setIframeStyle(styles: CSSStyleDeclaration): void
+  uiEvent(event: string, val: any): void
+  setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 
 export { requirePermission, PERMISSIONS }

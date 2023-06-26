@@ -19,6 +19,7 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { AccountHandler } from '@/utils/accountHandler'
+import { toHex } from '@/utils/toHex'
 
 interface RpcConfig {
   rpcUrls: string[]
@@ -34,7 +35,18 @@ interface RpcConfig {
 class RequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
+  private connectSent = false
   constructor(private accountHandler: AccountHandler) {}
+
+  public async sendConnect() {
+    if (!this.connectSent) {
+      this.connectSent = true
+      const chainId = await this.accountHandler.getChainId()
+      this.emitEvent('connect', {
+        chainId: toHex(chainId.toString(16)),
+      })
+    }
+  }
 
   public async setRpcConfig(c: RpcConfig) {
     try {

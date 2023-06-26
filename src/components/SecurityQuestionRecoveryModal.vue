@@ -82,7 +82,7 @@ function handleProceed() {
 <template>
   <div class="px-4 py-2">
     <div class="flex gap-2 items-center mb-5">
-      <button @click.stop="emit('back')">
+      <button title="Click to go back" @click.stop="emit('back')">
         <img
           src="@/assets/images/arrow-white.svg"
           class="-rotate-90 invert dark:invert-0"
@@ -97,7 +97,7 @@ function handleProceed() {
         class="flex flex-col gap-2"
       >
         <div class="flex flex-col gap-1">
-          <label>Question {{ n }}</label>
+          <label class="text-sm text-gray-100">Question {{ n }}</label>
           <SelectQuestion
             :questions="selectedQuestions"
             :selected-question="getSelectedQuestion(props.questions[n - 1])"
@@ -105,23 +105,23 @@ function handleProceed() {
           />
         </div>
         <div class="flex flex-col gap-1">
-          <label>Answer {{ n }}</label>
+          <label class="text-sm text-gray-100">Answer {{ n }}</label>
           <input
             v-model.trim="answers[n - 1].answer"
             :placeholder="customPlaceholders[n - 1]"
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
+            class="text-sm p-2 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
           />
         </div>
       </div>
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col mt-1 justify-center items-center gap-4">
         <button
-          class="mt-4 text-sm sm:text-xs rounded-xl font-semibold text-white dark:bg-white bg-black dark:text-black w-full h-10 sm:h-8 uppercase"
+          class="mt-1 text-sm btn-primary p-2 uppercase w-48"
           type="submit"
         >
           Proceed
         </button>
         <button
-          class="font-semibold capitalize text-sm sm:text-xs"
+          class="font-semibold capitalize text-sm btn-tertiary"
           @click.stop="emit('switch-alternate')"
         >
           Enter security PIN Instead
@@ -130,21 +130,3 @@ function handleProceed() {
     </form>
   </div>
 </template>
-
-<style scoped>
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-
-label {
-  padding-left: 5px;
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-</style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { toRefs, watch, computed, onBeforeMount } from 'vue'
+import { computed, onBeforeMount, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -12,6 +12,8 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { AUTH_NETWORK } from '@/utils/constants'
+import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { fetchTransakNetworks } from '@/utils/transak'
 
@@ -47,16 +49,19 @@ onBeforeMount(async () => {
 })
 
 async function setIframeStyle() {
+  if (app.validAppMode === AppMode.NoUI) {
+    return
+  }
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
-    await parentConnectionInstance?.setIframeStyle(app.iframeStyle)
+    await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
   }
 }
 
 watch(showWallet, async (newValue) => {
   if (newValue) app.expandWallet = false
-  setIframeStyle()
+  await setIframeStyle()
 })
 
 watch(expandWallet, setIframeStyle)
@@ -70,182 +75,118 @@ watch(showRequestPage, (newValue) => {
   }
 })
 
+watch(requestStore.pendingRequests, () => {
+  setIframeStyle()
+})
+
 const showFooter = computed(() => {
   return (
-    (!['requests', 'MFARequired', 'MFARestore'].includes(
-      route.name as string
-    ) ||
+    (![
+      'requests',
+      'MFARequired',
+      'MFARestore',
+      'SendTokens',
+      'SendNfts',
+    ].includes(route.name as string) ||
       (route.name === 'requests' && !requestStore.pendingRequest)) &&
     !app.compactMode
   )
 })
 
-function onClickOfHeader() {
-  if (app.compactMode) app.compactMode = false
-  else app.expandWallet = false
+async function onClickOfHeader() {
+  const c = await parentConnectionStore.parentConnection?.promise
+  if (app.compactMode) {
+    app.compactMode = false
+  } else {
+    app.standaloneMode == 1 || app.standaloneMode == 2
+      ? c?.uiEvent('wallet_close', null)
+      : (app.expandWallet = false)
+  }
+}
+
+function canShowCollapseButton() {
+  if (
+    app.validAppMode === AppMode.Widget &&
+    !app.compactMode &&
+    requestStore.areRequestsPendingForApproval
+  ) {
+    return false
+  }
+  return true
 }
 </script>
 
 <template>
-  <div v-if="sdkVersion === 'v3'" class="flex flex-col h-full">
+  <div class="flex flex-col h-full">
     <div
-      v-show="expandWallet"
-      class="flex flex-col h-full"
-      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+      v-show="expandWallet || app.expandRestoreScreen"
+      class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
     >
-      <WalletHeader @click="onClickOfHeader" />
       <div
-        class="flex-grow wallet__container p-4"
-        :class="{ 'rounded-b-xl p-0': compactMode }"
+        v-if="AUTH_NETWORK !== 'mainnet'"
+        class="p-1 text-center"
+        style="background: #ff682620"
       >
-        <RouterView class="min-h-full" />
+        <span class="text-xs" style="color: #ff6826"
+          >This wallet is on Arcana
+          <span class="capitalize">{{ AUTH_NETWORK }}</span> and is meant for
+          testing only</span
+        >
+      </div>
+      <div v-if="sdkVersion === 'v3'" class="flex justify-center mt-2 mb-2">
+        <button
+          v-if="canShowCollapseButton()"
+          class="flex flex-grow justify-center"
+          @click="onClickOfHeader"
+        >
+          <img v-if="compactMode" :src="getImage('expand-arrow.svg')" />
+          <img v-else :src="getImage('collapse-arrow.svg')" />
+        </button>
+      </div>
+      <WalletHeader v-if="sdkVersion === 'v3' && route.name !== 'requests'" />
+      <div class="flex-grow wallet__container m-1 p-3">
+        <RouterView class="flex-grow" />
+        <img
+          v-if="route.name === 'requests'"
+          :src="getImage('secured-by-arcana.svg')"
+          class="h-3 select-none mt-5"
+        />
         <BaseModal v-if="modal.show" />
       </div>
       <WalletFooter v-if="showFooter" />
     </div>
     <div
+      v-if="sdkVersion === 'v3'"
       v-show="showWalletButton"
-      class="h-full"
-      :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
+      class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300 transition-all duration-500 hover:h-[100vh] hover:mt-0"
+      style="z-index: 999"
+      :class="{
+        'notification-animation': requestStore.areRequestsPendingForApproval,
+      }"
     >
-      <WalletButton />
+      <WalletButton class="relative z-1" />
     </div>
-  </div>
-  <div
-    v-else
-    class="flex flex-col h-full"
-    :class="[theme === 'dark' ? 'dark-mode' : 'light-mode']"
-  >
-    <div
-      class="flex-grow wallet__container p-4"
-      :class="{ 'rounded-b-xl p-0': compactMode }"
-    >
-      <RouterView class="min-h-full" />
-      <BaseModal v-if="modal.show" />
-    </div>
-    <WalletFooter v-if="showFooter" />
   </div>
 </template>
 
 <style>
-@import '@/assets/css/reset.css';
-
-:root {
-  --color-light: #f9f9f9;
-  --color-dark: #101010;
-  --color-philippine-gray: #8d8d8d;
-  --color-light-disabled: #f9f9f9af;
-  --color-dark-disabled: #101010af;
-  --color-state-green: #5dab5c;
-  --color-state-red: #b43030;
-  --color-state-yellow: #b07641;
-  --color-gradient-light: linear-gradient(
-    324.81deg,
-    #d6d8d9 14.65%,
-    rgb(232 232 232 / 36%) 92.36%
-  );
-  --color-gradient-dark: radial-gradient(
-    134.5% 939.99% at -23.59% -12.9%,
-    #262626 0%,
-    #1a1a1a 31.41%,
-    rgb(32 32 32 / 76%) 100%
-  );
-  --box-shadow-light: inset -1px -1px 1px rgb(255 255 255 / 70%),
-    inset 1px 1px 2px rgb(174 174 192 / 20%);
-  --box-shadow-dark: inset -2px -2px 4px rgb(57 57 57 / 44%),
-    inset 5px 5px 10px rgb(11 11 11 / 50%);
-  --debossed-light-color: #eee;
-  --debossed-dark-color: #161616;
-  --debossed-box-shadow-light: inset 5px 5px 10px 5px rgb(255 255 255 / 70%);
-  --debossed-box-shadow-dark: inset 5px 5px 10px 5px #121212;
-  --fs-500: 20px;
-  --fs-550: 18px;
-  --fs-400: 16px;
-  --fs-350: 14px;
-  --fs-300: 12px;
-  --fs-250: 12px;
-  --p-500: 20px;
-  --p-450: 18px;
-  --p-400: 16px;
-  --p-350: 14px;
-  --p-300: 12px;
-  --p-250: 10px;
-  --flow-space-container: 30px;
-  --flow-space-element: 20px;
+*::-webkit-scrollbar {
+  width: 0.15rem;
+  height: 0.15rem;
 }
 
-@media (max-width: 235px) {
-  :root {
-    --fs-500: 16px;
-    --fs-450: 14px;
-    --fs-400: 12px;
-    --fs-350: 10px;
-    --fs-300: 8px;
-    --fs-250: 8px;
-    --p-500: 16px;
-    --p-550: 14px;
-    --p-400: 12px;
-    --p-350: 10px;
-    --p-300: 8px;
-    --p-250: 6px;
-    --flow-space-container: 15px;
-    --flow-space-element: 10px;
-  }
-}
-
-.light-mode {
-  --fg-color: var(--color-dark);
-  --fg-color-secondary: var(--color-philippine-gray);
-  --bg-gradient: var(--color-gradient-light);
-  --content-bg-color: var(--color-light);
-  --container-bg-color: #f2f2f2;
-  --debossed-box-color: var(--debossed-light-color);
-  --debossed-shadow: var(--debossed-box-shadow-light);
-  --card-shadow: 4px 5px 4px #f0f0f3;
-  --card-bg: #f9f9f9;
-  --filled-button-bg-color: var(--color-dark);
-  --filled-button-fg-color: var(--color-light);
-  --outlined-button-border-color: var(--color-dark);
-  --outlined-button-fg-color: var(--color-dark);
-  --button-bg-disabled: var(--color-dark-disabled);
-  --scrollbar-thumb-color: #ddd;
-  --request-footer-bg: rgb(235 235 235 / 70%);
-}
-
-.dark-mode {
-  --fg-color: var(--color-light);
-  --fg-color-secondary: var(--color-philippine-gray);
-  --bg-gradient: var(--color-gradient-dark);
-  --content-bg-color: var(--color-gradient-dark);
-  --container-bg-color: #1e1e1e;
-  --debossed-box-color: var(--debossed-dark-color);
-  --debossed-shadow: var(--debossed-box-shadow-dark);
-  --card-shadow: 4px 5px 4px #181818;
-  --card-bg: #262626;
-  --filled-button-bg-color: var(--color-light);
-  --filled-button-fg-color: var(--color-dark);
-  --outlined-button-border-color: var(--color-light);
-  --outlined-button-fg-color: var(--color-light);
-  --button-bg-disabled: var(--color-light-disabled);
-  --scrollbar-thumb-color: #444;
-  --request-footer-bg: rgb(10 10 10 / 70%);
-}
-
-::-webkit-scrollbar {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color);
-  background-clip: padding-box;
-  border: 0.25rem solid transparent;
+*::-webkit-scrollbar-thumb {
+  background-color: #36363600;
   border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: #363636ff;
 }
 
 body {
   height: 100vh;
-  font-family: SoraVariable, sans-serif;
 }
 
 #app {
@@ -253,45 +194,9 @@ body {
   overflow-x: hidden;
 }
 
-button {
-  height: 40px;
-
-  /* TODO: Brainstorm on managing outlines. https://github.com/arcana-network/wallet-ui/pull/1#discussion_r824371816 */
-  cursor: pointer;
-  background: transparent;
-  outline: none;
-}
-
-.font-montserrat {
-  font-family: MontserratVariable, sans-serif;
-}
-
-.color-secondary {
-  color: var(--color-philippine-gray);
-}
-
-.color-state-green {
-  color: var(--color-state-green);
-}
-
-.color-state-red {
-  color: var(--color-state-red);
-}
-
-.color-state-yellow {
-  color: var(--color-state-yellow);
-}
-
-@media (max-width: 235px) {
-  button {
-    height: 30px;
-  }
-}
-
 .wallet__container {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   overflow-x: hidden;
   color: var(--fg-color);
   background: var(--container-bg-color);
@@ -326,5 +231,58 @@ button {
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
+}
+
+.Vue-Toastification__toast {
+  min-height: unset !important;
+  max-height: 120px !important;
+  padding: 1rem !important;
+  font-family: Onest, sans-serif !important;
+  text-overflow: ellipsis !important;
+}
+
+.Vue-Toastification__icon {
+  width: 14px !important;
+  margin-right: 8px !important;
+}
+
+.Vue-Toastification__toast-body {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.Vue-Toastification__progress-bar {
+  height: 2px !important;
+}
+
+.notification-animation {
+  animation: notification 2s infinite;
+}
+
+@keyframes notification {
+  0% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
+
+  20% {
+    height: 85vh;
+    margin-top: 15vh;
+  }
+
+  30% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
+
+  40% {
+    height: 100vh;
+    margin-top: 0;
+  }
+
+  100% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
 }
 </style>

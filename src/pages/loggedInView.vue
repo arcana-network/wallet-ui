@@ -3,11 +3,12 @@ import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -22,6 +23,7 @@ import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import {
   getRequestHandler,
+  requestHandlerExists,
   setRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import {
@@ -44,7 +46,7 @@ const loader = ref({
 })
 let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
-const enabledChainList = ref([])
+const enabledChainList: Ref<any[]> = ref([])
 
 onBeforeMount(() => {
   userStore.hasMfa =
@@ -65,16 +67,14 @@ onMounted(async () => {
     const requestHandler = getRequestHandler()
     if (requestHandler) {
       requestHandler.setConnection(parentConnection)
-      const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
+      const { chainId, ...rpcConfig } =
+        rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
       await requestHandler.setRpcConfig({
         chainId: selectedChainId,
         ...rpcConfig,
       })
-      const parentConnectionInstance = await parentConnection.promise
-      parentConnectionInstance.onEvent('connect', {
-        chainId: selectedChainId,
-      })
+      await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
@@ -121,12 +121,14 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-async function initKeeper() {
-  const accountHandler = new AccountHandler(
-    userStore.privateKey,
-    rpcStore.selectedRpcConfig.rpcUrls[0]
-  )
-  setRequestHandler(accountHandler)
+function initKeeper() {
+  if (!requestHandlerExists()) {
+    const accountHandler = new AccountHandler(
+      userStore.privateKey,
+      rpcStore.selectedRpcConfig.rpcUrls[0]
+    )
+    setRequestHandler(accountHandler)
+  }
 }
 
 async function initAccountHandler() {
@@ -141,7 +143,7 @@ async function initAccountHandler() {
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
-        setAppMode(walletType, parentConnectionInstance)
+        await setAppMode(walletType, parentConnectionInstance)
       }
     }
   } catch (err) {
@@ -150,21 +152,22 @@ async function initAccountHandler() {
 }
 
 function connectToParent() {
-  const sendRequest = getSendRequestFn(
-    handleRequest,
-    requestStore,
-    appStore,
-    getRequestHandler()
-  )
-  parentConnection = createParentConnection({
-    isLoggedIn: () => userStore.isLoggedIn,
-    sendRequest,
-    getPublicKey: handleGetPublicKey,
-    triggerLogout: handleLogout,
-    getUserInfo,
-    expandWallet: () => (appStore.expandWallet = true),
-  })
-  parentConnectionStore.setParentConnection(parentConnection)
+  if (!parentConnection) {
+    parentConnection = createParentConnection({
+      isLoggedIn: () => userStore.isLoggedIn,
+      sendRequest: getSendRequestFn(
+        handleRequest,
+        requestStore,
+        appStore,
+        getRequestHandler()
+      ),
+      getPublicKey: handleGetPublicKey,
+      triggerLogout: handleLogout,
+      getUserInfo,
+      expandWallet: () => (appStore.expandWallet = true),
+    })
+    parentConnectionStore.setParentConnection(parentConnection)
+  }
 }
 
 async function setTheme() {
@@ -210,9 +213,9 @@ async function setAppMode(walletType, parentConnectionInstance) {
 }
 
 async function handleLogout() {
-  appStore.sdkVersion = 'v2'
-  if (parentConnection) {
-    const parentConnectionInstance = await parentConnection.promise
+  if (parentConnectionStore.parentConnection) {
+    const parentConnectionInstance = await parentConnectionStore
+      .parentConnection.promise
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
@@ -245,7 +248,6 @@ async function getRpcConfig() {
       enabledChainList.value[0] // some time, chain list don't have default chain
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
-    await getRequestHandler().setRpcConfig(rpcConfig)
   } catch (err) {
     console.log({ err })
   }
@@ -303,11 +305,11 @@ onBeforeRouteLeave((to) => {
     <Transition name="fade" mode="out-in">
       <button
         v-if="showMfaBanner"
-        class="bg-blue-700 rounded-lg p-4 flex justify-between items-center cursor-pointer"
+        class="bg-blue-700 rounded-lg px-4 py-1 flex justify-between items-center cursor-pointer"
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-white text-sm"
+          <span class="font-semibold text-white-100 text-sm"
             >Enhance your wallet security</span
           >
           <img src="@/assets/images/export.svg" class="w-5" />

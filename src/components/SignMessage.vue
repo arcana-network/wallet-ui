@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import { AppMode } from '@arcana/auth'
+import { useRoute } from 'vue-router'
 
-import DateTime from '@/components/DateTime.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageCompact from '@/components/SignMessageCompact.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
-// import { useImage } from '@/utils/useImage'
 
 const appStore = useAppStore()
-const rpcStore = useRpcStore()
-// const getImage = useImage()
-
-const { selectedRpcConfig } = storeToRefs(rpcStore)
+const requestStore = useRequestStore()
+const route = useRoute()
 
 defineProps({
   request: {
@@ -47,34 +45,58 @@ function getTitle(requestMethod: string) {
     @approve="emits('approve')"
     @reject="emits('reject')"
   />
-  <div v-else class="flex flex-1 flex-col space-y-4 sm:space-y-3">
-    <div class="flex items-baseline">
-      <h1 class="flex-1 m-0 font-semibold text-xl sm:text-sm capitalize">
+  <div v-else class="card flex flex-1 flex-col gap-4 p-4">
+    <div class="flex flex-col">
+      <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
         {{ getTitle(methodAndAction[request.request.method]) }}
       </h1>
-      <DateTime :datetime="request.receivedTime" />
-    </div>
-    <p class="font-normal text-sm sm:text-xs">
-      {{ appStore.name }} requests your permission to perform the following
-      action:
-    </p>
-    <div>
-      <p class="text-sm sm:text-xs text-zinc-400 font-semibold">Network</p>
-      <p class="text-base sm:text-sm flex gap-2">
-        <!-- <img
-          :src="getImage(rpcStore.selectedRpcConfig.favicon)"
-          class="w-6 h-6"
-        /> -->
-        {{ selectedRpcConfig.chainName }}
+      <p class="text-xs text-gray-100 text-center">
+        {{ appStore.name }} requests your permission for
+        {{ methodAndAction[request.request.method] }}
       </p>
     </div>
-    <p
-      class="flex items-center justify-center h-[80px] text-base sm:text-xs font-semibold text-center rounded-[10px] bg-gradient"
-    >
-      {{ methodAndAction[request.request.method] }}
-    </p>
-    <SignMessageAdvancedInfo
-      :info="advancedInfo(request.request.method, request.request.params)"
-    />
+    <div class="flex flex-col gap-1">
+      <div class="text-sm">Message</div>
+      <SignMessageAdvancedInfo
+        :info="advancedInfo(request.request.method, request.request.params)"
+      />
+      <div class="flex justify-center mt-4">
+        <div
+          class="flex bg-gray-300 rounded-sm p-2 text-xs gap-1 text-gray-100"
+        >
+          <img src="@/assets/images/info-circle.svg" />
+          <span>You're not going to be charged</span>
+        </div>
+      </div>
+    </div>
+    <div class="mt-auto flex flex-col gap-4">
+      <div class="flex gap-2">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
+        <button
+          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('approve')"
+        >
+          Approve
+        </button>
+      </div>
+      <div
+        v-if="
+          route.name === 'requests' && appStore.validAppMode === AppMode.Full
+        "
+        class="flex items-center justify-center"
+      >
+        <button
+          class="btn-tertiary text-sm font-bold"
+          @click.stop="requestStore.skipRequest(request.request.id)"
+        >
+          Do this later
+        </button>
+      </div>
+    </div>
   </div>
 </template>

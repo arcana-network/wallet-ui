@@ -18,6 +18,8 @@ import NFTScreen from '@/pages/NFTScreen.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
 import SelectNftScreen from '@/pages/SelectNftScreen.vue'
+import SendNft from '@/pages/SendNft.vue'
+import SendTokens from '@/pages/SendTokens.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -101,7 +103,6 @@ const routes: RouteRecordRaw[] = [
         name: 'NftDetails',
         path: '/nfts/details',
         component: NftDetailsScreen,
-        props: true,
       },
       {
         name: 'requests',
@@ -122,6 +123,17 @@ const routes: RouteRecordRaw[] = [
         name: 'activities',
         path: '/activities',
         component: Activities,
+      },
+      {
+        name: 'SendTokens',
+        path: '/tokens/send',
+        component: SendTokens,
+      },
+      {
+        name: 'SendNfts',
+        path: '/nfts/send',
+        component: SendNft,
+        props: true,
       },
     ],
   },

@@ -6,13 +6,15 @@ import {
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
 import { ref, onBeforeMount, type Ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { getImage } from '@/utils/getImage'
+import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -20,6 +22,7 @@ type CustomObject = {
 }
 
 const route = useRoute()
+const router = useRouter()
 const toast = useToast()
 const loader = ref({
   show: false,
@@ -49,25 +52,40 @@ const storage = getStorage()
 document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
+let loginInfo
 
 onBeforeMount(async () => {
-  const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-  connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
-    .promise
-  if (new Date() < new Date(dkgShare.exp)) {
-    const core = new Core(
-      dkgShare.pk,
-      dkgShare.id,
-      String(route.params.appId),
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
-    await core.init()
-    securityQuestionModule.init(core)
-    globalQuestions.value = await securityQuestionModule.getGlobalQuestions()
-  } else {
-    toast.error('Share expired. Please login again to continue')
+  const loginInfoSession = storage.session.getItem('userInfo')
+  if (loginInfoSession) {
+    loginInfo = JSON.parse(loginInfoSession)
   }
+  let dkgShare
+  if (loginInfo) {
+    dkgShare = {
+      pk: loginInfo.pk,
+      id: loginInfo.userInfo.id,
+    }
+  } else {
+    dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+  }
+  if (!isInAppLogin(loginInfo?.loginType)) {
+    connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
+      .promise
+  }
+  const core = new Core(
+    dkgShare.pk,
+    dkgShare.id,
+    String(route.params.appId),
+    GATEWAY_URL,
+    AUTH_NETWORK === 'dev'
+  )
+  try {
+    await core.init()
+  } catch (e) {
+    toast.error(e as string)
+  }
+  securityQuestionModule.init(core)
+  globalQuestions.value = await securityQuestionModule.getGlobalQuestions()
 })
 
 function addSelectedQuestion(index: number, value: any) {
@@ -225,10 +243,15 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
-      const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-      storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
-      storage.local.removeItem('pk')
+      if (!isInAppLogin(loginInfo?.loginType)) {
+        const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+        storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
+        storage.local.removeItem('pk')
+      }
     } catch (e) {
+      if (isInAppLogin(loginInfo?.loginType)) {
+        return toast.error(e as string)
+      }
       // eslint-disable-next-line no-undef
       return connectionToParent.error(e, process.env.VUE_APP_WALLET_DOMAIN)
     }
@@ -242,11 +265,17 @@ async function handlePinProceed() {
 }
 
 async function handleDone() {
+  if (isInAppLogin(loginInfo?.loginType)) {
+    return router.push({ name: 'home' })
+  }
   // eslint-disable-next-line no-undef
   return connectionToParent.replyTo(process.env.VUE_APP_WALLET_DOMAIN)
 }
 
 function handleCancel() {
+  if (isInAppLogin(loginInfo?.loginType)) {
+    return router.back()
+  }
   return connectionToParent.error(
     'User cancelled the setup',
     // eslint-disable-next-line no-undef
@@ -263,17 +292,17 @@ function handlePinBack() {
 <template>
   <div
     v-if="showSuccessScreen"
-    class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max px-2 py-12 overflow-y-auto"
+    class="card w-full max-w-[40rem] mx-auto h-max min-h-max px-2 py-8 overflow-y-auto"
   >
     <div class="flex flex-col max-w-[30rem] mx-auto">
       <div class="flex justify-center">
-        <img src="@/assets/images/success.svg" />
+        <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
-      <div class="flex flex-col text-center items-center mt-10">
-        <h2 class="font-semibold mb-5 title">
+      <div class="flex flex-col gap-5 text-center items-center mt-10">
+        <h2 class="font-bold text-lg uppercase">
           ENHANCED WALLET SECURITY ENABLED
         </h2>
-        <span class="description max-w-[26rem]"
+        <span class="text-sm max-w-[26rem]"
           >You're all set with Multi-factor Authentication. If you change
           browsers or devices in the future, you may be asked to either answer
           the security questions or enter the pin created in the last step.
@@ -281,7 +310,7 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
-          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[18rem] font-semibold uppercase"
+          class="btn-primary p-2 text-sm font-bold uppercase w-40"
           @click.stop="handleDone"
         >
           Done
@@ -291,7 +320,7 @@ function handlePinBack() {
   </div>
   <div
     v-else-if="showPinScreen"
-    class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto"
+    class="card w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto"
   >
     <div
       v-show="loader.show"
@@ -299,38 +328,38 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-semibold mb-5 title uppercase m-8">
-      RECOVERY METHOD 2: PIN
-    </h2>
+    <h2 class="font-bold text-lg uppercase m-4">RECOVERY METHOD 2: PIN</h2>
     <hr />
-    <div class="mt-6 px-8 description">
+    <div class="m-4 text-sm text-gray-100">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
       if you move to a new device or browser.
     </div>
     <form
-      class="flex flex-col mt-6 gap-4 px-8 pb-8"
+      class="flex flex-col mt-6 gap-4 px-4 pb-8"
       @submit.prevent="handlePinProceed"
     >
       <div class="flex flex-col gap-1">
-        <label>Pin to use for encryption</label>
+        <label class="font-medium text-sm">Pin to use for encryption</label>
         <div class="relative">
           <input
             v-model.trim="pinToEncryptMFAShare"
             :type="passwordType"
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
           />
           <img
             v-if="passwordType === 'password'"
-            src="@/assets/images/show-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
+            :src="getImage('eye.svg')"
+            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Show password"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
-            src="@/assets/images/hide-eye.png"
-            class="absolute top-0 right-0 p-[0.5rem] cursor-pointer invert dark:invert-0"
+            :src="getImage('eye-off.svg')"
+            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            style="transform: translateY(-50%)"
             title="Hide password"
             @click.stop="passwordType = 'password'"
           />
@@ -344,95 +373,78 @@ function handlePinBack() {
       <div class="flex justify-end gap-4">
         <button
           type="reset"
-          class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white w-full max-w-[144px] font-semibold uppercase"
+          class="btn-secondary uppercase text-sm font-bold p-2 w-[8rem]"
           @click.stop="handlePinBack"
         >
           Back
         </button>
         <button
           type="submit"
-          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[144px] font-semibold uppercase"
+          class="btn-primary uppercase text-sm font-bold p-2 w-[8rem]"
         >
           Proceed
         </button>
       </div>
     </form>
   </div>
-  <div
-    v-else
-    class="wallet__card rounded-[10px] w-full max-w-[40rem] mx-auto h-max min-h-max overflow-y-auto"
-  >
-    <h2 class="font-semibold mb-5 title uppercase m-8">
-      RECOVERY METHOD 1: Security Questions
-    </h2>
-    <hr />
-    <form class="flex flex-col p-8 gap-12" @submit.prevent="handleSubmit">
-      <div
-        v-for="i in totalQuestions"
-        :key="`Security-Question-${i}`"
-        class="flex flex-col gap-2"
-      >
-        <div class="flex flex-col gap-1">
-          <label>Question {{ i }}</label>
-          <SearchQuestion
-            :questions="globalQuestions"
-            :value="getSelectedQuestion(i)"
-            @change="addSelectedQuestion(i, $event)"
-          />
-          <div
-            v-if="error[i - 1]"
-            class="mt-1 ml-2 text-red-500 text-xs font-medium"
-          >
-            Questions cannot be repeated
+  <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
+    <div class="overflow-y-auto">
+      <h2 class="font-bold text-base uppercase m-4">
+        RECOVERY METHOD 1: Security Questions
+      </h2>
+      <hr />
+      <form class="flex flex-col p-4 gap-6" @submit.prevent="handleSubmit">
+        <div
+          v-for="i in totalQuestions"
+          :key="`Security-Question-${i}`"
+          class="flex flex-col gap-2"
+        >
+          <div class="flex flex-col gap-1">
+            <label class="text-sm">Question {{ i }}</label>
+            <SearchQuestion
+              :questions="globalQuestions"
+              :value="getSelectedQuestion(i)"
+              @change="addSelectedQuestion(i, $event)"
+            />
+            <div
+              v-if="error[i - 1]"
+              class="mt-1 ml-2 text-red-500 text-xs font-medium"
+            >
+              Questions cannot be repeated
+            </div>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-sm">Answer {{ i }}</label>
+            <input
+              class="text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
+              :placeholder="customPlaceholders[i - 1]"
+              :value="getAnswer(i)"
+              @input="addAnswer(i, $event.target?.value)"
+            />
           </div>
         </div>
-        <div class="flex flex-col gap-1">
-          <label>Answer {{ i }}</label>
-          <input
-            class="text-base p-4 input text-ellipsis overflow-hidden whitespace-nowrap"
-            :placeholder="customPlaceholders[i - 1]"
-            :value="getAnswer(i)"
-            @input="addAnswer(i, $event.target?.value)"
-          />
+        <div class="flex justify-end gap-4">
+          <button
+            type="reset"
+            class="btn-secondary text-sm font-bold uppercase p-2 w-32"
+            @click.stop="handleCancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="btn-primary text-sm font-bold uppercase p-2 w-32"
+          >
+            Proceed
+          </button>
         </div>
-      </div>
-      <div class="flex justify-end gap-4">
-        <button
-          type="reset"
-          class="text-sm sm:text-xs rounded-xl text-black border-black border-2 dark:text-white dark:border-white w-full max-w-[144px] font-semibold uppercase"
-          @click.stop="handleCancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-full max-w-[144px] font-semibold uppercase"
-        >
-          Proceed
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </template>
 
 <style scoped>
-label {
-  padding-left: 5px;
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-
 hr {
   border-top: 1px solid #8d8d8d20;
-}
-
-.title {
-  font-size: var(--fs-500);
-}
-
-.description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
 }
 </style>

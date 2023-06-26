@@ -4,7 +4,6 @@ import { ref, type Ref } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
 import { openTransak } from '@/utils/transak'
-import { useImage } from '@/utils/useImage'
 
 type BuyTokenProps = {
   transakNetwork?: string
@@ -14,7 +13,6 @@ type BuyTokenProps = {
 const props = defineProps<BuyTokenProps>()
 
 const emit = defineEmits(['close'])
-const getImage = useImage()
 const selectedProvider: Ref<'transak' | 'ramp' | 'onramp.money' | ''> = ref('')
 const isLoading = ref(false)
 const showStatusModal: Ref<'success' | 'failed' | 'cancelled' | ''> = ref('')
@@ -75,39 +73,45 @@ function handleDone() {
     <AppLoader v-if="isLoading" message="Processing..." />
     <div
       v-else-if="showStatusModal"
-      class="overflow-auto flex flex-col gap-8 justify-between p-1 pt-5"
+      class="overflow-auto flex flex-col gap-4 justify-between p-2"
     >
       <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
-      <div class="flex flex-col gap-3">
-        <div class="modal-title font-semibold text-center">
+      <div class="flex flex-col gap-2">
+        <div class="text-base font-bold text-center">
           {{ statusText.title }}
         </div>
-        <div class="modal-description text-center">
+        <div class="text-sm text-gray-100 text-center">
           {{ statusText.message }}
         </div>
       </div>
-      <button
-        class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black h-9 sm:h-8 uppercase"
-        @click.stop="handleDone"
-      >
-        Close
-      </button>
     </div>
-    <div v-else class="overflow-auto flex flex-col justify-between p-1">
-      <div class="flex flex-col space-y-3 sm:space-y-2">
-        <div class="flex justify-between">
-          <p class="text-xl sm:text-sm font-semibold">Select Provider</p>
-          <button class="h-auto" @click="emit('close')">
-            <img :src="getImage('close-icon')" alt="close icon" />
-          </button>
-        </div>
+    <div v-else class="flex flex-col p-1">
+      <div class="flex flex-col gap-3">
+        <p class="font-bold text-center text-xl">Select Provider</p>
         <p class="text-xs text-zinc-400">
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
         </p>
       </div>
-      <form class="flex flex-col gap-6 mt-8" @submit.prevent="handleBuy">
-        <div class="flex gap-3 items-center">
+      <form class="flex flex-col gap-2 mt-5" @submit.prevent="handleBuy">
+        <div
+          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+          :class="{
+            'opacity-60 cursor-not-allowed': !props.transakNetwork,
+            'hover:border-gray-100 cursor-pointer': props.transakNetwork,
+            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
+              selectedProvider === 'transak',
+            'border-gray-800 dark:border-gray-200':
+              selectedProvider !== 'transak',
+          }"
+          @click.stop="
+            props.transakNetwork ? (selectedProvider = 'transak') : void 0
+          "
+        >
+          <label for="Transak" class="flex gap-2 items-center cursor-pointer">
+            <img src="@/assets/images/transak.png" class="h-xl w-xl" />
+            <span class="text-base font-normal">Transak</span>
+          </label>
           <input
             id="Transak"
             v-model="selectedProvider"
@@ -115,27 +119,23 @@ function handleDone() {
             value="transak"
             name="provider"
             :disabled="!props.transakNetwork"
-            :class="{ 'opacity-80': !props.transakNetwork }"
+            class="radio"
           />
-          <label
-            for="Transak"
-            class="flex gap-2 items-center cursor-pointer"
-            :class="{ 'opacity-50': !props.transakNetwork }"
-          >
-            <img src="@/assets/images/transak.png" class="h-7 w-7" />
-            <span class="text-base">Transak</span>
-          </label>
         </div>
-        <div class="flex gap-3 items-center">
-          <input
-            id="OnRampMoney"
-            v-model="selectedProvider"
-            type="radio"
-            value="onramp.money"
-            name="provider"
-            :disabled="props.onRampMoney === false"
-            :class="{ 'opacity-80': !props.onRampMoney }"
-          />
+        <div
+          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+          :class="{
+            'opacity-60 cursor-not-allowed': !props.onRampMoney,
+            'hover:border-gray-100 cursor-pointer': props.onRampMoney,
+            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
+              selectedProvider === 'onramp.money',
+            'border-gray-800 dark:border-gray-200':
+              selectedProvider !== 'onramp.money',
+          }"
+          @click.stop="
+            props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0
+          "
+        >
           <label
             for="OnRampMoney"
             class="flex gap-2 items-center cursor-pointer"
@@ -147,10 +147,19 @@ function handleDone() {
             />
             <span class="text-base">onramp.money</span>
           </label>
+          <input
+            id="OnRampMoney"
+            v-model="selectedProvider"
+            type="radio"
+            value="onramp.money"
+            name="provider"
+            :disabled="props.onRampMoney === false"
+            class="radio"
+          />
         </div>
-        <div class="flex">
+        <div class="flex mt-8">
           <button
-            class="flex-1 text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black h-9 sm:h-8 uppercase disabled:opacity-50 transition-opacity duration-300"
+            class="flex-1 btn-primary py-[10px] uppercase text-base font-bold"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed
@@ -160,40 +169,3 @@ function handleDone() {
     </div>
   </div>
 </template>
-
-<style scoped>
-input[type='radio'] {
-  display: grid;
-  place-content: center;
-  width: 1rem;
-  height: 1rem;
-  cursor: pointer;
-  background: #3b3b3b;
-  border-radius: 50%;
-  transform: translateX(0), matrix(-1, 0, 0, 1, 0, 0);
-  appearance: none;
-}
-
-input[type='radio']::before {
-  width: 0.75rem;
-  height: 0.75rem;
-  content: '';
-  background: linear-gradient(180deg, #0085ff -4.5%, #29c8fa 100.1%);
-  border-radius: 50%;
-  transition: 120ms transform ease-in-out;
-  transform: scale(0);
-}
-
-input[type='radio']:checked::before {
-  transform: scale(1);
-}
-
-.modal-title {
-  font-size: var(--fs-500);
-}
-
-.modal-description {
-  font-size: var(--fs-250);
-  color: var(--fg-color-secondary);
-}
-</style>
