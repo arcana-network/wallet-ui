@@ -1,6 +1,6 @@
 import { useRoute } from 'vue-router'
 
-import { LocalStorage, SessionStorage } from '@/utils/storage'
+import { LocalStorage, SessionStorage, StorageType } from '@/utils/storage'
 
 type StorageInstance = {
   local: LocalStorage
@@ -24,4 +24,4 @@ function initStorage(appId?: string) {
   }
 }
 
-export { getStorage, initStorage }
+export { getStorage, initStorage, StorageType }
