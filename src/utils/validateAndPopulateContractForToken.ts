@@ -11,12 +11,11 @@ const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap).map(
 )
 
 function isContractInLocalStorage(walletAddress, chainId, tokenContract) {
-  const assetContractsString = getStorage().local.getItem(
-    `${walletAddress}/${chainId}/asset-contracts`
+  const assetContracts = getStorage().local.getAssetContractList(
+    walletAddress,
+    chainId
   )
-  if (assetContractsString === null) return false
 
-  const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
   if (!Array.isArray(assetContracts)) return false
 
   return assetContracts.find(

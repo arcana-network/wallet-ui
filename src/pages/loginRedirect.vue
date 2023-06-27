@@ -34,12 +34,12 @@ onUnmounted(cleanup)
 
 async function init() {
   const storage = getStorage()
-  const loginSrc = storage.local.getItem('loginSrc')
+  const loginSrc = storage.local.getLoginSrc()
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   try {
     const state = getStateFromUrl(route.fullPath)
-    storage.session.setItem('state', state)
+    storage.session.setState(state)
     const stateInfo = decodeJSON<StateInfo>(state)
 
     const connectionToParent =
@@ -57,12 +57,13 @@ async function init() {
         loginType: info.loginType,
         privateKey: '',
       }
-      storage.session.setItem(`info`, JSON.stringify(userInfo))
+      storage.session.setUserInfo(userInfo)
       const exp = dayjs().add(1, 'day')
-      getStorage().local.setItem(
-        'pk',
-        JSON.stringify({ pk: info.privateKey, exp, id: userInfo.userInfo.id })
-      )
+      getStorage().local.setPK({
+        pk: info.privateKey,
+        exp,
+        id: userInfo.userInfo.id,
+      })
       const core = new Core(
         info.privateKey,
         info.userInfo.id,
@@ -72,8 +73,7 @@ async function init() {
       )
       await core.init()
       userInfo.privateKey = await core.getKey()
-      userInfo.hasMfa =
-        storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
+      userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       userInfo.pk = info.privateKey
       if (!userInfo.hasMfa) {
         const securityQuestionModule = new SecurityQuestionModule(3)
@@ -82,15 +82,12 @@ async function init() {
       }
 
       const uuid = genUUID()
-      storage.local.setItem('userInfo', JSON.stringify(userInfo))
-      storage.local.setItem('isLoggedIn', JSON.stringify(true))
-      storage.local.setItem(
-        'session',
-        JSON.stringify({
-          sessionID: uuid,
-          timestamp: Date.now(),
-        })
-      )
+      storage.local.setUserInfo(userInfo)
+      storage.local.setIsLoggedIn()
+      storage.local.setSession({
+        sessionID: uuid,
+        timestamp: Date.now(),
+      })
 
       const messageId = getUniqueId()
       await handleLogin({
@@ -101,10 +98,10 @@ async function init() {
         messageId,
         isStandalone,
       })
-      storage.local.removeItem('loginSrc')
-      storage.session.removeItem('state')
+      storage.local.clearLoginSrc()
+      storage.session.clearState()
     } else {
-      storage.local.removeItem('loginSrc')
+      storage.local.clearLoginSrc()
       await reportError('Could not login, please try again')
       return
     }

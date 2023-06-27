@@ -61,10 +61,8 @@ async function init() {
         'User is already logged in! Redirecting back to app in 3'
       )
     } else {
-      const parentAppUrl = await parentConnectionInstance.getParentUrl()
       loginSrc = await parentConnectionInstance.getLoginSource()
-      getStorage().local.setItem('parentAppUrl', parentAppUrl)
-      getStorage().local.setItem('loginSrc', loginSrc)
+      getStorage().local.setLoginSrc(loginSrc)
     }
   } finally {
     isLoading.value = false

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { StateInfo, decodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { ref, onBeforeMount, onUnmounted, type Ref } from 'vue'
@@ -41,9 +42,9 @@ document.documentElement.classList.add('dark')
 let core: Core
 let dkgShare: {
   pk: string
-  exp?: string
+  exp?: dayjs.Dayjs
   id: string
-}
+} | null
 let userInfoSession
 let channel: BroadcastChannel
 const route = useRoute()
@@ -57,9 +58,9 @@ onBeforeMount(async () => {
     show: true,
     message: 'Loading metadata...',
   }
-  const localSession = storage.local.getItem('userInfo')
-  if (localSession) {
-    userInfoSession = JSON.parse(localSession)
+  const userInfoSession = storage.local.getUserInfo()
+  if (!userInfoSession || !userInfoSession.pk) {
+    return
   }
   if (isInAppLogin(userInfoSession?.loginType)) {
     dkgShare = {
@@ -67,7 +68,10 @@ onBeforeMount(async () => {
       pk: userInfoSession.pk,
     }
   } else {
-    dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+    dkgShare = storage.local.getPK()
+  }
+  if (!dkgShare) {
+    return
   }
   core = new Core(
     dkgShare.pk,
@@ -127,8 +131,8 @@ async function handleAnswerBasedRecovery(ev) {
 async function handleLocalRecovery(key: string) {
   const userInfo = userInfoSession
   userInfo.privateKey = key
-  storage.session.setItem('userInfo', JSON.stringify(userInfo))
-  storage.session.setItem('isLoggedIn', JSON.stringify(true))
+  storage.session.setUserInfo(userInfo)
+  storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
@@ -146,16 +150,11 @@ async function handleLocalRecovery(key: string) {
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
-    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+    storage.local.setHasMFA(user.info.id)
   }
-  const loginCount = storage.local.getItem(
-    `${userInfo.userInfo.id}-login-count`
-  )
+  const loginCount = storage.local.getLoginCount(userInfo.userInfo.id)
   const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
-  storage.local.setItem(
-    `${userInfo.userInfo.id}-login-count`,
-    String(newLoginCount)
-  )
+  storage.local.setLoginCount(userInfo.userInfo.id, newLoginCount)
   app.expandWallet = true
   app.compactMode = false
   app.expandRestoreScreen = false
@@ -193,24 +192,31 @@ async function returnToParent(key: string) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
-  const info = JSON.parse(storage.local.getItem('info') as string)
-  const state = storage.local.getItem('state') as string
+  const info = storage.local.getUserInfo()
+  if (!info) {
+    return
+  }
+  const loginSrc = storage.local.getLoginSrc()
+  const state = storage.session.getState() as string
+
   const stateInfo = decodeJSON<StateInfo>(state)
-  const loginSrc = storage.local.getItem('loginSrc')
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
-  storage.local.setItem(`${info.userInfo.id}-has-mfa`, '1')
+
+  storage.local.setHasMFA(info.userInfo.id)
   info.privateKey = key
   info.hasMfa = true
-  storage.local.removeItem('pk')
-  storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
-  storage.session.setItem(`userInfo`, JSON.stringify(info))
+
+  storage.local.clearPK()
+  storage.session.setIsLoggedIn()
+  storage.session.setUserInfo(info)
 
   const messageId = getUniqueId()
   await handleLogin({
     state: stateInfo.i,
     isStandalone,
     userInfo: info,
+    sessionID: '',
     messageId,
     connection: connectionToParent,
   }).catch(async (e) => {
@@ -219,7 +225,7 @@ async function returnToParent(key: string) {
       return
     }
     reportError(e)
-    storage.local.removeItem('loginSrc')
+    storage.local.clearLoginSrc()
   })
 }
 

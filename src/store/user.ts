@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import { AuthProvider } from '@arcana/auth-core'
 import type { LoginType, UserInfo } from '@arcana/auth-core/types/types'
 import { defineStore } from 'pinia'
@@ -40,9 +37,13 @@ export const useUserStore = defineStore('user', {
   actions: {
     async handleSocialLogin(
       authProvider: AuthProvider,
-      loginType: LoginType
+      loginType: Exclude<LoginType, LoginType.passwordless>
     ): Promise<{ url: string; state: string }> {
-      const { url, state } = await authProvider.loginWithSocial(loginType)
+      const val = await authProvider.loginWithSocial(loginType)
+      if (!val) {
+        throw new Error('loginWithSocial failed')
+      }
+      const { url, state } = val
       return { url, state }
     },
 
@@ -61,10 +62,10 @@ export const useUserStore = defineStore('user', {
       this.isLoggedIn = status
     },
     async handleLogout(authProvider: AuthProvider): Promise<void> {
-      await authProvider.logout()
+      authProvider.logout()
       const storage = getStorage()
-      storage.session.removeItem('userInfo')
-      storage.session.removeItem('isLoggedIn')
+      storage.session.clearUserInfo()
+      storage.session.clearIsLoggedIn()
       this.$reset()
     },
     setWalletAddress(walletAddress: string): void {
