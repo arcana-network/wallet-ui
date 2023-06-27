@@ -152,9 +152,7 @@ async function handleLocalRecovery(key: string) {
     user.hasMfa = true
     storage.local.setHasMFA(user.info.id)
   }
-  const loginCount = storage.local.getLoginCount(userInfo.userInfo.id)
-  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
-  storage.local.setLoginCount(userInfo.userInfo.id, newLoginCount)
+  storage.local.incrementLoginCount(userInfo.userInfo.id)
   app.expandWallet = true
   app.compactMode = false
   app.expandRestoreScreen = false

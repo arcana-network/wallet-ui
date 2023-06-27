@@ -136,6 +136,12 @@ class UserLocalStorage extends BaseStorage {
     return this.set(`${userId}-${StorageKey.LoginCount}`, val)
   }
 
+  incrementLoginCount(userId: string) {
+    let loginCount = this.getLoginCount(userId)
+    loginCount = loginCount ? Number(loginCount) + 1 : 1
+    this.setLoginCount(userId, loginCount)
+  }
+
   getLoginCount(userId: string) {
     return this.storage.get<number>(`${userId}-${StorageKey.LoginCount}`)
   }
