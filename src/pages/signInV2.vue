@@ -160,6 +160,8 @@ async function storeUserInfoAndRedirect(
         AUTH_NETWORK === 'dev'
       )
       await core.init()
+      const key = await core.getKey()
+      userInfo.privateKey = key
     } catch (e) {
       storage.session.setItem('userInfo', JSON.stringify(userInfo))
       router.push({
