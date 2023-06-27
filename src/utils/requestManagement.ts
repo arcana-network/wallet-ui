@@ -470,11 +470,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
-      console.log('appStore.expandWallet', appStore.expandWallet)
       if (!appStore.expandWallet) {
         appStore.expandedByRequest = true
       }
-      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {
