@@ -64,7 +64,7 @@ type ParentConnectionApi = {
   getSDKVersion(): SDKVersion
 
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
-  setSessionID(sessionID: string): void
+  setSessionID(sessionID: string, expiry: number): void
 
   onMethodResponse(
     method: string,
@@ -75,8 +75,6 @@ type ParentConnectionApi = {
   uiEvent(event: string, val: any): void
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
-
-  notifyNoStorage({ reconnectionURL: string }): void
 }
 type InitParentConnectionApi = {
   getParentUrl(): string

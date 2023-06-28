@@ -29,6 +29,8 @@ initStorage(String(appId))
 
 let channel: BroadcastChannel | null = null
 
+const EXPIRY_MS = 60 * 60 * 1000
+
 onMounted(init)
 onUnmounted(cleanup)
 
@@ -96,6 +98,7 @@ async function init() {
         state: stateInfo.i,
         sessionID: uuid,
         messageId,
+        sessionExpiry: Date.now() + EXPIRY_MS,
         isStandalone,
       })
       storage.local.clearLoginSrc()

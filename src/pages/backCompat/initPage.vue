@@ -68,7 +68,9 @@ async function init() {
   }
 }
 
-async function handleSocialLoginRequest(type: SocialLoginType) {
+async function handleSocialLoginRequest(
+  type: Exclude<SocialLoginType, SocialLoginType.passwordless>
+) {
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     await catchupSigninPage(state)

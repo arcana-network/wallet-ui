@@ -202,6 +202,7 @@ const windowEventHandler = (
     messageId: number
     info: GetInfoOutput & { hasMfa?: boolean }
     sessionID: string
+    sessionExpiry: number
     state?: string
   }>
 ) => {
@@ -223,7 +224,7 @@ const windowEventHandler = (
       }
       parentConnection?.promise
         .then((ins) => {
-          return ins.setSessionID(ev.data.sessionID)
+          return ins.setSessionID(ev.data.sessionID, ev.data.sessionExpiry)
         })
         .catch((e) => {
           console.error('Failed to set session ID!', e)
@@ -290,12 +291,9 @@ async function init() {
     const parentConnectionInstance = await initializeParentConnection()
 
     // 3PC is disabled or wallet UI cannot store data by a policy decision
-    if (storage.local.storageType === StorageType.IN_MEMORY) {
-      const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
-      await parentConnectionInstance.notifyNoStorage({
-        reconnectionURL: reconURL.href,
-      })
-    }
+    // if (storage.local.storageType === StorageType.IN_MEMORY) {
+
+    // }
 
     const userInfo = storage.local.getUserInfo()
     const isLoggedIn = storage.local.getIsLoggedIn()
