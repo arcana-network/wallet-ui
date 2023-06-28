@@ -4,6 +4,7 @@ import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
+import { v4 as genUUID } from 'uuid'
 import { ref, onBeforeMount, onUnmounted, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -53,19 +54,19 @@ const appId = route.params.appId as string
 initStorage(appId)
 const storage = getStorage()
 
+//TODO: Deduplicate this
+const EXPIRY_MS = 60 * 60 * 1000
+
 onBeforeMount(async () => {
   loader.value = {
     show: true,
     message: 'Loading metadata...',
   }
-  const userInfoSession = storage.local.getUserInfo()
-  if (!userInfoSession || !userInfoSession.pk) {
-    return
-  }
+  const userInfoSession = storage.session.getUserInfo()
   if (isInAppLogin(userInfoSession?.loginType)) {
     dkgShare = {
-      id: userInfoSession.userInfo.id,
-      pk: userInfoSession.pk,
+      id: userInfoSession?.userInfo.id,
+      pk: userInfoSession?.pk,
     }
   } else {
     dkgShare = storage.local.getPK()
@@ -205,16 +206,21 @@ async function returnToParent(key: string) {
   info.privateKey = key
   info.hasMfa = true
 
+  const uuid = genUUID()
   storage.local.clearPK()
   storage.session.setIsLoggedIn()
   storage.session.setUserInfo(info)
-
+  storage.local.setSession({
+    sessionID: uuid,
+    timestamp: Date.now(),
+  })
   const messageId = getUniqueId()
   await handleLogin({
     state: stateInfo.i,
     isStandalone,
     userInfo: info,
-    sessionID: '',
+    sessionID: uuid,
+    sessionExpiry: Date.now() + EXPIRY_MS,
     messageId,
     connection: connectionToParent,
   }).catch(async (e) => {

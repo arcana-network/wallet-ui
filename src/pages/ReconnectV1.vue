@@ -41,8 +41,6 @@ async function exitWithError(
   error: string
 ) {
   await connxn.reportError(error)
-  // Remove?
-  await connxn.requestExit()
 }
 
 onMounted(async () => {
@@ -64,7 +62,6 @@ onMounted(async () => {
 
   // does this require constant-time comparison to ensure we don't leak information to a malicious application?
   if (uSessionID !== actualSessionID) {
-    // ???
     return exitWithError(connxn, 'Session ID mismatch')
   }
 

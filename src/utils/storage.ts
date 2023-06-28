@@ -67,6 +67,14 @@ class BaseStorage {
   set(key: string, val: unknown) {
     this.storage.set(`${this.appId}-${key}`, val)
   }
+
+  get<T>(key: string) {
+    return this.storage.get(`${this.appId}-${key}`) as T
+  }
+
+  delete(key: string) {
+    this.storage.delete(`${this.appId}-${key}`)
+  }
 }
 
 class UserLocalStorage extends BaseStorage {
@@ -79,11 +87,11 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getUserInfo() {
-    return this.storage.get<UserInfo>(StorageKey.UserInfo)
+    return this.get<UserInfo>(StorageKey.UserInfo)
   }
 
   clearUserInfo() {
-    this.storage.delete(StorageKey.UserInfo)
+    this.delete(StorageKey.UserInfo)
   }
 
   setIsLoggedIn() {
@@ -91,11 +99,11 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getIsLoggedIn() {
-    return this.storage.get<boolean>(StorageKey.IsLoggedIn) ?? false
+    return this.get<boolean>(StorageKey.IsLoggedIn) ?? false
   }
 
   clearIsLoggedIn() {
-    this.storage.delete(StorageKey.IsLoggedIn)
+    this.delete(StorageKey.IsLoggedIn)
   }
 
   setSession(val: { sessionID: string; timestamp: number }) {
@@ -103,13 +111,13 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getSession() {
-    return this.storage.get<{ sessionID: string; timestamp: number }>(
+    return this.get<{ sessionID: string; timestamp: number }>(
       StorageKey.Session
     )
   }
 
   clearSession() {
-    this.storage.delete(StorageKey.Session)
+    this.delete(StorageKey.Session)
   }
 
   setHasMFA(id: string) {
@@ -125,11 +133,11 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getLoginSrc() {
-    return this.storage.get<string>(StorageKey.LoginSrc)
+    return this.get<string>(StorageKey.LoginSrc)
   }
 
   clearLoginSrc() {
-    return this.storage.delete(StorageKey.LoginSrc)
+    return this.delete(StorageKey.LoginSrc)
   }
 
   setLoginCount(userId: string, val: number) {
@@ -143,7 +151,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getLoginCount(userId: string) {
-    return this.storage.get<number>(`${userId}-${StorageKey.LoginCount}`)
+    return this.get<number>(`${userId}-${StorageKey.LoginCount}`)
   }
 
   setMFASkip(userId: string, val: number) {
@@ -151,7 +159,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getMFASkip(userId: string) {
-    return this.storage.get<number>(`${userId}-${StorageKey.SkipMFAUntil}`)
+    return this.get<number>(`${userId}-${StorageKey.SkipMFAUntil}`)
   }
 
   setMFADND(userId: string) {
@@ -159,7 +167,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   HasMFADND(userId: string) {
-    return this.storage.get<string>(`${userId}-${StorageKey.MFADND}`) == '1'
+    return this.get<string>(`${userId}-${StorageKey.MFADND}`) == '1'
   }
 
   setNFTList(address: string, items: NFTItem[]) {
@@ -167,16 +175,16 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getNFTList(address: string): NFTItem[] {
-    return this.storage.get(`${address}-${StorageKey.NFT}`) ?? []
+    return this.get(`${address}-${StorageKey.NFT}`) ?? []
   }
 
   setAssetContractList(address: string, chainId: number, val: AssetContract[]) {
-    this.storage.set(`${address}/${chainId}/${StorageKey.AssetContract}`, val)
+    this.set(`${address}/${chainId}/${StorageKey.AssetContract}`, val)
   }
 
   getAssetContractList(address: string, chainId: number) {
     return (
-      this.storage.get<AssetContract[]>(
+      this.get<AssetContract[]>(
         `${address}/${chainId}/${StorageKey.AssetContract}`
       ) ?? []
     )
@@ -187,7 +195,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getPK() {
-    return this.storage.get<{
+    return this.get<{
       pk: string
       id: string
       exp: dayjs.Dayjs | undefined
@@ -195,7 +203,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   clearPK() {
-    this.storage.delete(StorageKey.PK)
+    this.delete(StorageKey.PK)
   }
 }
 
@@ -274,11 +282,11 @@ class UserSessionStorage extends BaseStorage {
   }
 
   getState() {
-    return this.storage.get<string>(StorageKey.State)
+    return this.get<string>(StorageKey.State)
   }
 
   clearState() {
-    this.storage.delete(StorageKey.State)
+    this.delete(StorageKey.State)
   }
 
   setUserInfo(info: UserInfo) {
@@ -286,18 +294,22 @@ class UserSessionStorage extends BaseStorage {
   }
 
   getUserInfo() {
-    return this.storage.get<UserInfo>(StorageKey.UserInfo)
+    return this.get<UserInfo>(StorageKey.UserInfo)
   }
 
   clearUserInfo() {
-    this.storage.delete(StorageKey.UserInfo)
+    this.delete(StorageKey.UserInfo)
+  }
+
+  getIsLoggedIn() {
+    return this.get<boolean>(StorageKey.IsLoggedIn) ?? false
   }
 
   setIsLoggedIn() {
     this.set(StorageKey.IsLoggedIn, true)
   }
   clearIsLoggedIn() {
-    this.storage.delete(StorageKey.IsLoggedIn)
+    this.delete(StorageKey.IsLoggedIn)
   }
 }
 export {

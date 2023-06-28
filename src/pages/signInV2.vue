@@ -295,8 +295,8 @@ async function init() {
 
     // }
 
-    const userInfo = storage.local.getUserInfo()
-    const isLoggedIn = storage.local.getIsLoggedIn()
+    const userInfo = storage.session.getUserInfo()
+    const isLoggedIn = storage.session.getIsLoggedIn()
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)

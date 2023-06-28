@@ -46,14 +46,6 @@ export const useUserStore = defineStore('user', {
       const { url, state } = val
       return { url, state }
     },
-
-    async handlePasswordlessLogin(
-      authProvider: AuthProvider,
-      email: string,
-      options: PasswordLessLoginOptions
-    ): Promise<void | string> {
-      return await authProvider.loginWithOtp(email, options)
-    },
     setUserInfo({ privateKey, userInfo }) {
       this.privateKey = privateKey
       this.info = userInfo
