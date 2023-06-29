@@ -29,7 +29,7 @@ type NFTItem = NFT & {
   chainId: number
 }
 
-function is3PCEnabled() {
+function are3PCEnabled() {
   let enabled = false
   try {
     const storage = window.localStorage
@@ -54,7 +54,7 @@ class BaseStorage {
   protected storage: IStorage
   private appId: string
   constructor(type: 'local' | 'session', appId: string) {
-    const enabled = is3PCEnabled()
+    const enabled = are3PCEnabled()
     this.storage = enabled
       ? type == 'local'
         ? new LocalStorage()
@@ -214,21 +214,21 @@ interface IStorage {
 }
 
 class InMemoryStorage implements IStorage {
-  private map = {}
+  private map = new Map<string, unknown>()
   constructor() {
     // Add app id partitioning?
   }
 
   set(key: string, value: unknown) {
-    this.map[key] = value
+    this.map.set(key, value)
   }
 
   get<T>(key: string) {
-    return this.map[key] as T
+    return (this.map.get(key) as T) ?? null
   }
 
   delete(key: string) {
-    delete this.map[key]
+    this.map.delete(key)
   }
 }
 
