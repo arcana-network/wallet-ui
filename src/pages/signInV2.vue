@@ -122,6 +122,10 @@ const penpalMethods = {
   getPublicKey: handleGetPublicKey,
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
+  getReconnectionUrl: () => {
+    const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
+    return reconURL.toString()
+  },
 }
 
 const cleanup = () => {
