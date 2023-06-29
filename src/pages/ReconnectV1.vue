@@ -41,8 +41,6 @@ async function exitWithError(
   error: string
 ) {
   await connxn.reportError(error)
-  // Remove?
-  await connxn.requestExit()
 }
 
 onMounted(async () => {
@@ -54,9 +52,8 @@ onMounted(async () => {
   const storage = getStorage()
   const uSessionID = await connxn.getSessionID()
 
-  const { sessionID: actualSessionID, timestamp } = JSON.parse(
-    storage.local.getItem('session') ?? '{}'
-  )
+  const { sessionID: actualSessionID, timestamp } =
+    storage.local.getSession() ?? {}
   const currentTS = Date.now()
 
   if (actualSessionID == null) {
@@ -65,20 +62,19 @@ onMounted(async () => {
 
   // does this require constant-time comparison to ensure we don't leak information to a malicious application?
   if (uSessionID !== actualSessionID) {
-    // ???
     return exitWithError(connxn, 'Session ID mismatch')
   }
 
-  if (currentTS - timestamp > EXPIRY_MS) {
-    storage.local.removeItem('userInfo')
-    storage.local.removeItem('isLoggedIn')
-    storage.local.removeItem('session')
+  if (!timestamp || currentTS - timestamp > EXPIRY_MS) {
+    storage.local.clearIsLoggedIn()
+    storage.local.clearSession()
+    storage.local.clearUserInfo()
     return exitWithError(connxn, 'Session expired, try logging in again')
   }
 
-  const userInfo = JSON.parse(storage.local.getItem('userInfo') ?? '{}')
+  const userInfo = storage.local.getUserInfo() ?? {}
   const mid = getUniqueId()
-  const data = await interactWithIframe<{ messageId: number }>({
+  await interactWithIframe<{ messageId: number }>({
     status: LOGIN_INFO,
     params: {
       sessionID: actualSessionID,

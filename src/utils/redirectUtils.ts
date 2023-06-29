@@ -135,6 +135,7 @@ const contactParentPage = async (params: HandleLoginParams, status: string) => {
       sessionID: params.sessionID,
       messageId: params.messageId,
       info: params.userInfo,
+      sessionExpiry: params.sessionExpiry,
     },
     expectedResponseStatus: ACK,
   })
@@ -150,6 +151,7 @@ async function handlePasswordlessLoginV2(params: HandleLoginParams) {
     privateKey: params.userInfo.privateKey,
     pk: params.userInfo.pk,
     sessionID: params.sessionID,
+    expiry: params.sessionExpiry,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
   if (params.userInfo.hasMfa) {
@@ -192,6 +194,7 @@ type HandleLoginParams = {
   }
   state: string
   sessionID: string
+  sessionExpiry: number
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
   messageId: number
 }

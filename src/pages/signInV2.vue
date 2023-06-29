@@ -122,6 +122,10 @@ const penpalMethods = {
   getPublicKey: handleGetPublicKey,
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
+  getReconnectionUrl: () => {
+    const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
+    return reconURL.toString()
+  },
 }
 
 const cleanup = () => {
@@ -161,7 +165,7 @@ async function storeUserInfoAndRedirect(
       )
       await core.init()
     } catch (e) {
-      storage.session.setItem('userInfo', JSON.stringify(userInfo))
+      storage.session.setUserInfo(userInfo)
       router.push({
         name: 'MFARestore',
         params: { appId: appId as string },
@@ -171,8 +175,8 @@ async function storeUserInfoAndRedirect(
       return
     }
   }
-  storage.session.setItem('userInfo', JSON.stringify(userInfo))
-  storage.session.setItem('isLoggedIn', JSON.stringify(true))
+  storage.session.setUserInfo(userInfo)
+  storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
@@ -190,16 +194,9 @@ async function storeUserInfoAndRedirect(
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
-    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+    storage.local.setHasMFA(user.info.id)
   }
-  const loginCount = storage.local.getItem(
-    `${userInfo.userInfo.id}-login-count`
-  )
-  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
-  storage.local.setItem(
-    `${userInfo.userInfo.id}-login-count`,
-    String(newLoginCount)
-  )
+  storage.local.incrementLoginCount(userInfo.userInfo.id)
   await router.push({ name: 'home' })
 }
 
@@ -209,6 +206,7 @@ const windowEventHandler = (
     messageId: number
     info: GetInfoOutput & { hasMfa?: boolean }
     sessionID: string
+    sessionExpiry: number
     state?: string
   }>
 ) => {
@@ -226,11 +224,11 @@ const windowEventHandler = (
       storeUserInfoAndRedirect(ev.data.info)
       if (ev.data.info.hasMfa) {
         user.hasMfa = true
-        storage.local.setItem(`${ev.data.info.userInfo.id}-has-mfa`, '1')
+        storage.local.setHasMFA(ev.data.info.userInfo.id)
       }
       parentConnection?.promise
         .then((ins) => {
-          return ins.setSessionID(ev.data.sessionID)
+          return ins.setSessionID(ev.data.sessionID, ev.data.sessionExpiry)
         })
         .catch((e) => {
           console.error('Failed to set session ID!', e)
@@ -297,18 +295,15 @@ async function init() {
     const parentConnectionInstance = await initializeParentConnection()
 
     // 3PC is disabled or wallet UI cannot store data by a policy decision
-    if (storage.local.storageType === StorageType.IN_MEMORY) {
-      const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
-      await parentConnectionInstance.notifyNoStorage({
-        reconnectionURL: reconURL.href,
-      })
-    }
+    // if (storage.local.storageType === StorageType.IN_MEMORY) {
 
-    const userInfo = JSON.parse(storage.local.getItem('userInfo') || '{}')
-    const isLoggedIn = storage.local.getItem('isLoggedIn')
+    // }
 
-    if (isLoggedIn) {
-      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
+    const userInfo = storage.session.getUserInfo()
+    const isLoggedIn = storage.session.getIsLoggedIn()
+
+    if (isLoggedIn && userInfo) {
+      const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       if (!hasMfa && userInfo.pk) {
         const core = new Core(
           userInfo.pk,
@@ -324,7 +319,7 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      user.hasMfa = hasMfa === '1'
+      user.hasMfa = hasMfa
       await router.push({ name: 'home' })
     } else {
       const {

@@ -100,10 +100,12 @@ function handleShowMFAProceedModal(show: boolean) {
 }
 
 async function handleMFASetupClick() {
-  const { loginType } = JSON.parse(
-    getStorage().session.getItem('userInfo') as string
-  )
-  if (isInAppLogin(loginType)) {
+  const info = getStorage().session.getUserInfo()
+  if (!info) {
+    return
+  }
+
+  if (isInAppLogin(info.loginType)) {
     modalStore.setShowModal(false)
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {
@@ -125,7 +127,7 @@ async function handleMFASetupClick() {
 
         if (data.status === 'success') {
           mfaWindow?.close()
-          getStorage().local.setItem(`${user.info.id}-has-mfa`, '1')
+          getStorage().local.setHasMFA(user.info.id)
           user.hasMfa = true
           toast.success('MFA setup completed')
           window.removeEventListener('message', handler, false)

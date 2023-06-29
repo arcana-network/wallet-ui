@@ -1,82 +1,10 @@
 import { useRoute } from 'vue-router'
 
-type StorageScope = 'local' | 'session'
-
-interface SimplifiedStorage {
-  getItem(key: string): string | null
-  setItem(key: string, value: string): void
-  removeItem(key: string): void
-}
-
-enum StorageType {
-  BROWSER,
-  IN_MEMORY,
-}
-
-class InMemoryStorage {
-  map = new Map<string, string>()
-
-  getItem(key: string): string | null {
-    const v = this.map.get(key)
-    return v != null ? v : null
-  }
-
-  setItem(key: string, value: string): void {
-    this.map.set(key, value)
-  }
-
-  removeItem(key: string) {
-    this.map.delete(key)
-  }
-}
-
-class StorageWrapper {
-  private readonly appAddress: string
-  private readonly clientStorage: SimplifiedStorage
-  public readonly storageType: StorageType
-
-  constructor(scope: StorageScope, appId?: string) {
-    const route = useRoute()
-    this.appAddress = appId ? appId : String(route.params.appId)
-
-    let storage: Storage | null = null
-    let works = false
-    try {
-      storage = scope === 'local' ? window.localStorage : window.sessionStorage
-      storage.setItem('_', '_')
-      works = storage.getItem('_') === '_'
-    } catch (e) {
-      console.log(
-        "Local or session storage doesn't work, falling back to In-Memory storage.",
-        e
-      )
-    }
-
-    if (storage == null || !works) {
-      this.clientStorage = new InMemoryStorage()
-      this.storageType = StorageType.IN_MEMORY
-    } else {
-      this.clientStorage = storage
-      this.storageType = StorageType.BROWSER
-    }
-  }
-
-  setItem(key: string, value: string) {
-    return this.clientStorage.setItem(`${this.appAddress}-${key}`, value)
-  }
-
-  getItem(key: string) {
-    return this.clientStorage.getItem(`${this.appAddress}-${key}`)
-  }
-
-  removeItem(key: string) {
-    return this.clientStorage.removeItem(`${this.appAddress}-${key}`)
-  }
-}
+import { LocalStorage, SessionStorage, StorageType } from '@/utils/storage'
 
 type StorageInstance = {
-  local: StorageWrapper
-  session: StorageWrapper
+  local: LocalStorage
+  session: SessionStorage
 }
 
 let storageInstance: StorageInstance
@@ -86,11 +14,14 @@ function getStorage() {
 }
 
 function initStorage(appId?: string) {
+  if (!appId) {
+    const route = useRoute()
+    appId = String(route.params.appId)
+  }
   storageInstance = {
-    local: new StorageWrapper('local', appId),
-    session: new StorageWrapper('session', appId),
+    local: new LocalStorage(appId),
+    session: new SessionStorage(appId),
   }
 }
 
 export { getStorage, initStorage, StorageType }
-export type { StorageWrapper }
