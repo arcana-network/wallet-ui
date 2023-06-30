@@ -7,8 +7,6 @@ type ViewerProps = {
 
 const props = defineProps<ViewerProps>()
 
-console.log(props)
-
 const jsonValue = computed(() => {
   if (typeof props.value === 'string') {
     try {

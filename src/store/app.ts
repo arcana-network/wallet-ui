@@ -21,6 +21,7 @@ type AppState = {
   parentAppUrl: string | null
   validAppMode: AppMode
   showWallet: boolean
+  expandRestoreScreen: boolean
   expandWallet: boolean
   walletPosition: WalletPosition
   appLogo: AppLogo
@@ -39,6 +40,7 @@ export const useAppStore = defineStore('app', {
       showWallet: false,
       standaloneMode: 0,
       expandWallet: true,
+      expandRestoreScreen: false,
       walletPosition: 'right',
       compactMode: false,
       sdkVersion: null,
@@ -51,6 +53,7 @@ export const useAppStore = defineStore('app', {
       expandWallet,
       walletPosition,
       compactMode,
+      expandRestoreScreen,
     }) => {
       return function getCompatibleStyles() {
         const requestStore = useRequestStore()
@@ -58,7 +61,7 @@ export const useAppStore = defineStore('app', {
         const style: Partial<CSSStyleDeclaration> = {}
 
         style.height = showWallet
-          ? expandWallet
+          ? expandWallet || expandRestoreScreen
             ? compactMode
               ? requestStore.pendingRequest?.request.method ===
                 'eth_sendTransaction'
@@ -68,7 +71,7 @@ export const useAppStore = defineStore('app', {
             : '40px'
           : '0'
         style.width = showWallet
-          ? expandWallet
+          ? expandWallet || expandRestoreScreen
             ? mobileViewport
               ? '100%'
               : '360px'
@@ -77,12 +80,15 @@ export const useAppStore = defineStore('app', {
         style.right =
           walletPosition === 'right' && !mobileViewport ? '30px' : ''
         style.left = walletPosition === 'left' && !mobileViewport ? '30px' : ''
-        style.bottom = expandWallet && !mobileViewport ? '30px' : '0'
+        style.bottom =
+          (expandWallet || expandRestoreScreen) && !mobileViewport
+            ? '30px'
+            : '0'
         style.transition = 'all 300ms ease-in-out'
         style.position = 'fixed'
         style.overflow = 'hidden'
         style.borderRadius = mobileViewport ? '0' : '10px'
-        if (!compactMode && !expandWallet) {
+        if (!compactMode && !expandWallet && !expandRestoreScreen) {
           style.borderBottomLeftRadius = '0'
           style.borderBottomRightRadius = '0'
           style.borderTopRightRadius = '5px'

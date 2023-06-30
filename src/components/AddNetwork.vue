@@ -72,6 +72,9 @@ async function handleSubmit() {
           isCustom: true,
         }
         rpcStore.addNetwork(payload)
+        rpcStore.setRpcConfig({
+          ...payload,
+        })
         rpcStore.setSelectedChainId(payload.chainId)
       }
       emit('close')
@@ -150,7 +153,6 @@ async function handleSubmit() {
         <input
           id="explorerUrl"
           v-model="rpcConfig.explorerUrl"
-          required
           type="text"
           class="input-field focus:input-active"
           placeholder="e.g. https://etherscan.io"

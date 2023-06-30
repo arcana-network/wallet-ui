@@ -9,7 +9,6 @@ import { useRequestStore } from '@/store/request'
 
 const requestStore = useRequestStore()
 const toast = useToast()
-console.log(requestStore.skippedRequests)
 
 const currentRequest = computed(() => {
   return requestStore.skippedRequestsForApproval[0]

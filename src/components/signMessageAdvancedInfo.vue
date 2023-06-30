@@ -11,7 +11,7 @@ const props = defineProps({
 
 <template>
   <div
-    class="bg-black-100 p-4 break-word rounded-md overflow-hidden break-words"
+    class="bg-black-100 p-4 break-word rounded-md overflow-auto max-h-40 break-words"
   >
     <VJsonViewer :value="info"></VJsonViewer>
   </div>

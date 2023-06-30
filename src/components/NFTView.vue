@@ -74,10 +74,6 @@ const filteredNFTs = computed(() => {
       item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase())
   )
 })
-
-watch(filteredNFTs.value, () => {
-  console.log({ filteredNFTs })
-})
 </script>
 
 <template>

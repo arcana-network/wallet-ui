@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType } from '@arcana/auth-core'
+import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, onUnmounted } from 'vue'
@@ -9,18 +9,23 @@ import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
-import { PasswordlessLoginHandler } from '@/utils/PasswordlessLoginHandler'
+import {
+  getPasswordlessState,
+  PasswordlessLoginHandler,
+} from '@/utils/PasswordlessLoginHandler'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
 const user = useUserStore()
 const app = useAppStore()
+const parentConnectionStore = useParentConnectionStore()
 const availableLogins: Ref<SocialLoginType[]> = ref([])
 const isLoading: Ref<boolean> = ref(false)
 let parentConnection: Connection<ParentConnectionApi> | null = null
@@ -71,7 +76,7 @@ const initPasswordlessLogin = async (email: string) => {
 
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
-  const state = `passwordless-${params.sessionId}-${params.setToken}`
+  const state = getPasswordlessState(params.sessionId, params.setToken)
   const response = await provider.loginWithPasswordlessStart({
     email,
     kind: 'link',
@@ -139,9 +144,35 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 async function storeUserInfoAndRedirect(
-  userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
+  userInfo: GetInfoOutput & {
+    hasMfa?: boolean
+    pk?: string
+  }
 ) {
   const storage = getStorage()
+  if ((userInfo.loginType as string) === 'firebase') {
+    try {
+      const core = new Core(
+        userInfo.pk as string,
+        userInfo.userInfo.id,
+        `${appId}`,
+        GATEWAY_URL,
+        AUTH_NETWORK === 'dev'
+      )
+      await core.init()
+      const key = await core.getKey()
+      userInfo.privateKey = key
+    } catch (e) {
+      storage.session.setItem('userInfo', JSON.stringify(userInfo))
+      router.push({
+        name: 'MFARestore',
+        params: { appId: appId as string },
+      })
+      app.showWallet = true
+      app.expandRestoreScreen = true
+      return
+    }
+  }
   storage.session.setItem('userInfo', JSON.stringify(userInfo))
   storage.session.setItem('isLoggedIn', JSON.stringify(true))
   user.setUserInfo(userInfo)
@@ -277,6 +308,7 @@ async function init() {
       parentConnection = createParentConnection({
         ...penpalMethods,
       })
+      parentConnectionStore.setParentConnection(parentConnection)
 
       const parentConnectionInstance = await parentConnection.promise
 
