@@ -66,10 +66,12 @@ watch(
           class="w-xl h-xl"
           onerror="this.style.display='none'"
         />
-        <div class="flex flex-col">
-          <span class="font-bold text-lg max-w-20 overflow-hidde">{{
-            appStore.name
-          }}</span>
+        <div class="flex flex-col items-start">
+          <span
+            class="font-bold text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            :title="appStore.name"
+            >{{ appStore.name }}</span
+          >
           <img
             :src="getImage('secured-by-arcana.svg')"
             class="h-3 select-none"

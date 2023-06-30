@@ -29,6 +29,10 @@ const props = defineProps({
     required: false,
     default: () => ({}),
   },
+  gas: {
+    type: Object,
+    required: true,
+  },
 })
 
 onMounted(async () => {
@@ -45,9 +49,11 @@ async function setHeight() {
 }
 
 function getGasPriceInfo() {
-  const { wait, price } = GAS_PRICE_SPEED_MAP['slow']
-  gasFee.value = Number((props.gasPrices[price] / 10).toFixed(9))
-  transactionTime.value = props.gasPrices[wait]
+  gasFee.value = Number(
+    (
+      Number(props.gas.maxFeePerGas) + Number(props.gas.maxPriorityFeePerGas)
+    ).toFixed(9)
+  )
 }
 </script>
 

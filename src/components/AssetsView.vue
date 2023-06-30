@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { onMounted, reactive, onBeforeUnmount, ref, watch } from 'vue'
+import { onMounted, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
@@ -16,7 +16,7 @@ import { getIconAsset } from '@/utils/useImage'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
-const assets: Asset[] = reactive([])
+const assets: Ref<Asset[]> = ref([])
 const modalStore = useModalStore()
 const showModal = ref(false)
 let assetsPolling
@@ -57,10 +57,10 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  const assets = [fetchNativeAsset()]
+  assets.value = [fetchNativeAsset()]
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
-    assets.push({
+    assets.value.push({
       address: contract.address,
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
@@ -75,7 +75,9 @@ async function getAssetsBalance() {
         walletAddress: userStore.walletAddress,
         contractAddress: contract.address,
       })
-      const asset = assets.find((asset) => asset.address === contract.address)
+      const asset = assets.value.find(
+        (asset) => asset.address === contract.address
+      )
       if (asset) {
         asset.balance = formatTokenDecimals(balance, contract.decimals)
       }
@@ -86,7 +88,7 @@ async function getAssetsBalance() {
 }
 
 function updateAssetsBalance() {
-  assets.forEach(async (asset) => {
+  assets.value.forEach(async (asset) => {
     if (asset.address !== 'native') {
       const balance = await getTokenBalance({
         walletAddress: userStore.walletAddress,

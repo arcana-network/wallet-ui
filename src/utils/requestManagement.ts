@@ -30,9 +30,13 @@ const appStore = useAppStore()
 
 async function showToast(type, message) {
   return new Promise((res) => {
-    if (type === 'error') toast.error(message)
-    if (type === 'success') toast.success(message)
-    setTimeout(() => res(true), TOAST_TIME_OUT)
+    if (appStore.expandWallet) {
+      if (type === 'error') toast.error(message)
+      if (type === 'success') toast.success(message)
+      setTimeout(() => res(true), TOAST_TIME_OUT)
+    } else {
+      res(true)
+    }
   })
 }
 
@@ -323,7 +327,6 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       try {
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
-        console.log(response)
         if (response.error) {
           if (response.error.data?.originalError) {
             await showToast(
@@ -467,11 +470,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
     if (appStore.sdkVersion === 'v3') {
-      console.log('appStore.expandWallet', appStore.expandWallet)
       if (!appStore.expandWallet) {
         appStore.expandedByRequest = true
       }
-      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {

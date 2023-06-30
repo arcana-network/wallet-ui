@@ -2,11 +2,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 
 const userStore = useUserStore()
 const route = useRoute()
+const requestStore = useRequestStore()
 
 const currentRoute = computed(() => {
   return route.name
@@ -105,7 +107,13 @@ function getIcon(icon: string, pathName: string) {
           }"
         >
           <img
+            v-if="requestStore.skippedRequestsForApproval.length > 0"
             :src="getIcon('notifications-icon', 'activities')"
+            alt="activities"
+          />
+          <img
+            v-else
+            :src="getIcon('no-notifications-icon', 'activities')"
             alt="activities"
           />
         </div>
