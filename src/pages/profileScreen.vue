@@ -238,7 +238,7 @@ watch(
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
-      <div class="flex flex-col">
+      <div v-if="appStore.isMfaEnabled" class="flex flex-col">
         <span class="text-sm text-gray-100">Enhance Wallet Security</span>
         <div>
           <button

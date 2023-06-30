@@ -13,6 +13,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
@@ -25,6 +26,7 @@ import { getStorage, initStorage } from '@/utils/storageWrapper'
 const route = useRoute()
 const { appId } = route.params
 initStorage(String(appId))
+const app = useAppStore()
 
 let channel: BroadcastChannel | null = null
 
@@ -63,10 +65,7 @@ async function init() {
         JSON.stringify({ pk: info.privateKey, exp, id: userInfo.userInfo.id })
       )
 
-      // TODO find a comprehensive solution to this
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      if (authProvider.appConfig.mfa_enabled !== false) {
+      if (app.isMfaEnabled) {
         const core = new Core(
           info.privateKey,
           info.userInfo.id,
