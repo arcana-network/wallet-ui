@@ -27,6 +27,7 @@ type AppState = {
   compactMode: boolean
   sdkVersion: SDKVersion | null
   expandedByRequest: boolean
+  isMfaEnabled: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -42,6 +43,7 @@ export const useAppStore = defineStore('app', {
       compactMode: false,
       sdkVersion: null,
       expandedByRequest: false,
+      isMfaEnabled: true,
     } as AppState),
   getters: {
     iframeStyle: ({
