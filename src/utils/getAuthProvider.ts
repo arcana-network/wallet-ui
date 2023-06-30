@@ -23,11 +23,11 @@ export async function getAuthProvider(
       debug: true,
       shouldVerifyState,
     })
-    const app = useAppStore()
+    const appStore = useAppStore()
     // TODO find a comprehensive solution to this
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    app.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
+    appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
   }
   // authProvider.shouldVerifyState = shouldVerifyState
   return authProvider
