@@ -12,6 +12,7 @@ import {
   GAS_AVAILABLE_CHAIN_IDS,
 } from '@/services/gasPrice.service'
 import { useActivitiesStore } from '@/store/activities'
+import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
@@ -32,7 +33,7 @@ const chainId = Number(rpcStore.selectedChainId)
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
-const gasFeeInGwei = ref('')
+const gas: Ref<EIP1559GasFee | null> = ref(null)
 const gasFeeInEth = ref('')
 const estimatedGas = ref('0')
 const gasPrices: Ref<object> = ref({})
@@ -53,14 +54,21 @@ const selectedTokenBalance = ref('0')
 
 const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
 
-watch(
-  () => gasFeeInGwei.value,
-  () => {
-    if (gasFeeInEth.value) {
-      gasFeeInEth.value = convertGweiToEth(gasFeeInGwei.value)
-    }
+watch(gas, () => {
+  if (gasFeeInEth.value) {
+    gasFeeInEth.value = ethers.utils
+      .formatEther(
+        ethers.utils.parseUnits(
+          `${
+            Number(gas.value?.maxFeePerGas) +
+            Number(gas.value?.maxPriorityFeePerGas)
+          }`,
+          'gwei'
+        )
+      )
+      .toString()
   }
-)
+})
 
 watch(selectedToken, async () => {
   await fetchTokenBalance()
@@ -90,6 +98,24 @@ onMounted(async () => {
       gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
     }
     baseFeePoll = setInterval(fetchBaseFee, 2000)
+    const accountHandler = getRequestHandler().getAccountHandler()
+    if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
+      estimatedGas.value = (
+        await accountHandler.provider.estimateGas({
+          from: userStore.walletAddress,
+          to: setHexPrefix(recipientWalletAddress.value),
+        })
+      ).toString()
+    } else {
+      const tokenInfo = tokenList.value.find(
+        (item) => item.address === selectedToken.value.address
+      )
+      estimatedGas.value = await accountHandler.estimateCustomTokenGas(
+        tokenInfo?.address,
+        setHexPrefix(recipientWalletAddress.value),
+        `0x${Number(100000000).toString(16)}`
+      )
+    }
   } catch (err) {
     console.log({ err })
   } finally {
@@ -146,7 +172,7 @@ function setTokenList() {
 function clearForm() {
   recipientWalletAddress.value = ''
   amount.value = ''
-  gasFeeInGwei.value = ''
+  gas.value = null
 }
 
 function setHexPrefix(value: string) {
@@ -159,7 +185,13 @@ async function handleSendToken() {
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
     const gasFees = ethers.utils
-      .parseUnits(`${gasFeeInGwei.value}`, 'gwei')
+      .parseUnits(
+        `${
+          Number(gas.value?.maxFeePerGas) +
+          Number(gas.value?.maxPriorityFeePerGas)
+        }`,
+        'gwei'
+      )
       .toHexString()
     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
       const payload = {
@@ -217,14 +249,18 @@ async function handleSendToken() {
 }
 
 function handleSetGasPrice(value) {
-  gasFeeInGwei.value = value
+  gas.value = value
 }
 
 async function handleShowPreview() {
-  if (!gasFeeInGwei.value) {
-    gasFeeInGwei.value = baseFee.value
+  if (!gas.value) {
+    gas.value = {
+      maxFeePerGas: baseFee.value,
+      maxPriorityFeePerGas: String(4),
+      gasLimit: 0,
+    }
   }
-  if (recipientWalletAddress.value && amount.value && gasFeeInGwei.value) {
+  if (recipientWalletAddress.value && amount.value && gas.value) {
     showLoader('Loading preview...')
     try {
       const accountHandler = getRequestHandler().getAccountHandler()
@@ -254,7 +290,15 @@ async function handleShowPreview() {
       console.error({ e })
     } finally {
       gasFeeInEth.value = ethers.utils
-        .formatEther(ethers.utils.parseUnits(`${gasFeeInGwei.value}`, 'gwei'))
+        .formatEther(
+          ethers.utils.parseUnits(
+            `${
+              Number(gas.value.maxFeePerGas) +
+              Number(gas.value.maxPriorityFeePerGas)
+            }`,
+            'gwei'
+          )
+        )
         .toString()
       showPreview.value = true
       hideLoader()
@@ -372,9 +416,9 @@ function handleTokenChange(e) {
           </div>
         </div>
         <GasPrice
-          :gas-price="gasFeeInGwei"
           :gas-prices="gasPrices"
           :base-fee="baseFee"
+          :gas-limit="estimatedGas"
           @gas-price-input="handleSetGasPrice"
         />
       </div>

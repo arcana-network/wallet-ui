@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType } from '@arcana/auth-core'
+import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
@@ -19,7 +19,7 @@ import {
   getPasswordlessState,
   PasswordlessLoginHandler,
 } from '@/utils/PasswordlessLoginHandler'
-import { getStorage, initStorage, StorageType } from '@/utils/storageWrapper'
+import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
@@ -164,6 +164,8 @@ async function storeUserInfoAndRedirect(
         AUTH_NETWORK === 'dev'
       )
       await core.init()
+      const key = await core.getKey()
+      userInfo.privateKey = key
     } catch (e) {
       storage.session.setUserInfo(userInfo)
       router.push({
