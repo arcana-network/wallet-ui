@@ -62,7 +62,9 @@ async function init() {
       )
     } else {
       loginSrc = await parentConnectionInstance.getLoginSource()
-      getStorage().local.setLoginSrc(loginSrc)
+      if (loginSrc) {
+        getStorage().local.setLoginSrc(loginSrc)
+      }
     }
   } finally {
     isLoading.value = false

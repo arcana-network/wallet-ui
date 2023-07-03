@@ -11,7 +11,7 @@ enum StorageKey {
   HasMFA = 'has-mfa',
   SkipMFAUntil = 'mfa-skip-until',
   MFADND = 'mfa-dnd',
-  LoginSrc = 'loginSrc',
+  LoginSrc = 'login-src',
   LoginCount = 'login-count',
   State = 'state',
   NFT = 'nft_list',
@@ -125,7 +125,7 @@ class UserLocalStorage extends BaseStorage {
   }
 
   getHasMFA(id: string) {
-    return this.storage.get<string>(`${id}-${StorageKey.HasMFA}`) == '1'
+    return this.get<string>(`${id}-${StorageKey.HasMFA}`) == '1'
   }
 
   setLoginSrc(src: string) {
