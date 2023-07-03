@@ -62,16 +62,15 @@ async function init() {
       parentConnectionInstance.error(
         'User is already logged in! Redirecting back to app in 3'
       )
-    } else {
-      const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      getStorage().local.setItem('parentAppUrl', parentAppUrl)
     }
   } finally {
     isLoading.value = false
   }
 }
 
-async function handleSocialLoginRequest(type: SocialLoginType) {
+async function handleSocialLoginRequest(
+  type: Exclude<SocialLoginType, SocialLoginType.passwordless>
+) {
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     await catchupSigninPage(state)

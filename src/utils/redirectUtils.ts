@@ -67,7 +67,6 @@ const interactWithIframe = <T>(
           )
         } catch (e) {
           // Intentionally ignoring errors
-          continue
         }
       }
     } catch (e) {
@@ -129,64 +128,57 @@ const verifyOpenerPage = async (state: string) => {
   }
 }
 
-const contactParentPage = async (
-  info: GetInfoOutput,
-  messageId: number,
-  status: string
-) => {
+const contactParentPage = async (params: HandleLoginParams, status: string) => {
   const data = await interactWithIframe<{ messageId: number }>({
     status,
     params: {
-      messageId,
-      info,
+      sessionID: params.sessionID,
+      messageId: params.messageId,
+      info: params.userInfo,
+      sessionExpiry: params.sessionExpiry,
     },
     expectedResponseStatus: ACK,
   })
-  if (data.messageId == messageId) {
+  if (data.messageId === params.messageId) {
     return 'ok'
   }
 }
 
-async function handlePasswordlessLoginV2(
-  info: GetInfoOutput & { hasMfa?: boolean; pk?: string },
-  state: string,
-  connection: AsyncMethodReturns<RedirectParentConnectionApi>
-) {
-  const [sessionId, setToken] = state.split('-')
+async function handlePasswordlessLoginV2(params: HandleLoginParams) {
+  const [sessionId, setToken] = params.state.split('-')
   const publicKey = await getCredentialKey(sessionId)
   const dataToEncrypt = {
-    privateKey: info.privateKey,
-    pk: info.pk,
+    privateKey: params.userInfo.privateKey,
+    pk: params.userInfo.pk,
+    sessionID: params.sessionID,
+    expiry: params.sessionExpiry,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
-  if (info.hasMfa) {
+  if (params.userInfo.hasMfa) {
     ciphertext = `${ciphertext}:has-mfa`
   }
   await setCredential(setToken, sessionId, ciphertext)
-  connection.replyTo()
+  await params.connection.replyTo()
 }
 
-async function handleSocialLogin(
-  info: GetInfoOutput,
-  messageId: number,
-  connection: AsyncMethodReturns<RedirectParentConnectionApi>
-) {
+async function handleSocialLogin(params: HandleLoginParams) {
   try {
-    await contactParentPage(info, messageId, LOGIN_INFO)
-    connection.replyTo()
+    await contactParentPage(params, LOGIN_INFO)
+    await params.connection.replyTo()
   } catch (e) {
     console.log('A very unexpected error occurred', e)
-    connection.error('Could not login, an unexpected error occurred')
+    await params.connection.error(
+      'Could not login, an unexpected error occurred'
+    )
   }
 }
 
 const getStateFromUrl = (u: string) => {
-  let val = ''
   const url = new URL(decodeURIComponent(u), process.env.VUE_APP_WALLET_DOMAIN)
   const queryParams = url.searchParams
   const hashParams = new URLSearchParams(url.hash.substring(1))
   const key = 'state'
-  val = hashParams.get(key) ?? ''
+  let val = hashParams.get(key) ?? ''
   if (!val) {
     val = queryParams.get(key) ?? ''
   }
@@ -201,29 +193,26 @@ type HandleLoginParams = {
     pk?: string
   }
   state: string
+  sessionID: string
+  sessionExpiry: number
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
   messageId: number
 }
 
-const handleLogin = async ({
-  isStandalone,
-  userInfo,
-  state,
-  connection,
-  messageId,
-}: HandleLoginParams) => {
-  if (userInfo.loginType === SocialLoginType.passwordless) {
-    await handlePasswordlessLoginV2(userInfo, state, connection)
+const handleLogin = async (params: HandleLoginParams) => {
+  if (params.userInfo.loginType === SocialLoginType.passwordless) {
+    await handlePasswordlessLoginV2(params)
   } else {
-    if (isStandalone) {
-      await connection.goToWallet()
+    if (params.isStandalone) {
+      await params.connection.goToWallet()
       return
     }
-    await handleSocialLogin(userInfo, messageId, connection)
+    await handleSocialLogin(params)
   }
 }
 
 export {
+  interactWithIframe,
   catchupSigninPage,
   fetchPasswordlessResponseFromSignIn,
   handleLogin,

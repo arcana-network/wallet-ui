@@ -145,8 +145,8 @@ async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
 ) {
   const storage = getStorage()
-  storage.session.setItem('userInfo', JSON.stringify(userInfo))
-  storage.session.setItem('isLoggedIn', JSON.stringify(true))
+  storage.session.setUserInfo(userInfo)
+  storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
@@ -164,16 +164,9 @@ async function storeUserInfoAndRedirect(
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
-    storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+    storage.local.setHasMFA(user.info.id)
   }
-  const loginCount = storage.local.getItem(
-    `${userInfo.userInfo.id}-login-count`
-  )
-  const newLoginCount = loginCount ? Number(loginCount) + 1 : 1
-  storage.local.setItem(
-    `${userInfo.userInfo.id}-login-count`,
-    String(newLoginCount)
-  )
+  storage.local.incrementLoginCount(userInfo.userInfo.id)
   router.push({ name: 'home' })
 }
 
@@ -199,7 +192,7 @@ const windowEventHandler = (
       storeUserInfoAndRedirect(ev.data.info)
       if (ev.data.info.hasMfa) {
         user.hasMfa = true
-        storage.local.setItem(`${ev.data.info.userInfo.id}-has-mfa`, '1')
+        storage.local.setHasMFA(ev.data.info.userInfo.id)
       }
       break
     }
@@ -254,11 +247,11 @@ async function init() {
 
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    const userInfo = JSON.parse(storage.session.getItem('userInfo') || '{}')
-    const isLoggedIn = storage.session.getItem('isLoggedIn')
+    const userInfo = storage.local.getUserInfo()
+    const isLoggedIn = storage.local.getIsLoggedIn()
 
-    if (isLoggedIn) {
-      const hasMfa = storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`)
+    if (isLoggedIn && userInfo) {
+      const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       if (!hasMfa && userInfo.pk) {
         const core = new Core(
           userInfo.pk,
@@ -274,7 +267,7 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      user.hasMfa = hasMfa === '1'
+      user.hasMfa = hasMfa
       router.push({ name: 'home' })
     } else {
       parentConnection = createParentConnection({
