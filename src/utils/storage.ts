@@ -11,7 +11,7 @@ enum StorageKey {
   HasMFA = 'has-mfa',
   SkipMFAUntil = 'mfa-skip-until',
   MFADND = 'mfa-dnd',
-  LoginSrc = 'loginSrc',
+  LoginSrc = 'login-src',
   LoginCount = 'login-count',
   State = 'state',
   NFT = 'nft_list',
