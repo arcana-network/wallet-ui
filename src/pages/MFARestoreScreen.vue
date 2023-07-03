@@ -191,7 +191,7 @@ async function returnToParent(key: string) {
   const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
     {}
   ).promise
-  const info = storage.local.getUserInfo()
+  const info = storage.session.getUserInfo()
   if (!info) {
     return
   }
