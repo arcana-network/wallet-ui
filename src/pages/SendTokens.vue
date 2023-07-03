@@ -162,12 +162,11 @@ async function fetchTokenBalance() {
 function setTokenList() {
   const chainId = rpcStore.selectedChainId
   const walletAddress = userStore.walletAddress
-  const localStoreKey = `${walletAddress}/${chainId}/asset-contracts`
-  const contractsDetails = getStorage().local.getItem(localStoreKey)
-  if (contractsDetails) {
-    const contracts = JSON.parse(contractsDetails)
-    tokenList.value.push(...contracts)
-  }
+  const contracts = getStorage().local.getAssetContractList(
+    walletAddress,
+    Number(chainId)
+  )
+  tokenList.value.push(...contracts)
 }
 
 function clearForm() {
@@ -321,13 +320,13 @@ function handleTokenChange(e) {
   <SendTokensPreview
     v-else-if="showPreview"
     :preview-data="{
-      senderWalletAddress: userStore.walletAddress,
-      recipientWalletAddress: setHexPrefix(recipientWalletAddress),
-      amount,
-      gasFee: gasFeeInEth,
-      selectedToken: selectedToken.symbol as string,
-      estimatedGas,
-    }"
+    senderWalletAddress: userStore.walletAddress,
+    recipientWalletAddress: setHexPrefix(recipientWalletAddress),
+    amount,
+    gasFee: gasFeeInEth,
+    selectedToken: selectedToken.symbol as string,
+    estimatedGas,
+  }"
     @close="showPreview = false"
     @submit="handleSendToken"
   />

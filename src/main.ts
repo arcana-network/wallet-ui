@@ -8,7 +8,7 @@ import JsonViewer from 'vue-json-viewer'
 import Toast from 'vue-toastification'
 
 import App from '@/App.vue'
-import { router } from '@/routes/index'
+import { router } from '@/routes'
 import { store } from '@/store'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 

@@ -25,9 +25,11 @@ let mfaWindow: Window | null
 const storage = getStorage()
 
 async function handleProceed() {
-  const { loginType } = JSON.parse(
-    storage.session.getItem('userInfo') as string
-  )
+  const userInfo = storage.local.getUserInfo()
+  if (!userInfo) {
+    return
+  }
+  const { loginType } = userInfo
   if (isInAppLogin(loginType)) {
     router.push({ name: 'MFASetup', params: { appId: appStore.id } })
   } else {
@@ -48,7 +50,7 @@ async function handleProceed() {
 
         if (data.status === 'success') {
           mfaWindow?.close()
-          storage.local.setItem(`${user.info.id}-has-mfa`, '1')
+          storage.local.setHasMFA(user.info.id)
           user.hasMfa = true
           toast.success('MFA setup completed')
           window.removeEventListener('message', handler, false)
@@ -93,14 +95,14 @@ function hideLoader() {
 }
 
 function handleAskNever() {
-  storage.local.setItem(`${user.info.id}-mfa-dnd`, '1')
+  storage.local.setMFADND(user.info.id)
   goToHome()
 }
 
 function handleSkip() {
-  const loginCount = storage.local.getItem(`${user.info.id}-login-count`)
+  const loginCount = storage.local.getLoginCount(user.info.id)
   const skipUntil = loginCount ? Number(loginCount) + 3 : 3
-  storage.local.setItem(`${user.info.id}-mfa-skip-until`, String(skipUntil))
+  storage.local.setMFASkip(user.info.id, skipUntil)
   goToHome()
 }
 

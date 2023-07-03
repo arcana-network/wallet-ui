@@ -49,8 +49,7 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 
 onBeforeMount(() => {
-  userStore.hasMfa =
-    getStorage().local.getItem(`${userStore.info.id}-has-mfa`) === '1'
+  userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
 
 onMounted(async () => {
@@ -85,8 +84,14 @@ onMounted(async () => {
 })
 
 async function setMFABannerState() {
+  // return null
+
+  // eslint-disable-next-line no-unreachable
   if (!userStore.hasMfa) {
-    const userInfo = JSON.parse(storage.session.getItem('userInfo') as string)
+    const userInfo = storage.local.getUserInfo()
+    if (!userInfo) {
+      return
+    }
     const core = new Core(
       userInfo.pk,
       userStore.info.id,
@@ -99,12 +104,9 @@ async function setMFABannerState() {
     const isEnabled = await securityQuestionModule.isEnabled()
     userStore.hasMfa = isEnabled
   }
-  const mfaDnd = storage.local.getItem(`${userStore.info.id}-mfa-dnd`)
-  const mfaSkipUntil = storage.local.getItem(
-    `${userStore.info.id}-mfa-skip-until`
-  )
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
-  const hasMfaDnd = mfaDnd && mfaDnd === '1'
+  const hasMfaDnd = storage.local.HasMFADND(userStore.info.id)
+  const mfaSkipUntil = storage.local.getMFASkip(userStore.info.id)
+  const loginCount = storage.local.getLoginCount(userStore.info.id)
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
   if (requestStore.areRequestsPendingForApproval) {
@@ -278,12 +280,9 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
 }
 
 function handleSkip() {
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
+  const loginCount = storage.local.getLoginCount(userStore.info.id)
   const skipUntil = loginCount ? Number(loginCount) + 3 : 3
-  storage.local.setItem(
-    `${userStore.info.id}-mfa-skip-until`,
-    String(skipUntil)
-  )
+  storage.local.setMFASkip(userStore.info.id, skipUntil)
   showMfaBanner.value = false
 }
 
