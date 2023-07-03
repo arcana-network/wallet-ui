@@ -84,6 +84,12 @@ async function init() {
       }
 
       const uuid = genUUID()
+
+      // For wallet usage purpose and standalone apps
+      storage.session.setUserInfo(userInfo)
+      storage.session.setIsLoggedIn()
+
+      // For reconnect purpose
       storage.local.setUserInfo(userInfo)
       storage.local.setIsLoggedIn()
       storage.local.setSession({
