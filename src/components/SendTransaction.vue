@@ -91,13 +91,17 @@ function handleSetGasPrice(value) {
   customGasPrice.value = value
   emits('gasPriceInput', {
     value: {
-      maxFeePerGas: ethers.utils
-        .parseUnits(String(value.maxFeePerGas), 'gwei')
-        .toHexString(),
-      maxPriorityFeePerGas: ethers.utils
-        .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
-        .toHexString(),
-      gasLimit: value.gasLimit,
+      maxFeePerGas: value.maxFeePerGas
+        ? ethers.utils
+            .parseUnits(String(value.maxFeePerGas), 'gwei')
+            .toHexString()
+        : undefined,
+      maxPriorityFeePerGas: value.maxPriorityFeePerGas
+        ? ethers.utils
+            .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
+            .toHexString()
+        : undefined,
+      gasLimit: value.gasLimit ? value.gasLimit : undefined,
     },
     requestId,
   })

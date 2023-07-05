@@ -23,8 +23,8 @@ const props = defineProps({
 
 const rpcStore = useRpcStore()
 
-const maxFeePerGas = ref(0)
-const maxPriorityFeePerGas = ref(0)
+const maxFeePerGas = ref(0 as number | null)
+const maxPriorityFeePerGas = ref(0 as number | null)
 const totalGasUsed = ref(Number(props.gasLimit))
 const transactionTime = ref(null)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
@@ -34,18 +34,18 @@ watch(selectedGasMethod, () => {
 })
 
 emits('gasPriceInput', {
-  maxFeePerGas: Number(props.baseFee),
-  maxPriorityFeePerGas: 4,
+  maxFeePerGas: null,
+  maxPriorityFeePerGas: null,
   gasLimit: totalGasUsed.value,
 })
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal' || gasMethod === 'custom') {
-    maxPriorityFeePerGas.value = 4
-    maxFeePerGas.value = Number(props.baseFee)
+    maxPriorityFeePerGas.value = null
+    maxFeePerGas.value = null
   } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = 10
-    maxFeePerGas.value = Number(props.baseFee) * 2
+    maxPriorityFeePerGas.value = Math.round(Number(props.baseFee) + 1)
+    maxFeePerGas.value = Number(props.baseFee + 1) * 2
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
