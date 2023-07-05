@@ -62,21 +62,15 @@ async function addTokenContract() {
       loader.show = false
       return toast.error('Enter all the details to continue')
     }
-    const assetContractsString = storage.local.getItem(
-      `${userStore.walletAddress}/${Number(
-        rpcStore.selectedRpcConfig?.chainId
-      )}/asset-contracts`
+    const assetContracts = storage.local.getAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId)
     )
-    let assetContracts: AssetContract[] = []
-    if (assetContractsString) {
-      assetContracts = JSON.parse(assetContractsString) as AssetContract[]
-    }
     assetContracts.push({ ...tokenContract })
-    storage.local.setItem(
-      `${userStore.walletAddress}/${Number(
-        rpcStore.selectedRpcConfig?.chainId
-      )}/asset-contracts`,
-      JSON.stringify(assetContracts)
+    storage.local.setAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId),
+      assetContracts
     )
     loader.show = false
     toast.success('Token Added successfully')
@@ -88,13 +82,11 @@ async function addTokenContract() {
 }
 
 function isContractInLocalStorage() {
-  const assetContractsString = storage.local.getItem(
-    `${userStore.walletAddress}/${Number(
-      rpcStore.selectedRpcConfig?.chainId
-    )}/asset-contracts`
+  const assetContracts = getStorage().local.getAssetContractList(
+    userStore.walletAddress,
+    Number(rpcStore.selectedRPCConfig?.chainId)
   )
-  if (assetContractsString) {
-    const assetContracts = JSON.parse(assetContractsString) as AssetContract[]
+  if (assetContracts.length > 0) {
     if (
       assetContracts.find(
         (contract) => contract.address === tokenContract.address

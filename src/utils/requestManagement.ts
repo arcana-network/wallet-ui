@@ -277,17 +277,15 @@ async function addToken(request, keeper) {
   const storage = getStorage()
   if (ercType === 'erc20') {
     const { tokenContract } = await validateAddTokensParams(params)
-    const assetContractsString = storage.local.getItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    const assetContracts = storage.local.getAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId)
     )
-    let assetContracts: AssetContract[] = []
-    if (assetContractsString) {
-      assetContracts = JSON.parse(assetContractsString) as AssetContract[]
-    }
     assetContracts.push({ ...tokenContract })
-    storage.local.setItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
-      JSON.stringify(assetContracts)
+    storage.local.setAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId),
+      assetContracts
     )
     keeper.reply(request.method, {
       result: 'Token Added successfully',
