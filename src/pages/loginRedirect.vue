@@ -83,6 +83,8 @@ async function init() {
           securityQuestionModule.init(core)
           userInfo.hasMfa = await securityQuestionModule.isEnabled()
         }
+      } else {
+        userInfo.privateKey = info.privateKey
       }
 
       storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
