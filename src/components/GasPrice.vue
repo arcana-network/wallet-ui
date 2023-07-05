@@ -49,7 +49,7 @@ function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
     maxFeePerGas.value = null
     totalGasUsed.value = null
   } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = Math.round(Number(sanitizedBaseFee.value))
+    maxPriorityFeePerGas.value = 4
     maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
     totalGasUsed.value = null
   }
