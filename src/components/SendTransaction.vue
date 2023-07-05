@@ -85,13 +85,13 @@ function handleSetGasPrice(value) {
         ? ethers.utils
             .parseUnits(String(value.maxFeePerGas), 'gwei')
             .toHexString()
-        : undefined,
+        : null,
       maxPriorityFeePerGas: value.maxPriorityFeePerGas
         ? ethers.utils
             .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
             .toHexString()
-        : undefined,
-      gasLimit: value.gasLimit ? value.gasLimit : undefined,
+        : null,
+      gasLimit: value.gasLimit ? value.gasLimit : null,
     },
     requestId,
   })
