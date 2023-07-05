@@ -22,6 +22,7 @@ export async function getAuthProvider(
       autoRedirect: false,
       debug: true,
       shouldVerifyState,
+      useInMemoryStore: false,
     })
     const appStore = useAppStore()
     // TODO find a comprehensive solution to this
