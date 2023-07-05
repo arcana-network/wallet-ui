@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Ref, ref, watch } from 'vue'
+import { type Ref, ref, watch, computed } from 'vue'
 
 import { useRpcStore } from '@/store/rpc'
 
@@ -25,9 +25,13 @@ const rpcStore = useRpcStore()
 
 const maxFeePerGas = ref(0 as number | null)
 const maxPriorityFeePerGas = ref(0 as number | null)
-const totalGasUsed = ref(Number(props.gasLimit))
+const totalGasUsed = ref(Number(props.gasLimit) as number | null)
 const transactionTime = ref(null)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
+
+const sanitizedBaseFee = computed(() => {
+  return Number(props.baseFee).toFixed(9)
+})
 
 watch(selectedGasMethod, () => {
   handleGasPriceSelect(selectedGasMethod.value)
@@ -36,16 +40,18 @@ watch(selectedGasMethod, () => {
 emits('gasPriceInput', {
   maxFeePerGas: null,
   maxPriorityFeePerGas: null,
-  gasLimit: totalGasUsed.value,
+  gasLimit: null,
 })
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal' || gasMethod === 'custom') {
     maxPriorityFeePerGas.value = null
     maxFeePerGas.value = null
+    totalGasUsed.value = null
   } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = Math.round(Number(props.baseFee) + 1)
-    maxFeePerGas.value = Number(props.baseFee + 1) * 2
+    maxPriorityFeePerGas.value = Math.round(Number(sanitizedBaseFee.value))
+    maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
+    totalGasUsed.value = null
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
@@ -152,7 +158,7 @@ function handleCustomGasPriceInput() {
       />
       <div class="flex justify-end gap-1">
         <span class="text-xs text-gray-100">Base Fee:</span>
-        <span class="text-xs">{{ props.baseFee }} Gwei</span>
+        <span class="text-xs">{{ Number(sanitizedBaseFee) }} Gwei</span>
       </div>
     </div>
   </div>

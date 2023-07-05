@@ -26,14 +26,12 @@ function convertPolygonResponseToEthResponse(data) {
 }
 
 async function getGasPrice(chainId = 1) {
-  const gasStationUrl = GAS_API_MAPPING[chainId]
-  const { data } = await axios.get(gasStationUrl)
-
-  if (POLYGON_CHAIN_IDS.includes(chainId)) {
-    return convertPolygonResponseToEthResponse(data)
-  }
-
-  return data
+  // const gasStationUrl = GAS_API_MAPPING[chainId]
+  // const { data } = await axios.get(gasStationUrl)
+  // if (POLYGON_CHAIN_IDS.includes(chainId)) {
+  //   return convertPolygonResponseToEthResponse(data)
+  // }
+  // return data
 }
 
 export { getGasPrice, GAS_AVAILABLE_CHAIN_IDS }

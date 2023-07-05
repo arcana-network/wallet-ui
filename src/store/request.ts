@@ -71,11 +71,21 @@ export const useRequestStore = defineStore('request', {
       const request = this.pendingRequests[requestId].request
       if (Array.isArray(request.params)) {
         const param = request.params[0]
-        param.maxPriorityFeePerGas = gas?.maxPriorityFeePerGas
-          ? Number(gas.maxPriorityFeePerGas)
-          : 0
-        param.maxFeePerGas = gas?.maxFeePerGas ? Number(gas.maxFeePerGas) : 0
-        param.gas = Number(gas?.gasLimit || 0)
+        if (gas?.maxPriorityFeePerGas) {
+          param.maxPriorityFeePerGas = gas.maxPriorityFeePerGas
+        } else {
+          delete param.maxPriorityFeePerGas
+        }
+        if (gas?.maxFeePerGas) {
+          param.maxFeePerGas = gas.maxFeePerGas
+        } else {
+          delete param.maxFeePerGas
+        }
+        if (gas?.gasLimit) {
+          param.gas = gas.gasLimit
+        } else {
+          delete param.gas
+        }
         delete param.gasPrice
       }
     },
