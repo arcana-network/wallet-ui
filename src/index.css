@@ -38,6 +38,10 @@
     @apply font-onest text-black-500 dark:text-white-100 leading-normal;
   }
 
+  pre {
+    @apply font-onest;
+  }
+
   button {
     @apply outline-none
           cursor-pointer disabled:cursor-not-allowed
