@@ -244,7 +244,7 @@ async function handlePinProceed() {
     try {
       await createShare(pinToEncryptMFAShare.value)
       if (!isInAppLogin(loginInfo?.loginType)) {
-        const dkgShare = storage.local.clearPK()
+        const dkgShare = storage.local.getPK()
         storage.local.setHasMFA(dkgShare.id)
         storage.local.clearPK()
       }
@@ -252,8 +252,11 @@ async function handlePinProceed() {
       if (isInAppLogin(loginInfo?.loginType)) {
         return toast.error(e as string)
       }
-      // eslint-disable-next-line no-undef
-      return connectionToParent.error(e as string)
+      return connectionToParent.error(
+        e as string,
+        // eslint-disable-next-line no-undef
+        process.env.VUE_APP_WALLET_DOMAIN
+      )
     }
     loader.value = {
       show: false,
