@@ -52,7 +52,7 @@ type RedirectParentConnectionApi = {
   redirect(url: string | null): Promise<void>
   replyTo(parentAppUrl?: string | null): Promise<void>
   goToWallet(): Promise<void>
-  error(errorMessage: string): Promise<void>
+  error(errorMessage: string, domain?: string): Promise<void>
 }
 
 type ParentConnectionApi = {
