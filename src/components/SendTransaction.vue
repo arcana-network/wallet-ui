@@ -76,6 +76,10 @@ onMounted(async () => {
   }
 })
 
+function computeMaxFee(value) {
+  return Number(value.maxFeePerGas) + (Number(value.maxPriorityFeePerGas) || 2)
+}
+
 function handleSetGasPrice(value) {
   const requestId = props.request.request.id
   customGasPrice.value = value
@@ -83,7 +87,7 @@ function handleSetGasPrice(value) {
     value: {
       maxFeePerGas: value.maxFeePerGas
         ? ethers.utils
-            .parseUnits(String(value.maxFeePerGas), 'gwei')
+            .parseUnits(String(computeMaxFee(value)), 'gwei')
             .toHexString()
         : null,
       maxPriorityFeePerGas: value.maxPriorityFeePerGas
