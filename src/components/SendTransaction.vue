@@ -9,16 +9,11 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTransactionCompact from '@/components/SendTransactionCompact.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import {
-  getGasPrice,
-  GAS_AVAILABLE_CHAIN_IDS,
-} from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
   request: {
@@ -32,10 +27,8 @@ const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
-const getImage = useImage()
 const baseFee = ref('0')
 const gasLimit = ref('0')
-const chainId = Number(rpcStore.selectedChainId)
 const requestStore = useRequestStore()
 const route = useRoute()
 
@@ -59,10 +52,6 @@ function hideLoader() {
 onMounted(async () => {
   showLoader('Loading...')
   try {
-    // if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-    //   const data = await getGasPrice(chainId)
-    //   gasPrices.value = data
-    // }
     const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
@@ -74,10 +63,11 @@ onMounted(async () => {
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
     customGasPrice.value = {
-      maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: 4,
+      maxFeePerGas: Number(baseFee.value),
+      maxPriorityFeePerGas: Math.round(Number(baseFee.value)),
       gasLimit: gasLimit.value,
     }
+    handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
     gasPrices.value = {}
@@ -91,13 +81,17 @@ function handleSetGasPrice(value) {
   customGasPrice.value = value
   emits('gasPriceInput', {
     value: {
-      maxFeePerGas: ethers.utils
-        .parseUnits(String(value.maxFeePerGas), 'gwei')
-        .toHexString(),
-      maxPriorityFeePerGas: ethers.utils
-        .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
-        .toHexString(),
-      gasLimit: value.gasLimit,
+      maxFeePerGas: value.maxFeePerGas
+        ? ethers.utils
+            .parseUnits(String(value.maxFeePerGas), 'gwei')
+            .toHexString()
+        : null,
+      maxPriorityFeePerGas: value.maxPriorityFeePerGas
+        ? ethers.utils
+            .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
+            .toHexString()
+        : null,
+      gasLimit: value.gasLimit ? value.gasLimit : null,
     },
     requestId,
   })

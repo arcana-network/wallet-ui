@@ -21,7 +21,7 @@ const jsonValue = computed(() => {
   return props.value
 })
 
-const propKeys = Object.keys(jsonValue.value)
+const propKeys = computed(() => Object.keys(jsonValue.value))
 
 function isArray(value: any) {
   if (value instanceof Array) {
