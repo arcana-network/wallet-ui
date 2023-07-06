@@ -14,7 +14,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
-import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
+import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   getStateFromUrl,
@@ -28,8 +28,6 @@ const { appId } = route.params
 initStorage(String(appId))
 
 let channel: BroadcastChannel | null = null
-
-const EXPIRY_MS = 60 * 60 * 1000
 
 onMounted(init)
 onUnmounted(cleanup)
@@ -103,8 +101,8 @@ async function init() {
         userInfo,
         state: stateInfo.i,
         sessionID: uuid,
+        sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
         messageId,
-        sessionExpiry: Date.now() + EXPIRY_MS,
         isStandalone,
       })
       storage.local.clearLoginSrc()
