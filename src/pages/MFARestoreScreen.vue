@@ -14,14 +14,12 @@ import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
-import { useModalStore } from '@/store/modal'
 import { useUserStore } from '@/store/user'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { isInAppLogin } from '@/utils/isInAppLogin'
 import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
-const modalStore = useModalStore()
 const user = useUserStore()
 const toast = useToast()
 const app = useAppStore()
@@ -53,9 +51,6 @@ const router = useRouter()
 const appId = route.params.appId as string
 initStorage(appId)
 const storage = getStorage()
-
-//TODO: Deduplicate this
-const EXPIRY_MS = 60 * 60 * 1000
 
 onBeforeMount(async () => {
   loader.value = {
@@ -220,7 +215,7 @@ async function returnToParent(key: string) {
     isStandalone,
     userInfo: info,
     sessionID: uuid,
-    sessionExpiry: Date.now() + EXPIRY_MS,
+    sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
     messageId,
     connection: connectionToParent,
   }).catch(async (e) => {
