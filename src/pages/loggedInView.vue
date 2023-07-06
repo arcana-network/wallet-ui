@@ -203,6 +203,7 @@ async function setTheme() {
 function getUserInfo() {
   const accountDetails = getRequestHandler().getAccountHandler().getAccount()
   return {
+    loginType: userStore.loginType,
     ...userStore.info,
     ...accountDetails,
   }

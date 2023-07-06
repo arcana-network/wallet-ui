@@ -1,5 +1,5 @@
-import { AuthProvider } from '@arcana/auth-core'
-import type { LoginType, UserInfo } from '@arcana/auth-core/types/types'
+import { AuthProvider, SocialLoginType } from '@arcana/auth-core'
+import type { UserInfo } from '@arcana/auth-core/types/types'
 import { defineStore } from 'pinia'
 
 import { getStorage } from '@/utils/storageWrapper'
@@ -8,6 +8,7 @@ type UserState = {
   isLoggedIn: boolean
   info: UserInfo
   privateKey: string
+  loginType: SocialLoginType
   walletAddress: string
   hasMfa: boolean
 }
@@ -22,6 +23,8 @@ export const useUserStore = defineStore('user', {
       isLoggedIn: false,
       info: {},
       privateKey: '',
+      // This is just for initialization
+      loginType: SocialLoginType.passwordless,
       walletAddress: '',
       hasMfa: false,
     } as UserState),
@@ -37,7 +40,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     async handleSocialLogin(
       authProvider: AuthProvider,
-      loginType: Exclude<LoginType, LoginType.passwordless>
+      loginType: Exclude<SocialLoginType, SocialLoginType.passwordless>
     ): Promise<{ url: string; state: string }> {
       const val = await authProvider.loginWithSocial(loginType)
       if (!val) {
@@ -46,8 +49,9 @@ export const useUserStore = defineStore('user', {
       const { url, state } = val
       return { url, state }
     },
-    setUserInfo({ privateKey, userInfo }) {
+    setUserInfo({ privateKey, loginType, userInfo }) {
       this.privateKey = privateKey
+      this.loginType = loginType
       this.info = userInfo
     },
     setLoginStatus(status: boolean) {
