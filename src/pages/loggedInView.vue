@@ -87,7 +87,7 @@ async function setMFABannerState() {
   // return null
 
   // eslint-disable-next-line no-unreachable
-  if (!userStore.hasMfa) {
+  if (!userStore.hasMfa && appStore.isMfaEnabled) {
     const userInfo = storage.local.getUserInfo()
     if (!userInfo) {
       return
@@ -303,7 +303,7 @@ onBeforeRouteLeave((to) => {
   <div v-else class="flex flex-col gap-2">
     <Transition name="fade" mode="out-in">
       <button
-        v-if="showMfaBanner"
+        v-if="showMfaBanner && appStore.isMfaEnabled"
         class="bg-blue-700 rounded-lg px-4 py-1 flex justify-between items-center cursor-pointer"
         @click.stop="handleMFACreation"
       >

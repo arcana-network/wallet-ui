@@ -154,7 +154,7 @@ async function storeUserInfoAndRedirect(
   }
 ) {
   const storage = getStorage()
-  if ((userInfo.loginType as string) === 'firebase') {
+  if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
     try {
       const core = new Core(
         userInfo.pk as string,

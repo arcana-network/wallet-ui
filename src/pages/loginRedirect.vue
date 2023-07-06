@@ -14,6 +14,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
@@ -26,6 +27,7 @@ import { getStorage, initStorage } from '@/utils/storageWrapper'
 const route = useRoute()
 const { appId } = route.params
 initStorage(String(appId))
+const app = useAppStore()
 
 let channel: BroadcastChannel | null = null
 
@@ -64,21 +66,25 @@ async function init() {
         exp,
         id: userInfo.userInfo.id,
       })
-      const core = new Core(
-        info.privateKey,
-        info.userInfo.id,
-        String(appId),
-        GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
-      )
-      await core.init()
-      userInfo.privateKey = await core.getKey()
-      userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
-      userInfo.pk = info.privateKey
-      if (!userInfo.hasMfa) {
-        const securityQuestionModule = new SecurityQuestionModule(3)
-        securityQuestionModule.init(core)
-        userInfo.hasMfa = await securityQuestionModule.isEnabled()
+      if (app.isMfaEnabled) {
+        const core = new Core(
+          info.privateKey,
+          info.userInfo.id,
+          String(appId),
+          GATEWAY_URL,
+          AUTH_NETWORK === 'dev'
+        )
+        await core.init()
+        userInfo.privateKey = await core.getKey()
+        userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+        userInfo.pk = info.privateKey
+        if (!userInfo.hasMfa) {
+          const securityQuestionModule = new SecurityQuestionModule(3)
+          securityQuestionModule.init(core)
+          userInfo.hasMfa = await securityQuestionModule.isEnabled()
+        }
+      } else {
+        userInfo.privateKey = info.privateKey
       }
 
       const uuid = genUUID()
