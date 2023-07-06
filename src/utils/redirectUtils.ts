@@ -133,9 +133,9 @@ const contactParentPage = async (params: HandleLoginParams, status: string) => {
     status,
     params: {
       sessionID: params.sessionID,
+      sessionExpiry: params.sessionExpiry,
       messageId: params.messageId,
       info: params.userInfo,
-      sessionExpiry: params.sessionExpiry,
     },
     expectedResponseStatus: ACK,
   })
