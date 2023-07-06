@@ -16,8 +16,9 @@ const GAS_PRICE_SPEED_MAP = {
   fast: { wait: 'fastWait', price: 'fast' },
 }
 const TOAST_TIME_OUT = 5000
-
+const SESSION_EXPIRY_MS = 30 * 60 * 1000
 export {
+  SESSION_EXPIRY_MS,
   DOCS_URL,
   HIDE_ON_RAMP,
   AUTH_URL,

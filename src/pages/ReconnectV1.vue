@@ -20,6 +20,7 @@ import type { AsyncMethodReturns } from 'penpal'
 import { onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { SESSION_EXPIRY_MS } from '@/utils/constants'
 import {
   interactWithIframe,
   LOGIN_INFO,
@@ -27,8 +28,6 @@ import {
   MFA_SETUP_ACK,
 } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
-
-const EXPIRY_MS = 60 * 60 * 1000
 
 interface ParentInterface {
   getSessionID(): string
@@ -65,7 +64,7 @@ onMounted(async () => {
     return exitWithError(connxn, 'Session ID mismatch')
   }
 
-  if (!timestamp || currentTS - timestamp > EXPIRY_MS) {
+  if (!timestamp || currentTS - timestamp > SESSION_EXPIRY_MS) {
     storage.local.clearIsLoggedIn()
     storage.local.clearSession()
     storage.local.clearUserInfo()
@@ -78,6 +77,7 @@ onMounted(async () => {
     status: LOGIN_INFO,
     params: {
       sessionID: actualSessionID,
+      sessionExpiry: timestamp + SESSION_EXPIRY_MS,
       messageId: mid,
       info: userInfo,
     },
