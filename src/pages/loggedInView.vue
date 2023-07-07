@@ -57,7 +57,7 @@ onMounted(async () => {
     await setRpcConfigs()
     await getRpcConfig()
     initKeeper()
-    connectToParent()
+    await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
     await getAccountDetails()
@@ -153,7 +153,7 @@ async function initAccountHandler() {
   }
 }
 
-function connectToParent() {
+async function connectToParent() {
   if (!parentConnection) {
     parentConnection = createParentConnection({
       isLoggedIn: () => userStore.isLoggedIn,
@@ -170,6 +170,7 @@ function connectToParent() {
     })
     parentConnectionStore.setParentConnection(parentConnection)
   }
+  await parentConnection.promise
 }
 
 async function setTheme() {
