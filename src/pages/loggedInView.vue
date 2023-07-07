@@ -169,8 +169,8 @@ async function connectToParent() {
       expandWallet: () => (appStore.expandWallet = true),
     })
     parentConnectionStore.setParentConnection(parentConnection)
-    await parentConnection.promise
   }
+  await parentConnection.promise
 }
 
 async function setTheme() {
