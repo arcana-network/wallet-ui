@@ -294,7 +294,6 @@ async function init() {
 
     authProvider = await getAuthProvider(`${appId}`)
     availableLogins.value = await fetchAvailableLogins(authProvider)
-    const parentConnectionInstance = await initializeParentConnection()
 
     // 3PC is disabled or wallet UI cannot store data by a policy decision
     // if (storage.local.storageType === StorageType.IN_MEMORY) {
@@ -324,6 +323,7 @@ async function init() {
       user.hasMfa = hasMfa
       await router.push({ name: 'home' })
     } else {
+      const parentConnectionInstance = await initializeParentConnection()
       const {
         themeConfig: { theme },
         name: appName,
