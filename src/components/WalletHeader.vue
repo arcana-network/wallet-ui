@@ -63,7 +63,7 @@ watch(
         <img
           :src="appStore.appLogo?.vertical"
           alt="App Logo"
-          class="w-xl h-xl"
+          class="w-xl h-xl object-contain"
           onerror="this.style.display='none'"
         />
         <div class="flex flex-col items-start">
