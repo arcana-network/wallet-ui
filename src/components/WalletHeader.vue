@@ -61,9 +61,9 @@ watch(
     <header class="flex justify-between px-4 py-2">
       <div class="flex gap-2">
         <img
-          :src="appStore.appLogo?.horizontal"
+          :src="appStore.appLogo?.vertical"
           alt="App Logo"
-          class="w-xl h-xl"
+          class="w-xl h-xl object-contain"
           onerror="this.style.display='none'"
         />
         <div class="flex flex-col items-start">
