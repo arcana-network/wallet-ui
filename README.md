@@ -53,7 +53,7 @@ For any support or integration-related queries, contact [Arcana Support Team](ma
 
 ## 🤝 Contributing
 
-We welcome all contributions to the Arcana Auth product and Wallet UI from the community. Read our [contributing guide](https://github.com/arcana-network/license/blob/main/CONTRIBUTING.md) to learn about the our development process, how to propose bug fixes and improvements, and the code of conduct that we expect the participants to adhere to. Refer to the build and test section of this readme for details on how to test and validate your changes to the Wallet UI code before submitting your contributions.
+We welcome all contributions to the Arcana Auth product and Wallet UI from the community. Read our [contributing guide](https://github.com/arcana-network/license/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and the code of conduct that we expect the participants to adhere to. Refer to the build and test section of this readme for details on how to test and validate your changes to the Wallet UI code before submitting your contributions.
 
 ## ℹ️ License
 
