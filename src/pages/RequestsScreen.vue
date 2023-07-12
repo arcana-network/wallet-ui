@@ -26,10 +26,14 @@ const onApproveClick = (requestId) => {
     const request = requestStore.pendingRequests[requestId].request
     if (Array.isArray(request.params)) {
       const param = request.params[0]
-      const gasPrice = String(param.gasPrice)
-      if (!gasPrice.length) {
-        toast.error('Please provide Gas Fee')
-        return
+      if (param.type === 2) {
+        requestStore.setGasFee(null, requestId)
+      } else {
+        const gasPrice = String(param.gasPrice)
+        if (!gasPrice.length) {
+          toast.error('Please provide Gas Fee')
+          return
+        }
       }
     }
   }

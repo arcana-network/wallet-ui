@@ -49,8 +49,7 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 
 onBeforeMount(() => {
-  userStore.hasMfa =
-    getStorage().local.getItem(`${userStore.info.id}-has-mfa`) === '1'
+  userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
 
 onMounted(async () => {
@@ -58,7 +57,7 @@ onMounted(async () => {
     await setRpcConfigs()
     await getRpcConfig()
     initKeeper()
-    connectToParent()
+    await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
     await getAccountDetails()
@@ -85,8 +84,14 @@ onMounted(async () => {
 })
 
 async function setMFABannerState() {
-  if (!userStore.hasMfa) {
-    const userInfo = JSON.parse(storage.session.getItem('userInfo') as string)
+  // return null
+
+  // eslint-disable-next-line no-unreachable
+  if (!userStore.hasMfa && appStore.isMfaEnabled) {
+    const userInfo = storage.local.getUserInfo()
+    if (!userInfo) {
+      return
+    }
     const core = new Core(
       userInfo.pk,
       userStore.info.id,
@@ -99,12 +104,9 @@ async function setMFABannerState() {
     const isEnabled = await securityQuestionModule.isEnabled()
     userStore.hasMfa = isEnabled
   }
-  const mfaDnd = storage.local.getItem(`${userStore.info.id}-mfa-dnd`)
-  const mfaSkipUntil = storage.local.getItem(
-    `${userStore.info.id}-mfa-skip-until`
-  )
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
-  const hasMfaDnd = mfaDnd && mfaDnd === '1'
+  const hasMfaDnd = storage.local.HasMFADND(userStore.info.id)
+  const mfaSkipUntil = storage.local.getMFASkip(userStore.info.id)
+  const loginCount = storage.local.getLoginCount(userStore.info.id)
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
   if (requestStore.areRequestsPendingForApproval) {
@@ -151,7 +153,7 @@ async function initAccountHandler() {
   }
 }
 
-function connectToParent() {
+async function connectToParent() {
   if (!parentConnection) {
     parentConnection = createParentConnection({
       isLoggedIn: () => userStore.isLoggedIn,
@@ -168,6 +170,7 @@ function connectToParent() {
     })
     parentConnectionStore.setParentConnection(parentConnection)
   }
+  await parentConnection.promise
 }
 
 async function setTheme() {
@@ -201,6 +204,7 @@ async function setTheme() {
 function getUserInfo() {
   const accountDetails = getRequestHandler().getAccountHandler().getAccount()
   return {
+    loginType: userStore.loginType,
     ...userStore.info,
     ...accountDetails,
   }
@@ -278,12 +282,9 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
 }
 
 function handleSkip() {
-  const loginCount = storage.local.getItem(`${userStore.info.id}-login-count`)
+  const loginCount = storage.local.getLoginCount(userStore.info.id)
   const skipUntil = loginCount ? Number(loginCount) + 3 : 3
-  storage.local.setItem(
-    `${userStore.info.id}-mfa-skip-until`,
-    String(skipUntil)
-  )
+  storage.local.setMFASkip(userStore.info.id, skipUntil)
   showMfaBanner.value = false
 }
 
@@ -304,7 +305,7 @@ onBeforeRouteLeave((to) => {
   <div v-else class="flex flex-col gap-2">
     <Transition name="fade" mode="out-in">
       <button
-        v-if="showMfaBanner"
+        v-if="showMfaBanner && appStore.isMfaEnabled"
         class="bg-blue-700 rounded-lg px-4 py-1 flex justify-between items-center cursor-pointer"
         @click.stop="handleMFACreation"
       >

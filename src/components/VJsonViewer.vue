@@ -7,8 +7,6 @@ type ViewerProps = {
 
 const props = defineProps<ViewerProps>()
 
-console.log(props)
-
 const jsonValue = computed(() => {
   if (typeof props.value === 'string') {
     try {
@@ -23,7 +21,7 @@ const jsonValue = computed(() => {
   return props.value
 })
 
-const propKeys = Object.keys(jsonValue.value)
+const propKeys = computed(() => Object.keys(jsonValue.value))
 
 function isArray(value: any) {
   if (value instanceof Array) {
@@ -40,6 +38,7 @@ function hasObject(value: any) {
 }
 
 function isString(value: any) {
+  console.log({ value })
   if (typeof value === 'string') {
     return true
   }
@@ -49,19 +48,19 @@ function isString(value: any) {
 
 <template>
   <div class="flex flex-col">
-    <div v-if="isString(jsonValue)" class="jv-push json-viewer">
-      {{ jsonValue }}
-    </div>
+    <pre v-if="isString(jsonValue)" class="jv-push json-viewer">{{
+      jsonValue
+    }}</pre>
     <div v-else class="flex flex-col">
       <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
-        <span class="jv-key">{{ propKey }}:</span>
+        <pre class="jv-key">{{ propKey }}:</pre>
         <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
           <div
             v-for="val in jsonValue[propKey]"
             :key="JSON.stringify(val)"
             class="ml-4"
           >
-            <span v-if="isString(val)" class="jv-push">"{{ val }}"</span>
+            <pre v-if="isString(val)" class="jv-push">"{{ val }}"</pre>
             <VJsonViewer v-else :value="val" />
           </div>
         </div>
@@ -70,11 +69,11 @@ function isString(value: any) {
             <VJsonViewer :value="jsonValue[propKey]" />
           </div>
         </div>
-        <span v-else class="jv-string jv-push ml-1">{{
+        <pre v-else class="jv-string jv-push ml-1">{{
           isString(jsonValue[propKey])
             ? `"${jsonValue[propKey]}"`
             : jsonValue[propKey]
-        }}</span>
+        }}</pre>
       </div>
     </div>
   </div>

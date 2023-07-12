@@ -55,9 +55,9 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let loginInfo
 
 onBeforeMount(async () => {
-  const loginInfoSession = storage.session.getItem('userInfo')
-  if (loginInfoSession) {
-    loginInfo = JSON.parse(loginInfoSession)
+  const loginInfo = storage.local.getUserInfo()
+  if (!loginInfo) {
+    return
   }
   let dkgShare
   if (loginInfo) {
@@ -66,7 +66,7 @@ onBeforeMount(async () => {
       id: loginInfo.userInfo.id,
     }
   } else {
-    dkgShare = JSON.parse(storage.local.getItem('pk') as string)
+    dkgShare = storage.local.getPK()
   }
   if (!isInAppLogin(loginInfo?.loginType)) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
@@ -244,16 +244,19 @@ async function handlePinProceed() {
     try {
       await createShare(pinToEncryptMFAShare.value)
       if (!isInAppLogin(loginInfo?.loginType)) {
-        const dkgShare = JSON.parse(storage.local.getItem('pk') as string)
-        storage.local.setItem(`${dkgShare.id}-has-mfa`, '1')
-        storage.local.removeItem('pk')
+        const dkgShare = storage.local.getPK()
+        storage.local.setHasMFA(dkgShare.id)
+        storage.local.clearPK()
       }
     } catch (e) {
       if (isInAppLogin(loginInfo?.loginType)) {
         return toast.error(e as string)
       }
-      // eslint-disable-next-line no-undef
-      return connectionToParent.error(e, process.env.VUE_APP_WALLET_DOMAIN)
+      return connectionToParent.error(
+        e as string,
+        // eslint-disable-next-line no-undef
+        process.env.VUE_APP_WALLET_DOMAIN
+      )
     }
     loader.value = {
       show: false,

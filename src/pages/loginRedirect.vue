@@ -9,11 +9,13 @@ import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
+import { v4 as genUUID } from 'uuid'
 import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { useAppStore } from '@/store/app'
+import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
   getStateFromUrl,
@@ -25,6 +27,7 @@ import { getStorage, initStorage } from '@/utils/storageWrapper'
 const route = useRoute()
 const { appId } = route.params
 initStorage(String(appId))
+const app = useAppStore()
 
 let channel: BroadcastChannel | null = null
 
@@ -33,12 +36,12 @@ onUnmounted(cleanup)
 
 async function init() {
   const storage = getStorage()
-  const loginSrc = storage.local.getItem('loginSrc')
+  const loginSrc = storage.local.getLoginSrc()
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
   try {
     const state = getStateFromUrl(route.fullPath)
-    storage.session.setItem('state', state)
+    storage.session.setState(state)
     const stateInfo = decodeJSON<StateInfo>(state)
 
     const connectionToParent =
@@ -56,45 +59,62 @@ async function init() {
         loginType: info.loginType,
         privateKey: '',
       }
-      storage.session.setItem(`info`, JSON.stringify(userInfo))
+      storage.session.setUserInfo(userInfo)
       const exp = dayjs().add(1, 'day')
-      getStorage().local.setItem(
-        'pk',
-        JSON.stringify({ pk: info.privateKey, exp, id: userInfo.userInfo.id })
-      )
-      const core = new Core(
-        info.privateKey,
-        info.userInfo.id,
-        String(appId),
-        GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
-      )
-      await core.init()
-      const key = await core.getKey()
-      userInfo.privateKey = key
-      userInfo.hasMfa =
-        storage.local.getItem(`${userInfo.userInfo.id}-has-mfa`) === '1'
-      userInfo.pk = info.privateKey
-      if (!userInfo.hasMfa) {
-        const securityQuestionModule = new SecurityQuestionModule(3)
-        securityQuestionModule.init(core)
-        const isEnabled = await securityQuestionModule.isEnabled()
-        userInfo.hasMfa = isEnabled
+      getStorage().local.setPK({
+        pk: info.privateKey,
+        exp,
+        id: userInfo.userInfo.id,
+      })
+      if (app.isMfaEnabled) {
+        const core = new Core(
+          info.privateKey,
+          info.userInfo.id,
+          String(appId),
+          GATEWAY_URL,
+          AUTH_NETWORK === 'dev'
+        )
+        await core.init()
+        userInfo.privateKey = await core.getKey()
+        userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+        userInfo.pk = info.privateKey
+        if (!userInfo.hasMfa) {
+          const securityQuestionModule = new SecurityQuestionModule(3)
+          securityQuestionModule.init(core)
+          userInfo.hasMfa = await securityQuestionModule.isEnabled()
+        }
+      } else {
+        userInfo.privateKey = info.privateKey
       }
-      storage.session.setItem(`userInfo`, JSON.stringify(userInfo))
-      storage.session.setItem(`isLoggedIn`, JSON.stringify(true))
+
+      const uuid = genUUID()
+
+      // For wallet usage purpose and standalone apps
+      storage.session.setUserInfo(userInfo)
+      storage.session.setIsLoggedIn()
+
+      // For reconnect purpose
+      storage.local.setUserInfo(userInfo)
+      storage.local.setIsLoggedIn()
+      storage.local.setSession({
+        sessionID: uuid,
+        timestamp: Date.now(),
+      })
+
       const messageId = getUniqueId()
       await handleLogin({
         connection: connectionToParent,
         userInfo,
         state: stateInfo.i,
+        sessionID: uuid,
+        sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
         messageId,
         isStandalone,
       })
-      storage.local.removeItem('loginSrc')
-      storage.session.removeItem('state')
+      storage.local.clearLoginSrc()
+      storage.session.clearState()
     } else {
-      storage.local.removeItem('loginSrc')
+      storage.local.clearLoginSrc()
       await reportError('Could not login, please try again')
       return
     }

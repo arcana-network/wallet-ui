@@ -9,16 +9,11 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTransactionCompact from '@/components/SendTransactionCompact.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import {
-  getGasPrice,
-  GAS_AVAILABLE_CHAIN_IDS,
-} from '@/services/gasPrice.service'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { useImage } from '@/utils/useImage'
 
 const props = defineProps({
   request: {
@@ -32,9 +27,8 @@ const customGasPrice = ref('')
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
-const getImage = useImage()
 const baseFee = ref('0')
-const chainId = Number(rpcStore.selectedChainId)
+const gasLimit = ref('0')
 const requestStore = useRequestStore()
 const route = useRoute()
 
@@ -58,15 +52,22 @@ function hideLoader() {
 onMounted(async () => {
   showLoader('Loading...')
   try {
-    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      const data = await getGasPrice(chainId)
-      gasPrices.value = data
-    }
     const accountHandler = getRequestHandler().getAccountHandler()
     const baseGasPrice = (
       await accountHandler.provider.getGasPrice()
     ).toString()
+    gasLimit.value = (
+      await accountHandler.provider.estimateGas({
+        to: props.request.request.to,
+      })
+    ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    customGasPrice.value = {
+      maxFeePerGas: Number(baseFee.value),
+      maxPriorityFeePerGas: Math.round(Number(baseFee.value)),
+      gasLimit: gasLimit.value,
+    }
+    handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
     gasPrices.value = {}
@@ -75,12 +76,27 @@ onMounted(async () => {
   }
 })
 
+function computeMaxFee(value) {
+  return Number(value.maxFeePerGas) + (Number(value.maxPriorityFeePerGas) || 2)
+}
+
 function handleSetGasPrice(value) {
-  console.log('handleSetGasPrice', { value })
   const requestId = props.request.request.id
   customGasPrice.value = value
   emits('gasPriceInput', {
-    value: `0x${Number(value * Math.pow(10, 9)).toString(16)}`,
+    value: {
+      maxFeePerGas: value.maxFeePerGas
+        ? ethers.utils
+            .parseUnits(String(computeMaxFee(value)), 'gwei')
+            .toHexString()
+        : null,
+      maxPriorityFeePerGas: value.maxPriorityFeePerGas
+        ? ethers.utils
+            .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
+            .toHexString()
+        : null,
+      gasLimit: value.gasLimit ? value.gasLimit : null,
+    },
     requestId,
   })
 }
@@ -92,9 +108,10 @@ function handleSetGasPrice(value) {
   </div>
   <SendTransactionCompact
     v-else-if="appStore.compactMode"
-    :gas-price="customGasPrice"
+    :gas="customGasPrice"
     :gas-prices="gasPrices"
     :request="request"
+    :gas-limit="gasLimit"
     @approve="emits('approve')"
     @reject="emits('reject')"
   />
@@ -117,6 +134,7 @@ function handleSetGasPrice(value) {
       :gas-price="customGasPrice"
       :gas-prices="gasPrices"
       :base-fee="baseFee"
+      :gas-limit="gasLimit"
       @gas-price-input="handleSetGasPrice"
     />
     <div class="mt-auto flex flex-col gap-4">

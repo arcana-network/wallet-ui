@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 import type { NFT } from '@/models/NFT'
-import type { StorageWrapper } from '@/utils/storageWrapper'
+import { LocalStorage } from '@/utils/storage'
 
 const NFT_DB_KEY = 'nft_list'
 const NFT_PAGE_SIZE = 50
@@ -47,17 +47,13 @@ const ANKR_BLOCKCHAIN_TO_CHAIN_ID = new Map([
 ])
 
 class NFTDB {
-  private readonly storage: StorageWrapper
+  private readonly storage: LocalStorage
   private readonly walletAddress: string
   public list: NFTItem[]
 
-  static async create(storage: StorageWrapper, walletAddress: string) {
-    let existingNfts: NFTItem[]
-    const realKey = `${walletAddress}-${NFT_DB_KEY}`
-
-    const nftsInStorage = storage.getItem(realKey)
-    existingNfts = nftsInStorage ? JSON.parse(nftsInStorage) : []
-    existingNfts = existingNfts.filter((nft) => !nft.autodetected)
+  static async create(storage: LocalStorage, walletAddress: string) {
+    const nftsInStorage = storage.getNFTList(walletAddress)
+    const existingNfts = nftsInStorage.filter((nft) => !nft.autodetected)
 
     try {
       let npToken: null | boolean | string = null
@@ -128,13 +124,13 @@ class NFTDB {
       console.error('Caught error while trying to get NFTs:', e)
     }
 
-    storage.setItem(realKey, JSON.stringify(existingNfts))
+    storage.setNFTList(walletAddress, existingNfts)
 
     return new NFTDB(storage, walletAddress, existingNfts)
   }
 
   constructor(
-    storage: StorageWrapper,
+    storage: LocalStorage,
     walletAddress: string,
     initialList: NFTItem[]
   ) {
@@ -143,12 +139,8 @@ class NFTDB {
     this.walletAddress = walletAddress
   }
 
-  private get storageKey() {
-    return `${this.walletAddress}-${NFT_DB_KEY}`
-  }
-
   private synchronizeToStorage() {
-    this.storage.setItem(this.storageKey, JSON.stringify(this.list))
+    this.storage.setNFTList(this.walletAddress, this.list)
   }
 
   public getNFTs(chainId: number): NFTItem[] {

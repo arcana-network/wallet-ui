@@ -108,16 +108,14 @@ async function onClickOfHeader() {
   }
 }
 
-function canShowCollapseButton() {
-  if (
-    app.validAppMode === AppMode.Widget &&
-    !app.compactMode &&
-    requestStore.areRequestsPendingForApproval
-  ) {
-    return false
-  }
-  return true
-}
+const canShowCollapseButton = computed(
+  () =>
+    !(
+      app.validAppMode === AppMode.Widget &&
+      !app.compactMode &&
+      requestStore.areRequestsPendingForApproval
+    )
+)
 </script>
 
 <template>
@@ -139,7 +137,7 @@ function canShowCollapseButton() {
       </div>
       <div v-if="sdkVersion === 'v3'" class="flex justify-center mt-2 mb-2">
         <button
-          v-if="canShowCollapseButton()"
+          v-if="canShowCollapseButton"
           class="flex flex-grow justify-center"
           @click="onClickOfHeader"
         >
