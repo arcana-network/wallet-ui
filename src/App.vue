@@ -27,6 +27,10 @@ const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 
+if (app.sdkVersion !== 'v3') {
+  app.expandWallet = true
+}
+
 const url = new URL(window.location.href)
 if (url.searchParams.get('theme')) {
   theme.value = url.searchParams.get('theme') as Theme
@@ -60,7 +64,7 @@ async function setIframeStyle() {
 }
 
 watch(showWallet, async (newValue) => {
-  if (newValue) app.expandWallet = false
+  if (newValue && sdkVersion.value === 'v3') app.expandWallet = false
   await setIframeStyle()
 })
 

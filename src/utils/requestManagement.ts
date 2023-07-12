@@ -65,10 +65,11 @@ async function watchRequestQueue(keeper) {
         if (request) await processRequest(request, keeper)
         const method = request?.request.method
         if (
-          appMode === AppMode.Widget &&
+          (appMode === AppMode.Widget || appStore.expandedByRequest) &&
           !pendingRequestCount &&
           appStore.sdkVersion !== 'v3'
         ) {
+          appStore.expandedByRequest = false
           connectionInstance.closePopup()
         } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
           if (appStore.standaloneMode == 1) {
@@ -467,6 +468,10 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
+    if (!appStore.expandWallet) {
+      appStore.expandedByRequest = true
+    }
+    appStore.expandWallet = true
     if (appStore.sdkVersion === 'v3') {
       if (!appStore.expandWallet) {
         appStore.expandedByRequest = true
