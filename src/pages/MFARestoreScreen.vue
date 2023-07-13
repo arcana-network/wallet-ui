@@ -203,8 +203,13 @@ async function returnToParent(key: string) {
 
   const uuid = genUUID()
   storage.local.clearPK()
+  // For standalone
   storage.session.setIsLoggedIn()
   storage.session.setUserInfo(info)
+
+  // For reconnect purpose
+  storage.local.setUserInfo(info)
+  storage.local.setIsLoggedIn()
   storage.local.setSession({
     sessionID: uuid,
     timestamp: Date.now(),
@@ -218,14 +223,17 @@ async function returnToParent(key: string) {
     sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
     messageId,
     connection: connectionToParent,
-  }).catch(async (e) => {
-    if (e instanceof Error) {
-      reportError(e.message)
-      return
-    }
-    reportError(e)
-    storage.local.clearLoginSrc()
   })
+    .catch(async (e) => {
+      if (e instanceof Error) {
+        reportError(e.message)
+        return
+      }
+      reportError(e)
+    })
+    .finally(() => {
+      storage.local.clearLoginSrc()
+    })
 }
 
 onUnmounted(() => {

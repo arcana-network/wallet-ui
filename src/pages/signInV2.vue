@@ -230,7 +230,9 @@ const windowEventHandler = (
       }
       parentConnection?.promise
         .then((ins) => {
-          return ins.setSessionID(ev.data.sessionID, ev.data.sessionExpiry)
+          if (ins.setSessionID) {
+            return ins.setSessionID(ev.data.sessionID, ev.data.sessionExpiry)
+          }
         })
         .catch((e) => {
           console.error('Failed to set session ID!', e)
