@@ -43,7 +43,6 @@ onUnmounted(() => {
 
 let authProvider: AuthProvider | null = null
 
-let loginSrc = ''
 async function init() {
   initStorage()
   isLoading.value = true
@@ -56,25 +55,22 @@ async function init() {
     })
     const parentConnectionInstance = await parentConnection.promise
 
-    if (user.isLoggedIn) {
-      await parentConnectionInstance.error(
-        'User is already logged in! Redirecting back to app in 3'
-      )
-    } else {
-      const parentAppUrl = await parentConnectionInstance.getParentUrl()
-      loginSrc = await parentConnectionInstance.getLoginSource()
-      getStorage().local.setItem('parentAppUrl', parentAppUrl)
-      getStorage().local.setItem('loginSrc', loginSrc)
+    const loginSrc = await parentConnectionInstance.getLoginSource()
+    if (loginSrc) {
+      getStorage().local.setLoginSrc(loginSrc)
     }
   } finally {
     isLoading.value = false
   }
 }
 
-async function handleSocialLoginRequest(type: SocialLoginType) {
+async function handleSocialLoginRequest(
+  type: Exclude<SocialLoginType, SocialLoginType.passwordless>
+) {
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
-    if (!['rn', 'flutter', 'unity'].includes(loginSrc)) {
+    const loginSrc = await (await parentConnection?.promise)?.getLoginSource()
+    if (!loginSrc || !['rn', 'flutter', 'unity'].includes(loginSrc)) {
       await catchupSigninPage(state)
     }
     return url

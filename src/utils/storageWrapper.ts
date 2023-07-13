@@ -1,33 +1,10 @@
 import { useRoute } from 'vue-router'
 
-type StorageScope = 'local' | 'session'
-
-class StorageWrapper {
-  private readonly appAddress: string
-  private readonly clientStorage: Storage
-
-  constructor(scope: StorageScope, appId?: string) {
-    const route = useRoute()
-    this.appAddress = appId ? appId : String(route.params.appId)
-    this.clientStorage = scope === 'local' ? localStorage : sessionStorage
-  }
-
-  setItem(key: string, value: string) {
-    return this.clientStorage.setItem(`${this.appAddress}-${key}`, value)
-  }
-
-  getItem(key: string) {
-    return this.clientStorage.getItem(`${this.appAddress}-${key}`)
-  }
-
-  removeItem(key: string) {
-    return this.clientStorage.removeItem(`${this.appAddress}-${key}`)
-  }
-}
+import { LocalStorage, SessionStorage, StorageType } from '@/utils/storage'
 
 type StorageInstance = {
-  local: StorageWrapper
-  session: StorageWrapper
+  local: LocalStorage
+  session: SessionStorage
 }
 
 let storageInstance: StorageInstance
@@ -37,11 +14,14 @@ function getStorage() {
 }
 
 function initStorage(appId?: string) {
+  if (!appId) {
+    const route = useRoute()
+    appId = String(route.params.appId)
+  }
   storageInstance = {
-    local: new StorageWrapper('local', appId),
-    session: new StorageWrapper('session', appId),
+    local: new LocalStorage(appId),
+    session: new SessionStorage(appId),
   }
 }
 
-export { getStorage, initStorage }
-export type { StorageWrapper }
+export { getStorage, initStorage, StorageType }

@@ -65,10 +65,11 @@ async function watchRequestQueue(keeper) {
         if (request) await processRequest(request, keeper)
         const method = request?.request.method
         if (
-          appMode === AppMode.Widget &&
+          (appMode === AppMode.Widget || appStore.expandedByRequest) &&
           !pendingRequestCount &&
           appStore.sdkVersion !== 'v3'
         ) {
+          appStore.expandedByRequest = false
           connectionInstance.closePopup()
         } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
           if (appStore.standaloneMode == 1) {
@@ -277,17 +278,15 @@ async function addToken(request, keeper) {
   const storage = getStorage()
   if (ercType === 'erc20') {
     const { tokenContract } = await validateAddTokensParams(params)
-    const assetContractsString = storage.local.getItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`
+    const assetContracts = storage.local.getAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId)
     )
-    let assetContracts: AssetContract[] = []
-    if (assetContractsString) {
-      assetContracts = JSON.parse(assetContractsString) as AssetContract[]
-    }
     assetContracts.push({ ...tokenContract })
-    storage.local.setItem(
-      `${userStore.walletAddress}/${rpcStore.selectedRpcConfig?.chainId}/asset-contracts`,
-      JSON.stringify(assetContracts)
+    storage.local.setAssetContractList(
+      userStore.walletAddress,
+      Number(rpcStore.selectedRpcConfig?.chainId),
+      assetContracts
     )
     keeper.reply(request.method, {
       result: 'Token Added successfully',
@@ -469,12 +468,14 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
   if (isPermissionRequired) {
+    if (!appStore.expandWallet) {
+      appStore.expandedByRequest = true
+    }
+    appStore.expandWallet = true
     if (appStore.sdkVersion === 'v3') {
-      console.log('appStore.expandWallet', appStore.expandWallet)
       if (!appStore.expandWallet) {
         appStore.expandedByRequest = true
       }
-      console.log('appStore.expandedByRequest', appStore.expandedByRequest)
       appStore.expandWallet = true
       appStore.compactMode = isPermissionRequired
     } else {

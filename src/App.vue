@@ -27,6 +27,10 @@ const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 
+if (app.sdkVersion !== 'v3') {
+  app.expandWallet = true
+}
+
 const url = new URL(window.location.href)
 if (url.searchParams.get('theme')) {
   theme.value = url.searchParams.get('theme') as Theme
@@ -60,7 +64,7 @@ async function setIframeStyle() {
 }
 
 watch(showWallet, async (newValue) => {
-  if (newValue) app.expandWallet = false
+  if (newValue && sdkVersion.value === 'v3') app.expandWallet = false
   await setIframeStyle()
 })
 
@@ -104,16 +108,14 @@ async function onClickOfHeader() {
   }
 }
 
-function canShowCollapseButton() {
-  if (
-    app.validAppMode === AppMode.Widget &&
-    !app.compactMode &&
-    requestStore.areRequestsPendingForApproval
-  ) {
-    return false
-  }
-  return true
-}
+const canShowCollapseButton = computed(
+  () =>
+    !(
+      app.validAppMode === AppMode.Widget &&
+      !app.compactMode &&
+      requestStore.areRequestsPendingForApproval
+    )
+)
 </script>
 
 <template>
@@ -135,7 +137,7 @@ function canShowCollapseButton() {
       </div>
       <div v-if="sdkVersion === 'v3'" class="flex justify-center mt-2 mb-2">
         <button
-          v-if="canShowCollapseButton()"
+          v-if="canShowCollapseButton"
           class="flex flex-grow justify-center"
           @click="onClickOfHeader"
         >

@@ -28,16 +28,11 @@ type AssetProps = {
 const props = defineProps<AssetProps>()
 
 function fetchStoredAssetContracts(): AssetContract[] {
-  const assetContracts = getStorage().local.getItem(
-    `${userStore.walletAddress}/${Number(
-      rpcStore.selectedRPCConfig?.chainId
-    )}/asset-contracts`
+  const assetContracts = getStorage().local.getAssetContractList(
+    userStore.walletAddress,
+    Number(rpcStore.selectedRPCConfig?.chainId)
   )
-  if (assetContracts) {
-    return JSON.parse(assetContracts) as AssetContract[]
-  } else {
-    return []
-  }
+  return assetContracts
 }
 
 function fetchNativeAsset() {
