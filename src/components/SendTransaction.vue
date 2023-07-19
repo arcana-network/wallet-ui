@@ -58,8 +58,8 @@ onMounted(async () => {
     ).toString()
     gasLimit.value = (
       await accountHandler.provider.estimateGas({
-        to: props.request.request.to,
         ...props.request.request.params[0],
+        to: props.request.request.to,
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
