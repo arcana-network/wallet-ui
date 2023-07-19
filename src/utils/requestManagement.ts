@@ -361,7 +361,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           }
         }
         if (request.method === 'eth_sendTransaction' && response.result) {
-          await activitiesStore.fetchAndSaveActivityFromHash({
+          activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
