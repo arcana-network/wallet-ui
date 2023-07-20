@@ -5,7 +5,6 @@ import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 type SDKVersion = 'v2' | 'v3'
 
 type RequestMethod =
-  | 'eth_sign'
   | 'personal_sign'
   | 'eth_decrypt'
   | 'eth_signTypedData_v4'
@@ -18,7 +17,6 @@ type RequestMethod =
   | 'wallet_switchEthereumChain'
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
-  eth_sign: true,
   personal_sign: true,
   eth_decrypt: true,
   eth_signTypedData_v4: true,

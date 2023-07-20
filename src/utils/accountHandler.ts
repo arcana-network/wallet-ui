@@ -48,7 +48,6 @@ class AccountHandler {
       requestAccounts: this.getAccountsWrapper,
       processEncryptionPublicKey: this.getEncryptionPublicKeyWrapper,
       processPersonalMessage: this.personalSignWrapper,
-      processEthSignMessage: this.getEthSignWrapper,
       processSignTransaction: this.signTransactionWrapper,
       processTypedMessageV4: this.signTypedMessageV4Wrapper,
       processTransaction: this.sendTransactionWrapper,
@@ -151,10 +150,6 @@ class AccountHandler {
 
   getAccountsWrapper = async (): Promise<string[]> => {
     return this.getAddress()
-  }
-
-  getEthSignWrapper = async (p: MessageParams): Promise<string> => {
-    return await this.sign(p.from, p.data)
   }
 
   getEncryptionPublicKeyWrapper = async (from: string): Promise<string> => {

@@ -7,7 +7,6 @@ import SignMessageCompact from '@/components/SignMessageCompact.vue'
 import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
-import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
 
@@ -60,14 +59,6 @@ function getTitle(requestMethod: string) {
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
       />
-      <div class="flex justify-center mt-4">
-        <div
-          class="flex bg-gray-300 rounded-sm p-2 text-xs gap-1 text-gray-100"
-        >
-          <img src="@/assets/images/info-circle.svg" />
-          <span>You're not going to be charged</span>
-        </div>
-      </div>
     </div>
     <div class="mt-auto flex flex-col gap-4">
       <div class="flex gap-2">

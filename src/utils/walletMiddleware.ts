@@ -33,10 +33,6 @@ interface WalletMiddlewareOptions {
     address: string,
     req: JsonRpcRequest<unknown>
   ) => Promise<string>
-  processEthSignMessage?: (
-    msgParams: MessageParams,
-    req: JsonRpcRequest<unknown>
-  ) => Promise<string>
   processPersonalMessage?: (
     msgParams: MessageParams,
     req: JsonRpcRequest<unknown>
@@ -68,7 +64,6 @@ function createWalletMiddleware({
   getAccounts,
   processDecryptMessage,
   processEncryptionPublicKey,
-  processEthSignMessage,
   processPersonalMessage,
   processTransaction,
   processSignTransaction,
@@ -89,7 +84,6 @@ function createWalletMiddleware({
     eth_sendTransaction: createAsyncMiddleware(sendTransaction),
     eth_signTransaction: createAsyncMiddleware(signTransaction),
     // message signatures
-    eth_sign: createAsyncMiddleware(ethSign),
     eth_signTypedData: createAsyncMiddleware(signTypedData),
     eth_signTypedData_v3: createAsyncMiddleware(signTypedDataV3),
     eth_signTypedData_v4: createAsyncMiddleware(signTypedDataV4),
@@ -167,31 +161,6 @@ function createWalletMiddleware({
   //
   // message signatures
   //
-
-  async function ethSign(
-    req: JsonRpcRequest<unknown>,
-    res: PendingJsonRpcResponse<unknown>
-  ): Promise<void> {
-    if (!processEthSignMessage) {
-      throw ethErrors.rpc.methodNotSupported()
-    }
-
-    const address: string = await validateAndNormalizeKeyholder(
-      (req.params as string[])[0],
-      req
-    )
-    const message: string = (req.params as string[])[1]
-    const extraParams: Record<string, unknown> =
-      (req.params as Record<string, unknown>[])[2] || {}
-    const msgParams: MessageParams = {
-      ...extraParams,
-      from: address,
-      data: message,
-    }
-
-    res.result = await processEthSignMessage(msgParams, req)
-  }
-
   async function signTypedData(
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>

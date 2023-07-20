@@ -1,22 +1,16 @@
 <script setup lang="ts">
 import { toRefs, watch } from 'vue'
 import { useToast } from 'vue-toastification'
-import Popper from 'vue3-popper'
 
-import ChargeInfo from '@/components/ChargeInfo.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import SignMessageNoRequests from '@/components/signMessageNoRequests.vue'
 import { router } from '@/routes'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
-import { useRpcStore } from '@/store/rpc'
-import { useImage } from '@/utils/useImage'
 
-const getImage = useImage()
 const requestStore = useRequestStore()
 const toast = useToast()
-const rpcStore = useRpcStore()
 const appStore = useAppStore()
 
 const { pendingRequest, areRequestsPendingForApproval } = toRefs(requestStore)
@@ -86,22 +80,6 @@ watch(areRequestsPendingForApproval, () => {
           @reject="() => onRejectClick(pendingRequest?.request.id)"
           @approve="() => onApproveClick(pendingRequest?.request.id)"
         />
-        <div v-if="rpcStore.isArcanaNetwork" class="sign__message-footer">
-          <p class="sign__message-info-text">
-            You are not going to be charged!
-            <Popper arrow hover>
-              <button>
-                <img
-                  class="sign__message-info-icon"
-                  :src="getImage('info-icon')"
-                />
-              </button>
-              <template #content>
-                <ChargeInfo />
-              </template>
-            </Popper>
-          </p>
-        </div>
       </div>
     </div>
   </div>
