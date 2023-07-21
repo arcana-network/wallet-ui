@@ -23,7 +23,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
-const customGasPrice = ref('')
+const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -58,7 +58,7 @@ onMounted(async () => {
     ).toString()
     gasLimit.value = (
       await accountHandler.provider.estimateGas({
-        to: props.request.request.to,
+        ...props.request.request.params[0],
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
