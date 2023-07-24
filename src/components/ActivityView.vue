@@ -136,7 +136,9 @@ function canShowDropdown(activity: Activity) {
           <img
             v-else
             :src="getTransactionIcon(activity.operation)"
-            class="invert dark:invert-0"
+            :style="{
+              filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+            }"
             :title="activity.operation"
           />
         </div>
@@ -168,7 +170,10 @@ function canShowDropdown(activity: Activity) {
             <img
               v-if="canShowDropdown(activity)"
               src="@/assets/images/arrow-up.svg"
-              class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px] invert dark:invert-0"
+              class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
+              :style="{
+                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+              }"
               :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
               role="button"
               @click="activity.isExpanded = !activity.isExpanded"
@@ -372,7 +377,9 @@ function canShowDropdown(activity: Activity) {
             View on Explorer
             <img
               src="@/assets/images/arrow-up-right.svg"
-              class="invert dark:invert-0"
+              :style="{
+                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+              }"
             />
           </a>
         </div>
