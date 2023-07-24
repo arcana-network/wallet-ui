@@ -38,7 +38,6 @@ function hasObject(value: any) {
 }
 
 function isString(value: any) {
-  console.log({ value })
   if (typeof value === 'string') {
     return true
   }
