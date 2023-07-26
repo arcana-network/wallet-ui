@@ -64,7 +64,7 @@ onMounted(async () => {
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
     customGasPrice.value = {
       maxFeePerGas: Number(baseFee.value),
-      maxPriorityFeePerGas: Math.round(Number(baseFee.value)),
+      maxPriorityFeePerGas: 0,
       gasLimit: gasLimit.value,
     }
     handleSetGasPrice(customGasPrice.value)
