@@ -320,8 +320,18 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
     } else {
       if (request.method === 'eth_sendTransaction') {
         request.params[0].gasLimit =
-          request.params[0].gas || request.params[0].gasLimit
-        delete request.params[0].gas
+          request.params[0].gas ||
+          request.params[0].gasLimit ||
+          request.params[0].gas_limit
+        if (request.params[0].gas) {
+          delete request.params[0].gas
+        }
+        if (request.params[0].type && Number(request.params[0].type) === 2) {
+          request.params[0].maxFeePerGas =
+            request.params[0].gasPrice || request.params[0].gas_price
+          if (request.params[0].gasPrice) delete request.params[0].gasPrice
+          if (request.params[0].gas_price) delete request.params[0].gas_price
+        }
       }
       try {
         const response = await keeper.request(request)
@@ -353,7 +363,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
-            await activitiesStore.saveFileActivity(
+            activitiesStore.saveFileActivity(
               rpcStore.selectedRpcConfig?.chainId,
               params.message,
               params.domain.verifyingContract
@@ -361,7 +371,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           }
         }
         if (request.method === 'eth_sendTransaction' && response.result) {
-          await activitiesStore.fetchAndSaveActivityFromHash({
+          activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
