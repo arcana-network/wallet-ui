@@ -320,16 +320,17 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
     } else {
       if (request.method === 'eth_sendTransaction') {
         request.params[0].gasLimit =
-          request.params[0].gas || request.params[0].gasLimit
+          request.params[0].gas ||
+          request.params[0].gasLimit ||
+          request.params[0].gas_limit
         if (request.params[0].gas) {
           delete request.params[0].gas
         }
-        if (
-          request.params[0].type &&
-          Number(request.params[0].type) === 2 &&
-          request.params[0].gasPrice
-        ) {
-          delete request.params[0].gasPrice
+        if (request.params[0].type && Number(request.params[0].type) === 2) {
+          request.params[0].maxFeePerGas =
+            request.params[0].gasPrice || request.params[0].gas_price
+          if (request.params[0].gasPrice) delete request.params[0].gasPrice
+          if (request.params[0].gas_price) delete request.params[0].gas_price
         }
       }
       try {
