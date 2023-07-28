@@ -321,7 +321,16 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (request.method === 'eth_sendTransaction') {
         request.params[0].gasLimit =
           request.params[0].gas || request.params[0].gasLimit
-        delete request.params[0].gas
+        if (request.params[0].gas) {
+          delete request.params[0].gas
+        }
+        if (
+          request.params[0].type &&
+          Number(request.params[0].type) === 2 &&
+          request.params[0].gasPrice
+        ) {
+          delete request.params[0].gasPrice
+        }
       }
       try {
         const response = await keeper.request(request)
@@ -353,7 +362,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
-            await activitiesStore.saveFileActivity(
+            activitiesStore.saveFileActivity(
               rpcStore.selectedRpcConfig?.chainId,
               params.message,
               params.domain.verifyingContract
