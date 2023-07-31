@@ -319,12 +319,12 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      const sanitizedRequest = sanitizeRequest(request)
+      const sanitizedRequest = sanitizeRequest({ ...request })
       try {
-        console.log(`Processing request ${request.method}`, {
+        console.log(`Processing request ${sanitizedRequest.method}`, {
           sanitizedRequest,
         })
-        const response = await keeper.request(sanitizedRequest)
+        const response = await keeper.request({ ...sanitizedRequest })
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError) {

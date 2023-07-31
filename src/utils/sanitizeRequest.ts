@@ -2,7 +2,7 @@ function sanitizeRequest(request) {
   if (request.method === 'eth_sendTransaction') {
     return sanitizeSendTransactionRequest(request)
   }
-  return request
+  return { ...request }
 }
 
 function sanitizeSendTransactionRequest(request) {
@@ -12,7 +12,7 @@ function sanitizeSendTransactionRequest(request) {
     from: params.from,
     value: params.value,
     data: params.data,
-    gas: params.gas,
+    gasLimit: params.gas,
   }
   if (!params.type && params.gasPrice) {
     sanitizedParams.gasPrice = params.gasPrice
@@ -22,7 +22,7 @@ function sanitizeSendTransactionRequest(request) {
     sanitizedParams.maxPriorityFeePerGas = params.maxPriorityFeePerGas
   }
   request.params[0] = params
-  return request
+  return { ...request }
 }
 
 export { sanitizeRequest }
