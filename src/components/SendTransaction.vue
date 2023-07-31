@@ -63,7 +63,8 @@ onMounted(async () => {
     customGasPrice.value.maxFeePerGas = props.request.params[0].maxFeePerGas
     customGasPrice.value.maxPriorityFeePerGas =
       props.request.params[0].maxPriorityFeePerGas
-    customGasPrice.value.gasLimit = gasLimit.value
+    customGasPrice.value.gasLimit =
+      props.request.params[0].gasLimit || gasLimit.value
     handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
