@@ -6,7 +6,7 @@ function sanitizeRequest(request) {
 }
 
 function sanitizeSendTransactionRequest(request) {
-  const params = request.params[0]
+  const params = { ...request.params[0] }
   const sanitizedParams: any = {
     to: params.to,
     from: params.from,
@@ -21,7 +21,7 @@ function sanitizeSendTransactionRequest(request) {
     sanitizedParams.maxFeePerGas = params.maxFeePerGas
     sanitizedParams.maxPriorityFeePerGas = params.maxPriorityFeePerGas
   }
-  request.params[0] = params
+  request.params = [...params]
   return { ...request }
 }
 
