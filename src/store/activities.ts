@@ -215,7 +215,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         const txInterval = setInterval(async () => {
           const remoteTransaction =
             await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction.blockNumber && chainId) {
+          if (remoteTransaction && remoteTransaction.blockNumber && chainId) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }

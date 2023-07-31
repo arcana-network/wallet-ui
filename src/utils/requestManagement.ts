@@ -17,6 +17,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
@@ -318,13 +319,9 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      if (request.method === 'eth_sendTransaction') {
-        request.params[0].gasLimit =
-          request.params[0].gas || request.params[0].gasLimit
-        delete request.params[0].gas
-      }
+      const sanitizedRequest = sanitizeRequest({ ...request })
       try {
-        const response = await keeper.request(request)
+        const response = await keeper.request({ ...sanitizedRequest })
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError) {
@@ -353,7 +350,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
-            await activitiesStore.saveFileActivity(
+            activitiesStore.saveFileActivity(
               rpcStore.selectedRpcConfig?.chainId,
               params.message,
               params.domain.verifyingContract
@@ -361,7 +358,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           }
         }
         if (request.method === 'eth_sendTransaction' && response.result) {
-          await activitiesStore.fetchAndSaveActivityFromHash({
+          activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId,
           })
