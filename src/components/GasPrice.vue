@@ -1,27 +1,16 @@
 <script setup lang="ts">
 import { type Ref, ref, watch, computed } from 'vue'
 
-import { useRpcStore } from '@/store/rpc'
-
 const emits = defineEmits(['gasPriceInput'])
 
-const props = defineProps({
-  gasPrices: {
-    type: Object,
-    required: false,
-    default: () => ({}),
-  },
-  baseFee: {
-    type: String,
-    default: '0',
-  },
-  gasLimit: {
-    type: String,
-    default: '0',
-  },
-})
+type GasPriceProps = {
+  baseFee: string
+  gasLimit?: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
+}
 
-const rpcStore = useRpcStore()
+const props = defineProps<GasPriceProps>()
 
 const maxFeePerGas = ref(0 as number | null)
 const maxPriorityFeePerGas = ref(0 as number | null)
@@ -37,21 +26,26 @@ watch(selectedGasMethod, () => {
   handleGasPriceSelect(selectedGasMethod.value)
 })
 
+if (props.maxFeePerGas || props.maxPriorityFeePerGas) {
+  selectedGasMethod.value = 'custom'
+  if (props.maxFeePerGas) maxFeePerGas.value = Number(props.maxFeePerGas)
+  if (props.maxPriorityFeePerGas)
+    maxPriorityFeePerGas.value = Number(props.maxPriorityFeePerGas)
+}
+
 emits('gasPriceInput', {
-  maxFeePerGas: null,
-  maxPriorityFeePerGas: null,
-  gasLimit: null,
+  maxFeePerGas: maxFeePerGas.value || null,
+  maxPriorityFeePerGas: maxPriorityFeePerGas.value || null,
+  gasLimit: totalGasUsed.value,
 })
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
-  if (gasMethod === 'normal' || gasMethod === 'custom') {
-    maxPriorityFeePerGas.value = null
-    maxFeePerGas.value = null
-    totalGasUsed.value = null
-  } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = 4
+  if (gasMethod === 'normal') {
+    maxPriorityFeePerGas.value = 1.5
     maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
-    totalGasUsed.value = null
+  } else if (gasMethod === 'fast') {
+    maxPriorityFeePerGas.value = 6
+    maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
