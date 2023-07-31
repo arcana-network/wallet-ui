@@ -22,10 +22,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
-const customGasPrice = ref({
-  maxFeePerGas: props.request.params[0].maxFeePerGas,
-  maxPriorityFeePerGas: props.request.params[0].maxPriorityFeePerGas,
-} as any)
+const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -62,6 +59,10 @@ onMounted(async () => {
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    console.log(props.request)
+    customGasPrice.value.maxFeePerGas = props.request.params[0].maxFeePerGas
+    customGasPrice.value.maxPriorityFeePerGas =
+      props.request.params[0].maxPriorityFeePerGas
     customGasPrice.value.gasLimit = gasLimit.value
     handleSetGasPrice(customGasPrice.value)
   } catch (err) {
