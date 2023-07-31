@@ -59,6 +59,7 @@ onMounted(async () => {
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
+    console.log(props.request)
     customGasPrice.value.maxFeePerGas = props.request.params[0].maxFeePerGas
     customGasPrice.value.maxPriorityFeePerGas =
       props.request.params[0].maxPriorityFeePerGas
