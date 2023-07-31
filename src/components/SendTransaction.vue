@@ -65,7 +65,7 @@ onMounted(async () => {
       props.request.params[0].maxPriorityFeePerGas
     customGasPrice.value.gasLimit =
       props.request.params[0].gasLimit || gasLimit.value
-    handleSetGasPrice(customGasPrice.value)
+    handleSetGasPrice(customGasPrice.value, true)
   } catch (err) {
     console.log({ err })
   } finally {
@@ -77,25 +77,38 @@ function computeMaxFee(value) {
   return Number(value.maxFeePerGas) + (Number(value.maxPriorityFeePerGas) || 2)
 }
 
-function handleSetGasPrice(value) {
+function handleSetGasPrice(value, sendAsIs = false) {
   const requestId = props.request.request.id
   customGasPrice.value = value
-  emits('gasPriceInput', {
-    value: {
-      maxFeePerGas: value.maxFeePerGas
-        ? ethers.utils
-            .parseUnits(String(computeMaxFee(value)), 'gwei')
-            .toHexString()
-        : null,
-      maxPriorityFeePerGas: value.maxPriorityFeePerGas
-        ? ethers.utils
-            .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
-            .toHexString()
-        : null,
-      gasLimit: value.gasLimit ? value.gasLimit : null,
-    },
-    requestId,
-  })
+  if (sendAsIs) {
+    emits('gasPriceInput', {
+      value: {
+        maxFeePerGas: value.maxFeePerGas ? value.maxFeePerGas : null,
+        maxPriorityFeePerGas: value.maxPriorityFeePerGas
+          ? value.maxPriorityFeePerGas
+          : null,
+        gasLimit: value.gasLimit ? value.gasLimit : null,
+      },
+      requestId,
+    })
+  } else {
+    emits('gasPriceInput', {
+      value: {
+        maxFeePerGas: value.maxFeePerGas
+          ? ethers.utils
+              .parseUnits(String(computeMaxFee(value)), 'gwei')
+              .toHexString()
+          : null,
+        maxPriorityFeePerGas: value.maxPriorityFeePerGas
+          ? ethers.utils
+              .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
+              .toHexString()
+          : null,
+        gasLimit: value.gasLimit ? value.gasLimit : null,
+      },
+      requestId,
+    })
+  }
 }
 </script>
 
