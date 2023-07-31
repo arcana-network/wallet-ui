@@ -49,6 +49,7 @@ async function setHeight() {
 }
 
 function getGasPriceInfo() {
+  console.log(props.gas)
   gasFee.value = Number(
     (
       Number(props.gas.maxFeePerGas) + Number(props.gas.maxPriorityFeePerGas)
