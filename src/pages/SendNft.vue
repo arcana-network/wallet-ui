@@ -8,16 +8,11 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
 import { type NFTContractType } from '@/models/NFT'
-import {
-  getGasPrice,
-  GAS_AVAILABLE_CHAIN_IDS,
-} from '@/services/gasPrice.service'
 import { useActivitiesStore } from '@/store/activities'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type SendNftProps = {
@@ -49,7 +44,6 @@ const recipientWalletAddress = ref('')
 const gas: Ref<EIP1559GasFee | null> = ref(null)
 const gasFeeInEth = ref('')
 const estimatedGas = ref('0')
-const gasPrices: Ref<object> = ref({})
 const loader = ref({
   show: false,
   message: '',
@@ -91,10 +85,6 @@ onMounted(async () => {
   showLoader('Loading...')
   try {
     await fetchBaseFee()
-    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      await fetchGasSliderValues()
-      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
-    }
     baseFeePoll = setInterval(fetchBaseFee, 2000)
     const accountHandler = getRequestHandler().getAccountHandler()
     estimatedGas.value = (
@@ -123,11 +113,6 @@ async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
-}
-
-async function fetchGasSliderValues() {
-  const data = await getGasPrice(chainId)
-  gasPrices.value = data
 }
 
 function clearForm() {
@@ -311,7 +296,6 @@ async function handleShowPreview() {
             </div>
           </div>
           <GasPrice
-            :gas-prices="gasPrices"
             :base-fee="baseFee"
             :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
