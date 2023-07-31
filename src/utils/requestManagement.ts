@@ -322,6 +322,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       const sanitizedRequest = sanitizeRequest({ ...request })
       try {
         const response = await keeper.request({ ...sanitizedRequest })
+        console.log(response)
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError) {
