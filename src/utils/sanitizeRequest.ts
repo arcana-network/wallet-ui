@@ -21,7 +21,7 @@ function sanitizeSendTransactionRequest(request) {
     sanitizedParams.maxFeePerGas = params.maxFeePerGas
     sanitizedParams.maxPriorityFeePerGas = params.maxPriorityFeePerGas
   }
-  request.params = [...params]
+  request.params = [{ ...params }]
   return { ...request }
 }
 
