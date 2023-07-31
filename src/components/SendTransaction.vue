@@ -13,6 +13,7 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { sanitizeRequest } from '@/utils/sanitizeRequest'
 
 const props = defineProps({
   request: {
@@ -55,25 +56,25 @@ onMounted(async () => {
     ).toString()
     gasLimit.value = (
       await accountHandler.provider.estimateGas({
-        ...props.request.request.params[0],
+        ...sanitizeRequest(props.request.request).params[0],
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
     console.log(props.request)
-    if (props.request.params[0].maxFeePerGas) {
+    if (props.request.request.params[0].maxFeePerGas) {
       customGasPrice.value.maxFeePerGas = ethers.utils.formatUnits(
-        props.request.params[0].maxFeePerGas,
+        props.request.request.params[0].maxFeePerGas,
         'gwei'
       )
     }
-    if (props.request.params[0].maxPriorityFeePerGas) {
+    if (props.request.request.params[0].maxPriorityFeePerGas) {
       customGasPrice.value.maxPriorityFeePerGas = ethers.utils.formatUnits(
-        props.request.params[0].maxPriorityFeePerGas,
+        props.request.request.params[0].maxPriorityFeePerGas,
         'gwei'
       )
     }
     customGasPrice.value.gasLimit =
-      props.request.params[0].gasLimit || gasLimit.value
+      props.request.request.params[0].gasLimit || gasLimit.value
     handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
