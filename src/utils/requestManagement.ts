@@ -327,16 +327,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           delete request.params[0].gas
         }
         if (request.params[0].type && Number(request.params[0].type) === 2) {
-          if (!request.params[0].maxFeePerGas) {
-            request.params[0].maxFeePerGas =
-              request.params[0].gasPrice || request.params[0].gas_price
-          }
+          request.params[0].maxFeePerGas =
+            request.params[0].gasPrice || request.params[0].gas_price
           if (request.params[0].gasPrice) delete request.params[0].gasPrice
           if (request.params[0].gas_price) delete request.params[0].gas_price
         }
       }
       try {
-        console.log(`Processing request ${request.method}`, { request })
         const response = await keeper.request(request)
         await keeper.reply(request.method, response)
         if (response.error) {
