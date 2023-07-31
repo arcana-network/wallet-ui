@@ -32,6 +32,8 @@ const gasLimit = ref('0')
 const requestStore = useRequestStore()
 const route = useRoute()
 
+const gasPrices: Ref<object> = ref({})
+
 const loader = ref({
   show: false,
   message: '',
@@ -68,6 +70,7 @@ onMounted(async () => {
     handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
+    gasPrices.value = {}
   } finally {
     hideLoader()
   }
@@ -106,6 +109,7 @@ function handleSetGasPrice(value) {
   <SendTransactionCompact
     v-else-if="appStore.compactMode"
     :gas="customGasPrice"
+    :gas-prices="gasPrices"
     :request="request"
     :gas-limit="gasLimit"
     @approve="emits('approve')"
@@ -128,15 +132,9 @@ function handleSetGasPrice(value) {
     </div>
     <GasPrice
       :gas-price="customGasPrice"
+      :gas-prices="gasPrices"
       :base-fee="baseFee"
       :gas-limit="gasLimit"
-      :max-fee-per-gas="
-        request.params[0].maxFeePerGas || request.params[0].max_fee_per_gas
-      "
-      :max-priority-fee-per-gas="
-        request.params[0].maxPriorityFeePerGas ||
-        request.params[0].max_priority_fee_per_gas
-      "
       @gas-price-input="handleSetGasPrice"
     />
     <div class="mt-auto flex flex-col gap-4">
