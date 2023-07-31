@@ -86,7 +86,6 @@ export const useRequestStore = defineStore('request', {
         } else if (gas?.gasLimit === null) {
           delete param.gas
         }
-        delete param.gasPrice
       }
     },
     skipRequest(requestId: string): void {

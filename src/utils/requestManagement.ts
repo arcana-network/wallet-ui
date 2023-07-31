@@ -17,6 +17,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
 import validatePopulateContractForNft from '@/utils/validateAndPopulateContractForNft'
 import validatePopulateContractForToken from '@/utils/validateAndPopulateContractForToken'
@@ -318,26 +319,12 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      if (request.method === 'eth_sendTransaction') {
-        request.params[0].gasLimit =
-          request.params[0].gas ||
-          request.params[0].gasLimit ||
-          request.params[0].gas_limit
-        if (request.params[0].gas) {
-          delete request.params[0].gas
-        }
-        if (request.params[0].type && Number(request.params[0].type) === 2) {
-          if (!request.params[0].maxFeePerGas) {
-            request.params[0].maxFeePerGas =
-              request.params[0].gasPrice || request.params[0].gas_price
-          }
-          if (request.params[0].gasPrice) delete request.params[0].gasPrice
-          if (request.params[0].gas_price) delete request.params[0].gas_price
-        }
-      }
+      const sanitizedRequest = sanitizeRequest(request)
       try {
-        console.log(`Processing request ${request.method}`, { request })
-        const response = await keeper.request(request)
+        console.log(`Processing request ${request.method}`, {
+          sanitizedRequest,
+        })
+        const response = await keeper.request(sanitizedRequest)
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError) {
