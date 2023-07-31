@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { request } from '@arcana/auth-core/types/oauthHandlers'
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
@@ -23,7 +24,10 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
-const customGasPrice = ref({} as any)
+const customGasPrice = ref({
+  maxFeePerGas: props.request.params[0].maxFeePerGas,
+  maxPriorityFeePerGas: props.request.params[0].maxPriorityFeePerGas,
+} as any)
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -31,8 +35,6 @@ const baseFee = ref('0')
 const gasLimit = ref('0')
 const requestStore = useRequestStore()
 const route = useRoute()
-
-const gasPrices: Ref<object> = ref({})
 
 const loader = ref({
   show: false,
@@ -62,15 +64,10 @@ onMounted(async () => {
       })
     ).toString()
     baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
-    customGasPrice.value = {
-      maxFeePerGas: Number(baseFee.value),
-      maxPriorityFeePerGas: 0,
-      gasLimit: gasLimit.value,
-    }
+    customGasPrice.value.gasLimit = gasLimit.value
     handleSetGasPrice(customGasPrice.value)
   } catch (err) {
     console.log({ err })
-    gasPrices.value = {}
   } finally {
     hideLoader()
   }
@@ -108,9 +105,8 @@ function handleSetGasPrice(value) {
   </div>
   <SendTransactionCompact
     v-else-if="appStore.compactMode"
-    :gas="customGasPrice"
-    :gas-prices="gasPrices"
     :request="request"
+    :gas="customGasPrice"
     :gas-limit="gasLimit"
     @approve="emits('approve')"
     @reject="emits('reject')"
@@ -131,10 +127,10 @@ function handleSetGasPrice(value) {
       />
     </div>
     <GasPrice
-      :gas-price="customGasPrice"
-      :gas-prices="gasPrices"
       :base-fee="baseFee"
       :gas-limit="gasLimit"
+      :max-fee-per-gas="customGasPrice.maxFeePerGas"
+      :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
       @gas-price-input="handleSetGasPrice"
     />
     <div class="mt-auto flex flex-col gap-4">
