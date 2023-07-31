@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { request } from '@arcana/auth-core/types/oauthHandlers'
 import { ethers } from 'ethers'
 import { ref, onMounted } from 'vue'
-import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
