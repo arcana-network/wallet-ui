@@ -59,19 +59,19 @@ onMounted(async () => {
         ...sanitizeRequest(props.request.request).params[0],
       })
     ).toString()
-    baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
+    baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
     if (props.request.request.params[0].maxFeePerGas) {
       customGasPrice.value.maxFeePerGas = new Decimal(
         props.request.request.params[0].maxFeePerGas
       )
-        .div(1e9)
+        .div(Decimal.pow(10, 9))
         .toString()
     }
     if (props.request.request.params[0].maxPriorityFeePerGas) {
       customGasPrice.value.maxPriorityFeePerGas = new Decimal(
         props.request.request.params[0].maxPriorityFeePerGas
       )
-        .div(1e9)
+        .div(Decimal.pow(10, 9))
         .toString()
     }
     customGasPrice.value.gasLimit =
@@ -96,10 +96,14 @@ function handleSetGasPrice(value) {
   emits('gasPriceInput', {
     value: {
       maxFeePerGas: value.maxFeePerGas
-        ? new Decimal(computeMaxFee(value)).mul(1e9).toHexadecimal()
+        ? new Decimal(computeMaxFee(value))
+            .mul(Decimal.pow(10, 9))
+            .toHexadecimal()
         : null,
       maxPriorityFeePerGas: value.maxPriorityFeePerGas
-        ? new Decimal(value.maxPriorityFeePerGas).mul(1e9).toHexadecimal()
+        ? new Decimal(value.maxPriorityFeePerGas)
+            .mul(Decimal.pow(10, 9))
+            .toHexadecimal()
         : null,
       gasLimit: value.gasLimit ? value.gasLimit : null,
     },

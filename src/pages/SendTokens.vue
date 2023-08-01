@@ -47,7 +47,7 @@ const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
 
 const walletBalance = computed(() => {
-  return new Decimal(rpcStore.walletBalance).div(1e18).toString()
+  return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
 })
 
 watch(gas, () => {
@@ -55,8 +55,8 @@ watch(gas, () => {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
       gas.value.maxPriorityFeePerGas || 1.5
     )
-    const maxFeeInWei = maxFee.mul(1e9)
-    gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+    const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+    gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
   }
 })
 
@@ -104,7 +104,7 @@ onMounted(async () => {
           recipientWalletAddress.value
             ? setHexPrefix(recipientWalletAddress.value)
             : userStore.walletAddress,
-          new Decimal(1e18).toHexadecimal()
+          new Decimal(Decimal.pow(10, 18)).toHexadecimal()
         )
       ).toString()
     }
@@ -123,7 +123,7 @@ onUnmounted(() => {
 async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
-  baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
+  baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
 }
 
 async function fetchTokenBalance() {
@@ -176,13 +176,15 @@ async function handleSendToken() {
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
         gas.value.maxPriorityFeePerGas || 1.5
       )
-      const maxFeeInWei = maxFee.mul(1e9)
+      const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
       gasFees = maxFeeInWei.toHexadecimal()
     }
     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
       const payload: any = {
         to: setHexPrefix(recipientWalletAddress.value),
-        value: new Decimal(amount.value).mul(1e18).toHexadecimal(),
+        value: new Decimal(amount.value)
+          .mul(Decimal.pow(10, 18))
+          .toHexadecimal(),
         from: userStore.walletAddress,
       }
 
@@ -258,7 +260,9 @@ async function handleShowPreview() {
           await accountHandler.provider.estimateGas({
             from: userStore.walletAddress,
             to: setHexPrefix(recipientWalletAddress.value),
-            value: new Decimal(amount.value).mul(1e18).toHexadecimal(),
+            value: new Decimal(amount.value)
+              .mul(Decimal.pow(10, 18))
+              .toHexadecimal(),
           })
         ).toString()
       } else {
@@ -281,8 +285,8 @@ async function handleShowPreview() {
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
         gas.value.maxPriorityFeePerGas || 1.5
       )
-      const maxFeeInWei = maxFee.mul(1e9)
-      gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+      const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+      gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
       showPreview.value = true
     } catch (e) {
       toast.error('Cannot estimate gas fee. Please try again later.')
