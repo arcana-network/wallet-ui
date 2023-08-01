@@ -89,7 +89,9 @@ onMounted(async () => {
       estimatedGas.value = (
         await accountHandler.provider.estimateGas({
           from: userStore.walletAddress,
-          to: setHexPrefix(recipientWalletAddress.value),
+          to: recipientWalletAddress.value
+            ? setHexPrefix(recipientWalletAddress.value)
+            : userStore.walletAddress,
         })
       ).toString()
     } else {
@@ -99,8 +101,10 @@ onMounted(async () => {
       estimatedGas.value = (
         await accountHandler.estimateCustomTokenGas(
           tokenInfo?.address,
-          setHexPrefix(recipientWalletAddress.value),
-          new Decimal(100000000).toHexadecimal()
+          recipientWalletAddress.value
+            ? setHexPrefix(recipientWalletAddress.value)
+            : userStore.walletAddress,
+          new Decimal(1e18).toHexadecimal()
         )
       ).toString()
     }
