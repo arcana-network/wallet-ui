@@ -47,7 +47,7 @@ const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
 
 const walletBalance = computed(() => {
-  return new Decimal(rpcStore.walletBalance).div(1e18).toFixed(18)
+  return new Decimal(rpcStore.walletBalance).div(1e18).toString()
 })
 
 watch(gas, () => {
