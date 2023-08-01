@@ -1,3 +1,4 @@
+import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
@@ -83,9 +84,7 @@ class AccountHandler {
     ]
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    return (
-      await contract.estimateGas.transfer(recipientAddress, amount)
-    ).toString()
+    return await contract.estimateGas.transfer(recipientAddress, amount)
   }
 
   sendNft = async (
@@ -100,7 +99,7 @@ class AccountHandler {
     const signer = this.wallet.connect(this.provider)
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
-      const hexAmount = '0x' + Number(amount).toString(16)
+      const hexAmount = new Decimal(amount).toHexadecimal()
       const tx = await contract.safeTransferFrom(
         from,
         to,
@@ -127,21 +126,17 @@ class AccountHandler {
     const signer = this.wallet.connect(this.provider)
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
-      const hexAmount = Number(amount).toString(16)
-      return (
-        await contract.estimateGas.safeTransferFrom(
-          from,
-          to,
-          tokenId,
-          hexAmount,
-          '0x'
-        )
-      ).toString()
+      const hexAmount = new Decimal(amount).toHexadecimal()
+      return await contract.estimateGas.safeTransferFrom(
+        from,
+        to,
+        tokenId,
+        hexAmount,
+        '0x'
+      )
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      return (
-        await contract.estimateGas.transferFrom(from, to, tokenId)
-      ).toString()
+      return await contract.estimateGas.transferFrom(from, to, tokenId)
     }
   }
 

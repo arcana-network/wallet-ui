@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BigNumber from 'bignumber.js'
+import { Decimal } from 'decimal.js'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
@@ -16,10 +16,11 @@ const props = defineProps({
   },
 })
 
-const nativeCurrency = rpcStore.nativeCurrency.symbol
+const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees =
-  Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
+const txFees = new Decimal(props.previewData.gasFee)
+  .mul(props.previewData.estimatedGas)
+  .toString()
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
