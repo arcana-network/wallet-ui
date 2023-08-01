@@ -26,7 +26,6 @@ type SendNftProps = {
   animationUrl?: string
   attributes?: string
   balance?: number
-  tokenUrl: string
 }
 
 const emit = defineEmits(['close'])
