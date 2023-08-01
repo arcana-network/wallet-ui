@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { ethers } from 'ethers'
+import { Decimal } from 'decimal.js'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -59,19 +59,20 @@ onMounted(async () => {
         ...sanitizeRequest(props.request.request).params[0],
       })
     ).toString()
-    baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
-    console.log(props.request)
+    baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
     if (props.request.request.params[0].maxFeePerGas) {
-      customGasPrice.value.maxFeePerGas = ethers.utils.formatUnits(
-        props.request.request.params[0].maxFeePerGas,
-        'gwei'
+      customGasPrice.value.maxFeePerGas = new Decimal(
+        props.request.request.params[0].maxFeePerGas
       )
+        .div(1e9)
+        .toString()
     }
     if (props.request.request.params[0].maxPriorityFeePerGas) {
-      customGasPrice.value.maxPriorityFeePerGas = ethers.utils.formatUnits(
-        props.request.request.params[0].maxPriorityFeePerGas,
-        'gwei'
+      customGasPrice.value.maxPriorityFeePerGas = new Decimal(
+        props.request.request.params[0].maxPriorityFeePerGas
       )
+        .div(1e9)
+        .toString()
     }
     customGasPrice.value.gasLimit =
       props.request.request.params[0].gasLimit || gasLimit.value
@@ -84,7 +85,9 @@ onMounted(async () => {
 })
 
 function computeMaxFee(value) {
-  return Number(value.maxFeePerGas) + (Number(value.maxPriorityFeePerGas) || 2)
+  return new Decimal(value.maxFeePerGas)
+    .add(value.maxPriorityFeePerGas || 1.5)
+    .toString()
 }
 
 function handleSetGasPrice(value) {
@@ -93,14 +96,10 @@ function handleSetGasPrice(value) {
   emits('gasPriceInput', {
     value: {
       maxFeePerGas: value.maxFeePerGas
-        ? ethers.utils
-            .parseUnits(String(computeMaxFee(value)), 'gwei')
-            .toHexString()
+        ? new Decimal(computeMaxFee(value)).mul(1e9).toHexadecimal()
         : null,
       maxPriorityFeePerGas: value.maxPriorityFeePerGas
-        ? ethers.utils
-            .parseUnits(String(value.maxPriorityFeePerGas), 'gwei')
-            .toHexString()
+        ? new Decimal(value.maxPriorityFeePerGas).mul(1e9).toHexadecimal()
         : null,
       gasLimit: value.gasLimit ? value.gasLimit : null,
     },

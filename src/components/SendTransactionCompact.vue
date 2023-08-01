@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { Decimal } from 'decimal.js'
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -39,11 +40,9 @@ onMounted(async () => {
 
 const gasFee = computed(() => {
   if (props.gas?.maxFeePerGas) {
-    return Number(
-      (
-        Number(props.gas.maxFeePerGas) + Number(props.gas.maxPriorityFeePerGas)
-      ).toFixed(9)
-    )
+    new Decimal(props.gas.maxFeePerGas)
+      .add(props.gas.maxPriorityFeePerGas || 1.5)
+      .toString()
   }
   return 0
 })

@@ -1,23 +1,18 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
-import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
+import { Decimal } from 'decimal.js'
+import { onMounted, onUnmounted, ref, Ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import {
-  getGasPrice,
-  GAS_AVAILABLE_CHAIN_IDS,
-} from '@/services/gasPrice.service'
 import { useActivitiesStore } from '@/store/activities'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
-import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -29,7 +24,6 @@ const router = useRouter()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
-const chainId = Number(rpcStore.selectedChainId)
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -52,21 +46,17 @@ const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
 
-const walletBalance = ethers.utils.formatEther(rpcStore.walletBalance)
+const walletBalance = computed(() => {
+  return new Decimal(rpcStore.walletBalance).div(1e18).toFixed(18)
+})
 
 watch(gas, () => {
-  if (gasFeeInEth.value) {
-    gasFeeInEth.value = ethers.utils
-      .formatEther(
-        ethers.utils.parseUnits(
-          `${
-            Number(gas.value?.maxFeePerGas) +
-            Number(gas.value?.maxPriorityFeePerGas)
-          }`,
-          'gwei'
-        )
-      )
-      .toString()
+  if (gas.value) {
+    const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+      gas.value.maxPriorityFeePerGas || 1.5
+    )
+    const maxFeeInWei = maxFee.mul(1e9)
+    gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
   }
 })
 
@@ -93,10 +83,6 @@ onMounted(async () => {
     setTokenList()
     await fetchTokenBalance()
     await fetchBaseFee()
-    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      await fetchGasSliderValues()
-      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
-    }
     baseFeePoll = setInterval(fetchBaseFee, 2000)
     const accountHandler = getRequestHandler().getAccountHandler()
     if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
@@ -110,11 +96,13 @@ onMounted(async () => {
       const tokenInfo = tokenList.value.find(
         (item) => item.address === selectedToken.value.address
       )
-      estimatedGas.value = await accountHandler.estimateCustomTokenGas(
-        tokenInfo?.address,
-        setHexPrefix(recipientWalletAddress.value),
-        `0x${Number(100000000).toString(16)}`
-      )
+      estimatedGas.value = (
+        await accountHandler.estimateCustomTokenGas(
+          tokenInfo?.address,
+          setHexPrefix(recipientWalletAddress.value),
+          new Decimal(100000000).toHexadecimal()
+        )
+      ).toString()
     }
   } catch (err) {
     console.log({ err })
@@ -131,12 +119,7 @@ onUnmounted(() => {
 async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
-  baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
-}
-
-async function fetchGasSliderValues() {
-  const data = await getGasPrice(chainId)
-  gasPrices.value = data
+  baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
 }
 
 async function fetchTokenBalance() {
@@ -145,17 +128,17 @@ async function fetchTokenBalance() {
   )
 
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
-    selectedTokenBalance.value = walletBalance
+    selectedTokenBalance.value = walletBalance.value
   } else {
     const balance = await getTokenBalance({
       walletAddress: userStore.walletAddress,
       contractAddress: tokenInfo?.address as string,
     })
     selectedTokenBalance.value = tokenInfo?.decimals
-      ? (Number(balance) / Math.pow(10, tokenInfo?.decimals)).toFixed(
-          tokenInfo?.decimals
-        )
-      : balance
+      ? new Decimal(balance)
+          .div(Decimal.pow(10, tokenInfo.decimals))
+          .toFixed(tokenInfo.decimals)
+      : new Decimal(balance).toString()
   }
 }
 
@@ -184,21 +167,23 @@ async function handleSendToken() {
   showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
-    const gasFees = ethers.utils
-      .parseUnits(
-        `${
-          Number(gas.value?.maxFeePerGas) +
-          Number(gas.value?.maxPriorityFeePerGas)
-        }`,
-        'gwei'
+    let gasFees: string | null = null
+    if (gas.value) {
+      const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+        gas.value.maxPriorityFeePerGas || 1.5
       )
-      .toHexString()
+      const maxFeeInWei = maxFee.mul(1e9)
+      gasFees = maxFeeInWei.toHexadecimal()
+    }
     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      const payload = {
+      const payload: any = {
         to: setHexPrefix(recipientWalletAddress.value),
-        value: ethers.utils.parseEther(`${amount.value}`).toHexString(),
-        gasPrice: gasFees,
+        value: new Decimal(amount.value).mul(1e18).toHexadecimal(),
         from: userStore.walletAddress,
+      }
+
+      if (gasFees) {
+        payload.gasPrice = gasFees
       }
 
       const txHash = await accountHandler.sendTransaction(
@@ -214,10 +199,10 @@ async function handleSendToken() {
         (item) => item.address === selectedToken.value.address
       )
       const sendAmount = tokenInfo?.decimals
-        ? `0x${(
-            Number(amount.value) * Math.pow(10, tokenInfo.decimals)
-          ).toString(16)}`
-        : amount.value
+        ? new Decimal(amount.value)
+            .mul(Decimal.pow(10, tokenInfo.decimals))
+            .toHexadecimal()
+        : new Decimal(amount.value).toHexadecimal()
       const transactionHash = await accountHandler.sendCustomToken(
         tokenInfo?.address,
         setHexPrefix(recipientWalletAddress.value),
@@ -269,7 +254,7 @@ async function handleShowPreview() {
           await accountHandler.provider.estimateGas({
             from: userStore.walletAddress,
             to: setHexPrefix(recipientWalletAddress.value),
-            value: ethers.utils.parseUnits(amount.value, 'ether'),
+            value: new Decimal(amount.value).mul(1e18).toHexadecimal(),
           })
         ).toString()
       } else {
@@ -277,30 +262,28 @@ async function handleShowPreview() {
           (item) => item.address === selectedToken.value.address
         )
         const sendAmount = tokenInfo?.decimals
-          ? (Number(amount.value) * Math.pow(10, tokenInfo.decimals)).toString()
-          : amount.value
-        estimatedGas.value = await accountHandler.estimateCustomTokenGas(
-          tokenInfo?.address,
-          setHexPrefix(recipientWalletAddress.value),
-          `0x${Number(sendAmount).toString(16)}`
-        )
+          ? new Decimal(amount.value)
+              .mul(Decimal.pow(10, tokenInfo.decimals))
+              .toString()
+          : new Decimal(amount.value).toString()
+        estimatedGas.value = (
+          await accountHandler.estimateCustomTokenGas(
+            tokenInfo?.address,
+            setHexPrefix(recipientWalletAddress.value),
+            new Decimal(sendAmount).toHexadecimal()
+          )
+        ).toString()
       }
+      const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+        gas.value.maxPriorityFeePerGas || 1.5
+      )
+      const maxFeeInWei = maxFee.mul(1e9)
+      gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+      showPreview.value = true
     } catch (e) {
       toast.error('Cannot estimate gas fee. Please try again later.')
       console.error({ e })
     } finally {
-      gasFeeInEth.value = ethers.utils
-        .formatEther(
-          ethers.utils.parseUnits(
-            `${
-              Number(gas.value.maxFeePerGas) +
-              Number(gas.value.maxPriorityFeePerGas)
-            }`,
-            'gwei'
-          )
-        )
-        .toString()
-      showPreview.value = true
       hideLoader()
     }
   } else {
@@ -390,8 +373,7 @@ function handleTokenChange(e) {
             <div class="text-gray-100 text-xs font-normal">
               Total Balance:
               <span class="text-black-500 dark:text-white-100"
-                >{{ Number(selectedTokenBalance) }}
-                {{ selectedToken.symbol }}</span
+                >{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span
               >
             </div>
           </div>

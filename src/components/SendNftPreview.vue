@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { Decimal } from 'decimal.js'
+
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
-import { useImage } from '@/utils/useImage'
 
-const getImageOld = useImage()
 const rpcStore = useRpcStore()
 
 type NftPreviewProps = {
@@ -23,10 +23,11 @@ type NftPreviewProps = {
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps<NftPreviewProps>()
 
-const nativeCurrency = rpcStore.nativeCurrency.symbol
+const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees =
-  Number(props.previewData.gasFee) * Number(props.previewData.estimatedGas)
+const txFees = new Decimal(props.previewData.gasFee)
+  .mul(props.previewData.estimatedGas)
+  .toString()
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
@@ -78,9 +79,7 @@ function truncateAddress(address: string) {
         </div>
         <div class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
-          <span class="text-base"
-            >{{ props.previewData.gasFee }} {{ nativeCurrency }}</span
-          >
+          <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
         </div>
       </div>
     </div>

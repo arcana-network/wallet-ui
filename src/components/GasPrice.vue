@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Decimal } from 'decimal.js'
 import { type Ref, ref, watch, computed } from 'vue'
 
 const emits = defineEmits(['gasPriceInput'])
@@ -19,7 +20,7 @@ const transactionTime = ref(null)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
 
 const sanitizedBaseFee = computed(() => {
-  return Number(props.baseFee).toFixed(9)
+  return new Decimal(props.baseFee).toFixed(9)
 })
 
 watch(selectedGasMethod, () => {
@@ -28,12 +29,18 @@ watch(selectedGasMethod, () => {
 
 if (props.maxFeePerGas) {
   selectedGasMethod.value = 'custom'
-  maxFeePerGas.value = Number(props.maxFeePerGas)
+  maxFeePerGas.value = new Decimal(props.maxFeePerGas).toNumber()
+} else {
+  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
 }
 
 if (props.maxPriorityFeePerGas) {
   selectedGasMethod.value = 'custom'
-  maxPriorityFeePerGas.value = Number(props.maxPriorityFeePerGas)
+  maxPriorityFeePerGas.value = new Decimal(
+    props.maxPriorityFeePerGas
+  ).toNumber()
+} else {
+  maxPriorityFeePerGas.value = 1.5
 }
 
 emits('gasPriceInput', {
@@ -45,10 +52,10 @@ emits('gasPriceInput', {
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal') {
     maxPriorityFeePerGas.value = 1.5
-    maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
   } else if (gasMethod === 'fast') {
     maxPriorityFeePerGas.value = 6
-    maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
@@ -155,7 +162,7 @@ function handleCustomGasPriceInput() {
       />
       <div class="flex justify-end gap-1">
         <span class="text-xs text-gray-100">Base Fee:</span>
-        <span class="text-xs">{{ Number(sanitizedBaseFee) }} Gwei</span>
+        <span class="text-xs">{{ sanitizedBaseFee }} Gwei</span>
       </div>
     </div>
   </div>
