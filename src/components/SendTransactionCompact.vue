@@ -39,6 +39,7 @@ onMounted(async () => {
 })
 
 const gasFee = computed(() => {
+  console.log(props.gas)
   if (props.gas?.maxFeePerGas) {
     new Decimal(props.gas.maxFeePerGas)
       .add(props.gas.maxPriorityFeePerGas || 1.5)

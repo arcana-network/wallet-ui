@@ -5,7 +5,6 @@ import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import type { AssetContract } from '@/models/Asset'
 import { PERMISSIONS, requirePermission } from '@/models/Connection'
 import { router } from '@/routes'
 import { NFTDB } from '@/services/nft.service'
@@ -321,9 +320,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
     } else {
       const sanitizedRequest = sanitizeRequest({ ...request })
       try {
-        console.log({ sanitizeRequest })
         const response = await keeper.request({ ...sanitizedRequest })
-        console.log(sanitizedRequest.method, { response })
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.data?.originalError) {
