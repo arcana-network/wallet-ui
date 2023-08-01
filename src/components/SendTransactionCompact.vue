@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { onMounted, ref } from 'vue'
+import { Decimal } from 'decimal.js'
+import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { GAS_FEE_UNIT, GAS_PRICE_SPEED_MAP } from '@/utils/constants'
+import { GAS_FEE_UNIT } from '@/utils/constants'
 
 const emits = defineEmits(['reject', 'approve'])
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const parentConnectionStore = useParentConnectionStore()
-const gasFee = ref(0)
-const transactionTime = ref(null)
 const requestStore = useRequestStore()
 const route = useRoute()
 
@@ -37,7 +36,15 @@ const props = defineProps({
 
 onMounted(async () => {
   setHeight()
-  getGasPriceInfo()
+})
+
+const gasFee = computed(() => {
+  if (props.gas?.maxFeePerGas) {
+    return new Decimal(props.gas.maxFeePerGas)
+      .add(props.gas.maxPriorityFeePerGas || 1.5)
+      .toString()
+  }
+  return '0'
 })
 
 async function setHeight() {
@@ -46,14 +53,6 @@ async function setHeight() {
   await parentConnectionInstance?.setIframeStyle({
     ...appStore.iframeStyle(),
   })
-}
-
-function getGasPriceInfo() {
-  gasFee.value = Number(
-    (
-      Number(props.gas.maxFeePerGas) + Number(props.gas.maxPriorityFeePerGas)
-    ).toFixed(9)
-  )
 }
 </script>
 

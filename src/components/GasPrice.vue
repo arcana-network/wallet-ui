@@ -1,57 +1,61 @@
 <script setup lang="ts">
+import { Decimal } from 'decimal.js'
 import { type Ref, ref, watch, computed } from 'vue'
-
-import { useRpcStore } from '@/store/rpc'
 
 const emits = defineEmits(['gasPriceInput'])
 
-const props = defineProps({
-  gasPrices: {
-    type: Object,
-    required: false,
-    default: () => ({}),
-  },
-  baseFee: {
-    type: String,
-    default: '0',
-  },
-  gasLimit: {
-    type: String,
-    default: '0',
-  },
-})
+type GasPriceProps = {
+  baseFee: string
+  gasLimit: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
+}
 
-const rpcStore = useRpcStore()
+const props = defineProps<GasPriceProps>()
 
-const maxFeePerGas = ref(0 as number | null)
-const maxPriorityFeePerGas = ref(0 as number | null)
+const maxFeePerGas = ref(null as number | null)
+const maxPriorityFeePerGas = ref(null as number | null)
 const totalGasUsed = ref(Number(props.gasLimit) as number | null)
 const transactionTime = ref(null)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
 
 const sanitizedBaseFee = computed(() => {
-  return Number(props.baseFee).toFixed(9)
+  return new Decimal(props.baseFee).toFixed(9)
 })
 
 watch(selectedGasMethod, () => {
   handleGasPriceSelect(selectedGasMethod.value)
 })
 
+if (props.maxFeePerGas) {
+  selectedGasMethod.value = 'custom'
+  maxFeePerGas.value = new Decimal(props.maxFeePerGas).toNumber()
+} else {
+  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
+}
+
+if (props.maxPriorityFeePerGas) {
+  selectedGasMethod.value = 'custom'
+  maxPriorityFeePerGas.value = new Decimal(
+    props.maxPriorityFeePerGas
+  ).toNumber()
+} else {
+  maxPriorityFeePerGas.value = 1.5
+}
+
 emits('gasPriceInput', {
-  maxFeePerGas: null,
-  maxPriorityFeePerGas: null,
-  gasLimit: null,
+  maxFeePerGas: maxFeePerGas.value,
+  maxPriorityFeePerGas: maxPriorityFeePerGas.value,
+  gasLimit: totalGasUsed.value,
 })
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
-  if (gasMethod === 'normal' || gasMethod === 'custom') {
-    maxPriorityFeePerGas.value = null
-    maxFeePerGas.value = null
-    totalGasUsed.value = null
+  if (gasMethod === 'normal') {
+    maxPriorityFeePerGas.value = 1.5
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
   } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = 4
-    maxFeePerGas.value = Number(sanitizedBaseFee.value) * 2
-    totalGasUsed.value = null
+    maxPriorityFeePerGas.value = 6
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,
@@ -158,7 +162,7 @@ function handleCustomGasPriceInput() {
       />
       <div class="flex justify-end gap-1">
         <span class="text-xs text-gray-100">Base Fee:</span>
-        <span class="text-xs">{{ Number(sanitizedBaseFee) }} Gwei</span>
+        <span class="text-xs">{{ sanitizedBaseFee }} Gwei</span>
       </div>
     </div>
   </div>
