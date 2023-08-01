@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
+import { Decimal } from 'decimal.js'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -7,17 +7,12 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
-import { type NFTContractType } from '@/models/NFT'
-import {
-  getGasPrice,
-  GAS_AVAILABLE_CHAIN_IDS,
-} from '@/services/gasPrice.service'
+import { type NFTContractType, type NFT } from '@/models/NFT'
 import { useActivitiesStore } from '@/store/activities'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-import { convertGweiToEth } from '@/utils/gweiToEth'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type SendNftProps = {
@@ -42,7 +37,6 @@ const userStore = useUserStore()
 const activitiesStore = useActivitiesStore()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
-const chainId = Number(rpcStore.selectedChainId)
 const router = useRouter()
 
 const recipientWalletAddress = ref('')
@@ -59,18 +53,12 @@ const quantity = ref(1)
 const isQuantityFocused = ref(false)
 
 watch(gas, () => {
-  if (gasFeeInEth.value) {
-    gasFeeInEth.value = ethers.utils
-      .formatEther(
-        ethers.utils.parseUnits(
-          `${
-            Number(gas.value?.maxFeePerGas) +
-            Number(gas.value?.maxPriorityFeePerGas)
-          }`,
-          'gwei'
-        )
-      )
-      .toString()
+  if (gas.value) {
+    const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+      gas.value.maxPriorityFeePerGas || 1.5
+    )
+    const maxFeeInWei = maxFee.mul(1e9)
+    gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
   }
 })
 
@@ -91,10 +79,6 @@ onMounted(async () => {
   showLoader('Loading...')
   try {
     await fetchBaseFee()
-    if (GAS_AVAILABLE_CHAIN_IDS.includes(chainId)) {
-      await fetchGasSliderValues()
-      gasSliderPoll = setInterval(fetchGasSliderValues, 2000)
-    }
     baseFeePoll = setInterval(fetchBaseFee, 2000)
     const accountHandler = getRequestHandler().getAccountHandler()
     estimatedGas.value = (
@@ -122,12 +106,7 @@ onUnmounted(() => {
 async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
-  baseFee.value = ethers.utils.formatUnits(baseGasPrice, 'gwei')
-}
-
-async function fetchGasSliderValues() {
-  const data = await getGasPrice(chainId)
-  gasPrices.value = data
+  baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
 }
 
 function clearForm() {
@@ -144,15 +123,14 @@ async function handleSendToken() {
   showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
-    const gasFees = ethers.utils
-      .parseUnits(
-        `${
-          Number(gas.value?.maxFeePerGas) +
-          Number(gas.value?.maxPriorityFeePerGas)
-        }`,
-        'gwei'
+    let gasFees = '0x1'
+    if (gas.value) {
+      const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+        gas.value.maxPriorityFeePerGas || 1.5
       )
-      .toHexString()
+      const maxFeeInWei = maxFee.mul(1e9)
+      gasFees = maxFeeInWei.toHexadecimal()
+    }
 
     const txHash = await accountHandler.sendNft(
       props.type,
@@ -165,7 +143,7 @@ async function handleSendToken() {
     )
     const nft = {
       ...props,
-    }
+    } as NFT
     nft.attributes = props.attributes ? JSON.parse(props.attributes) : []
     await activitiesStore.fetchAndSaveNFTActivityFromHash({
       chainId: rpcStore.selectedRpcConfig?.chainId as string,
@@ -213,22 +191,16 @@ async function handleShowPreview() {
           1
         )
       ).toString()
+      const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+        gas.value.maxPriorityFeePerGas || 1.5
+      )
+      const maxFeeInWei = maxFee.mul(1e9)
+      gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+      showPreview.value = true
     } catch (e) {
       console.error({ e })
       toast.error('Cannot estimate gas fee. Please try again later.')
     } finally {
-      gasFeeInEth.value = ethers.utils
-        .formatEther(
-          ethers.utils.parseUnits(
-            `${
-              Number(gas.value?.maxFeePerGas) +
-              Number(gas.value?.maxPriorityFeePerGas)
-            }`,
-            'gwei'
-          )
-        )
-        .toString()
-      showPreview.value = true
       hideLoader()
     }
   } else {
