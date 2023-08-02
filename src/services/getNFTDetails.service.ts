@@ -17,6 +17,7 @@ async function getNFTDetails(tokenUri: string, tokenId: string) {
     url = tokenUri
   }
 
+  if (!url) return null
   try {
     return (await axios.get(url)).data
   } catch (e) {

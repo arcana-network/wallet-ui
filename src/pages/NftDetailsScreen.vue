@@ -122,7 +122,7 @@ function handleClose() {
                 <div
                   v-for="attribute in nftAttributes"
                   :key="`${attribute.trait_type}-${attribute.value}`"
-                  class="rounded-lg py-2 px-3 flex flex-col bg-gray-200"
+                  class="rounded-lg py-2 px-3 flex flex-col border border-solid border-gray-200 dark:bg-gray-200"
                   :title="JSON.stringify(attribute)"
                 >
                   <div class="text-xs text-gray-100 font-normal">
