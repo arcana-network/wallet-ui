@@ -80,6 +80,7 @@ function isString(value: any) {
 
 <style>
 .json-viewer {
+  display: flex;
   font-size: 10px;
 }
 
