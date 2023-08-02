@@ -57,8 +57,8 @@ watch(gas, () => {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
       gas.value.maxPriorityFeePerGas || 1.5
     )
-    const maxFeeInWei = maxFee.mul(1e9)
-    gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+    const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+    gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
   }
 })
 
@@ -106,7 +106,7 @@ onUnmounted(() => {
 async function fetchBaseFee() {
   const accountHandler = getRequestHandler().getAccountHandler()
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
-  baseFee.value = new Decimal(baseGasPrice).div(1e9).toString()
+  baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
 }
 
 function clearForm() {
@@ -128,7 +128,7 @@ async function handleSendToken() {
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
         gas.value.maxPriorityFeePerGas || 1.5
       )
-      const maxFeeInWei = maxFee.mul(1e9)
+      const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
       gasFees = maxFeeInWei.toHexadecimal()
     }
 
@@ -194,8 +194,8 @@ async function handleShowPreview() {
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
         gas.value.maxPriorityFeePerGas || 1.5
       )
-      const maxFeeInWei = maxFee.mul(1e9)
-      gasFeeInEth.value = maxFeeInWei.div(1e18).toString()
+      const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+      gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
       showPreview.value = true
     } catch (e) {
       console.error({ e })
