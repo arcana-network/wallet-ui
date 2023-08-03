@@ -86,7 +86,7 @@ onMounted(async () => {
         props.type,
         props.address,
         userStore.walletAddress,
-        recipientWalletAddress.value,
+        userStore.walletAddress,
         props.tokenId,
         1000
       )
