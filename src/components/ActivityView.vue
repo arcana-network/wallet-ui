@@ -296,6 +296,9 @@ function canShowDropdown(activity: Activity) {
               <img
                 v-if="activity.address.to"
                 src="@/assets/images/arrow-right.svg"
+                :style="{
+                  filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+                }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">To</span>
