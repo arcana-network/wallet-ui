@@ -55,7 +55,7 @@ async function validateAndPopulateContractForNft({
     result.error = 'Required params missing'
     return result
   }
-  const nftDB = await NFTDB.create(getStorage().local, walletAddress)
+  const nftDB = await NFTDB.create(getStorage().local, walletAddress, true)
   const nfts = nftDB.getNFTs(Number(chainId))
 
   if (isNftInDB(nfts, nftContract)) {

@@ -195,16 +195,6 @@ function canShowDropdown(activity: Activity) {
             <span class="whitespace-nowrap">{{
               dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
-            <!-- <span>Status:</span>
-            <span
-              :class="
-                activity.status === 'Success'
-                  ? 'color-state-green'
-                  : 'color-state-yellow'
-              "
-            >
-              {{ activity.status }}
-            </span> -->
           </div>
         </div>
         <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
@@ -213,8 +203,8 @@ function canShowDropdown(activity: Activity) {
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :class="
               activity.operation === 'Receive'
-                ? 'color-state-green'
-                : 'color-state-red'
+                ? 'text-green-100'
+                : 'text-red-100'
             "
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
             >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
@@ -225,8 +215,8 @@ function canShowDropdown(activity: Activity) {
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :class="
               activity.operation === 'Receive'
-                ? 'color-state-green'
-                : 'color-state-red'
+                ? 'text-green-100'
+                : 'text-red-100'
             "
             :title="`${ethers.utils.formatEther(activity.transaction.amount)} ${
               rpcStore.currency
@@ -242,6 +232,15 @@ function canShowDropdown(activity: Activity) {
               calculateCurrencyValue(activity.transaction.amount).currency
             }}</span
           >
+          <span
+            class="text-sm"
+            :class="{
+              'text-green-100': activity.status === 'Success',
+              'text-yellow-100': activity.status === 'Pending',
+            }"
+          >
+            {{ activity.status }}
+          </span>
         </div>
       </div>
       <div
@@ -354,8 +353,8 @@ function canShowDropdown(activity: Activity) {
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                   :class="
                     activity.operation === 'Receive'
-                      ? 'color-state-green'
-                      : 'color-state-red'
+                      ? 'text-green-100'
+                      : 'text-red-100'
                   "
                   :title="`${ethers.utils.formatEther(
                     calculateTotal(activity)

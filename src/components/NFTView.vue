@@ -32,7 +32,7 @@ const loader = reactive({
 
 async function getNFTAssets() {
   loader.show = true
-  nftDB = await NFTDB.create(storage.local, userStore.walletAddress)
+  nftDB = await NFTDB.create(storage.local, userStore.walletAddress, true)
   nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
   loader.show = false
 }

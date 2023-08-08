@@ -5,6 +5,10 @@ import { useToast } from 'vue-toastification'
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
+import {
+  setRequestHandler,
+  getRequestHandler,
+} from '@/utils/requestHandlerSingleton'
 
 const emit = defineEmits(['close'])
 const toast = useToast()
@@ -16,7 +20,11 @@ const showAddNetworkModal = ref(false)
 watch(
   () => selectedRPCConfig.value,
   () => {
-    rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
+    if (selectedRPCConfig.value) {
+      rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
+      const requestHandler = getRequestHandler()
+      requestHandler.setRpcConfig(selectedRPCConfig.value)
+    }
     emit('close')
   }
 )
