@@ -134,7 +134,7 @@ async function handleSendToken() {
     toast.error('Please enter a valid wallet address')
     return
   }
-  if (props.type === 'erc1155' && (!quantity.value || quantity.value === 0)) {
+  if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
     toast.error('Please enter a valid quantity')
     return
   }
@@ -214,6 +214,20 @@ async function handleShowPreview() {
       maxPriorityFeePerGas: String(4),
       gasLimit: 0,
     }
+  }
+  if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
+    toast.error(
+      `You don't own enough NFTs to send ${quantity.value} NFTs. You can send ${props.balance} NFTs at most.`
+    )
+    return
+  }
+  if (!recipientWalletAddress.value) {
+    toast.error('Please enter a valid wallet address')
+    return
+  }
+  if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
+    toast.error('Please enter a valid quantity')
+    return
   }
   if (recipientWalletAddress.value && gas.value) {
     showLoader('Loading preview...')
