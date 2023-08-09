@@ -8,12 +8,14 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
 import { type NFTContractType, type NFT } from '@/models/NFT'
+import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { getStorage } from '@/utils/storageWrapper'
 
 type SendNftProps = {
   type: NFTContractType
@@ -26,6 +28,7 @@ type SendNftProps = {
   animationUrl?: string
   attributes?: string
   balance?: number
+  tokenUrl: string
 }
 
 const emit = defineEmits(['close'])
@@ -38,6 +41,7 @@ const activitiesStore = useActivitiesStore()
 const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const router = useRouter()
+const storage = getStorage()
 
 const recipientWalletAddress = ref('')
 const gas: Ref<EIP1559GasFee | null> = ref(null)
@@ -120,6 +124,20 @@ function setHexPrefix(value: string) {
 }
 
 async function handleSendToken() {
+  if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
+    toast.error(
+      `You don't own enough NFTs to send ${quantity.value} NFTs. You can send ${props.balance} NFTs at most.`
+    )
+    return
+  }
+  if (!recipientWalletAddress.value) {
+    toast.error('Please enter a valid wallet address')
+    return
+  }
+  if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
+    toast.error('Please enter a valid quantity')
+    return
+  }
   showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
@@ -138,8 +156,9 @@ async function handleSendToken() {
       userStore.walletAddress,
       setHexPrefix(recipientWalletAddress.value),
       props.tokenId,
-      1,
-      gasFees
+      quantity.value || 1,
+      gasFees,
+      estimatedGas.value
     )
     const nft = {
       ...props,
@@ -151,8 +170,27 @@ async function handleSendToken() {
       nft,
       recipientAddress: setHexPrefix(recipientWalletAddress.value),
     })
-    router.push({ name: 'Nfts' })
     toast.success('Tokens sent Successfully')
+    const nftDb = await NFTDB.create(storage.local, userStore.walletAddress)
+    if (props.type === 'erc1155') {
+      nftDb.updateNFT(
+        {
+          ...props,
+          balance: props.balance ? props.balance - quantity.value : undefined,
+          attributes: props.attributes ? JSON.parse(props.attributes) : [],
+        },
+        Number(rpcStore.selectedRpcConfig?.chainId)
+      )
+    } else {
+      nftDb.removeNFT(
+        {
+          ...props,
+          attributes: props.attributes ? JSON.parse(props.attributes) : [],
+        },
+        Number(rpcStore.selectedRpcConfig?.chainId)
+      )
+    }
+    router.push({ name: 'Nfts' })
   } catch (err: any) {
     if (err && err.reason) {
       toast.error(err.reason)
@@ -177,6 +215,20 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
+  if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
+    toast.error(
+      `You don't own enough NFTs to send ${quantity.value} NFTs. You can send ${props.balance} NFTs at most.`
+    )
+    return
+  }
+  if (!recipientWalletAddress.value) {
+    toast.error('Please enter a valid wallet address')
+    return
+  }
+  if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
+    toast.error('Please enter a valid quantity')
+    return
+  }
   if (recipientWalletAddress.value && gas.value) {
     showLoader('Loading preview...')
     try {
@@ -188,7 +240,7 @@ async function handleShowPreview() {
           userStore.walletAddress,
           recipientWalletAddress.value,
           props.tokenId,
-          1
+          quantity.value || 1
         )
       ).toString()
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
@@ -207,6 +259,13 @@ async function handleShowPreview() {
     toast.error('Please fill all values')
   }
 }
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'Nfts' })
+  }
+)
 </script>
 
 <template>

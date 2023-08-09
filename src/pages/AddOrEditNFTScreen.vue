@@ -215,6 +215,13 @@ watch(
     }
   }
 )
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'Nfts' })
+  }
+)
 </script>
 
 <template>

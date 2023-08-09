@@ -61,16 +61,26 @@ class AccountHandler {
     contractAddress,
     recipientAddress,
     amount,
-    gasFees
+    gasPrice,
+    gasLimit
   ) => {
     const abi = [
       'function transfer(address recipient, uint256 amount) returns (bool)',
     ]
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    const tx = await contract.functions.transfer(recipientAddress, amount, {
-      gasPrice: gasFees,
-    })
+    const payload = {} as any
+    if (gasPrice) {
+      payload.gasPrice = gasPrice
+    }
+    if (gasLimit) {
+      payload.gasLimit = gasLimit
+    }
+    const tx = await contract.functions.transfer(
+      recipientAddress,
+      amount,
+      payload
+    )
     return tx.hash
   }
 
@@ -84,7 +94,11 @@ class AccountHandler {
     ]
     const signer = this.wallet.connect(this.provider)
     const contract = new ethers.Contract(contractAddress, abi, signer)
-    return await contract.estimateGas.transfer(recipientAddress, amount)
+    const gasLimit = await contract.estimateGas.transfer(
+      recipientAddress,
+      amount
+    )
+    return Number(gasLimit) * 2
   }
 
   sendNft = async (
@@ -94,9 +108,17 @@ class AccountHandler {
     to: string,
     tokenId: string,
     amount: number,
-    gasFees: string
+    gasPrice: string,
+    gasLimit?: string | number
   ) => {
     const signer = this.wallet.connect(this.provider)
+    const payload = {} as any
+    if (gasPrice) {
+      payload.gasPrice = gasPrice
+    }
+    if (gasLimit) {
+      payload.gasLimit = gasLimit
+    }
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
       const hexAmount = new Decimal(amount).toHexadecimal()
@@ -105,12 +127,13 @@ class AccountHandler {
         to,
         tokenId,
         hexAmount,
-        gasFees
+        '0x',
+        payload
       )
       return tx.hash
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      const tx = await contract.transferFrom(from, to, tokenId)
+      const tx = await contract.transferFrom(from, to, tokenId, payload)
       return tx.hash
     }
   }
@@ -127,16 +150,22 @@ class AccountHandler {
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
       const hexAmount = new Decimal(amount).toHexadecimal()
-      return await contract.estimateGas.safeTransferFrom(
+      const gasLimit = await contract.estimateGas.safeTransferFrom(
         from,
         to,
         tokenId,
         hexAmount,
         '0x'
       )
+      return Number(gasLimit) * 2
     } else {
       const contract = new ethers.Contract(contractAddress, erc721abi, signer)
-      return await contract.estimateGas.transferFrom(from, to, tokenId)
+      const gasLimit = await contract.estimateGas.transferFrom(
+        from,
+        to,
+        tokenId
+      )
+      return Number(gasLimit) * 2
     }
   }
 

@@ -296,7 +296,8 @@ async function addToken(request, keeper) {
     const { nft } = await validateAddNftParams(ercType, params)
     const nftDB = await NFTDB.create(
       getStorage().local,
-      userStore.walletAddress
+      userStore.walletAddress,
+      true
     )
     nftDB.addNFT(nft, Number(rpcStore.selectedChainId))
     keeper.reply(request.method, {

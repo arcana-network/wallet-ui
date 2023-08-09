@@ -191,6 +191,7 @@ async function handleSendToken() {
       if (gasFees) {
         payload.gasPrice = gasFees
       }
+      payload.gasLimit = gas.value?.gasLimit || estimatedGas.value
 
       const txHash = await accountHandler.sendTransaction(
         payload,
@@ -213,7 +214,8 @@ async function handleSendToken() {
         tokenInfo?.address,
         setHexPrefix(recipientWalletAddress.value),
         sendAmount,
-        gasFees
+        gasFees,
+        estimatedGas.value
       )
       activitiesStore.fetchAndSaveActivityFromHash({
         chainId: rpcStore.selectedRpcConfig?.chainId,
@@ -302,6 +304,13 @@ async function handleShowPreview() {
 function handleTokenChange(e) {
   selectedToken.value = JSON.parse(e.target.value)
 }
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'home' })
+  }
+)
 </script>
 
 <template>
