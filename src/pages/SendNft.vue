@@ -130,6 +130,14 @@ async function handleSendToken() {
     )
     return
   }
+  if (!recipientWalletAddress.value) {
+    toast.error('Please enter a valid wallet address')
+    return
+  }
+  if (props.type === 'erc1155' && (!quantity.value || quantity.value === 0)) {
+    toast.error('Please enter a valid quantity')
+    return
+  }
   showLoader('Sending...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
