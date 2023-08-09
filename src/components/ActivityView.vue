@@ -201,11 +201,6 @@ function canShowDropdown(activity: Activity) {
           <span
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :class="
-              activity.operation === 'Receive'
-                ? 'text-green-100'
-                : 'text-red-100'
-            "
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
             >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
             {{ activity.customToken.symbol }}</span
@@ -213,11 +208,6 @@ function canShowDropdown(activity: Activity) {
           <span
             v-else
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :class="
-              activity.operation === 'Receive'
-                ? 'text-green-100'
-                : 'text-red-100'
-            "
             :title="`${ethers.utils.formatEther(activity.transaction.amount)} ${
               rpcStore.currency
             }`"
@@ -351,11 +341,6 @@ function canShowDropdown(activity: Activity) {
                 <span>Total:</span>
                 <span
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :class="
-                    activity.operation === 'Receive'
-                      ? 'text-green-100'
-                      : 'text-red-100'
-                  "
                   :title="`${ethers.utils.formatEther(
                     calculateTotal(activity)
                   )} ${rpcStore.currency}`"
