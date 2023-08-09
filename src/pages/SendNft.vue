@@ -150,7 +150,7 @@ async function handleSendToken() {
       props.tokenId,
       quantity.value || 1,
       gasFees,
-      gas.value?.gasLimit || estimatedGas.value
+      estimatedGas.value
     )
     const nft = {
       ...props,

@@ -215,7 +215,7 @@ async function handleSendToken() {
         setHexPrefix(recipientWalletAddress.value),
         sendAmount,
         gasFees,
-        gas.value?.gasLimit || estimatedGas.value
+        estimatedGas.value
       )
       activitiesStore.fetchAndSaveActivityFromHash({
         chainId: rpcStore.selectedRpcConfig?.chainId,
