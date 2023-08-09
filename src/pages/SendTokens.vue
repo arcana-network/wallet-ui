@@ -304,6 +304,13 @@ async function handleShowPreview() {
 function handleTokenChange(e) {
   selectedToken.value = JSON.parse(e.target.value)
 }
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'home' })
+  }
+)
 </script>
 
 <template>

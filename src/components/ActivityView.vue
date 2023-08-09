@@ -22,7 +22,7 @@ const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
-const chainId = rpcStore.selectedRpcConfig?.chainId
+const chainId = computed(() => rpcStore.selectedRpcConfig?.chainId)
 
 type ActivityView = Activity & {
   isExpanded?: boolean
@@ -42,7 +42,7 @@ const handleExplorerClick = async (e: MouseEvent) => {
 const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
 
 const activities: ComputedRef<ActivityView[]> = computed(() => {
-  const activitiesInStore = activitiesStore.activities(chainId as string)
+  const activitiesInStore = activitiesStore.activities(chainId.value as string)
   if (!activitiesInStore) {
     return []
   }
@@ -215,7 +215,7 @@ function canShowDropdown(activity: Activity) {
             {{ rpcStore.currency }}</span
           >
           <span
-            v-if="!activity.customToken"
+            v-if="!activity.customToken && !activity.nft"
             class="flex text-xs text-secondary text-right"
             >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
             {{

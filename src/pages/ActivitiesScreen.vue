@@ -42,10 +42,10 @@ const requestStore = useRequestStore()
 const showFilter = ref(false)
 const selectedFilter = ref(filters[0].value)
 const activitiesStore = useActivitiesStore()
-const chainId = rpcStore.selectedRpcConfig?.chainId
+const chainId = computed(() => rpcStore.selectedRpcConfig?.chainId)
 
 const activities: ComputedRef<Activity[]> = computed(() => {
-  const activitiesInStore = activitiesStore.activities(chainId as string)
+  const activitiesInStore = activitiesStore.activities(chainId.value as string)
   if (!activitiesInStore) {
     return []
   }
