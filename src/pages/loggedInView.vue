@@ -127,7 +127,7 @@ function initKeeper() {
   if (!requestHandlerExists()) {
     const accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.selectedRpcConfig.rpcUrls[0]
+      rpcStore.selectedRpcConfig?.rpcUrls[0]
     )
     setRequestHandler(accountHandler)
   }

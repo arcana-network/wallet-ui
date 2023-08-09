@@ -211,11 +211,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         customToken,
       }
       this.saveActivity(chainId, activity)
-      if (!remoteTransaction.blockNumber) {
+      if (!remoteTransaction?.blockNumber) {
         const txInterval = setInterval(async () => {
           const remoteTransaction =
             await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction && remoteTransaction.blockNumber && chainId) {
+          if (remoteTransaction?.blockNumber && chainId) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }
@@ -260,11 +260,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         },
       }
       this.saveActivity(chainId, activity)
-      if (!remoteTransaction.blockNumber) {
+      if (!remoteTransaction?.blockNumber) {
         const txInterval = setInterval(async () => {
           const remoteTransaction =
             await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction.blockNumber) {
+          if (remoteTransaction?.blockNumber) {
             this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
             clearInterval(txInterval)
           }

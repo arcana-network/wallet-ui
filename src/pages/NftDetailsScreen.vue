@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, ref, type ComputedRef, type Ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import type { NFTContractType } from '@/models/NFT'
 import { useModalStore } from '@/store/modal'
+import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
 
 type NftDetails = {
@@ -32,6 +33,7 @@ const showModal: Ref<ModalState> = ref(false)
 const modalStore = useModalStore()
 
 const props = route.query as NftDetails
+const rpcStore = useRpcStore()
 
 const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
   if (props.attributes) {
@@ -48,6 +50,13 @@ function handleClose() {
   modalStore.setShowModal(false)
   showModal.value = false
 }
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'Nfts' })
+  }
+)
 </script>
 
 <template>
@@ -122,7 +131,7 @@ function handleClose() {
                 <div
                   v-for="attribute in nftAttributes"
                   :key="`${attribute.trait_type}-${attribute.value}`"
-                  class="rounded-lg py-2 px-3 flex flex-col bg-gray-200"
+                  class="rounded-lg py-2 px-3 flex flex-col border border-solid border-gray-200 dark:bg-gray-200"
                   :title="JSON.stringify(attribute)"
                 >
                   <div class="text-xs text-gray-100 font-normal">
