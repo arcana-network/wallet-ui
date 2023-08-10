@@ -92,8 +92,6 @@ async function init() {
         userInfo.privateKey = info.privateKey
       }
 
-      const uuid = genUUID()
-      // {
       try {
         const loginToken = await getLoginToken({
           provider: info.loginType,
@@ -111,9 +109,10 @@ async function init() {
           await postLoginCleanup()
         }
       } catch (e) {
-        console.log('could not get token')
+        // TODO: Remove log here
+        console.log('could not get token', e)
       }
-      // }
+      const uuid = genUUID()
 
       // For wallet usage purpose and standalone apps
       storage.session.setUserInfo(userInfo)
@@ -145,7 +144,6 @@ async function init() {
       return
     }
   } catch (e) {
-    console.log({ e })
     if (e instanceof Error) {
       await reportError(e.message)
     }
