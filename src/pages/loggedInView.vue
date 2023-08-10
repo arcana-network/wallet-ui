@@ -205,6 +205,7 @@ function getUserInfo() {
   const accountDetails = getRequestHandler().getAccountHandler().getAccount()
   return {
     loginType: userStore.loginType,
+    loginToken: userStore.token,
     ...userStore.info,
     ...accountDetails,
   }

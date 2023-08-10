@@ -96,6 +96,7 @@ const initPasswordlessLogin = async (email: string) => {
         picture: '',
         name: '',
       },
+      token: '',
       privateKey,
       pk,
       hasMfa,

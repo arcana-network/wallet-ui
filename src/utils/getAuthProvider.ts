@@ -10,14 +10,15 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
-export async function getAuthProvider(
+async function getAuthProvider(
   appId: string,
-  shouldVerifyState = false
+  shouldVerifyState = false,
+  autoClean = true
 ): Promise<AuthProvider> {
   if (!authProvider) {
     const stor = getStorage()
 
-    authProvider = await AuthProvider.init({
+    const params: InitParams = {
       appId: appId,
       redirectUri: `${AUTH_URL}/verify/${appId}/`,
       network: AUTH_NETWORK,
@@ -26,7 +27,13 @@ export async function getAuthProvider(
       debug: true,
       shouldVerifyState,
       useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
-    })
+    }
+    if (!autoClean) {
+      authProvider = new AuthProvider(params)
+      await authProvider.init()
+    } else {
+      authProvider = await AuthProvider.init(params)
+    }
     const appStore = useAppStore()
     // TODO find a comprehensive solution to this
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -36,3 +43,5 @@ export async function getAuthProvider(
   // authProvider.shouldVerifyState = shouldVerifyState
   return authProvider
 }
+
+export { getAuthProvider }
