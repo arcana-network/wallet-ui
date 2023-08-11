@@ -29,7 +29,10 @@ async function getAuthProvider(
       useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
     }
     if (!autoClean) {
-      authProvider = new AuthProvider(params)
+      authProvider = new AuthProvider({
+        ...params,
+        revokeTokenPostLogin: false,
+      })
       await authProvider.init()
     } else {
       authProvider = await AuthProvider.init(params)
