@@ -1,4 +1,5 @@
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import axios from 'axios'
 
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
 
@@ -77,38 +78,32 @@ class PasswordlessLoginHandler {
   }
 
   async checkCredentialSet() {
-    const url = new URL(`/api/v2/cred/${this.sessionId}`, OAUTH_URL)
-    url.searchParams.append('sig', this.createSignature('get'))
-    const res = await fetch(url.toString(), {
-      method: 'GET',
-    })
+    try {
+      const url = new URL(`/api/v2/cred/${this.sessionId}`, OAUTH_URL)
+      url.searchParams.append('sig', this.createSignature('get'))
 
-    if (res.status >= 300) {
+      const res = await axios.get<{ done: boolean; ciphertext: string }>(
+        url.toString()
+      )
+      if (!res.data.done) {
+        return
+      }
+
+      clearTimeout(this.timer)
+      return res.data.ciphertext
+    } catch (e) {
       clearTimeout(this.timer)
       throw new Error('Could not verify credentials')
     }
-    const data: { done: boolean; ciphertext: string } = await res.json()
-    if (!data.done) {
-      return
-    }
-
-    clearTimeout(this.timer)
-    return data.ciphertext
   }
 
   async createCredential() {
     const url = new URL(`/api/v2/cred`, OAUTH_URL)
-    const res = await fetch(url.toString(), {
-      method: 'POST',
-      body: JSON.stringify({
-        publicKey: this.key.publicKey,
-        sessionId: this.sessionId,
-        signature: this.createSignature('create'),
-      }),
+    await axios.post(url.toString(), {
+      publicKey: this.key.publicKey,
+      sessionId: this.sessionId,
+      signature: this.createSignature('create'),
     })
-    if (res.status >= 400) {
-      throw new Error('Could not start login')
-    }
   }
 
   cancel() {
@@ -122,32 +117,17 @@ const setCredential = async (
   ciphertext: string
 ) => {
   const url = new URL(`/api/cred`, OAUTH_URL)
-
-  const res = await fetch(url.toString(), {
-    method: 'PUT',
-    body: JSON.stringify({
-      sessionId,
-      signature,
-      ciphertext,
-    }),
+  await axios.put(url.toString(), {
+    sessionId,
+    signature,
+    ciphertext,
   })
-  if (res.status >= 400) {
-    throw new Error('Could not update credentials')
-  }
 }
 
 const getCredentialKey = async (sessionId: string) => {
   const url = new URL(`/api/cred/key/${sessionId}`, OAUTH_URL)
-
-  const res = await fetch(url.toString(), {
-    method: 'GET',
-  })
-  if (res.status >= 400) {
-    throw new Error('Could not fetch credential key')
-  }
-
-  const data = await res.json()
-  return data.publicKey
+  const res = await axios.get<{ publicKey: string }>(url.toString())
+  return res.data.publicKey
 }
 
 const getPasswordlessState = (sessionId: string, setToken: string) => {
