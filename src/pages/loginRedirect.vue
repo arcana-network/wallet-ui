@@ -105,12 +105,13 @@ async function init() {
         })
 
         userInfo.token = loginToken
-        if (postLoginCleanup) {
-          await postLoginCleanup()
-        }
       } catch (e) {
         // TODO: Remove log here
         console.log('could not get token', e)
+      } finally {
+        if (postLoginCleanup) {
+          await postLoginCleanup()
+        }
       }
       const uuid = genUUID()
 
