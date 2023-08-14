@@ -20,7 +20,10 @@ import {
   getPasswordlessState,
 } from '@/utils/PasswordlessLoginHandler'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
-import { isDisposableEmail } from '@/utils/validators'
+import {
+  DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE,
+  isDisposableEmail,
+} from '@/utils/validators'
 
 const route = useRoute()
 const router = useRouter()
@@ -74,7 +77,7 @@ const initPasswordlessLogin = async (email: string) => {
   }
   const provider = await getAuthProvider(appId as string)
   if (await isDisposableEmail(provider, email)) {
-    return Promise.reject('disposable email is not allowed')
+    return Promise.reject(DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE)
   }
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
@@ -298,7 +301,7 @@ async function init() {
 async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(app.id)
   if (await isDisposableEmail(authProvider, id)) {
-    return Promise.reject("Can't use disposable email")
+    return Promise.reject(DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE)
   }
   return await authProvider.getPublicKey({ id, verifier })
 }

@@ -11,4 +11,6 @@ async function isDisposableEmail(authProvider: AuthProvider, email: string) {
   return res.data.isDisposable
 }
 
-export { isDisposableEmail }
+const DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE =
+  'Disposable email addresses are not allowed. Please use a different email address.'
+export { isDisposableEmail, DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE }
