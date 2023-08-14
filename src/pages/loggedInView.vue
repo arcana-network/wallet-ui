@@ -34,10 +34,6 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 import { getStorage } from '@/utils/storageWrapper'
-import {
-  DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE,
-  isDisposableEmail,
-} from '@/utils/validators'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -284,9 +280,6 @@ async function getRpcConfigFromParent() {
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(appStore.id)
-  if (await isDisposableEmail(authProvider, id)) {
-    return Promise.reject(DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE)
-  }
   return await authProvider.getPublicKey({ id, verifier })
 }
 
