@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { AuthProvider } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import axios from 'axios'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -32,6 +34,10 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 import { getStorage } from '@/utils/storageWrapper'
+import {
+  DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE,
+  isDisposableEmail,
+} from '@/utils/validators'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -277,7 +283,10 @@ async function getRpcConfigFromParent() {
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
-  const authProvider = await getAuthProvider(appStore.id as string)
+  const authProvider = await getAuthProvider(appStore.id)
+  if (await isDisposableEmail(authProvider, id)) {
+    return Promise.reject(DISPOSABLE_EMAIL_NOT_ALLOWED_MESSAGE)
+  }
   return await authProvider.getPublicKey({ id, verifier })
 }
 
