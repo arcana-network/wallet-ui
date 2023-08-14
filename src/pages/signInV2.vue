@@ -76,6 +76,10 @@ const initPasswordlessLogin = async (email: string) => {
   }
   const provider = await getAuthProvider(appId as string)
 
+  if (await isDisposableEmail(provider, email)) {
+    return Promise.reject('disposable email is not allowed')
+  }
+
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
   const state = getPasswordlessState(params.sessionId, params.setToken)
