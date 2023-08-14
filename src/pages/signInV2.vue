@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
@@ -20,6 +21,7 @@ import {
   PasswordlessLoginHandler,
 } from '@/utils/PasswordlessLoginHandler'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
+import { isDisposableEmail } from '@/utils/validators'
 
 const route = useRoute()
 const router = useRouter()
@@ -341,8 +343,11 @@ async function init() {
   }
 }
 
-async function handleGetPublicKey(id, verifier) {
+async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(app.id)
+  if (await isDisposableEmail(authProvider, id)) {
+    return Promise.reject("Can't use disposable email")
+  }
   return await authProvider.getPublicKey({ id, verifier })
 }
 
