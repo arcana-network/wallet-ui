@@ -152,6 +152,7 @@ async function handlePasswordlessLoginV2(params: HandleLoginParams) {
     pk: params.userInfo.pk,
     sessionID: params.sessionID,
     expiry: params.sessionExpiry,
+    token: params.userInfo.token,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
   if (params.userInfo.hasMfa) {
