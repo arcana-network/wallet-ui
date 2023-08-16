@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { AuthProvider } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import axios from 'axios'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -127,7 +129,7 @@ function initKeeper() {
   if (!requestHandlerExists()) {
     const accountHandler = new AccountHandler(
       userStore.privateKey,
-      rpcStore.selectedRpcConfig.rpcUrls[0]
+      rpcStore.selectedRpcConfig?.rpcUrls[0]
     )
     setRequestHandler(accountHandler)
   }
@@ -278,7 +280,7 @@ async function getRpcConfigFromParent() {
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
-  const authProvider = await getAuthProvider(appStore.id as string)
+  const authProvider = await getAuthProvider(appStore.id)
   return await authProvider.getPublicKey({ id, verifier })
 }
 

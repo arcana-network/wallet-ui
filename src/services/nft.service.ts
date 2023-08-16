@@ -51,80 +51,86 @@ class NFTDB {
   private readonly walletAddress: string
   public list: NFTItem[]
 
-  static async create(storage: LocalStorage, walletAddress: string) {
+  static async create(
+    storage: LocalStorage,
+    walletAddress: string,
+    fetchFreshData = false
+  ) {
     const nftsInStorage = storage.getNFTList(walletAddress)
-    const existingNfts = nftsInStorage.filter((nft) => !nft.autodetected)
-
-    try {
-      let npToken: null | boolean | string = null
-      while (npToken !== false) {
-        const resp = await axios({
-          method: 'POST',
-          baseURL: process.env.VUE_APP_ANKR_PREMIUM_API_URL,
-          url: '',
-          params: {
-            ankr_getNFTsByOwner: '',
-          },
-          data: {
-            id: 1,
-            jsonrpc: '2.0',
-            method: 'ankr_getNFTsByOwner',
+    let existingNfts = nftsInStorage
+    if (fetchFreshData) {
+      existingNfts = nftsInStorage.filter((nft) => !nft.autodetected)
+      try {
+        let npToken: null | boolean | string = null
+        while (npToken !== false) {
+          const resp = await axios({
+            method: 'POST',
+            baseURL: process.env.VUE_APP_ANKR_PREMIUM_API_URL,
+            url: '',
             params: {
-              blockchain: Array.from(ANKR_BLOCKCHAIN_TO_CHAIN_ID.keys()),
-              walletAddress,
-              pageSize: NFT_PAGE_SIZE,
-              pageToken:
-                npToken != null || npToken != false ? npToken : undefined,
+              ankr_getNFTsByOwner: '',
             },
-          },
-        })
-
-        const result = resp.data.result?.assets as AnkrNFT[]
-        for (const r of result) {
-          let contractType
-
-          switch (r.contractType) {
-            case 'ERC721':
-              contractType = 'erc721'
-              break
-            case 'ERC1155':
-              contractType = 'erc1155'
-              break
-            default:
-              continue
-          }
-          const chainId = ANKR_BLOCKCHAIN_TO_CHAIN_ID.get(r.blockchain)
-          if (chainId == null) {
-            continue
-          }
-
-          existingNfts.push({
-            type: contractType,
-            address: r.contractAddress,
-            tokenId: r.tokenId,
-            collectionName: r.collectionName,
-            name: r.name,
-            imageUrl: r.imageUrl,
-            attributes: r.traits?.map((k) => ({
-              trait: k.trait_type,
-              value: k.value,
-            })),
-            autodetected: true,
-            chainId,
-            tokenUrl: r.tokenUrl,
-            balance: r.quantity ? Number(r.quantity) : undefined,
+            data: {
+              id: 1,
+              jsonrpc: '2.0',
+              method: 'ankr_getNFTsByOwner',
+              params: {
+                blockchain: Array.from(ANKR_BLOCKCHAIN_TO_CHAIN_ID.keys()),
+                walletAddress,
+                pageSize: NFT_PAGE_SIZE,
+                pageToken:
+                  npToken != null || npToken != false ? npToken : undefined,
+              },
+            },
           })
-        }
-        npToken =
-          resp.data.result?.nextPageToken == ''
-            ? false
-            : resp.data.result.nextPageToken
-      }
-    } catch (e) {
-      console.error('Caught error while trying to get NFTs:', e)
-    }
 
-    storage.setNFTList(walletAddress, existingNfts)
+          const result = resp.data.result?.assets as AnkrNFT[]
+          for (const r of result) {
+            let contractType
+
+            switch (r.contractType) {
+              case 'ERC721':
+                contractType = 'erc721'
+                break
+              case 'ERC1155':
+                contractType = 'erc1155'
+                break
+              default:
+                continue
+            }
+            const chainId = ANKR_BLOCKCHAIN_TO_CHAIN_ID.get(r.blockchain)
+            if (chainId == null) {
+              continue
+            }
+
+            existingNfts.push({
+              type: contractType,
+              address: r.contractAddress,
+              tokenId: r.tokenId,
+              collectionName: r.collectionName,
+              name: r.name,
+              imageUrl: r.imageUrl,
+              attributes: r.traits?.map((k) => ({
+                trait: k.trait_type,
+                value: k.value,
+              })),
+              autodetected: true,
+              chainId,
+              tokenUrl: r.tokenUrl,
+              balance: r.quantity ? Number(r.quantity) : undefined,
+            })
+          }
+          npToken =
+            resp.data.result?.nextPageToken == ''
+              ? false
+              : resp.data.result.nextPageToken
+        }
+      } catch (e) {
+        console.error('Caught error while trying to get NFTs:', e)
+      }
+
+      storage.setNFTList(walletAddress, existingNfts)
+    }
 
     return new NFTDB(storage, walletAddress, existingNfts)
   }
@@ -169,7 +175,7 @@ class NFTDB {
   public updateNFT(item: NFT, chainId) {
     const act = this.list.find((x) => {
       return (
-        x.chainId === chainId &&
+        Number(x.chainId) === chainId &&
         x.address.toLowerCase() === item.address.toLowerCase() &&
         x.tokenId === item.tokenId
       )
@@ -186,7 +192,7 @@ class NFTDB {
   public removeNFT(item: NFT, chainId: number) {
     const index = this.list.findIndex((x) => {
       return (
-        x.chainId === chainId &&
+        Number(x.chainId) === chainId &&
         x.address.toLowerCase() === item.address.toLowerCase() &&
         x.tokenId === item.tokenId
       )

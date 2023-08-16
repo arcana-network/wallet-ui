@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
@@ -342,7 +343,7 @@ async function init() {
   }
 }
 
-async function handleGetPublicKey(id, verifier) {
+async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(app.id)
   return await authProvider.getPublicKey({ id, verifier })
 }

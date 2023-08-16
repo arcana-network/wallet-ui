@@ -296,7 +296,8 @@ async function addToken(request, keeper) {
     const { nft } = await validateAddNftParams(ercType, params)
     const nftDB = await NFTDB.create(
       getStorage().local,
-      userStore.walletAddress
+      userStore.walletAddress,
+      true
     )
     nftDB.addNFT(nft, Number(rpcStore.selectedChainId))
     keeper.reply(request.method, {
@@ -323,15 +324,29 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         const response = await keeper.request({ ...sanitizedRequest })
         await keeper.reply(request.method, response)
         if (response.error) {
-          if (response.error.data?.originalError) {
-            await showToast(
-              'error',
-              response.error.data.originalError?.error?.message ||
-                response.error.data.originalError?.code ||
-                'Something went wrong. Please try again'
-            )
+          if (response.error.code === 'INSUFFICIENT_FUNDS') {
+            showToast('error', 'Insufficient Gas to make this transaction.')
           } else {
-            await showToast('error', response.error)
+            if (response.error?.data?.originalError?.body) {
+              const body = response.error?.data?.originalError?.body
+              const errorBody =
+                typeof body === 'string'
+                  ? JSON.parse(response.error?.data?.originalError?.body)
+                  : body
+              if (errorBody?.error?.message) {
+                showToast('error', errorBody?.error?.message)
+              } else {
+                showToast('error', errorBody?.error || errorBody)
+              }
+            } else {
+              const displayError = (response.error?.data?.originalError?.error
+                ?.message ||
+                response.error?.data?.originalError?.reason ||
+                response.error?.data?.originalError?.code ||
+                response.error?.message ||
+                response.error) as string
+              showToast('error', displayError)
+            }
           }
           return
         } else {

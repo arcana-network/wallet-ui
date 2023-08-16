@@ -22,7 +22,7 @@ const props = defineProps<ActivityViewProps>()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
-const chainId = rpcStore.selectedRpcConfig?.chainId
+const chainId = computed(() => rpcStore.selectedRpcConfig?.chainId)
 
 type ActivityView = Activity & {
   isExpanded?: boolean
@@ -42,7 +42,7 @@ const handleExplorerClick = async (e: MouseEvent) => {
 const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
 
 const activities: ComputedRef<ActivityView[]> = computed(() => {
-  const activitiesInStore = activitiesStore.activities(chainId as string)
+  const activitiesInStore = activitiesStore.activities(chainId.value as string)
   if (!activitiesInStore) {
     return []
   }
@@ -195,27 +195,12 @@ function canShowDropdown(activity: Activity) {
             <span class="whitespace-nowrap">{{
               dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
-            <!-- <span>Status:</span>
-            <span
-              :class="
-                activity.status === 'Success'
-                  ? 'color-state-green'
-                  : 'color-state-yellow'
-              "
-            >
-              {{ activity.status }}
-            </span> -->
           </div>
         </div>
         <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
           <span
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :class="
-              activity.operation === 'Receive'
-                ? 'color-state-green'
-                : 'color-state-red'
-            "
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
             >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
             {{ activity.customToken.symbol }}</span
@@ -223,11 +208,6 @@ function canShowDropdown(activity: Activity) {
           <span
             v-else
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :class="
-              activity.operation === 'Receive'
-                ? 'color-state-green'
-                : 'color-state-red'
-            "
             :title="`${ethers.utils.formatEther(activity.transaction.amount)} ${
               rpcStore.currency
             }`"
@@ -235,13 +215,22 @@ function canShowDropdown(activity: Activity) {
             {{ rpcStore.currency }}</span
           >
           <span
-            v-if="!activity.customToken"
+            v-if="!activity.customToken && !activity.nft"
             class="flex text-xs text-secondary text-right"
             >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
             {{
               calculateCurrencyValue(activity.transaction.amount).currency
             }}</span
           >
+          <span
+            class="text-sm"
+            :class="{
+              'text-green-100': activity.status === 'Success',
+              'text-yellow-100': activity.status === 'Pending',
+            }"
+          >
+            {{ activity.status }}
+          </span>
         </div>
       </div>
       <div
@@ -296,6 +285,9 @@ function canShowDropdown(activity: Activity) {
               <img
                 v-if="activity.address.to"
                 src="@/assets/images/arrow-right.svg"
+                :style="{
+                  filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+                }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">To</span>
@@ -349,11 +341,6 @@ function canShowDropdown(activity: Activity) {
                 <span>Total:</span>
                 <span
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :class="
-                    activity.operation === 'Receive'
-                      ? 'color-state-green'
-                      : 'color-state-red'
-                  "
                   :title="`${ethers.utils.formatEther(
                     calculateTotal(activity)
                   )} ${rpcStore.currency}`"

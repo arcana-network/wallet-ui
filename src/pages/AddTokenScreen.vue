@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, watch, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -18,6 +19,7 @@ const isDisabled = reactive({
   symbol: false,
   decimals: false,
 })
+const router = useRouter()
 const modalStore = useModalStore()
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap)
   .map((address) => ({
@@ -151,6 +153,13 @@ watch(
       tokenContract.symbol = ''
       tokenContract.decimals = 0
     }
+  }
+)
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    router.replace({ name: 'home' })
   }
 )
 </script>
