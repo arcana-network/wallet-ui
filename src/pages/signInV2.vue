@@ -88,20 +88,23 @@ const initPasswordlessLogin = async (email: string) => {
     LoginState.passwordless.error = response.error ?? "Couldn't start login"
     throw new Error(response.error)
   }
-  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa, pk }) => {
-    storeUserInfoAndRedirect({
-      loginType: SocialLoginType.passwordless,
-      userInfo: {
-        email,
-        id: email,
-        picture: '',
-        name: '',
-      },
-      privateKey,
-      pk,
-      hasMfa,
+  passwordlessLoginHandler
+    .start()
+    .then(({ token, privateKey, email, hasMfa, pk }) => {
+      storeUserInfoAndRedirect({
+        loginType: SocialLoginType.passwordless,
+        userInfo: {
+          email,
+          id: email,
+          picture: '',
+          name: '',
+        },
+        token,
+        privateKey,
+        pk,
+        hasMfa,
+      })
     })
-  })
   return params
 }
 

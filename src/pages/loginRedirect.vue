@@ -6,7 +6,10 @@ import {
   decodeJSON,
 } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import axios from 'axios'
 import dayjs from 'dayjs'
+import { addHexPrefix } from 'ethereumjs-util'
+import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
@@ -51,12 +54,14 @@ async function init() {
       await verifyOpenerPage(state)
     }
 
-    const authProvider = await getAuthProvider(`${appId}`)
+    const authProvider = await getAuthProvider(`${appId}`, false, false)
+    const postLoginCleanup = await authProvider.checkRedirectMode()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
         userInfo: info.userInfo,
         loginType: info.loginType,
+        token: '',
         privateKey: '',
       }
       storage.session.setUserInfo(userInfo)
@@ -87,6 +92,27 @@ async function init() {
         userInfo.privateKey = info.privateKey
       }
 
+      try {
+        const loginToken = await getLoginToken({
+          provider: info.loginType,
+          token: info.token,
+          signerAddress: ethers.utils.computeAddress(
+            addHexPrefix(userInfo.privateKey)
+          ),
+          userID: userInfo.userInfo.id,
+          appID: appId,
+          privateKey: userInfo.privateKey,
+        })
+
+        userInfo.token = loginToken
+      } catch (e) {
+        // TODO: Remove log here
+        console.log('could not get token', e)
+      } finally {
+        if (postLoginCleanup) {
+          await postLoginCleanup()
+        }
+      }
       const uuid = genUUID()
 
       // For wallet usage purpose and standalone apps
@@ -124,6 +150,44 @@ async function init() {
     }
     await reportError(e as string)
   }
+}
+
+// eslint-disable-next-line no-undef
+const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
+
+async function getLoginToken({
+  provider,
+  token,
+  signerAddress,
+  userID,
+  appID,
+  privateKey,
+}) {
+  const wallet = new ethers.Wallet(privateKey)
+  const nonce = await getNonce(wallet.address)
+  const msg = [provider, token, nonce, signerAddress, userID, appID].join(':')
+  const signature = await wallet.signMessage(msg)
+  const url = new URL('/api/v2/loginToken', OAUTH_URL)
+
+  const res = await axios.post<{ token: string }>(url.toString(), {
+    provider,
+    token,
+    signature,
+    signerAddress,
+    userID,
+    appID,
+  })
+  if (res.status !== 200) {
+    throw new Error('Could not get login token')
+  }
+  return res.data.token
+}
+
+const getNonce = async (address: string) => {
+  const url = new URL('/api/v2/loginNonce', OAUTH_URL)
+  url.searchParams.append('address', address)
+  const res = await axios.get<{ nonce: number }>(url.toString())
+  return res.data.nonce
 }
 
 function cleanup() {
