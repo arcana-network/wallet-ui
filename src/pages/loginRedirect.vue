@@ -64,7 +64,7 @@ async function init() {
         token: '',
         privateKey: '',
       }
-      storage.session.setUserInfo(userInfo)
+      storage.session.setUserInfo(info)
       const exp = dayjs().add(1, 'day')
       getStorage().local.setPK({
         pk: info.privateKey,
