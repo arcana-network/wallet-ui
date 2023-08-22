@@ -6,7 +6,6 @@ import {
   decodeJSON,
 } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
-import axios from 'axios'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -20,6 +19,7 @@ import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getLoginToken } from '@/utils/loginToken'
 import {
   getStateFromUrl,
   handleLogin,
@@ -64,7 +64,7 @@ async function init() {
         token: '',
         privateKey: '',
       }
-      storage.session.setUserInfo(userInfo)
+      storage.session.setUserInfo(info)
       const exp = dayjs().add(1, 'day')
       getStorage().local.setPK({
         pk: info.privateKey,
@@ -106,7 +106,6 @@ async function init() {
 
         userInfo.token = loginToken
       } catch (e) {
-        // TODO: Remove log here
         console.log('could not get token', e)
       } finally {
         if (postLoginCleanup) {
@@ -150,44 +149,6 @@ async function init() {
     }
     await reportError(e as string)
   }
-}
-
-// eslint-disable-next-line no-undef
-const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
-
-async function getLoginToken({
-  provider,
-  token,
-  signerAddress,
-  userID,
-  appID,
-  privateKey,
-}) {
-  const wallet = new ethers.Wallet(privateKey)
-  const nonce = await getNonce(wallet.address)
-  const msg = [provider, token, nonce, signerAddress, userID, appID].join(':')
-  const signature = await wallet.signMessage(msg)
-  const url = new URL('/api/v2/loginToken', OAUTH_URL)
-
-  const res = await axios.post<{ token: string }>(url.toString(), {
-    provider,
-    token,
-    signature,
-    signerAddress,
-    userID,
-    appID,
-  })
-  if (res.status !== 200) {
-    throw new Error('Could not get login token')
-  }
-  return res.data.token
-}
-
-const getNonce = async (address: string) => {
-  const url = new URL('/api/v2/loginNonce', OAUTH_URL)
-  url.searchParams.append('address', address)
-  const res = await axios.get<{ nonce: number }>(url.toString())
-  return res.data.nonce
 }
 
 function cleanup() {
