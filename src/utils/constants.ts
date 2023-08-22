@@ -17,6 +17,11 @@ const GAS_PRICE_SPEED_MAP = {
 }
 const TOAST_TIME_OUT = 5000
 const SESSION_EXPIRY_MS = 30 * 60 * 1000
+
+const API = {
+  gateway: process.env.VUE_APP_WALLET_GATEWAY,
+}
+
 export {
   SESSION_EXPIRY_MS,
   DOCS_URL,
@@ -28,4 +33,5 @@ export {
   GAS_FEE_UNIT,
   GAS_PRICE_SPEED_MAP,
   TOAST_TIME_OUT,
+  API,
 }
