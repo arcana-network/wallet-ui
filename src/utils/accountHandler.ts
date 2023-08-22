@@ -17,12 +17,16 @@ import { ethers } from 'ethers'
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
+import { useRpcStore } from '@/store/rpc'
+import { scwInstance } from '@/utils/scw'
 import {
   MessageParams,
   TransactionParams,
   TypedMessageParams,
   createWalletMiddleware,
 } from '@/utils/walletMiddleware'
+
+const rpcStore = useRpcStore()
 
 class AccountHandler {
   wallet: ethers.Wallet
@@ -37,7 +41,7 @@ class AccountHandler {
   }
 
   getBalance() {
-    return this.provider.getBalance(this.wallet.address)
+    return this.provider.getBalance(this.getAddress()[0])
   }
   setProvider(url: string) {
     this.provider = new ethers.providers.StaticJsonRpcProvider(url)
@@ -55,6 +59,10 @@ class AccountHandler {
       processTransaction: this.sendTransactionWrapper,
       processDecryptMessage: this.decryptWrapper,
     })
+  }
+
+  getSigner() {
+    return this.wallet.connect(this.provider)
   }
 
   sendCustomToken = async (
@@ -209,10 +217,15 @@ class AccountHandler {
   }
 
   getAddress(): string[] {
-    return [this.wallet.address]
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const isGaslessConfigured = rpcStore.isGaslessConfigured
+    return [isGaslessConfigured ? scwInstance.scwAddress : this.wallet.address]
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {
+    const isGaslessConfigured = rpcStore.isGaslessConfigured
+    address = isGaslessConfigured ? this.wallet.address : address
     if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
       return this.wallet
     }
@@ -276,14 +289,25 @@ class AccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
+    const isGaslessConfigured = rpcStore.isGaslessConfigured
     try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signer = wallet.connect(this.provider)
-        const tx = await signer.sendTransaction(data)
-        return tx.hash
+      if (isGaslessConfigured) {
+        const txParams = {
+          from: address,
+          to: data.to,
+          value: ethers.utils.parseEther(`${parseInt(data.value)}`),
+        }
+        const tx = await scwInstance.doTx(txParams)
+        return tx.userOpHash
       } else {
-        throw new Error('No Wallet found for the provided address')
+        const wallet = this.getWallet(address)
+        if (wallet) {
+          const signer = wallet.connect(this.provider)
+          const tx = await signer.sendTransaction(data)
+          return tx.hash
+        } else {
+          throw new Error('No Wallet found for the provided address')
+        }
       }
     } catch (e) {
       return Promise.reject(e)
@@ -312,6 +336,7 @@ class AccountHandler {
     try {
       const wallet = this.getWallet(address)
       if (wallet) {
+        txData.from = this.wallet.address
         return await wallet.signTransaction({ ...txData })
       } else {
         throw new Error('No Wallet found for the provided address')
