@@ -18,6 +18,9 @@ type RpcConfigState = {
   walletBalanceChainId: string | undefined
   walletBalancePollingIntervalID: NodeJS.Timer | null
   walletBalancePollingCleanupID: NodeJS.Timer | null
+  gaslessConfiguredStatus: {
+    [chainId: string]: boolean
+  }
 
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
@@ -33,6 +36,7 @@ export const useRpcStore = defineStore('rpcStore', {
       walletBalanceChainId: '',
       walletBalancePollingCleanupID: null,
       walletBalancePollingIntervalID: null,
+      gaslessConfiguredStatus: {},
 
       rpcConfigs: null,
       editChainId: null,
@@ -87,8 +91,14 @@ export const useRpcStore = defineStore('rpcStore', {
       const selectedRpcConfig: RpcConfigWallet | null = this.selectedRpcConfig
       return Number(selectedRpcConfig?.chainId) === 1
     },
+    isGaslessConfigured(state: RpcConfigState) {
+      return state.gaslessConfiguredStatus[state.selectedChainId as string]
+    },
   },
   actions: {
+    setGaslessConfiguredStatus(chainId: string, status: boolean) {
+      this.gaslessConfiguredStatus[chainId] = status
+    },
     getRpcConfig(chainId: number) {
       return this.rpcConfigs ? this.rpcConfigs[Number(chainId)] : null
     },
