@@ -2,6 +2,8 @@
 import { StateInfo, decodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
+import { addHexPrefix } from 'ethereumjs-util'
+import ethers from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
@@ -17,6 +19,7 @@ import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { isInAppLogin } from '@/utils/isInAppLogin'
+import { getLoginToken } from '@/utils/loginToken'
 import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
@@ -200,6 +203,21 @@ async function returnToParent(key: string) {
   storage.local.setHasMFA(info.userInfo.id)
   info.privateKey = key
   info.hasMfa = true
+
+  try {
+    const loginToken = await getLoginToken({
+      provider: info.loginType,
+      token: info.token,
+      signerAddress: ethers.utils.computeAddress(addHexPrefix(info.privateKey)),
+      userID: info.userInfo.id,
+      appID: appId,
+      privateKey: info.privateKey,
+    })
+
+    info.token = loginToken
+  } catch (e) {
+    console.log('could not get login token', e)
+  }
 
   const uuid = genUUID()
   storage.local.clearPK()
