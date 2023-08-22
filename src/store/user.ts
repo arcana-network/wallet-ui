@@ -2,6 +2,7 @@ import { AuthProvider, SocialLoginType } from '@arcana/auth-core'
 import type { UserInfo } from '@arcana/auth-core/types/types'
 import { defineStore } from 'pinia'
 
+import { store } from '@/store'
 import { getStorage } from '@/utils/storageWrapper'
 
 type UserState = {
@@ -9,12 +10,9 @@ type UserState = {
   info: UserInfo
   privateKey: string
   loginType: SocialLoginType
-  walletAddress: string
+  ownerWalletAddress: string
+  scwAddress: string
   hasMfa: boolean
-}
-
-type PasswordLessLoginOptions = {
-  withUI: boolean
 }
 
 export const useUserStore = defineStore('user', {
@@ -25,16 +23,26 @@ export const useUserStore = defineStore('user', {
       privateKey: '',
       // This is just for initialization
       loginType: SocialLoginType.passwordless,
-      walletAddress: '',
+      ownerWalletAddress: '',
+      scwAddress: '',
       hasMfa: false,
     } as UserState),
   getters: {
     walletAddressShrinked(state: UserState): string {
-      const { walletAddress } = state
-      const walletAddressLength = walletAddress.length
-      return `${walletAddress.slice(0, 5)}....${walletAddress.slice(
-        walletAddressLength - 5
-      )}`
+      const rpcStore = store.state.value.rpcStore
+      const isGaslessConfigured =
+        rpcStore.gaslessConfiguredStatus[rpcStore.selectedChainId]
+      const { ownerWalletAddress, scwAddress } = state
+      const address = isGaslessConfigured ? scwAddress : ownerWalletAddress
+      const addressLength = address.length
+      return `${address.slice(0, 5)}....${address.slice(addressLength - 5)}`
+    },
+    walletAddress(state: UserState): string {
+      const rpcStore = store.state.value.rpcStore
+      const isGaslessConfigured =
+        rpcStore.gaslessConfiguredStatus[rpcStore.selectedChainId]
+      const { ownerWalletAddress, scwAddress } = state
+      return isGaslessConfigured ? scwAddress : ownerWalletAddress
     },
   },
   actions: {
@@ -65,7 +73,7 @@ export const useUserStore = defineStore('user', {
       this.$reset()
     },
     setWalletAddress(walletAddress: string): void {
-      this.walletAddress = walletAddress
+      this.ownerWalletAddress = walletAddress
     },
   },
 })
