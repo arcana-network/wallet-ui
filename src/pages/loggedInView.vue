@@ -3,13 +3,14 @@ import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
+import { getGastankAPIKey } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -31,6 +32,7 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
+import { initSCW, scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -65,6 +67,7 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
+      await initScwSdk()
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
@@ -82,6 +85,13 @@ onMounted(async () => {
     loader.value.show = false
   }
 })
+
+async function initScwSdk() {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler()
+  await initSCW(appStore.id, accountHandler.getSigner())
+  userStore.scwAddress = scwInstance.scwAddress
+}
 
 async function setMFABannerState() {
   // return null
@@ -296,6 +306,28 @@ function handleMFACreation() {
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
+
+async function checkIfGaslessConfigured(chainId: string, appId: string) {
+  let isGaslessConfigured = false
+  try {
+    const gastankApikey = (await getGastankAPIKey(appId, chainId)).data.api_key
+    isGaslessConfigured = !!gastankApikey
+  } catch (e) {
+    isGaslessConfigured = false
+  } finally {
+    rpcStore.setGaslessConfiguredStatus(chainId as string, isGaslessConfigured)
+  }
+}
+
+watch(
+  () => rpcStore.selectedChainId,
+  async () => {
+    const chainId = rpcStore.selectedChainId
+    const appId = appStore.id
+    await checkIfGaslessConfigured(chainId as string, appId as string)
+    await initScwSdk()
+  }
+)
 </script>
 
 <template>
