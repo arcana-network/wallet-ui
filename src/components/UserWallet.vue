@@ -14,7 +14,6 @@ import {
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { HIDE_ON_RAMP } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
