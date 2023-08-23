@@ -7,6 +7,8 @@ import {
 } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
+import { addHexPrefix } from 'ethereumjs-util'
+import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
@@ -17,6 +19,7 @@ import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
+import { getLoginToken } from '@/utils/loginToken'
 import {
   getStateFromUrl,
   handleLogin,
@@ -51,15 +54,17 @@ async function init() {
       await verifyOpenerPage(state)
     }
 
-    const authProvider = await getAuthProvider(`${appId}`)
+    const authProvider = await getAuthProvider(`${appId}`, false, false)
+    const postLoginCleanup = await authProvider.checkRedirectMode()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
         userInfo: info.userInfo,
         loginType: info.loginType,
+        token: '',
         privateKey: '',
       }
-      storage.session.setUserInfo(userInfo)
+      storage.session.setUserInfo(info)
       const exp = dayjs().add(1, 'day')
       getStorage().local.setPK({
         pk: info.privateKey,
@@ -87,6 +92,26 @@ async function init() {
         userInfo.privateKey = info.privateKey
       }
 
+      try {
+        const loginToken = await getLoginToken({
+          provider: info.loginType,
+          token: info.token,
+          signerAddress: ethers.utils.computeAddress(
+            addHexPrefix(userInfo.privateKey)
+          ),
+          userID: userInfo.userInfo.id,
+          appID: appId,
+          privateKey: userInfo.privateKey,
+        })
+
+        userInfo.token = loginToken
+      } catch (e) {
+        console.log('could not get token', e)
+      } finally {
+        if (postLoginCleanup) {
+          await postLoginCleanup()
+        }
+      }
       const uuid = genUUID()
 
       // For wallet usage purpose and standalone apps

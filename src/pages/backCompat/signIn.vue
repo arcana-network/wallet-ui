@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
+import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, onUnmounted } from 'vue'
@@ -71,7 +72,6 @@ const initPasswordlessLogin = async (email: string) => {
     passwordlessLoginHandler.cancel()
   }
   const provider = await getAuthProvider(appId as string)
-
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
   const state = getPasswordlessState(params.sessionId, params.setToken)
@@ -291,7 +291,7 @@ async function init() {
   }
 }
 
-async function handleGetPublicKey(id, verifier) {
+async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(app.id)
   return await authProvider.getPublicKey({ id, verifier })
 }
