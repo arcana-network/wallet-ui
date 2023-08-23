@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
@@ -87,20 +88,23 @@ const initPasswordlessLogin = async (email: string) => {
     LoginState.passwordless.error = response.error ?? "Couldn't start login"
     throw new Error(response.error)
   }
-  passwordlessLoginHandler.start().then(({ privateKey, email, hasMfa, pk }) => {
-    storeUserInfoAndRedirect({
-      loginType: SocialLoginType.passwordless,
-      userInfo: {
-        email,
-        id: email,
-        picture: '',
-        name: '',
-      },
-      privateKey,
-      pk,
-      hasMfa,
+  passwordlessLoginHandler
+    .start()
+    .then(({ token, privateKey, email, hasMfa, pk }) => {
+      storeUserInfoAndRedirect({
+        loginType: SocialLoginType.passwordless,
+        userInfo: {
+          email,
+          id: email,
+          picture: '',
+          name: '',
+        },
+        token,
+        privateKey,
+        pk,
+        hasMfa,
+      })
     })
-  })
   return params
 }
 
@@ -341,7 +345,7 @@ async function init() {
   }
 }
 
-async function handleGetPublicKey(id, verifier) {
+async function handleGetPublicKey(id: string, verifier: LoginType) {
   const authProvider = await getAuthProvider(app.id)
   return await authProvider.getPublicKey({ id, verifier })
 }
