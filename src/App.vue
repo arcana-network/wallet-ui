@@ -45,6 +45,7 @@ const showWalletButton = computed(() => {
 })
 
 onBeforeMount(async () => {
+  console.log('Initializing on-ramps')
   try {
     await Promise.all([fetchTransakNetworks(), initializeOnRampMoney()])
   } catch (e) {
