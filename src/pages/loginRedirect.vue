@@ -52,6 +52,7 @@ async function init() {
     }
 
     const authProvider = await getAuthProvider(`${appId}`)
+    console.log(authProvider, authProvider.isLoggedIn(), 'isLoggedIn')
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
