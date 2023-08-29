@@ -38,6 +38,7 @@ onMounted(init)
 onUnmounted(cleanup)
 
 async function init() {
+  console.log('init-login-redirect')
   const storage = getStorage()
   const loginSrc = storage.local.getLoginSrc()
   const isStandalone =
