@@ -10,7 +10,6 @@ import {
 } from '@/utils/PasswordlessLoginHandler'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
-const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
 
 const LOGIN_INFO = 'LOGIN_INFO'
 const LOGIN_INFO_ACK = 'LOGIN_INFO_ACK'
@@ -152,6 +151,8 @@ async function handlePasswordlessLoginV2(params: HandleLoginParams) {
     pk: params.userInfo.pk,
     sessionID: params.sessionID,
     expiry: params.sessionExpiry,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     token: params.userInfo.token,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)

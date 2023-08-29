@@ -31,8 +31,9 @@ async function getAuthProvider(
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
-        revokeTokenPostLogin: false,
       })
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       await authProvider.init()
     } else {
       authProvider = await AuthProvider.init(params)
