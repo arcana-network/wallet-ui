@@ -219,13 +219,11 @@ class AccountHandler {
   getAddress(): string[] {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const isGaslessConfigured = rpcStore.isGaslessConfigured
-    return [isGaslessConfigured ? scwInstance.scwAddress : this.wallet.address]
+    return [rpcStore.useGasless ? scwInstance.scwAddress : this.wallet.address]
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {
-    const isGaslessConfigured = rpcStore.isGaslessConfigured
-    address = isGaslessConfigured ? this.wallet.address : address
+    address = rpcStore.useGasless ? this.wallet.address : address
     if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
       return this.wallet
     }
@@ -289,7 +287,7 @@ class AccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    const isGaslessConfigured = rpcStore.isGaslessConfigured
+    const isGaslessConfigured = rpcStore.useGasless
     try {
       if (isGaslessConfigured) {
         const txParams = {
