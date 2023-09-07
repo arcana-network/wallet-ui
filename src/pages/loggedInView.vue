@@ -10,7 +10,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getGastankAPIKey } from '@/services/gateway.service'
+import { getGaslessEnabledStatus } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -308,15 +308,16 @@ onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
 
-async function checkIfGaslessConfigured(chainId: string, appId: string) {
-  let isGaslessConfigured = false
+async function checkIfGaslessEnabled(chainId: string, appId: string) {
+  let isGaslessEnabled = false
   try {
-    const gastankApikey = (await getGastankAPIKey(appId, chainId)).data.api_key
-    isGaslessConfigured = !!gastankApikey
+    isGaslessEnabled = await (
+      await getGaslessEnabledStatus(appId, chainId)
+    ).data.status
   } catch (e) {
-    isGaslessConfigured = false
+    isGaslessEnabled = false
   } finally {
-    rpcStore.setGaslessConfiguredStatus(chainId as string, isGaslessConfigured)
+    rpcStore.setGaslessEnabledStatus(chainId as string, isGaslessEnabled)
   }
 }
 
@@ -325,7 +326,7 @@ watch(
   async () => {
     const chainId = rpcStore.selectedChainId
     const appId = appStore.id
-    await checkIfGaslessConfigured(chainId as string, appId as string)
+    await checkIfGaslessEnabled(chainId as string, appId as string)
     await initScwSdk()
   }
 )
