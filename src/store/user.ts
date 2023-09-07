@@ -33,7 +33,8 @@ export const useUserStore = defineStore('user', {
     walletAddressShrinked(state: UserState): string {
       const rpcStore = store.state.value.rpcStore
       const isGaslessConfigured =
-        rpcStore.gaslessConfiguredStatus[rpcStore.selectedChainId]
+        rpcStore.gaslessEnabledStatus[rpcStore.selectedChainId] &&
+        rpcStore.preferredAddressType === 'scw'
       const { ownerWalletAddress, scwAddress } = state
       const address = isGaslessConfigured ? scwAddress : ownerWalletAddress
       const addressLength = address.length
@@ -42,7 +43,8 @@ export const useUserStore = defineStore('user', {
     walletAddress(state: UserState): string {
       const rpcStore = store.state.value.rpcStore
       const isGaslessConfigured =
-        rpcStore.gaslessConfiguredStatus[rpcStore.selectedChainId]
+        rpcStore.gaslessEnabledStatus[rpcStore.selectedChainId] &&
+        rpcStore.preferredAddressType === 'scw'
       const { ownerWalletAddress, scwAddress } = state
       return isGaslessConfigured ? scwAddress : ownerWalletAddress
     },
