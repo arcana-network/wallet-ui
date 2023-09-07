@@ -321,12 +321,22 @@ async function checkIfGaslessEnabled(chainId: string, appId: string) {
   }
 }
 
+function getWalletAddressType() {
+  let preferredAddressType = storage.local.getPreferredAddressType()
+  if (!preferredAddressType) {
+    preferredAddressType = rpcStore.isGaslessConfigured ? 'scw' : 'eoa'
+    storage.local.setPreferredAddressType(preferredAddressType)
+  }
+  rpcStore.setPreferredWalletAddressType(preferredAddressType)
+}
+
 watch(
   () => rpcStore.selectedChainId,
   async () => {
     const chainId = rpcStore.selectedChainId
     const appId = appStore.id
     await checkIfGaslessEnabled(chainId as string, appId as string)
+    getWalletAddressType()
     await initScwSdk()
   }
 )
