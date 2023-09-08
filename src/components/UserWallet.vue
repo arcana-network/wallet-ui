@@ -258,12 +258,13 @@ async function copyToClipboard(value: string) {
                 </div>
               </button>
               <img
+                v-if="rpcStore.isGaslessConfigured"
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-transform"
                 :class="{ 'rotate-180': open }"
               />
             </ListboxButton>
-            <div v-if="open">
+            <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
                 class="divide-y-2 mt-2 p-2 rounded-md absolute top-12 bg-[#313131] w-full left-0 z-[999]"
               >
