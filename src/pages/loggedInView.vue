@@ -331,6 +331,14 @@ function getWalletAddressType() {
 }
 
 watch(
+  () => rpcStore.preferredAddressType,
+  () => {
+    const addressType = rpcStore.preferredAddressType
+    storage.local.setPreferredAddressType(addressType)
+  }
+)
+
+watch(
   () => rpcStore.selectedChainId,
   async () => {
     const chainId = rpcStore.selectedChainId
