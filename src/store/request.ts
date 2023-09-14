@@ -13,6 +13,13 @@ type EIP1559GasFee = {
   gasLimit: number
 }
 
+type LegacyGasFee = {
+  gasPrice: string
+  gasLimit: number
+}
+
+type GasFee = EIP1559GasFee | LegacyGasFee
+
 type RequestState = {
   pendingRequests: { [key: string]: PendingRequest }
   skippedRequests: { [key: string]: PendingRequest }
@@ -67,19 +74,31 @@ export const useRequestStore = defineStore('request', {
         this.processQueue.push({ request, isPermissionGranted: true })
       }
     },
-    setGasFee(gas: EIP1559GasFee | null, requestId: string): void {
+    setGasFee(gas: GasFee | null, requestId: string): void {
       const request = this.pendingRequests[requestId].request
       if (Array.isArray(request.params)) {
         const param = request.params[0]
-        if (gas?.maxPriorityFeePerGas) {
-          param.maxPriorityFeePerGas = gas.maxPriorityFeePerGas
-        } else if (gas?.maxPriorityFeePerGas === null) {
-          delete param.maxPriorityFeePerGas
-        }
-        if (gas?.maxFeePerGas) {
-          param.maxFeePerGas = gas.maxFeePerGas
-        } else if (gas?.maxFeePerGas === null) {
-          delete param.maxFeePerGas
+        if (param.type && Number(param.type) === 2) {
+          const eipGas = gas as EIP1559GasFee | null
+          if (eipGas?.maxPriorityFeePerGas) {
+            param.maxPriorityFeePerGas = eipGas.maxPriorityFeePerGas
+          } else if (eipGas?.maxPriorityFeePerGas === null) {
+            delete param.maxPriorityFeePerGas
+          }
+          if (eipGas?.maxFeePerGas) {
+            param.maxFeePerGas = eipGas.maxFeePerGas
+          } else if (eipGas?.maxFeePerGas === null) {
+            delete param.maxFeePerGas
+          }
+        } else {
+          const legacyGas = gas as LegacyGasFee | null
+          if (legacyGas?.gasPrice) {
+            param.gasPrice = legacyGas.gasPrice
+          } else if (legacyGas?.gasPrice === null) {
+            delete param.gasPrice
+          } else if ((gas as EIP1559GasFee | null)?.maxFeePerGas) {
+            param.gasPrice = (gas as EIP1559GasFee).maxFeePerGas
+          }
         }
         if (gas?.gasLimit) {
           param.gas = gas.gasLimit
@@ -115,4 +134,4 @@ export const useRequestStore = defineStore('request', {
   },
 })
 
-export type { EIP1559GasFee }
+export type { EIP1559GasFee, LegacyGasFee, GasFee }
