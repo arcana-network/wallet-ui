@@ -424,9 +424,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       error = getEtherInvalidParamsError('required params missing')
     } else if (
       rpcStore.selectedRPCConfig?.chainId &&
-      (!params.domain.chainId ||
-        parseInt(params.domain.chainId) !==
-          parseInt(rpcStore.selectedRPCConfig.chainId))
+      params.domain.chainId &&
+      parseInt(params.domain.chainId) !==
+        parseInt(rpcStore.selectedRPCConfig.chainId)
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }
