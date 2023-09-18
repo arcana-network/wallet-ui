@@ -253,11 +253,11 @@ async function handlePinProceed() {
         return toast.error(e as string)
       }
       console.log({ e }, 'handlePinProceed-error')
-      return connectionToParent.error(
-        e as string,
-        // eslint-disable-next-line no-undef
-        process.env.VUE_APP_WALLET_DOMAIN
-      )
+      // return connectionToParent.error(
+      //   e as string,
+      //   // eslint-disable-next-line no-undef
+      //   process.env.VUE_APP_WALLET_DOMAIN
+      // )
     }
     loader.value = {
       show: false,
