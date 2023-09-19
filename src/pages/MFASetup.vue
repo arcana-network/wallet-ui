@@ -72,12 +72,6 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  console.log(
-    loginInfo?.loginType,
-    isInAppLogin(loginInfo?.loginType),
-    connectionToParent,
-    'connectionToParent'
-  )
   const core = new Core(
     dkgShare.pk,
     dkgShare.id,
