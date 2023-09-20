@@ -420,14 +420,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])
     let error: string | unknown | null = null
-    if (
-      typeof params !== 'object' ||
-      !params.domain ||
-      !params.domain.chainId
-    ) {
+    if (typeof params !== 'object' || !params.domain) {
       error = getEtherInvalidParamsError('required params missing')
     } else if (
       rpcStore.selectedRPCConfig?.chainId &&
+      params.domain.chainId &&
       parseInt(params.domain.chainId) !==
         parseInt(rpcStore.selectedRPCConfig.chainId)
     ) {

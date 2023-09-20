@@ -1,8 +1,17 @@
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import axios from 'axios'
 
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
 
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
+
+function genHexString(len: number) {
+  let output = ''
+  for (let i = 0; i < len; ++i) {
+    output += Math.floor(Math.random() * 16).toString(16)
+  }
+  return output
+}
 
 class PasswordlessLoginHandler {
   readonly pollingPeriod = 2000
@@ -15,7 +24,7 @@ class PasswordlessLoginHandler {
     address: string
   }
   constructor(private email: string) {
-    this.sessionId = '_' + Math.random().toString(36).substring(2, 11)
+    this.sessionId = '_' + genHexString(20)
     this.key = getRandomPrivateKey()
     this.timer = undefined
   }
@@ -38,6 +47,7 @@ class PasswordlessLoginHandler {
     pk: string
     email: string
     hasMfa: boolean
+    token: string
   }> => {
     return new Promise((resolve, reject) => {
       this.createCredential().then(async () => {
@@ -51,11 +61,12 @@ class PasswordlessLoginHandler {
                 originalCiphertext,
                 this.key.privateKey
               )
-              const { privateKey, pk } = JSON.parse(plaintext)
+              const { privateKey, pk, token } = JSON.parse(plaintext)
               resolve({
                 privateKey,
                 pk,
                 email: this.email,
+                token,
                 hasMfa: hasMfa === 'has-mfa',
               })
             }
@@ -69,38 +80,32 @@ class PasswordlessLoginHandler {
   }
 
   async checkCredentialSet() {
-    const url = new URL(`/api/cred/${this.sessionId}`, OAUTH_URL)
-    url.searchParams.append('sig', this.createSignature('get'))
-    const res = await fetch(url.toString(), {
-      method: 'GET',
-    })
+    try {
+      const url = new URL(`/api/v2/cred/${this.sessionId}`, OAUTH_URL)
+      url.searchParams.append('sig', this.createSignature('get'))
 
-    if (res.status >= 400) {
-      if (res.status == 403 || res.status == 500) {
-        clearTimeout(this.timer)
-        throw new Error('Could not verify credentials')
+      const res = await axios.get<{ done: boolean; ciphertext: string }>(
+        url.toString()
+      )
+      if (!res.data.done) {
+        return
       }
-      return
-    }
 
-    clearTimeout(this.timer)
-    const data: { ciphertext: string } = await res.json()
-    return data.ciphertext
+      clearTimeout(this.timer)
+      return res.data.ciphertext
+    } catch (e) {
+      clearTimeout(this.timer)
+      throw new Error('Could not verify credentials')
+    }
   }
 
   async createCredential() {
-    const url = new URL(`/api/cred`, OAUTH_URL)
-    const res = await fetch(url.toString(), {
-      method: 'POST',
-      body: JSON.stringify({
-        publicKey: this.key.publicKey,
-        sessionId: this.sessionId,
-        signature: this.createSignature('create'),
-      }),
+    const url = new URL(`/api/v2/cred`, OAUTH_URL)
+    await axios.post(url.toString(), {
+      publicKey: this.key.publicKey,
+      sessionId: this.sessionId,
+      signature: this.createSignature('create'),
     })
-    if (res.status >= 400) {
-      throw new Error('Could not start login')
-    }
   }
 
   cancel() {
@@ -114,32 +119,17 @@ const setCredential = async (
   ciphertext: string
 ) => {
   const url = new URL(`/api/cred`, OAUTH_URL)
-
-  const res = await fetch(url.toString(), {
-    method: 'PUT',
-    body: JSON.stringify({
-      sessionId,
-      signature,
-      ciphertext,
-    }),
+  await axios.put(url.toString(), {
+    sessionId,
+    signature,
+    ciphertext,
   })
-  if (res.status >= 400) {
-    throw new Error('Could not update credentials')
-  }
 }
 
 const getCredentialKey = async (sessionId: string) => {
   const url = new URL(`/api/cred/key/${sessionId}`, OAUTH_URL)
-
-  const res = await fetch(url.toString(), {
-    method: 'GET',
-  })
-  if (res.status >= 400) {
-    throw new Error('Could not fetch credential key')
-  }
-
-  const data = await res.json()
-  return data.publicKey
+  const res = await axios.get<{ publicKey: string }>(url.toString())
+  return res.data.publicKey
 }
 
 const getPasswordlessState = (sessionId: string, setToken: string) => {
