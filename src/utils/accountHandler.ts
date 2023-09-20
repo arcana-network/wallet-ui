@@ -287,9 +287,8 @@ class AccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    const isGaslessConfigured = rpcStore.useGasless
     try {
-      if (isGaslessConfigured) {
+      if (rpcStore.useGasless) {
         const txParams = {
           from: address,
           to: data.to,
