@@ -293,7 +293,7 @@ class AccountHandler {
         const txParams = {
           from: address,
           to: data.to,
-          value: ethers.utils.parseEther(`${parseInt(data.value)}`),
+          value: data.value,
         }
         const tx = await scwInstance.doTx(txParams)
         return tx.userOpHash
