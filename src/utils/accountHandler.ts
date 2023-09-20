@@ -18,6 +18,7 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
 import { scwInstance } from '@/utils/scw'
 import {
   MessageParams,
@@ -27,6 +28,7 @@ import {
 } from '@/utils/walletMiddleware'
 
 const rpcStore = useRpcStore()
+const userStore = useUserStore()
 
 class AccountHandler {
   wallet: ethers.Wallet
@@ -72,24 +74,41 @@ class AccountHandler {
     gasPrice,
     gasLimit
   ) => {
-    const abi = [
-      'function transfer(address recipient, uint256 amount) returns (bool)',
-    ]
-    const signer = this.wallet.connect(this.provider)
-    const contract = new ethers.Contract(contractAddress, abi, signer)
-    const payload = {} as any
-    if (gasPrice) {
-      payload.gasPrice = gasPrice
+    try {
+      const abi = [
+        'function transfer(address recipient, uint256 amount) returns (bool)',
+      ]
+
+      if (rpcStore.useGasless) {
+        const Erc20Interface = new ethers.utils.Interface(abi)
+        const encodedData = Erc20Interface.encodeFunctionData('transfer', [
+          recipientAddress,
+          amount,
+        ])
+        const txParams = {
+          from: userStore.walletAddress,
+          to: contractAddress,
+          data: encodedData,
+        }
+        const tx = await scwInstance.doTx(txParams)
+        await tx.wait()
+        return tx.userOpHash
+      } else {
+        const signer = this.wallet.connect(this.provider)
+        const contract = new ethers.Contract(contractAddress, abi, signer)
+        const payload = {} as any
+        if (gasPrice) payload.gasPrice = gasPrice
+        if (gasLimit) payload.gasLimit = gasLimit
+        const tx = await contract.functions.transfer(
+          recipientAddress,
+          amount,
+          payload
+        )
+        return tx.hash
+      }
+    } catch (e) {
+      console.log({ e })
     }
-    if (gasLimit) {
-      payload.gasLimit = gasLimit
-    }
-    const tx = await contract.functions.transfer(
-      recipientAddress,
-      amount,
-      payload
-    )
-    return tx.hash
   }
 
   estimateCustomTokenGas = async (
