@@ -91,8 +91,8 @@ class AccountHandler {
           data: encodedData,
         }
         const tx = await scwInstance.doTx(txParams)
-        await tx.wait()
-        return tx.userOpHash
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
       } else {
         const signer = this.wallet.connect(this.provider)
         const contract = new ethers.Contract(contractAddress, abi, signer)
@@ -314,7 +314,8 @@ class AccountHandler {
           value: data.value,
         }
         const tx = await scwInstance.doTx(txParams)
-        return tx.userOpHash
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
       } else {
         const wallet = this.getWallet(address)
         if (wallet) {
