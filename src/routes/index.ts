@@ -22,6 +22,7 @@ import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SendNft from '@/pages/SendNft.vue'
 import SendTokens from '@/pages/SendTokens.vue'
 import SignInV2 from '@/pages/signInV2.vue'
+import StarterTips from '@/pages/StarterTips/index-page.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -77,6 +78,11 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         path: '/',
         component: HomeScreen,
+      },
+      {
+        name: 'StarterTips',
+        path: '/starterTips',
+        component: StarterTips,
       },
       {
         name: 'Nfts',

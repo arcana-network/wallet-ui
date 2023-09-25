@@ -17,6 +17,7 @@ enum StorageKey {
   NFT = 'nft_list',
   AssetContract = 'asset-contracts',
   PK = 'pk',
+  hasStarterTipShown = 'has-starter-tip-shown',
 }
 
 type UserInfo = GetInfoOutput & {
@@ -188,6 +189,14 @@ class UserLocalStorage extends BaseStorage {
         `${address}/${chainId}/${StorageKey.AssetContract}`
       ) ?? []
     )
+  }
+
+  setHasStarterTipShown(userId: string, val: boolean) {
+    this.set(`${userId}-${StorageKey.hasStarterTipShown}`, val)
+  }
+
+  getHasStarterTipShown(userId: string) {
+    return this.get<boolean>(`${userId}-${StorageKey.hasStarterTipShown}`)
   }
 
   setPK(val: { pk: string; id: string; exp: dayjs.Dayjs | undefined }) {

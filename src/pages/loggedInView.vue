@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { AuthProvider } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
-import axios from 'axios'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -114,7 +112,12 @@ async function setMFABannerState() {
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
-    router.push({ name: 'home' })
+    const userId = userStore.info.id
+    const loginCount = storage.local.getLoginCount(userId)
+    const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
+    if (Number(loginCount) === 1 && !hasStarterTipShown)
+      router.push({ name: 'StarterTips' })
+    else router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
