@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType } from '@arcana/auth-core'
-import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import type { AuthProvider, GetInfoOutput } from '@jrstudio/auth-core-legacy'
+import { SocialLoginType } from '@jrstudio/auth-core-legacy'
+import { LoginType } from '@jrstudio/auth-core-legacy/types/types'
+import { Core, SecurityQuestionModule } from '@jrstudio/key-helper-legacy'
 import type { Connection } from 'penpal'
 import { toRefs, onMounted, ref, onUnmounted } from 'vue'
 import type { Ref } from 'vue'

@@ -1,4 +1,4 @@
-import { GetInfoOutput } from '@arcana/auth-core'
+import { GetInfoOutput } from '@jrstudio/auth-core-legacy'
 import dayjs from 'dayjs'
 
 import { AssetContract } from '@/models/Asset'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { StateInfo, decodeJSON } from '@arcana/auth-core'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { StateInfo, decodeJSON } from '@jrstudio/auth-core-legacy'
+import { Core, SecurityQuestionModule } from '@jrstudio/key-helper-legacy'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'

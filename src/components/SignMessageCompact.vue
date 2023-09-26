@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@jrstudio/auth'
 import { useRoute } from 'vue-router'
 
 import type { Request } from '@/models/Connection'

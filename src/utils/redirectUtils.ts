@@ -1,4 +1,4 @@
-import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
+import { GetInfoOutput, SocialLoginType } from '@jrstudio/auth-core-legacy'
 import { AsyncMethodReturns } from 'penpal'
 
 import { RedirectParentConnectionApi } from '@/models/Connection'

@@ -1,5 +1,5 @@
-import { AuthProvider, SocialLoginType } from '@arcana/auth-core'
-import type { UserInfo } from '@arcana/auth-core/types/types'
+import { AuthProvider, SocialLoginType } from '@jrstudio/auth-core-legacy'
+import type { UserInfo } from '@jrstudio/auth-core-legacy/types/types'
 import { defineStore } from 'pinia'
 
 import { getStorage } from '@/utils/storageWrapper'

@@ -1,4 +1,4 @@
-import type { InitParams } from '@arcana/auth-core/types/types'
+import type { InitParams } from '@jrstudio/auth-core-legacy/types/types'
 
 import type { CurrencySymbol } from '@/services/exchangeRate.service'
 

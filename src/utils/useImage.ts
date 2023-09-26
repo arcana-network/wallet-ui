@@ -1,4 +1,4 @@
-import { Theme } from '@arcana/auth'
+import { Theme } from '@jrstudio/auth'
 
 import { useAppStore } from '@/store/app'
 

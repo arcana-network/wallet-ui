@@ -3,7 +3,7 @@ import {
   Core,
   SecurityQuestionModule,
   utils as KeyHelperUtils,
-} from '@arcana/key-helper'
+} from '@jrstudio/key-helper-legacy'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
 import { ref, onBeforeMount, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

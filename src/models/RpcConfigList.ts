@@ -1,4 +1,4 @@
-import { RpcConfig } from '@arcana/auth'
+import { RpcConfig } from '@jrstudio/auth'
 
 interface RpcConfigWallet extends RpcConfig {
   favicon: string

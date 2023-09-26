@@ -4,8 +4,8 @@ import {
   SocialLoginType,
   StateInfo,
   decodeJSON,
-} from '@arcana/auth-core'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+} from '@jrstudio/auth-core-legacy'
+import { Core, SecurityQuestionModule } from '@jrstudio/key-helper-legacy'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'

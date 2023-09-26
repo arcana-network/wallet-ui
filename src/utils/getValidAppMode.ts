@@ -1,4 +1,4 @@
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@jrstudio/auth'
 
 enum WalletType {
   NoUI = 0,

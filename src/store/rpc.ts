@@ -16,8 +16,8 @@ type RpcConfigState = {
 
   walletBalance: string
   walletBalanceChainId: string | undefined
-  walletBalancePollingIntervalID: NodeJS.Timer | null
-  walletBalancePollingCleanupID: NodeJS.Timer | null
+  walletBalancePollingIntervalID: number | null
+  walletBalancePollingCleanupID: number | null
 
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
@@ -144,11 +144,11 @@ export const useRpcStore = defineStore('rpcStore', {
 
     cleanUpBalancePolling() {
       if (this.walletBalancePollingIntervalID != null) {
-        clearInterval(this.walletBalancePollingIntervalID)
+        window.clearInterval(this.walletBalancePollingIntervalID)
         this.walletBalancePollingIntervalID = null
       }
       if (this.walletBalancePollingCleanupID != null) {
-        clearTimeout(this.walletBalancePollingCleanupID)
+        window.clearTimeout(this.walletBalancePollingCleanupID)
         this.walletBalancePollingCleanupID = null
       }
     },
@@ -157,13 +157,13 @@ export const useRpcStore = defineStore('rpcStore', {
       this.cleanUpBalancePolling()
       await this.getWalletBalance()
       // Poll every 10 seconds
-      this.walletBalancePollingIntervalID = setInterval(
+      this.walletBalancePollingIntervalID = window.setInterval(
         this.getWalletBalance.bind(this),
         BALANCE_POLLING_INTERVAL
       )
-      this.walletBalancePollingCleanupID = setTimeout(() => {
+      this.walletBalancePollingCleanupID = window.setTimeout(() => {
         if (this.walletBalancePollingIntervalID != null) {
-          clearInterval(this.walletBalancePollingIntervalID)
+          window.clearInterval(this.walletBalancePollingIntervalID)
         }
       }, BALANCE_POLLING_DURATION)
     },

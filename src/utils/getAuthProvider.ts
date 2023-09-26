@@ -1,5 +1,5 @@
-import { AuthProvider } from '@arcana/auth-core'
-import type { InitParams } from '@arcana/auth-core/types/types'
+import { AuthProvider } from '@jrstudio/auth-core-legacy'
+import type { InitParams } from '@jrstudio/auth-core-legacy/types/types'
 
 import { useAppStore } from '@/store/app'
 import { AUTH_URL } from '@/utils/constants'

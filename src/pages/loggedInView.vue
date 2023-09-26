@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
-import { AuthProvider } from '@arcana/auth-core'
-import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { AppMode } from '@jrstudio/auth'
+import { LoginType } from '@jrstudio/auth-core-legacy/types/types'
+import { Core, SecurityQuestionModule } from '@jrstudio/key-helper-legacy'
 import axios from 'axios'
 import type { Connection } from 'penpal'
 import { onMounted, ref, onBeforeMount, type Ref } from 'vue'

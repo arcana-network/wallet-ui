@@ -1,5 +1,5 @@
 // Todo: Find a better place for these functions
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@jrstudio/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { ethers } from 'ethers'
 import { watch } from 'vue'

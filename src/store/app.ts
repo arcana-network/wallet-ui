@@ -1,4 +1,4 @@
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@jrstudio/auth'
 import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'

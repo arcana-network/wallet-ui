@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
-import type { Ref } from 'vue'
-import { ref, onMounted, computed, type ComputedRef } from 'vue'
+import type { Ref, ComputedRef } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 import ActivityView from '@/components/ActivityView.vue'
 import SkippedRequestView from '@/components/SkippedRequestView.vue'

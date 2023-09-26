@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
+import { AppMode } from '@jrstudio/auth'
 import { Decimal } from 'decimal.js'
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'

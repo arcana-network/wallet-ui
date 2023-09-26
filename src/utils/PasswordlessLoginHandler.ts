@@ -1,4 +1,4 @@
-import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { SocialLoginType, encodeJSON } from '@jrstudio/auth-core-legacy'
 import axios from 'axios'
 
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
