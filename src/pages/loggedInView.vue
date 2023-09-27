@@ -326,6 +326,10 @@ function getWalletAddressType() {
   if (!preferredAddressType) {
     preferredAddressType = rpcStore.isGaslessConfigured ? 'scw' : 'eoa'
     storage.local.setPreferredAddressType(preferredAddressType)
+  } else {
+    preferredAddressType = !rpcStore.isGaslessConfigured
+      ? 'eoa'
+      : preferredAddressType
   }
   rpcStore.setPreferredWalletAddressType(preferredAddressType)
 }
