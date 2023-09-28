@@ -28,14 +28,12 @@ watch(selectedGasMethod, () => {
 })
 
 if (props.maxFeePerGas) {
-  selectedGasMethod.value = 'custom'
   maxFeePerGas.value = new Decimal(props.maxFeePerGas).toNumber()
 } else {
   maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
 }
 
 if (props.maxPriorityFeePerGas) {
-  selectedGasMethod.value = 'custom'
   maxPriorityFeePerGas.value = new Decimal(
     props.maxPriorityFeePerGas
   ).toNumber()
@@ -120,7 +118,7 @@ function handleCustomGasPriceInput() {
       </div>
     </div>
   </div>
-  <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-4">
+  <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-4 mt-4">
     <div class="flex flex-col gap-1">
       <label class="text-sm font-medium" for="gasLimit"> Gas Limit </label>
       <input
