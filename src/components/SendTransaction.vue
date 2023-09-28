@@ -11,9 +11,9 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { advancedInfo } from '@/utils/advancedInfo'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
   request: {
@@ -66,6 +66,10 @@ onMounted(async () => {
       )
         .div(Decimal.pow(10, 9))
         .toString()
+    } else {
+      customGasPrice.value.maxFeePerGas = new Decimal(baseFee.value)
+        .add(1.5)
+        .toString()
     }
     if (props.request.request.params[0].maxPriorityFeePerGas) {
       customGasPrice.value.maxPriorityFeePerGas = new Decimal(
@@ -110,6 +114,25 @@ function handleSetGasPrice(value) {
     requestId,
   })
 }
+
+function calculateGasPrice(params) {
+  if (params.maxFeePerGas || params.gasPrice) {
+    return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+      .add(params.maxPriorityFeePerGas || 1.5)
+      .mul(params.gasLimit || params.gas || 21000)
+      .div(Decimal.pow(10, 18))
+      .toString()} ${
+      rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+    }`
+  }
+  return 'Unknown'
+}
+
+function calculateValue(value) {
+  return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()} ${
+    rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+  }`
+}
 </script>
 
 <template>
@@ -121,6 +144,7 @@ function handleSetGasPrice(value) {
     :request="request"
     :gas="customGasPrice"
     :gas-limit="gasLimit"
+    :base-fee="baseFee"
     @approve="emits('approve')"
     @reject="emits('reject')"
   />
@@ -133,19 +157,55 @@ function handleSetGasPrice(value) {
         you approve the transaction?
       </p>
     </div>
-    <div class="flex flex-col gap-1">
-      <div class="text-sm">Message</div>
-      <SignMessageAdvancedInfo
-        :info="advancedInfo(request.request.method, request.request.params[0])"
+    <div class="flex flex-col gap-2 text-sm">
+      <div class="text-sm font-medium">Transaction Details</div>
+      <div
+        v-if="request.request.params[0].from"
+        class="flex justify-between gap-4"
+      >
+        <span class="w-[120px]">From</span>
+        <span :title="request.request.params[0].from">
+          {{ truncateMid(request.request.params[0].from, 6) }}
+        </span>
+      </div>
+      <div
+        v-if="request.request.params[0].to"
+        class="flex justify-between gap-4"
+      >
+        <span class="w-[120px]">To</span>
+        <span :title="request.request.params[0].to">{{
+          truncateMid(request.request.params[0].to, 6)
+        }}</span>
+      </div>
+      <div
+        v-if="request.request.params[0].value"
+        class="flex justify-between gap-4"
+      >
+        <span>Value</span>
+        <span :title="calculateValue(request.request.params[0].value)">{{
+          calculateValue(request.request.params[0].value)
+        }}</span>
+      </div>
+      <div class="flex justify-between gap-4">
+        <span>Transaction Fee</span>
+        <span :title="calculateGasPrice(request.request.params[0])">{{
+          calculateGasPrice(request.request.params[0])
+        }}</span>
+      </div>
+      <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
+        <span>Data</span>
+        <SignMessageAdvancedInfo :info="request.request.params[0].data" />
+      </div>
+    </div>
+    <div class="mt-4">
+      <GasPrice
+        :base-fee="baseFee"
+        :gas-limit="gasLimit"
+        :max-fee-per-gas="customGasPrice.maxFeePerGas"
+        :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
+        @gas-price-input="handleSetGasPrice"
       />
     </div>
-    <GasPrice
-      :base-fee="baseFee"
-      :gas-limit="gasLimit"
-      :max-fee-per-gas="customGasPrice.maxFeePerGas"
-      :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
-      @gas-price-input="handleSetGasPrice"
-    />
     <div class="mt-auto flex flex-col gap-4">
       <div class="flex gap-2">
         <button

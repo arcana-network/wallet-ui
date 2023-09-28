@@ -47,9 +47,9 @@ function isString(value: any) {
 
 <template>
   <div class="flex flex-col">
-    <pre v-if="isString(jsonValue)" class="jv-push json-viewer">{{
-      jsonValue
-    }}</pre>
+    <div v-if="isString(jsonValue)" class="jv-string json-viewer">
+      {{ jsonValue }}
+    </div>
     <div v-else class="flex flex-col">
       <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
         <pre class="jv-key">{{ propKey }}:</pre>
