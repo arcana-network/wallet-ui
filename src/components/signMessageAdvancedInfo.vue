@@ -19,7 +19,7 @@ const signInfo = computed(() => {
   <div
     class="bg-black-100 p-4 break-word rounded-md overflow-hidden max-h-40 break-words"
   >
-    <div class="overflow-auto">
+    <div class="overflow-auto h-full w-full">
       <VJsonViewer :value="signInfo"></VJsonViewer>
     </div>
   </div>
