@@ -65,8 +65,8 @@ export const useAppStore = defineStore('app', {
             ? compactMode
               ? requestStore.pendingRequest?.request.method ===
                 'eth_sendTransaction'
-                ? '400px'
-                : '328px'
+                ? '360px'
+                : '300px'
               : '80vh'
             : '40px'
           : '0'
