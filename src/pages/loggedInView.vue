@@ -5,7 +5,7 @@ import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import axios from 'axios'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref, onBeforeUnmount } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -13,6 +13,7 @@ import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -49,10 +50,24 @@ const loader = ref({
 let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
+const currencyInterval = ref(null as any)
+const currencyStore = useCurrencyStore()
 
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
+
+function startCurrencyInterval() {
+  currencyStore.setLocalCurrencyCode()
+  currencyStore.fetchAndSetExchangeRates()
+  currencyInterval.value = setInterval(() => {
+    currencyStore.fetchAndSetExchangeRates()
+  }, 600000)
+}
+
+function stopCurrencyInterval() {
+  if (currencyInterval.value) clearInterval(currencyInterval.value)
+}
 
 onMounted(async () => {
   try {
@@ -63,6 +78,7 @@ onMounted(async () => {
     await getRpcConfigFromParent()
     await setTheme()
     await getAccountDetails()
+    startCurrencyInterval()
     appStore.showWallet = true
     await setMFABannerState()
     const requestHandler = getRequestHandler()
@@ -295,6 +311,10 @@ function handleMFACreation() {
   router.push({ name: 'MFARequired' })
   showMfaBanner.value = false
 }
+
+onBeforeUnmount(() => {
+  stopCurrencyInterval()
+})
 
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()

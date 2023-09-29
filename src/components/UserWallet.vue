@@ -7,10 +7,6 @@ import { useToast } from 'vue-toastification'
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
-import {
-  getExchangeRate,
-  CurrencySymbol,
-} from '@/services/exchangeRate.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -31,7 +27,6 @@ const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 const toast = useToast()
 
-const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 type ModalState =
   | 'send'
   | 'receive'
@@ -110,10 +105,7 @@ async function getCurrencyExchangeRate() {
   totalAmountInUSD.value = totalAmountInUSD.value || null
   try {
     if (currency.value) {
-      const rate = await getExchangeRate(
-        currency.value as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )
+      const rate = 0
       if (rate) {
         totalAmountInUSD.value = new Intl.NumberFormat('en-US', {
           style: 'currency',
