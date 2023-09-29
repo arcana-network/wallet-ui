@@ -62,7 +62,7 @@ function getTitle(requestMethod: string) {
       />
       <div class="flex justify-center mt-4">
         <div
-          class="flex bg-gray-300 rounded-sm p-2 text-xs gap-1 text-gray-100"
+          class="flex bg-white-100 border-1 border border-gray-300 dark:bg-gray-300 rounded-sm p-2 text-xs gap-1 dark:text-gray-100"
         >
           <img src="@/assets/images/info-circle.svg" />
           <span>You're not going to be charged</span>

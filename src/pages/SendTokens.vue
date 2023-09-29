@@ -46,13 +46,6 @@ const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
 
-const isPolygonChain = computed(() => {
-  return (
-    Number(rpcStore.selectedChainId) === 137 ||
-    Number(rpcStore.selectedChainId) === 80001
-  )
-})
-
 const walletBalance = computed(() => {
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
 })
@@ -199,10 +192,6 @@ async function handleSendToken() {
         payload.gasPrice = gasFees
       }
       payload.gasLimit = gas.value?.gasLimit || estimatedGas.value
-
-      if (!isPolygonChain.value) {
-        payload.type = '0x2'
-      }
 
       const txHash = await accountHandler.sendTransaction(
         payload,
