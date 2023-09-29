@@ -75,7 +75,9 @@ export const useRequestStore = defineStore('request', {
       }
     },
     setGasFee(gas: GasFee | null, requestId: string): void {
-      const request = this.pendingRequests[requestId].request
+      const request =
+        this.pendingRequests[requestId]?.request ||
+        this.skippedRequests[requestId]?.request
       if (Array.isArray(request.params)) {
         const param = request.params[0]
         if (param.type && Number(param.type) === 2) {

@@ -8,7 +8,6 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { GAS_FEE_UNIT } from '@/utils/constants'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -23,14 +22,19 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  gasPrices: {
-    type: Object,
+  gasLimit: {
+    type: String,
     required: false,
-    default: () => ({}),
+    default: '',
   },
   gas: {
     type: Object,
     required: true,
+  },
+  baseFee: {
+    type: String,
+    required: false,
+    default: '',
   },
 })
 
@@ -40,11 +44,15 @@ onMounted(async () => {
 
 const gasFee = computed(() => {
   if (props.gas?.maxFeePerGas) {
-    return new Decimal(props.gas.maxFeePerGas)
+    return new Decimal(props.gas.maxFeePerGas || props.baseFee)
       .add(props.gas.maxPriorityFeePerGas || 1.5)
+      .mul(Decimal.pow(10, 9))
+      .mul(props.gasLimit)
+      .div(Decimal.pow(10, 18))
       .toString()
+      .slice(0, 10)
   }
-  return '0'
+  return 'Unknown'
 })
 
 async function setHeight() {
@@ -68,16 +76,21 @@ async function setHeight() {
         you approve the transaction?
       </p>
     </div>
-    <div class="flex-1">
+    <div class="flex flex-col gap-1 flex-1">
       <div class="flex justify-center">
         <div class="flex justify-center gap-2 items-baseline">
-          <span class="text-sm text-gray-100">Gas Fees</span>
+          <span class="text-sm text-gray-100">Transaction Fees</span>
           <div class="flex gap-1 items-baseline">
             <span class="text-lg font-bold">{{ gasFee }}</span>
-            <span class="text-sm">{{ GAS_FEE_UNIT }}</span>
+            <span v-if="gasFee !== 'Unknown'" class="text-sm">{{
+              rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+            }}</span>
           </div>
         </div>
       </div>
+      <!-- <div class="text-xs text-center">
+        Expand the wallet to view more details
+      </div> -->
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 text-sm font-bold">

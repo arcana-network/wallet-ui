@@ -11,14 +11,16 @@ const props = defineProps({
 })
 
 const signInfo = computed(() => {
-  return props.info
+  return props.info as any
 })
 </script>
 
 <template>
   <div
-    class="bg-black-100 p-4 break-word rounded-md overflow-auto max-h-40 break-words"
+    class="card dark:bg-black-100 p-4 break-word rounded-md overflow-hidden max-h-40 break-words"
   >
-    <VJsonViewer :value="signInfo"></VJsonViewer>
+    <div class="overflow-auto h-full w-full">
+      <VJsonViewer :value="signInfo"></VJsonViewer>
+    </div>
   </div>
 </template>
