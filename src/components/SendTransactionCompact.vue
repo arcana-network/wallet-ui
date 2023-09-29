@@ -5,6 +5,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -16,6 +17,7 @@ const appStore = useAppStore()
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
 const route = useRoute()
+const currencyStore = useCurrencyStore()
 
 const props = defineProps({
   request: {
@@ -50,9 +52,31 @@ const gasFee = computed(() => {
       .mul(props.gasLimit)
       .div(Decimal.pow(10, 18))
       .toString()
-      .slice(0, 10)
   }
   return 'Unknown'
+})
+
+const gasFeeInCurrency = computed(() => {
+  if (gasFee.value === 'Unknown') {
+    return null
+  }
+  const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
+  if (!rpcSymbol) {
+    return null
+  }
+  const chainType = rpcStore.selectedRpcConfig?.chainType
+  if (chainType?.toLowerCase() === 'testnet') {
+    return null
+  }
+  const perTokenPrice = currencyStore.currencies[rpcSymbol]
+  if (!perTokenPrice) {
+    return null
+  }
+  console.log(gasFee.value, perTokenPrice)
+  return new Decimal(gasFee.value)
+    .mul(Decimal.div(1, perTokenPrice))
+    .toDecimalPlaces(2)
+    .toString()
 })
 
 async function setHeight() {
@@ -81,10 +105,13 @@ async function setHeight() {
         <div class="flex justify-center gap-2 items-baseline">
           <span class="text-sm text-gray-100">Transaction Fees</span>
           <div class="flex gap-1 items-baseline">
-            <span class="text-lg font-bold">{{ gasFee }}</span>
+            <span class="text-lg font-bold">{{ gasFee.slice(0, 9) }}</span>
             <span v-if="gasFee !== 'Unknown'" class="text-sm">{{
               rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
             }}</span>
+          </div>
+          <div class="text-sm font-medium">
+            ({{ currencyStore.getCurrencySymbol }}{{ gasFeeInCurrency }})
           </div>
         </div>
       </div>

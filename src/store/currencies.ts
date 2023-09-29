@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { getExchangeRate } from '@/services/exchangeRate.service'
 
 const supportedCurrencySymbols = {
-  USD: 'US$',
+  USD: '$',
   EUR: '€',
   GBP: '£',
   JPY: '¥',
@@ -17,6 +17,11 @@ const useCurrencyStore = defineStore('currencies', {
     currencies: {} as any,
     selectedCurrency: '',
   }),
+  getters: {
+    getCurrencySymbol(state) {
+      return supportedCurrencySymbols[state.selectedCurrency] || '$'
+    },
+  },
   actions: {
     setLocalCurrencyCode() {
       const currencyCode = 'USD'
