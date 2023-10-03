@@ -90,10 +90,8 @@ class AccountHandler {
           to: contractAddress,
           data: encodedData,
         }
-        console.log({ txParams })
         const tx = await scwInstance.doTx(txParams)
         const txDetails = await tx.wait()
-        console.log({ txDetails })
         return txDetails.receipt.transactionHash
       } else {
         const signer = this.wallet.connect(this.provider)

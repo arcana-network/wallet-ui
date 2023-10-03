@@ -228,7 +228,7 @@ async function copyToClipboard(value: string) {
       <div class="flex flex-col justify-between space-y-1">
         <span class="text-[#8D8D8D] text-sm">Wallet</span>
         <div
-          class="bg-[#313131] flex flex-col justify-between p-2 rounded-md relative"
+          class="dark:bg-[#313131] bg-[#FFFFFF] flex flex-col justify-between p-2 rounded-md relative"
         >
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
             <ListboxButton class="flex justify-between items-center">
@@ -242,9 +242,10 @@ async function copyToClipboard(value: string) {
                 />
                 <div class="flex flex-col">
                   <div class="flex">
-                    <span class="font-bold text-lg">{{
-                      truncateMid(selectedAddressType.address, 6)
-                    }}</span>
+                    <span
+                      class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
+                      >{{ truncateMid(selectedAddressType.address, 6) }}</span
+                    >
                     <button
                       title="Click to copy wallet address"
                       @click.stop="copyToClipboard(selectedAddressType.address)"
@@ -266,7 +267,7 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 mt-2 p-2 rounded-md absolute top-12 bg-[#313131] w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-[#8d8d8d] divide-[#eff1f3] mt-2 p-2 rounded-md absolute top-12 dark:bg-[#313131] bg-[#FFFFFF] w-full left-0 z-[999]"
               >
                 <ListboxOption
                   v-for="address in addresses"
