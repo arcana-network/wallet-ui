@@ -12,7 +12,7 @@
       img-src 'self' data: https:;
       script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
       style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
-      frame-src *.arcana.network *.transak.com *.ramp.network;
+      frame-src *.arcana.network *.netlify.app *.transak.com *.ramp.network;
     '''
 [[headers]]
   for = "/assets/*"
@@ -25,5 +25,5 @@
       img-src 'self' data: https:;
       script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
       style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
-      frame-src *.arcana.network *.transak.com *.ramp.network;
+      frame-src *.arcana.network *.netlify.app *.transak.com *.ramp.network;
     '''

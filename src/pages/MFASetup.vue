@@ -252,7 +252,7 @@ async function handlePinProceed() {
       if (isInAppLogin(loginInfo?.loginType)) {
         return toast.error(e as string)
       }
-      return connectionToParent.error(
+      return connectionToParent?.error(
         e as string,
         // eslint-disable-next-line no-undef
         process.env.VUE_APP_WALLET_DOMAIN
@@ -279,7 +279,7 @@ function handleCancel() {
   if (isInAppLogin(loginInfo?.loginType)) {
     return router.back()
   }
-  return connectionToParent.error(
+  return connectionToParent?.error(
     'User cancelled the setup',
     // eslint-disable-next-line no-undef
     process.env.VUE_APP_WALLET_DOMAIN

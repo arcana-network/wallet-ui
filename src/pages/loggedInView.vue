@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { AuthProvider } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
-import axios from 'axios'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount, type Ref } from 'vue'
+import { onMounted, ref, onBeforeMount, type Ref, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
+import { getGaslessEnabledStatus } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
@@ -33,6 +32,7 @@ import {
   handleRequest,
   watchRequestQueue,
 } from '@/utils/requestManagement'
+import { initSCW, scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -67,6 +67,7 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
+      await initScwSdk()
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
@@ -84,6 +85,13 @@ onMounted(async () => {
     loader.value.show = false
   }
 })
+
+async function initScwSdk() {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler()
+  await initSCW(appStore.id, accountHandler.getSigner())
+  userStore.scwAddress = scwInstance.scwAddress
+}
 
 async function setMFABannerState() {
   // return null
@@ -299,6 +307,51 @@ function handleMFACreation() {
 onBeforeRouteLeave((to) => {
   if (to.path.includes('login')) parentConnection?.destroy()
 })
+
+async function checkIfGaslessEnabled(chainId: string, appId: string) {
+  let isGaslessEnabled = false
+  try {
+    isGaslessEnabled = await (
+      await getGaslessEnabledStatus(appId, chainId)
+    ).data.status
+  } catch (e) {
+    isGaslessEnabled = false
+  } finally {
+    rpcStore.setGaslessEnabledStatus(chainId as string, isGaslessEnabled)
+  }
+}
+
+function getWalletAddressType() {
+  let preferredAddressType = storage.local.getPreferredAddressType()
+  if (!preferredAddressType) {
+    preferredAddressType = rpcStore.isGaslessConfigured ? 'scw' : 'eoa'
+    storage.local.setPreferredAddressType(preferredAddressType)
+  } else {
+    preferredAddressType = !rpcStore.isGaslessConfigured
+      ? 'eoa'
+      : preferredAddressType
+  }
+  rpcStore.setPreferredWalletAddressType(preferredAddressType)
+}
+
+watch(
+  () => rpcStore.preferredAddressType,
+  () => {
+    const addressType = rpcStore.preferredAddressType
+    storage.local.setPreferredAddressType(addressType)
+  }
+)
+
+watch(
+  () => rpcStore.selectedChainId,
+  async () => {
+    const chainId = rpcStore.selectedChainId
+    const appId = appStore.id
+    await checkIfGaslessEnabled(chainId as string, appId as string)
+    getWalletAddressType()
+    await initScwSdk()
+  }
+)
 </script>
 
 <template>

@@ -152,6 +152,8 @@ async function handlePasswordlessLoginV2(params: HandleLoginParams) {
     pk: params.userInfo.pk,
     sessionID: params.sessionID,
     expiry: params.sessionExpiry,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     token: params.userInfo.token,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
