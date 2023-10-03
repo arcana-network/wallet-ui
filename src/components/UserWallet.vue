@@ -23,7 +23,7 @@ import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import shrinkWalletAddress from '@/utils/shrinkWalletAddress'
+import { truncateMid } from '@/utils/stringUtils'
 import { getTransakSupportedNetworks } from '@/utils/transak'
 
 type UserWalletProps = {
@@ -243,7 +243,7 @@ async function copyToClipboard(value: string) {
                 <div class="flex flex-col">
                   <div class="flex">
                     <span class="font-bold text-lg">{{
-                      shrinkWalletAddress(selectedAddressType.address)
+                      truncateMid(selectedAddressType.address, 6)
                     }}</span>
                     <button
                       title="Click to copy wallet address"
@@ -287,7 +287,7 @@ async function copyToClipboard(value: string) {
                     />
                     <div class="flex flex-col items-start">
                       <span class="text-base">{{
-                        shrinkWalletAddress(address.address)
+                        truncateMid(address.address, 6)
                       }}</span>
                       <span class="text-left text-xs text-[#8d8d8d]">{{
                         address.label
