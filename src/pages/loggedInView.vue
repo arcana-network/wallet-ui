@@ -87,10 +87,14 @@ onMounted(async () => {
 })
 
 async function initScwSdk() {
-  const requestHandler = getRequestHandler()
-  const accountHandler = requestHandler.getAccountHandler()
-  await initSCW(appStore.id, accountHandler.getSigner())
-  userStore.scwAddress = scwInstance.scwAddress
+  try {
+    const requestHandler = getRequestHandler()
+    const accountHandler = requestHandler.getAccountHandler()
+    await initSCW(appStore.id, accountHandler.getSigner())
+    userStore.scwAddress = scwInstance.scwAddress
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 async function setMFABannerState() {
