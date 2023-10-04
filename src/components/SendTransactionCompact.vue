@@ -73,7 +73,6 @@ const gasFeeInCurrency = computed(() => {
   if (!perTokenPrice) {
     return null
   }
-  console.log(gasFee.value, perTokenPrice)
   return new Decimal(gasFee.value)
     .mul(Decimal.div(1, perTokenPrice))
     .toDecimalPlaces(2)
