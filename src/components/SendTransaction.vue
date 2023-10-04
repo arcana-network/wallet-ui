@@ -11,6 +11,7 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
@@ -27,6 +28,7 @@ const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const userStore = useUserStore()
 const baseFee = ref('0')
 const gasLimit = ref('0')
 const requestStore = useRequestStore()
@@ -160,7 +162,7 @@ function calculateValue(value) {
     <div class="flex flex-col gap-2 text-sm">
       <div class="text-sm font-medium">Transaction Details</div>
       <div
-        v-if="request.request.params[0].from"
+        v-if="request.request?.params[0]?.from"
         class="flex justify-between gap-4"
       >
         <span class="w-[120px]">From</span>
@@ -168,8 +170,14 @@ function calculateValue(value) {
           {{ truncateMid(request.request.params[0].from, 6) }}
         </span>
       </div>
+      <div v-else class="flex justify-between gap-4">
+        <span class="w-[120px]">From</span>
+        <span :title="userStore.walletAddress">
+          {{ truncateMid(userStore.walletAddress, 6) }}
+        </span>
+      </div>
       <div
-        v-if="request.request.params[0].to"
+        v-if="request.request?.params[0]?.to"
         class="flex justify-between gap-4"
       >
         <span class="w-[120px]">To</span>
@@ -178,7 +186,7 @@ function calculateValue(value) {
         }}</span>
       </div>
       <div
-        v-if="request.request.params[0].value"
+        v-if="request.request?.params[0]?.value"
         class="flex justify-between gap-4"
       >
         <span>Value</span>

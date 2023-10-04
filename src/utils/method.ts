@@ -1,6 +1,6 @@
 export const methodAndAction = {
   eth_sign: 'Signature',
-  personal_sign: 'Personal Signature',
+  personal_sign: 'Signature',
   eth_signTypedData_v4: 'Signature',
   eth_sendTransaction: 'Send Transaction',
   eth_signTransaction: 'Transaction Signature',
