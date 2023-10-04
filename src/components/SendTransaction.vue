@@ -9,6 +9,7 @@ import GasPrice from '@/components/GasPrice.vue'
 import SendTransactionCompact from '@/components/SendTransactionCompact.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -28,6 +29,7 @@ const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 const userStore = useUserStore()
 const baseFee = ref('0')
 const gasLimit = ref('0')
@@ -119,10 +121,9 @@ function handleSetGasPrice(value) {
 
 function calculateGasPrice(params) {
   if (params.maxFeePerGas || params.gasPrice) {
-    return `${new Decimal(params.maxFeePerGas || params.gasPrice)
-      .add(params.maxPriorityFeePerGas || 1.5)
-      .mul(params.gasLimit || params.gas || 21000)
+    return `${new Decimal(getGasValue(params))
       .div(Decimal.pow(10, 18))
+      .toDecimalPlaces(10)
       .toString()} ${
       rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
     }`
@@ -130,10 +131,42 @@ function calculateGasPrice(params) {
   return 'Unknown'
 }
 
+function getGasValue(params) {
+  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+    .add(params.maxPriorityFeePerGas || 1.5)
+    .mul(params.gasLimit || params.gas || 21000)
+    .toHexadecimal()}`
+}
+
 function calculateValue(value) {
   return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()} ${
     rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
   }`
+}
+
+function calculateCurrencyValue(value) {
+  const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
+  if (!rpcSymbol) {
+    return null
+  }
+  const chainType = rpcStore.selectedRpcConfig?.chainType
+  if (chainType?.toLowerCase() === 'testnet') {
+    return null
+  }
+  if (rpcStore.selectedRPCConfig?.nativeCurrency?.symbol) {
+    const perTokenPrice =
+      currencyStore.currencies[rpcStore.selectedRPCConfig.nativeCurrency.symbol]
+    if (!perTokenPrice) {
+      return null
+    }
+    const currencySymbol = currencyStore.getCurrencySymbol
+    return `${currencySymbol}${new Decimal(value)
+      .div(Decimal.pow(10, 18))
+      .mul(Decimal.div(1, perTokenPrice))
+      .toDecimalPlaces(2)
+      .toString()}`
+  }
+  return null
 }
 </script>
 
@@ -155,8 +188,7 @@ function calculateValue(value) {
       <p class="text-lg text-center font-bold flex-grow">Send Transaction</p>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
-        send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}. Do
-        you approve the transaction?
+        send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
     </div>
     <div class="flex flex-col gap-2 text-sm">
@@ -190,15 +222,35 @@ function calculateValue(value) {
         class="flex justify-between gap-4"
       >
         <span>Value</span>
-        <span :title="calculateValue(request.request.params[0].value)">{{
-          calculateValue(request.request.params[0].value)
-        }}</span>
+        <span class="text-right">
+          <span :title="calculateValue(request.request.params[0].value)">{{
+            calculateValue(request.request.params[0].value)
+          }}</span>
+          <span
+            v-if="calculateCurrencyValue(request.request.params[0].value)"
+            class="ml-1"
+          >
+            ({{ calculateCurrencyValue(request.request.params[0].value) }})
+          </span>
+        </span>
       </div>
       <div class="flex justify-between gap-4">
         <span>Transaction Fee</span>
-        <span :title="calculateGasPrice(request.request.params[0])">{{
-          calculateGasPrice(request.request.params[0])
-        }}</span>
+        <span class="text-right">
+          <span :title="calculateGasPrice(request.request.params[0])">{{
+            calculateGasPrice(request.request.params[0])
+          }}</span>
+          <span
+            v-if="
+              calculateCurrencyValue(getGasValue(request.request.params[0]))
+            "
+            class="ml-1"
+          >
+            ({{
+              calculateCurrencyValue(getGasValue(request.request.params[0]))
+            }})
+          </span>
+        </span>
       </div>
       <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
         <span>Data</span>

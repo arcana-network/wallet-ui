@@ -122,7 +122,10 @@ async function onViewDetails() {
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
               }}</span>
             </div>
-            <div class="text-sm font-medium">
+            <div
+              v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
+              class="text-sm font-medium"
+            >
               ({{ currencyStore.getCurrencySymbol }}{{ gasFeeInCurrency }})
             </div>
           </div>
