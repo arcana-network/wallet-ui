@@ -4,12 +4,6 @@ import { getExchangeRate } from '@/services/exchangeRate.service'
 
 const supportedCurrencySymbols = {
   USD: '$',
-  EUR: '€',
-  GBP: '£',
-  JPY: '¥',
-  INR: '₹',
-  CHF: '₣',
-  RUB: '₽',
 }
 
 const useCurrencyStore = defineStore('currencies', {
