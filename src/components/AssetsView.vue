@@ -10,7 +10,6 @@ import { useUserStore } from '@/store/user'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import { sleep } from '@/utils/sleep'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -78,18 +77,6 @@ async function getAssetsBalance() {
       }
     } catch (err) {
       console.error({ err })
-    }
-  })
-}
-
-function updateAssetsBalance() {
-  assets.value.forEach(async (asset) => {
-    if (asset.address !== 'native') {
-      const balance = await getTokenBalance({
-        walletAddress: userStore.walletAddress,
-        contractAddress: asset.address,
-      })
-      asset.balance = formatTokenDecimals(balance, asset.decimals)
     }
   })
 }
