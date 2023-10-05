@@ -66,6 +66,6 @@ const getHeader = (domain = '') =>
   "script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;" +
   "style-src 'self' 'unsafe-inline' https://*.cloudfront.net;" +
   'frame-src *.arcana.network *.transak.com *.ramp.network;' +
-  domain
+  (domain.length > 0
     ? `frame-ancestors *.arcana.network http://localhost ${domain};`
-    : ''
+    : '')
