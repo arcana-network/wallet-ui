@@ -63,9 +63,9 @@ const fetchDomain = async (appId) => {
 const getHeader = (domain = '') =>
   "font-src 'self' https://*.cloudfront.net data:;" +
   "img-src 'self' data: https:;" +
-  "script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;" +
-  "style-src 'self' 'unsafe-inline' https://*.cloudfront.net;" +
-  'frame-src *.arcana.network *.transak.com *.ramp.network;' +
+  "script-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;" +
+  "style-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net;" +
+  'frame-src *.arcana.network *.netlify.app *.transak.com *.ramp.network;' +
   domain
     ? `frame-ancestors *.arcana.network http://localhost ${domain};`
     : ''
