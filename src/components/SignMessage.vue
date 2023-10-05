@@ -4,10 +4,9 @@ import { useRoute } from 'vue-router'
 
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageCompact from '@/components/SignMessageCompact.vue'
-import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
-import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
 
@@ -15,32 +14,90 @@ const appStore = useAppStore()
 const requestStore = useRequestStore()
 const route = useRoute()
 
+const DEPRECATED_METHODS = ['eth_sign']
+
 defineProps({
   request: {
-    type: Request,
+    type: Object,
     required: true,
   },
 })
 
 const emits = defineEmits(['reject', 'approve'])
+const userStore = useUserStore()
 
-const stateChangeRequests = [
-  methodAndAction.wallet_addEthereumChain,
-  methodAndAction.wallet_switchEthereumChain,
-  methodAndAction.wallet_watchAsset,
-]
+function isSiweMessage(message: string) {
+  return (
+    message.includes('wants you to sign in with your Ethereum account') &&
+    message.includes('URI') &&
+    message.includes('Nonce') &&
+    message.includes('Version') &&
+    message.includes('Issued At') &&
+    message.toLowerCase().includes(userStore.walletAddress.toLowerCase())
+  )
+}
 
-function getTitle(requestMethod: string) {
-  if (stateChangeRequests.includes(requestMethod)) {
-    return requestMethod
+function getPermissionText(method, request) {
+  const { params } = request
+  let param: any
+  if (params instanceof Array && params[0]) {
+    param = params[0]
   }
-  return 'Sign Message'
+  let response = 'performing an action'
+  switch (method) {
+    case 'wallet_addEthereumChain':
+      response = param?.chainName
+        ? `adding chain - ${param?.chainName}`
+        : 'adding a chain'
+      break
+    case 'wallet_switchEthereumChain':
+      response = param?.chainName
+        ? `switching chain - ${param?.chainName}`
+        : 'switching a chain'
+      break
+    case 'wallet_watchAsset':
+      response = 'adding a token'
+      break
+    case 'eth_sendTransaction':
+      response = 'sending a transaction'
+      break
+    case 'personal_sign':
+      if (isSiweMessage(param)) {
+        response = 'log in'
+      } else {
+        response = 'signing a message'
+      }
+      break
+    case 'eth_sign':
+      response = 'signing a message'
+      break
+    case 'eth_signTypedData_v4':
+      response = 'signing typed data'
+      break
+    case 'eth_decrypt':
+      response = 'decrypting data'
+      break
+    case 'eth_signTransaction':
+      response = 'signing a transaction'
+      break
+    default:
+      response = 'performing an action'
+      break
+  }
+  return response
+}
+
+function isDeprecatedMethod(method) {
+  return DEPRECATED_METHODS.includes(method)
 }
 </script>
 
 <template>
   <SignMessageCompact
     v-if="appStore.compactMode"
+    :deprecated="isDeprecatedMethod(request.request.method)"
+    :title="methodAndAction[request.request.method]"
+    :permission="getPermissionText(request.request.method, request.request)"
     :request="request"
     @approve="emits('approve')"
     @reject="emits('reject')"
@@ -48,12 +105,17 @@ function getTitle(requestMethod: string) {
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
       <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
-        {{ getTitle(methodAndAction[request.request.method]) }}
+        {{ methodAndAction[request.request.method] }}
       </h1>
       <p class="text-xs text-gray-100 text-center">
         {{ appStore.name }} requests your permission for
-        {{ methodAndAction[request.request.method] }}
+        {{ getPermissionText(request.request.method, request.request) }}
       </p>
+      <span
+        v-if="isDeprecatedMethod(request.request.method)"
+        class="text-xs text-yellow-100 font-medium text-center w-full"
+        >WARNING: This is a deprecated method. Sign with caution.</span
+      >
     </div>
     <div class="flex flex-col gap-1">
       <div class="text-sm">Message</div>

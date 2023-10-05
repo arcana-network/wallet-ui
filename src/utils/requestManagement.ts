@@ -134,14 +134,13 @@ function isExistingChain(chainId) {
 }
 
 function validateSwitchChainParams({ chainId }) {
-  const rpcConfigs = rpcStore.rpcConfigs
   const result: { isValid: boolean; error: unknown } = {
     isValid: false,
     error: null,
   }
   if (!chainId) {
     result.error = 'Please provide chain id'
-  } else if (!(rpcConfigs && rpcConfigs[parseInt(chainId)])) {
+  } else if (!isExistingChain(chainId)) {
     result.error = serializeError(
       ethErrors.provider.custom({
         code: 4902,

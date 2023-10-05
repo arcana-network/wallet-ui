@@ -2,48 +2,35 @@
 import { AppMode } from '@arcana/auth'
 import { useRoute } from 'vue-router'
 
-import type { Request } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
-import { methodAndAction } from '@/utils/method'
 
-defineProps({
-  request: {
-    type: Request,
-    required: true,
-  },
-})
+type SignMessageCompactProps = {
+  title: string
+  deprecated: boolean
+  permission: string
+  request: any
+}
+
+const props = defineProps<SignMessageCompactProps>()
 
 const emits = defineEmits(['reject', 'approve'])
 
 const appStore = useAppStore()
 const route = useRoute()
 const requestStore = useRequestStore()
+const parentConnectionStore = useParentConnectionStore()
 
-const stateChangeRequests = [
-  methodAndAction.wallet_addEthereumChain,
-  methodAndAction.wallet_switchEthereumChain,
-  methodAndAction.wallet_watchAsset,
-]
-
-function getTitle(requestMethod: string) {
-  if (stateChangeRequests.includes(requestMethod)) {
-    return requestMethod
+async function onViewDetails() {
+  const c = await parentConnectionStore.parentConnection?.promise
+  if (appStore.compactMode) {
+    appStore.compactMode = false
+  } else {
+    appStore.standaloneMode == 1 || appStore.standaloneMode == 2
+      ? c?.uiEvent('wallet_close', null)
+      : (appStore.expandWallet = false)
   }
-  return 'Sign Message'
-}
-
-function getPermissionText(method, request) {
-  const { params } = request
-  if (params instanceof Array && params[0]) {
-    const { chainName } = params[0]
-    if (method === 'wallet_addEthereumChain') {
-      return chainName ? `Adding Chain - ${chainName}` : 'Adding Chain'
-    } else if (method === 'wallet_switchEthereumChain') {
-      return chainName ? `Switch Chain - ${chainName}` : 'Switch Chain'
-    }
-  }
-  return methodAndAction[method]
 }
 </script>
 
@@ -52,13 +39,20 @@ function getPermissionText(method, request) {
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-center">
         <h1 class="m-0 font-bold text-lg capitalize">
-          {{ getTitle(methodAndAction[request.request.method]) }}
+          {{ props.title }}
         </h1>
       </div>
       <p class="text-sm text-center">
-        {{ appStore.name }} requests your permission for
-        {{ getPermissionText(request.request.method, request.request) }}
+        {{ appStore.name }} requests your permission for {{ props.permission }}.
+        <button class="font-bold" @click.stop="onViewDetails">
+          Learn More
+        </button>
       </p>
+      <span
+        v-if="props.deprecated"
+        class="text-xs text-yellow-100 font-medium text-center w-full"
+        >WARNING: This is a deprecated method. Sign with caution.</span
+      >
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex justify-end gap-4 text-sm font-bold">
@@ -83,7 +77,7 @@ function getPermissionText(method, request) {
       >
         <button
           class="btn-tertiary text-sm font-bold"
-          @click.stop="requestStore.skipRequest(request.request.id)"
+          @click.stop="requestStore.skipRequest(props.request.request.id)"
         >
           Do this later
         </button>

@@ -5,18 +5,16 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue'
+import Decimal from 'decimal.js'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch, type Ref } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
-import {
-  getExchangeRate,
-  CurrencySymbol,
-} from '@/services/exchangeRate.service'
+import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -27,7 +25,6 @@ import { truncateMid } from '@/utils/stringUtils'
 import { getTransakSupportedNetworks } from '@/utils/transak'
 
 type UserWalletProps = {
-  walletBalance?: string
   page: 'home' | 'nft'
   refreshIconAnimating: boolean
 }
@@ -37,7 +34,6 @@ const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 const toast = useToast()
 
-const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 type ModalState =
   | 'send'
   | 'receive'
@@ -51,9 +47,42 @@ const modalStore = useModalStore()
 const rpcStore = useRpcStore()
 const showModal: Ref<ModalState> = ref(false)
 const { currency } = storeToRefs(rpcStore)
-const totalAmountInUSD: Ref<string | null> = ref(null)
 const chainSelectedForEdit: Ref<number | null> = ref(null)
 const showAddressListDropDown = ref(false)
+
+const currencyStore = useCurrencyStore()
+const walletBalance = computed(() => {
+  return rpcStore.walletBalance
+    ? new Decimal(rpcStore.walletBalance)
+        .div(Decimal.pow(10, 18))
+        .toDecimalPlaces(9)
+        .toString()
+    : ''
+})
+const walletBalanceInCurrency = computed(() => {
+  const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
+  if (!rpcSymbol) {
+    return null
+  }
+  const chainType = rpcStore.selectedRpcConfig?.chainType
+  if (chainType?.toLowerCase() === 'testnet') {
+    return null
+  }
+  if (rpcStore.selectedRPCConfig?.nativeCurrency?.symbol) {
+    const perTokenPrice =
+      currencyStore.currencies[rpcStore.selectedRPCConfig.nativeCurrency.symbol]
+    if (!perTokenPrice) {
+      return null
+    }
+    const currencySymbol = currencyStore.getCurrencySymbol
+    return `${currencySymbol}${new Decimal(rpcStore.walletBalance)
+      .div(Decimal.pow(10, 18))
+      .mul(Decimal.div(1, perTokenPrice))
+      .toDecimalPlaces(2)
+      .toString()}`
+  }
+  return null
+})
 
 const addresses = [
   {
@@ -91,14 +120,6 @@ const onRampMoney = computed(() => {
   }
 })
 
-function showLoader(message: string) {
-  emit('show-loader', { message })
-}
-
-function hideLoader() {
-  emit('hide-loader')
-}
-
 function handleRefresh() {
   emit('refresh')
 }
@@ -130,49 +151,20 @@ function goToSendTokens() {
   }
 }
 
-async function getCurrencyExchangeRate() {
-  showLoader('Fetching Currency Rate')
-  totalAmountInUSD.value = totalAmountInUSD.value || null
-  try {
-    if (currency.value) {
-      const rate = await getExchangeRate(
-        currency.value as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )
-      if (rate) {
-        totalAmountInUSD.value = new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'USD',
-        }).format(Math.round(Number(props.walletBalance) * rate))
-      }
-    }
-  } catch (err) {
-    totalAmountInUSD.value = null
-  } finally {
-    hideLoader()
-  }
-}
-
 function handleBuy(open: boolean) {
   modalStore.setShowModal(open)
   showModal.value = open ? 'buy' : false
 }
 
 function hasWalletBalanceAfterDecimals() {
-  if (props.walletBalance?.includes('.')) {
-    const balance = props.walletBalance.split('.')
+  if (walletBalance.value?.includes('.')) {
+    const balance = walletBalance.value.split('.')
     if (Number(balance[1]) > 0) {
       return true
     }
   }
   return false
 }
-
-onMounted(() => {
-  if (props.walletBalance) {
-    getCurrencyExchangeRate()
-  }
-})
 
 watch(
   () => rpcStore.selectedRPCConfig?.chainId,
@@ -182,17 +174,7 @@ watch(
         ...rpcStore.selectedRPCConfig,
         chainId: Number(rpcStore.selectedRPCConfig.chainId),
       })
-      if (props.walletBalance) {
-        getCurrencyExchangeRate()
-      }
     }
-  }
-)
-
-watch(
-  () => props.walletBalance,
-  () => {
-    getCurrencyExchangeRate()
   }
 )
 
@@ -309,7 +291,7 @@ async function copyToClipboard(value: string) {
             :class="{ 'blur-sm': props.refreshIconAnimating }"
           >
             <span class="font-bold text-xxl">{{
-              props.walletBalance?.split('.')[0]
+              walletBalance?.split('.')[0]
             }}</span>
             <span
               v-if="hasWalletBalanceAfterDecimals()"
@@ -319,10 +301,13 @@ async function copyToClipboard(value: string) {
             <span
               v-if="hasWalletBalanceAfterDecimals()"
               class="font-bold text-base"
-              >{{ props.walletBalance?.split('.')[1] }}</span
+              >{{ walletBalance?.split('.')[1] }}</span
             >
             <span v-if="currency" class="font-bold text-base ml-1">
               {{ currency }}</span
+            >
+            <span v-if="walletBalanceInCurrency" class="ml-2 text-sm"
+              >({{ walletBalanceInCurrency }})</span
             >
           </div>
 

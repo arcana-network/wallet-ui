@@ -50,30 +50,43 @@ function isString(value: any) {
     <pre
       v-if="isString(jsonValue)"
       class="jv-string json-viewer whitespace-pre-wrap break-words"
+      >{{ jsonValue }}</pre
     >
-      {{ jsonValue }}
-    </pre>
     <div v-else class="flex flex-col">
-      <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
+      <div
+        v-for="propKey in propKeys"
+        :key="propKey"
+        class="json-viewer"
+        :class="{
+          flex: !isArray(jsonValue[propKey]) && !hasObject(jsonValue[propKey]),
+        }"
+      >
         <pre class="jv-key">{{ propKey }}:</pre>
         <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
-          <br />
           <div v-for="val in jsonValue[propKey]" :key="JSON.stringify(val)">
-            <pre v-if="isString(val)" class="jv-push">"{{ val }}"</pre>
-            <VJsonViewer v-else :value="val" />
+            <pre
+              v-if="isString(val)"
+              class="jv-push whitespace-pre-wrap break-words ml-4"
+            >
+"{{ val }}"</pre
+            >
+            <VJsonViewer v-else class="ml-4" :value="val" />
           </div>
         </div>
         <div v-else-if="hasObject(jsonValue[propKey])">
-          <br />
           <div>
-            <VJsonViewer :value="jsonValue[propKey]" />
+            <VJsonViewer class="ml-4" :value="jsonValue[propKey]" />
           </div>
         </div>
-        <pre v-else class="jv-string jv-push ml-1">{{
-          isString(jsonValue[propKey])
-            ? `"${jsonValue[propKey]}"`
-            : jsonValue[propKey]
-        }}</pre>
+        <pre
+          v-else
+          class="jv-string jv-push ml-1 whitespace-pre-wrap break-words"
+          >{{
+            isString(jsonValue[propKey])
+              ? `"${jsonValue[propKey]}"`
+              : jsonValue[propKey]
+          }}</pre
+        >
       </div>
     </div>
   </div>
@@ -81,7 +94,6 @@ function isString(value: any) {
 
 <style>
 .json-viewer {
-  display: flex;
   font-size: 10px;
 }
 
