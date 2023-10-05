@@ -7,11 +7,13 @@ export default async (req, context) => {
   try {
     const appId = getAppId(req.url)
 
-    let header = ''
+    let header = getHeader('')
 
-    if (appId == 'assets' || !appId) {
-      header = getHeader('')
-    } else {
+    if (!appId) {
+      throw new Error('Invalid AppId')
+    }
+
+    if (appId !== 'assets') {
       const domain = await fetchDomain(appId)
       if (domain) {
         header = getHeader(domain)
