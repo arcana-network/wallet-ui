@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
-import {
-  setRequestHandler,
-  getRequestHandler,
-} from '@/utils/requestHandlerSingleton'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const emit = defineEmits(['close'])
-const toast = useToast()
 const rpcStore = useRpcStore()
 
 const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)

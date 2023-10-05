@@ -47,24 +47,25 @@ function isString(value: any) {
 
 <template>
   <div class="flex flex-col">
-    <pre v-if="isString(jsonValue)" class="jv-push json-viewer">{{
-      jsonValue
-    }}</pre>
+    <pre
+      v-if="isString(jsonValue)"
+      class="jv-string json-viewer whitespace-pre-wrap break-words"
+    >
+      {{ jsonValue }}
+    </pre>
     <div v-else class="flex flex-col">
       <div v-for="propKey in propKeys" :key="propKey" class="json-viewer">
         <pre class="jv-key">{{ propKey }}:</pre>
         <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
-          <div
-            v-for="val in jsonValue[propKey]"
-            :key="JSON.stringify(val)"
-            class="ml-4"
-          >
+          <br />
+          <div v-for="val in jsonValue[propKey]" :key="JSON.stringify(val)">
             <pre v-if="isString(val)" class="jv-push">"{{ val }}"</pre>
             <VJsonViewer v-else :value="val" />
           </div>
         </div>
         <div v-else-if="hasObject(jsonValue[propKey])">
-          <div class="ml-4">
+          <br />
+          <div>
             <VJsonViewer :value="jsonValue[propKey]" />
           </div>
         </div>

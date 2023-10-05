@@ -56,9 +56,9 @@ watch(
 
 <template>
   <div class="relative card flex flex-col gap-2">
-    <div class="card z-30 relative">
+    <div class="card max-h-[400px] z-30 relative">
       <SendTransaction
-        v-if="isSendTransactionRequest(currentRequest.request.id)"
+        v-if="isSendTransactionRequest(currentRequest?.request.id)"
         :request="currentRequest"
         @gas-price-input="handleGasPriceInput"
         @reject="() => onRejectClick(currentRequest?.request.id)"
