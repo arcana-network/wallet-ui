@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
-import {
-  setRequestHandler,
-  getRequestHandler,
-} from '@/utils/requestHandlerSingleton'
+import { getImage } from '@/utils/getImage'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const emit = defineEmits(['close'])
-const toast = useToast()
 const rpcStore = useRpcStore()
 
 const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
@@ -28,6 +24,10 @@ watch(
     emit('close')
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -53,8 +53,8 @@ watch(
         <label class="flex items-center gap-2" :for="chain.chainId">
           <img
             :src="getChainLogoUrl(Number(chain.chainId))"
-            onerror="this.src = '/chain-logos/blockchain-icon.png'"
             class="w-xl h-xl"
+            @error="handleFallbackLogo"
           />
           <span class="text-base">{{ chain.chainName }}</span>
           <span v-if="chain.chainType === 'testnet'" class="testnet-tag">

@@ -3,7 +3,6 @@ import axios from 'axios'
 import type { NFT } from '@/models/NFT'
 import { LocalStorage } from '@/utils/storage'
 
-const NFT_DB_KEY = 'nft_list'
 const NFT_PAGE_SIZE = 50
 
 type NFTItem = NFT & {
@@ -35,14 +34,15 @@ type AnkrNFT = {
 const ANKR_BLOCKCHAIN_TO_CHAIN_ID = new Map([
   ['arbitrum', 42161],
   ['avalanche', 43114],
-  ['avalanche_fuji', 43113],
+  ['base', 8453],
   ['bsc', 56],
   ['eth', 1],
-  ['eth_goerli', 5],
   ['fantom', 250],
+  ['flare', 14],
+  ['gnosis', 100],
   ['optimism', 10],
   ['polygon', 137],
-  ['polygon_mumbai', 80001],
+  ['rollux', 570],
   ['syscoin', 57],
 ])
 

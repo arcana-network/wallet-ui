@@ -17,12 +17,15 @@ enum StorageKey {
   NFT = 'nft_list',
   AssetContract = 'asset-contracts',
   PK = 'pk',
+  PreferredAddressType = 'preferred-address-type',
 }
 
 type UserInfo = GetInfoOutput & {
   hasMfa?: boolean | undefined
   pk?: string | undefined
 }
+
+type PreferredAddressType = 'eoa' | 'scw'
 
 type NFTItem = NFT & {
   autodetected: boolean
@@ -204,6 +207,16 @@ class UserLocalStorage extends BaseStorage {
 
   clearPK() {
     this.delete(StorageKey.PK)
+  }
+
+  setPreferredAddressType(val: PreferredAddressType) {
+    this.set(StorageKey.PreferredAddressType, val)
+  }
+
+  getPreferredAddressType() {
+    return this.get<PreferredAddressType | null>(
+      StorageKey.PreferredAddressType
+    )
   }
 }
 

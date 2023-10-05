@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
@@ -10,10 +9,6 @@ import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
 const refreshIconAnimating = ref(false)
-const walletBalance = ref('')
-if (rpcStore.walletBalance) {
-  walletBalance.value = ethers.utils.formatEther(rpcStore.walletBalance)
-}
 const loader = ref({
   show: false,
   message: '',
@@ -72,15 +67,6 @@ rpcStore.$subscribe(() => {
     handleChainChange()
   }
 })
-
-watch(
-  () => rpcStore.walletBalance,
-  () => {
-    if (rpcStore.walletBalance) {
-      walletBalance.value = ethers.utils.formatEther(rpcStore.walletBalance)
-    }
-  }
-)
 </script>
 
 <template>
@@ -90,7 +76,6 @@ watch(
   <div v-else>
     <UserWallet
       page="home"
-      :wallet-balance="walletBalance"
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
