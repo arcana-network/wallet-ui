@@ -8,7 +8,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Content-Security-Policy = '''
-      font-src 'self' https://*.netlify.app https://*.cloudfront.net data:;
+      font-src 'self' https://*.cloudfront.net data:;
       img-src 'self' data: https:;
       script-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
       style-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net;
@@ -21,7 +21,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Content-Security-Policy = '''
-      font-src 'self' https://*.netlify.app https://*.cloudfront.net data:;
+      font-src 'self' https://*.cloudfront.net data:;
       img-src 'self' data: https:;
       script-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
       style-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net;
