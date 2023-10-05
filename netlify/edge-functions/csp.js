@@ -15,9 +15,7 @@ export default async (req, context) => {
 
     if (appId !== 'assets') {
       const domain = await fetchDomain(appId)
-      if (domain) {
-        header = getHeader(domain)
-      }
+      header = getHeader(domain)
     }
     res.headers.set('Content-Security-Policy', header)
 
@@ -68,4 +66,6 @@ const getHeader = (domain = '') =>
   "script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;" +
   "style-src 'self' 'unsafe-inline' https://*.cloudfront.net;" +
   'frame-src *.arcana.network *.transak.com *.ramp.network;' +
-  `frame-ancestors *.arcana.network http://localhost ${domain};`
+  domain
+    ? `frame-ancestors *.arcana.network http://localhost ${domain};`
+    : ''
