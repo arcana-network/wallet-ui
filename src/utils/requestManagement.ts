@@ -226,15 +226,22 @@ async function validateAddNftParams(tokenType, params) {
 async function addNetwork(request, keeper) {
   const { method, params } = request
   const networkInfo = params[0]
-  const name: string = networkInfo.chainName || ''
-  const rpcUrls: string[] = networkInfo.rpcUrls || []
+  const name: string = networkInfo.chainName
+  const rpcUrls: string[] = networkInfo.rpcUrls
   const chainId = `${Number(networkInfo.chainId)}`
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
   const existingChain = isExistingChain(chainId)
+  const favicon = networkInfo.iconUrls?.length
+    ? networkInfo.iconUrls[0]
+    : undefined
   if (existingChain) {
     rpcStore.setRpcConfig({
       ...existingChain,
-      rpcUrls,
+      rpcUrls: rpcUrls || existingChain.rpcUrls,
+      favicon: favicon || existingChain.favicon,
+      blockExplorerUrls:
+        networkInfo.blockExplorerUrls || existingChain.blockExplorerUrls,
+      chainName: name || existingChain.chainName,
     })
     rpcStore.setSelectedChainId(existingChain.chainId)
     await getRequestHandler().setRpcConfig({
@@ -243,11 +250,11 @@ async function addNetwork(request, keeper) {
     })
   } else {
     const payload = {
-      chainName: name,
+      chainName: name || '',
       chainId,
-      blockExplorerUrls: networkInfo.blockExplorerUrls,
-      rpcUrls: rpcUrls,
-      favicon: 'blockchain-icon',
+      blockExplorerUrls: networkInfo.blockExplorerUrls || [],
+      rpcUrls: rpcUrls || [],
+      favicon,
       isCustom: true,
       nativeCurrency: {
         symbol: symbol,

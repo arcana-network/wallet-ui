@@ -86,7 +86,7 @@ function handleFallbackLogo(event) {
         <button class="flex items-center" @click.stop="openChainList()">
           <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
             <img
-              :src="getChainLogoUrl(Number(rpcStore.selectedChainId))"
+              :src="getChainLogoUrl(rpcStore.selectedRPCConfig)"
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
               class="w-xl h-xl"

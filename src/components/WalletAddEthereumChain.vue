@@ -27,9 +27,14 @@ const chainId = computed(() => new Decimal(props.params.chainId).toString())
     <div v-if="props.params?.chainName" class="flex justify-between gap-4">
       <span class="w-[120px]">Name</span>
       <span
-        class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis"
+        class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis flex gap-1 items-center justify-end"
         :title="props.params?.chainName"
       >
+        <img
+          v-if="props.params.iconUrls?.length"
+          :src="props.params.iconUrls[0]"
+          class="h-4 w-4"
+        />
         {{ props.params.chainName }}
       </span>
     </div>

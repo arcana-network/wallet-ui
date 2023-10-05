@@ -2,7 +2,9 @@
 import Decimal from 'decimal.js'
 import { computed } from 'vue'
 
+import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
+import { getImage } from '@/utils/getImage'
 
 const props = defineProps({
   params: {
@@ -20,6 +22,10 @@ const chain = computed(() =>
     (chain) => Number(chain.chainId) === Number(props.params.chainId)
   )
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -37,9 +43,14 @@ const chain = computed(() =>
     <div v-if="chain?.chainName" class="flex justify-between gap-4">
       <span class="w-[120px]">Name</span>
       <span
-        class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis"
+        class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis flex gap-1 items-center justify-end"
         :title="chain.chainName"
       >
+        <img
+          :src="getChainLogoUrl(chain)"
+          class="h-4 w-4"
+          @error="handleFallbackLogo"
+        />
         {{ chain.chainName }}
       </span>
     </div>
