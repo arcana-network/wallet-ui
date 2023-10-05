@@ -54,6 +54,10 @@ watch(
     }, 25)
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -85,8 +89,8 @@ watch(
               :src="getChainLogoUrl(Number(rpcStore.selectedChainId))"
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
-              onerror="this.src = '/chain-logos/blockchain-icon.png'"
               class="w-xl h-xl"
+              @error="handleFallbackLogo"
             />
           </div>
           <img
