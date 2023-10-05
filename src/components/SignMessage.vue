@@ -14,6 +14,8 @@ const appStore = useAppStore()
 const requestStore = useRequestStore()
 const route = useRoute()
 
+const DEPRECATED_METHODS = ['eth_sign']
+
 defineProps({
   request: {
     type: Object,
@@ -86,7 +88,7 @@ function getPermissionText(method, request) {
 }
 
 function isDeprecatedMethod(method) {
-  return method === 'eth_sign'
+  return DEPRECATED_METHODS.includes(method)
 }
 </script>
 
