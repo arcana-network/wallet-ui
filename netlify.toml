@@ -8,10 +8,10 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Content-Security-Policy = '''
-      font-src 'self' https://*.cloudfront.net data:;
+      font-src 'self' https://*.netlify.app https://*.cloudfront.net data:;
       img-src 'self' data: https:;
-      script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
-      style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
+      script-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net;
       frame-src *.arcana.network *.netlify.app *.transak.com *.ramp.network;
     '''
 [[headers]]
@@ -21,9 +21,9 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Content-Security-Policy = '''
-      font-src 'self' https://*.cloudfront.net data:;
+      font-src 'self' https://*.netlify.app https://*.cloudfront.net data:;
       img-src 'self' data: https:;
-      script-src 'self' 'unsafe-inline' https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
-      style-src 'self' 'unsafe-inline' https://*.cloudfront.net;
+      script-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net *.google-analytics.com *.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://*.netlify.app https://*.cloudfront.net;
       frame-src *.arcana.network *.netlify.app *.transak.com *.ramp.network;
     '''
