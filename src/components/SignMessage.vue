@@ -9,6 +9,7 @@ import WalletAddEthereumChain from '@/components/WalletAddEthereumChain.vue'
 import WalletSwitchEthereumChain from '@/components/WalletSwitchEthereumChain.vue'
 import WalletWatchAssetErc20 from '@/components/WalletWatchAssetErc20.vue'
 import WalletWatchAssetNFT from '@/components/WalletWatchAssetNFT.vue'
+import { UNSUPPORTED_METHODS as DEPRECATED_METHODS } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -22,8 +23,6 @@ const route = useRoute()
 const rpcStore = useRpcStore()
 
 const NFT_ERC_STANDARDS = ['erc721', 'erc1155']
-
-const DEPRECATED_METHODS = ['eth_sign']
 
 const props = defineProps({
   request: {

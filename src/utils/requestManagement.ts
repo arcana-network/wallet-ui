@@ -5,7 +5,11 @@ import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { PERMISSIONS, requirePermission } from '@/models/Connection'
+import {
+  PERMISSIONS,
+  requirePermission,
+  UNSUPPORTED_METHODS,
+} from '@/models/Connection'
 import { router } from '@/routes'
 import { NFTDB } from '@/services/nft.service'
 import { store } from '@/store'
@@ -397,6 +401,16 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 }
 
 async function handleRequest(request, requestStore, appStore, keeper) {
+  if (UNSUPPORTED_METHODS.includes(request.method)) {
+    await keeper.reply(request.method, {
+      jsonrpc: '2.0',
+      error: `${request.method} is not supported by Arcana Wallet`,
+      result: null,
+      id: request.id,
+    })
+    return
+  }
+
   if (request.method === 'wallet_addEthereumChain') {
     const validationResponse = await validateAddNetworkParams(request.params[0])
     if (!validationResponse.isValid) {
