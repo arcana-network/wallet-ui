@@ -19,6 +19,11 @@ const API = {
   gateway: process.env.VUE_APP_WALLET_GATEWAY,
 }
 
+const DKG = {
+  RPC_URL: process.env.VUE_APP_DKG_RPC_URL,
+  CONTRACT_ADDRESS: process.env.VUE_APP_DKG_CONTRACT_ADDRESS,
+}
+
 export {
   SESSION_EXPIRY_MS,
   DOCS_URL,
@@ -30,4 +35,5 @@ export {
   GAS_PRICE_SPEED_MAP,
   TOAST_TIME_OUT,
   API,
+  DKG,
 }
