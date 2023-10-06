@@ -126,6 +126,7 @@ async function validateAndPopulateContractForNft({
         result.nft.imageUrl = sanitizedImageUrl
         result.nft.animationUrl = sanitizedAnimationUrl
         result.nft.attributes = attributes
+        result.nft.tokenUrl = tokenUri
         result.isValid = true
         return result
       } catch (e) {
@@ -139,6 +140,7 @@ async function validateAndPopulateContractForNft({
       return result
     }
   } catch (e) {
+    console.log(e)
     result.error = "You don't own this NFT"
     result.isValid = false
     return result

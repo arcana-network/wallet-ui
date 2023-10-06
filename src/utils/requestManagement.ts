@@ -279,11 +279,10 @@ async function addNetwork(request, keeper) {
 }
 
 async function addToken(request, keeper) {
-  const params = request.params.options
   const ercType = request.params.type?.toLowerCase()
   const storage = getStorage()
   if (ercType === 'erc20') {
-    const { tokenContract } = await validateAddTokensParams(params)
+    const tokenContract = request.token
     const assetContracts = storage.local.getAssetContractList(
       userStore.walletAddress,
       Number(rpcStore.selectedRpcConfig?.chainId)
@@ -299,7 +298,7 @@ async function addToken(request, keeper) {
       id: request.id,
     })
   } else if (ercType === 'erc721' || ercType === 'erc1155') {
-    const { nft } = await validateAddNftParams(ercType, params)
+    const nft = request.nft
     const nftDB = await NFTDB.create(
       getStorage().local,
       userStore.walletAddress,
@@ -459,7 +458,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
           id: request.id,
         })
         return
-      }
+      } else request.token = validationResponse.tokenContract
     } else if (tokenType === 'erc721' || tokenType === 'erc1155') {
       const validationResponse = await validateAddNftParams(tokenType, params)
       if (!validationResponse.isValid) {
@@ -470,7 +469,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
           id: request.id,
         })
         return
-      }
+      } else request.nft = validationResponse.nft
     } else {
       return keeper.reply(request.method, {
         jsonrpc: '2.0',
@@ -478,6 +477,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         result: null,
         error: `Asset of type '${request.params.type}' not supported`,
       })
+    }
+    if (request.token || request.nft) {
+      requestStore.pendingRequests[request.id] = request
     }
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)

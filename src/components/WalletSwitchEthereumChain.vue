@@ -43,7 +43,7 @@ function handleFallbackLogo(event) {
     <div v-if="chain?.chainName" class="flex justify-between gap-4">
       <span class="w-[120px]">Name</span>
       <span
-        class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis flex gap-1 items-center justify-end"
+        class="w-[200px] text-right flex gap-1 items-center justify-end"
         :title="chain.chainName"
       >
         <img
@@ -51,7 +51,9 @@ function handleFallbackLogo(event) {
           class="h-4 w-4"
           @error="handleFallbackLogo"
         />
-        {{ chain.chainName }}
+        <span class="whitespace-nowrap overflow-hidden text-ellipsis">{{
+          chain.chainName
+        }}</span>
       </span>
     </div>
     <div

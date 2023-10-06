@@ -5,8 +5,10 @@ import { useRoute } from 'vue-router'
 
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import SignMessageCompact from '@/components/SignMessageCompact.vue'
-import SwitchEthereumChain from '@/components/SwitchEthereumChain.vue'
 import WalletAddEthereumChain from '@/components/WalletAddEthereumChain.vue'
+import WalletSwitchEthereumChain from '@/components/WalletSwitchEthereumChain.vue'
+import WalletWatchAssetErc20 from '@/components/WalletWatchAssetErc20.vue'
+import WalletWatchAssetNFT from '@/components/WalletWatchAssetNFT.vue'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -18,6 +20,8 @@ const appStore = useAppStore()
 const requestStore = useRequestStore()
 const route = useRoute()
 const rpcStore = useRpcStore()
+
+const NFT_ERC_STANDARDS = ['erc721', 'erc1155']
 
 const DEPRECATED_METHODS = ['eth_sign']
 
@@ -138,21 +142,34 @@ function isDeprecatedMethod() {
       :params="params[0]"
       class="flex flex-col gap-1"
     />
-    <SwitchEthereumChain
+    <WalletSwitchEthereumChain
       v-else-if="method === 'wallet_switchEthereumChain'"
       :params="params[0]"
       class="flex flex-col gap-1"
     />
-    <div
+    <WalletWatchAssetNFT
+      v-else-if="
+        method === 'wallet_watchAsset' &&
+        params.type &&
+        NFT_ERC_STANDARDS.includes(params.type.toLowerCase())
+      "
+      :params="props.request.request.nft"
+      :type="params.type"
+    />
+    <WalletWatchAssetErc20
       v-else-if="method === 'wallet_watchAsset'"
+      :params="props.request.request.token"
       class="flex flex-col gap-1"
-    ></div>
+    />
     <div v-else class="flex flex-col gap-1">
       <div class="text-sm">Message</div>
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
       />
-      <div class="flex justify-center mt-4">
+      <div
+        v-if="method !== 'eth_signTransaction'"
+        class="flex justify-center mt-4"
+      >
         <div
           class="flex bg-white-100 border-1 border border-gray-300 dark:bg-gray-300 rounded-sm p-2 text-xs gap-1 dark:text-gray-100"
         >
