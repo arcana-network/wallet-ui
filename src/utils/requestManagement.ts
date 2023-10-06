@@ -404,7 +404,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
   if (UNSUPPORTED_METHODS.includes(request.method)) {
     await keeper.reply(request.method, {
       jsonrpc: '2.0',
-      error: `${request.method} is not supported by Arcana Wallet`,
+      error: 'operation_not_supported',
       result: null,
       id: request.id,
     })
