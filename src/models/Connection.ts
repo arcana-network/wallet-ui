@@ -5,24 +5,21 @@ import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 type SDKVersion = 'v2' | 'v3'
 
 type RequestMethod =
-  | 'eth_sign'
   | 'personal_sign'
   | 'eth_decrypt'
   | 'eth_signTypedData_v4'
-  | 'eth_signTransaction'
   | 'eth_sendTransaction'
   | 'eth_accounts'
   | 'eth_requestAccounts'
   | 'eth_getEncryptionPublicKey'
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
+  | 'wallet_watchAsset'
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
-  eth_sign: true,
   personal_sign: true,
   eth_decrypt: true,
   eth_signTypedData_v4: true,
-  eth_signTransaction: true,
   eth_sendTransaction: true,
   eth_accounts: false,
   eth_requestAccounts: false,
@@ -31,6 +28,8 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
 })
+
+const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']
 
 function requirePermission(
   request: JsonRpcRequest<unknown>,
@@ -85,7 +84,7 @@ type InitParentConnectionApi = {
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 
-export { requirePermission, PERMISSIONS }
+export { requirePermission, PERMISSIONS, UNSUPPORTED_METHODS }
 
 export type {
   RedirectParentConnectionApi,

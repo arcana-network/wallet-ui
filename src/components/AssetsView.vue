@@ -4,6 +4,7 @@ import { onMounted, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
+import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -59,6 +60,7 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
+      image: contract.image,
       logo: contract.logo || 'fallback-token.png',
       decimals: contract.decimals,
     })
@@ -117,6 +119,10 @@ watch(
     await getAssetsBalance()
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -134,8 +140,13 @@ watch(
         >
           <div class="flex items-center gap-3">
             <img
-              :src="getIconAsset(`token-logos/${asset.logo}`)"
+              :src="
+                isNative(asset)
+                  ? getChainLogoUrl(rpcStore.selectedRPCConfig)
+                  : asset.image || getIconAsset(`token-logos/${asset.logo}`)
+              "
               class="w-[1.25rem] aspect-square rounded-full select-none"
+              @error="handleFallbackLogo"
             />
             <span
               class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"
