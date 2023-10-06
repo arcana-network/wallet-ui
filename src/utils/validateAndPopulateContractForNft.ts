@@ -140,7 +140,6 @@ async function validateAndPopulateContractForNft({
       return result
     }
   } catch (e) {
-    console.log(e)
     result.error = "You don't own this NFT"
     result.isValid = false
     return result
