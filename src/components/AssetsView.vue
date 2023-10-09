@@ -8,6 +8,7 @@ import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
@@ -26,12 +27,33 @@ type AssetProps = {
 }
 
 const props = defineProps<AssetProps>()
+const storage = getStorage()
 
 function fetchStoredAssetContracts(): AssetContract[] {
-  const assetContracts = getStorage().local.getAssetContractList(
+  const assetContracts = storage.local.getAssetContractList(
     userStore.walletAddress,
     Number(rpcStore.selectedRPCConfig?.chainId)
   )
+  const predefinedTokens =
+    PREDEFINED_ERC20_TOKENS[Number(rpcStore.selectedRPCConfig?.chainId)]
+  if (predefinedTokens) {
+    let shouldSync = false
+    predefinedTokens.forEach((token) => {
+      if (
+        !assetContracts.find((contract) => contract.address === token.address)
+      ) {
+        assetContracts.push(token)
+        shouldSync = true
+      }
+    })
+    if (shouldSync) {
+      storage.local.setAssetContractList(
+        userStore.walletAddress,
+        Number(rpcStore.selectedRPCConfig?.chainId),
+        assetContracts
+      )
+    }
+  }
   return assetContracts
 }
 
@@ -44,10 +66,7 @@ function fetchNativeAsset() {
       : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
-    logo:
-      rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
-        ? `${rpcStore.selectedRpcConfig.favicon}.png`
-        : 'fallback-token.png',
+    logo: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
   }
 }
 
