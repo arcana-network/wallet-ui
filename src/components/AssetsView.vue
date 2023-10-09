@@ -4,13 +4,14 @@ import { onMounted, onBeforeUnmount, ref, watch, type Ref } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
+import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import { sleep } from '@/utils/sleep'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -26,12 +27,33 @@ type AssetProps = {
 }
 
 const props = defineProps<AssetProps>()
+const storage = getStorage()
 
 function fetchStoredAssetContracts(): AssetContract[] {
-  const assetContracts = getStorage().local.getAssetContractList(
+  const assetContracts = storage.local.getAssetContractList(
     userStore.walletAddress,
     Number(rpcStore.selectedRPCConfig?.chainId)
   )
+  const predefinedTokens =
+    PREDEFINED_ERC20_TOKENS[Number(rpcStore.selectedRPCConfig?.chainId)]
+  if (predefinedTokens) {
+    let shouldSync = false
+    predefinedTokens.forEach((token) => {
+      if (
+        !assetContracts.find((contract) => contract.address === token.address)
+      ) {
+        assetContracts.push(token)
+        shouldSync = true
+      }
+    })
+    if (shouldSync) {
+      storage.local.setAssetContractList(
+        userStore.walletAddress,
+        Number(rpcStore.selectedRPCConfig?.chainId),
+        assetContracts
+      )
+    }
+  }
   return assetContracts
 }
 
@@ -44,10 +66,7 @@ function fetchNativeAsset() {
       : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
-    logo:
-      rpcStore.selectedRpcConfig && rpcStore.selectedRpcConfig.favicon
-        ? `${rpcStore.selectedRpcConfig.favicon}.png`
-        : 'fallback-token.png',
+    logo: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
   }
 }
 
@@ -60,6 +79,7 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
+      image: contract.image,
       logo: contract.logo || 'fallback-token.png',
       decimals: contract.decimals,
     })
@@ -78,18 +98,6 @@ async function getAssetsBalance() {
       }
     } catch (err) {
       console.error({ err })
-    }
-  })
-}
-
-function updateAssetsBalance() {
-  assets.value.forEach(async (asset) => {
-    if (asset.address !== 'native') {
-      const balance = await getTokenBalance({
-        walletAddress: userStore.walletAddress,
-        contractAddress: asset.address,
-      })
-      asset.balance = formatTokenDecimals(balance, asset.decimals)
     }
   })
 }
@@ -130,6 +138,10 @@ watch(
     await getAssetsBalance()
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -147,8 +159,13 @@ watch(
         >
           <div class="flex items-center gap-3">
             <img
-              :src="getIconAsset(`token-logos/${asset.logo}`)"
+              :src="
+                isNative(asset)
+                  ? getChainLogoUrl(rpcStore.selectedRPCConfig)
+                  : asset.image || getIconAsset(`token-logos/${asset.logo}`)
+              "
               class="w-[1.25rem] aspect-square rounded-full select-none"
+              @error="handleFallbackLogo"
             />
             <span
               class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"

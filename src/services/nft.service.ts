@@ -35,14 +35,15 @@ type AnkrNFT = {
 const ANKR_BLOCKCHAIN_TO_CHAIN_ID = new Map([
   ['arbitrum', 42161],
   ['avalanche', 43114],
-  ['avalanche_fuji', 43113],
+  ['base', 8453],
   ['bsc', 56],
   ['eth', 1],
-  ['eth_goerli', 5],
   ['fantom', 250],
+  ['flare', 14],
+  ['gnosis', 100],
   ['optimism', 10],
   ['polygon', 137],
-  ['polygon_mumbai', 80001],
+  ['rollux', 570],
   ['syscoin', 57],
 ])
 
