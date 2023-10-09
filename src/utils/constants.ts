@@ -69,7 +69,7 @@ const PREDEFINED_ERC20_TOKENS = {
       name: 'Wrapped ETH',
       symbol: 'WETH',
       decimals: 18,
-      logo: 'https://polygonscan.com/token/images/wETH_32.png',
+      image: 'https://polygonscan.com/token/images/wETH_32.png',
     },
     {
       address: '0xdAb529f40E671A1D4bF91361c21bf9f0C9712ab7',
@@ -113,7 +113,23 @@ const PREDEFINED_ERC20_TOKENS = {
       name: 'Arbitrum Token',
       symbol: 'ARB',
       decimals: 18,
-      logo: 'https://arbiscan.io/token/images/arbitrumone2_32_new.png',
+      image: 'https://arbiscan.io/token/images/arbitrumone2_32_new.png',
+    },
+  ],
+  56: [
+    {
+      address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+      name: 'USD Coin',
+      symbol: 'USDC',
+      decimals: 18,
+      logo: 'usdc.svg',
+    },
+    {
+      address: '0x55d398326f99059fF775485246999027B3197955',
+      name: 'BSC-USD',
+      symbol: 'BSC-USD',
+      decimals: 18,
+      image: 'https://bscscan.com/token/images/busdt_32.png',
     },
   ],
 }
