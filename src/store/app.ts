@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
 import { useRequestStore } from '@/store/request'
+import { AUTH_NETWORK } from '@/utils/constants'
 import { isMobileViewport } from '@/utils/isMobileViewport'
 
 type WalletPosition = 'right' | 'left'
@@ -65,8 +66,12 @@ export const useAppStore = defineStore('app', {
             ? compactMode
               ? requestStore.pendingRequest?.request.method ===
                 'eth_sendTransaction'
-                ? '360px'
-                : '300px'
+                ? AUTH_NETWORK === 'mainnet'
+                  ? '364px'
+                  : '400px'
+                : AUTH_NETWORK === 'mainnet'
+                ? '296px'
+                : '326px'
               : '80vh'
             : '40px'
           : '0'

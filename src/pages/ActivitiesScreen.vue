@@ -5,8 +5,6 @@ import { ref, onMounted, computed, type ComputedRef } from 'vue'
 
 import ActivityView from '@/components/ActivityView.vue'
 import SkippedRequestView from '@/components/SkippedRequestView.vue'
-import { getExchangeRate } from '@/services/exchangeRate.service'
-import type { CurrencySymbol } from '@/services/exchangeRate.service'
 import { useActivitiesStore, type Activity } from '@/store/activities'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -54,15 +52,11 @@ const activities: ComputedRef<Activity[]> = computed(() => {
 
 const exchangeRate: Ref<number | null> = ref(null)
 const { currency } = storeToRefs(rpcStore)
-const EXCHANGE_RATE_CURRENCY: CurrencySymbol = 'USD'
 
 async function getCurrencyExchangeRate() {
   try {
     if (currency.value) {
-      const rate = await getExchangeRate(
-        currency.value as CurrencySymbol,
-        EXCHANGE_RATE_CURRENCY
-      )
+      const rate = 0
       if (rate) exchangeRate.value = rate
     }
   } catch (err) {

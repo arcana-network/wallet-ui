@@ -54,6 +54,10 @@ watch(
     }, 25)
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -82,11 +86,11 @@ watch(
         <button class="flex items-center" @click.stop="openChainList()">
           <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
             <img
-              :src="getChainLogoUrl(Number(rpcStore.selectedChainId))"
+              :src="getChainLogoUrl(rpcStore.selectedRPCConfig)"
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
-              onerror="this.src = '/chain-logos/blockchain-icon.png'"
               class="w-xl h-xl"
+              @error="handleFallbackLogo"
             />
           </div>
           <img

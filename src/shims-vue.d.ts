@@ -26,6 +26,8 @@ declare namespace NodeJS {
     VUE_APP_HIDE_ON_RAMP: 'true' | undefined
     VUE_APP_ANKR_PREMIUM_API_URL: string
     VUE_APP_ON_RAMP_MONEY_URL: string
+    VUE_APP_DKG_RPC_URL: string
+    VUE_APP_DKG_CONTRACT_ADDRESS: string
   }
 }
 

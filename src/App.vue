@@ -145,7 +145,7 @@ const canShowCollapseButton = computed(
           <img v-else :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
-      <WalletHeader v-if="sdkVersion === 'v3' && route.name !== 'requests'" />
+      <WalletHeader v-if="route.name !== 'requests'" />
       <div class="flex-grow wallet__container m-1 p-3">
         <RouterView class="flex-grow" />
         <img
