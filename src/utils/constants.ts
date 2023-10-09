@@ -118,6 +118,13 @@ const PREDEFINED_ERC20_TOKENS = {
   ],
   56: [
     {
+      address: '0x69bAb60997A2f5CbeE668E5087Dd9F91437206Bb',
+      name: 'Tether USD',
+      symbol: 'USDT',
+      decimals: 6,
+      logo: 'usdt.svg',
+    },
+    {
       address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
       name: 'USD Coin',
       symbol: 'USDC',
