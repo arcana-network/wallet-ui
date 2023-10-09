@@ -36,7 +36,7 @@ const PREDEFINED_ERC20_TOKENS = {
       name: 'Matic Token',
       symbol: 'MATIC',
       decimals: 18,
-      logo: 'matic-network-logo.svg',
+      logo: 'polygon-icon.png',
     },
     {
       address: '0x4Fabb145d64652a948d72533023f6E7A623C7C53',
