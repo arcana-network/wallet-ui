@@ -66,7 +66,7 @@ function fetchNativeAsset() {
       : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
-    logo: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
+    image: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
   }
 }
 
@@ -159,11 +159,7 @@ function handleFallbackLogo(event) {
         >
           <div class="flex items-center gap-3">
             <img
-              :src="
-                isNative(asset)
-                  ? getChainLogoUrl(rpcStore.selectedRPCConfig)
-                  : asset.image || getIconAsset(`token-logos/${asset.logo}`)
-              "
+              :src="asset.image || getIconAsset(`token-logos/${asset.logo}`)"
               class="w-[1.25rem] aspect-square rounded-full select-none"
               @error="handleFallbackLogo"
             />
