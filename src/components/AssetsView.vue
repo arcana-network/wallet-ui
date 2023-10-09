@@ -29,17 +29,6 @@ type AssetProps = {
 const props = defineProps<AssetProps>()
 const storage = getStorage()
 
-function getAssetLogo(assetLogo) {
-  try {
-    const url = new URL(assetLogo)
-    return url
-  } catch (err) {
-    return assetLogo
-      ? getIconAsset(`token-logos/${assetLogo}`)
-      : getIconAsset('token-logos/fallback-token.png')
-  }
-}
-
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = storage.local.getAssetContractList(
     userStore.walletAddress,
@@ -90,7 +79,8 @@ async function getAssetsBalance() {
       name: contract.name || contract.symbol,
       symbol: contract.symbol,
       balance: 0,
-      logo: contract.logo,
+      image: contract.image,
+      logo: contract.logo || 'fallback-token.png',
       decimals: contract.decimals,
     })
   })
@@ -149,8 +139,8 @@ watch(
   }
 )
 
-function handleFallbackLogo(ev) {
-  ev.target.src = getIconAsset('token-logos/fallback-token.png')
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
 }
 </script>
 
@@ -169,7 +159,11 @@ function handleFallbackLogo(ev) {
         >
           <div class="flex items-center gap-3">
             <img
-              :src="getAssetLogo(asset.logo)"
+              :src="
+                isNative(asset)
+                  ? getChainLogoUrl(rpcStore.selectedRPCConfig)
+                  : asset.image || getIconAsset(`token-logos/${asset.logo}`)
+              "
               class="w-[1.25rem] aspect-square rounded-full select-none"
               @error="handleFallbackLogo"
             />
