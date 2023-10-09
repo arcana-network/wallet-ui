@@ -5,7 +5,11 @@ import { ethers } from 'ethers'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { PERMISSIONS, requirePermission } from '@/models/Connection'
+import {
+  PERMISSIONS,
+  requirePermission,
+  UNSUPPORTED_METHODS,
+} from '@/models/Connection'
 import { router } from '@/routes'
 import { NFTDB } from '@/services/nft.service'
 import { store } from '@/store'
@@ -226,15 +230,22 @@ async function validateAddNftParams(tokenType, params) {
 async function addNetwork(request, keeper) {
   const { method, params } = request
   const networkInfo = params[0]
-  const name: string = networkInfo.chainName || ''
-  const rpcUrls: string[] = networkInfo.rpcUrls || []
+  const name: string = networkInfo.chainName
+  const rpcUrls: string[] = networkInfo.rpcUrls
   const chainId = `${Number(networkInfo.chainId)}`
   const symbol: string = networkInfo.nativeCurrency.symbol || ''
   const existingChain = isExistingChain(chainId)
+  const favicon = networkInfo.iconUrls?.length
+    ? networkInfo.iconUrls[0]
+    : undefined
   if (existingChain) {
     rpcStore.setRpcConfig({
       ...existingChain,
-      rpcUrls,
+      rpcUrls: rpcUrls || existingChain.rpcUrls,
+      favicon: favicon || existingChain.favicon,
+      blockExplorerUrls:
+        networkInfo.blockExplorerUrls || existingChain.blockExplorerUrls,
+      chainName: name || existingChain.chainName,
     })
     rpcStore.setSelectedChainId(existingChain.chainId)
     await getRequestHandler().setRpcConfig({
@@ -243,11 +254,11 @@ async function addNetwork(request, keeper) {
     })
   } else {
     const payload = {
-      chainName: name,
+      chainName: name || '',
       chainId,
-      blockExplorerUrls: networkInfo.blockExplorerUrls,
-      rpcUrls: rpcUrls,
-      favicon: 'blockchain-icon',
+      blockExplorerUrls: networkInfo.blockExplorerUrls || [],
+      rpcUrls: rpcUrls || [],
+      favicon,
       isCustom: true,
       nativeCurrency: {
         symbol: symbol,
@@ -272,11 +283,10 @@ async function addNetwork(request, keeper) {
 }
 
 async function addToken(request, keeper) {
-  const params = request.params.options
   const ercType = request.params.type?.toLowerCase()
   const storage = getStorage()
   if (ercType === 'erc20') {
-    const { tokenContract } = await validateAddTokensParams(params)
+    const tokenContract = request.token
     const assetContracts = storage.local.getAssetContractList(
       userStore.walletAddress,
       Number(rpcStore.selectedRpcConfig?.chainId)
@@ -292,7 +302,7 @@ async function addToken(request, keeper) {
       id: request.id,
     })
   } else if (ercType === 'erc721' || ercType === 'erc1155') {
-    const { nft } = await validateAddNftParams(ercType, params)
+    const nft = request.nft
     const nftDB = await NFTDB.create(
       getStorage().local,
       userStore.walletAddress,
@@ -391,6 +401,16 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
 }
 
 async function handleRequest(request, requestStore, appStore, keeper) {
+  if (UNSUPPORTED_METHODS.includes(request.method)) {
+    await keeper.reply(request.method, {
+      jsonrpc: '2.0',
+      error: 'operation_not_supported',
+      result: null,
+      id: request.id,
+    })
+    return
+  }
+
   if (request.method === 'wallet_addEthereumChain') {
     const validationResponse = await validateAddNetworkParams(request.params[0])
     if (!validationResponse.isValid) {
@@ -452,7 +472,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
           id: request.id,
         })
         return
-      }
+      } else request.token = validationResponse.tokenContract
     } else if (tokenType === 'erc721' || tokenType === 'erc1155') {
       const validationResponse = await validateAddNftParams(tokenType, params)
       if (!validationResponse.isValid) {
@@ -463,7 +483,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
           id: request.id,
         })
         return
-      }
+      } else request.nft = validationResponse.nft
     } else {
       return keeper.reply(request.method, {
         jsonrpc: '2.0',
@@ -471,6 +491,9 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         result: null,
         error: `Asset of type '${request.params.type}' not supported`,
       })
+    }
+    if (request.token || request.nft) {
+      requestStore.pendingRequests[request.id] = request
     }
   }
   const isPermissionRequired = requirePermission(request, appStore.validAppMode)
