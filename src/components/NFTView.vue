@@ -71,7 +71,8 @@ const filteredNFTs = computed(() => {
   return nfts.value.filter(
     (item) =>
       item.name.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-      item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase())
+      item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
+      item.collectionName.toLowerCase().includes(searchTerm.value.toLowerCase())
   )
 })
 </script>
@@ -86,7 +87,7 @@ const filteredNFTs = computed(() => {
           id="search-nft"
           v-model="searchTerm"
           class="w-full py-3 px-0"
-          placeholder="Type the name or ID of the NFT"
+          placeholder="Search NFT"
         />
       </div>
     </div>

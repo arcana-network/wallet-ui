@@ -52,7 +52,7 @@ function handleFallbackLogo(event) {
         />
         <label class="flex items-center gap-2" :for="chain.chainId">
           <img
-            :src="getChainLogoUrl(Number(chain.chainId))"
+            :src="getChainLogoUrl(chain)"
             class="w-xl h-xl"
             @error="handleFallbackLogo"
           />

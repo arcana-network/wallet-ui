@@ -138,7 +138,7 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     setRpcConfig(config: RpcConfigWallet) {
       if (this.rpcConfigs) {
-        this.rpcConfigs[Number(config.chainId)].rpcUrls = config.rpcUrls
+        this.rpcConfigs[Number(config.chainId)] = config
       }
     },
     setRpcConfigs(list: Array<RpcConfigWallet>) {

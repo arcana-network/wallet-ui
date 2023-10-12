@@ -4,6 +4,7 @@ type AssetContract = {
   decimals: number
   logo?: string
   name?: string
+  image?: string
 }
 
 type EthAssetContract = AssetContract & {
