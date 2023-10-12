@@ -150,9 +150,8 @@ async function setMFABannerState() {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
     const userId = userStore.info.id
-    const loginCount = storage.local.getLoginCount(userId)
     const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-    if (Number(loginCount) === 1 && !hasStarterTipShown)
+    if (Number(loginCount) <= 1 && !hasStarterTipShown)
       router.push({ name: 'StarterTips' })
     else router.push({ name: 'home' })
   }
