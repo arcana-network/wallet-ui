@@ -121,7 +121,7 @@ function handleFallbackNft(event) {
             <div class="h-[136px] rounded m-1 overflow-hidden">
               <img
                 class="h-full w-full object-cover object-center"
-                :src="nft.imageUrl"
+                :src="nft.imageUrl || getImage('blockchain-icon.png')"
                 @error="handleFallbackNft"
               />
             </div>
