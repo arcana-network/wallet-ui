@@ -108,7 +108,7 @@ function handleFallbackNft(event) {
           <div
             v-for="nft in filteredNFTs"
             :key="`nft-${nft.address}-${nft.tokenId}`"
-            class="nft-card rounded cursor-pointer"
+            class="nft-card rounded cursor-pointer bg-[#FFFFFF] dark:bg-[#171717]"
             @click.stop="
               router.push({
                 name: 'NftDetails',
