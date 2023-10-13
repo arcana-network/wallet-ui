@@ -142,43 +142,41 @@ async function handleSubmit() {
     tokenId: nftContract.tokenId,
     contractAddress: nftContract.address,
   })
-  if (tokenUri) {
-    try {
-      const tokenDetails = await getNFTDetails(tokenUri, nftContract.tokenId)
-      const imageUrl = tokenDetails.image_url || tokenDetails.image
-      const sanitizedImageUrl = sanitizeUrl(imageUrl) as string
-      const animationUrl = tokenDetails.animation_url || tokenDetails.animation
-      const sanitizedAnimationUrl = sanitizeUrl(animationUrl)
-      const attributes = tokenDetails.attributes?.length
-        ? tokenDetails.attributes.map((attribute) => ({
-            trait: attribute.trait_type || attribute.trait,
-            value: attribute.value,
-          }))
-        : []
-      const nftDetails: NFT = {
-        tokenId: nftContract.tokenId,
-        type: ercStandard,
-        address: nftContract.address,
-        collectionName: nftContract.name,
-        name: tokenDetails.name || `#${nftContract.tokenId}`,
-        description: tokenDetails.description,
-        imageUrl: sanitizedImageUrl,
-        animationUrl: sanitizedAnimationUrl,
-        attributes,
-        balance: hasOwnership.balance,
-        tokenUrl: tokenUri,
-      }
-
-      nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
-      toast.success('NFT added')
-
-      modalStore.setShowModal(false)
-    } catch (e) {
-      console.error(e)
-      toast.error(e as string)
+  try {
+    const tokenDetails = tokenUri?.length
+      ? await getNFTDetails(tokenUri, nftContract.tokenId)
+      : {}
+    const imageUrl = tokenDetails?.image_url || tokenDetails?.image
+    const sanitizedImageUrl = sanitizeUrl(imageUrl) as string
+    const animationUrl = tokenDetails?.animation_url || tokenDetails?.animation
+    const sanitizedAnimationUrl = sanitizeUrl(animationUrl)
+    const attributes = tokenDetails?.attributes?.length
+      ? tokenDetails.attributes.map((attribute) => ({
+          trait: attribute.trait_type || attribute.trait,
+          value: attribute.value,
+        }))
+      : []
+    const nftDetails: NFT = {
+      tokenId: nftContract.tokenId,
+      type: ercStandard,
+      address: nftContract.address,
+      collectionName: nftContract.name,
+      name: tokenDetails?.name || `#${nftContract.tokenId}`,
+      description: tokenDetails?.description,
+      imageUrl: sanitizedImageUrl,
+      animationUrl: sanitizedAnimationUrl,
+      attributes,
+      balance: hasOwnership.balance,
+      tokenUrl: tokenUri || '',
     }
-  } else {
-    toast.error('Invalid token ID')
+
+    nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
+    toast.success('NFT added')
+
+    modalStore.setShowModal(false)
+  } catch (e) {
+    console.error(e)
+    toast.error(e as string)
   }
   loader.show = false
 }

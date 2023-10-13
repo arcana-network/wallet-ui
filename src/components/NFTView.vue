@@ -74,6 +74,10 @@ const filteredNFTs = computed(() => {
       item.tokenId.toLowerCase().includes(searchTerm.value.toLowerCase())
   )
 })
+
+function handleFallbackNft(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -104,7 +108,7 @@ const filteredNFTs = computed(() => {
           <div
             v-for="nft in filteredNFTs"
             :key="`nft-${nft.address}-${nft.tokenId}`"
-            class="nft-card rounded cursor-pointer"
+            class="nft-card rounded cursor-pointer bg-[#FFFFFF] dark:bg-[#171717]"
             @click.stop="
               router.push({
                 name: 'NftDetails',
@@ -114,10 +118,13 @@ const filteredNFTs = computed(() => {
               })
             "
           >
-            <div
-              class="h-[136px] rounded m-1 bg-center bg-cover"
-              :style="{ 'background-image': `url(${nft.imageUrl})` }"
-            ></div>
+            <div class="h-[136px] rounded m-1 overflow-hidden">
+              <img
+                class="h-full w-full object-cover object-center"
+                :src="nft.imageUrl || getImage('blockchain-icon.png')"
+                @error="handleFallbackNft"
+              />
+            </div>
             <div class="flex flex-col px-2">
               <span
                 class="text-gray-100 text-sm overflow-hidden whitespace-nowrap text-ellipsis"

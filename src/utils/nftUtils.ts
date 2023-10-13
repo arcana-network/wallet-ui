@@ -167,15 +167,15 @@ async function getDetailedNFTs(nftDB: NFTDB, chainId: number) {
 
       // Check for undefined because we don't want to remove the NFT if it's autodetected
       // Ownership is undefined if autodetected
-      if ((ownership !== undefined && !ownership.owner) || !details) {
+      if (ownership !== undefined && !ownership.owner) {
         nftDB.removeNFT(nft, chainId)
         return
       }
 
-      details.name = details.name || `#${nft.tokenId}`
-      details.imageUrl = sanitizeUrl(details.image_url || details.image)
+      details.name = details?.name || `#${nft.tokenId}`
+      details.imageUrl = sanitizeUrl(details?.image_url || details?.image)
       details.animationUrl = sanitizeUrl(
-        details.animation_url || details.animations
+        details?.animation_url || details?.animations
       )
       nfts.push({ ...nft, ...details })
     })

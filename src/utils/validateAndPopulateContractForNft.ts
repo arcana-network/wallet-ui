@@ -103,38 +103,35 @@ async function validateAndPopulateContractForNft({
       tokenId,
     })
 
-    if (tokenUri) {
-      try {
-        const tokenDetails = await getNFTDetails(tokenUri, nftContract.tokenId)
-        const imageUrl = tokenDetails.image_url || tokenDetails.image
-        const sanitizedImageUrl = sanitizeUrl(imageUrl) as string
-        const animationUrl =
-          tokenDetails.animation_url || tokenDetails.animation
-        const sanitizedAnimationUrl = sanitizeUrl(animationUrl)
-        const attributes = tokenDetails.attributes?.length
-          ? tokenDetails.attributes.map((attribute) => ({
-              trait: attribute.trait_type || attribute.trait,
-              value: attribute.value,
-            }))
-          : []
+    try {
+      const tokenDetails = tokenUri?.length
+        ? await getNFTDetails(tokenUri, nftContract.tokenId)
+        : {}
+      const imageUrl = tokenDetails?.image_url || tokenDetails?.image
+      const sanitizedImageUrl = sanitizeUrl(imageUrl) as string
+      const animationUrl =
+        tokenDetails?.animation_url || tokenDetails?.animation
+      const sanitizedAnimationUrl = sanitizeUrl(animationUrl)
+      const attributes = tokenDetails?.attributes?.length
+        ? tokenDetails.attributes.map((attribute) => ({
+            trait: attribute.trait_type || attribute.trait,
+            value: attribute.value,
+          }))
+        : []
 
-        result.nft.tokenId = tokenId
-        result.nft.type = nftContract.type
-        result.nft.address = nftContract.address
-        result.nft.name = tokenDetails.name || `#${nftContract.tokenId}`
-        result.nft.description = tokenDetails.description
-        result.nft.imageUrl = sanitizedImageUrl
-        result.nft.animationUrl = sanitizedAnimationUrl
-        result.nft.attributes = attributes
-        result.isValid = true
-        return result
-      } catch (e) {
-        result.error = "Couldn't fetch NFT details"
-        result.isValid = false
-        return result
-      }
-    } else {
-      result.error = 'Invalid Token ID'
+      result.nft.tokenId = tokenId
+      result.nft.type = nftContract.type
+      result.nft.address = nftContract.address
+      result.nft.name = tokenDetails?.name || `#${nftContract.tokenId}`
+      result.nft.description = tokenDetails?.description
+      result.nft.imageUrl = sanitizedImageUrl
+      result.nft.animationUrl = sanitizedAnimationUrl
+      result.nft.attributes = attributes
+      result.nft.tokenUrl = tokenUri || ''
+      result.isValid = true
+      return result
+    } catch (e) {
+      result.error = "Couldn't fetch NFT details"
       result.isValid = false
       return result
     }
