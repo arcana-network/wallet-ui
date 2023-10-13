@@ -95,18 +95,20 @@ onMounted(async () => {
         })
       ).toString()
     } else {
-      const tokenInfo = tokenList.value.find(
-        (item) => item.address === selectedToken.value.address
-      )
-      estimatedGas.value = (
-        await accountHandler.estimateCustomTokenGas(
-          tokenInfo?.address,
-          recipientWalletAddress.value
-            ? setHexPrefix(recipientWalletAddress.value)
-            : userStore.walletAddress,
-          new Decimal(Decimal.pow(10, 18)).toHexadecimal()
+      if (!rpcStore.useGasless) {
+        const tokenInfo = tokenList.value.find(
+          (item) => item.address === selectedToken.value.address
         )
-      ).toString()
+        estimatedGas.value = (
+          await accountHandler.estimateCustomTokenGas(
+            tokenInfo?.address,
+            recipientWalletAddress.value
+              ? setHexPrefix(recipientWalletAddress.value)
+              : userStore.walletAddress,
+            new Decimal(Decimal.pow(10, 18)).toHexadecimal()
+          )
+        ).toString()
+      }
     }
   } catch (err) {
     console.log({ err })
@@ -271,18 +273,20 @@ async function handleShowPreview() {
         const tokenInfo = tokenList.value.find(
           (item) => item.address === selectedToken.value.address
         )
-        const sendAmount = tokenInfo?.decimals
-          ? new Decimal(amount.value)
-              .mul(Decimal.pow(10, tokenInfo.decimals))
-              .toString()
-          : new Decimal(amount.value).toString()
-        estimatedGas.value = (
-          await accountHandler.estimateCustomTokenGas(
-            tokenInfo?.address,
-            setHexPrefix(recipientWalletAddress.value),
-            new Decimal(sendAmount).toHexadecimal()
-          )
-        ).toString()
+        if (!rpcStore.useGasless) {
+          const sendAmount = tokenInfo?.decimals
+            ? new Decimal(amount.value)
+                .mul(Decimal.pow(10, tokenInfo.decimals))
+                .toString()
+            : new Decimal(amount.value).toString()
+          estimatedGas.value = (
+            await accountHandler.estimateCustomTokenGas(
+              tokenInfo?.address,
+              setHexPrefix(recipientWalletAddress.value),
+              new Decimal(sendAmount).toHexadecimal()
+            )
+          ).toString()
+        }
       }
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
         gas.value.maxPriorityFeePerGas || 1.5
