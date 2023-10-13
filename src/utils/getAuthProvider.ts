@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import { AuthProvider } from '@arcana/auth-core'
 import type { InitParams } from '@arcana/auth-core/types/types'
 
@@ -21,6 +23,7 @@ async function getAuthProvider(
     const params: InitParams = {
       appId: appId,
       redirectUri: `${AUTH_URL}/verify/${appId}/`,
+      // @ts-ignore
       network: AUTH_NETWORK,
       flow: 'redirect',
       autoRedirect: false,
@@ -31,15 +34,16 @@ async function getAuthProvider(
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
+        // @ts-ignore
         revokeTokenPostLogin: false,
       })
+      // @ts-ignore
       await authProvider.init()
     } else {
       authProvider = await AuthProvider.init(params)
     }
     const appStore = useAppStore()
     // TODO find a comprehensive solution to this
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
   }

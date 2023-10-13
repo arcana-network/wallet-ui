@@ -3,7 +3,6 @@ import axios from 'axios'
 import type { NFT } from '@/models/NFT'
 import { LocalStorage } from '@/utils/storage'
 
-const NFT_DB_KEY = 'nft_list'
 const NFT_PAGE_SIZE = 50
 
 type NFTItem = NFT & {
