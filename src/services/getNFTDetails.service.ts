@@ -17,12 +17,12 @@ async function getNFTDetails(tokenUri: string, tokenId: string) {
     url = tokenUri
   }
 
-  if (!url) return null
+  if (!url) return {}
   try {
     return (await axios.get(url)).data
   } catch (e) {
     console.error(e)
-    return null
+    return {}
   }
 }
 
