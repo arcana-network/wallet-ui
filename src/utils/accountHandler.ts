@@ -17,12 +17,18 @@ import { ethers } from 'ethers'
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
+import { useRpcStore } from '@/store/rpc'
+import { useUserStore } from '@/store/user'
+import { scwInstance } from '@/utils/scw'
 import {
   MessageParams,
   TransactionParams,
   TypedMessageParams,
   createWalletMiddleware,
 } from '@/utils/walletMiddleware'
+
+const rpcStore = useRpcStore()
+const userStore = useUserStore()
 
 class AccountHandler {
   wallet: ethers.Wallet
@@ -37,7 +43,7 @@ class AccountHandler {
   }
 
   getBalance() {
-    return this.provider.getBalance(this.wallet.address)
+    return this.provider.getBalance(this.getAddress()[0])
   }
   setProvider(url: string) {
     this.provider = new ethers.providers.StaticJsonRpcProvider(url)
@@ -57,6 +63,10 @@ class AccountHandler {
     })
   }
 
+  getSigner() {
+    return this.wallet.connect(this.provider)
+  }
+
   sendCustomToken = async (
     contractAddress,
     recipientAddress,
@@ -64,24 +74,41 @@ class AccountHandler {
     gasPrice,
     gasLimit
   ) => {
-    const abi = [
-      'function transfer(address recipient, uint256 amount) returns (bool)',
-    ]
-    const signer = this.wallet.connect(this.provider)
-    const contract = new ethers.Contract(contractAddress, abi, signer)
-    const payload = {} as any
-    if (gasPrice) {
-      payload.gasPrice = gasPrice
+    try {
+      const abi = [
+        'function transfer(address recipient, uint256 amount) returns (bool)',
+      ]
+
+      if (rpcStore.useGasless) {
+        const Erc20Interface = new ethers.utils.Interface(abi)
+        const encodedData = Erc20Interface.encodeFunctionData('transfer', [
+          recipientAddress,
+          amount,
+        ])
+        const txParams = {
+          from: userStore.walletAddress,
+          to: contractAddress,
+          data: encodedData,
+        }
+        const tx = await scwInstance.doTx(txParams)
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
+      } else {
+        const signer = this.wallet.connect(this.provider)
+        const contract = new ethers.Contract(contractAddress, abi, signer)
+        const payload = {} as any
+        if (gasPrice) payload.gasPrice = gasPrice
+        if (gasLimit) payload.gasLimit = gasLimit
+        const tx = await contract.functions.transfer(
+          recipientAddress,
+          amount,
+          payload
+        )
+        return tx.hash
+      }
+    } catch (e) {
+      console.log({ e })
     }
-    if (gasLimit) {
-      payload.gasLimit = gasLimit
-    }
-    const tx = await contract.functions.transfer(
-      recipientAddress,
-      amount,
-      payload
-    )
-    return tx.hash
   }
 
   estimateCustomTokenGas = async (
@@ -209,10 +236,13 @@ class AccountHandler {
   }
 
   getAddress(): string[] {
-    return [this.wallet.address]
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return [rpcStore.useGasless ? scwInstance.scwAddress : this.wallet.address]
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {
+    address = rpcStore.useGasless ? this.wallet.address : address
     if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
       return this.wallet
     }
@@ -277,13 +307,24 @@ class AccountHandler {
 
   public async sendTransaction(data, address: string): Promise<string> {
     try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signer = wallet.connect(this.provider)
-        const tx = await signer.sendTransaction(data)
-        return tx.hash
+      if (rpcStore.useGasless) {
+        const txParams = {
+          from: address,
+          to: data.to,
+          value: data.value,
+        }
+        const tx = await scwInstance.doTx(txParams)
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
       } else {
-        throw new Error('No Wallet found for the provided address')
+        const wallet = this.getWallet(address)
+        if (wallet) {
+          const signer = wallet.connect(this.provider)
+          const tx = await signer.sendTransaction(data)
+          return tx.hash
+        } else {
+          throw new Error('No Wallet found for the provided address')
+        }
       }
     } catch (e) {
       return Promise.reject(e)
@@ -312,6 +353,7 @@ class AccountHandler {
     try {
       const wallet = this.getWallet(address)
       if (wallet) {
+        txData.from = this.wallet.address
         return await wallet.signTransaction({ ...txData })
       } else {
         throw new Error('No Wallet found for the provided address')

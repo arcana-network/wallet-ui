@@ -3,6 +3,7 @@ import { RpcConfig } from '@arcana/auth'
 interface RpcConfigWallet extends RpcConfig {
   favicon: string
   isCustom: boolean
+  chainType?: string
 }
 
 const CHAIN_LIST = [
