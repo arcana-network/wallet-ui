@@ -167,7 +167,7 @@ async function getDetailedNFTs(nftDB: NFTDB, chainId: number) {
 
       // Check for undefined because we don't want to remove the NFT if it's autodetected
       // Ownership is undefined if autodetected
-      if ((ownership !== undefined && !ownership.owner) || !details) {
+      if (ownership !== undefined && !ownership.owner) {
         nftDB.removeNFT(nft, chainId)
         return
       }
