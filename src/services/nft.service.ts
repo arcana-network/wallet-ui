@@ -58,8 +58,10 @@ class NFTDB {
   ) {
     const nftsInStorage = storage.getNFTList(walletAddress)
     let existingNfts = nftsInStorage
+    console.log({ existingNfts })
     if (fetchFreshData) {
       existingNfts = nftsInStorage.filter((nft) => !nft.autodetected)
+      console.log('filtering existing nfts', { existingNfts })
       try {
         let npToken: null | boolean | string = null
         while (npToken !== false) {
@@ -85,6 +87,7 @@ class NFTDB {
           })
 
           const result = resp.data.result?.assets as AnkrNFT[]
+          console.log({ result })
           for (const r of result) {
             let contractType
 
@@ -119,6 +122,7 @@ class NFTDB {
               tokenUrl: r.tokenUrl,
               balance: r.quantity ? Number(r.quantity) : undefined,
             })
+            console.log({ existingNfts })
           }
           npToken =
             resp.data.result?.nextPageToken == ''
@@ -129,6 +133,7 @@ class NFTDB {
         console.error('Caught error while trying to get NFTs:', e)
       }
 
+      console.log('setting nft list', { walletAddress, existingNfts })
       storage.setNFTList(walletAddress, existingNfts)
     }
 
