@@ -91,7 +91,7 @@ watch(
               </p>
             </video>
             <img
-              v-else
+              v-else-if="props.imageUrl"
               class="h-[316px] sm:h-[180px] w-full object-cover object-center rounded-[10px] p-[2px]"
               :src="props.imageUrl"
             />

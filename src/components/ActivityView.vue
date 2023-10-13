@@ -265,7 +265,10 @@ function canShowDropdown(activity: Activity) {
         </div>
         <div v-else-if="activity.transaction">
           <div class="flex flex-col gap-4">
-            <div v-if="activity.nft" class="flex justify-center items-center">
+            <div
+              v-if="activity.nft?.imageUrl"
+              class="flex justify-center items-center"
+            >
               <img
                 :src="activity.nft.imageUrl"
                 :title="`${activity.nft.name} by ${activity.nft.collectionName}`"

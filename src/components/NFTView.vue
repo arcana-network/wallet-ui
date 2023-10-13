@@ -75,6 +75,10 @@ const filteredNFTs = computed(() => {
       item.collectionName.toLowerCase().includes(searchTerm.value.toLowerCase())
   )
 })
+
+function handleFallbackNft(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -115,10 +119,13 @@ const filteredNFTs = computed(() => {
               })
             "
           >
-            <div
-              class="h-[136px] rounded m-1 bg-center bg-cover"
-              :style="{ 'background-image': `url(${nft.imageUrl})` }"
-            ></div>
+            <div class="h-[136px] rounded m-1 overflow-hidden">
+              <img
+                class="h-full w-full object-cover object-center"
+                :src="nft.imageUrl"
+                @error="handleFallbackNft"
+              />
+            </div>
             <div class="flex flex-col px-2">
               <span
                 class="text-gray-100 text-sm overflow-hidden whitespace-nowrap text-ellipsis"

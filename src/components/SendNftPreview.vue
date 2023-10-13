@@ -47,7 +47,10 @@ function truncateAddress(address: string) {
         </button>
         <span class="text-lg font-bold">Confirm Transfer</span>
       </div>
-      <div class="mx-auto w-16 aspect-square rounded-[10px] overflow-hidden">
+      <div
+        v-if="props.previewData?.imageUrl"
+        class="mx-auto w-16 aspect-square rounded-[10px] overflow-hidden"
+      >
         <img
           :src="props.previewData.imageUrl"
           class="object-cover object-center w-full h-full"
