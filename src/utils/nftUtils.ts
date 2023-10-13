@@ -172,10 +172,10 @@ async function getDetailedNFTs(nftDB: NFTDB, chainId: number) {
         return
       }
 
-      details.name = details.name || `#${nft.tokenId}`
-      details.imageUrl = sanitizeUrl(details.image_url || details.image)
+      details.name = details?.name || `#${nft.tokenId}`
+      details.imageUrl = sanitizeUrl(details?.image_url || details?.image)
       details.animationUrl = sanitizeUrl(
-        details.animation_url || details.animations
+        details?.animation_url || details?.animations
       )
       nfts.push({ ...nft, ...details })
     })
