@@ -3,7 +3,14 @@ import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
-import { onMounted, ref, onBeforeMount, type Ref, onBeforeUnmount, watch } from 'vue'
+import {
+  onMounted,
+  ref,
+  onBeforeMount,
+  type Ref,
+  onBeforeUnmount,
+  watch,
+} from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -369,11 +376,18 @@ watch(
 watch(
   () => rpcStore.selectedChainId,
   async () => {
-    const chainId = rpcStore.selectedChainId
-    const appId = appStore.id
-    await checkIfGaslessEnabled(chainId as string, appId as string)
-    getWalletAddressType()
-    await initScwSdk()
+    try {
+      loader.value.show = true
+      const chainId = rpcStore.selectedChainId
+      const appId = appStore.id
+      await checkIfGaslessEnabled(chainId as string, appId as string)
+      getWalletAddressType()
+      await initScwSdk()
+    } catch (e) {
+      console.log({ e })
+    } finally {
+      loader.value.show = false
+    }
   }
 )
 </script>
