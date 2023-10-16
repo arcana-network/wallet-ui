@@ -5,7 +5,10 @@ import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import {
+  getRequestHandler,
+  requestHandlerExists,
+} from '@/utils/requestHandlerSingleton'
 
 const emit = defineEmits(['close'])
 const rpcStore = useRpcStore()
@@ -16,7 +19,7 @@ const showAddNetworkModal = ref(false)
 watch(
   () => selectedRPCConfig.value,
   () => {
-    if (selectedRPCConfig.value) {
+    if (selectedRPCConfig.value && requestHandlerExists()) {
       rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
       const requestHandler = getRequestHandler()
       requestHandler.setRpcConfig(selectedRPCConfig.value)
