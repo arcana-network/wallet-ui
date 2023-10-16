@@ -84,7 +84,7 @@ const walletBalanceInCurrency = computed(() => {
   return null
 })
 
-const addresses = [
+const addresses = ref([
   {
     type: 'eoa',
     address: userStore.ownerWalletAddress,
@@ -95,11 +95,12 @@ const addresses = [
     address: userStore.scwAddress,
     label: 'Smart Contract Wallet Address',
   },
-]
+])
 
 const selectedAddressType = ref(
-  addresses.find((address) => address.type === rpcStore.preferredAddressType) ||
-    addresses[0]
+  addresses.value.find(
+    (address) => address.type === rpcStore.preferredAddressType
+  ) || addresses.value[0]
 )
 
 // TODO: move these to something else scoped to onramps
@@ -175,6 +176,14 @@ watch(
         chainId: Number(rpcStore.selectedRPCConfig.chainId),
       })
     }
+  }
+)
+
+watch(
+  () => userStore.scwAddress,
+  () => {
+    addresses.value[1].address = userStore.scwAddress
+    emit('refresh')
   }
 )
 
