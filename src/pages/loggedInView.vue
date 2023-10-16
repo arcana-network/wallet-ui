@@ -78,9 +78,9 @@ function stopCurrencyInterval() {
 
 onMounted(async () => {
   try {
+    loader.value.show = true
     await setRpcConfigs()
     await getRpcConfig()
-    initKeeper()
     await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
@@ -90,7 +90,6 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
-      await initScwSdk()
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
@@ -99,6 +98,9 @@ onMounted(async () => {
         chainId: selectedChainId,
         ...rpcConfig,
       })
+      if (rpcStore.isGaslessConfigured) {
+        await initScwSdk()
+      }
       await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
@@ -160,12 +162,9 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-function initKeeper() {
+function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = new AccountHandler(
-      userStore.privateKey,
-      rpcStore.selectedRpcConfig?.rpcUrls[0]
-    )
+    const accountHandler = new AccountHandler(userStore.privateKey, rpcUrl)
     setRequestHandler(accountHandler)
   }
 }
@@ -288,6 +287,7 @@ async function getRpcConfig() {
     let rpcConfig =
       enabledChainList.value.find((chain) => chain.defaultChain) ||
       enabledChainList.value[0] // some time, chain list don't have default chain
+    initKeeper(rpcConfig.rpcUrls[0])
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
   } catch (err) {
@@ -377,12 +377,22 @@ watch(
   () => rpcStore.selectedChainId,
   async () => {
     try {
+      if (!requestHandlerExists()) return
       loader.value.show = true
       const chainId = rpcStore.selectedChainId
       const appId = appStore.id
       await checkIfGaslessEnabled(chainId as string, appId as string)
       getWalletAddressType()
-      await initScwSdk()
+      if (rpcStore.isGaslessConfigured) {
+        const requestHandler = getRequestHandler()
+        const { chainId, ...rpcConfig } =
+          rpcStore.selectedRpcConfig as RpcConfigWallet
+        await requestHandler.setRpcConfig({
+          chainId: Number(chainId),
+          ...rpcConfig,
+        })
+        await initScwSdk()
+      }
     } catch (e) {
       console.log({ e })
     } finally {
