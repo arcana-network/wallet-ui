@@ -234,9 +234,7 @@ async function handleSendToken() {
     router.push({ name: 'home' })
     toast.success('Tokens sent Successfully')
   } catch (err: any) {
-    if (err && err.reason) {
-      toast.error(err.reason)
-    }
+    toast.error(err.reason || 'Something went wrong. Please try again later.')
   } finally {
     showPreview.value = false
     hideLoader()
