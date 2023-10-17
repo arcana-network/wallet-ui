@@ -74,36 +74,40 @@ class AccountHandler {
     gasPrice,
     gasLimit
   ) => {
-    const abi = [
-      'function transfer(address recipient, uint256 amount) returns (bool)',
-    ]
+    try {
+      const abi = [
+        'function transfer(address recipient, uint256 amount) returns (bool)',
+      ]
 
-    if (rpcStore.useGasless) {
-      const Erc20Interface = new ethers.utils.Interface(abi)
-      const encodedData = Erc20Interface.encodeFunctionData('transfer', [
-        recipientAddress,
-        amount,
-      ])
-      const txParams = {
-        from: userStore.walletAddress,
-        to: contractAddress,
-        data: encodedData,
+      if (rpcStore.useGasless) {
+        const Erc20Interface = new ethers.utils.Interface(abi)
+        const encodedData = Erc20Interface.encodeFunctionData('transfer', [
+          recipientAddress,
+          amount,
+        ])
+        const txParams = {
+          from: userStore.walletAddress,
+          to: contractAddress,
+          data: encodedData,
+        }
+        const tx = await scwInstance.doTx(txParams)
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
+      } else {
+        const signer = this.wallet.connect(this.provider)
+        const contract = new ethers.Contract(contractAddress, abi, signer)
+        const payload = {} as any
+        if (gasPrice) payload.gasPrice = gasPrice
+        if (gasLimit) payload.gasLimit = gasLimit
+        const tx = await contract.functions.transfer(
+          recipientAddress,
+          amount,
+          payload
+        )
+        return tx.hash
       }
-      const tx = await scwInstance.doTx(txParams)
-      const txDetails = await tx.wait()
-      return txDetails.receipt.transactionHash
-    } else {
-      const signer = this.wallet.connect(this.provider)
-      const contract = new ethers.Contract(contractAddress, abi, signer)
-      const payload = {} as any
-      if (gasPrice) payload.gasPrice = gasPrice
-      if (gasLimit) payload.gasLimit = gasLimit
-      const tx = await contract.functions.transfer(
-        recipientAddress,
-        amount,
-        payload
-      )
-      return tx.hash
+    } catch (e) {
+      console.log({ e })
     }
   }
 
