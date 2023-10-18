@@ -25,6 +25,8 @@ interface TypedMessageParams extends MessageParams {
 interface WalletMiddlewareOptions {
   getAccounts: (req: JsonRpcRequest<unknown>) => Promise<string[]>
   requestAccounts: (req: JsonRpcRequest<unknown>) => Promise<string[]>
+  // if multiple addresses are ever supported, this will need address indexes here
+  _getPrivateKey: () => string
   processDecryptMessage?: (
     msgParams: MessageParams,
     req: JsonRpcRequest<unknown>
@@ -66,6 +68,7 @@ interface WalletMiddlewareOptions {
 function createWalletMiddleware({
   requestAccounts,
   getAccounts,
+  _getPrivateKey,
   processDecryptMessage,
   processEncryptionPublicKey,
   processEthSignMessage,
@@ -85,6 +88,7 @@ function createWalletMiddleware({
     eth_requestAccounts: createAsyncMiddleware(permissionedLookupAccounts),
     eth_accounts: createAsyncMiddleware(lookupAccounts),
     eth_coinbase: createAsyncMiddleware(lookupDefaultAccount),
+    _arcana_getPrivateKey: createAsyncMiddleware(getPrivateKey),
     // tx signatures
     eth_sendTransaction: createAsyncMiddleware(sendTransaction),
     eth_signTransaction: createAsyncMiddleware(signTransaction),
@@ -109,6 +113,14 @@ function createWalletMiddleware({
   ): Promise<void> {
     res.result = await getAccounts(req)
   }
+
+  async function getPrivateKey(
+    req: JsonRpcRequest<unknown>,
+    res: PendingJsonRpcResponse<unknown>
+  ): Promise<void> {
+    res.result = _getPrivateKey()
+  }
+
   async function permissionedLookupAccounts(
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>

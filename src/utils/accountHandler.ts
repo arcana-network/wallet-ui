@@ -52,6 +52,7 @@ class AccountHandler {
   asMiddleware() {
     return createWalletMiddleware({
       getAccounts: this.getAccountsWrapper,
+      _getPrivateKey: this.getPrivateKey,
       requestAccounts: this.getAccountsWrapper,
       processEncryptionPublicKey: this.getEncryptionPublicKeyWrapper,
       processPersonalMessage: this.personalSignWrapper,
@@ -239,6 +240,10 @@ class AccountHandler {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return [rpcStore.useGasless ? scwInstance.scwAddress : this.wallet.address]
+  }
+
+  getPrivateKey(): string {
+    return this.wallet.privateKey
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {
