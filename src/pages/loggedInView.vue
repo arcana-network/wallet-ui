@@ -151,7 +151,11 @@ async function setMFABannerState() {
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
-    router.push({ name: 'home' })
+    const userId = userStore.info.id
+    const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
+    if (Number(loginCount) <= 1 && !hasStarterTipShown)
+      router.push({ name: 'StarterTips' })
+    else router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
