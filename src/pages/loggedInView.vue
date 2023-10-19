@@ -153,7 +153,7 @@ async function setMFABannerState() {
   } else {
     const userId = userStore.info.id
     const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-    if (Number(loginCount) <= 1 && !hasStarterTipShown)
+    if (Number(loginCount) <= 2 && !hasStarterTipShown)
       router.push({ name: 'StarterTips' })
     else router.push({ name: 'home' })
   }
