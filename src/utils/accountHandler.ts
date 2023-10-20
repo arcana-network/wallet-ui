@@ -239,7 +239,7 @@ class AccountHandler {
   }
 
   getPrivateKey(): string {
-    return this.wallet.privateKey
+    return userStore.privateKey
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {
