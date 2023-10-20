@@ -15,6 +15,7 @@ type RequestMethod =
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
   | 'wallet_watchAsset'
+  | '_arcana_getPrivateKey'
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   personal_sign: true,
@@ -27,6 +28,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
+  _arcana_getPrivateKey: false,
 })
 
 const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']
