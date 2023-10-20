@@ -1,3 +1,4 @@
+import { AppMode } from '@arcana/auth'
 import { ethErrors } from 'eth-rpc-errors'
 import sigUtil from 'eth-sig-util'
 import {
@@ -8,6 +9,7 @@ import {
   PendingJsonRpcResponse,
 } from 'json-rpc-engine'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 
 interface TransactionParams {
@@ -118,7 +120,9 @@ function createWalletMiddleware({
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>
   ): Promise<void> {
-    res.result = _getPrivateKey()
+    if (useAppStore().validAppMode !== AppMode.NoUI) {
+      throw ethErrors.rpc.methodNotSupported()
+    } else res.result = _getPrivateKey()
   }
 
   async function permissionedLookupAccounts(
