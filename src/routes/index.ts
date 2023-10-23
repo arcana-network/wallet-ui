@@ -15,6 +15,7 @@ import MFARestoreScreen from '@/pages/MFARestoreScreen.vue'
 import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
+import PermissionRequest from '@/pages/PermissionRequest.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import ReconnectV1 from '@/pages/ReconnectV1.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
@@ -64,6 +65,11 @@ const routes: RouteRecordRaw[] = [
     meta: {
       isFullPageView: true,
     },
+  },
+  {
+    name: 'PermissionRequest',
+    path: '/permission',
+    component: PermissionRequest,
   },
   {
     path: '/loggedin',
