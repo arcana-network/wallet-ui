@@ -24,7 +24,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { CreateAccountHandler } from '@/utils/accountHandler'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -168,7 +168,7 @@ async function getAccountDetails() {
 
 function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = new AccountHandler(userStore.privateKey, rpcUrl)
+    const accountHandler = CreateAccountHandler(userStore.privateKey, rpcUrl)
     setRequestHandler(accountHandler)
   }
 }
