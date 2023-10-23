@@ -1,3 +1,4 @@
+import type { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -15,6 +16,7 @@ import {
 import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
+import erc20abi from '@/abis/erc20.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
@@ -371,6 +373,58 @@ class EVMAccountHandler {
     } else {
       throw new Error('No Wallet found for the provided address')
     }
+  }
+
+  getTransaction(txHash: string | Uint8Array): Promise<TransactionResponse> {
+    return this.provider.getTransaction(this.coerceAmbiguousToString(txHash))
+  }
+
+  private coerceAmbiguousToString(x: string | Uint8Array) {
+    let y: string
+    if (x instanceof Uint8Array) {
+      y = ethers.utils.hexlify(x)
+    } else {
+      // noinspection JSSuspiciousNameCombination
+      y = x
+    }
+    return y
+  }
+
+  getTokenBalance(
+    _contractAddr: string | Uint8Array,
+    walletAddress: string | Uint8Array
+  ): Promise<ethers.BigNumberish> {
+    const contractAddr = this.coerceAmbiguousToString(_contractAddr)
+
+    const ethersContract = new ethers.Contract(
+      contractAddr,
+      erc20abi,
+      this.provider
+    )
+
+    return ethersContract.balanceOf(walletAddress)
+  }
+
+  getTokenDecimals(_contractAddress: string | Uint8Array): Promise<number> {
+    const contractAddr = this.coerceAmbiguousToString(_contractAddress)
+    const ethersContract = new ethers.Contract(
+      contractAddr,
+      erc20abi,
+      this.provider
+    )
+
+    return ethersContract.decimals()
+  }
+
+  getTokenSymbol(_contractAddress: string | Uint8Array): Promise<string> {
+    const contractAddr = this.coerceAmbiguousToString(_contractAddress)
+    const ethersContract = new ethers.Contract(
+      contractAddr,
+      erc20abi,
+      this.provider
+    )
+
+    return ethersContract.symbol()
   }
 }
 
