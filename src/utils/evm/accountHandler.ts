@@ -1,3 +1,4 @@
+import { ChainType } from '@arcana/auth'
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
@@ -425,6 +426,10 @@ class EVMAccountHandler {
     )
 
     return ethersContract.symbol()
+  }
+
+  get chainType() {
+    return ChainType.evm_secp256k1
   }
 }
 

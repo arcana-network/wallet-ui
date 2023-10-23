@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { ChainType } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
 import {
   Connection,
@@ -122,5 +123,9 @@ export class SolanaAccountHandler {
   // NFT-related functions below
   sendCustomToken = async (...params) => {
     return null
+  }
+
+  get chainType() {
+    return ChainType.solana_cv25519
   }
 }

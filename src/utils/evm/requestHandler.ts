@@ -1,3 +1,4 @@
+import { ChainType } from '@arcana/auth'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
   createFetchMiddleware,
@@ -18,7 +19,7 @@ import {
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
-import { AccountHandler } from '@/utils/accountHandler'
+import { type EVMAccountHandler } from '@/utils/accountHandler'
 import { toHex } from '@/utils/toHex'
 
 interface RpcConfig {
@@ -36,7 +37,7 @@ class EVMRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   private connectSent = false
-  constructor(private accountHandler: AccountHandler) {}
+  constructor(private accountHandler: EVMAccountHandler) {}
 
   public async sendConnect() {
     if (!this.connectSent) {
@@ -92,7 +93,7 @@ class EVMRequestHandler {
   ) {
     const c = await this.getConnection('onMethodResponse')
     if (!(c instanceof Error)) {
-      c.onMethodResponse(method, response)
+      await c.onMethodResponse(method, response)
     }
   }
 
@@ -164,6 +165,10 @@ class EVMRequestHandler {
       eth_chainId: hexChainId,
       net_version: chainId,
     }) as JsonRpcMiddleware<string, unknown>
+  }
+
+  get chainType() {
+    return ChainType.evm_secp256k1
   }
 }
 
