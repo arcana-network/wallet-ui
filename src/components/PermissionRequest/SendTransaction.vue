@@ -40,23 +40,26 @@ function calculateGasPrice(gasPrice) {
 </script>
 
 <template>
-  <div class="flex-1 bg-[#141414] p-4 h-full rounded-md space-y-4">
-    <div v-if="data.params[0].to" class="flex justify-between gap-4">
-      <span class="w-[120px]">To</span>
-      <span>{{ truncateMid(data.params[0]?.to) }}</span>
+  <div
+    class="flex-1 flex flex-col bg-[#141414] p-4 h-full rounded-md space-y-4 border-2 overflow-auto"
+  >
+    <p class="text-sm font-medium">Transaction Details</p>
+    <div v-if="data.params[0].to" class="flex justify-between">
+      <span class="text-sm">To</span>
+      <span class="text-sm">{{ truncateMid(data.params[0]?.to) }}</span>
     </div>
-    <div class="flex justify-between gap-4">
-      <span class="w-[120px]">Gas Price</span>
-      <span>{{
+    <div class="flex justify-between">
+      <span class="text-sm">Gas Price</span>
+      <span class="text-sm">{{
         calculateGasPrice(data.params[0]?.gasPrice || data.params[0]?.gas)
       }}</span>
     </div>
-    <div v-if="data.params[0]?.value" class="flex justify-between gap-4">
-      <span class="w-[120px]">Value</span>
-      <span>{{ calculateValue(data.params[0]?.value) }}</span>
+    <div v-if="data.params[0]?.value" class="flex justify-between">
+      <span class="text-sm">Value</span>
+      <span class="text-sm">{{ calculateValue(data.params[0]?.value) }}</span>
     </div>
-    <div v-if="data.params[0]?.data" class="flex flex-col gap-1">
-      <span class="w-[120px]">Data</span>
+    <div v-if="data.params[0]?.data" class="flex flex-col space-y-2 flex-1">
+      <span class="text-sm">Data</span>
       <SignMessageAdvancedInfo :info="data.params[0]?.data" />
     </div>
   </div>
