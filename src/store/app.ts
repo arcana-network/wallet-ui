@@ -36,7 +36,7 @@ export const useAppStore = defineStore('app', {
   state: () =>
     ({
       id: '',
-      theme: 'light',
+      theme: 'dark',
       parentAppUrl: null,
       showWallet: false,
       standaloneMode: 0,
