@@ -1,5 +1,4 @@
 import type { RpcConfig } from '@arcana/auth'
-import { ChainType } from '@arcana/auth'
 import bs58 from 'bs58'
 import {
   JsonRpcEngine,
@@ -10,6 +9,7 @@ import {
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
+import { ChainType } from '@/utils/chainType'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
 
 class SolanaRequestHandler {

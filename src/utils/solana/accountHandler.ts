@@ -1,5 +1,4 @@
 import type { RpcConfig } from '@arcana/auth'
-import { ChainType } from '@arcana/auth'
 import { sign as ed25519Sign } from '@noble/ed25519'
 import {
   Connection,
@@ -9,6 +8,8 @@ import {
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
+
+import { ChainType } from '@/utils/chainType'
 
 export class SolanaAccountHandler {
   // conn and rpcConfig can be change

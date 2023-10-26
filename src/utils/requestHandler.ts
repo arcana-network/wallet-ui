@@ -1,10 +1,9 @@
-import { ChainType } from '@arcana/auth'
-
 import {
   AccountHandler,
   EVMAccountHandler,
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { EVMRequestHandler } from '@/utils/evm/requestHandler'
 import { SolanaRequestHandler } from '@/utils/solana/requestHandler'
 

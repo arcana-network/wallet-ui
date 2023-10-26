@@ -1,4 +1,3 @@
-import { ChainType } from '@arcana/auth'
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
@@ -22,6 +21,7 @@ import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { scwInstance } from '@/utils/scw'
 import {
   MessageParams,
