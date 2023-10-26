@@ -66,6 +66,7 @@ class SolanaRequestHandler {
   }
 
   public request(request: JsonRpcRequest<unknown>) {
+    console.log({ request })
     if (!request.id) {
       request.id = 1
     }
@@ -96,7 +97,9 @@ class SolanaRequestHandler {
     }
     switch (req.method) {
       case 'getAccounts': {
-        res.result = await this.accountHandler.getAccounts()
+        const result = await this.accountHandler.getAccounts()
+        res.result = result
+        console.log({ Res: res.result, result })
         break
       }
       case 'signAndSendTransaction': {
@@ -122,9 +125,11 @@ class SolanaRequestHandler {
         break
       }
       default: {
+        console.log('Default request')
         throw new Error('Invalid method')
       }
     }
+    console.log({ res })
     next()
   }
 

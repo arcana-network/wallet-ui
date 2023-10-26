@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { AccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
@@ -134,7 +134,7 @@ function getTxOperation(
 }
 
 async function getRemoteTransaction(
-  accountHandler: AccountHandler,
+  accountHandler: EVMAccountHandler,
   txHash: string
 ): Promise<TransactionResponse> {
   return new Promise((resolve) => {
@@ -185,7 +185,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       customToken,
       recipientAddress,
     }: TransactionFetchParams) {
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       const remoteTransaction = await getRemoteTransaction(
         accountHandler,
         txHash
@@ -228,7 +229,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       nft,
       recipientAddress,
     }: TransactionFetchNftParams) {
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       const remoteTransaction = await getRemoteTransaction(
         accountHandler,
         txHash
@@ -317,7 +319,8 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         ],
       }
 
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       accountHandler.provider.once(filter, async (log) => {
         currentActivity.status = 'Success'
         currentActivity.txHash = log.transactionHash

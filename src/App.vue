@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
@@ -30,6 +31,8 @@ const route = useRoute()
 if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
 }
+
+app.chainType = ChainType.solana_cv25519
 
 const url = new URL(window.location.href)
 if (url.searchParams.get('theme')) {

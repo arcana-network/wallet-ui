@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
 import { useRequestStore } from '@/store/request'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { isMobileViewport } from '@/utils/isMobileViewport'
 
@@ -30,6 +31,7 @@ type AppState = {
   sdkVersion: SDKVersion | null
   expandedByRequest: boolean
   isMfaEnabled: boolean
+  chainType: ChainType
 }
 
 export const useAppStore = defineStore('app', {
@@ -47,6 +49,7 @@ export const useAppStore = defineStore('app', {
       sdkVersion: null,
       expandedByRequest: false,
       isMfaEnabled: true,
+      chainType: ChainType.evm_secp256k1,
     } as AppState),
   getters: {
     iframeStyle: ({

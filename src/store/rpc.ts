@@ -124,7 +124,7 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     setWalletBalance(balance): void {
       this.walletBalance = balance
-      this.walletBalanceChainId = this.selectedRPCConfig?.chainId
+      this.walletBalanceChainId = this.selectedRPCConfig?.chainId as string
     },
     setSelectedChainId(chainId: string): void {
       this.selectedRPCConfig = this.rpcConfigs

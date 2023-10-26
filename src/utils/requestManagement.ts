@@ -247,7 +247,7 @@ async function addNetwork(request, keeper) {
         networkInfo.blockExplorerUrls || existingChain.blockExplorerUrls,
       chainName: name || existingChain.chainName,
     })
-    rpcStore.setSelectedChainId(existingChain.chainId)
+    rpcStore.setSelectedChainId(existingChain.chainId as string)
     await getRequestHandler().setRpcConfig({
       ...existingChain,
       chainId: Number(existingChain.chainId),
@@ -328,9 +328,11 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      const sanitizedRequest = sanitizeRequest({ ...request })
+      // const sanitizedRequest = sanitizeRequest({ ...request })
+      const sanitizedRequest = { ...request }
       try {
         const response = await keeper.request({ ...sanitizedRequest })
+        console.log({ response })
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.code === 'INSUFFICIENT_FUNDS') {
@@ -374,7 +376,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
             activitiesStore.saveFileActivity(
-              rpcStore.selectedRpcConfig?.chainId,
+              rpcStore.selectedRpcConfig?.chainId as string,
               params.message,
               params.domain.verifyingContract
             )
@@ -383,7 +385,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (request.method === 'eth_sendTransaction' && response.result) {
           activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
-            chainId: rpcStore.selectedRpcConfig?.chainId,
+            chainId: rpcStore.selectedRpcConfig?.chainId as string,
           })
         }
       } catch (err) {
@@ -445,7 +447,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       rpcStore.selectedRPCConfig?.chainId &&
       params.domain.chainId &&
       parseInt(params.domain.chainId) !==
-        parseInt(rpcStore.selectedRPCConfig.chainId)
+        parseInt(rpcStore.selectedRPCConfig.chainId as string)
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }

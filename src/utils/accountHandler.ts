@@ -1,3 +1,5 @@
+import base58 from 'bs58'
+
 import { ChainType } from '@/utils/chainType'
 import { EVMAccountHandler } from '@/utils/evm/accountHandler'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
@@ -10,7 +12,7 @@ function CreateAccountHandler(
   chainType: ChainType = ChainType.evm_secp256k1
 ): AccountHandler {
   if (chainType === ChainType.solana_cv25519) {
-    return new SolanaAccountHandler(Buffer.from(privateKey), rpcUrl)
+    return new SolanaAccountHandler(base58.decode(privateKey), rpcUrl)
   }
   return new EVMAccountHandler(privateKey, rpcUrl)
 }

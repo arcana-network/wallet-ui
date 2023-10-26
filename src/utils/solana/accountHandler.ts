@@ -16,12 +16,12 @@ export class SolanaAccountHandler {
   private conn: Connection
   private rpcConfig!: RpcConfig
 
-  private readonly privateKey: Buffer
+  private readonly privateKey: Uint8Array
   // Not a hash, nor is it 20 bytes, it's the whole public key encoded with Base58
   private readonly address: string
   private readonly kp: Keypair
 
-  constructor(privateKey: Buffer, rpcUrl: string) {
+  constructor(privateKey: Uint8Array, rpcUrl: string) {
     this.privateKey = privateKey
     this.conn = new Connection(rpcUrl, 'confirmed')
     this.kp = Keypair.fromSecretKey(<Uint8Array>privateKey)

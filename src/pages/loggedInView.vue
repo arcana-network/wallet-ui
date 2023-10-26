@@ -171,7 +171,12 @@ async function getAccountDetails() {
 
 function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = CreateAccountHandler(userStore.privateKey, rpcUrl)
+    const accountHandler = CreateAccountHandler(
+      // userStore.privateKey,
+      // Add your solana private key here,
+      rpcUrl,
+      ChainType.solana_cv25519
+    )
     setRequestHandler(accountHandler)
   }
 }
@@ -181,10 +186,10 @@ async function initAccountHandler() {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
 
-      if (!userStore.walletAddress) {
-        const account = getRequestHandler().getAccountHandler().getAccount()
-        userStore.setWalletAddress(account.address)
-      }
+      // if (!userStore.walletAddress) {
+      const account = getRequestHandler().getAccountHandler().getAccount()
+      userStore.setWalletAddress(account.address)
+      // }
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
@@ -272,20 +277,37 @@ async function handleLogout() {
 }
 
 async function setRpcConfigs() {
-  const { chains } = await getEnabledChainList(appStore.id)
-  enabledChainList.value = chains.map((chain) => ({
-    chainId: chain.chain_id,
-    rpcUrls: [chain.rpc_url],
-    chainName: chain.name,
-    chainType: chain.chain_type,
-    blockExplorerUrls: [chain.exp_url],
-    isCustom: false,
-    nativeCurrency: {
-      symbol: chain.currency,
-      decimals: 18,
+  // const { chains } = await getEnabledChainList(appStore.id)
+  // enabledChainList.value = chains.map((chain) => ({
+  //   chainId: chain.chain_id,
+  //   rpcUrls: [chain.rpc_url],
+  //   chainName: chain.name,
+  //   chainType: chain.chain_type,
+  //   blockExplorerUrls: [chain.exp_url],
+  //   isCustom: false,
+  //   nativeCurrency: {
+  //     symbol: chain.currency,
+  //     decimals: 18,
+  //   },
+  //   defaultChain: chain.default_chain,
+  // }))
+  enabledChainList.value = [
+    {
+      chainId: '0x2',
+      rpcUrls: ['https://api.testnet.solana.com'],
+      chainName: 'Solana Testnet',
+      chainType: 'testnet',
+      blockExplorerUrls: ['https://solscan.io/'],
+      isCustom: false,
+      nativeCurrency: {
+        symbol: 'SOL',
+        decimals: 9,
+      },
+      defaultChain: true,
+      favicon: 'https://solana.com/apple-touch-icon.png',
     },
-    defaultChain: chain.default_chain,
-  }))
+  ]
+  console.log(enabledChainList.value)
   if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 
