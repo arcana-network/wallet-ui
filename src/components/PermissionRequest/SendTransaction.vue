@@ -9,16 +9,16 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  chainConfig: {
+    type: Object,
+    required: true,
+  },
 })
 
-console.log(props.data, 'data-data')
-
 function calculateValue(value) {
-  // return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()} ${
-  //   rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
-  // }`
-
-  return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()} ${'Units'}`
+  return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()} ${
+    props.chainConfig.currency || 'Units'
+  }`
 }
 
 function getGasValue(gasPrice) {
@@ -26,14 +26,11 @@ function getGasValue(gasPrice) {
 }
 
 function calculateGasPrice(gasPrice) {
-  if (gasPrice) {
+  if (gasPrice !== undefined) {
     return `${new Decimal(getGasValue(gasPrice))
       .div(Decimal.pow(10, 18))
       .toDecimalPlaces(10)
-      .toString()} ${
-      // rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
-      'Units'
-    }`
+      .toString()} ${props.chainConfig.currency || 'Units'}`
   }
   return 'Unknown'
 }
@@ -44,14 +41,14 @@ function calculateGasPrice(gasPrice) {
     class="flex-1 flex flex-col bg-[#141414] p-4 h-full rounded-md space-y-4 border-2 overflow-auto"
   >
     <p class="text-sm font-medium">Transaction Details</p>
-    <div v-if="data.params[0].to" class="flex justify-between">
+    <div v-if="data.params[0]?.to" class="flex justify-between">
       <span class="text-sm">To</span>
       <span class="text-sm">{{ truncateMid(data.params[0]?.to) }}</span>
     </div>
     <div class="flex justify-between">
       <span class="text-sm">Gas Price</span>
       <span class="text-sm">{{
-        calculateGasPrice(data.params[0]?.gasPrice || data.params[0]?.gas)
+        calculateGasPrice(data.params[0].gas || data.params[0].gasPrice)
       }}</span>
     </div>
     <div v-if="data.params[0]?.value" class="flex justify-between">
