@@ -22,13 +22,13 @@ import { NFTContractType } from '@/models/NFT'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
-import { scwInstance } from '@/utils/scw'
 import {
   MessageParams,
   TransactionParams,
   TypedMessageParams,
   createWalletMiddleware,
-} from '@/utils/walletMiddleware'
+} from '@/utils/evm/walletMiddleware'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
@@ -37,10 +37,7 @@ class EVMAccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(
-    privateKey: string,
-    rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
-  ) {
+  constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
     this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   }

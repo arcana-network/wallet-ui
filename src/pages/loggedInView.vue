@@ -25,11 +25,13 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { CreateAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -101,7 +103,8 @@ onMounted(async () => {
       if (rpcStore.isGaslessConfigured) {
         await initScwSdk()
       }
-      await requestHandler.sendConnect()
+      if (requestHandler.chainType === ChainType.evm_secp256k1)
+        await (requestHandler as EVMRequestHandler).sendConnect()
       watchRequestQueue(requestHandler)
     }
   } catch (e) {

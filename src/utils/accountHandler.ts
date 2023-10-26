@@ -1,16 +1,15 @@
+import { ChainType } from '@/utils/chainType'
 import { EVMAccountHandler } from '@/utils/evm/accountHandler'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
-
-type SupportedChainTypes = 'evm' | 'solana'
 
 type AccountHandler = EVMAccountHandler | SolanaAccountHandler
 
 function CreateAccountHandler(
   privateKey: string,
   rpcUrl: string,
-  chainType: SupportedChainTypes = 'evm'
+  chainType: ChainType = ChainType.evm_secp256k1
 ): AccountHandler {
-  if (chainType === 'solana') {
+  if (chainType === ChainType.solana_cv25519) {
     return new SolanaAccountHandler(Buffer.from(privateKey), rpcUrl)
   }
   return new EVMAccountHandler(privateKey, rpcUrl)
@@ -21,5 +20,5 @@ export {
   type EVMAccountHandler,
   type SolanaAccountHandler,
   type AccountHandler,
-  type SupportedChainTypes,
+  type ChainType as SupportedChainType,
 }
