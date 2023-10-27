@@ -1,5 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
-import { sign as ed25519Sign } from '@noble/ed25519'
+import { signAsync as ed25519Sign } from '@noble/ed25519'
 import {
   Connection,
   Keypair,
@@ -16,13 +16,11 @@ export class SolanaAccountHandler {
   private conn: Connection
   private rpcConfig!: RpcConfig
 
-  private readonly privateKey: Uint8Array
   // Not a hash, nor is it 20 bytes, it's the whole public key encoded with Base58
   private readonly address: string
   private readonly kp: Keypair
 
   constructor(privateKey: Uint8Array, rpcUrl: string) {
-    this.privateKey = privateKey
     this.conn = new Connection(rpcUrl, 'confirmed')
     this.kp = Keypair.fromSecretKey(<Uint8Array>privateKey)
     this.address = this.kp.publicKey.toBase58()
@@ -46,7 +44,7 @@ export class SolanaAccountHandler {
       // ???
       throw new Error('Address not found.')
     }
-    return this.privateKey
+    return this.kp.secretKey.slice(0, 32)
   }
 
   async getBalance(): Promise<ethers.BigNumber> {
@@ -82,12 +80,7 @@ export class SolanaAccountHandler {
 
   async signMessage(fromAddr: string, message: Buffer): Promise<Buffer> {
     const k = this.getKPForAddr(fromAddr)
-    if (!(k instanceof Buffer)) {
-      // TODO fix
-      throw new Error('???')
-    }
-
-    return Buffer.from(ed25519Sign(message, k))
+    return Buffer.from(await ed25519Sign(message, k))
   }
 
   getAccounts(): Promise<string[]> {
