@@ -236,6 +236,7 @@ async function setTheme() {
     appStore.setTheme(theme)
     appStore.setAppLogo(logo)
     appStore.setName(appName)
+    storage.local.storeThemePreference(theme)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
   }
