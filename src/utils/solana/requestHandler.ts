@@ -22,7 +22,7 @@ class SolanaRequestHandler {
   }
 
   public async setRpcConfig(c: RpcConfig) {
-    await this.accountHandler.setRpcConfig(c)
+    this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
@@ -99,7 +99,6 @@ class SolanaRequestHandler {
       case 'getAccounts': {
         const result = await this.accountHandler.getAccounts()
         res.result = result
-        console.log({ Res: res.result, result })
         break
       }
       case 'signAndSendTransaction': {
@@ -130,7 +129,6 @@ class SolanaRequestHandler {
       }
     }
     console.log({ res })
-    next()
   }
 
   private initRpcEngine() {

@@ -87,7 +87,7 @@ export class SolanaAccountHandler {
       throw new Error('???')
     }
 
-    return Buffer.from(await ed25519Sign(message, k))
+    return Buffer.from(ed25519Sign(message, k))
   }
 
   getAccounts(): Promise<string[]> {

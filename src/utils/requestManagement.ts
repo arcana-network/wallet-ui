@@ -250,6 +250,8 @@ async function addNetwork(request, keeper) {
     rpcStore.setSelectedChainId(existingChain.chainId as string)
     await getRequestHandler().setRpcConfig({
       ...existingChain,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       chainId: Number(existingChain.chainId),
     })
   } else {
@@ -269,6 +271,8 @@ async function addNetwork(request, keeper) {
     rpcStore.setSelectedChainId(payload.chainId)
     await getRequestHandler().setRpcConfig({
       ...payload,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       chainId: Number(payload.chainId),
     })
   }
