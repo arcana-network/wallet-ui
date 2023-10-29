@@ -111,7 +111,20 @@ const onApprove = async (request) => {
   }
   const sanitizedRequest = sanitizeRequest({ ...request })
   const response = await getRequestHandler().request(sanitizedRequest)
-  console.log({ response })
+  const allowedDomain = '*'
+  // ^ Get domain from gateway, default = *
+  try {
+    window.parent?.opener?.postMessage(
+      {
+        type: 'json_rpc_response',
+        response,
+      },
+      allowedDomain
+    )
+    console.log({ response })
+  } catch (e) {
+    console.log({ e })
+  }
 }
 </script>
 
