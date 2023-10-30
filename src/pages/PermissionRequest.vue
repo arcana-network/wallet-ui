@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type JsonRpcRequest } from 'json-rpc-engine'
 import { Ref, onMounted, ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
@@ -30,6 +31,7 @@ const DEFAULT_THEME = 'dark'
 const showLoader = ref(true)
 const chainConfig = ref({})
 const request: Ref<JsonRpcRequest<unknown> | null> = ref(null)
+const toast = useToast()
 
 function decodeHash(): DecodedHash {
   const hash = window.location.hash.substring(1)
@@ -116,16 +118,17 @@ const onApprove = async (request) => {
     const allowedDomain = '*'
     // ^ Get domain from gateway, default = *
 
-    window.parent?.opener?.postMessage(
+    window.parent.opener.postMessage(
       {
         type: 'json_rpc_response',
         response,
       },
       allowedDomain
     )
-    console.log({ response })
   } catch (e) {
-    console.log({ e })
+    if (e.message && e.message.includes('postMessage')) {
+      toast.error('Please make the request again')
+    }
   } finally {
     showLoader.value = false
   }
@@ -140,7 +143,7 @@ function onReject(request) {
       result: null,
       id: request.id,
     }
-    window.parent?.opener?.postMessage(
+    window.parent.opener.postMessage(
       {
         type: 'json_rpc_response',
         response,
@@ -148,7 +151,9 @@ function onReject(request) {
       allowedDomain
     )
   } catch (e) {
-    console.log({ e })
+    if (e.message && e.message.includes('postMessage')) {
+      toast.error('Please make the request again')
+    }
   }
 }
 </script>
