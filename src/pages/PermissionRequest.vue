@@ -7,6 +7,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
+import { fetchApp } from '@/services/gateway.service'
 import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getImage } from '@/utils/getImage'
@@ -27,6 +28,8 @@ type DecodedHash = {
   request: JsonRpcRequest<unknown>
 }
 
+const WALLET_DOMAIN_DEFAULT = '*'
+const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
 const DEFAULT_THEME = 'dark'
 const showLoader = ref(true)
 const chainConfig = ref({})
@@ -52,6 +55,11 @@ async function getChainDetails(appId: string, chainId: string) {
   const { chains } = await getEnabledChainList(appId)
   const chainId_int = Number(chainId)
   return chains.find((chain) => chain.chain_id === chainId_int)
+}
+
+async function getAppDetails(appId: string) {
+  const { data } = await fetchApp(appId)
+  return data
 }
 
 function initAccountHandler(rpcUrl) {
@@ -90,6 +98,10 @@ onMounted(async () => {
       decodedHash.appId,
       decodedHash.chainId
     )
+    const { wallet_domain } = await getAppDetails(decodedHash.appId)
+    walletDomain.value = wallet_domain.length
+      ? wallet_domain
+      : WALLET_DOMAIN_DEFAULT
     chainConfig.value = { ...chainDetails }
     initAccountHandler(chainDetails.rpc_url)
     setRPCConfigInRequestHandler(chainDetails)
@@ -115,8 +127,7 @@ const onApprove = async (request) => {
     }
     const sanitizedRequest = sanitizeRequest({ ...request })
     const response = await getRequestHandler().request(sanitizedRequest)
-    const allowedDomain = '*'
-    // ^ Get domain from gateway, default = *
+    const allowedDomain = walletDomain.value
 
     window.parent.opener.postMessage(
       {
@@ -126,6 +137,7 @@ const onApprove = async (request) => {
       allowedDomain
     )
   } catch (e) {
+    console.log(e)
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
     } else toast.error('something went wrong')
@@ -136,7 +148,7 @@ const onApprove = async (request) => {
 
 function onReject(request) {
   try {
-    const allowedDomain = '*'
+    const allowedDomain = walletDomain.value
     const response = {
       jsonrpc: '2.0',
       error: 'user_deny',
