@@ -128,7 +128,7 @@ const onApprove = async (request) => {
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
-    }
+    } else toast.error('something went wrong')
   } finally {
     showLoader.value = false
   }
@@ -153,7 +153,7 @@ function onReject(request) {
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
-    }
+    } else toast.error('something went wrong')
   }
 }
 </script>
