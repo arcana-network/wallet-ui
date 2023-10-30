@@ -99,21 +99,23 @@ onMounted(async () => {
 })
 
 const onApprove = async (request) => {
-  if (isSendTransactionRequest(request.method)) {
-    if (Array.isArray(request.params)) {
-      const param = request.params[0]
-      const gasPrice = String(param.gasPrice)
-      if (!gasPrice.length) {
-        alert('Please provide Gas Fee')
-        return
+  try {
+    showLoader.value = true
+    if (isSendTransactionRequest(request.method)) {
+      if (Array.isArray(request.params)) {
+        const param = request.params[0]
+        const gasPrice = String(param.gasPrice)
+        if (!gasPrice.length) {
+          alert('Please provide Gas Fee')
+          return
+        }
       }
     }
-  }
-  const sanitizedRequest = sanitizeRequest({ ...request })
-  const response = await getRequestHandler().request(sanitizedRequest)
-  const allowedDomain = '*'
-  // ^ Get domain from gateway, default = *
-  try {
+    const sanitizedRequest = sanitizeRequest({ ...request })
+    const response = await getRequestHandler().request(sanitizedRequest)
+    const allowedDomain = '*'
+    // ^ Get domain from gateway, default = *
+
     window.parent?.opener?.postMessage(
       {
         type: 'json_rpc_response',
@@ -122,6 +124,29 @@ const onApprove = async (request) => {
       allowedDomain
     )
     console.log({ response })
+  } catch (e) {
+    console.log({ e })
+  } finally {
+    showLoader.value = false
+  }
+}
+
+function onReject(request) {
+  try {
+    const allowedDomain = '*'
+    const response = {
+      jsonrpc: '2.0',
+      error: 'user_deny',
+      result: null,
+      id: request.id,
+    }
+    window.parent?.opener?.postMessage(
+      {
+        type: 'json_rpc_response',
+        response,
+      },
+      allowedDomain
+    )
   } catch (e) {
     console.log({ e })
   }
@@ -161,6 +186,7 @@ const onApprove = async (request) => {
       <div class="flex gap-2">
         <button
           class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
+          @click="onReject(request)"
         >
           Reject
         </button>
