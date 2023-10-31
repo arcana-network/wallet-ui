@@ -15,7 +15,3 @@
     cache-control = "max-age=31536000, immutable"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-
-[[edge_functions]]
-  function = "csp"
-  path = "/*"
