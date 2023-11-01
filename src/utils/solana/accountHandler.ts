@@ -55,13 +55,13 @@ export class SolanaAccountHandler {
     this.conn = new Connection(str, 'confirmed')
   }
 
-  async signTransaction(fromAddr: string, data: Buffer): Promise<Buffer> {
-    const k = this.getKPForAddr()
-    // how unfortunate
-    return Buffer.from(await ed25519Sign(data, k))
+  async signTransaction(data: Uint8Array): Promise<Uint8Array> {
+    const deserialized = VersionedTransaction.deserialize(data)
+    deserialized.sign([this.kp])
+    return deserialized.serialize()
   }
 
-  async sendTransaction(data: Buffer): Promise<string> {
+  async sendTransaction(data: Uint8Array): Promise<string> {
     const deserialized = VersionedTransaction.deserialize(data)
     return this.conn.sendTransaction(deserialized)
   }

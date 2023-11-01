@@ -116,6 +116,15 @@ class SolanaRequestHandler {
         )
         break
       }*/
+      case 'signTransaction': {
+        const p = req.params as {
+          message: string
+        }
+        res.result = bs58.encode(
+          await this.accountHandler.signTransaction(bs58.decode(p.message))
+        )
+        break
+      }
       case 'signMessage': {
         const p = req.params as {
           message: string
