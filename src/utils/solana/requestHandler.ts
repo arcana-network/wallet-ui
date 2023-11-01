@@ -88,8 +88,8 @@ class SolanaRequestHandler {
   // 1st is the actual data and the 2nd is the address used
 
   private principalHandler = async (
-    req: JsonRpcRequest<[string, string]>,
-    res: PendingJsonRpcResponse<string | string[]>,
+    req: JsonRpcRequest<unknown>,
+    res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
     if (req.params == null) {
@@ -101,7 +101,7 @@ class SolanaRequestHandler {
         res.result = result
         break
       }
-      case 'signAndSendTransaction': {
+      /* case 'signAndSendTransaction': {
         const data = Buffer.from(bs58.decode(req.params[0]))
         res.result = await this.accountHandler.signAndSendTransaction(
           req.params[1],
@@ -115,12 +115,18 @@ class SolanaRequestHandler {
           await this.accountHandler.signTransaction(req.params[1], data)
         )
         break
-      }
+      }*/
       case 'signMessage': {
-        const data = Buffer.from(bs58.decode(req.params[0]))
-        res.result = bs58.encode(
-          await this.accountHandler.signMessage(req.params[1], data)
-        )
+        const p = req.params as {
+          message: string
+          display: string
+        }
+        const data = bs58.decode(p.message)
+        const sig = await this.accountHandler.signMessage(data)
+        res.result = {
+          signature: bs58.encode(sig),
+          publicKey: this.accountHandler.publicKey.toBase58(),
+        }
         break
       }
       default: {

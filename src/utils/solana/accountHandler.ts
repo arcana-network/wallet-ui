@@ -38,13 +38,12 @@ export class SolanaAccountHandler {
     return y
   }
 
-  private getKPForAddr(addr: string) {
-    // multiple addresses are not supported
-    if (addr != this.address) {
-      // ???
-      throw new Error('Address not found.')
-    }
+  private getKPForAddr() {
     return this.kp.secretKey.slice(0, 32)
+  }
+
+  get publicKey() {
+    return this.kp.publicKey
   }
 
   async getBalance(): Promise<ethers.BigNumber> {
@@ -57,7 +56,7 @@ export class SolanaAccountHandler {
   }
 
   async signTransaction(fromAddr: string, data: Buffer): Promise<Buffer> {
-    const k = this.getKPForAddr(fromAddr)
+    const k = this.getKPForAddr()
     // how unfortunate
     return Buffer.from(await ed25519Sign(data, k))
   }
@@ -71,16 +70,16 @@ export class SolanaAccountHandler {
     fromAddr: string,
     data: Buffer
   ): Promise<string> {
-    const k = this.getKPForAddr(fromAddr)
+    const k = this.getKPForAddr()
     const txActual = VersionedTransaction.deserialize(data)
     const sig = await ed25519Sign(data, k)
     txActual.addSignature(this.kp.publicKey, sig)
     return await this.conn.sendTransaction(txActual)
   }
 
-  async signMessage(fromAddr: string, message: Buffer): Promise<Buffer> {
-    const k = this.getKPForAddr(fromAddr)
-    return Buffer.from(await ed25519Sign(message, k))
+  async signMessage(message: Uint8Array): Promise<Uint8Array> {
+    const k = this.getKPForAddr()
+    return ed25519Sign(message, k)
   }
 
   getAccounts(): Promise<string[]> {
