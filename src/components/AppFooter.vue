@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 
 const userStore = useUserStore()
 const route = useRoute()
 const requestStore = useRequestStore()
+const rpcStore = useRpcStore()
 
 const currentRoute = computed(() => {
   return route.name
@@ -56,6 +58,9 @@ function getIcon(icon: string, pathName: string) {
         >
       </router-link>
       <router-link
+        v-if="
+          rpcStore.selectedRPCConfig?.compatibility?.toLowerCase() !== 'solana'
+        "
         :to="{ name: 'Nfts' }"
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"

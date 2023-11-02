@@ -2,7 +2,7 @@
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { Core, CURVE, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
 import { onMounted, onUnmounted, ref, toRefs } from 'vue'
@@ -165,7 +165,8 @@ async function storeUserInfoAndRedirect(
         userInfo.userInfo.id,
         `${appId}`,
         GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
+        AUTH_NETWORK === 'dev',
+        CURVE.ed25519
       )
       await core.init()
       const key = await core.getKey()
@@ -191,7 +192,8 @@ async function storeUserInfoAndRedirect(
       userInfo.userInfo.id,
       `${appId}`,
       GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
+      AUTH_NETWORK === 'dev',
+      CURVE.ed25519
     )
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
@@ -317,7 +319,8 @@ async function init() {
           userInfo.userInfo.id,
           `${appId}`,
           GATEWAY_URL,
-          AUTH_NETWORK === 'dev'
+          AUTH_NETWORK === 'dev',
+          CURVE.ed25519
         )
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)

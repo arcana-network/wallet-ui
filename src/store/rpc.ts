@@ -144,7 +144,7 @@ export const useRpcStore = defineStore('rpcStore', {
     setRpcConfigs(list: Array<RpcConfigWallet>) {
       const configs = {}
       list.forEach((chainConfig) => {
-        configs[chainConfig.chainId] = chainConfig
+        configs[Number(chainConfig.chainId)] = chainConfig
       })
       this.rpcConfigs = configs
     },
@@ -154,8 +154,8 @@ export const useRpcStore = defineStore('rpcStore', {
     async getWalletBalance() {
       const accountHandler = getRequestHandler().getAccountHandler()
       if (accountHandler) {
-        const balance = (await accountHandler.getBalance()) || '0'
-        this.setWalletBalance(balance.toString())
+        const balance = await accountHandler.getBalance()
+        this.setWalletBalance(balance.toString() || '0')
       }
     },
     cleanUpBalancePolling() {

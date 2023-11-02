@@ -1,11 +1,6 @@
 import type { RpcConfig } from '@arcana/auth'
 import { signAsync as ed25519Sign } from '@noble/ed25519'
-import {
-  Connection,
-  Keypair,
-  LAMPORTS_PER_SOL,
-  VersionedTransaction,
-} from '@solana/web3.js'
+import { Connection, Keypair, VersionedTransaction } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
 
@@ -49,7 +44,7 @@ export class SolanaAccountHandler {
 
   async getBalance(): Promise<ethers.BigNumber> {
     const lamports = await this.conn.getBalance(this.kp.publicKey)
-    return ethers.BigNumber.from(lamports / LAMPORTS_PER_SOL)
+    return ethers.BigNumber.from(lamports)
   }
 
   async setProvider(str): Promise<void> {
@@ -57,6 +52,7 @@ export class SolanaAccountHandler {
   }
 
   async signTransaction(fromAddr: string, data: Buffer): Promise<Buffer> {
+    console.log(data)
     const k = this.getKPForAddr(fromAddr)
     // how unfortunate
     return Buffer.from(await ed25519Sign(data, k))

@@ -52,9 +52,13 @@ const showAddressListDropDown = ref(false)
 
 const currencyStore = useCurrencyStore()
 const walletBalance = computed(() => {
+  let DecimalPow = 18
+  if (rpcStore.selectedRPCConfig?.compatibility?.toLowerCase() === 'solana') {
+    DecimalPow = 9
+  }
   return rpcStore.walletBalance
     ? new Decimal(rpcStore.walletBalance)
-        .div(Decimal.pow(10, 18))
+        .div(Decimal.pow(10, DecimalPow))
         .toDecimalPlaces(9)
         .toString()
     : ''

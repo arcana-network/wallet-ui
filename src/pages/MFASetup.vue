@@ -3,6 +3,7 @@ import {
   Core,
   SecurityQuestionModule,
   utils as KeyHelperUtils,
+  CURVE,
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
 import { ref, onBeforeMount, type Ref } from 'vue'
@@ -77,7 +78,8 @@ onBeforeMount(async () => {
     dkgShare.id,
     String(route.params.appId),
     GATEWAY_URL,
-    AUTH_NETWORK === 'dev'
+    AUTH_NETWORK === 'dev',
+    CURVE.ed25519
   )
   try {
     await core.init()

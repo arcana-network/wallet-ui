@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { Core, SecurityQuestionModule, CURVE } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import {
   onMounted,
@@ -43,6 +43,7 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 import { initSCW, scwInstance } from '@/utils/scw'
+import { getPrivateKey } from '@/utils/solana/getPrivateKey'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -81,6 +82,7 @@ function stopCurrencyInterval() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    userStore.privateKey = getPrivateKey(userStore.privateKey)
     await setRpcConfigs()
     await getRpcConfig()
     await connectToParent()
@@ -131,15 +133,18 @@ async function setMFABannerState() {
   // eslint-disable-next-line no-unreachable
   if (!userStore.hasMfa && appStore.isMfaEnabled) {
     const userInfo = storage.local.getUserInfo()
+    console.log(userInfo.pk)
     if (!userInfo) {
       return
     }
+    console.log('Checking mfa state')
     const core = new Core(
       userInfo.pk,
       userStore.info.id,
       appStore.id,
       GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
+      AUTH_NETWORK === 'dev',
+      CURVE.ed25519
     )
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
@@ -170,10 +175,12 @@ async function getAccountDetails() {
 }
 
 function initKeeper(rpcUrl) {
+  console.log(userStore.privateKey)
+  // userStore.privateKey =
+  //   'zU7e8tT3PXaEkBBe9ypGHPkvhv215VViyT5q81AUQ3js25eafrg68Q9LYtW9rU8ZN9cvLwaTsuDRrHxRi8wgfgK'
   if (!requestHandlerExists()) {
     const accountHandler = CreateAccountHandler(
-      // userStore.privateKey,
-      // Add your solana private key here,
+      userStore.privateKey,
       rpcUrl,
       ChainType.solana_cv25519
     )
@@ -305,6 +312,7 @@ async function setRpcConfigs() {
       },
       defaultChain: true,
       favicon: 'https://solana.com/apple-touch-icon.png',
+      compatibility: 'solana',
     },
   ]
   console.log(enabledChainList.value)

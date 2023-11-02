@@ -39,7 +39,7 @@ const userStore = useUserStore()
 
 function isSiweMessage(message: string) {
   return (
-    message.includes('wants you to sign in with your Ethereum account') &&
+    message.includes('wants you to sign in with your') &&
     message.includes('URI') &&
     message.includes('Nonce') &&
     message.includes('Version') &&

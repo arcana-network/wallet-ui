@@ -5,7 +5,7 @@ import {
   StateInfo,
   decodeJSON,
 } from '@arcana/auth-core'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -77,7 +77,8 @@ async function init() {
           info.userInfo.id,
           String(appId),
           GATEWAY_URL,
-          AUTH_NETWORK === 'dev'
+          AUTH_NETWORK === 'dev',
+          CURVE.ed25519
         )
         await core.init()
         userInfo.privateKey = await core.getKey()

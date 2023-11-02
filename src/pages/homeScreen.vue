@@ -26,7 +26,9 @@ function hideLoader() {
 
 onMounted(() => {
   try {
-    if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
+    if (
+      Number(rpcStore.walletBalanceChainId) !== Number(rpcStore.selectedChainId)
+    ) {
       handleChainChange()
     } else {
       rpcStore.getWalletBalance()
@@ -63,7 +65,9 @@ async function handleRefresh() {
 }
 
 rpcStore.$subscribe(() => {
-  if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
+  if (
+    Number(rpcStore.walletBalanceChainId) !== Number(rpcStore.selectedChainId)
+  ) {
     handleChainChange()
   }
 })
@@ -79,7 +83,12 @@ rpcStore.$subscribe(() => {
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div class="my-6">
+    <div
+      v-if="
+        rpcStore.selectedRPCConfig?.compatibility?.toLowerCase() !== 'solana'
+      "
+      class="my-6"
+    >
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
   </div>

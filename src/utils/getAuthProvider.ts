@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { AuthProvider } from '@arcana/auth-core'
+import { AuthProvider, CURVE } from '@arcana/auth-core'
 import type { InitParams } from '@arcana/auth-core/types/types'
 
 import { useAppStore } from '@/store/app'
@@ -30,6 +30,7 @@ async function getAuthProvider(
       debug: true,
       shouldVerifyState,
       useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+      curve: CURVE.ED25519,
     }
     if (!autoClean) {
       authProvider = new AuthProvider({
