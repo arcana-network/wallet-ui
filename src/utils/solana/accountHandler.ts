@@ -62,7 +62,6 @@ export class SolanaAccountHandler {
   }
 
   async signAndSendTransaction(data: Uint8Array): Promise<string> {
-    const k = this.getKPForAddr()
     const txActual = VersionedTransaction.deserialize(data)
     txActual.sign([this.kp])
     return await this.conn.sendTransaction(txActual)
