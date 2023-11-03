@@ -76,6 +76,16 @@ function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
 }
 
+function showStarterTips() {
+  const userId = userStore.info.id
+  const loginCount = storage.local.getLoginCount(userId)
+  const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
+  if (Number(loginCount) <= 2 && !hasStarterTipShown) {
+    router.push({ name: 'StarterTips' })
+    return
+  }
+}
+
 onMounted(async () => {
   try {
     loader.value.show = true
@@ -108,6 +118,7 @@ onMounted(async () => {
     console.log(e)
   } finally {
     loader.value.show = false
+    showStarterTips()
   }
 })
 
@@ -151,11 +162,7 @@ async function setMFABannerState() {
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
-    const userId = userStore.info.id
-    const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-    if (Number(loginCount) <= 2 && !hasStarterTipShown)
-      router.push({ name: 'StarterTips' })
-    else router.push({ name: 'home' })
+    router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
