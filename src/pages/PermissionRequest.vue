@@ -6,6 +6,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { fetchApp } from '@/services/gateway.service'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -86,6 +87,10 @@ function setRPCConfigInRequestHandler(chainDetails) {
   requestHandler.setRpcConfig(formatRPCConfig(chainDetails))
 }
 
+function checkIfMethodSupported(method: RequestMethod) {
+  return !UNSUPPORTED_METHODS.includes(method)
+}
+
 function formatRPCConfig(config) {
   return {
     chainId: config.chain_id,
@@ -98,11 +103,25 @@ function formatRPCConfig(config) {
   }
 }
 
+function denyProcessing(requestId) {
+  const response = {
+    jsonrpc: '2.0',
+    error: 'operation_not_supported',
+    result: null,
+    id: requestId,
+  }
+  postMessage(response)
+}
+
 onMounted(async () => {
   try {
     showLoader.value = true
     const decodedHash = decodeHash()
     request.value = { ...decodedHash.request }
+    if (!checkIfMethodSupported(request.value.method as RequestMethod)) {
+      denyProcessing(request.value.id)
+      return
+    }
     initStorage(decodedHash.appId)
     updateTheme()
     const chainDetails = await getChainDetails(
