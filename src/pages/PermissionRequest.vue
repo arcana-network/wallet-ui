@@ -6,6 +6,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { fetchApp } from '@/services/gateway.service'
 import { AccountHandler } from '@/utils/accountHandler'
@@ -35,6 +36,17 @@ const showLoader = ref(true)
 const chainConfig = ref({})
 const request: Ref<JsonRpcRequest<unknown> | null> = ref(null)
 const toast = useToast()
+
+function postMessage(response) {
+  const allowedDomain = walletDomain.value
+  window.parent.opener.postMessage(
+    {
+      type: 'json_rpc_response',
+      response,
+    },
+    allowedDomain
+  )
+}
 
 function decodeHash(): DecodedHash {
   const hash = window.location.hash.substring(1)
@@ -75,6 +87,10 @@ function setRPCConfigInRequestHandler(chainDetails) {
   requestHandler.setRpcConfig(formatRPCConfig(chainDetails))
 }
 
+function checkIfMethodSupported(method: RequestMethod) {
+  return !UNSUPPORTED_METHODS.includes(method)
+}
+
 function formatRPCConfig(config) {
   return {
     chainId: config.chain_id,
@@ -87,11 +103,25 @@ function formatRPCConfig(config) {
   }
 }
 
+function denyProcessing(requestId) {
+  const response = {
+    jsonrpc: '2.0',
+    error: 'operation_not_supported',
+    result: null,
+    id: requestId,
+  }
+  postMessage(response)
+}
+
 onMounted(async () => {
   try {
     showLoader.value = true
     const decodedHash = decodeHash()
     request.value = { ...decodedHash.request }
+    if (!checkIfMethodSupported(request.value.method as RequestMethod)) {
+      denyProcessing(request.value.id)
+      return
+    }
     initStorage(decodedHash.appId)
     updateTheme()
     const chainDetails = await getChainDetails(
@@ -112,7 +142,7 @@ onMounted(async () => {
   }
 })
 
-const onApprove = async (request) => {
+async function onApprove(request) {
   try {
     showLoader.value = true
     if (isSendTransactionRequest(request.method)) {
@@ -127,15 +157,7 @@ const onApprove = async (request) => {
     }
     const sanitizedRequest = sanitizeRequest({ ...request })
     const response = await getRequestHandler().request(sanitizedRequest)
-    const allowedDomain = walletDomain.value
-
-    window.parent.opener.postMessage(
-      {
-        type: 'json_rpc_response',
-        response,
-      },
-      allowedDomain
-    )
+    postMessage(response)
   } catch (e) {
     console.log(e)
     if (e.message && e.message.includes('postMessage')) {
@@ -148,20 +170,13 @@ const onApprove = async (request) => {
 
 function onReject(request) {
   try {
-    const allowedDomain = walletDomain.value
     const response = {
       jsonrpc: '2.0',
       error: 'user_deny',
       result: null,
       id: request.id,
     }
-    window.parent.opener.postMessage(
-      {
-        type: 'json_rpc_response',
-        response,
-      },
-      allowedDomain
-    )
+    postMessage(response)
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
