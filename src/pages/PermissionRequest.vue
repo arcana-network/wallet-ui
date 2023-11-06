@@ -4,6 +4,7 @@ import { Ref, onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
+import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
@@ -29,6 +30,7 @@ type DecodedHash = {
   request: JsonRpcRequest<unknown>
 }
 
+const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
 const WALLET_DOMAIN_DEFAULT = '*'
 const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
 const DEFAULT_THEME = 'dark'
@@ -183,6 +185,10 @@ function onReject(request) {
     } else toast.error('something went wrong')
   }
 }
+
+function closeWindow() {
+  window.parent.close()
+}
 </script>
 
 <template>
@@ -190,7 +196,13 @@ function onReject(request) {
     <AppLoader message="Please wait..." />
   </div>
   <div v-else class="flex flex-col space-y-3">
-    <div class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
+    <div
+      v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD"
+      class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md"
+    >
+      <p>{{ methodAndAction[request?.method] }}</p>
+    </div>
+    <div v-else class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
       <img
         :src="getImage('arrow-circle-bi-dir.png')"
         alt="arrow-icon"
@@ -199,12 +211,18 @@ function onReject(request) {
       <div class="space-y-1">
         <h1>{{ methodAndAction[request.method] }}</h1>
         <p class="text-xs text-[#8D8D8D]">
-          {{ truncateMid(request.params[0].from, 6) }}
+          {{ truncateMid(request.params[0]?.from, 6) }}
         </p>
       </div>
     </div>
     <div class="bg-[#1F1F1F] p-4 rounded-md flex-1 flex flex-col space-y-4">
-      <div class="flex-1">
+      <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD" class="flex-1">
+        <ExportKeyModal
+          :private-key="request.params.privateKey"
+          :wallet-address="request.params.walletAddress"
+        />
+      </div>
+      <div v-else class="flex-1">
         <SendTransaction
           v-if="isSendTransactionRequest(request.method)"
           :request="request!"
@@ -215,19 +233,29 @@ function onReject(request) {
           :info="advancedInfo(request.method, request.params)"
         />
       </div>
-      <div class="flex gap-2">
-        <button
-          class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
-          @click="onReject(request)"
-        >
-          Reject
-        </button>
-        <button
-          class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
-          @click="onApprove(request)"
-        >
-          Approve
-        </button>
+      <div>
+        <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
+          <button
+            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="closeWindow()"
+          >
+            close tab
+          </button>
+        </div>
+        <div v-else class="flex gap-2">
+          <button
+            class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="onReject(request)"
+          >
+            Reject
+          </button>
+          <button
+            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="onApprove(request)"
+          >
+            Approve
+          </button>
+        </div>
       </div>
     </div>
   </div>
