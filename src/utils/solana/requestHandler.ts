@@ -126,6 +126,19 @@ class SolanaRequestHandler {
         )
         break
       }
+      case 'signAndSendTransaction': {
+        const p = req.params as {
+          message: string
+        }
+        const sig = await this.accountHandler.signAndSendTransaction(
+          bs58.decode(p.message)
+        )
+        res.result = {
+          signature: sig,
+          publicKey: this.accountHandler.publicKey.toBase58(),
+        }
+        break
+      }
       case 'signMessage': {
         const p = req.params as {
           message: string

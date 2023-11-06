@@ -50,25 +50,20 @@ export class SolanaAccountHandler {
     this.conn = new Connection(str, 'confirmed')
   }
 
+  async sendTransaction(data: Uint8Array): Promise<string> {
+    const deserialized = VersionedTransaction.deserialize(data)
+    return this.conn.sendTransaction(deserialized)
+  }
+
   async signTransaction(data: Uint8Array): Promise<Uint8Array> {
     const deserialized = VersionedTransaction.deserialize(data)
     deserialized.sign([this.kp])
     return deserialized.serialize()
   }
 
-  async sendTransaction(data: Uint8Array): Promise<string> {
-    const deserialized = VersionedTransaction.deserialize(data)
-    return this.conn.sendTransaction(deserialized)
-  }
-
-  async signAndSendTransaction(
-    fromAddr: string,
-    data: Buffer
-  ): Promise<string> {
-    const k = this.getKPForAddr()
+  async signAndSendTransaction(data: Uint8Array): Promise<string> {
     const txActual = VersionedTransaction.deserialize(data)
-    const sig = await ed25519Sign(data, k)
-    txActual.addSignature(this.kp.publicKey, sig)
+    txActual.sign([this.kp])
     return await this.conn.sendTransaction(txActual)
   }
 
