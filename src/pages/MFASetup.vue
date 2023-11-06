@@ -73,14 +73,14 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  const core = new Core(
-    dkgShare.pk,
-    dkgShare.id,
-    String(route.params.appId),
-    GATEWAY_URL,
-    AUTH_NETWORK === 'dev',
-    CURVE.ed25519
-  )
+  const core = new Core({
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId: String(route.params.appId),
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: CURVE.ED25519,
+  })
   try {
     await core.init()
   } catch (e) {

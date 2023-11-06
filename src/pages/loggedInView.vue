@@ -138,14 +138,14 @@ async function setMFABannerState() {
       return
     }
     console.log('Checking mfa state')
-    const core = new Core(
-      userInfo.pk,
-      userStore.info.id,
-      appStore.id,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev',
-      CURVE.ed25519
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk as string,
+      userId: userStore.info.id,
+      appId: appStore.id,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: CURVE.ED25519,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()

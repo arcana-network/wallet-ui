@@ -72,14 +72,14 @@ onBeforeMount(async () => {
   if (!dkgShare) {
     return
   }
-  core = new Core(
-    dkgShare.pk,
-    dkgShare.id,
+  core = new Core({
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
     appId,
-    GATEWAY_URL,
-    AUTH_NETWORK === 'dev',
-    CURVE.ed25519
-  )
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: CURVE.ED25519,
+  })
   securityQuestionModule.init(core)
   try {
     questions.value = await securityQuestionModule.getQuestions()
@@ -136,14 +136,14 @@ async function handleLocalRecovery(key: string) {
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
-    const core = new Core(
-      userInfo.pk,
-      userInfo.userInfo.id,
-      `${appId}`,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev',
-      CURVE.ed25519
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: CURVE.ED25519,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()

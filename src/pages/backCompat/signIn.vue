@@ -150,14 +150,14 @@ async function storeUserInfoAndRedirect(
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
-    const core = new Core(
-      userInfo.pk,
-      userInfo.userInfo.id,
-      `${appId}`,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev',
-      CURVE.ed25519
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: CURVE.ED25519,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
@@ -254,14 +254,14 @@ async function init() {
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       if (!hasMfa && userInfo.pk) {
-        const core = new Core(
-          userInfo.pk,
-          userInfo.userInfo.id,
-          `${appId}`,
-          GATEWAY_URL,
-          AUTH_NETWORK === 'dev',
-          CURVE.ed25519
-        )
+        const core = new Core({
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: CURVE.ED25519,
+        })
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)
         const isEnabled = await securityQuestionModule.isEnabled()

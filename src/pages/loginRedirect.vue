@@ -72,14 +72,14 @@ async function init() {
         id: userInfo.userInfo.id,
       })
       if (app.isMfaEnabled) {
-        const core = new Core(
-          info.privateKey,
-          info.userInfo.id,
-          String(appId),
-          GATEWAY_URL,
-          AUTH_NETWORK === 'dev',
-          CURVE.ed25519
-        )
+        const core = new Core({
+          dkgKey: info.privateKey,
+          userId: info.userInfo.id,
+          appId: String(appId),
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: CURVE.ED25519,
+        })
         await core.init()
         userInfo.privateKey = await core.getKey()
         userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
