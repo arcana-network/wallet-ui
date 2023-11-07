@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
+import Decimal from 'decimal.js'
 import { ethers } from 'ethers'
 import { computed, ComputedRef } from 'vue'
 
@@ -8,6 +9,7 @@ import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { beautifyBalance } from '@/utils/formatTokenDecimals'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
@@ -68,7 +70,7 @@ function getTransactionIcon(operation: TransactionOps | FileOps) {
 }
 
 function calculateCurrencyValue(valueInCrypto: bigint) {
-  if (props.currencyExchangeRate) {
+  if (props.currencyExchangeRate && app.chainType === ChainType.evm_secp256k1) {
     return {
       amount: new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -90,19 +92,28 @@ function calculateCurrencyValue(valueInCrypto: bigint) {
 
 function calculateTotal(activity: Activity) {
   if (activity.transaction) {
-    return (
-      activity.transaction.amount +
-      activity.transaction.gasUsed * activity.transaction.gasPrice
-    )
+    const gasUsed = activity.transaction?.gasUsed || 0n
+    const gasPrice = activity.transaction?.gasPrice || 0n
+    return activity.transaction.amount + gasUsed * gasPrice
   }
   return 0n
 }
 
 function getAmount(amount: bigint, isGas = false) {
-  if (isGas) {
-    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 5)
+  if (app.chainType === ChainType.solana_cv25519) {
+    return new Decimal(amount.toString())
+      .div(Decimal.pow(10, 9))
+      .toDecimalPlaces(9)
+      .toString()
+  } else {
+    if (isGas) {
+      return beautifyBalance(
+        Number(ethers.utils.formatUnits(amount, 'gwei')),
+        5
+      )
+    }
+    return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
   }
-  return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
 }
 
 function canShowDropdown(activity: Activity) {
@@ -112,6 +123,26 @@ function canShowDropdown(activity: Activity) {
     activity.file?.recipient ||
     activity.file?.ruleHash
   )
+}
+
+function getDisplayAmount(activity: any) {
+  if (app.chainType === ChainType.solana_cv25519) {
+    return `${new Decimal(activity.transaction.amount.toString())
+      .div(Decimal.pow(10, 9))
+      .toString()} ${rpcStore.currency}`
+  }
+  return `${ethers.utils.formatEther(activity.transaction.amount)} ${
+    rpcStore.currency
+  }`
+}
+
+function calculateSolanaTotal(activity) {
+  const total: bigint = activity.fee + activity.amount
+  return new Decimal(total.toString()).div(Decimal.pow(10, 9))
+}
+
+function generateExplorerURL(explorerUrl: string, txHash: string) {
+  return new URL(`/tx/${txHash}`, explorerUrl).toString()
 }
 </script>
 
@@ -303,29 +334,39 @@ function canShowDropdown(activity: Activity) {
               <span class="text-sm text-gray-100">Transaction Details</span>
               <div class="flex flex-col gap-2 text-base">
                 <div class="flex justify-between">
-                  <span>Nonce</span>
+                  <span v-if="app.chainType === ChainType.solana_cv25519"
+                    >Slot</span
+                  >
+                  <span v-else>Nonce</span>
                   <span>{{ activity.transaction.nonce }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Amount</span>
                   <span
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${ethers.utils.formatEther(
-                      activity.transaction.amount
-                    )} ${rpcStore.currency}`"
+                    :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
                     {{ rpcStore.currency }}</span
                   >
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction.gasLimit"
+                  class="flex justify-between"
+                >
                   <span>Gas Limits (Units)</span>
                   <span>{{ activity.transaction.gasLimit }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction?.gasUsed"
+                  class="flex justify-between"
+                >
                   <span>Gas Used (Units)</span>
                   <span>{{ activity.transaction?.gasUsed || 0 }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction.gasPrice"
+                  class="flex justify-between"
+                >
                   <span>Gas Price</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
@@ -339,8 +380,30 @@ function canShowDropdown(activity: Activity) {
                     Gwei</span
                   >
                 </div>
+                <div
+                  v-if="activity.transaction?.computeUnitsConsumed"
+                  class="flex justify-between"
+                >
+                  <span>Compute Units Consumed</span>
+                  <span>{{
+                    activity.transaction?.computeUnitsConsumed || 0
+                  }}</span>
+                </div>
+                <div
+                  v-if="activity.transaction?.fee"
+                  class="flex justify-between"
+                >
+                  <span>Fee</span>
+                  <span
+                    >{{ getAmount(activity.transaction?.fee) }}
+                    {{ rpcStore.nativeCurrency?.symbol }}</span
+                  >
+                </div>
               </div>
-              <div class="flex justify-between mt-4 font-bold text-base">
+              <div
+                v-if="app.chainType === ChainType.evm_secp256k1"
+                class="flex justify-between mt-4 font-bold text-base"
+              >
                 <span>Total:</span>
                 <span
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
@@ -348,6 +411,22 @@ function canShowDropdown(activity: Activity) {
                     calculateTotal(activity)
                   )} ${rpcStore.currency}`"
                   >{{ getAmount(calculateTotal(activity)) }}
+                  {{ rpcStore.currency }}</span
+                >
+              </div>
+              <div
+                v-if="app.chainType === ChainType.solana_cv25519"
+                class="flex justify-between mt-4 font-bold text-base"
+              >
+                <span>Total:</span>
+                <span
+                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                  :title="calculateSolanaTotal(activity.transaction).toString()"
+                  >{{
+                    calculateSolanaTotal(activity.transaction).toDecimalPlaces(
+                      9
+                    )
+                  }}
                   {{ rpcStore.currency }}</span
                 >
               </div>
@@ -359,10 +438,9 @@ function canShowDropdown(activity: Activity) {
           class="flex justify-center mt-4"
         >
           <a
-            :href="`${explorerUrl}/tx/${activity.txHash}`"
+            :href="generateExplorerURL(explorerUrl, activity.txHash)"
             class="flex font-montserrat font-medium text-xs"
             target="_blank"
-            @click="handleExplorerClick"
           >
             View on Explorer
             <img

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { StateInfo, decodeJSON } from '@arcana/auth-core'
-import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -78,7 +78,7 @@ onBeforeMount(async () => {
     appId,
     gatewayUrl: GATEWAY_URL,
     debug: AUTH_NETWORK === 'dev',
-    curve: CURVE.ED25519,
+    curve: app.curve,
   })
   securityQuestionModule.init(core)
   try {
@@ -142,7 +142,7 @@ async function handleLocalRecovery(key: string) {
       appId: `${appId}`,
       gatewayUrl: GATEWAY_URL,
       debug: AUTH_NETWORK === 'dev',
-      curve: CURVE.ED25519,
+      curve: app.curve,
     })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)

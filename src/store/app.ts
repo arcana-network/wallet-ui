@@ -1,4 +1,5 @@
 import { AppMode } from '@arcana/auth'
+import { CURVE } from '@arcana/key-helper'
 import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
@@ -32,6 +33,7 @@ type AppState = {
   expandedByRequest: boolean
   isMfaEnabled: boolean
   chainType: ChainType
+  curve: CURVE
 }
 
 export const useAppStore = defineStore('app', {
@@ -50,6 +52,7 @@ export const useAppStore = defineStore('app', {
       expandedByRequest: false,
       isMfaEnabled: true,
       chainType: ChainType.evm_secp256k1,
+      curve: CURVE.SECP256K1,
     } as AppState),
   getters: {
     iframeStyle: ({
@@ -109,6 +112,15 @@ export const useAppStore = defineStore('app', {
   actions: {
     setAppId(id: string): void {
       this.id = id
+    },
+    setChainType(chainType: string): void {
+      if (chainType?.toLowerCase() === 'solana') {
+        this.chainType = ChainType.solana_cv25519
+        this.curve = CURVE.ED25519
+      } else {
+        this.chainType = ChainType.evm_secp256k1
+        this.curve = CURVE.SECP256K1
+      }
     },
     setTheme(theme: Theme): void {
       this.theme = theme

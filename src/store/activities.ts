@@ -1,11 +1,17 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
+import { ParsedInstruction } from '@solana/web3.js'
 import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
 
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { AccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import {
+  AccountHandler,
+  EVMAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
@@ -51,10 +57,12 @@ type Activity = {
     hash: string
     amount: bigint
     nonce: number
-    gasLimit: bigint
-    gasUsed: bigint
-    gasPrice: bigint
-    data: string
+    gasLimit?: bigint
+    gasUsed?: bigint
+    gasPrice?: bigint
+    data?: string
+    computeUnitsConsumed?: bigint
+    fee?: bigint
   }
   operation: TransactionOps | FileOps
   date: Date
@@ -99,6 +107,7 @@ type TransactionFetchParams = {
   chainId: ChainId | undefined
   customToken?: CustomTokenActivity
   recipientAddress?: string
+  chainType?: ChainType
 }
 
 type TransactionFetchNftParams = {
@@ -184,43 +193,90 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       chainId,
       customToken,
       recipientAddress,
+      chainType = ChainType.evm_secp256k1,
     }: TransactionFetchParams) {
-      const accountHandler =
-        getRequestHandler().getAccountHandler() as EVMAccountHandler
-      const remoteTransaction = await getRemoteTransaction(
-        accountHandler,
-        txHash
-      )
-      const activity: Activity = {
-        operation: getTxOperation(remoteTransaction, customToken),
-        txHash,
-        transaction: {
-          hash: txHash,
-          amount: remoteTransaction.value.toBigInt(),
-          nonce: remoteTransaction.nonce,
-          gasLimit: remoteTransaction.gasLimit.toBigInt(),
-          gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
-          gasUsed: remoteTransaction.gasLimit.toBigInt(),
-          data: remoteTransaction.data,
-        },
-        status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
-        date: new Date(),
-        address: {
-          from: remoteTransaction.from,
-          to: recipientAddress || remoteTransaction.to,
-        },
-        customToken,
-      }
-      this.saveActivity(chainId, activity)
-      if (!remoteTransaction?.blockNumber) {
-        const txInterval = setInterval(async () => {
-          const remoteTransaction =
-            await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction?.blockNumber && chainId) {
-            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
-            clearInterval(txInterval)
-          }
-        }, 3000)
+      if (chainType === ChainType.solana_cv25519) {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as SolanaAccountHandler
+        const tx = await accountHandler.getTransaction(txHash)
+        if (!tx) {
+          setTimeout(() => {
+            this.fetchAndSaveActivityFromHash({
+              txHash,
+              chainId,
+              customToken,
+              recipientAddress,
+              chainType,
+            })
+          }, 2000)
+        } else {
+          const instructions = tx.transaction.message.instructions
+          instructions.forEach((instruction) => {
+            const parsedInstruction = instruction as ParsedInstruction
+            const activity: Activity = {
+              operation:
+                parsedInstruction.parsed.info.source === userStore.walletAddress
+                  ? 'Send'
+                  : 'Receive',
+              txHash,
+              transaction: {
+                hash: txHash,
+                amount: BigInt(parsedInstruction.parsed.info.lamports),
+                nonce: tx.slot,
+                computeUnitsConsumed: BigInt(
+                  tx.meta?.computeUnitsConsumed as number
+                ),
+                fee: BigInt(tx.meta?.fee as number),
+              },
+              status: 'Success',
+              date: new Date(),
+              address: {
+                from: parsedInstruction.parsed.info.source,
+                to:
+                  recipientAddress || parsedInstruction.parsed.info.destination,
+              },
+            }
+            this.saveActivity(chainId, activity)
+          })
+        }
+      } else {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as EVMAccountHandler
+        const remoteTransaction = await getRemoteTransaction(
+          accountHandler,
+          txHash
+        )
+        const activity: Activity = {
+          operation: getTxOperation(remoteTransaction, customToken),
+          txHash,
+          transaction: {
+            hash: txHash,
+            amount: remoteTransaction.value.toBigInt(),
+            nonce: remoteTransaction.nonce,
+            gasLimit: remoteTransaction.gasLimit.toBigInt(),
+            gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+            gasUsed: remoteTransaction.gasLimit.toBigInt(),
+            data: remoteTransaction.data,
+          },
+          status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+          date: new Date(),
+          address: {
+            from: remoteTransaction.from,
+            to: recipientAddress || remoteTransaction.to,
+          },
+          customToken,
+        }
+        this.saveActivity(chainId, activity)
+        if (!remoteTransaction?.blockNumber) {
+          const txInterval = setInterval(async () => {
+            const remoteTransaction =
+              await accountHandler.provider.getTransaction(txHash)
+            if (remoteTransaction?.blockNumber && chainId) {
+              this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+              clearInterval(txInterval)
+            }
+          }, 3000)
+        }
       }
     },
     async fetchAndSaveNFTActivityFromHash({

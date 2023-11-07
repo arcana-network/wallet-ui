@@ -15,6 +15,7 @@ const solanaMethodAndAction = {
   sendTransaction: 'Send Transaction',
   signTransaction: 'Sign Transaction',
   signMessage: 'Sign Message',
+  signAllTransactions: 'Sign All Transactions',
 }
 
 const methodAndAction = {

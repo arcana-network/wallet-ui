@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import base58 from 'bs58'
 import { computed } from 'vue'
 
 import VJsonViewer from '@/components/VJsonViewer.vue'
@@ -12,12 +11,7 @@ const props = defineProps({
 })
 
 const signInfo = computed(() => {
-  console.log(base58.decode(props.info.message as unknown as string))
-  const bs58decoded = new TextDecoder().decode(
-    base58.decode(props.info.message as unknown as string)
-  )
-  return bs58decoded
-  // return props.info as any
+  return props.info as any
 })
 </script>
 

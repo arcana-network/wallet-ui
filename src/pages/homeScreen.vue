@@ -4,10 +4,13 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 const refreshIconAnimating = ref(false)
 const loader = ref({
   show: false,
@@ -83,12 +86,7 @@ rpcStore.$subscribe(() => {
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div
-      v-if="
-        rpcStore.selectedRPCConfig?.compatibility?.toLowerCase() !== 'solana'
-      "
-      class="my-6"
-    >
+    <div v-if="appStore.chainType !== ChainType.solana_cv25519" class="my-6">
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
   </div>

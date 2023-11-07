@@ -32,8 +32,6 @@ if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
 }
 
-app.chainType = ChainType.solana_cv25519
-
 const url = new URL(window.location.href)
 if (url.searchParams.get('theme')) {
   theme.value = url.searchParams.get('theme') as Theme

@@ -3,7 +3,6 @@ import {
   Core,
   SecurityQuestionModule,
   utils as KeyHelperUtils,
-  CURVE,
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
 import { ref, onBeforeMount, type Ref } from 'vue'
@@ -13,6 +12,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
@@ -35,6 +35,7 @@ const showSuccessScreen = ref(false)
 const showPinError = ref('')
 const pinToEncryptMFAShare = ref('')
 const passwordType = ref('password')
+const app = useAppStore()
 
 const securityQuestionModule = new SecurityQuestionModule(3)
 
@@ -79,7 +80,7 @@ onBeforeMount(async () => {
     appId: String(route.params.appId),
     gatewayUrl: GATEWAY_URL,
     debug: AUTH_NETWORK === 'dev',
-    curve: CURVE.ED25519,
+    curve: app.curve,
   })
   try {
     await core.init()

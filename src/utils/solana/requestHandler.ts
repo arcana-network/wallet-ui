@@ -11,10 +11,12 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
+import { toHex } from '@/utils/toHex'
 
 class SolanaRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
+  private connectSent = false
   constructor(private accountHandler: SolanaAccountHandler) {}
 
   get chainType() {
@@ -27,6 +29,16 @@ class SolanaRequestHandler {
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
     // this.emitEvent('chainChanged', { chainId })
+  }
+
+  public async sendConnect() {
+    if (!this.connectSent) {
+      this.connectSent = true
+      const chainId = await this.accountHandler.getChainId()
+      this.emitEvent('connect', {
+        chainId: toHex(chainId.toString(16)),
+      })
+    }
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {
@@ -66,7 +78,6 @@ class SolanaRequestHandler {
   }
 
   public request(request: JsonRpcRequest<unknown>) {
-    console.log({ request })
     if (!request.id) {
       request.id = 1
     }
@@ -153,11 +164,9 @@ class SolanaRequestHandler {
         break
       }
       default: {
-        console.log('Default request')
         throw new Error('Invalid method')
       }
     }
-    console.log({ res })
   }
 
   private initRpcEngine() {

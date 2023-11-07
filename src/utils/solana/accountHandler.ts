@@ -1,6 +1,12 @@
 import type { RpcConfig } from '@arcana/auth'
 import { signAsync as ed25519Sign } from '@noble/ed25519'
-import { Connection, Keypair, VersionedTransaction } from '@solana/web3.js'
+import {
+  Commitment,
+  Connection,
+  Keypair,
+  VersionedMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
 
@@ -93,6 +99,7 @@ export class SolanaAccountHandler {
 
   setRpcConfig(rc: RpcConfig) {
     this.rpcConfig = rc
+    this.setProvider(rc.rpcUrls[0])
   }
   getChainId() {
     return this.rpcConfig.chainId
@@ -100,7 +107,21 @@ export class SolanaAccountHandler {
 
   getTransaction(tHash: string | Uint8Array) {
     const h = this.coerceAmbiguousToString(tHash)
-    return this.conn.getParsedTransaction(h)
+    return this.conn.getParsedTransaction(h, {
+      commitment: 'confirmed',
+      maxSupportedTransactionVersion: 0,
+    })
+  }
+
+  async getFee(
+    message: VersionedMessage,
+    commitment: Commitment = 'finalized'
+  ) {
+    return await this.conn.getFeeForMessage(message, commitment)
+  }
+
+  async getLatestBlockHash() {
+    return this.conn.getLatestBlockhash().then((res) => res.blockhash)
   }
 
   // NFT-related functions below

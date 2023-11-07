@@ -18,6 +18,7 @@ import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
@@ -336,7 +337,6 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       const sanitizedRequest = { ...request }
       try {
         const response = await keeper.request({ ...sanitizedRequest })
-        console.log({ response })
         await keeper.reply(request.method, response)
         if (response.error) {
           if (response.error.code === 'INSUFFICIENT_FUNDS') {
@@ -390,6 +390,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
           activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
             chainId: rpcStore.selectedRpcConfig?.chainId as string,
+          })
+        }
+        if (request.method === 'signAndSendTransaction' && response.result) {
+          activitiesStore.fetchAndSaveActivityFromHash({
+            txHash: response.result.signature,
+            chainId: rpcStore.selectedRpcConfig?.chainId as string,
+            chainType: ChainType.solana_cv25519,
           })
         }
       } catch (err) {

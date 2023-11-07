@@ -99,6 +99,18 @@ function getPermissionText() {
     case 'eth_signTransaction':
       response = 'signing a transaction'
       break
+    case 'signTransaction':
+      response = 'signing a transaction'
+      break
+    case 'signAndSendTransaction':
+      response = 'signing and sending a transaction'
+      break
+    case 'signMessage':
+      response = 'signing a message'
+      break
+    case 'signAllTransactions':
+      response = 'signing all transactions'
+      break
     default:
       response = 'performing an action'
       break
@@ -165,7 +177,7 @@ function isDeprecatedMethod() {
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
       />
-      <div
+      <!-- <div
         v-if="method !== 'eth_signTransaction'"
         class="flex justify-center mt-4"
       >
@@ -175,7 +187,7 @@ function isDeprecatedMethod() {
           <img src="@/assets/images/info-circle.svg" />
           <span>You're not going to be charged</span>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="mt-auto flex flex-col gap-4">
       <div class="flex gap-2">
