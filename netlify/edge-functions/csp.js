@@ -69,5 +69,5 @@ const getHeader = (domain = '') =>
   (domain.length > 0
     ? `frame-ancestors ${Netlify.env.get(
         'VUE_APP_WALLET_AUTH_URL'
-      )} *.arcana.network http://localhost ${domain};`
+      )} *.arcana.network http://localhost http://localhost:* ${domain};`
     : '')
