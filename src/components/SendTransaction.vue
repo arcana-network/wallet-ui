@@ -13,6 +13,8 @@ import useCurrencyStore from '@/store/currencies'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
@@ -55,15 +57,23 @@ onMounted(async () => {
   showLoader('Loading...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
-    gasLimit.value = (
-      await accountHandler.provider.estimateGas({
-        ...sanitizeRequest(props.request.request).params[0],
-      })
-    ).toString()
-    baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
+    if (appStore.chainType === ChainType.solana_cv25519) {
+      const data = await (accountHandler as SolanaAccountHandler).getFee(
+        props.request.request.params[0]
+      )
+    } else {
+      const baseGasPrice = (
+        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
+      ).toString()
+      gasLimit.value = (
+        await (accountHandler as EVMAccountHandler).provider.estimateGas({
+          ...sanitizeRequest(props.request.request).params[0],
+        })
+      ).toString()
+      baseFee.value = new Decimal(baseGasPrice)
+        .div(Decimal.pow(10, 9))
+        .toString()
+    }
     if (props.request.request.params[0].maxFeePerGas) {
       customGasPrice.value.maxFeePerGas = new Decimal(
         props.request.request.params[0].maxFeePerGas
@@ -191,7 +201,10 @@ function calculateCurrencyValue(value) {
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
     </div>
-    <div class="flex flex-col gap-2 text-sm">
+    <div
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="flex flex-col gap-2 text-sm"
+    >
       <div class="text-sm font-medium">Transaction Details</div>
       <div
         v-if="request.request?.params[0]?.from"
@@ -253,11 +266,21 @@ function calculateCurrencyValue(value) {
         </span>
       </div>
       <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
-        <span>Data</span>
+        <span>Message</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
-    <div class="mt-4">
+    <div
+      v-else-if="appStore.chainType === ChainType.solana_cv25519"
+      class="flex flex-col gap-2 text-sm"
+    >
+      <div class="text-sm font-medium">Transaction Details</div>
+      <div class="flex flex-col gap-1">
+        <span>Data</span>
+        <SignMessageAdvancedInfo :info="request.request.params.message" />
+      </div>
+    </div>
+    <div v-if="appStore.chainType === ChainType.evm_secp256k1" class="mt-4">
       <GasPrice
         :base-fee="baseFee"
         :gas-limit="gasLimit"

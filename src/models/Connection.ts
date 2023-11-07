@@ -4,7 +4,7 @@ import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 
 type SDKVersion = 'v2' | 'v3'
 
-type RequestMethod =
+type EVMRequestMethod =
   | 'personal_sign'
   | 'eth_decrypt'
   | 'eth_signTypedData_v4'
@@ -15,6 +15,14 @@ type RequestMethod =
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
   | 'wallet_watchAsset'
+
+type SolanaRequestMethod =
+  | 'signAndSendTransaction'
+  | 'sendTransaction'
+  | 'signTransaction'
+  | 'signMessage'
+
+type RequestMethod = EVMRequestMethod | SolanaRequestMethod
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   personal_sign: true,
@@ -27,6 +35,10 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
+  signAndSendTransaction: true,
+  sendTransaction: true,
+  signTransaction: true,
+  signMessage: true,
 })
 
 const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']

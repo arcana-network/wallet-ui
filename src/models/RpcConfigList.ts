@@ -4,6 +4,7 @@ interface RpcConfigWallet extends RpcConfig {
   favicon: string
   isCustom: boolean
   chainType?: string
+  compatibility?: string
 }
 
 const CHAIN_LIST = [

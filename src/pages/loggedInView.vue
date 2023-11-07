@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import {
   onMounted,
@@ -24,12 +24,14 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -41,6 +43,7 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 import { initSCW, scwInstance } from '@/utils/scw'
+import { getPrivateKey } from '@/utils/solana/getPrivateKey'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -79,6 +82,9 @@ function stopCurrencyInterval() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    if (appStore.curve === CURVE.ED25519) {
+      userStore.privateKey = getPrivateKey(userStore.privateKey)
+    }
     await setRpcConfigs()
     await getRpcConfig()
     await connectToParent()
@@ -98,9 +104,13 @@ onMounted(async () => {
         chainId: selectedChainId,
         ...rpcConfig,
       })
-      if (rpcStore.isGaslessConfigured) {
+      if (
+        rpcStore.isGaslessConfigured &&
+        appStore.chainType === ChainType.evm_secp256k1
+      ) {
         await initScwSdk()
       }
+
       await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
@@ -115,7 +125,10 @@ async function initScwSdk() {
   try {
     const requestHandler = getRequestHandler()
     const accountHandler = requestHandler.getAccountHandler()
-    await initSCW(appStore.id, accountHandler.getSigner())
+    await initSCW(
+      appStore.id,
+      (accountHandler as EVMAccountHandler).getSigner()
+    )
     userStore.scwAddress = scwInstance.scwAddress
   } catch (e) {
     console.log(e)
@@ -131,13 +144,14 @@ async function setMFABannerState() {
     if (!userInfo) {
       return
     }
-    const core = new Core(
-      userInfo.pk,
-      userStore.info.id,
-      appStore.id,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk as string,
+      userId: userStore.info.id,
+      appId: appStore.id,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: appStore.curve,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
@@ -168,7 +182,11 @@ async function getAccountDetails() {
 
 function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = new AccountHandler(userStore.privateKey, rpcUrl)
+    const accountHandler = CreateAccountHandler(
+      userStore.privateKey,
+      rpcUrl,
+      appStore.chainType
+    )
     setRequestHandler(accountHandler)
   }
 }
@@ -178,10 +196,8 @@ async function initAccountHandler() {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
 
-      if (!userStore.walletAddress) {
-        const account = getRequestHandler().getAccountHandler().getAccount()
-        userStore.setWalletAddress(account.address)
-      }
+      const account = getRequestHandler().getAccountHandler().getAccount()
+      userStore.setWalletAddress(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
@@ -270,19 +286,27 @@ async function handleLogout() {
 
 async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
-  enabledChainList.value = chains.map((chain) => ({
-    chainId: chain.chain_id,
-    rpcUrls: [chain.rpc_url],
-    chainName: chain.name,
-    chainType: chain.chain_type,
-    blockExplorerUrls: [chain.exp_url],
-    isCustom: false,
-    nativeCurrency: {
-      symbol: chain.currency,
-      decimals: 18,
-    },
-    defaultChain: chain.default_chain,
-  }))
+  enabledChainList.value = chains
+    .filter((chain) => {
+      if (appStore.chainType === ChainType.solana_cv25519) {
+        return chain.compatibility?.toLowerCase() === 'solana'
+      } else {
+        return chain.compatibility?.toLowerCase() === 'evm'
+      }
+    })
+    .map((chain) => ({
+      chainId: chain.chain_id,
+      rpcUrls: [chain.rpc_url],
+      chainName: chain.name,
+      chainType: chain.chain_type,
+      blockExplorerUrls: [chain.exp_url],
+      isCustom: false,
+      nativeCurrency: {
+        symbol: chain.currency,
+        decimals: 18,
+      },
+      defaultChain: chain.default_chain,
+    }))
   if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 

@@ -10,4 +10,8 @@ function getGaslessEnabledStatus(appId, chainId) {
   })
 }
 
-export { getGaslessEnabledStatus }
+function getAppConfig(appId) {
+  return gatewayInstance.get(`/api/v1/get-app-config/?id=${appId}`)
+}
+
+export { getGaslessEnabledStatus, getAppConfig }
