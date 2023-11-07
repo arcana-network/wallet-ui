@@ -36,7 +36,7 @@ class SolanaRequestHandler {
       this.connectSent = true
       const chainId = await this.accountHandler.getChainId()
       this.emitEvent('connect', {
-        chainId: toHex(chainId.toString(16)),
+        chainId: toHex(Number(chainId).toString(16)),
       })
     }
   }
