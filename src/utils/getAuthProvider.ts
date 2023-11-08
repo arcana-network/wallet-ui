@@ -18,6 +18,7 @@ async function getAuthProvider(
   autoClean = true
 ): Promise<AuthProvider> {
   if (!authProvider) {
+    const appStore = useAppStore()
     const stor = getStorage()
 
     const params: InitParams = {
@@ -30,7 +31,7 @@ async function getAuthProvider(
       debug: true,
       shouldVerifyState,
       useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
-      curve: CURVE.ED25519,
+      curve: appStore.curve,
     }
     if (!autoClean) {
       authProvider = new AuthProvider({
@@ -43,7 +44,6 @@ async function getAuthProvider(
     } else {
       authProvider = await AuthProvider.init(params)
     }
-    const appStore = useAppStore()
     // TODO find a comprehensive solution to this
     // @ts-ignore
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
