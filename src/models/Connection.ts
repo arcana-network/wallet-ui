@@ -21,6 +21,7 @@ type SolanaRequestMethod =
   | 'sendTransaction'
   | 'signTransaction'
   | 'signMessage'
+  | 'signAllTransactions'
 
 type RequestMethod = EVMRequestMethod | SolanaRequestMethod
 
@@ -38,6 +39,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   signAndSendTransaction: true,
   sendTransaction: true,
   signTransaction: true,
+  signAllTransactions: true,
   signMessage: true,
 })
 

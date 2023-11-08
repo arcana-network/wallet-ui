@@ -67,6 +67,8 @@ export const advancedInfo = (
     method === 'signAndSendTransaction'
   ) {
     data = params.message
+  } else if (method === 'signAllTransactions') {
+    data = params.message
   } else if (method === 'signMessage') {
     const bs58decoded = new TextDecoder().decode(
       base58.decode(params.message as unknown as string)
