@@ -82,9 +82,11 @@ function stopCurrencyInterval() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    console.log(appStore.curve, CURVE.ED25519)
     if (appStore.curve === CURVE.ED25519) {
-      userStore.privateKey = getPrivateKey(userStore.privateKey)
+      userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
+    console.log(userStore.privateKey.length)
     await setRpcConfigs()
     await getRpcConfig()
     await connectToParent()
@@ -199,6 +201,7 @@ async function initAccountHandler() {
 
       const account = getRequestHandler().getAccountHandler().getAccount()
       userStore.setWalletAddress(account.address)
+      console.log(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
