@@ -38,6 +38,7 @@ const showLoader = ref(true)
 const chainConfig = ref({})
 const request: Ref<JsonRpcRequest<unknown> | null> = ref(null)
 const toast = useToast()
+const appDetails = ref({})
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -130,7 +131,9 @@ onMounted(async () => {
       decodedHash.appId,
       decodedHash.chainId
     )
-    const { wallet_domain } = await getAppDetails(decodedHash.appId)
+    const info = await getAppDetails(decodedHash.appId)
+    appDetails.value = info
+    const wallet_domain = info.wallet_domain
     walletDomain.value = wallet_domain.length
       ? wallet_domain
       : WALLET_DOMAIN_DEFAULT
@@ -195,45 +198,50 @@ function closeWindow() {
   <div v-if="showLoader" class="flex-1 flex justify-center">
     <AppLoader message="Please wait..." />
   </div>
-  <div v-else class="flex flex-col space-y-3">
-    <div
-      v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD"
-      class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md"
-    >
-      <p>{{ methodAndAction[request?.method] }}</p>
-    </div>
-    <div v-else class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
-      <img
-        :src="getImage('arrow-circle-bi-dir.png')"
-        alt="arrow-icon"
-        class="w-8 h-8"
-      />
-      <div class="space-y-1">
-        <h1>{{ methodAndAction[request.method] }}</h1>
-        <p class="text-xs text-[#8D8D8D]">
-          {{ truncateMid(request.params[0]?.from, 6) }}
-        </p>
+  <div v-else class="flex flex-col space-y-2 h-full">
+    <div class="h-1/6">
+      <div
+        v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD"
+        class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md"
+      >
+        <p>{{ methodAndAction[request?.method] }}</p>
+      </div>
+      <div v-else class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
+        <img
+          :src="getImage('arrow-circle-bi-dir.png')"
+          alt="arrow-icon"
+          class="w-8 h-8"
+        />
+        <div class="space-y-1">
+          <h1>{{ methodAndAction[request.method] }}</h1>
+          <p class="text-xs text-[#8D8D8D]">
+            {{ truncateMid(request.params[0]?.from, 6) }}
+          </p>
+        </div>
       </div>
     </div>
-    <div class="bg-[#1F1F1F] p-4 rounded-md flex-1 flex flex-col space-y-4">
-      <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD" class="flex-1">
-        <ExportKeyModal
-          :private-key="request.params.privateKey"
-          :wallet-address="request.params.walletAddress"
-        />
+    <div class="h-5/6 rounded-md flex-1 flex flex-col space-y-4">
+      <div class="flex-1 h-5/6">
+        <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
+          <ExportKeyModal
+            :private-key="request.params.privateKey"
+            :wallet-address="request.params.walletAddress"
+          />
+        </div>
+        <div v-else class="h-full">
+          <SendTransaction
+            v-if="isSendTransactionRequest(request?.method)"
+            :request="request"
+            :chain-config="chainConfig"
+            :app-details="appDetails"
+          />
+          <SignMessageAdvancedInfo
+            v-else
+            :info="advancedInfo(request.method, request.params)"
+          />
+        </div>
       </div>
-      <div v-else class="flex-1">
-        <SendTransaction
-          v-if="isSendTransactionRequest(request.method)"
-          :request="request!"
-          :chain-config="chainConfig"
-        />
-        <SignMessageAdvancedInfo
-          v-else
-          :info="advancedInfo(request.method, request.params)"
-        />
-      </div>
-      <div>
+      <div class="h-1/6">
         <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
           <button
             class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
