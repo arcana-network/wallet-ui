@@ -192,6 +192,10 @@ function onReject(request) {
 function closeWindow() {
   window.parent.close()
 }
+
+function isArcanaPrivateKeyRequest(method) {
+  return method === ARCANA_PRIVATE_KEY_METHOD
+}
 </script>
 
 <template>
@@ -200,19 +204,19 @@ function closeWindow() {
   </div>
   <div v-else class="flex flex-col space-y-2 h-full">
     <div class="h-1/6">
-      <div
-        v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD"
-        class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md"
-      >
-        <p>{{ methodAndAction[request?.method] }}</p>
-      </div>
-      <div v-else class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
+      <div class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
         <img
+          v-if="!isArcanaPrivateKeyRequest(request?.method)"
           :src="getImage('arrow-circle-bi-dir.png')"
           alt="arrow-icon"
           class="w-8 h-8"
         />
-        <div class="space-y-1">
+        <div
+          class="space-y-1 w-full"
+          :class="{
+            'text-center': isArcanaPrivateKeyRequest(request?.method),
+          }"
+        >
           <h1>{{ methodAndAction[request.method] }}</h1>
           <p class="text-xs text-[#8D8D8D]">
             {{ truncateMid(request.params[0]?.from, 6) }}

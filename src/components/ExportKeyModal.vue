@@ -36,12 +36,8 @@ async function copyToClipboard(value: string, message: string) {
       <div class="flex items-center justify-between">
         <label class="text-sm font-semibold text-[#8D8D8D]">Private Key</label>
       </div>
-      <div>
-        <div
-          class="bg-[#121212] rounded-md p-4 break-words font-normal text-base"
-        >
-          {{ props.privateKey }}
-        </div>
+      <div class="bg-black-400 rounded-md p-4 break-words font-normal text-lg">
+        {{ props.privateKey }}
       </div>
     </div>
     <div class="flex gap-8 justify-center">
