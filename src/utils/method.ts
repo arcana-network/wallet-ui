@@ -11,8 +11,7 @@ const evmMethodAndAction = {
 }
 
 const solanaMethodAndAction = {
-  signAndSendTransaction: 'Send Transaction',
-  sendTransaction: 'Send Transaction',
+  signAndSendTransaction: 'Sign and Send Transaction',
   signTransaction: 'Sign Transaction',
   signMessage: 'Sign Message',
   signAllTransactions: 'Sign All Transactions',

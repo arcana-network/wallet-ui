@@ -125,9 +125,14 @@ class SolanaRequestHandler {
         const p = req.params as {
           message: string[]
         }
-        res.result = p.message.map((x) =>
-          bs58.encode(await this.accountHandler.signTransaction(bs58.decode(x)))
-        )
+        const signatures = [] as any[]
+        for (const m of p.message) {
+          const encoded = bs58.encode(
+            await this.accountHandler.signTransaction(bs58.decode(m))
+          )
+          signatures.push(encoded)
+        }
+        res.result = signatures
         break
       }
       case 'signAndSendTransaction': {
