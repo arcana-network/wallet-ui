@@ -71,6 +71,7 @@ async function init() {
         exp,
         id: userInfo.userInfo.id,
       })
+      console.log(app.curve, app.chainType)
       if (app.isMfaEnabled) {
         const core = new Core({
           dkgKey: info.privateKey,

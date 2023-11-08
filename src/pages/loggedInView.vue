@@ -144,6 +144,7 @@ async function setMFABannerState() {
     if (!userInfo) {
       return
     }
+    console.log(appStore.curve)
     const core = new Core({
       dkgKey: userInfo.pk as string,
       userId: userStore.info.id,
