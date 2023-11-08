@@ -112,28 +112,21 @@ class SolanaRequestHandler {
         res.result = result
         break
       }
-      /* case 'signAndSendTransaction': {
-        const data = Buffer.from(bs58.decode(req.params[0]))
-        res.result = await this.accountHandler.signAndSendTransaction(
-          req.params[1],
-          data
-        )
-        break
-      }
-      case 'signTransaction': {
-        const data = Buffer.from(bs58.decode(req.params.message))
-        const fromAddr = await this.accountHandler.getAccounts()
-        res.result = bs58.encode(
-          await this.accountHandler.signTransaction(fromAddr[0], data)
-        )
-        break
-      }*/
       case 'signTransaction': {
         const p = req.params as {
           message: string
         }
         res.result = bs58.encode(
           await this.accountHandler.signTransaction(bs58.decode(p.message))
+        )
+        break
+      }
+      case 'signAllTransactions': {
+        const p = req.params as {
+          message: string[]
+        }
+        res.result = p.message.map((x) =>
+          bs58.encode(await this.accountHandler.signTransaction(bs58.decode(x)))
         )
         break
       }
