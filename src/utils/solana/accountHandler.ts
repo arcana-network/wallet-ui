@@ -47,6 +47,14 @@ export class SolanaAccountHandler {
     return this.kp.publicKey
   }
 
+  get decimals() {
+    return 9
+  }
+
+  get gasDecimals() {
+    return 1
+  }
+
   async getBalance(): Promise<ethers.BigNumber> {
     const lamports = await this.conn.getBalance(this.kp.publicKey)
     return ethers.BigNumber.from(lamports)

@@ -42,6 +42,14 @@ class EVMAccountHandler {
     this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   }
 
+  get decimals() {
+    return 18
+  }
+
+  get gasDecimals() {
+    return 9
+  }
+
   getBalance() {
     return this.provider.getBalance(this.getAddress()[0])
   }

@@ -47,6 +47,7 @@ onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
+    rpcStore.walletBalance = '0'
     await sleep(100)
     await rpcStore.getWalletBalance()
   } catch (err) {

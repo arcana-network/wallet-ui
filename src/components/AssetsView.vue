@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
-import { onMounted, onBeforeUnmount, ref, watch, type Ref } from 'vue'
+import Decimal from 'decimal.js'
+import { onMounted, onBeforeUnmount, ref, watch, type Ref, computed } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
@@ -12,6 +12,7 @@ import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -28,6 +29,11 @@ type AssetProps = {
 
 const props = defineProps<AssetProps>()
 const storage = getStorage()
+
+const nativeAssetBalance = computed(() => {
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, decimals))
+})
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = storage.local.getAssetContractList(
@@ -63,7 +69,7 @@ function fetchNativeAsset() {
     name: rpcStore.nativeCurrency?.name,
     balance: !rpcStore.walletBalance
       ? 0
-      : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
+      : nativeAssetBalance.value.toDecimalPlaces(4).toNumber(),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
@@ -172,12 +178,10 @@ function handleFallbackLogo(event) {
           <div
             class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis transition-all duration-200"
             :title="`${
-              isNative(asset)
-                ? ethers.utils.formatEther(rpcStore.walletBalance)
-                : asset.balance.toFixed(asset.decimals)
+              isNative(asset) ? nativeAssetBalance.toString() : asset.balance
             } ${asset.symbol}`"
           >
-            {{ beautifyBalance(asset.balance) }}
+            {{ new Decimal(asset.balance).toDecimalPlaces(4) }}
             {{ asset.symbol }}
           </div>
         </div>
