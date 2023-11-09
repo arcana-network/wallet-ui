@@ -229,6 +229,14 @@ class UserLocalStorage extends BaseStorage {
       StorageKey.PreferredAddressType
     )
   }
+
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
+  }
 }
 
 interface IStorage {

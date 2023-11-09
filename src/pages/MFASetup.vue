@@ -51,7 +51,7 @@ initStorage(String(route.params.appId))
 
 const storage = getStorage()
 
-app.curve = storage.session.getCurve()
+app.curve = storage.local.getCurve()
 
 document.documentElement.classList.add('dark')
 

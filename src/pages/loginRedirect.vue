@@ -56,7 +56,7 @@ async function init() {
 
     const authProvider = await getAuthProvider(`${appId}`, false, false)
     console.log('authProvider', authProvider, app.curve)
-    storage.session.setCurve(app.curve)
+    storage.local.setCurve(app.curve)
     const postLoginCleanup = await authProvider.checkRedirectMode()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()

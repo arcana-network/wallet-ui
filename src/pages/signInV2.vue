@@ -185,7 +185,7 @@ async function storeUserInfoAndRedirect(
   }
   storage.session.setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
-  storage.session.setCurve(app.curve)
+  storage.local.setCurve(app.curve)
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   console.log(app.curve, app.chainType)
