@@ -55,6 +55,8 @@ const appId = route.params.appId as string
 initStorage(appId)
 const storage = getStorage()
 
+app.curve = storage.session.getCurve()
+
 onBeforeMount(async () => {
   loader.value = {
     show: true,

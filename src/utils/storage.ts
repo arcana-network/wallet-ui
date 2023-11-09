@@ -1,4 +1,5 @@
 import { GetInfoOutput } from '@arcana/auth-core'
+import { CURVE } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 
 import { AssetContract } from '@/models/Asset'
@@ -19,6 +20,7 @@ enum StorageKey {
   PK = 'pk',
   hasStarterTipShown = 'has-starter-tip-shown',
   PreferredAddressType = 'preferred-address-type',
+  Curve = 'curve',
 }
 
 type UserInfo = GetInfoOutput & {
@@ -317,6 +319,14 @@ class UserSessionStorage extends BaseStorage {
 
   getUserInfo() {
     return this.get<UserInfo>(StorageKey.UserInfo)
+  }
+
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
   }
 
   clearUserInfo() {
