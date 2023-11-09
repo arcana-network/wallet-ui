@@ -24,14 +24,17 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import {
+  CreateAccountHandler,
+  EVMAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
-import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -427,6 +430,9 @@ watch(
         })
         await initScwSdk()
       }
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as SolanaAccountHandler
+      await accountHandler.getAllUserSPLTokens()
     } catch (e) {
       console.log({ e })
     } finally {

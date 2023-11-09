@@ -1,21 +1,26 @@
 import type { RpcConfig } from '@arcana/auth'
 import { signAsync as ed25519Sign } from '@noble/ed25519'
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token'
 import {
   Commitment,
   Connection,
   Keypair,
   VersionedMessage,
   VersionedTransaction,
+  GetProgramAccountsFilter,
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
 
+import { Asset } from '@/models/Asset'
 import { ChainType } from '@/utils/chainType'
+import { SPLTokenRegistry } from '@/utils/solana/splTokenRegistry'
 
 export class SolanaAccountHandler {
   // conn and rpcConfig can be change
   private conn: Connection
   private rpcConfig!: RpcConfig
+  private splRegistry!: SPLTokenRegistry
 
   // Not a hash, nor is it 20 bytes, it's the whole public key encoded with Base58
   private readonly address: string
@@ -135,6 +140,53 @@ export class SolanaAccountHandler {
   // NFT-related functions below
   sendCustomToken = async (...params) => {
     return null
+  }
+
+  async getAllUserSPLTokens() {
+    if (!this.splRegistry) {
+      this.splRegistry = await SPLTokenRegistry.create()
+    }
+    const filters: GetProgramAccountsFilter[] = [
+      {
+        dataSize: 165, //size of account (bytes)
+      },
+      {
+        memcmp: {
+          offset: 32,
+          bytes: this.address,
+        },
+      },
+    ]
+    const programTokens = await this.conn.getParsedProgramAccounts(
+      TOKEN_PROGRAM_ID, //SPL Token Program, new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+      { filters: filters }
+    )
+    console.log({ programTokens, TOKEN_PROGRAM_ID, filters })
+    const programTokens2022 = await this.conn.getParsedProgramAccounts(
+      TOKEN_2022_PROGRAM_ID,
+      { filters: filters }
+    )
+    console.log({ programTokens2022, TOKEN_2022_PROGRAM_ID, filters })
+    const accounts = [...programTokens, ...programTokens2022]
+    const ownedSplTokens = [] as Asset[]
+    accounts.forEach((account) => {
+      //Parse the account data
+      const parsedAccountInfo: any = account.account.data
+      const mintAddress: string = parsedAccountInfo['parsed']['info']['mint']
+      const tokenBalance: number =
+        parsedAccountInfo['parsed']['info']['tokenAmount']['uiAmount']
+      const tokenDetails = this.splRegistry.get(mintAddress)
+      ownedSplTokens.push({
+        address: tokenDetails?.address || mintAddress,
+        symbol: tokenDetails?.symbol || 'Unknown',
+        decimals: tokenDetails?.decimals || 0,
+        name: tokenDetails?.name || 'Unknown',
+        balance: tokenBalance,
+        logo: tokenDetails?.logoURI,
+        image: tokenDetails?.logoURI,
+      })
+    })
+    return ownedSplTokens
   }
 
   get chainType() {
