@@ -121,7 +121,6 @@ export const useAppStore = defineStore('app', {
         this.chainType = ChainType.evm_secp256k1
         this.curve = CURVE.SECP256K1
       }
-      console.log({ chainType }, this.curve)
     },
     setTheme(theme: Theme): void {
       this.theme = theme

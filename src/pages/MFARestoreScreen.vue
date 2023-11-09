@@ -74,7 +74,6 @@ onBeforeMount(async () => {
   if (!dkgShare) {
     return
   }
-  console.log(app.curve)
   core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
@@ -138,7 +137,6 @@ async function handleLocalRecovery(key: string) {
   storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
     const core = new Core({
       dkgKey: userInfo.pk,

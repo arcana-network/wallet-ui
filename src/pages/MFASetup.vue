@@ -76,7 +76,6 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  console.log(app.curve)
   const core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
