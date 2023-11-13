@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
+import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getImage } from '@/utils/getImage'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { sanitizeRequest } from '@/utils/sanitizeRequest'
 
 const props = defineProps({
   request: {
@@ -20,6 +23,12 @@ const props = defineProps({
   },
 })
 
+const emits = defineEmits(['gasPriceInput'])
+
+const baseFee = ref('0')
+const gasLimit = ref('0')
+const customGasPrice = ref({} as unknown)
+const showGasFeeLoader = ref(false)
 const showDetails = ref(false)
 
 function calculateValue(value) {
@@ -39,6 +48,80 @@ function calculateGasPrice(gasPrice) {
   }
   return 'Unknown'
 }
+
+function computeMaxFee(value) {
+  return new Decimal(value.maxFeePerGas)
+    .add(value.maxPriorityFeePerGas || 1.5)
+    .toString()
+}
+
+function handleSetGasPrice(value) {
+  customGasPrice.value = value
+  emits('gasPriceInput', {
+    value: {
+      maxFeePerGas: value.maxFeePerGas
+        ? new Decimal(computeMaxFee(value))
+            .mul(Decimal.pow(10, 9))
+            .toHexadecimal()
+        : null,
+      maxPriorityFeePerGas: value.maxPriorityFeePerGas
+        ? new Decimal(value.maxPriorityFeePerGas)
+            .mul(Decimal.pow(10, 9))
+            .toHexadecimal()
+        : null,
+      gasLimit: value.gasLimit ? value.gasLimit : null,
+    },
+  })
+}
+
+onMounted(async () => {
+  const request = props.request
+  showGasFeeLoader.value = true
+  try {
+    const accountHandler = getRequestHandler().getAccountHandler()
+    const baseGasPrice = (
+      await accountHandler.provider.getGasPrice()
+    ).toString()
+    baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
+
+    const sanitizedRequest = sanitizeRequest({ ...request })
+
+    gasLimit.value = (
+      await accountHandler.provider.estimateGas({
+        ...sanitizedRequest.params[0],
+      })
+    ).toString()
+
+    const maxFeePerGas = request.params[0].maxFeePerGas
+    const maxPriorityFeePerGas = request.params[0].maxPriorityFeePerGas
+
+    if (maxFeePerGas) {
+      customGasPrice.value.maxFeePerGas = new Decimal(maxFeePerGas)
+        .div(Decimal.pow(10, 9))
+        .toString()
+    } else {
+      customGasPrice.value.maxFeePerGas = new Decimal(baseFee.value)
+        .add(1.5)
+        .toString()
+    }
+
+    if (maxPriorityFeePerGas) {
+      customGasPrice.value.maxPriorityFeePerGas = new Decimal(
+        maxPriorityFeePerGas
+      )
+        .div(Decimal.pow(10, 9))
+        .toString()
+    }
+
+    customGasPrice.value.gasLimit = request.params[0].gasLimit || gasLimit.value
+
+    handleSetGasPrice(customGasPrice.value)
+  } catch (e) {
+    console.log(e)
+  } finally {
+    showGasFeeLoader.value = false
+  }
+})
 </script>
 
 <template>
@@ -60,7 +143,10 @@ function calculateGasPrice(gasPrice) {
       }}</span>
     </div>
     <div class="text-center">
-      <span class="text-sm text-[#8D8D8D]">
+      <span v-if="showGasFeeLoader" class="text-sm text-[#8D8D8D] animate-pulse"
+        >Calculating gas fee.....</span
+      >
+      <span v-else class="text-sm text-[#8D8D8D]">
         Additional
         <span class="text-white-400">{{
           calculateGasPrice(request.params[0].gas || request.params[0].gasPrice)
@@ -70,7 +156,8 @@ function calculateGasPrice(gasPrice) {
     </div>
     <div
       v-if="request.params[0]?.data"
-      class="flex flex-col space-y-2 flex-1 h-2/4"
+      class="flex flex-col space-y-2"
+      :class="{ 'h-2/4': showDetails }"
     >
       <button
         class="flex justify-center items-center text-sm font-bold"
@@ -87,6 +174,15 @@ function calculateGasPrice(gasPrice) {
       <SignMessageAdvancedInfo
         v-if="showDetails"
         :info="request.params[0]?.data"
+      />
+    </div>
+    <div>
+      <GasPrice
+        :base-fee="baseFee"
+        :gas-limit="gasLimit"
+        :max-fee-per-gas="customGasPrice.maxFeePerGas"
+        :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
+        @gas-price-input="handleSetGasPrice"
       />
     </div>
   </div>

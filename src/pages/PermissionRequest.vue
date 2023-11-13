@@ -10,6 +10,7 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { fetchApp } from '@/services/gateway.service'
+import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getImage } from '@/utils/getImage'
@@ -196,6 +197,42 @@ function closeWindow() {
 function isArcanaPrivateKeyRequest(method) {
   return method === ARCANA_PRIVATE_KEY_METHOD
 }
+
+function handleGasPriceInput({ value }) {
+  const gas = value
+  const selectedRequest = request.value
+  const params = selectedRequest?.params
+  if (Array.isArray(params)) {
+    const param = params[0]
+    if (param.type && Number(param.type) === 2) {
+      const eipGas = gas as EIP1559GasFee | null
+      if (eipGas?.maxPriorityFeePerGas) {
+        param.maxPriorityFeePerGas = eipGas.maxPriorityFeePerGas
+      } else if (eipGas?.maxPriorityFeePerGas === null) {
+        delete param.maxPriorityFeePerGas
+      }
+      if (eipGas?.maxFeePerGas) {
+        param.maxFeePerGas = eipGas.maxFeePerGas
+      } else if (eipGas?.maxFeePerGas === null) {
+        delete param.maxFeePerGas
+      }
+    } else {
+      const legacyGas = gas as LegacyGasFee | null
+      if (legacyGas?.gasPrice) {
+        param.gasPrice = legacyGas.gasPrice
+      } else if (legacyGas?.gasPrice === null) {
+        delete param.gasPrice
+      } else if ((gas as EIP1559GasFee | null)?.maxFeePerGas) {
+        param.gasPrice = (gas as EIP1559GasFee).maxFeePerGas
+      }
+    }
+    if (gas?.gasLimit) {
+      param.gas = gas.gasLimit
+    } else if (gas?.gasLimit === null) {
+      delete param.gas
+    }
+  }
+}
 </script>
 
 <template>
@@ -238,6 +275,7 @@ function isArcanaPrivateKeyRequest(method) {
             :request="request"
             :chain-config="chainConfig"
             :app-details="appDetails"
+            @gas-price-input="handleGasPriceInput"
           />
           <SignMessageAdvancedInfo
             v-else
