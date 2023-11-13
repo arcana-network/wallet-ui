@@ -17,7 +17,7 @@ const signInfo = computed(() => {
 
 <template>
   <div
-    class="card h-full dark:bg-black-100 p-4 break-word rounded-md overflow-hidden max-h-40 break-words"
+    class="card dark:bg-black-100 h-full p-2 break-word rounded-md overflow-hidden break-words"
   >
     <div class="overflow-auto h-full w-full">
       <VJsonViewer :value="signInfo"></VJsonViewer>

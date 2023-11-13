@@ -318,76 +318,83 @@ async function addToken(request, keeper) {
 
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    if (
-      request.method === 'wallet_switchEthereumChain' ||
-      request.method === 'wallet_addEthereumChain' ||
-      request.method === 'wallet_watchAsset'
-    ) {
-      const { method } = request
-      if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
-      if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
-      if (method === 'wallet_watchAsset') addToken(request, keeper)
-    } else {
-      const sanitizedRequest = sanitizeRequest({ ...request })
-      try {
-        const response = await keeper.request({ ...sanitizedRequest })
-        await keeper.reply(request.method, response)
-        if (response.error) {
-          if (response.error.code === 'INSUFFICIENT_FUNDS') {
-            showToast('error', 'Insufficient Gas to make this transaction.')
-          } else {
-            if (response.error?.data?.originalError?.body) {
-              const body = response.error?.data?.originalError?.body
-              const errorBody =
-                typeof body === 'string'
-                  ? JSON.parse(response.error?.data?.originalError?.body)
-                  : body
-              if (errorBody?.error?.message) {
-                showToast('error', errorBody?.error?.message)
-              } else {
-                showToast('error', errorBody?.error || errorBody)
-              }
+    switch (request.method) {
+      case 'wallet_switchEthereumChain':
+        await switchChain(request, keeper)
+        break
+      case 'wallet_addEthereumChain':
+        await addNetwork(request, keeper)
+        break
+      case 'wallet_watchAsset':
+        await addToken(request, keeper)
+        break
+      default: {
+        const sanitizedRequest = sanitizeRequest({ ...request })
+        try {
+          const response = await keeper.request({ ...sanitizedRequest })
+          await keeper.reply(request.method, response)
+          if (response.error) {
+            if (response.error.code === 'INSUFFICIENT_FUNDS') {
+              await showToast(
+                'error',
+                'Insufficient Gas to make this transaction.'
+              )
             } else {
-              const displayError = (response.error?.data?.originalError?.error
-                ?.message ||
-                response.error?.data?.originalError?.reason ||
-                response.error?.data?.originalError?.code ||
-                response.error?.message ||
-                response.error) as string
-              showToast('error', displayError)
+              if (response.error?.data?.originalError?.body) {
+                const body = response.error?.data?.originalError?.body
+                const errorBody =
+                  typeof body === 'string'
+                    ? JSON.parse(response.error?.data?.originalError?.body)
+                    : body
+                if (errorBody?.error?.message) {
+                  await showToast('error', errorBody?.error?.message)
+                } else {
+                  await showToast('error', errorBody?.error || errorBody)
+                }
+              } else {
+                const displayError = (response.error?.data?.originalError?.error
+                  ?.message ||
+                  response.error?.data?.originalError?.reason ||
+                  response.error?.data?.originalError?.code ||
+                  response.error?.message ||
+                  response.error) as string
+                await showToast('error', displayError)
+              }
+            }
+            return
+          } else {
+            const asyncMethods = [
+              'eth_sendTransaction',
+              'wallet_watchAsset',
+              'wallet_switchEthereumChain',
+              'wallet_addEthereumChain',
+            ]
+            if (asyncMethods.includes(request.method)) {
+              const message = `${request.method} execution completed`
+              await showToast('success', message)
             }
           }
-          return
-        } else {
-          const asyncMethods = [
-            'eth_sendTransaction',
-            'wallet_watchAsset',
-            'wallet_switchEthereumChain',
-            'wallet_addEthereumChain',
-          ]
-          if (asyncMethods.includes(request.method)) {
-            const message = `${request.method} execution completed`
-            await showToast('success', message)
+          if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
+            const params = JSON.parse(request.params[1])
+            if (params.domain.name === 'Arcana Forwarder') {
+              await activitiesStore.saveFileActivity(
+                rpcStore.selectedRpcConfig?.chainId,
+                params.message,
+                params.domain.verifyingContract
+              )
+            }
+          } else if (
+            request.method === 'eth_sendTransaction' &&
+            response.result
+          ) {
+            await activitiesStore.fetchAndSaveActivityFromHash({
+              txHash: response.result,
+              chainId: rpcStore.selectedRpcConfig?.chainId,
+            })
           }
+        } catch (err) {
+          console.error({ err })
         }
-        if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
-          const params = JSON.parse(request.params[1])
-          if (params.domain.name === 'Arcana Forwarder') {
-            activitiesStore.saveFileActivity(
-              rpcStore.selectedRpcConfig?.chainId,
-              params.message,
-              params.domain.verifyingContract
-            )
-          }
-        }
-        if (request.method === 'eth_sendTransaction' && response.result) {
-          activitiesStore.fetchAndSaveActivityFromHash({
-            txHash: response.result,
-            chainId: rpcStore.selectedRpcConfig?.chainId,
-          })
-        }
-      } catch (err) {
-        console.error({ err })
       }
     }
   } else {
@@ -422,9 +429,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-
-  if (request.method === 'wallet_switchEthereumChain') {
+  } else if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
       await keeper.reply(request.method, {
@@ -435,8 +440,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-  if (request.method === 'eth_signTypedData_v4') {
+  } else if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])
     let error: string | unknown | null = null
     if (typeof params !== 'object' || !params.domain) {
@@ -449,6 +453,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }
+
     if (error) {
       await keeper.reply(request.method, {
         jsonrpc: '2.0',

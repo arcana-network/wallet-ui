@@ -4,11 +4,13 @@ import { Ref, onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
+import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { fetchApp } from '@/services/gateway.service'
+import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getImage } from '@/utils/getImage'
@@ -29,6 +31,7 @@ type DecodedHash = {
   request: JsonRpcRequest<unknown>
 }
 
+const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
 const WALLET_DOMAIN_DEFAULT = '*'
 const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
 const DEFAULT_THEME = 'dark'
@@ -36,6 +39,7 @@ const showLoader = ref(true)
 const chainConfig = ref({})
 const request: Ref<JsonRpcRequest<unknown> | null> = ref(null)
 const toast = useToast()
+const appDetails = ref({})
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -128,7 +132,9 @@ onMounted(async () => {
       decodedHash.appId,
       decodedHash.chainId
     )
-    const { wallet_domain } = await getAppDetails(decodedHash.appId)
+    const info = await getAppDetails(decodedHash.appId)
+    appDetails.value = info
+    const wallet_domain = info.wallet_domain
     walletDomain.value = wallet_domain.length
       ? wallet_domain
       : WALLET_DOMAIN_DEFAULT
@@ -183,51 +189,123 @@ function onReject(request) {
     } else toast.error('something went wrong')
   }
 }
+
+function closeWindow() {
+  window.parent.close()
+}
+
+function isArcanaPrivateKeyRequest(method) {
+  return method === ARCANA_PRIVATE_KEY_METHOD
+}
+
+function handleGasPriceInput({ value }) {
+  const gas = value
+  const selectedRequest = request.value
+  const params = selectedRequest?.params
+  if (Array.isArray(params)) {
+    const param = params[0]
+    if (param.type && Number(param.type) === 2) {
+      const eipGas = gas as EIP1559GasFee | null
+      if (eipGas?.maxPriorityFeePerGas) {
+        param.maxPriorityFeePerGas = eipGas.maxPriorityFeePerGas
+      } else if (eipGas?.maxPriorityFeePerGas === null) {
+        delete param.maxPriorityFeePerGas
+      }
+      if (eipGas?.maxFeePerGas) {
+        param.maxFeePerGas = eipGas.maxFeePerGas
+      } else if (eipGas?.maxFeePerGas === null) {
+        delete param.maxFeePerGas
+      }
+    } else {
+      const legacyGas = gas as LegacyGasFee | null
+      if (legacyGas?.gasPrice) {
+        param.gasPrice = legacyGas.gasPrice
+      } else if (legacyGas?.gasPrice === null) {
+        delete param.gasPrice
+      } else if ((gas as EIP1559GasFee | null)?.maxFeePerGas) {
+        param.gasPrice = (gas as EIP1559GasFee).maxFeePerGas
+      }
+    }
+    if (gas?.gasLimit) {
+      param.gas = gas.gasLimit
+    } else if (gas?.gasLimit === null) {
+      delete param.gas
+    }
+  }
+}
 </script>
 
 <template>
   <div v-if="showLoader" class="flex-1 flex justify-center">
     <AppLoader message="Please wait..." />
   </div>
-  <div v-else class="flex flex-col space-y-3">
-    <div class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
-      <img
-        :src="getImage('arrow-circle-bi-dir.png')"
-        alt="arrow-icon"
-        class="w-8 h-8"
-      />
-      <div class="space-y-1">
-        <h1>{{ methodAndAction[request.method] }}</h1>
-        <p class="text-xs text-[#8D8D8D]">
-          {{ truncateMid(request.params[0].from, 6) }}
-        </p>
+  <div v-else class="flex flex-col space-y-2 h-full">
+    <div class="h-1/6">
+      <div class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
+        <img
+          v-if="!isArcanaPrivateKeyRequest(request?.method)"
+          :src="getImage('arrow-circle-bi-dir.png')"
+          alt="arrow-icon"
+          class="w-8 h-8"
+        />
+        <div
+          class="space-y-1 w-full"
+          :class="{
+            'text-center': isArcanaPrivateKeyRequest(request?.method),
+          }"
+        >
+          <h1>{{ methodAndAction[request.method] }}</h1>
+          <p class="text-xs text-[#8D8D8D]">
+            {{ truncateMid(request.params[0]?.from, 6) }}
+          </p>
+        </div>
       </div>
     </div>
-    <div class="bg-[#1F1F1F] p-4 rounded-md flex-1 flex flex-col space-y-4">
-      <div class="flex-1">
-        <SendTransaction
-          v-if="isSendTransactionRequest(request.method)"
-          :request="request!"
-          :chain-config="chainConfig"
-        />
-        <SignMessageAdvancedInfo
-          v-else
-          :info="advancedInfo(request.method, request.params)"
-        />
+    <div class="h-5/6 rounded-md flex-1 flex flex-col space-y-4">
+      <div class="flex-1 h-5/6">
+        <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
+          <ExportKeyModal
+            :private-key="request.params.privateKey"
+            :wallet-address="request.params.walletAddress"
+          />
+        </div>
+        <div v-else class="h-full">
+          <SendTransaction
+            v-if="isSendTransactionRequest(request?.method)"
+            :request="request"
+            :chain-config="chainConfig"
+            :app-details="appDetails"
+            @gas-price-input="handleGasPriceInput"
+          />
+          <SignMessageAdvancedInfo
+            v-else
+            :info="advancedInfo(request.method, request.params)"
+          />
+        </div>
       </div>
-      <div class="flex gap-2">
-        <button
-          class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
-          @click="onReject(request)"
-        >
-          Reject
-        </button>
-        <button
-          class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
-          @click="onApprove(request)"
-        >
-          Approve
-        </button>
+      <div class="h-1/6">
+        <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
+          <button
+            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="closeWindow()"
+          >
+            close tab
+          </button>
+        </div>
+        <div v-else class="flex gap-2">
+          <button
+            class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="onReject(request)"
+          >
+            Reject
+          </button>
+          <button
+            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="onApprove(request)"
+          >
+            Approve
+          </button>
+        </div>
       </div>
     </div>
   </div>
