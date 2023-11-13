@@ -5,10 +5,10 @@ import { type Ref, ref, watch, computed } from 'vue'
 const emits = defineEmits(['gasPriceInput'])
 
 type GasPriceProps = {
-  baseFee: string
-  gasLimit: string
-  maxFeePerGas?: string
-  maxPriorityFeePerGas?: string
+  baseFee: string | number
+  gasLimit: string | number
+  maxFeePerGas?: string | number
+  maxPriorityFeePerGas?: string | number
 }
 
 const props = defineProps<GasPriceProps>()
