@@ -17,7 +17,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getGaslessEnabledStatus } from '@/services/gateway.service'
+import { getGaslessEnabledStatus, fetchApp } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -59,10 +59,17 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
 const currencyStore = useCurrencyStore()
+const keyspaceType: Ref<'local' | 'global'> = ref('local')
 
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
+
+async function getKeySpaceType() {
+  const { data } = await fetchApp(appStore.id)
+  if (data.global) keyspaceType.value = 'global'
+  else keyspaceType.value = 'local'
+}
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -91,6 +98,7 @@ onMounted(async () => {
     loader.value.show = true
     await setRpcConfigs()
     await getRpcConfig()
+    await getKeySpaceType()
     await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
@@ -210,6 +218,7 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
+      getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
       getUserInfo,
