@@ -10,7 +10,6 @@ class SPLTokenRegistry {
   static async create() {
     const tokens = await new TokenListProvider().resolve()
     const mappedTokens = tokens.getList().reduce((map, item) => {
-      console.log(item)
       map.set(item.address, item)
       return map
     }, new Map<string, TokenInfo>())

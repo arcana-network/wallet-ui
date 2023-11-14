@@ -1,4 +1,10 @@
 import type { RpcConfig } from '@arcana/auth'
+import {
+  mplTokenMetadata,
+  fetchAllDigitalAssetByOwner,
+} from '@metaplex-foundation/mpl-token-metadata'
+import { PublicKey, some } from '@metaplex-foundation/umi'
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import { signAsync as ed25519Sign } from '@noble/ed25519'
 import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token'
 import {
@@ -9,10 +15,12 @@ import {
   VersionedTransaction,
   GetProgramAccountsFilter,
 } from '@solana/web3.js'
+import axios from 'axios'
 import bs58 from 'bs58'
 import { ethers } from 'ethers'
 
 import { Asset } from '@/models/Asset'
+import { NFT } from '@/models/NFT'
 import { ChainType } from '@/utils/chainType'
 import { SPLTokenRegistry } from '@/utils/solana/splTokenRegistry'
 
@@ -27,7 +35,10 @@ export class SolanaAccountHandler {
   private readonly kp: Keypair
 
   constructor(privateKey: Uint8Array, rpcUrl: string) {
-    this.conn = new Connection(rpcUrl, 'confirmed')
+    this.conn = new Connection(rpcUrl, {
+      disableRetryOnRateLimit: true,
+      commitment: 'confirmed',
+    })
     this.kp = Keypair.fromSecretKey(<Uint8Array>privateKey)
     this.address = this.kp.publicKey.toBase58()
   }
@@ -66,7 +77,10 @@ export class SolanaAccountHandler {
   }
 
   async setProvider(str): Promise<void> {
-    this.conn = new Connection(str, 'confirmed')
+    this.conn = new Connection(str, {
+      disableRetryOnRateLimit: true,
+      commitment: 'confirmed',
+    })
   }
 
   async sendTransaction(data: Uint8Array): Promise<string> {
@@ -142,6 +156,52 @@ export class SolanaAccountHandler {
     return null
   }
 
+  async getAllUserNFTs(): Promise<NFT[]> {
+    const umi = createUmi(this.conn.rpcEndpoint).use(mplTokenMetadata())
+    const assets = await fetchAllDigitalAssetByOwner(
+      umi,
+      this.kp.publicKey as unknown as PublicKey
+    )
+    const nfts: NFT[] = []
+    if (assets?.length) {
+      for (const asset of assets) {
+        const collectionAddress =
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          asset.metadata.collection?.value?.key ?? 'Unknown'
+        const uri = asset.metadata.uri
+        let tokenDetails: any = null
+        const attributes: any[] = []
+        if (uri) {
+          tokenDetails = (await axios.get(uri)).data
+          if (tokenDetails?.attributes?.length) {
+            tokenDetails.attributes.forEach((attr: any) => {
+              attributes.push({
+                trait_type: attr.trait_type ?? attr.trait,
+                value: attr.value,
+              })
+            })
+          }
+        }
+        nfts.push({
+          type: 'mpl',
+          address: collectionAddress,
+          tokenId: asset.metadata.mint,
+          collectionName: `${asset.metadata.symbol}`,
+          name: asset.metadata.name,
+          description: tokenDetails?.description,
+          imageUrl: tokenDetails?.image ?? tokenDetails?.image_url,
+          animationUrl: tokenDetails?.animation_url ?? tokenDetails?.animation,
+          attributes,
+          tokenUrl: uri,
+          autodetected: false,
+          balance: 1,
+        })
+      }
+    }
+    return nfts
+  }
+
   async getAllUserSPLTokens() {
     if (!this.splRegistry) {
       this.splRegistry = await SPLTokenRegistry.create()
@@ -161,12 +221,10 @@ export class SolanaAccountHandler {
       TOKEN_PROGRAM_ID, //SPL Token Program, new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
       { filters: filters }
     )
-    console.log({ programTokens, TOKEN_PROGRAM_ID, filters })
     const programTokens2022 = await this.conn.getParsedProgramAccounts(
       TOKEN_2022_PROGRAM_ID,
       { filters: filters }
     )
-    console.log({ programTokens2022, TOKEN_2022_PROGRAM_ID, filters })
     const accounts = [...programTokens, ...programTokens2022]
     const ownedSplTokens = [] as Asset[]
     accounts.forEach((account) => {
@@ -176,15 +234,16 @@ export class SolanaAccountHandler {
       const tokenBalance: number =
         parsedAccountInfo['parsed']['info']['tokenAmount']['uiAmount']
       const tokenDetails = this.splRegistry.get(mintAddress)
-      ownedSplTokens.push({
-        address: tokenDetails?.address || mintAddress,
-        symbol: tokenDetails?.symbol || 'Unknown',
-        decimals: tokenDetails?.decimals || 0,
-        name: tokenDetails?.name || 'Unknown',
-        balance: tokenBalance,
-        logo: tokenDetails?.logoURI,
-        image: tokenDetails?.logoURI,
-      })
+      if (tokenDetails)
+        ownedSplTokens.push({
+          address: tokenDetails?.address || mintAddress,
+          symbol: tokenDetails?.symbol || 'Unknown',
+          decimals: tokenDetails?.decimals || 0,
+          name: tokenDetails?.name || 'Unknown',
+          balance: tokenBalance,
+          logo: tokenDetails?.logoURI,
+          image: tokenDetails?.logoURI,
+        })
     })
     return ownedSplTokens
   }

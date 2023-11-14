@@ -1,4 +1,4 @@
-type NFTContractType = 'erc721' | 'erc1155'
+type NFTContractType = 'erc721' | 'erc1155' | 'mpl'
 
 type NFTContract = {
   type: NFTContractType
