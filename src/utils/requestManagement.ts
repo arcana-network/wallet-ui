@@ -30,8 +30,8 @@ const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
 const userStore = useUserStore(store)
 const toast = useToast()
-const reqStore = useRequestStore()
-const appStore = useAppStore()
+const reqStore = useRequestStore(store)
+const appStore = useAppStore(store)
 
 async function showToast(type, message) {
   return new Promise((res) => {
@@ -333,8 +333,10 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      // const sanitizedRequest = sanitizeRequest({ ...request })
-      const sanitizedRequest = { ...request }
+      const sanitizedRequest =
+        appStore.chainType === ChainType.solana_cv25519
+          ? { ...request }
+          : sanitizeRequest({ ...request })
       try {
         const response = await keeper.request({ ...sanitizedRequest })
         console.log({ response })
