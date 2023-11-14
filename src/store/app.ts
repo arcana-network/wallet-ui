@@ -99,6 +99,7 @@ export const useAppStore = defineStore('app', {
           style.borderTopRightRadius = '5px'
           style.borderTopLeftRadius = '5px'
         }
+        style.colorScheme = 'normal'
         return style
       }
     },
