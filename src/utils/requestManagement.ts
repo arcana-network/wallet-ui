@@ -337,6 +337,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       const sanitizedRequest = { ...request }
       try {
         const response = await keeper.request({ ...sanitizedRequest })
+        console.log({ response })
         await keeper.reply(request.method, JSON.parse(JSON.stringify(response)))
         if (response.error) {
           if (response.error.code === 'INSUFFICIENT_FUNDS') {
