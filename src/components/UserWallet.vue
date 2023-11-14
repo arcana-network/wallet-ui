@@ -168,17 +168,17 @@ function hasWalletBalanceAfterDecimals() {
   return false
 }
 
-watch(
-  () => rpcStore.selectedRPCConfig?.chainId,
-  async () => {
-    if (rpcStore.selectedRPCConfig) {
-      await getRequestHandler().setRpcConfig({
-        ...rpcStore.selectedRPCConfig,
-        chainId: Number(rpcStore.selectedRPCConfig.chainId),
-      })
-    }
-  }
-)
+// watch(
+//   () => rpcStore.selectedRPCConfig?.chainId,
+//   async () => {
+//     if (rpcStore.selectedRPCConfig) {
+//       await getRequestHandler().setRpcConfig({
+//         ...rpcStore.selectedRPCConfig,
+//         chainId: Number(rpcStore.selectedRPCConfig.chainId),
+//       })
+//     }
+//   }
+// )
 
 watch(
   () => userStore.scwAddress,
