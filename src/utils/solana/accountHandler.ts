@@ -2,6 +2,8 @@ import type { RpcConfig } from '@arcana/auth'
 import {
   mplTokenMetadata,
   fetchAllDigitalAssetByOwner,
+  fetchJsonMetadata,
+  JsonMetadata,
 } from '@metaplex-foundation/mpl-token-metadata'
 import { PublicKey as PublicKeyUmi } from '@metaplex-foundation/umi'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
@@ -23,7 +25,6 @@ import {
   sendAndConfirmTransaction,
   Transaction,
 } from '@solana/web3.js'
-import axios from 'axios'
 import bs58 from 'bs58'
 import Decimal from 'decimal.js'
 import { ethers } from 'ethers'
@@ -154,7 +155,7 @@ export class SolanaAccountHandler {
   getTransaction(tHash: string | Uint8Array) {
     const h = this.coerceAmbiguousToString(tHash)
     return this.conn.getParsedTransaction(h, {
-      commitment: 'confirmed',
+      commitment: 'finalized',
       maxSupportedTransactionVersion: 0,
     })
   }
@@ -218,10 +219,11 @@ export class SolanaAccountHandler {
           // @ts-ignore
           asset.metadata.collection?.value?.key ?? 'Unknown'
         const uri = asset.metadata.uri
-        let tokenDetails: any = null
+        asset.edition?.publicKey
+        let tokenDetails: JsonMetadata | null = null
         const attributes: any[] = []
         if (uri) {
-          tokenDetails = (await axios.get(uri)).data
+          tokenDetails = await fetchJsonMetadata(umi, uri)
           if (tokenDetails?.attributes?.length) {
             tokenDetails.attributes.forEach((attr: any) => {
               attributes.push({
@@ -238,8 +240,8 @@ export class SolanaAccountHandler {
           collectionName: `${asset.metadata.symbol}`,
           name: asset.metadata.name,
           description: tokenDetails?.description,
-          imageUrl: tokenDetails?.image ?? tokenDetails?.image_url,
-          animationUrl: tokenDetails?.animation_url ?? tokenDetails?.animation,
+          imageUrl: tokenDetails?.image,
+          animationUrl: tokenDetails?.animation_url,
           attributes,
           tokenUrl: uri,
           autodetected: false,

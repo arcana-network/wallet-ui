@@ -154,7 +154,6 @@ async function fetchTokenBalance() {
     selectedTokenBalance.value = walletBalance.value
   } else {
     if (appStore.chainType === ChainType.solana_cv25519) {
-      console.log({ tokenInfo })
       selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
     } else {
       const balance = await getTokenBalance({

@@ -85,7 +85,7 @@ type Activity = {
   nft?: {
     address: string
     tokenId: string
-    imageUrl: string
+    imageUrl?: string
     collectionName: string
     name: string
   }
@@ -117,6 +117,7 @@ type TransactionFetchNftParams = {
   chainId: ChainId
   nft: NFT
   recipientAddress: string
+  chainType?: ChainType
 }
 
 function getTxOperation(
@@ -250,9 +251,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
                   amount: BigInt(parsedInstruction.parsed.info.lamports),
                   nonce: tx.slot,
                   computeUnitsConsumed: BigInt(
-                    tx.meta?.computeUnitsConsumed as number
+                    (tx.meta?.computeUnitsConsumed as number) ?? 0
                   ),
-                  fee: BigInt(tx.meta?.fee as number),
+                  fee: BigInt((tx.meta?.fee as number) ?? 0),
                 },
                 status: 'Success',
                 date: new Date(),
@@ -312,49 +313,93 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       chainId,
       nft,
       recipientAddress,
+      chainType = ChainType.evm_secp256k1,
     }: TransactionFetchNftParams) {
-      const accountHandler =
-        getRequestHandler().getAccountHandler() as EVMAccountHandler
-      const remoteTransaction = await getRemoteTransaction(
-        accountHandler,
-        txHash
-      )
-      const activity: Activity = {
-        operation: 'Send',
-        txHash,
-        transaction: {
-          hash: txHash,
-          amount: remoteTransaction.value.toBigInt(),
-          nonce: remoteTransaction.nonce,
-          gasLimit: remoteTransaction.gasLimit.toBigInt(),
-          gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
-          gasUsed: remoteTransaction.gasLimit.toBigInt(),
-          data: remoteTransaction.data,
-        },
-        status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
-        date: new Date(),
-        address: {
-          from: remoteTransaction.from,
-          to: recipientAddress || remoteTransaction.to,
-        },
-        nft: {
-          address: nft.address,
-          tokenId: nft.tokenId,
-          imageUrl: nft.imageUrl,
-          name: nft.name,
-          collectionName: nft.collectionName,
-        },
-      }
-      this.saveActivity(chainId, activity)
-      if (!remoteTransaction?.blockNumber) {
-        const txInterval = setInterval(async () => {
-          const remoteTransaction =
-            await accountHandler.provider.getTransaction(txHash)
-          if (remoteTransaction?.blockNumber) {
-            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
-            clearInterval(txInterval)
+      if (chainType === ChainType.solana_cv25519) {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as SolanaAccountHandler
+        const tx = await accountHandler.getTransaction(txHash)
+        if (!tx) {
+          setTimeout(() => {
+            this.fetchAndSaveNFTActivityFromHash({
+              txHash,
+              chainId,
+              nft,
+              recipientAddress,
+              chainType,
+            })
+          }, 2000)
+        } else {
+          const activity: Activity = {
+            operation: 'Send',
+            txHash,
+            transaction: {
+              hash: txHash,
+              amount: BigInt(tx.meta?.fee as number),
+              nonce: tx.slot,
+              computeUnitsConsumed: BigInt(tx.meta?.computeUnitsConsumed ?? 0),
+              fee: BigInt(tx.meta?.fee as number),
+            },
+            status: 'Success',
+            date: new Date(),
+            address: {
+              from: userStore.walletAddress,
+              to: recipientAddress,
+            },
+            nft: {
+              address: nft.address,
+              tokenId: nft.tokenId,
+              imageUrl: nft.imageUrl,
+              name: nft.name,
+              collectionName: nft.collectionName,
+            },
           }
-        }, 3000)
+          this.saveActivity(chainId, activity)
+        }
+      } else {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as EVMAccountHandler
+        const remoteTransaction = await getRemoteTransaction(
+          accountHandler,
+          txHash
+        )
+        const activity: Activity = {
+          operation: 'Send',
+          txHash,
+          transaction: {
+            hash: txHash,
+            amount: remoteTransaction.value.toBigInt(),
+            nonce: remoteTransaction.nonce,
+            gasLimit: remoteTransaction.gasLimit.toBigInt(),
+            gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+            gasUsed: remoteTransaction.gasLimit.toBigInt(),
+            data: remoteTransaction.data,
+          },
+          status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+          date: new Date(),
+          address: {
+            from: remoteTransaction.from,
+            to: recipientAddress || remoteTransaction.to,
+          },
+          nft: {
+            address: nft.address,
+            tokenId: nft.tokenId,
+            imageUrl: nft.imageUrl,
+            name: nft.name,
+            collectionName: nft.collectionName,
+          },
+        }
+        this.saveActivity(chainId, activity)
+        if (!remoteTransaction?.blockNumber) {
+          const txInterval = setInterval(async () => {
+            const remoteTransaction =
+              await accountHandler.provider.getTransaction(txHash)
+            if (remoteTransaction?.blockNumber) {
+              this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+              clearInterval(txInterval)
+            }
+          }, 3000)
+        }
       }
     },
     async saveFileActivity(
