@@ -146,7 +146,12 @@ function calculateSolanaTotal(activity) {
 }
 
 function generateExplorerURL(explorerUrl: string, txHash: string) {
-  return new URL(`/tx/${txHash}`, explorerUrl).toString()
+  const urlFormatExplorerUrl = new URL(explorerUrl)
+  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  if (urlFormatExplorerUrl.search) {
+    actualTxUrl.search = urlFormatExplorerUrl.search
+  }
+  return actualTxUrl.href
 }
 </script>
 
@@ -237,7 +242,11 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
-            >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
+            >{{
+              new Decimal(activity.customToken.amount)
+                .toDecimalPlaces(5)
+                .toString()
+            }}
             {{ activity.customToken.symbol }}</span
           >
           <span
@@ -347,6 +356,19 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                 <div class="flex justify-between">
                   <span>Amount</span>
                   <span
+                    v-if="activity.customToken"
+                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+                  >
+                    {{
+                      new Decimal(activity.customToken.amount)
+                        .toDecimalPlaces(5)
+                        .toString()
+                    }}
+                    {{ activity.customToken.symbol }}
+                  </span>
+                  <span
+                    v-else
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}

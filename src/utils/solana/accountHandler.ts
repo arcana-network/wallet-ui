@@ -3,10 +3,15 @@ import {
   mplTokenMetadata,
   fetchAllDigitalAssetByOwner,
 } from '@metaplex-foundation/mpl-token-metadata'
-import { PublicKey, some } from '@metaplex-foundation/umi'
+import { PublicKey as PublicKeyUmi } from '@metaplex-foundation/umi'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import { signAsync as ed25519Sign } from '@noble/ed25519'
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from '@solana/spl-token'
+import {
+  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
+  getOrCreateAssociatedTokenAccount,
+  createTransferInstruction,
+} from '@solana/spl-token'
 import {
   Commitment,
   Connection,
@@ -14,15 +19,27 @@ import {
   VersionedMessage,
   VersionedTransaction,
   GetProgramAccountsFilter,
+  PublicKey,
+  sendAndConfirmTransaction,
+  Transaction,
 } from '@solana/web3.js'
 import axios from 'axios'
 import bs58 from 'bs58'
+import Decimal from 'decimal.js'
 import { ethers } from 'ethers'
 
 import { Asset } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
 import { ChainType } from '@/utils/chainType'
+import { sleep } from '@/utils/sleep'
 import { SPLTokenRegistry } from '@/utils/solana/splTokenRegistry'
+
+type SendTokenProps = {
+  to: string
+  amount: string
+  decimals: number
+  mint: string
+}
 
 export class SolanaAccountHandler {
   // conn and rpcConfig can be change
@@ -33,6 +50,8 @@ export class SolanaAccountHandler {
   // Not a hash, nor is it 20 bytes, it's the whole public key encoded with Base58
   private readonly address: string
   private readonly kp: Keypair
+  private splTokens: Asset[] = []
+  private mplNFTs: NFT[] = []
 
   constructor(privateKey: Uint8Array, rpcUrl: string) {
     this.conn = new Connection(rpcUrl, {
@@ -151,16 +170,45 @@ export class SolanaAccountHandler {
     return this.conn.getLatestBlockhash().then((res) => res.blockhash)
   }
 
-  // NFT-related functions below
-  sendCustomToken = async (...params) => {
-    return null
+  async sendCustomToken(props: SendTokenProps) {
+    const sourceAccount = await getOrCreateAssociatedTokenAccount(
+      this.conn,
+      this.kp,
+      new PublicKey(props.mint),
+      this.kp.publicKey
+    )
+    const destinationAccount = await getOrCreateAssociatedTokenAccount(
+      this.conn,
+      this.kp,
+      new PublicKey(props.mint),
+      new PublicKey(props.to)
+    )
+    const tx = new Transaction()
+    tx.add(
+      createTransferInstruction(
+        sourceAccount.address,
+        destinationAccount.address,
+        this.kp.publicKey,
+        BigInt(
+          new Decimal(props.amount)
+            .mul(Decimal.pow(10, props.decimals))
+            .floor()
+            .toNumber()
+        )
+      )
+    )
+    const latestBlockHash = await this.conn.getLatestBlockhash('confirmed')
+    tx.recentBlockhash = await latestBlockHash.blockhash
+    const signature = await sendAndConfirmTransaction(this.conn, tx, [this.kp])
+    return signature
   }
 
   async getAllUserNFTs(): Promise<NFT[]> {
+    await sleep(200)
     const umi = createUmi(this.conn.rpcEndpoint).use(mplTokenMetadata())
     const assets = await fetchAllDigitalAssetByOwner(
       umi,
-      this.kp.publicKey as unknown as PublicKey
+      this.kp.publicKey as unknown as PublicKeyUmi
     )
     const nfts: NFT[] = []
     if (assets?.length) {
@@ -199,6 +247,7 @@ export class SolanaAccountHandler {
         })
       }
     }
+    this.mplNFTs = [...nfts]
     return nfts
   }
 
@@ -206,6 +255,7 @@ export class SolanaAccountHandler {
     if (!this.splRegistry) {
       this.splRegistry = await SPLTokenRegistry.create()
     }
+    await sleep(200)
     const filters: GetProgramAccountsFilter[] = [
       {
         dataSize: 165, //size of account (bytes)
@@ -245,7 +295,16 @@ export class SolanaAccountHandler {
           image: tokenDetails?.logoURI,
         })
     })
+    this.splTokens = [...ownedSplTokens]
     return ownedSplTokens
+  }
+
+  get storedTokens() {
+    return this.splTokens
+  }
+
+  get storedNFTs() {
+    return this.mplNFTs
   }
 
   get chainType() {

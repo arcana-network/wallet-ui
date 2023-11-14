@@ -80,6 +80,7 @@ type Activity = {
     operation: string
     amount: string
     symbol: string
+    decimals?: number
   }
   nft?: {
     address: string
@@ -100,6 +101,7 @@ type CustomTokenActivity = {
   operation: 'Send' | 'Receive'
   amount: string
   symbol: string
+  decimals?: number
 }
 
 type TransactionFetchParams = {
@@ -210,18 +212,13 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             })
           }, 2000)
         } else {
-          const instructions = tx.transaction.message.instructions
-          instructions.forEach((instruction) => {
-            const parsedInstruction = instruction as ParsedInstruction
+          if (customToken) {
             const activity: Activity = {
-              operation:
-                parsedInstruction.parsed.info.source === userStore.walletAddress
-                  ? 'Send'
-                  : 'Receive',
+              operation: customToken.operation,
               txHash,
               transaction: {
                 hash: txHash,
-                amount: BigInt(parsedInstruction.parsed.info.lamports),
+                amount: BigInt(customToken.amount),
                 nonce: tx.slot,
                 computeUnitsConsumed: BigInt(
                   tx.meta?.computeUnitsConsumed as number
@@ -231,13 +228,44 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               status: 'Success',
               date: new Date(),
               address: {
-                from: parsedInstruction.parsed.info.source,
-                to:
-                  recipientAddress || parsedInstruction.parsed.info.destination,
+                from: userStore.walletAddress,
+                to: recipientAddress,
               },
+              customToken,
             }
             this.saveActivity(chainId, activity)
-          })
+          } else {
+            const instructions = tx.transaction.message.instructions
+            instructions.forEach((instruction) => {
+              const parsedInstruction = instruction as ParsedInstruction
+              const activity: Activity = {
+                operation:
+                  parsedInstruction.parsed.info.source ===
+                  userStore.walletAddress
+                    ? 'Send'
+                    : 'Receive',
+                txHash,
+                transaction: {
+                  hash: txHash,
+                  amount: BigInt(parsedInstruction.parsed.info.lamports),
+                  nonce: tx.slot,
+                  computeUnitsConsumed: BigInt(
+                    tx.meta?.computeUnitsConsumed as number
+                  ),
+                  fee: BigInt(tx.meta?.fee as number),
+                },
+                status: 'Success',
+                date: new Date(),
+                address: {
+                  from: parsedInstruction.parsed.info.source,
+                  to:
+                    recipientAddress ||
+                    parsedInstruction.parsed.info.destination,
+                },
+              }
+              this.saveActivity(chainId, activity)
+            })
+          }
         }
       } else {
         const accountHandler =
