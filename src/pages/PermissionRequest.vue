@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type JsonRpcRequest } from 'json-rpc-engine'
-import { Ref, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -37,9 +37,21 @@ const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
 const DEFAULT_THEME = 'dark'
 const showLoader = ref(true)
 const chainConfig = ref({})
-const request: Ref<JsonRpcRequest<unknown> | null> = ref(null)
 const toast = useToast()
 const appDetails = ref({})
+const pendingQueue = ref([])
+
+function onReceivingMessage(event: MessageEvent) {
+  const { type, data } = event.data
+  const hash = data.hash
+  if (type === 'request') {
+    const decodedHash = decodeHash(hash.substring(1))
+    const request = decodedHash.request
+    addToPendingQueue(request)
+  }
+}
+
+window.addEventListener('message', onReceivingMessage)
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -52,8 +64,11 @@ function postMessage(response) {
   )
 }
 
-function decodeHash(): DecodedHash {
-  const hash = window.location.hash.substring(1)
+function addToPendingQueue(request) {
+  pendingQueue.value.push(request)
+}
+
+function decodeHash(hash): DecodedHash {
   return decodeJSON(hash)
 }
 
@@ -120,10 +135,12 @@ function denyProcessing(requestId) {
 onMounted(async () => {
   try {
     showLoader.value = true
-    const decodedHash = decodeHash()
-    request.value = { ...decodedHash.request }
-    if (!checkIfMethodSupported(request.value.method as RequestMethod)) {
-      denyProcessing(request.value.id)
+    const hash = window.location.hash.substring(1)
+    const decodedHash = decodeHash(hash)
+    const request = { ...decodedHash.request }
+    addToPendingQueue(request)
+    if (!checkIfMethodSupported(request.method as RequestMethod)) {
+      denyProcessing(request.id)
       return
     }
     initStorage(decodedHash.appId)
@@ -170,6 +187,7 @@ async function onApprove(request) {
       toast.error('Please make the request again')
     } else toast.error('something went wrong')
   } finally {
+    pendingQueue.value.shift()
     showLoader.value = false
   }
 }
@@ -187,6 +205,8 @@ function onReject(request) {
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
     } else toast.error('something went wrong')
+  } finally {
+    pendingQueue.value.shift()
   }
 }
 
@@ -198,9 +218,9 @@ function isArcanaPrivateKeyRequest(method) {
   return method === ARCANA_PRIVATE_KEY_METHOD
 }
 
-function handleGasPriceInput({ value }) {
+function handleGasPriceInput(value, request) {
   const gas = value
-  const selectedRequest = request.value
+  const selectedRequest = request
   const params = selectedRequest?.params
   if (Array.isArray(params)) {
     const param = params[0]
@@ -239,7 +259,15 @@ function handleGasPriceInput({ value }) {
   <div v-if="showLoader" class="flex-1 flex justify-center">
     <AppLoader message="Please wait..." />
   </div>
-  <div v-else class="flex flex-col space-y-2 h-full">
+  <div
+    v-for="(request, index) in pendingQueue"
+    v-else
+    :key="request.id"
+    class="flex flex-col space-y-2 h-full"
+    :class="{
+      hidden: index !== 0,
+    }"
+  >
     <div class="h-1/6">
       <div class="flex space-x-2 bg-[#1F1F1F] p-4 rounded-md">
         <img
@@ -275,7 +303,9 @@ function handleGasPriceInput({ value }) {
             :request="request"
             :chain-config="chainConfig"
             :app-details="appDetails"
-            @gas-price-input="handleGasPriceInput"
+            @gas-price-input="
+              ({ value }) => handleGasPriceInput(value, request)
+            "
           />
           <SignMessageAdvancedInfo
             v-else
@@ -284,7 +314,7 @@ function handleGasPriceInput({ value }) {
         </div>
       </div>
       <div class="h-1/6">
-        <div v-if="request?.method === ARCANA_PRIVATE_KEY_METHOD">
+        <div v-if="isArcanaPrivateKeyRequest(request?.method)">
           <button
             class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
             @click="closeWindow()"
