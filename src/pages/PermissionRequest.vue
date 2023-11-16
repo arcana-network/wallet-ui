@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type RpcConfig } from '@arcana/auth'
 import { type JsonRpcRequest } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { onMounted, ref } from 'vue'
@@ -9,14 +10,12 @@ import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { getAppConfig } from '@/services/gateway.service'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
-import { AccountHandler } from '@/utils/accountHandler'
+import { CreateAccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { getImage } from '@/utils/getImage'
-import { decodeJSON } from '@/utils/hash'
 import { methodAndAction } from '@/utils/method'
 import {
   requestHandlerExists,
@@ -27,12 +26,6 @@ import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { initStorage, getStorage } from '@/utils/storageWrapper'
 import { truncateMid } from '@/utils/stringUtils'
 
-type DecodedHash = {
-  appId: string
-  chainId: string
-  request: JsonRpcRequest<unknown>
-}
-
 const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
 const WALLET_DOMAIN_DEFAULT = '*'
 const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
@@ -42,6 +35,8 @@ const chainConfig = ref({})
 const toast = useToast()
 const appDetails = ref({})
 const pendingQueue = ref<JsonRpcRequest<unknown>[]>([])
+const route = useRoute()
+const appId = route.params.appId as string
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -56,10 +51,6 @@ function postMessage(response) {
 
 function addToPendingQueue(request: JsonRpcRequest<unknown>) {
   pendingQueue.value.push(request)
-}
-
-function decodeHash(hash): DecodedHash {
-  return decodeJSON(hash)
 }
 
 function updateTheme() {
@@ -86,21 +77,18 @@ async function getAppDetails(appId: string) {
 function initAccountHandler(rpcUrl) {
   const { privateKey } = getStorage().local.getUserInfo()
   if (!requestHandlerExists()) {
-    const accountHandler = new AccountHandler(privateKey, rpcUrl)
+    const accountHandler = CreateAccountHandler(privateKey, rpcUrl)
     setRequestHandler(accountHandler)
   }
 }
 
 function setRPCConfigInRequestHandler(chainDetails) {
   const requestHandler = getRequestHandler()
-  requestHandler.setRpcConfig(formatRPCConfig(chainDetails))
+  const rpcConfig = formatRPCConfig(chainDetails)
+  requestHandler.setRpcConfig(rpcConfig)
 }
 
-function checkIfMethodSupported(method: RequestMethod) {
-  return !UNSUPPORTED_METHODS.includes(method)
-}
-
-function formatRPCConfig(config) {
+function formatRPCConfig(config): RpcConfig {
   return {
     chainId: config.chain_id,
     blockExplorerUrls: [config.exp_url],
@@ -112,30 +100,17 @@ function formatRPCConfig(config) {
   }
 }
 
-function denyProcessing(requestId) {
-  const response = {
-    jsonrpc: '2.0',
-    error: 'operation_not_supported',
-    result: null,
-    id: requestId,
-  }
-  postMessage(response)
-}
-
-const route = useRoute()
-const appId = route.params.appId as string
-
 onMounted(async () => {
   try {
     showLoader.value = true
 
     await connectToParent({
       methods: {
-        sendRequest: (r: {
+        sendRequest: async (r: {
           chainId: string
           request: JsonRpcRequest<unknown>
         }) => {
-          initFromChainId(r.chainId)
+          await initFromChainId(r.chainId)
           addToPendingQueue(r.request)
         },
       },
@@ -229,35 +204,34 @@ function handleGasPriceInput(value, request) {
   const gas = value
   const selectedRequest = request
   const params = selectedRequest?.params
-  if (Array.isArray(params)) {
-    const param = params[0]
-    if (param.type && Number(param.type) === 2) {
-      const eipGas = gas as EIP1559GasFee | null
-      if (eipGas?.maxPriorityFeePerGas) {
-        param.maxPriorityFeePerGas = eipGas.maxPriorityFeePerGas
-      } else if (eipGas?.maxPriorityFeePerGas === null) {
-        delete param.maxPriorityFeePerGas
-      }
-      if (eipGas?.maxFeePerGas) {
-        param.maxFeePerGas = eipGas.maxFeePerGas
-      } else if (eipGas?.maxFeePerGas === null) {
-        delete param.maxFeePerGas
-      }
-    } else {
-      const legacyGas = gas as LegacyGasFee | null
-      if (legacyGas?.gasPrice) {
-        param.gasPrice = legacyGas.gasPrice
-      } else if (legacyGas?.gasPrice === null) {
-        delete param.gasPrice
-      } else if ((gas as EIP1559GasFee | null)?.maxFeePerGas) {
-        param.gasPrice = (gas as EIP1559GasFee).maxFeePerGas
-      }
+  if (!Array.isArray(params)) return
+  const param = params[0]
+  if (param.type && Number(param.type) === 2) {
+    const eipGas = gas as EIP1559GasFee | null
+    if (eipGas?.maxPriorityFeePerGas) {
+      param.maxPriorityFeePerGas = eipGas.maxPriorityFeePerGas
+    } else if (eipGas?.maxPriorityFeePerGas === null) {
+      delete param.maxPriorityFeePerGas
     }
-    if (gas?.gasLimit) {
-      param.gas = gas.gasLimit
-    } else if (gas?.gasLimit === null) {
-      delete param.gas
+    if (eipGas?.maxFeePerGas) {
+      param.maxFeePerGas = eipGas.maxFeePerGas
+    } else if (eipGas?.maxFeePerGas === null) {
+      delete param.maxFeePerGas
     }
+  } else {
+    const legacyGas = gas as LegacyGasFee | null
+    if (legacyGas?.gasPrice) {
+      param.gasPrice = legacyGas.gasPrice
+    } else if (legacyGas?.gasPrice === null) {
+      delete param.gasPrice
+    } else if ((gas as EIP1559GasFee | null)?.maxFeePerGas) {
+      param.gasPrice = (gas as EIP1559GasFee).maxFeePerGas
+    }
+  }
+  if (gas?.gasLimit) {
+    param.gas = gas.gasLimit
+  } else if (gas?.gasLimit === null) {
+    delete param.gas
   }
 }
 </script>
