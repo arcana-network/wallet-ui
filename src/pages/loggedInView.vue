@@ -18,6 +18,7 @@ import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { getGaslessEnabledStatus, fetchApp } from '@/services/gateway.service'
+import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -46,6 +47,7 @@ import { getStorage } from '@/utils/storageWrapper'
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const activitiesStore = useActivitiesStore()
 const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
@@ -208,6 +210,34 @@ async function initAccountHandler() {
   }
 }
 
+async function addToActivity(request) {
+  if (request.error === 'user_closed_popup') {
+    requestStore.skippedRequests[request.req.id] = {
+      request: request.req,
+      isPermissionGranted: false,
+    }
+  } else if (request.result) {
+    if (request.req.method === 'eth_sendTransaction') {
+      await activitiesStore.fetchAndSaveActivityFromHash({
+        txHash: request.result,
+        chainId: request.chainId,
+      })
+    } else if (
+      request.req.method === 'eth_signTypedData_v4' &&
+      request.req.params[1]
+    ) {
+      const params = JSON.parse(request.req.params[1])
+      if (params.domain.name === 'Arcana Forwarder') {
+        await activitiesStore.saveFileActivity(
+          request.chainId,
+          params.message,
+          params.domain.verifyingContract
+        )
+      }
+    }
+  }
+}
+
 async function connectToParent() {
   if (!parentConnection) {
     parentConnection = createParentConnection({
@@ -218,6 +248,7 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
+      addToActivity,
       getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
