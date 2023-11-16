@@ -14,7 +14,7 @@ import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
 
-type ChainId = string
+type ChainId = string | number
 
 type TransactionOps =
   | 'Send'
@@ -210,13 +210,17 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         },
         customToken,
       }
-      this.saveActivity(chainId, activity)
+      this.saveActivity(Number(chainId), activity)
       if (!remoteTransaction?.blockNumber) {
         const txInterval = setInterval(async () => {
           const remoteTransaction =
             await accountHandler.provider.getTransaction(txHash)
           if (remoteTransaction?.blockNumber && chainId) {
-            this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+            this.updateActivityStatusByTxHash(
+              Number(chainId),
+              txHash,
+              'Success'
+            )
             clearInterval(txInterval)
           }
         }, 3000)
