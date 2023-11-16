@@ -57,7 +57,7 @@ async function init() {
     const authProvider = await getAuthProvider(`${appId}`, false, false)
     console.log('authProvider', authProvider, app.curve)
     storage.session.setCurve(app.curve)
-    const postLoginCleanup = await authProvider.checkRedirectMode()
+    const postLoginCleanup = await authProvider.handleRedirect()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {

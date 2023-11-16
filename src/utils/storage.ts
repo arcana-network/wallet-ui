@@ -345,6 +345,7 @@ class UserSessionStorage extends BaseStorage {
   }
 }
 export {
+  are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,

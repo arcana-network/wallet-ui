@@ -12,6 +12,19 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
+const getDefaultParams = () => {
+  const params: Omit<InitParams, 'appId'> = {
+    // @ts-ignore
+    network: AUTH_NETWORK,
+    autoRedirect: false,
+    debug: true,
+    shouldVerifyState: false,
+    // useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+    revokeTokenPostLogin: false,
+  }
+  return params
+}
+
 async function getAuthProvider(
   appId: string,
   shouldVerifyState = false,
@@ -19,30 +32,27 @@ async function getAuthProvider(
 ): Promise<AuthProvider> {
   if (!authProvider) {
     const appStore = useAppStore()
+    const params = getDefaultParams()
     const stor = getStorage()
 
-    const params: InitParams = {
-      appId: appId,
-      redirectUri: `${AUTH_URL}/verify/${appId}/`,
-      // @ts-ignore
-      network: AUTH_NETWORK,
-      flow: 'redirect',
-      autoRedirect: false,
-      debug: true,
-      shouldVerifyState,
-      useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
-      curve: appStore.curve,
-    }
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
-        // @ts-ignore
+        autoRedirect: false,
+        appId,
         revokeTokenPostLogin: false,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
       })
-      // @ts-ignore
       await authProvider.init()
     } else {
-      authProvider = await AuthProvider.init(params)
+      authProvider = await AuthProvider.init({
+        ...params,
+        autoRedirect: false,
+        appId,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+      })
     }
     // TODO find a comprehensive solution to this
     // @ts-ignore
@@ -58,4 +68,4 @@ async function getAuthProvider(
   return authProvider
 }
 
-export { getAuthProvider }
+export { getAuthProvider, getDefaultParams }

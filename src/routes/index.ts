@@ -5,6 +5,7 @@ import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import InitPage from '@/pages/backCompat/initPage.vue'
 import SignIn from '@/pages/backCompat/signIn.vue'
+import GlobalRedirect from '@/pages/globalRedirect.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
@@ -28,6 +29,10 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
     component: SignIn,
+  },
+  {
+    path: '/global-redirect',
+    component: GlobalRedirect,
   },
   {
     path: '/:appId/redirect/',
