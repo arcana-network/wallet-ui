@@ -238,7 +238,7 @@ async function addToActivity(request) {
     if (request.req.method === 'eth_sendTransaction') {
       await activitiesStore.fetchAndSaveActivityFromHash({
         txHash: request.result,
-        chainId: request.chainId,
+        chainId: `${Number(request.chainId)}`,
       })
     } else if (
       request.req.method === 'eth_signTypedData_v4' &&
@@ -247,7 +247,7 @@ async function addToActivity(request) {
       const params = JSON.parse(request.req.params[1])
       if (params.domain.name === 'Arcana Forwarder') {
         await activitiesStore.saveFileActivity(
-          request.chainId,
+          `${Number(request.chainId)}`,
           params.message,
           params.domain.verifyingContract
         )
