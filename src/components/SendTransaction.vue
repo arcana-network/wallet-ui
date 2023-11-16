@@ -252,7 +252,10 @@ function calculateCurrencyValue(value) {
           </span>
         </span>
       </div>
-      <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
+      <div
+        v-if="request.request.params[0].data"
+        class="flex flex-col gap-1 h-40"
+      >
         <span>Data</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>

@@ -160,7 +160,7 @@ function isDeprecatedMethod() {
       :params="props.request.request.token"
       class="flex flex-col gap-1"
     />
-    <div v-else class="flex flex-col gap-1">
+    <div v-else class="flex flex-col gap-1 h-80">
       <div class="text-sm">Message</div>
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
