@@ -297,11 +297,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             const remoteTransaction =
               await accountHandler.provider.getTransaction(txHash)
             if (remoteTransaction?.blockNumber && chainId) {
-              this.updateActivityStatusByTxHash(
-                Number(chainId),
-                txHash,
-                'Success'
-              )
+              this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
               clearInterval(txInterval)
             }
           }, 3000)
