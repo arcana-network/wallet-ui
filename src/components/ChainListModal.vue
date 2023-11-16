@@ -46,14 +46,14 @@ function handleFallbackLogo(event) {
         class="flex items-center gap-2"
       >
         <input
-          :id="chain.chainId"
+          :id="String(chain.chainId)"
           v-model="selectedRPCConfig"
           type="radio"
           :value="chain"
           name="chain"
           class="radio"
         />
-        <label class="flex items-center gap-2" :for="chain.chainId">
+        <label class="flex items-center gap-2" :for="String(chain.chainId)">
           <img
             :src="getChainLogoUrl(chain)"
             class="w-xl h-xl"

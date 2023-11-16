@@ -4,10 +4,13 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 const refreshIconAnimating = ref(false)
 const loader = ref({
   show: false,
@@ -26,7 +29,9 @@ function hideLoader() {
 
 onMounted(() => {
   try {
-    if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
+    if (
+      Number(rpcStore.walletBalanceChainId) !== Number(rpcStore.selectedChainId)
+    ) {
       handleChainChange()
     } else {
       rpcStore.getWalletBalance()
@@ -42,6 +47,7 @@ onBeforeUnmount(rpcStore.cleanUpBalancePolling)
 async function handleChainChange() {
   showLoader('Fetching Wallet Balance...')
   try {
+    rpcStore.walletBalance = '0'
     await sleep(100)
     await rpcStore.getWalletBalance()
   } catch (err) {
@@ -63,7 +69,9 @@ async function handleRefresh() {
 }
 
 rpcStore.$subscribe(() => {
-  if (rpcStore.walletBalanceChainId !== rpcStore.selectedChainId) {
+  if (
+    Number(rpcStore.walletBalanceChainId) !== Number(rpcStore.selectedChainId)
+  ) {
     handleChainChange()
   }
 })

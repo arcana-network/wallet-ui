@@ -9,7 +9,7 @@ import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { type RequestMethod, UNSUPPORTED_METHODS } from '@/models/Connection'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { fetchApp } from '@/services/gateway.service'
+import { getAppConfig } from '@/services/gateway.service'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { AccountHandler } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
@@ -89,7 +89,7 @@ async function getChainDetails(appId: string, chainId: string) {
 }
 
 async function getAppDetails(appId: string) {
-  const { data } = await fetchApp(appId)
+  const { data } = await getAppConfig(appId)
   return data
 }
 

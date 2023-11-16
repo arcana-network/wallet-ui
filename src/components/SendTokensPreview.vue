@@ -3,10 +3,13 @@ import { Decimal } from 'decimal.js'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps({
@@ -18,9 +21,12 @@ const props = defineProps({
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees = new Decimal(props.previewData.gasFee)
-  .mul(props.previewData.estimatedGas)
-  .toString()
+const txFees =
+  appStore.chainType === ChainType.evm_secp256k1
+    ? new Decimal(props.previewData.gasFee)
+        .mul(props.previewData.estimatedGas)
+        .toString()
+    : undefined
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
@@ -67,7 +73,7 @@ function truncateAddress(address: string) {
             {{ props.previewData.selectedToken }}</span
           >
         </div>
-        <div class="flex justify-between">
+        <div v-if="txFees" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fees</span>
           <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
         </div>

@@ -1,6 +1,7 @@
 import { ethers } from 'ethers'
 
 import ABI from '@/abis/erc20.abi.json'
+import { EVMAccountHandler } from '@/utils/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type ContractParams = {
@@ -14,7 +15,8 @@ type SymbolDecimalResponse = {
 }
 
 async function getTokenBalance(data: ContractParams): Promise<string> {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const ethersContract = new ethers.Contract(
     data.contractAddress,
     ABI,
@@ -29,7 +31,8 @@ async function getTokenBalance(data: ContractParams): Promise<string> {
 async function getTokenSymbolAndDecimals(
   data: Omit<ContractParams, 'walletAddress'>
 ): Promise<SymbolDecimalResponse> {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const ethersContract = new ethers.Contract(
     data.contractAddress,
     ABI,

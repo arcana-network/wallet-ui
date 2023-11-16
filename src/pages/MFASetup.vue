@@ -12,6 +12,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
@@ -34,6 +35,7 @@ const showSuccessScreen = ref(false)
 const showPinError = ref('')
 const pinToEncryptMFAShare = ref('')
 const passwordType = ref('password')
+const app = useAppStore()
 
 const securityQuestionModule = new SecurityQuestionModule(3)
 
@@ -48,6 +50,8 @@ const customPlaceholders: Ref<string[]> = ref(
 initStorage(String(route.params.appId))
 
 const storage = getStorage()
+
+app.curve = storage.local.getCurve()
 
 document.documentElement.classList.add('dark')
 
@@ -72,13 +76,14 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  const core = new Core(
-    dkgShare.pk,
-    dkgShare.id,
-    String(route.params.appId),
-    GATEWAY_URL,
-    AUTH_NETWORK === 'dev'
-  )
+  const core = new Core({
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId: String(route.params.appId),
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: app.curve,
+  })
   try {
     await core.init()
   } catch (e) {
