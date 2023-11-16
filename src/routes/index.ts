@@ -68,7 +68,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     name: 'PermissionRequest',
-    path: '/permission',
+    path: '/:appId/permission',
     component: PermissionRequest,
   },
   {

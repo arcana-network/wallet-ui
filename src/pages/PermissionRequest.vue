@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { type JsonRpcRequest } from 'json-rpc-engine'
+import { connectToParent } from 'penpal'
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -39,19 +41,7 @@ const showLoader = ref(true)
 const chainConfig = ref({})
 const toast = useToast()
 const appDetails = ref({})
-const pendingQueue = ref([])
-
-function onReceivingMessage(event: MessageEvent) {
-  const { type, data } = event.data
-  const hash = data.hash
-  if (type === 'request') {
-    const decodedHash = decodeHash(hash.substring(1))
-    const request = decodedHash.request
-    addToPendingQueue(request)
-  }
-}
-
-window.addEventListener('message', onReceivingMessage)
+const pendingQueue = ref<JsonRpcRequest<unknown>[]>([])
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -64,7 +54,7 @@ function postMessage(response) {
   )
 }
 
-function addToPendingQueue(request) {
+function addToPendingQueue(request: JsonRpcRequest<unknown>) {
   pendingQueue.value.push(request)
 }
 
@@ -132,38 +122,55 @@ function denyProcessing(requestId) {
   postMessage(response)
 }
 
+const route = useRoute()
+const appId = route.params.appId as string
+
 onMounted(async () => {
   try {
     showLoader.value = true
-    const hash = window.location.hash.substring(1)
-    const decodedHash = decodeHash(hash)
-    const request = { ...decodedHash.request }
-    addToPendingQueue(request)
-    if (!checkIfMethodSupported(request.method as RequestMethod)) {
-      denyProcessing(request.id)
-      return
-    }
-    initStorage(decodedHash.appId)
+
+    await connectToParent({
+      methods: {
+        sendRequest: (r: {
+          chainId: string
+          request: JsonRpcRequest<unknown>
+        }) => {
+          initFromChainId(r.chainId)
+          addToPendingQueue(r.request)
+        },
+      },
+    }).promise
+    // V Add this for other requests
+    // if (!checkIfMethodSupported(request.method as RequestMethod)) {
+    //   denyProcessing(request.id)
+    //   return
+    // }
+    initStorage(appId)
     updateTheme()
-    const chainDetails = await getChainDetails(
-      decodedHash.appId,
-      decodedHash.chainId
-    )
-    const info = await getAppDetails(decodedHash.appId)
+    const info = await getAppDetails(appId)
     appDetails.value = info
     const wallet_domain = info.wallet_domain
     walletDomain.value = wallet_domain.length
       ? wallet_domain
       : WALLET_DOMAIN_DEFAULT
-    chainConfig.value = { ...chainDetails }
-    initAccountHandler(chainDetails.rpc_url)
-    setRPCConfigInRequestHandler(chainDetails)
   } catch (e) {
     console.log(e)
   } finally {
     showLoader.value = false
   }
 })
+
+let chainInit = false
+
+async function initFromChainId(chainId: string) {
+  if (!chainInit) {
+    chainInit = true
+    const chainDetails = await getChainDetails(appId, chainId)
+    chainConfig.value = { ...chainDetails }
+    initAccountHandler(chainDetails.rpc_url)
+    setRPCConfigInRequestHandler(chainDetails)
+  }
+}
 
 async function onApprove(request) {
   try {
