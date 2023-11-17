@@ -5,7 +5,6 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
-import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -15,7 +14,6 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
-import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
@@ -40,7 +38,7 @@ const loader = ref({
 const {
   info: { email, name },
 } = user
-const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
+const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
@@ -65,23 +63,47 @@ async function handleLogout() {
   parentConnectionInstance?.onEvent('disconnect')
 }
 
-async function handleProceed() {
-  const isGlobalKeyspace = appStore.global
-  if (!isGlobalKeyspace) {
-    const parentConnectionInstance = await parentConnection?.promise
-    const data = {
-      method: '_arcana_privateKey',
-      params: {
-        privateKey: user.privateKey,
-        walletAddress: user.walletAddress,
-      },
-    }
-    parentConnectionInstance?.requestFromWallet(data)
-    handleHidePrivateKeyCautionModal()
-  } else {
-    showPrivateKeyCautionModal.value = false
-    showExportKeyModal.value = true
+function percentToByte(p: string) {
+  return String.fromCharCode(parseInt(p.slice(1), 16))
+}
+
+function btoaUTF8(str: string): string {
+  return window.btoa(
+    encodeURIComponent(str).replace(/%[0-9A-F]{2}/g, percentToByte)
+  )
+}
+
+function encodeJSONToBase64(options: unknown): string {
+  return escape(btoaUTF8(JSON.stringify(options)))
+}
+
+function escape(str: string) {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
+function createRequestUrl(data: any) {
+  const r = {
+    appId: appId,
+    chainId: rpcStore.selectedChainId,
+    request: data,
   }
+  const u = new URL('/permission/', AUTH_URL)
+  const hash = encodeJSONToBase64(r)
+  u.hash = hash
+  return u.href
+}
+
+function handleProceed() {
+  const data = {
+    method: '_arcana_privateKey',
+    params: {
+      privateKey: user.privateKey,
+      walletAddress: user.walletAddress,
+    },
+  }
+
+  window.open(createRequestUrl(data), '_blank')
+  handleHidePrivateKeyCautionModal()
 }
 
 function handleShowPrivateKeyCautionModal() {
@@ -92,18 +114,6 @@ function handleShowPrivateKeyCautionModal() {
 function handleHidePrivateKeyCautionModal() {
   modalStore.setShowModal(false)
   showPrivateKeyCautionModal.value = false
-}
-
-function handleHideExportKeyModal() {
-  modalStore.setShowModal(false)
-  showExportKeyModal.value = false
-}
-
-function handlePrivateKeyDownload() {
-  const fileData = new Blob([privateKey.value], {
-    type: 'text/plain',
-  })
-  downloadFile(`${walletAddress.value}-private-key.txt`, fileData)
 }
 
 function handleShowMFAProceedModal(show: boolean) {
@@ -282,14 +292,6 @@ watch(
         v-if="showPrivateKeyCautionModal"
         @proceed="handleProceed"
         @close="handleHidePrivateKeyCautionModal"
-      />
-      <ExportKeyModal
-        v-if="showExportKeyModal"
-        :private-key="privateKey"
-        :wallet-address="walletAddress"
-        @copy="copyToClipboard(privateKey, 'Private key copied')"
-        @download="handlePrivateKeyDownload"
-        @close="handleHideExportKeyModal"
       />
       <MFAProceedModal
         v-if="showMFAProceedModal"
