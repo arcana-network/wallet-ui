@@ -90,9 +90,7 @@ type ParentConnectionApi = {
   uiEvent(event: string, val: any): void
   triggerSocialLogin(type: SocialLoginType): void
   triggerPasswordlessLogin(email: string): void
-  requestFromWallet(request: object): void
 }
-
 type InitParentConnectionApi = {
   getParentUrl(): string
   getLoginSource(): string
