@@ -34,6 +34,7 @@ type AppState = {
   isMfaEnabled: boolean
   chainType: ChainType
   curve: CURVE
+  global?: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -142,6 +143,9 @@ export const useAppStore = defineStore('app', {
     },
     setAppLogo(logo: AppLogo): void {
       this.appLogo = logo
+    },
+    setIsGlobalKeyspace(global: boolean): void {
+      this.global = global
     },
   },
 })

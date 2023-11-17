@@ -74,7 +74,9 @@ onBeforeMount(() => {
 
 async function getKeySpaceType() {
   const { data } = await getAppConfig(appStore.id)
-  if (data.global) keyspaceType.value = 'global'
+  const global = data.global
+  appStore.setIsGlobalKeyspace(global)
+  if (global) keyspaceType.value = 'global'
   else keyspaceType.value = 'local'
 }
 
