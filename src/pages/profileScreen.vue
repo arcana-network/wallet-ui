@@ -63,47 +63,43 @@ async function handleLogout() {
   parentConnectionInstance?.onEvent('disconnect')
 }
 
-function percentToByte(p: string) {
-  return String.fromCharCode(parseInt(p.slice(1), 16))
+const waitForLoad = () => {
+  return new Promise((resolve) => {
+    const handler = (ev: MessageEvent) => {
+      if (ev.data.type === 'READY_TO_RECEIVE') {
+        window.removeEventListener('message', handler)
+        resolve('ok')
+      }
+    }
+    window.addEventListener('message', handler, false)
+  })
 }
 
-function btoaUTF8(str: string): string {
-  return window.btoa(
-    encodeURIComponent(str).replace(/%[0-9A-F]{2}/g, percentToByte)
-  )
-}
-
-function encodeJSONToBase64(options: unknown): string {
-  return escape(btoaUTF8(JSON.stringify(options)))
-}
-
-function escape(str: string) {
-  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
-function createRequestUrl(data: any) {
-  const r = {
-    appId: appId,
-    chainId: rpcStore.selectedChainId,
-    request: data,
+async function handleProceed() {
+  const isGlobalKeyspace = appStore.global
+  if (isGlobalKeyspace) {
+    const request = {
+      method: '_arcana_privateKey',
+      params: {
+        privateKey: user.privateKey,
+        walletAddress: user.walletAddress,
+      },
+    }
+    const u = new URL(`/${appId}/permission/`, AUTH_URL)
+    const openedWindow = window.open(u.href, '_blank', getWindowFeatures())
+    await waitForLoad()
+    openedWindow?.postMessage(
+      {
+        type: 'json_rpc_request',
+        data: { chainId: rpcStore.selectedChainId, request },
+      },
+      AUTH_URL
+    )
+    handleHidePrivateKeyCautionModal()
+  } else {
+    showPrivateKeyCautionModal.value = false
+    showExportKeyModal.value = true
   }
-  const u = new URL('/permission/', AUTH_URL)
-  const hash = encodeJSONToBase64(r)
-  u.hash = hash
-  return u.href
-}
-
-function handleProceed() {
-  const data = {
-    method: '_arcana_privateKey',
-    params: {
-      privateKey: user.privateKey,
-      walletAddress: user.walletAddress,
-    },
-  }
-
-  window.open(createRequestUrl(data), '_blank')
-  handleHidePrivateKeyCautionModal()
 }
 
 function handleShowPrivateKeyCautionModal() {
