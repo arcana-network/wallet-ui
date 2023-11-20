@@ -282,8 +282,15 @@ async function handleSendToken() {
     clearForm()
     router.push({ name: 'home' })
     toast.success('Tokens sent Successfully')
-  } catch (err: any) {
-    toast.error(err.reason || 'Something went wrong')
+  } catch (error: any) {
+    const displayMessage =
+      ((error?.data?.originalError?.error?.message ||
+        error?.data?.originalError?.reason ||
+        error?.data?.originalError?.code ||
+        error?.error?.message ||
+        error?.message ||
+        error?.reason) as string) || 'Something went wrong'
+    toast.error(displayMessage)
   } finally {
     showPreview.value = false
     hideLoader()
