@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { type RpcConfig } from '@arcana/auth'
+import {
+  PublicKey,
+  SystemProgram,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
+import { Decimal } from 'decimal.js'
 import { type JsonRpcRequest } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { onMounted, ref } from 'vue'
@@ -14,8 +21,13 @@ import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { getAppConfig } from '@/services/gateway.service'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
-import { CreateAccountHandler } from '@/utils/accountHandler'
+import {
+  CreateAccountHandler,
+  EVMAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
 import {
@@ -149,6 +161,11 @@ async function initFromChainId(chainId: string) {
   }
 }
 
+function setHexPrefix(value: string) {
+  const hexPrefix = '0x'
+  return value.startsWith(hexPrefix) ? value : `${hexPrefix}${value}`
+}
+
 async function onApprove(request) {
   try {
     showLoader.value = true
@@ -195,7 +212,105 @@ function onReject(request) {
 }
 
 async function handleSendToken(params) {
-  console.log(params, 'params')
+  const tokenDetails = JSON.parse(params.tokenDetails)
+  const tokenList = JSON.parse(params.tokenList)
+  const gas = JSON.parse(params.gas)
+  try {
+    showLoader.value = true
+    if (params.chainType === ChainType.solana_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as SolanaAccountHandler
+      if (params.selectedToken === chainConfig.value.currency) {
+        const blockHash = await accountHandler.getLatestBlockHash()
+        const pk = accountHandler.publicKey
+        const toPk = new PublicKey(params.recipientWalletAddress)
+        const instructions = [
+          SystemProgram.transfer({
+            fromPubkey: pk,
+            toPubkey: toPk,
+            lamports: new Decimal(params.amount)
+              .mul(Decimal.pow(10, 9))
+              .toNumber(),
+          }),
+        ]
+        const messageV0 = new TransactionMessage({
+          payerKey: pk,
+          recentBlockhash: blockHash,
+          instructions,
+        }).compileToV0Message()
+        let transaction = new VersionedTransaction(messageV0)
+        const transactionSent = await accountHandler.signAndSendTransaction(
+          transaction.serialize()
+        )
+        return transactionSent
+      } else {
+        const sig = await accountHandler.sendCustomToken({
+          to: params.recipientWalletAddress,
+          amount: params.amount,
+          mint: tokenDetails.address,
+          decimals: tokenDetails.decimals,
+        })
+        const tokenInfo = tokenList.find(
+          (item) => item.address === tokenDetails.address
+        )
+        return sig
+      }
+    } else {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
+      let gasFees: string | null = null
+      if (gas) {
+        const maxFee = new Decimal(gas.maxFeePerGas).add(
+          gas.maxPriorityFeePerGas || 1.5
+        )
+        const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+        gasFees = maxFeeInWei.toHexadecimal()
+      }
+      if (params.selectedToken === chainConfig.value.currency) {
+        const payload: any = {
+          to: setHexPrefix(params.recipientWalletAddress),
+          value: new Decimal(params.amount)
+            .mul(Decimal.pow(10, 18))
+            .toHexadecimal(),
+          from: params.senderWalletAddress,
+        }
+
+        if (gasFees) {
+          payload.gasPrice = gasFees
+        }
+        payload.gasLimit = gas?.gasLimit || params.estimatedGas
+
+        const txHash = await accountHandler.sendTransaction(
+          payload,
+          params.senderWalletAddress
+        )
+        return txHash
+      } else {
+        const tokenInfo = tokenList.value.find(
+          (item) => item.address === params.selectedToken.address
+        )
+        const sendAmount = tokenInfo?.decimals
+          ? new Decimal(params.amount)
+              .mul(Decimal.pow(10, tokenInfo.decimals))
+              .toHexadecimal()
+          : new Decimal(params.amount).toHexadecimal()
+        const transactionHash = await accountHandler.sendCustomToken(
+          tokenInfo?.address,
+          setHexPrefix(params.recipientWalletAddress),
+          sendAmount,
+          gasFees,
+          params.estimatedGas
+        )
+        return transactionHash
+      }
+    }
+  } catch (err: any) {
+    console.log(err)
+    toast.error(err.reason || 'Something went wrong')
+  } finally {
+    pendingQueue.value.shift()
+    showLoader.value = false
+  }
 }
 
 function closeWindow() {
