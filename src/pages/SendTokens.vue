@@ -358,7 +358,8 @@ async function handleShowPreview() {
     if (recipientWalletAddress.value && amount.value && gas.value) {
       showLoader('Loading preview...')
       try {
-        const accountHandler = getRequestHandler().getAccountHandler()
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as EVMAccountHandler
         if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
           estimatedGas.value = (
             await accountHandler.provider.estimateGas({

@@ -222,10 +222,15 @@ async function handleSendToken() {
       }
     }
     router.push({ name: 'Nfts' })
-  } catch (err: any) {
-    if (err && err.reason) {
-      toast.error(err.reason)
-    }
+  } catch (error: any) {
+    const displayMessage =
+      ((error?.data?.originalError?.error?.message ||
+        error?.data?.originalError?.reason ||
+        error?.data?.originalError?.code ||
+        error?.error?.message ||
+        error?.message ||
+        error?.reason) as string) || 'Something went wrong'
+    toast.error(displayMessage)
   } finally {
     showPreview.value = false
     emit('close')
