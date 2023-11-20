@@ -5,11 +5,7 @@ import { useToast } from 'vue-toastification'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import { router } from '@/routes'
-import {
-  openRequestWindow,
-  waitForLoad,
-  sendRequest,
-} from '@/services/request.service'
+import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -56,10 +52,7 @@ const onProceedClick = async (request) => {
       },
     }
   }
-
-  const openedWindow = await openRequestWindow(appStore.id)
-  await waitForLoad()
-  sendRequest(getRequestObject(), openedWindow)
+  await makeRequest(appStore.id, getRequestObject())
   delete requestStore.skippedRequests[request.id]
 }
 

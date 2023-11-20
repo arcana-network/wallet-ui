@@ -1,7 +1,7 @@
 import { AUTH_URL } from '@/utils/constants'
 import { getWindowFeatures } from '@/utils/popupProps'
 
-let openedWindow
+let openedWindow: Window | null = null
 
 function waitForLoad() {
   return new Promise((resolve) => {
@@ -15,17 +15,15 @@ function waitForLoad() {
   })
 }
 
-function openRequestWindow(appId: string) {
+async function makeRequest(appId, request) {
   const u = new URL(`/${appId}/permission/`, AUTH_URL)
-  if (!openedWindow) {
+  if (!openedWindow?.window) {
     openedWindow = window.open(u.href, '_blank', getWindowFeatures())
+    await waitForLoad()
   }
-  openedWindow.focus()
+  openedWindow?.focus()
+  openedWindow?.postMessage(request, AUTH_URL)
   return openedWindow
 }
 
-function sendRequest(request, openedWindow) {
-  openedWindow.postMessage(request, AUTH_URL)
-}
-
-export { waitForLoad, openRequestWindow, sendRequest }
+export { waitForLoad, makeRequest }

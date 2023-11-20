@@ -13,11 +13,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import {
-  openRequestWindow,
-  waitForLoad,
-  sendRequest,
-} from '@/services/request.service'
+import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
@@ -415,9 +411,7 @@ async function handleShowPreview() {
             },
           }
 
-          const openedWindow = await openRequestWindow(appStore.id)
-          await waitForLoad()
-          sendRequest(requestObject, openedWindow)
+          makeRequest(appStore.id, requestObject)
         } else {
           showPreview.value = true
         }

@@ -8,11 +8,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
-import {
-  openRequestWindow,
-  waitForLoad,
-  sendRequest,
-} from '@/services/request.service'
+import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -88,9 +84,7 @@ function getRequestObject() {
 async function handleProceed() {
   const isGlobalKeyspace = appStore.global
   if (!isGlobalKeyspace) {
-    const openedWindow = await openRequestWindow(appId)
-    await waitForLoad()
-    sendRequest(getRequestObject(), openedWindow)
+    await makeRequest(appId, getRequestObject())
     handleHidePrivateKeyCautionModal()
   } else {
     showPrivateKeyCautionModal.value = false
