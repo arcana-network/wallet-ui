@@ -26,7 +26,7 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
+const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -293,7 +293,15 @@ function calculateCurrencyValue(value) {
       />
     </div>
     <div class="mt-auto flex flex-col gap-4">
-      <div class="flex gap-2">
+      <div v-if="request.requestOrigin === 'auth-verify'">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('proceed')"
+        >
+          Proceed
+        </button>
+      </div>
+      <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
           @click="emits('reject')"
