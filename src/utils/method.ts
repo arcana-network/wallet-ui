@@ -9,6 +9,7 @@ const evmMethodAndAction = {
   wallet_switchEthereumChain: 'Switch Chain',
   wallet_watchAsset: 'Add Token',
   _arcana_privateKey: 'Export Private Key',
+  _send_token: 'Send Token',
 }
 
 const solanaMethodAndAction = {

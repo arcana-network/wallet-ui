@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { useRoute } from 'vue-router'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
@@ -10,6 +11,8 @@ import { getImage } from '@/utils/getImage'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
+const route = useRoute()
+const isPermissionRequestPage = route.name === 'PermissionRequest'
 
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps({
@@ -36,7 +39,10 @@ function truncateAddress(address: string) {
 <template>
   <div class="flex flex-col justify-between">
     <div class="flex flex-col gap-7">
-      <div class="relative flex justify-center items-center">
+      <div
+        v-if="!isPermissionRequestPage"
+        class="relative flex justify-center items-center"
+      >
         <button
           class="absolute left-0"
           title="Click to go back"
@@ -79,6 +85,10 @@ function truncateAddress(address: string) {
         </div>
       </div>
     </div>
-    <SwipeToAction @approve="emits('submit')" @reject="emits('close')" />
+    <SwipeToAction
+      v-if="!isPermissionRequestPage"
+      @approve="emits('submit')"
+      @reject="emits('close')"
+    />
   </div>
 </template>

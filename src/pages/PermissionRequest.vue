@@ -9,6 +9,7 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
+import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { getAppConfig } from '@/services/gateway.service'
@@ -27,6 +28,7 @@ import { initStorage, getStorage } from '@/utils/storageWrapper'
 import { truncateMid } from '@/utils/stringUtils'
 
 const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
+const ARCANA_SEND_TOKEN_METHOD = '_send_token'
 const WALLET_DOMAIN_DEFAULT = '*'
 const walletDomain = ref(WALLET_DOMAIN_DEFAULT)
 const DEFAULT_THEME = 'dark'
@@ -192,12 +194,20 @@ function onReject(request) {
   }
 }
 
+async function handleSendToken(params) {
+  console.log(params, 'params')
+}
+
 function closeWindow() {
   window.parent.close()
 }
 
 function isArcanaPrivateKeyRequest(method) {
   return method === ARCANA_PRIVATE_KEY_METHOD
+}
+
+function isSendTokenRequest(method) {
+  return method === ARCANA_SEND_TOKEN_METHOD
 }
 
 function handleGasPriceInput(value, request) {
@@ -288,6 +298,18 @@ function handleGasPriceInput(value, request) {
             :wallet-address="request.params.walletAddress"
           />
         </div>
+        <div v-else-if="request?.method === ARCANA_SEND_TOKEN_METHOD">
+          <SendTokensPreview
+            :preview-data="{
+              senderWalletAddress: request.params.senderWalletAddress,
+              recipientWalletAddress: request.params.recipientWalletAddress,
+              amount: request.params.amount,
+              gasFee: request.params.gasFee,
+              selectedToken: request.params.selectedToken,
+              estimatedGas: request.params.estimatedGas,
+            }"
+          />
+        </div>
         <div v-else class="h-full">
           <SendTransaction
             v-if="isSendTransactionRequest(request?.method)"
@@ -311,6 +333,14 @@ function handleGasPriceInput(value, request) {
             @click="closeWindow()"
           >
             close tab
+          </button>
+        </div>
+        <div v-else-if="isSendTokenRequest(request?.method)">
+          <button
+            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            @click="handleSendToken(request.params)"
+          >
+            Send
           </button>
         </div>
         <div v-else class="flex gap-2">

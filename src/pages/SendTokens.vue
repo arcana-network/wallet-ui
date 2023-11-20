@@ -13,6 +13,11 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
+import {
+  openRequestWindow,
+  waitForLoad,
+  sendRequest,
+} from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
@@ -386,7 +391,32 @@ async function handleShowPreview() {
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
-        showPreview.value = true
+        const isGlobalKeyspace = appStore.global
+        if (!isGlobalKeyspace) {
+          const requestObject = {
+            type: 'json_rpc_request',
+            data: {
+              request: {
+                method: '_send_token',
+                params: {
+                  senderWalletAddress: userStore.walletAddress,
+                  recipientWalletAddress: recipientWalletAddress.value,
+                  amount: amount.value,
+                  gasFee: gasFeeInEth.value,
+                  selectedToken: selectedToken.value.symbol as string,
+                  estimatedGas: estimatedGas.value,
+                },
+              },
+              chainId: rpcStore.selectedChainId,
+            },
+          }
+
+          const openedWindow = await openRequestWindow(appStore.id)
+          await waitForLoad()
+          sendRequest(requestObject, openedWindow)
+        } else {
+          showPreview.value = true
+        }
       } catch (e) {
         toast.error('Cannot estimate gas fee. Please try again later.')
         console.error({ e })
