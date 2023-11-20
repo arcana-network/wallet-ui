@@ -8,6 +8,11 @@ import AppLoader from '@/components/AppLoader.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import {
+  openRequestWindow,
+  waitForLoad,
+  sendRequest,
+} from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -63,38 +68,29 @@ async function handleLogout() {
   parentConnectionInstance?.onEvent('disconnect')
 }
 
-const waitForLoad = () => {
-  return new Promise((resolve) => {
-    const handler = (ev: MessageEvent) => {
-      if (ev.data.type === 'READY_TO_RECEIVE') {
-        window.removeEventListener('message', handler)
-        resolve('ok')
-      }
-    }
-    window.addEventListener('message', handler, false)
-  })
+function getRequestObject() {
+  const request = {
+    method: '_arcana_privateKey',
+    params: {
+      privateKey: user.privateKey,
+      walletAddress: user.walletAddress,
+    },
+  }
+  return {
+    type: 'json_rpc_request',
+    data: {
+      request,
+      chainId: rpcStore.selectedChainId,
+    },
+  }
 }
 
 async function handleProceed() {
   const isGlobalKeyspace = appStore.global
-  if (isGlobalKeyspace) {
-    const request = {
-      method: '_arcana_privateKey',
-      params: {
-        privateKey: user.privateKey,
-        walletAddress: user.walletAddress,
-      },
-    }
-    const u = new URL(`/${appId}/permission/`, AUTH_URL)
-    const openedWindow = window.open(u.href, '_blank', getWindowFeatures())
+  if (!isGlobalKeyspace) {
+    const openedWindow = await openRequestWindow(appId)
     await waitForLoad()
-    openedWindow?.postMessage(
-      {
-        type: 'json_rpc_request',
-        data: { chainId: rpcStore.selectedChainId, request },
-      },
-      AUTH_URL
-    )
+    sendRequest(getRequestObject(), openedWindow)
     handleHidePrivateKeyCautionModal()
   } else {
     showPrivateKeyCautionModal.value = false
