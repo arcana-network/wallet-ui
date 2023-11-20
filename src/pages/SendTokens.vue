@@ -48,7 +48,7 @@ const loader = ref({
 const tokenList = ref([
   {
     symbol: rpcStore.nativeCurrency?.symbol,
-    decimals: 18,
+    decimals: getRequestHandler().getAccountHandler().decimals,
     address: '',
   },
 ])
@@ -153,26 +153,41 @@ async function fetchTokenBalance() {
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance.value
   } else {
-    const balance = await getTokenBalance({
-      walletAddress: userStore.walletAddress,
-      contractAddress: tokenInfo?.address as string,
-    })
-    selectedTokenBalance.value = tokenInfo?.decimals
-      ? new Decimal(balance)
-          .div(Decimal.pow(10, tokenInfo.decimals))
-          .toFixed(tokenInfo.decimals)
-      : new Decimal(balance).toString()
+    if (appStore.chainType === ChainType.solana_cv25519) {
+      selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
+    } else {
+      const balance = await getTokenBalance({
+        walletAddress: userStore.walletAddress,
+        contractAddress: tokenInfo?.address as string,
+      })
+      selectedTokenBalance.value = tokenInfo?.decimals
+        ? new Decimal(balance)
+            .div(Decimal.pow(10, tokenInfo.decimals))
+            .toFixed(tokenInfo.decimals)
+        : new Decimal(balance).toString()
+    }
   }
 }
 
-function setTokenList() {
+async function setTokenList() {
   const chainId = rpcStore.selectedChainId
   const walletAddress = userStore.walletAddress
-  const contracts = getStorage().local.getAssetContractList(
-    walletAddress,
-    Number(chainId)
-  )
-  tokenList.value.push(...contracts)
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as SolanaAccountHandler
+    let tokens = accountHandler.storedTokens
+    if (!tokens.length) {
+      await accountHandler.getAllUserSPLTokens()
+      tokens = accountHandler.storedTokens
+    }
+    tokenList.value.push(...tokens)
+  } else {
+    const contracts = getStorage().local.getAssetContractList(
+      walletAddress,
+      Number(chainId)
+    )
+    tokenList.value.push(...contracts)
+  }
 }
 
 function clearForm() {
@@ -192,32 +207,56 @@ async function handleSendToken() {
     if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
-      const blockHash = await accountHandler.getLatestBlockHash()
-      const pk = accountHandler.publicKey
-      const toPk = new PublicKey(recipientWalletAddress.value)
-      const instructions = [
-        SystemProgram.transfer({
-          fromPubkey: pk,
-          toPubkey: toPk,
-          lamports: new Decimal(amount.value)
-            .mul(Decimal.pow(10, 9))
-            .toNumber(),
-        }),
-      ]
-      const messageV0 = new TransactionMessage({
-        payerKey: pk,
-        recentBlockhash: blockHash,
-        instructions,
-      }).compileToV0Message()
-      let transaction = new VersionedTransaction(messageV0)
-      const transactionSent = await accountHandler.signAndSendTransaction(
-        transaction.serialize()
-      )
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: transactionSent,
-        chainType: ChainType.solana_cv25519,
-      })
+      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+        const blockHash = await accountHandler.getLatestBlockHash()
+        const pk = accountHandler.publicKey
+        const toPk = new PublicKey(recipientWalletAddress.value)
+        const instructions = [
+          SystemProgram.transfer({
+            fromPubkey: pk,
+            toPubkey: toPk,
+            lamports: new Decimal(amount.value)
+              .mul(Decimal.pow(10, 9))
+              .toNumber(),
+          }),
+        ]
+        const messageV0 = new TransactionMessage({
+          payerKey: pk,
+          recentBlockhash: blockHash,
+          instructions,
+        }).compileToV0Message()
+        let transaction = new VersionedTransaction(messageV0)
+        const transactionSent = await accountHandler.signAndSendTransaction(
+          transaction.serialize()
+        )
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: transactionSent,
+          chainType: ChainType.solana_cv25519,
+        })
+      } else {
+        const sig = await accountHandler.sendCustomToken({
+          to: recipientWalletAddress.value,
+          amount: amount.value,
+          mint: selectedToken.value.address,
+          decimals: selectedToken.value.decimals,
+        })
+        const tokenInfo = tokenList.value.find(
+          (item) => item.address === selectedToken.value.address
+        )
+        activitiesStore.fetchAndSaveActivityFromHash({
+          txHash: sig,
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          customToken: {
+            operation: 'Send',
+            amount: amount.value,
+            symbol: tokenInfo?.symbol as string,
+            decimals: tokenInfo?.decimals as number,
+          },
+          recipientAddress: recipientWalletAddress.value,
+          chainType: ChainType.solana_cv25519,
+        })
+      }
     } else {
       const accountHandler =
         getRequestHandler().getAccountHandler() as EVMAccountHandler

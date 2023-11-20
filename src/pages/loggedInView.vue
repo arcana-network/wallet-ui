@@ -24,14 +24,17 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import {
+  CreateAccountHandler,
+  EVMAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
-import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -139,7 +142,6 @@ async function setMFABannerState() {
   // return null
 
   // eslint-disable-next-line no-unreachable
-  console.log({ hasMfa: userStore.hasMfa, isMfaEnabled: appStore.isMfaEnabled })
   if (!userStore.hasMfa && appStore.isMfaEnabled) {
     const userInfo = storage.local.getUserInfo()
     if (!userInfo) {
@@ -156,17 +158,13 @@ async function setMFABannerState() {
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    console.log({ isEnabled })
     userStore.hasMfa = isEnabled
   }
   const hasMfaDnd = storage.local.HasMFADND(userStore.info.id)
-  console.log({ hasMfaDnd })
   const mfaSkipUntil = storage.local.getMFASkip(userStore.info.id)
-  console.log({ mfaSkipUntil })
   const loginCount = storage.local.getLoginCount(userStore.info.id)
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
-  console.log({ hasMfaSkip, compactMode: appStore.compactMode })
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
@@ -203,7 +201,6 @@ async function initAccountHandler() {
 
       const account = getRequestHandler().getAccountHandler().getAccount()
       userStore.setWalletAddress(account.address)
-      console.log(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
