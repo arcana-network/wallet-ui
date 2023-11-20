@@ -76,6 +76,7 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
+
   const core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,

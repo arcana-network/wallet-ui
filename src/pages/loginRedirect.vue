@@ -55,8 +55,9 @@ async function init() {
     }
 
     const authProvider = await getAuthProvider(`${appId}`, false, false)
+    console.log('authProvider', authProvider, app.curve)
     storage.local.setCurve(app.curve)
-    const postLoginCleanup = await authProvider.checkRedirectMode()
+    const postLoginCleanup = await authProvider.handleRedirect()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
@@ -72,6 +73,7 @@ async function init() {
         exp,
         id: userInfo.userInfo.id,
       })
+      console.log(app.curve, app.chainType)
       if (app.isMfaEnabled) {
         const core = new Core({
           dkgKey: info.privateKey,

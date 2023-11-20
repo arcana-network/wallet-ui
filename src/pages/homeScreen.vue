@@ -87,7 +87,7 @@ rpcStore.$subscribe(() => {
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div class="my-6">
+    <div v-if="appStore.chainType !== ChainType.solana_cv25519" class="my-6">
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
   </div>

@@ -70,6 +70,12 @@ type RedirectParentConnectionApi = {
   error(errorMessage: string, domain?: string): Promise<void>
 }
 
+type GlobalRedirectMethods = {
+  setSuccess(): Promise<void>
+  setError(errorMessage: string, domain?: string): Promise<void>
+  goToMfaRestore(id: string): void
+}
+
 type ParentConnectionApi = {
   getAppConfig(): AppConfig
   getRpcConfig(): RpcConfig
@@ -109,4 +115,5 @@ export type {
   RequestMethod,
   ProviderEvent,
   SDKVersion,
+  GlobalRedirectMethods,
 }
