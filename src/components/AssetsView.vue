@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
-import { onMounted, onBeforeUnmount, ref, watch, type Ref } from 'vue'
+import { Chain } from '@arcana/auth/types/chainList'
+import Decimal from 'decimal.js'
+import { onMounted, onBeforeUnmount, ref, watch, type Ref, computed } from 'vue'
 
 import type { Asset, AssetContract } from '@/models/Asset'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { SolanaAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
-import { formatTokenDecimals, beautifyBalance } from '@/utils/formatTokens'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -21,6 +26,7 @@ const assets: Ref<Asset[]> = ref([])
 const modalStore = useModalStore()
 const showModal = ref(false)
 let assetsPolling
+const appStore = useAppStore()
 
 type AssetProps = {
   refresh: boolean
@@ -28,6 +34,11 @@ type AssetProps = {
 
 const props = defineProps<AssetProps>()
 const storage = getStorage()
+
+const nativeAssetBalance = computed(() => {
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, decimals))
+})
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = storage.local.getAssetContractList(
@@ -63,7 +74,7 @@ function fetchNativeAsset() {
     name: rpcStore.nativeCurrency?.name,
     balance: !rpcStore.walletBalance
       ? 0
-      : Number(ethers.utils.formatEther(rpcStore.walletBalance)),
+      : nativeAssetBalance.value.toDecimalPlaces(4).toNumber(),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
@@ -71,6 +82,21 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    await getSolanaBalance()
+  } else {
+    await getEVMAssetBalance()
+  }
+}
+
+async function getSolanaBalance() {
+  const solanaSPLTokens = await (
+    getRequestHandler().getAccountHandler() as SolanaAccountHandler
+  ).getAllUserSPLTokens()
+  assets.value = [fetchNativeAsset(), ...solanaSPLTokens]
+}
+
+async function getEVMAssetBalance() {
   assets.value = [fetchNativeAsset()]
   const storedAssetContracts = fetchStoredAssetContracts()
   storedAssetContracts.forEach((contract) => {
@@ -172,12 +198,10 @@ function handleFallbackLogo(event) {
           <div
             class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis transition-all duration-200"
             :title="`${
-              isNative(asset)
-                ? ethers.utils.formatEther(rpcStore.walletBalance)
-                : asset.balance.toFixed(asset.decimals)
+              isNative(asset) ? nativeAssetBalance.toString() : asset.balance
             } ${asset.symbol}`"
           >
-            {{ beautifyBalance(asset.balance) }}
+            {{ new Decimal(asset.balance).toDecimalPlaces(4) }}
             {{ asset.symbol }}
           </div>
         </div>
@@ -186,6 +210,7 @@ function handleFallbackLogo(event) {
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
       <button
+        v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0 border-t-1"
         @click.stop="handleAddToken"
       >

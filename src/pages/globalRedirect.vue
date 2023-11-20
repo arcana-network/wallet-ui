@@ -39,9 +39,10 @@ onMounted(async () => {
       })
     id = appId
     initStorage(appId)
+
     const storage = getStorage()
-    console.log({ store: state })
     storage.session.setState(state)
+    storage.local.setCurve(app.curve)
     // TODO: Verify state
 
     app.id = appId

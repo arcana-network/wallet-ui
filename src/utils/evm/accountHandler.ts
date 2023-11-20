@@ -37,9 +37,20 @@ class EVMAccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(privateKey: string, rpcUrl: string) {
+  constructor(
+    privateKey: string,
+    rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
+  ) {
     this.wallet = new ethers.Wallet(privateKey)
     this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+  }
+
+  get decimals() {
+    return 18
+  }
+
+  get gasDecimals() {
+    return 9
   }
 
   getBalance() {
@@ -52,6 +63,7 @@ class EVMAccountHandler {
   asMiddleware() {
     return createWalletMiddleware({
       getAccounts: this.getAccountsWrapper,
+      _getPrivateKey: this.getPrivateKey,
       requestAccounts: this.getAccountsWrapper,
       processEncryptionPublicKey: this.getEncryptionPublicKeyWrapper,
       processPersonalMessage: this.personalSignWrapper,
@@ -235,6 +247,10 @@ class EVMAccountHandler {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return [rpcStore.useGasless ? scwInstance.scwAddress : this.wallet.address]
+  }
+
+  getPrivateKey(): string {
+    return '0x' + userStore.privateKey
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {

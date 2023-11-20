@@ -1,4 +1,3 @@
-// Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { ethers } from 'ethers'
@@ -30,8 +29,8 @@ const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
 const userStore = useUserStore(store)
 const toast = useToast()
-const reqStore = useRequestStore()
-const appStore = useAppStore()
+const reqStore = useRequestStore(store)
+const appStore = useAppStore(store)
 
 async function showToast(type, message) {
   return new Promise((res) => {
@@ -333,11 +332,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      // const sanitizedRequest = sanitizeRequest({ ...request })
-      const sanitizedRequest = { ...request }
+      const sanitizedRequest =
+        appStore.chainType === ChainType.solana_cv25519
+          ? { ...request }
+          : sanitizeRequest({ ...request })
       try {
         const response = await keeper.request({ ...sanitizedRequest })
-        await keeper.reply(request.method, response)
+        await keeper.reply(request.method, JSON.parse(JSON.stringify(response)))
         if (response.error) {
           if (response.error.code === 'INSUFFICIENT_FUNDS') {
             showToast('error', 'Insufficient Gas to make this transaction.')

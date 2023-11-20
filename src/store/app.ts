@@ -34,13 +34,14 @@ type AppState = {
   isMfaEnabled: boolean
   chainType: ChainType
   curve: CURVE
+  global?: boolean
 }
 
 export const useAppStore = defineStore('app', {
   state: () =>
     ({
       id: '',
-      theme: 'light',
+      theme: 'dark',
       parentAppUrl: null,
       showWallet: false,
       standaloneMode: 0,
@@ -121,7 +122,6 @@ export const useAppStore = defineStore('app', {
         this.chainType = ChainType.evm_secp256k1
         this.curve = CURVE.SECP256K1
       }
-      console.log({ chainType }, this.curve)
     },
     setTheme(theme: Theme): void {
       this.theme = theme
@@ -143,6 +143,9 @@ export const useAppStore = defineStore('app', {
     },
     setAppLogo(logo: AppLogo): void {
       this.appLogo = logo
+    },
+    setIsGlobalKeyspace(global: boolean): void {
+      this.global = global
     },
   },
 })

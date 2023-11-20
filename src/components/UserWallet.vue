@@ -55,16 +55,13 @@ const showAddressListDropDown = ref(false)
 
 const currencyStore = useCurrencyStore()
 const walletBalance = computed(() => {
-  let DecimalPow = 18
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    DecimalPow = 9
-  }
+  const DecimalPow = getRequestHandler().getAccountHandler().decimals
   return rpcStore.walletBalance
     ? new Decimal(rpcStore.walletBalance)
         .div(Decimal.pow(10, DecimalPow))
         .toDecimalPlaces(9)
         .toString()
-    : ''
+    : '0'
 })
 const walletBalanceInCurrency = computed(() => {
   const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
@@ -174,17 +171,17 @@ function hasWalletBalanceAfterDecimals() {
   return false
 }
 
-watch(
-  () => rpcStore.selectedRPCConfig?.chainId,
-  async () => {
-    if (rpcStore.selectedRPCConfig) {
-      await getRequestHandler().setRpcConfig({
-        ...rpcStore.selectedRPCConfig,
-        chainId: Number(rpcStore.selectedRPCConfig.chainId),
-      })
-    }
-  }
-)
+// watch(
+//   () => rpcStore.selectedRPCConfig?.chainId,
+//   async () => {
+//     if (rpcStore.selectedRPCConfig) {
+//       await getRequestHandler().setRpcConfig({
+//         ...rpcStore.selectedRPCConfig,
+//         chainId: Number(rpcStore.selectedRPCConfig.chainId),
+//       })
+//     }
+//   }
+// )
 
 watch(
   () => userStore.scwAddress,

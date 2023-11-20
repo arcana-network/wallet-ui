@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
-import { ethers } from 'ethers'
 import { computed, ComputedRef } from 'vue'
 
 import { useActivitiesStore } from '@/store/activities'
@@ -10,7 +9,7 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
-import { beautifyBalance } from '@/utils/formatTokenDecimals'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -70,22 +69,23 @@ function getTransactionIcon(operation: TransactionOps | FileOps) {
 }
 
 function calculateCurrencyValue(valueInCrypto: bigint) {
-  if (props.currencyExchangeRate && app.chainType === ChainType.evm_secp256k1) {
+  if (props.currencyExchangeRate) {
+    const decimals = getRequestHandler().getAccountHandler().decimals
     return {
       amount: new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
       }).format(
-        Math.round(
-          Number(ethers.utils.formatEther(valueInCrypto.toString())) *
-            Number(props.currencyExchangeRate)
-        )
+        new Decimal(valueInCrypto.toString())
+          .div(Decimal.pow(10, decimals))
+          .mul(props.currencyExchangeRate)
+          .toNumber()
       ),
       currency: 'USD',
     }
   }
   return {
-    amount: String(getAmount(valueInCrypto)),
+    amount: getAmount(valueInCrypto),
     currency: rpcStore.currency,
   }
 }
@@ -100,20 +100,18 @@ function calculateTotal(activity: Activity) {
 }
 
 function getAmount(amount: bigint, isGas = false) {
-  if (app.chainType === ChainType.solana_cv25519) {
+  if (isGas) {
+    const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
     return new Decimal(amount.toString())
-      .div(Decimal.pow(10, 9))
-      .toDecimalPlaces(9)
+      .div(Decimal.pow(10, gasDecimals))
+      .toDecimalPlaces(gasDecimals)
       .toString()
-  } else {
-    if (isGas) {
-      return beautifyBalance(
-        Number(ethers.utils.formatUnits(amount, 'gwei')),
-        5
-      )
-    }
-    return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
   }
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toDecimalPlaces(decimals)
+    .toString()
 }
 
 function canShowDropdown(activity: Activity) {
@@ -126,14 +124,19 @@ function canShowDropdown(activity: Activity) {
 }
 
 function getDisplayAmount(activity: any) {
-  if (app.chainType === ChainType.solana_cv25519) {
-    return `${new Decimal(activity.transaction.amount.toString())
-      .div(Decimal.pow(10, 9))
-      .toString()} ${rpcStore.currency}`
-  }
-  return `${ethers.utils.formatEther(activity.transaction.amount)} ${
-    rpcStore.currency
-  }`
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+  return `${new Decimal(activity.transaction.amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toDecimalPlaces(gasDecimals)
+    .toString()} ${rpcStore.currency}`
+}
+
+function getAmountInNativeCurrency(amount: bigint) {
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toString()
 }
 
 function calculateSolanaTotal(activity) {
@@ -142,7 +145,12 @@ function calculateSolanaTotal(activity) {
 }
 
 function generateExplorerURL(explorerUrl: string, txHash: string) {
-  return new URL(`/tx/${txHash}`, explorerUrl).toString()
+  const urlFormatExplorerUrl = new URL(explorerUrl)
+  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  if (urlFormatExplorerUrl.search) {
+    actualTxUrl.search = urlFormatExplorerUrl.search
+  }
+  return actualTxUrl.href
 }
 </script>
 
@@ -233,15 +241,19 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
-            >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
+            >{{
+              new Decimal(activity.customToken.amount)
+                .toDecimalPlaces(5)
+                .toString()
+            }}
             {{ activity.customToken.symbol }}</span
           >
           <span
             v-else
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :title="`${ethers.utils.formatEther(activity.transaction.amount)} ${
-              rpcStore.currency
-            }`"
+            :title="`${getAmountInNativeCurrency(
+              activity.transaction.amount
+            )} ${rpcStore.currency}`"
             >{{ getAmount(activity.transaction.amount) }}
             {{ rpcStore.currency }}</span
           >
@@ -343,6 +355,19 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                 <div class="flex justify-between">
                   <span>Amount</span>
                   <span
+                    v-if="activity.customToken"
+                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+                  >
+                    {{
+                      new Decimal(activity.customToken.amount)
+                        .toDecimalPlaces(5)
+                        .toString()
+                    }}
+                    {{ activity.customToken.symbol }}
+                  </span>
+                  <span
+                    v-else
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
@@ -407,7 +432,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                 <span>Total:</span>
                 <span
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :title="`${ethers.utils.formatEther(
+                  :title="`${getAmountInNativeCurrency(
                     calculateTotal(activity)
                   )} ${rpcStore.currency}`"
                   >{{ getAmount(calculateTotal(activity)) }}
@@ -441,6 +466,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             :href="generateExplorerURL(explorerUrl, activity.txHash)"
             class="flex font-montserrat font-medium text-xs"
             target="_blank"
+            @click.stop="handleExplorerClick"
           >
             View on Explorer
             <img

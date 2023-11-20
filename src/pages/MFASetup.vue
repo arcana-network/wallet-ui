@@ -51,7 +51,7 @@ initStorage(String(route.params.appId))
 
 const storage = getStorage()
 
-app.curve = storage.session.getCurve()
+app.curve = storage.local.getCurve()
 
 document.documentElement.classList.add('dark')
 
@@ -76,7 +76,7 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  console.log(app.curve)
+
   const core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
