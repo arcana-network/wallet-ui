@@ -235,6 +235,7 @@ async function addToActivity(request) {
     requestStore.skippedRequests[request.req.id] = {
       request: request.req,
       isPermissionGranted: false,
+      requestOrigin: 'auth-verify',
     }
   } else if (request.result) {
     if (request.req.method === 'eth_sendTransaction') {
