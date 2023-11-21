@@ -45,8 +45,10 @@ async function showToast(type, message) {
 }
 
 function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
-  return function sendRequest(request) {
-    return handleRequest(request, requestStore, appStore, keeper)
+  return function sendRequest(request, requestOrigin) {
+    if (requestOrigin !== 'auth-verify') {
+      return handleRequest(request, requestStore, appStore, keeper)
+    }
   }
 }
 
