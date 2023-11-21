@@ -310,6 +310,9 @@ async function handleSendToken(params) {
   } finally {
     pendingQueue.value.shift()
     showLoader.value = false
+    if (pendingQueue.value.length === 0) {
+      closeWindow()
+    }
   }
 }
 
