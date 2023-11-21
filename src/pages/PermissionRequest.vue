@@ -48,7 +48,7 @@ const showLoader = ref(true)
 const chainConfig = ref({})
 const toast = useToast()
 const appDetails = ref({})
-const pendingQueue = ref<JsonRpcRequest<unknown>[]>([])
+const pendingQueue = ref([])
 const route = useRoute()
 const appId = route.params.appId as string
 
@@ -63,8 +63,8 @@ function postMessage(response) {
   )
 }
 
-function addToPendingQueue(request: JsonRpcRequest<unknown>) {
-  pendingQueue.value.push(request)
+function addToPendingQueue(requestObj) {
+  pendingQueue.value.push(requestObj)
 }
 
 function updateTheme() {
@@ -125,7 +125,7 @@ onMounted(async () => {
           request: JsonRpcRequest<unknown>
         }) => {
           await initFromChainId(r.chainId)
-          addToPendingQueue(r.request)
+          addToPendingQueue(r)
         },
       },
     }).promise
@@ -167,21 +167,26 @@ function setHexPrefix(value: string) {
 }
 
 async function onApprove(request) {
+  const reqObj = pendingQueue.value[0]
   try {
-    showLoader.value = true
-    if (isSendTransactionRequest(request.method)) {
-      if (Array.isArray(request.params)) {
-        const param = request.params[0]
-        const gasPrice = String(param.gasPrice)
-        if (!gasPrice.length) {
-          alert('Please provide Gas Fee')
-          return
+    if (reqObj.requestOrigin === 'wallet-ui') {
+      postMessage({ message: 'approve' })
+    } else {
+      showLoader.value = true
+      if (isSendTransactionRequest(request.method)) {
+        if (Array.isArray(request.params)) {
+          const param = request.params[0]
+          const gasPrice = String(param.gasPrice)
+          if (!gasPrice.length) {
+            alert('Please provide Gas Fee')
+            return
+          }
         }
       }
+      const sanitizedRequest = sanitizeRequest({ ...request })
+      const response = await getRequestHandler().request(sanitizedRequest)
+      postMessage(response)
     }
-    const sanitizedRequest = sanitizeRequest({ ...request })
-    const response = await getRequestHandler().request(sanitizedRequest)
-    postMessage(response)
   } catch (e) {
     console.log(e)
     if (e.message && e.message.includes('postMessage')) {
@@ -190,24 +195,35 @@ async function onApprove(request) {
   } finally {
     pendingQueue.value.shift()
     showLoader.value = false
+    if (pendingQueue.value.length === 0) {
+      closeWindow()
+    }
   }
 }
 
 function onReject(request) {
+  const reqObj = pendingQueue.value[0]
   try {
-    const response = {
-      jsonrpc: '2.0',
-      error: 'user_deny',
-      result: null,
-      id: request.id,
+    if (reqObj.requestOrigin === 'wallet-ui') {
+      postMessage({ message: 'reject' })
+    } else {
+      const response = {
+        jsonrpc: '2.0',
+        error: 'user_deny',
+        result: null,
+        id: request.id,
+      }
+      postMessage(response)
     }
-    postMessage(response)
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
       toast.error('Please make the request again')
     } else toast.error('something went wrong')
   } finally {
     pendingQueue.value.shift()
+    if (pendingQueue.value.length === 0) {
+      closeWindow()
+    }
   }
 }
 
@@ -386,7 +402,7 @@ function handleGasPriceInput(value, request) {
     <AppLoader message="Please wait..." />
   </div>
   <div
-    v-for="(request, index) in pendingQueue"
+    v-for="({ request }, index) in pendingQueue"
     v-else
     :key="request.id"
     class="flex flex-col space-y-2 h-full justify-between"

@@ -47,13 +47,24 @@ const onProceedClick = async (request) => {
     return {
       type: 'json_rpc_request',
       data: {
+        requestOrigin: 'wallet-ui',
         request: requestObj,
         chainId: rpcStore.selectedChainId,
       },
     }
   }
   await makeRequest(appStore.id, getRequestObject())
-  delete requestStore.skippedRequests[request.id]
+  window.addEventListener('message', (event) => {
+    const { data } = event
+    const { type, response } = data
+    if (type === 'json_rpc_response') {
+      if (response.message === 'approve') {
+        requestStore.approveSkippedRequest(request.id)
+      } else if (response.message === 'reject') {
+        requestStore.rejectSkippedRequest(request.id)
+      }
+    }
+  })
 }
 
 const isSendTransactionRequest = (requestId) => {
