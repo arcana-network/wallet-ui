@@ -352,7 +352,7 @@ async function handleShowPreview() {
     !amount.value ||
     new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
   ) {
-    toast.error('Insufficient balance')
+    toast.error('Amount should not be greater than max balance')
     return
   }
   if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
