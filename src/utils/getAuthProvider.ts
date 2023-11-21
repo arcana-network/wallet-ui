@@ -38,6 +38,7 @@ async function getAuthProvider(
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
         autoRedirect: false,
         appId,
         revokeTokenPostLogin: false,
@@ -48,6 +49,7 @@ async function getAuthProvider(
     } else {
       authProvider = await AuthProvider.init({
         ...params,
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
         autoRedirect: false,
         appId,
         curve: appStore.curve,
