@@ -269,6 +269,10 @@ async function handleShowPreview() {
     showPreview.value = true
     return
   }
+  if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
+    toast.error('Insufficient gas balance')
+    return
+  }
   if (recipientWalletAddress.value && gas.value) {
     showLoader('Loading preview...')
     try {

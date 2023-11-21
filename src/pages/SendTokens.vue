@@ -348,6 +348,17 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
+  if (
+    !amount.value ||
+    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
+  ) {
+    toast.error('Insufficient balance')
+    return
+  }
+  if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
+    toast.error('Insufficient gas balance')
+    return
+  }
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
