@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
 import {
@@ -55,10 +56,12 @@ async function init() {
     }
 
     const authProvider = await getAuthProvider(`${appId}`, false, false)
+    devLogger.log('[loginRedirect] app curve', app.curve)
     storage.local.setCurve(app.curve)
-    const postLoginCleanup = await authProvider.checkRedirectMode()
+    const postLoginCleanup = await authProvider.handleRedirect()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
+      devLogger.log('[loginRedirect] info', info)
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
         userInfo: info.userInfo,
         loginType: info.loginType,

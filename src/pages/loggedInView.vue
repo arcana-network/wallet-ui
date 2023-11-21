@@ -32,6 +32,7 @@ import {
 import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
@@ -85,9 +86,12 @@ function stopCurrencyInterval() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    devLogger.log('[loggedInView]', { curve: appStore.curve })
+    devLogger.log('[loggedInView] before keygen', userStore.privateKey)
     if (appStore.curve === CURVE.ED25519) {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
+    devLogger.log('[loggedInView] after keygen', userStore.privateKey)
     await setRpcConfigs()
     await getRpcConfig()
     await connectToParent()
