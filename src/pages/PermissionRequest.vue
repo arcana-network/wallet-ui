@@ -215,6 +215,7 @@ async function handleSendToken(params) {
   const tokenDetails = JSON.parse(params.tokenDetails)
   const tokenList = JSON.parse(params.tokenList)
   const gas = JSON.parse(params.gas)
+  let result = { chainId: chainConfig.value.chain_id }
   try {
     showLoader.value = true
     if (params.chainType === ChainType.solana_cv25519) {
@@ -242,7 +243,7 @@ async function handleSendToken(params) {
         const transactionSent = await accountHandler.signAndSendTransaction(
           transaction.serialize()
         )
-        return transactionSent
+        result['transactionSent'] = transactionSent
       } else {
         const sig = await accountHandler.sendCustomToken({
           to: params.recipientWalletAddress,
@@ -253,7 +254,11 @@ async function handleSendToken(params) {
         const tokenInfo = tokenList.find(
           (item) => item.address === tokenDetails.address
         )
-        return sig
+        result = {
+          ...result,
+          tokenInfo,
+          sig,
+        }
       }
     } else {
       const accountHandler =
@@ -284,7 +289,7 @@ async function handleSendToken(params) {
           payload,
           params.senderWalletAddress
         )
-        return txHash
+        result['txHash'] = txHash
       } else {
         const tokenInfo = tokenList.value.find(
           (item) => item.address === params.selectedToken.address
@@ -301,13 +306,25 @@ async function handleSendToken(params) {
           gasFees,
           params.estimatedGas
         )
-        return transactionHash
+        result = {
+          ...result,
+          amount: params.amount,
+          tokenInfo,
+          transactionHash,
+        }
       }
     }
   } catch (err: any) {
     console.log(err)
     toast.error(err.reason || 'Something went wrong')
   } finally {
+    const response = {
+      jsonrpc: '2.0',
+      error: null,
+      result,
+      id: params.id,
+    }
+    postMessage(response)
     pendingQueue.value.shift()
     showLoader.value = false
     if (pendingQueue.value.length === 0) {
