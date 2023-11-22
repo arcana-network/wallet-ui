@@ -75,7 +75,16 @@ async function init() {
         exp,
         id: userInfo.userInfo.id,
       })
+      devLogger.log('[loginRedirect] isMfaEnabled', app.isMfaEnabled)
       if (app.isMfaEnabled) {
+        devLogger.log('[loginRedirect] before core', {
+          dkgKey: info.privateKey,
+          userId: info.userInfo.id,
+          appId: String(appId),
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
         const core = new Core({
           dkgKey: info.privateKey,
           userId: info.userInfo.id,

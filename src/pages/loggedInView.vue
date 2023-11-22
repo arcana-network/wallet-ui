@@ -151,6 +151,14 @@ async function setMFABannerState() {
     if (!userInfo) {
       return
     }
+    devLogger.log('[loggedInView] before core', {
+      dkgKey: userInfo.pk as string,
+      userId: userStore.info.id,
+      appId: appStore.id,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: appStore.curve,
+    })
     const core = new Core({
       dkgKey: userInfo.pk as string,
       userId: userStore.info.id,
