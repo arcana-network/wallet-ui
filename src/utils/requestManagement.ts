@@ -357,12 +357,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
                 showToast('error', errorBody?.error || errorBody)
               }
             } else {
-              const displayError = (response.error?.data?.originalError?.error
-                ?.message ||
-                response.error?.data?.originalError?.reason ||
-                response.error?.data?.originalError?.code ||
-                response.error?.message ||
-                response.error) as string
+              const displayError =
+                ((response.error?.data?.originalError?.error?.message ||
+                  response.error?.data?.originalError?.reason ||
+                  response.error?.data?.originalError?.code ||
+                  response.error?.error?.message ||
+                  response.error?.message ||
+                  response.error) as string) || 'Something went wrong'
               showToast('error', displayError)
             }
           }

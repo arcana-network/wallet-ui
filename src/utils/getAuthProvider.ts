@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { AuthProvider, CURVE } from '@arcana/auth-core'
+import { AuthProvider } from '@arcana/auth-core'
 import type { InitParams } from '@arcana/auth-core/types/types'
 
 import { useAppStore } from '@/store/app'
@@ -27,7 +27,6 @@ const getDefaultParams = () => {
 
 async function getAuthProvider(
   appId: string,
-  shouldVerifyState = false,
   autoClean = true
 ): Promise<AuthProvider> {
   if (!authProvider) {
@@ -59,8 +58,6 @@ async function getAuthProvider(
     // TODO find a comprehensive solution to this
     // @ts-ignore
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
-    // @ts-ignore
-    console.log(authProvider.appConfig)
     appStore.setChainType(
       //@ts-ignore
       authProvider.appConfig.chain_type?.toLowerCase() || 'evm'

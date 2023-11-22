@@ -14,6 +14,7 @@ import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -76,7 +77,14 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-
+  devLogger.log('[MFASetup] before core (onBeforeMount)', {
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId: String(route.params.appId),
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: app.curve,
+  })
   const core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,

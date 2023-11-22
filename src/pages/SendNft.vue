@@ -222,10 +222,15 @@ async function handleSendToken() {
       }
     }
     router.push({ name: 'Nfts' })
-  } catch (err: any) {
-    if (err && err.reason) {
-      toast.error(err.reason)
-    }
+  } catch (error: any) {
+    const displayMessage =
+      ((error?.data?.originalError?.error?.message ||
+        error?.data?.originalError?.reason ||
+        error?.data?.originalError?.code ||
+        error?.error?.message ||
+        error?.message ||
+        error?.reason) as string) || 'Something went wrong'
+    toast.error(displayMessage)
   } finally {
     showPreview.value = false
     emit('close')
@@ -262,6 +267,10 @@ async function handleShowPreview() {
   }
   if (appStore.chainType === ChainType.solana_cv25519) {
     showPreview.value = true
+    return
+  }
+  if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
+    toast.error('Insufficient gas balance')
     return
   }
   if (recipientWalletAddress.value && gas.value) {

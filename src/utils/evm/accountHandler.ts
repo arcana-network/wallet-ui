@@ -37,10 +37,7 @@ class EVMAccountHandler {
   wallet: ethers.Wallet
   provider: ethers.providers.JsonRpcProvider
 
-  constructor(
-    privateKey: string,
-    rpcUrl: string = process.env.VUE_APP_WALLET_RPC_URL
-  ) {
+  constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
     this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
   }
@@ -63,7 +60,6 @@ class EVMAccountHandler {
   asMiddleware() {
     return createWalletMiddleware({
       getAccounts: this.getAccountsWrapper,
-      _getPrivateKey: this.getPrivateKey,
       requestAccounts: this.getAccountsWrapper,
       processEncryptionPublicKey: this.getEncryptionPublicKeyWrapper,
       processPersonalMessage: this.personalSignWrapper,
@@ -72,6 +68,7 @@ class EVMAccountHandler {
       processTypedMessageV4: this.signTypedMessageV4Wrapper,
       processTransaction: this.sendTransactionWrapper,
       processDecryptMessage: this.decryptWrapper,
+      _getPrivateKey: this.getPrivateKey,
     })
   }
 

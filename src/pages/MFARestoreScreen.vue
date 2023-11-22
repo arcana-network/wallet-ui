@@ -19,6 +19,7 @@ import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleLogin } from '@/utils/redirectUtils'
@@ -78,7 +79,14 @@ onBeforeMount(async () => {
   if (!dkgShare) {
     return
   }
-  console.log(app.curve)
+  devLogger.log('[MFARestoreScreen] before core (onBeforeMount)', {
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId,
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: app.curve,
+  })
   core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
@@ -144,10 +152,18 @@ async function handleLocalRecovery(key: string) {
   user.setLoginStatus(true)
   console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
+    devLogger.log('[MFARestoreScreen] before core (handleLocalRecovery)', {
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: app.curve,
+    })
     const core = new Core({
       dkgKey: userInfo.pk,
       userId: userInfo.userInfo.id,
-      appId: global ? 'global' : appId,
+      appId: global ? 'global' : `${appId}`,
       gatewayUrl: GATEWAY_URL,
       debug: AUTH_NETWORK === 'dev',
       curve: app.curve,

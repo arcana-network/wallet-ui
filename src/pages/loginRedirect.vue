@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
 import {
@@ -54,12 +55,13 @@ async function init() {
       await verifyOpenerPage(state)
     }
 
-    const authProvider = await getAuthProvider(`${appId}`, false, false)
-    console.log('authProvider', authProvider, app.curve)
+    const authProvider = await getAuthProvider(`${appId}`, false)
+    devLogger.log('[loginRedirect] app curve', app.curve)
     storage.local.setCurve(app.curve)
     const postLoginCleanup = await authProvider.handleRedirect()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()
+      devLogger.log('[loginRedirect] info', info)
       const userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string } = {
         userInfo: info.userInfo,
         loginType: info.loginType,
@@ -73,8 +75,16 @@ async function init() {
         exp,
         id: userInfo.userInfo.id,
       })
-      console.log(app.curve, app.chainType)
+      devLogger.log('[loginRedirect] isMfaEnabled', app.isMfaEnabled)
       if (app.isMfaEnabled) {
+        devLogger.log('[loginRedirect] before core', {
+          dkgKey: info.privateKey,
+          userId: info.userInfo.id,
+          appId: String(appId),
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
         const core = new Core({
           dkgKey: info.privateKey,
           userId: info.userInfo.id,

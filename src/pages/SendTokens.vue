@@ -322,8 +322,15 @@ async function handleSendToken() {
     clearForm()
     router.push({ name: 'home' })
     toast.success('Tokens sent Successfully')
-  } catch (err: any) {
-    toast.error(err.reason || 'Something went wrong')
+  } catch (error: any) {
+    const displayMessage =
+      ((error?.data?.originalError?.error?.message ||
+        error?.data?.originalError?.reason ||
+        error?.data?.originalError?.code ||
+        error?.error?.message ||
+        error?.message ||
+        error?.reason) as string) || 'Something went wrong'
+    toast.error(displayMessage)
   } finally {
     showPreview.value = false
     hideLoader()
@@ -385,6 +392,17 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
+  if (
+    !amount.value ||
+    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
+  ) {
+    toast.error('Amount should not be greater than max balance')
+    return
+  }
+  if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
+    toast.error('Insufficient gas balance')
+    return
+  }
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
@@ -395,7 +413,8 @@ async function handleShowPreview() {
     if (recipientWalletAddress.value && amount.value && gas.value) {
       showLoader('Loading preview...')
       try {
-        const accountHandler = getRequestHandler().getAccountHandler()
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as EVMAccountHandler
         if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
           estimatedGas.value = (
             await accountHandler.provider.estimateGas({
