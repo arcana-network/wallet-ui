@@ -10,9 +10,12 @@ import SendNftPreview from '@/components/SendNftPreview.vue'
 import { type NFTContractType, type NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
+import { useAppStore } from '@/store/app'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
@@ -42,6 +45,7 @@ const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const router = useRouter()
 const storage = getStorage()
+const appStore = useAppStore()
 
 const recipientWalletAddress = ref('')
 const gas: Ref<EIP1559GasFee | null> = ref(null)
@@ -80,25 +84,28 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  showLoader('Loading...')
-  try {
-    await fetchBaseFee()
-    baseFeePoll = setInterval(fetchBaseFee, 2000)
-    const accountHandler = getRequestHandler().getAccountHandler()
-    estimatedGas.value = (
-      await accountHandler.estimateNftGas(
-        props.type,
-        props.address,
-        userStore.walletAddress,
-        userStore.walletAddress,
-        props.tokenId,
-        1000
-      )
-    ).toString()
-  } catch (err) {
-    console.log({ err })
-  } finally {
-    hideLoader()
+  if (appStore.chainType !== ChainType.solana_cv25519) {
+    showLoader('Loading...')
+    try {
+      await fetchBaseFee()
+      baseFeePoll = setInterval(fetchBaseFee, 2000)
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
+      estimatedGas.value = (
+        await accountHandler.estimateNftGas(
+          props.type,
+          props.address,
+          userStore.walletAddress,
+          userStore.walletAddress,
+          props.tokenId,
+          1000
+        )
+      ).toString()
+    } catch (err) {
+      console.log({ err })
+    } finally {
+      hideLoader()
+    }
   }
 })
 
@@ -108,7 +115,8 @@ onUnmounted(() => {
 })
 
 async function fetchBaseFee() {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
 }
@@ -140,55 +148,78 @@ async function handleSendToken() {
   }
   showLoader('Sending...')
   try {
-    const accountHandler = getRequestHandler().getAccountHandler()
-    let gasFees = '0x1'
-    if (gas.value) {
-      const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-        gas.value.maxPriorityFeePerGas || 1.5
-      )
-      const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
-      gasFees = maxFeeInWei.toHexadecimal()
-    }
-
-    const txHash = await accountHandler.sendNft(
-      props.type,
-      props.address,
-      userStore.walletAddress,
-      setHexPrefix(recipientWalletAddress.value),
-      props.tokenId,
-      quantity.value || 1,
-      gasFees,
-      estimatedGas.value
-    )
-    const nft = {
-      ...props,
-    } as NFT
-    nft.attributes = props.attributes ? JSON.parse(props.attributes) : []
-    await activitiesStore.fetchAndSaveNFTActivityFromHash({
-      chainId: rpcStore.selectedRpcConfig?.chainId as string,
-      txHash,
-      nft,
-      recipientAddress: setHexPrefix(recipientWalletAddress.value),
-    })
-    toast.success('Tokens sent Successfully')
-    const nftDb = await NFTDB.create(storage.local, userStore.walletAddress)
-    if (props.type === 'erc1155') {
-      nftDb.updateNFT(
-        {
-          ...props,
-          balance: props.balance ? props.balance - quantity.value : undefined,
-          attributes: props.attributes ? JSON.parse(props.attributes) : [],
-        },
-        Number(rpcStore.selectedRpcConfig?.chainId)
-      )
+    if (appStore.chainType === ChainType.solana_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as SolanaAccountHandler
+      const signature = await accountHandler.sendCustomToken({
+        mint: props.tokenId,
+        to: recipientWalletAddress.value,
+        amount: '1',
+        decimals: 0,
+      })
+      const nft = {
+        ...props,
+      } as NFT
+      await activitiesStore.fetchAndSaveNFTActivityFromHash({
+        txHash: signature,
+        chainId: rpcStore.selectedRpcConfig?.chainId as string,
+        nft,
+        recipientAddress: recipientWalletAddress.value,
+        chainType: ChainType.solana_cv25519,
+      })
+      toast.success('Tokens sent Successfully')
     } else {
-      nftDb.removeNFT(
-        {
-          ...props,
-          attributes: props.attributes ? JSON.parse(props.attributes) : [],
-        },
-        Number(rpcStore.selectedRpcConfig?.chainId)
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
+      let gasFees = '0x1'
+      if (gas.value) {
+        const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+          gas.value.maxPriorityFeePerGas || 1.5
+        )
+        const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
+        gasFees = maxFeeInWei.toHexadecimal()
+      }
+
+      const txHash = await accountHandler.sendNft(
+        props.type,
+        props.address,
+        userStore.walletAddress,
+        setHexPrefix(recipientWalletAddress.value),
+        props.tokenId,
+        quantity.value || 1,
+        gasFees,
+        estimatedGas.value
       )
+      const nft = {
+        ...props,
+      } as NFT
+      nft.attributes = props.attributes ? JSON.parse(props.attributes) : []
+      await activitiesStore.fetchAndSaveNFTActivityFromHash({
+        chainId: rpcStore.selectedRpcConfig?.chainId as string,
+        txHash,
+        nft,
+        recipientAddress: setHexPrefix(recipientWalletAddress.value),
+      })
+      toast.success('Tokens sent Successfully')
+      const nftDb = await NFTDB.create(storage.local, userStore.walletAddress)
+      if (props.type === 'erc1155') {
+        nftDb.updateNFT(
+          {
+            ...props,
+            balance: props.balance ? props.balance - quantity.value : undefined,
+            attributes: props.attributes ? JSON.parse(props.attributes) : [],
+          },
+          Number(rpcStore.selectedRpcConfig?.chainId)
+        )
+      } else {
+        nftDb.removeNFT(
+          {
+            ...props,
+            attributes: props.attributes ? JSON.parse(props.attributes) : [],
+          },
+          Number(rpcStore.selectedRpcConfig?.chainId)
+        )
+      }
     }
     router.push({ name: 'Nfts' })
   } catch (err: any) {
@@ -229,10 +260,15 @@ async function handleShowPreview() {
     toast.error('Please enter a valid quantity')
     return
   }
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    showPreview.value = true
+    return
+  }
   if (recipientWalletAddress.value && gas.value) {
     showLoader('Loading preview...')
     try {
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       estimatedGas.value = (
         await accountHandler.estimateNftGas(
           props.type,
@@ -342,6 +378,7 @@ watch(
             </div>
           </div>
           <GasPrice
+            v-if="appStore.chainType !== ChainType.solana_cv25519"
             :gas-prices="gasPrices"
             :base-fee="baseFee"
             :gas-limit="estimatedGas"

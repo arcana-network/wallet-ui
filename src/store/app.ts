@@ -1,9 +1,11 @@
 import { AppMode } from '@arcana/auth'
+import { CURVE } from '@arcana/key-helper'
 import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
 import type { Theme } from '@/models/Theme'
 import { useRequestStore } from '@/store/request'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { isMobileViewport } from '@/utils/isMobileViewport'
 
@@ -30,6 +32,9 @@ type AppState = {
   sdkVersion: SDKVersion | null
   expandedByRequest: boolean
   isMfaEnabled: boolean
+  chainType: ChainType
+  curve: CURVE
+  global?: boolean
 }
 
 export const useAppStore = defineStore('app', {
@@ -47,6 +52,8 @@ export const useAppStore = defineStore('app', {
       sdkVersion: null,
       expandedByRequest: false,
       isMfaEnabled: true,
+      chainType: ChainType.evm_secp256k1,
+      curve: CURVE.SECP256K1,
     } as AppState),
   getters: {
     iframeStyle: ({
@@ -99,6 +106,7 @@ export const useAppStore = defineStore('app', {
           style.borderTopRightRadius = '5px'
           style.borderTopLeftRadius = '5px'
         }
+        style.colorScheme = 'normal'
         return style
       }
     },
@@ -106,6 +114,15 @@ export const useAppStore = defineStore('app', {
   actions: {
     setAppId(id: string): void {
       this.id = id
+    },
+    setChainType(chainType: string): void {
+      if (chainType?.toLowerCase() === 'solana') {
+        this.chainType = ChainType.solana_cv25519
+        this.curve = CURVE.ED25519
+      } else {
+        this.chainType = ChainType.evm_secp256k1
+        this.curve = CURVE.SECP256K1
+      }
     },
     setTheme(theme: Theme): void {
       this.theme = theme
@@ -127,6 +144,9 @@ export const useAppStore = defineStore('app', {
     },
     setAppLogo(logo: AppLogo): void {
       this.appLogo = logo
+    },
+    setIsGlobalKeyspace(global: boolean): void {
+      this.global = global
     },
   },
 })

@@ -8,6 +8,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -63,47 +64,32 @@ async function handleLogout() {
   parentConnectionInstance?.onEvent('disconnect')
 }
 
-function percentToByte(p: string) {
-  return String.fromCharCode(parseInt(p.slice(1), 16))
-}
-
-function btoaUTF8(str: string): string {
-  return window.btoa(
-    encodeURIComponent(str).replace(/%[0-9A-F]{2}/g, percentToByte)
-  )
-}
-
-function encodeJSONToBase64(options: unknown): string {
-  return escape(btoaUTF8(JSON.stringify(options)))
-}
-
-function escape(str: string) {
-  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-}
-
-function createRequestUrl(data: any) {
-  const r = {
-    appId: appId,
-    chainId: rpcStore.selectedChainId,
-    request: data,
-  }
-  const u = new URL('/permission/', AUTH_URL)
-  const hash = encodeJSONToBase64(r)
-  u.hash = hash
-  return u.href
-}
-
-function handleProceed() {
-  const data = {
+function getRequestObject() {
+  const request = {
     method: '_arcana_privateKey',
     params: {
       privateKey: user.privateKey,
       walletAddress: user.walletAddress,
     },
   }
+  return {
+    type: 'json_rpc_request',
+    data: {
+      request,
+      chainId: rpcStore.selectedChainId,
+    },
+  }
+}
 
-  window.open(createRequestUrl(data), '_blank')
-  handleHidePrivateKeyCautionModal()
+async function handleProceed() {
+  const isGlobalKeyspace = appStore.global
+  if (isGlobalKeyspace) {
+    await makeRequest(appId, getRequestObject())
+    handleHidePrivateKeyCautionModal()
+  } else {
+    showPrivateKeyCautionModal.value = false
+    showExportKeyModal.value = true
+  }
 }
 
 function handleShowPrivateKeyCautionModal() {
@@ -301,40 +287,3 @@ watch(
     </Teleport>
   </div>
 </template>
-
-<style scoped>
-.home__title {
-  font-size: var(--fs-500);
-}
-
-.home__body-container {
-  padding: var(--p-400);
-  color: var(--fg-color);
-  border-radius: 10px;
-}
-
-.home__body-content-label {
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-
-.home__body-content-value {
-  display: flex;
-  align-items: center;
-  font-size: var(--fs-400);
-  font-weight: 400;
-}
-
-.home__footer-button-outline {
-  color: var(--outlined-button-fg-color);
-  border-color: var(--outlined-button-border-color);
-}
-
-.home__footer-button-filled {
-  flex: 1;
-  color: var(--filled-button-fg-color);
-  background-color: var(--filled-button-bg-color);
-  border-radius: 10px;
-}
-</style>

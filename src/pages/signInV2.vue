@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { SocialLoginType } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
@@ -159,14 +159,16 @@ async function storeUserInfoAndRedirect(
 ) {
   const storage = getStorage()
   if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
+    console.log(app.curve, app.chainType)
     try {
-      const core = new Core(
-        userInfo.pk as string,
-        userInfo.userInfo.id,
-        `${appId}`,
-        GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
-      )
+      const core = new Core({
+        dkgKey: userInfo.pk as string,
+        userId: userInfo.userInfo.id,
+        appId: `${appId}`,
+        gatewayUrl: GATEWAY_URL,
+        debug: AUTH_NETWORK === 'dev',
+        curve: app.curve,
+      })
       await core.init()
       const key = await core.getKey()
       userInfo.privateKey = key
@@ -183,16 +185,19 @@ async function storeUserInfoAndRedirect(
   }
   storage.session.setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
+  storage.local.setCurve(app.curve)
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
+  console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
-    const core = new Core(
-      userInfo.pk,
-      userInfo.userInfo.id,
-      `${appId}`,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: app.curve,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
@@ -311,14 +316,16 @@ async function init() {
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+      console.log(app.curve, app.chainType)
       if (!hasMfa && userInfo.pk) {
-        const core = new Core(
-          userInfo.pk,
-          userInfo.userInfo.id,
-          `${appId}`,
-          GATEWAY_URL,
-          AUTH_NETWORK === 'dev'
-        )
+        const core = new Core({
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)
         const isEnabled = await securityQuestionModule.isEnabled()
@@ -386,6 +393,7 @@ async function handleBearerLoginRequest(
         userInfo: {
           id: data.uid,
         },
+        token: '',
       }
       await storeUserInfoAndRedirect(userInfo)
 

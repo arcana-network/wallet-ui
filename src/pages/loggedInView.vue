@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import {
   onMounted,
@@ -17,19 +17,25 @@ import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getGaslessEnabledStatus } from '@/services/gateway.service'
+import {
+  getGaslessEnabledStatus,
+  getAppConfig,
+} from '@/services/gateway.service'
+import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { AccountHandler } from '@/utils/accountHandler'
+import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -41,11 +47,13 @@ import {
   watchRequestQueue,
 } from '@/utils/requestManagement'
 import { initSCW, scwInstance } from '@/utils/scw'
+import { getPrivateKey } from '@/utils/solana/getPrivateKey'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const activitiesStore = useActivitiesStore()
 const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
@@ -59,10 +67,19 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
 const currencyStore = useCurrencyStore()
+const keyspaceType: Ref<'local' | 'global'> = ref('local')
 
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
+
+async function getKeySpaceType() {
+  const { data } = await getAppConfig(appStore.id)
+  const global = data.global
+  appStore.setIsGlobalKeyspace(global)
+  if (global) keyspaceType.value = 'global'
+  else keyspaceType.value = 'local'
+}
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -89,8 +106,12 @@ function showStarterTips() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    if (appStore.curve === CURVE.ED25519) {
+      userStore.privateKey = await getPrivateKey(userStore.privateKey)
+    }
     await setRpcConfigs()
     await getRpcConfig()
+    await getKeySpaceType()
     await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
@@ -108,9 +129,13 @@ onMounted(async () => {
         chainId: selectedChainId,
         ...rpcConfig,
       })
-      if (rpcStore.isGaslessConfigured) {
+      if (
+        rpcStore.isGaslessConfigured &&
+        appStore.chainType === ChainType.evm_secp256k1
+      ) {
         await initScwSdk()
       }
+
       await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
@@ -126,7 +151,10 @@ async function initScwSdk() {
   try {
     const requestHandler = getRequestHandler()
     const accountHandler = requestHandler.getAccountHandler()
-    await initSCW(appStore.id, accountHandler.getSigner())
+    await initSCW(
+      appStore.id,
+      (accountHandler as EVMAccountHandler).getSigner()
+    )
     userStore.scwAddress = scwInstance.scwAddress
   } catch (e) {
     console.log(e)
@@ -142,13 +170,14 @@ async function setMFABannerState() {
     if (!userInfo) {
       return
     }
-    const core = new Core(
-      userInfo.pk,
-      userStore.info.id,
-      appStore.id,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
+    const core = new Core({
+      dkgKey: userInfo.pk as string,
+      userId: userStore.info.id,
+      appId: appStore.id,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: appStore.curve,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
@@ -175,7 +204,11 @@ async function getAccountDetails() {
 
 function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = new AccountHandler(userStore.privateKey, rpcUrl)
+    const accountHandler = CreateAccountHandler(
+      userStore.privateKey,
+      rpcUrl,
+      appStore.chainType
+    )
     setRequestHandler(accountHandler)
   }
 }
@@ -185,10 +218,8 @@ async function initAccountHandler() {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
 
-      if (!userStore.walletAddress) {
-        const account = getRequestHandler().getAccountHandler().getAccount()
-        userStore.setWalletAddress(account.address)
-      }
+      const account = getRequestHandler().getAccountHandler().getAccount()
+      userStore.setWalletAddress(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
         const walletType = await getWalletType(appStore.id)
@@ -197,6 +228,35 @@ async function initAccountHandler() {
     }
   } catch (err) {
     console.log({ err })
+  }
+}
+
+async function addToActivity(request) {
+  if (request.error === 'user_closed_popup') {
+    requestStore.skippedRequests[request.req.id] = {
+      request: request.req,
+      isPermissionGranted: false,
+      requestOrigin: 'auth-verify',
+    }
+  } else if (request.result) {
+    if (request.req.method === 'eth_sendTransaction') {
+      await activitiesStore.fetchAndSaveActivityFromHash({
+        txHash: request.result,
+        chainId: `${Number(request.chainId)}`,
+      })
+    } else if (
+      request.req.method === 'eth_signTypedData_v4' &&
+      request.req.params[1]
+    ) {
+      const params = JSON.parse(request.req.params[1])
+      if (params.domain.name === 'Arcana Forwarder') {
+        await activitiesStore.saveFileActivity(
+          `${Number(request.chainId)}`,
+          params.message,
+          params.domain.verifyingContract
+        )
+      }
+    }
   }
 }
 
@@ -210,6 +270,8 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
+      addToActivity,
+      getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
       getUserInfo,
@@ -278,19 +340,27 @@ async function handleLogout() {
 
 async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
-  enabledChainList.value = chains.map((chain) => ({
-    chainId: chain.chain_id,
-    rpcUrls: [chain.rpc_url],
-    chainName: chain.name,
-    chainType: chain.chain_type,
-    blockExplorerUrls: [chain.exp_url],
-    isCustom: false,
-    nativeCurrency: {
-      symbol: chain.currency,
-      decimals: 18,
-    },
-    defaultChain: chain.default_chain,
-  }))
+  enabledChainList.value = chains
+    .filter((chain) => {
+      if (appStore.chainType === ChainType.solana_cv25519) {
+        return chain.compatibility?.toLowerCase() === 'solana'
+      } else {
+        return chain.compatibility?.toLowerCase() === 'evm'
+      }
+    })
+    .map((chain) => ({
+      chainId: chain.chain_id,
+      rpcUrls: [chain.rpc_url],
+      chainName: chain.name,
+      chainType: chain.chain_type,
+      blockExplorerUrls: [chain.exp_url],
+      isCustom: false,
+      nativeCurrency: {
+        symbol: chain.currency,
+        decimals: 18,
+      },
+      defaultChain: chain.default_chain,
+    }))
   if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 

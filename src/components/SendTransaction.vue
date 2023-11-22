@@ -13,6 +13,8 @@ import useCurrencyStore from '@/store/currencies'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
@@ -24,7 +26,7 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
+const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -55,15 +57,23 @@ onMounted(async () => {
   showLoader('Loading...')
   try {
     const accountHandler = getRequestHandler().getAccountHandler()
-    const baseGasPrice = (
-      await accountHandler.provider.getGasPrice()
-    ).toString()
-    gasLimit.value = (
-      await accountHandler.provider.estimateGas({
-        ...sanitizeRequest(props.request.request).params[0],
-      })
-    ).toString()
-    baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
+    if (appStore.chainType === ChainType.solana_cv25519) {
+      const data = await (accountHandler as SolanaAccountHandler).getFee(
+        props.request.request.params[0]
+      )
+    } else {
+      const baseGasPrice = (
+        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
+      ).toString()
+      gasLimit.value = (
+        await (accountHandler as EVMAccountHandler).provider.estimateGas({
+          ...sanitizeRequest(props.request.request).params[0],
+        })
+      ).toString()
+      baseFee.value = new Decimal(baseGasPrice)
+        .div(Decimal.pow(10, 9))
+        .toString()
+    }
     if (props.request.request.params[0].maxFeePerGas) {
       customGasPrice.value.maxFeePerGas = new Decimal(
         props.request.request.params[0].maxFeePerGas
@@ -132,7 +142,7 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+  return `${new Decimal(params.maxFeePerGas || params.gas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 1.5)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
@@ -191,7 +201,10 @@ function calculateCurrencyValue(value) {
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
     </div>
-    <div class="flex flex-col gap-2 text-sm">
+    <div
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="flex flex-col gap-2 text-sm"
+    >
       <div class="text-sm font-medium">Transaction Details</div>
       <div
         v-if="request.request?.params[0]?.from"
@@ -252,12 +265,25 @@ function calculateCurrencyValue(value) {
           </span>
         </span>
       </div>
-      <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
-        <span>Data</span>
+      <div
+        v-if="request.request.params[0].data"
+        class="flex flex-col gap-1 h-40"
+      >
+        <span>Message</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
-    <div class="mt-4">
+    <div
+      v-else-if="appStore.chainType === ChainType.solana_cv25519"
+      class="flex flex-col gap-2 text-sm"
+    >
+      <div class="text-sm font-medium">Transaction Details</div>
+      <div class="flex flex-col gap-1">
+        <span>Data</span>
+        <SignMessageAdvancedInfo :info="request.request.params.message" />
+      </div>
+    </div>
+    <div v-if="appStore.chainType === ChainType.evm_secp256k1" class="mt-4">
       <GasPrice
         :base-fee="baseFee"
         :gas-limit="gasLimit"
@@ -267,7 +293,15 @@ function calculateCurrencyValue(value) {
       />
     </div>
     <div class="mt-auto flex flex-col gap-4">
-      <div class="flex gap-2">
+      <div v-if="request.requestOrigin === 'auth-verify'">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('proceed')"
+        >
+          Proceed
+        </button>
+      </div>
+      <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
           @click="emits('reject')"

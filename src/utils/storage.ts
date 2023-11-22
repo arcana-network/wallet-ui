@@ -1,4 +1,5 @@
 import { GetInfoOutput } from '@arcana/auth-core'
+import { CURVE } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 
 import { AssetContract } from '@/models/Asset'
@@ -21,6 +22,7 @@ enum StorageKey {
   hasStarterTipShown = 'has-starter-tip-shown',
   PreferredAddressType = 'preferred-address-type',
   Theme = 'theme',
+  Curve = 'curve',
 }
 
 type UserInfo = GetInfoOutput & {
@@ -237,6 +239,13 @@ class UserLocalStorage extends BaseStorage {
   getThemePreference(): Theme {
     return this.get(StorageKey.Theme)
   }
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
+  }
 }
 
 interface IStorage {
@@ -329,6 +338,14 @@ class UserSessionStorage extends BaseStorage {
     return this.get<UserInfo>(StorageKey.UserInfo)
   }
 
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
+  }
+
   clearUserInfo() {
     this.delete(StorageKey.UserInfo)
   }
@@ -345,6 +362,7 @@ class UserSessionStorage extends BaseStorage {
   }
 }
 export {
+  are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,

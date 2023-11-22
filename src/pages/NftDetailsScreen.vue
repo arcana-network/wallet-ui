@@ -63,13 +63,15 @@ watch(
   <div>
     <div class="h-full mt-2">
       <div class="flex flex-col gap-5">
-        <div class="flex flex-grow relative">
+        <div class="flex flex-grow items-center gap-4">
           <img
             src="@/assets/images/arrow-left.svg"
-            class="cursor-pointer absolute invert dark:invert-0"
+            class="cursor-pointer invert dark:invert-0"
             @click.stop="router.back()"
           />
-          <div class="font-semibold flex-grow text-center">
+          <div
+            class="font-semibold flex-grow text-center text-ellipsis overflow-hidden whitespace-nowrap"
+          >
             {{ props.collectionName }}
           </div>
         </div>

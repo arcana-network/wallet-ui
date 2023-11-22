@@ -1,9 +1,7 @@
+import Decimal from 'decimal.js'
+
 function formatTokenDecimals(balance: string | number, decimals = 0) {
-  const divider = Math.pow(10, decimals)
-  if (typeof balance !== 'number') {
-    balance = Number(balance)
-  }
-  return balance / divider
+  return new Decimal(balance).div(Decimal.pow(10, decimals)).toNumber()
 }
 
 function beautifyBalance(balance: number, decimals = 3) {

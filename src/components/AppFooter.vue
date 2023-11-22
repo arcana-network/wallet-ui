@@ -2,13 +2,16 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 const userStore = useUserStore()
 const route = useRoute()
 const requestStore = useRequestStore()
+const appStore = useAppStore()
 
 const currentRoute = computed(() => {
   return route.name
@@ -56,6 +59,7 @@ function getIcon(icon: string, pathName: string) {
         >
       </router-link>
       <router-link
+        v-if="appStore.chainType !== ChainType.solana_cv25519"
         :to="{ name: 'Nfts' }"
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"

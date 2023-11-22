@@ -10,8 +10,10 @@ function getGaslessEnabledStatus(appId, chainId) {
   })
 }
 
-function fetchApp(appId: string | number) {
-  return gatewayInstance.get(`/api/v1/get-app-config/?id=${appId}`)
+function getAppConfig(appId) {
+  return gatewayInstance.get<{ global: boolean }>(
+    `/api/v1/get-app-config/?id=${appId}`
+  )
 }
 
-export { getGaslessEnabledStatus, fetchApp }
+export { getGaslessEnabledStatus, getAppConfig }

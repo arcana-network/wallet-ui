@@ -34,12 +34,12 @@ const props = defineProps({
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 
-const emits = defineEmits(['reject', 'approve'])
+const emits = defineEmits(['reject', 'approve', 'proceed'])
 const userStore = useUserStore()
 
 function isSiweMessage(message: string) {
   return (
-    message.includes('wants you to sign in with your Ethereum account') &&
+    message.includes('wants you to sign in with your') &&
     message.includes('URI') &&
     message.includes('Nonce') &&
     message.includes('Version') &&
@@ -98,6 +98,18 @@ function getPermissionText() {
       break
     case 'eth_signTransaction':
       response = 'signing a transaction'
+      break
+    case 'signTransaction':
+      response = 'signing a transaction'
+      break
+    case 'signAndSendTransaction':
+      response = 'signing and sending a transaction'
+      break
+    case 'signMessage':
+      response = 'signing a message'
+      break
+    case 'signAllTransactions':
+      response = 'signing all transactions'
       break
     default:
       response = 'performing an action'
@@ -165,7 +177,7 @@ function isDeprecatedMethod() {
       <SignMessageAdvancedInfo
         :info="advancedInfo(request.request.method, request.request.params)"
       />
-      <div
+      <!-- <div
         v-if="method !== 'eth_signTransaction'"
         class="flex justify-center mt-4"
       >
@@ -175,10 +187,18 @@ function isDeprecatedMethod() {
           <img src="@/assets/images/info-circle.svg" />
           <span>You're not going to be charged</span>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="mt-auto flex flex-col gap-4">
-      <div class="flex gap-2">
+      <div v-if="request.requestOrigin === 'auth-verify'">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('proceed')"
+        >
+          Proceed
+        </button>
+      </div>
+      <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
           @click="emits('reject')"

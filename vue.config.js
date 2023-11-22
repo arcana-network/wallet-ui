@@ -13,6 +13,8 @@ module.exports = defineConfig({
         zlib: require.resolve('browserify-zlib'),
         https: require.resolve('https-browserify'),
         http: require.resolve('stream-http'),
+        path: require.resolve('path-browserify'),
+        fs: false,
       },
     },
     devtool: process.env.VUE_APP_SOURCEMAPS ? 'source-map' : false,
