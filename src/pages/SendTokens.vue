@@ -431,7 +431,7 @@ async function handleShowPreview() {
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
         const isGlobalKeyspace = appStore.global
-        if (!isGlobalKeyspace) {
+        if (isGlobalKeyspace) {
           const requestObject = {
             type: 'json_rpc_request',
             data: {

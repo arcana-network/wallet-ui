@@ -83,7 +83,7 @@ function getRequestObject() {
 
 async function handleProceed() {
   const isGlobalKeyspace = appStore.global
-  if (!isGlobalKeyspace) {
+  if (isGlobalKeyspace) {
     await makeRequest(appId, getRequestObject())
     handleHidePrivateKeyCautionModal()
   } else {
