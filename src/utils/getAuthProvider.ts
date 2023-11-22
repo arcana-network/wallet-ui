@@ -26,7 +26,6 @@ async function getAuthProvider(
       redirectUri: `${AUTH_URL}/verify/${appId}/`,
       // @ts-ignore
       network: AUTH_NETWORK,
-      flow: 'redirect',
       autoRedirect: false,
       debug: true,
       shouldVerifyState,

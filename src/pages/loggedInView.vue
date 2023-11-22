@@ -32,6 +32,7 @@ import {
 import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
@@ -85,9 +86,12 @@ function stopCurrencyInterval() {
 onMounted(async () => {
   try {
     loader.value.show = true
+    devLogger.log('[loggedInView]', { curve: appStore.curve })
+    devLogger.log('[loggedInView] before keygen', userStore.privateKey)
     if (appStore.curve === CURVE.ED25519) {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
+    devLogger.log('[loggedInView] after keygen', userStore.privateKey)
     await setRpcConfigs()
     await getRpcConfig()
     await connectToParent()
@@ -147,6 +151,14 @@ async function setMFABannerState() {
     if (!userInfo) {
       return
     }
+    devLogger.log('[loggedInView] before core', {
+      dkgKey: userInfo.pk as string,
+      userId: userStore.info.id,
+      appId: appStore.id,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: appStore.curve,
+    })
     const core = new Core({
       dkgKey: userInfo.pk as string,
       userId: userStore.info.id,

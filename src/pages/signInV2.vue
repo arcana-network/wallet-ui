@@ -14,6 +14,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { AUTH_NETWORK, AUTH_URL, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
 import {
@@ -160,6 +161,17 @@ async function storeUserInfoAndRedirect(
   const storage = getStorage()
   if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
     try {
+      devLogger.log(
+        '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
+        {
+          dkgKey: userInfo.pk as string,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        }
+      )
       const core = new Core({
         dkgKey: userInfo.pk as string,
         userId: userInfo.userInfo.id,
@@ -188,6 +200,14 @@ async function storeUserInfoAndRedirect(
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
+    devLogger.log('[signInV2] before core (storeUserInfoAndRedirect)', {
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: app.curve,
+    })
     const core = new Core({
       dkgKey: userInfo.pk,
       userId: userInfo.userInfo.id,
@@ -315,6 +335,14 @@ async function init() {
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       if (!hasMfa && userInfo.pk) {
+        devLogger.log('[signInV2] before core (init)', {
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
         const core = new Core({
           dkgKey: userInfo.pk,
           userId: userInfo.userInfo.id,
