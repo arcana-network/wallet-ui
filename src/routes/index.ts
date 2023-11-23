@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
     component: SignIn,
   },
   {
-    path: '/global-redirect',
+    path: '/global-redirect/',
     component: GlobalRedirect,
   },
   {
