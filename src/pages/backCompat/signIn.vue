@@ -149,7 +149,6 @@ async function storeUserInfoAndRedirect(
   storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
     const core = new Core({
       dkgKey: userInfo.pk,
@@ -254,7 +253,6 @@ async function init() {
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
-      console.log(app.curve, app.chainType)
       if (!hasMfa && userInfo.pk) {
         const core = new Core({
           dkgKey: userInfo.pk,

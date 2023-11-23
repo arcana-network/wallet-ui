@@ -160,7 +160,6 @@ async function storeUserInfoAndRedirect(
 ) {
   const storage = getStorage()
   if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
-    console.log(app.curve, app.chainType)
     try {
       devLogger.log(
         '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
@@ -200,7 +199,6 @@ async function storeUserInfoAndRedirect(
   storage.local.setCurve(app.curve)
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
     devLogger.log('[signInV2] before core (storeUserInfoAndRedirect)', {
       dkgKey: userInfo.pk,
@@ -336,7 +334,6 @@ async function init() {
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
-      console.log(app.curve, app.chainType)
       if (!hasMfa && userInfo.pk) {
         devLogger.log('[signInV2] before core (init)', {
           dkgKey: userInfo.pk,

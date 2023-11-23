@@ -30,7 +30,6 @@ onMounted(async () => {
   let id
   try {
     const params = getDefaultParams()
-    console.log({ params })
     const { provider, appId, state, cleanup } =
       await AuthProvider.fromGlobalRedirect({
         ...params,

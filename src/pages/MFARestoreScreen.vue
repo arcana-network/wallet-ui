@@ -150,7 +150,6 @@ async function handleLocalRecovery(key: string) {
   storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
-  console.log(app.curve, app.chainType)
   if (!userInfo.hasMfa && userInfo.pk) {
     devLogger.log('[MFARestoreScreen] before core (handleLocalRecovery)', {
       dkgKey: userInfo.pk,
@@ -221,7 +220,6 @@ async function returnToParent(key: string) {
   }
   const loginSrc = storage.local.getLoginSrc()
   const state = storage.session.getState() as string
-  console.log({ state, global })
 
   const stateInfo = global ? { i: state } : decodeJSON<StateInfo>(state)
   const isStandalone =
