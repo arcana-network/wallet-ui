@@ -26,7 +26,7 @@ const props = defineProps({
   },
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve'])
+const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -142,7 +142,7 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+  return `${new Decimal(params.maxFeePerGas || params.gas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 1.5)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
@@ -265,7 +265,10 @@ function calculateCurrencyValue(value) {
           </span>
         </span>
       </div>
-      <div v-if="request.request.params[0].data" class="flex flex-col gap-1">
+      <div
+        v-if="request.request.params[0].data"
+        class="flex flex-col gap-1 h-40"
+      >
         <span>Message</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
@@ -290,7 +293,15 @@ function calculateCurrencyValue(value) {
       />
     </div>
     <div class="mt-auto flex flex-col gap-4">
-      <div class="flex gap-2">
+      <div v-if="request.requestOrigin === 'auth-verify'">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('proceed')"
+        >
+          Proceed
+        </button>
+      </div>
+      <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
           @click="emits('reject')"

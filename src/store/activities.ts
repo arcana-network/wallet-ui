@@ -6,11 +6,7 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import {
-  AccountHandler,
-  EVMAccountHandler,
-  SolanaAccountHandler,
-} from '@/utils/accountHandler'
+import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import {
   CONTRACT_EVENT_CODE,
@@ -20,7 +16,7 @@ import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
 
-type ChainId = string
+type ChainId = string | number
 
 type TransactionOps =
   | 'Send'
@@ -234,7 +230,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               },
               customToken,
             }
-            this.saveActivity(chainId, activity)
+            this.saveActivity(Number(chainId), activity)
           } else {
             const instructions = tx.transaction.message.instructions
             instructions.forEach((instruction) => {

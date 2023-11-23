@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { AuthProvider, CURVE } from '@arcana/auth-core'
+import { AuthProvider } from '@arcana/auth-core'
 import type { InitParams } from '@arcana/auth-core/types/types'
 
 import { useAppStore } from '@/store/app'
@@ -12,36 +12,48 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
+const getDefaultParams = () => {
+  const params: Omit<InitParams, 'appId'> = {
+    // @ts-ignore
+    network: AUTH_NETWORK,
+    autoRedirect: false,
+    debug: true,
+    shouldVerifyState: false,
+    // useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+    revokeTokenPostLogin: false,
+  }
+  return params
+}
+
 async function getAuthProvider(
   appId: string,
-  shouldVerifyState = false,
   autoClean = true
 ): Promise<AuthProvider> {
   if (!authProvider) {
     const appStore = useAppStore()
+    const params = getDefaultParams()
     const stor = getStorage()
 
-    const params: InitParams = {
-      appId: appId,
-      redirectUri: `${AUTH_URL}/verify/${appId}/`,
-      // @ts-ignore
-      network: AUTH_NETWORK,
-      autoRedirect: false,
-      debug: true,
-      shouldVerifyState,
-      useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
-      curve: appStore.curve,
-    }
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
-        // @ts-ignore
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
+        autoRedirect: false,
+        appId,
         revokeTokenPostLogin: false,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
       })
-      // @ts-ignore
       await authProvider.init()
     } else {
-      authProvider = await AuthProvider.init(params)
+      authProvider = await AuthProvider.init({
+        ...params,
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
+        autoRedirect: false,
+        appId,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+      })
     }
     // TODO find a comprehensive solution to this
     // @ts-ignore
@@ -55,4 +67,4 @@ async function getAuthProvider(
   return authProvider
 }
 
-export { getAuthProvider }
+export { getAuthProvider, getDefaultParams }

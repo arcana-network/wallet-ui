@@ -4,6 +4,7 @@ import dayjs from 'dayjs'
 
 import { AssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
+import { Theme } from '@/models/Theme'
 
 enum StorageKey {
   UserInfo = 'userInfo',
@@ -20,6 +21,7 @@ enum StorageKey {
   PK = 'pk',
   hasStarterTipShown = 'has-starter-tip-shown',
   PreferredAddressType = 'preferred-address-type',
+  Theme = 'theme',
   Curve = 'curve',
 }
 
@@ -230,6 +232,13 @@ class UserLocalStorage extends BaseStorage {
     )
   }
 
+  storeThemePreference(val: Theme) {
+    this.set(StorageKey.Theme, val)
+  }
+
+  getThemePreference(): Theme {
+    return this.get(StorageKey.Theme)
+  }
   setCurve(curve: CURVE) {
     this.set(StorageKey.Curve, curve)
   }
@@ -353,6 +362,7 @@ class UserSessionStorage extends BaseStorage {
   }
 }
 export {
+  are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,

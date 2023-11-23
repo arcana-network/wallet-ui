@@ -34,13 +34,14 @@ type AppState = {
   isMfaEnabled: boolean
   chainType: ChainType
   curve: CURVE
+  global?: boolean
 }
 
 export const useAppStore = defineStore('app', {
   state: () =>
     ({
       id: '',
-      theme: 'light',
+      theme: 'dark',
       parentAppUrl: null,
       showWallet: false,
       standaloneMode: 0,
@@ -105,6 +106,7 @@ export const useAppStore = defineStore('app', {
           style.borderTopRightRadius = '5px'
           style.borderTopLeftRadius = '5px'
         }
+        style.colorScheme = 'normal'
         return style
       }
     },
@@ -142,6 +144,9 @@ export const useAppStore = defineStore('app', {
     },
     setAppLogo(logo: AppLogo): void {
       this.appLogo = logo
+    },
+    setIsGlobalKeyspace(global: boolean): void {
+      this.global = global
     },
   },
 })

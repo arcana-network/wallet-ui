@@ -17,18 +17,18 @@ import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getGaslessEnabledStatus } from '@/services/gateway.service'
+import {
+  getGaslessEnabledStatus,
+  getAppConfig,
+} from '@/services/gateway.service'
+import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
-  CreateAccountHandler,
-  EVMAccountHandler,
-  SolanaAccountHandler,
-} from '@/utils/accountHandler'
+import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
@@ -36,6 +36,7 @@ import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -53,6 +54,7 @@ import { getStorage } from '@/utils/storageWrapper'
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const activitiesStore = useActivitiesStore()
 const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
@@ -66,10 +68,19 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
 const currencyStore = useCurrencyStore()
+const keyspaceType: Ref<'local' | 'global'> = ref('local')
 
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
+
+async function getKeySpaceType() {
+  const { data } = await getAppConfig(appStore.id)
+  const global = data.global
+  appStore.setIsGlobalKeyspace(global)
+  if (global) keyspaceType.value = 'global'
+  else keyspaceType.value = 'local'
+}
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -83,6 +94,16 @@ function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
 }
 
+function showStarterTips() {
+  const userId = userStore.info.id
+  const loginCount = storage.local.getLoginCount(userId)
+  const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
+  if (Number(loginCount) <= 2 && !hasStarterTipShown) {
+    router.push({ name: 'StarterTips' })
+    return
+  }
+}
+
 onMounted(async () => {
   try {
     loader.value.show = true
@@ -94,6 +115,7 @@ onMounted(async () => {
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
     await setRpcConfigs()
     await getRpcConfig()
+    await getKeySpaceType()
     await connectToParent()
     await getRpcConfigFromParent()
     await setTheme()
@@ -125,6 +147,7 @@ onMounted(async () => {
     console.log(e)
   } finally {
     loader.value.show = false
+    showStarterTips()
   }
 })
 
@@ -180,11 +203,7 @@ async function setMFABannerState() {
   if (requestStore.areRequestsPendingForApproval) {
     router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
-    const userId = userStore.info.id
-    const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-    if (Number(loginCount) <= 1 && !hasStarterTipShown)
-      router.push({ name: 'StarterTips' })
-    else router.push({ name: 'home' })
+    router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
@@ -224,6 +243,35 @@ async function initAccountHandler() {
   }
 }
 
+async function addToActivity(request) {
+  if (request.error === 'user_closed_popup') {
+    requestStore.skippedRequests[request.req.id] = {
+      request: request.req,
+      isPermissionGranted: false,
+      requestOrigin: 'auth-verify',
+    }
+  } else if (request.result) {
+    if (request.req.method === 'eth_sendTransaction') {
+      await activitiesStore.fetchAndSaveActivityFromHash({
+        txHash: request.result,
+        chainId: `${Number(request.chainId)}`,
+      })
+    } else if (
+      request.req.method === 'eth_signTypedData_v4' &&
+      request.req.params[1]
+    ) {
+      const params = JSON.parse(request.req.params[1])
+      if (params.domain.name === 'Arcana Forwarder') {
+        await activitiesStore.saveFileActivity(
+          `${Number(request.chainId)}`,
+          params.message,
+          params.domain.verifyingContract
+        )
+      }
+    }
+  }
+}
+
 async function connectToParent() {
   if (!parentConnection) {
     parentConnection = createParentConnection({
@@ -234,6 +282,8 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
+      addToActivity,
+      getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
       getUserInfo,
@@ -267,6 +317,7 @@ async function setTheme() {
     appStore.setTheme(theme)
     appStore.setAppLogo(logo)
     appStore.setName(appName)
+    storage.local.storeThemePreference(theme)
     const htmlEl = document.getElementsByTagName('html')[0]
     if (theme === 'dark') htmlEl.classList.add(theme)
   }

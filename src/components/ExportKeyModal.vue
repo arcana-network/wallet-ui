@@ -1,66 +1,68 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
+import { downloadFile } from '@/utils/downloadFile'
 import { getImage } from '@/utils/getImage'
+
+const toast = useToast()
 
 type ExportKeyModalProps = {
   privateKey: string
+  walletAddress: string
 }
 
 const props = defineProps<ExportKeyModalProps>()
 
-const showPK = ref(false)
+function handlePrivateKeyDownload(privateKey, walletAddress) {
+  const fileData = new Blob([privateKey], {
+    type: 'text/plain',
+  })
+  downloadFile(`${walletAddress}-private-key.txt`, fileData)
+}
 
-const emit = defineEmits(['copy', 'download', 'close'])
+async function copyToClipboard(value: string, message: string) {
+  try {
+    await navigator.clipboard.writeText(value)
+    toast.success(message)
+  } catch (err) {
+    toast.error('Failed to copy')
+  }
+}
 </script>
 
 <template>
-  <div class="flex flex-col gap-5">
-    <div class="flex justify-center">
-      <div class="font-bold text-lg">Export Private Key</div>
-    </div>
+  <div class="flex flex-col space-y-5">
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-between">
-        <label class="font-bold text-sm">Private Key</label>
-        <button
-          class="btn-tertiary flex gap-1 items-center"
-          :title="showPK ? 'Click to hide' : 'Click to reveal'"
-          @click="showPK = !showPK"
-        >
-          <img
-            :src="getImage(showPK ? 'eye-off.svg' : 'eye.svg')"
-            class="w-xs h-xs"
-          />
-          <span class="font-bold text-sm">{{ showPK ? 'Hide' : 'Show' }}</span>
-        </button>
+        <label class="text-sm font-semibold text-[#8D8D8D]">Private Key</label>
       </div>
-      <div class="relative">
-        <div
-          class="relative text-gray-100 card p-4 break-words font-normal text-base z-0"
-        >
-          {{ props.privateKey }}
-        </div>
-        <div
-          class="absolute inset-0 rounded-sm transition-all duration-200 z-10"
-          :class="showPK ? '' : 'glass-effect'"
-        ></div>
+      <div class="bg-black-400 rounded-md p-4 break-words font-normal text-lg">
+        {{ props.privateKey }}
       </div>
     </div>
     <div class="flex gap-8 justify-center">
       <button
         class="flex gap-1 items-center justify-center btn-tertiary text-sm font-medium p-2"
-        @click.stop="emit('copy')"
+        @click.stop="copyToClipboard(props.privateKey, 'Private Key Copied')"
       >
         <img :src="getImage('copy.svg')" class="w-lg h-lg" />
         <span>Copy</span>
       </button>
       <button
         class="flex gap-1 items-center justify-center btn-tertiary text-sm font-medium p-2"
-        @click.stop="emit('download')"
+        @click.stop="
+          handlePrivateKeyDownload(props.privateKey, props.walletAddress)
+        "
       >
         <img :src="getImage('download.svg')" class="w-lg h-lg" />
         <span>Download</span>
       </button>
+    </div>
+    <div class="flex space-x-3 bg-[#313131] p-2 rounded-sm">
+      <img class="w-5 h-5" src="@/assets/images/info-circle.svg" />
+      <span class="text-xs">
+        Please close this tab immediately after you back up your private key!
+      </span>
     </div>
   </div>
 </template>

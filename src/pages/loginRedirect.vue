@@ -55,7 +55,7 @@ async function init() {
       await verifyOpenerPage(state)
     }
 
-    const authProvider = await getAuthProvider(`${appId}`, false, false)
+    const authProvider = await getAuthProvider(`${appId}`, false)
     devLogger.log('[loginRedirect] app curve', app.curve)
     storage.local.setCurve(app.curve)
     const postLoginCleanup = await authProvider.handleRedirect()

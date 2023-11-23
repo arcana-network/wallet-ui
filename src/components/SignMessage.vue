@@ -34,7 +34,7 @@ const props = defineProps({
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 
-const emits = defineEmits(['reject', 'approve'])
+const emits = defineEmits(['reject', 'approve', 'proceed'])
 const userStore = useUserStore()
 
 function isSiweMessage(message: string) {
@@ -190,7 +190,15 @@ function isDeprecatedMethod() {
       </div> -->
     </div>
     <div class="mt-auto flex flex-col gap-4">
-      <div class="flex gap-2">
+      <div v-if="request.requestOrigin === 'auth-verify'">
+        <button
+          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          @click="emits('proceed')"
+        >
+          Proceed
+        </button>
+      </div>
+      <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
           @click="emits('reject')"

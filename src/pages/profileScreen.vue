@@ -1,22 +1,20 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
-import { storeToRefs } from 'pinia'
 import { ref, toRefs, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
-import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
+import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
-import { downloadFile } from '@/utils/downloadFile'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
@@ -30,7 +28,6 @@ const toast = useToast()
 const rpcStore = useRpcStore()
 const modalStore = useModalStore()
 const parentConnectionStore = useParentConnectionStore()
-const { selectedRpcConfig } = storeToRefs(rpcStore)
 const showPrivateKeyCautionModal = ref(false)
 const showMFAProceedModal = ref(false)
 const showExportKeyModal = ref(false)
@@ -42,7 +39,7 @@ const loader = ref({
 const {
   info: { email, name },
 } = user
-const { walletAddressShrinked, walletAddress, privateKey } = toRefs(user)
+const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
@@ -67,9 +64,32 @@ async function handleLogout() {
   parentConnectionInstance?.onEvent('disconnect')
 }
 
-function handleProceed() {
-  showPrivateKeyCautionModal.value = false
-  showExportKeyModal.value = true
+function getRequestObject() {
+  const request = {
+    method: '_arcana_privateKey',
+    params: {
+      privateKey: user.privateKey,
+      walletAddress: user.walletAddress,
+    },
+  }
+  return {
+    type: 'json_rpc_request',
+    data: {
+      request,
+      chainId: rpcStore.selectedChainId,
+    },
+  }
+}
+
+async function handleProceed() {
+  const isGlobalKeyspace = appStore.global
+  if (isGlobalKeyspace) {
+    await makeRequest(appId, getRequestObject())
+    handleHidePrivateKeyCautionModal()
+  } else {
+    showPrivateKeyCautionModal.value = false
+    showExportKeyModal.value = true
+  }
 }
 
 function handleShowPrivateKeyCautionModal() {
@@ -80,18 +100,6 @@ function handleShowPrivateKeyCautionModal() {
 function handleHidePrivateKeyCautionModal() {
   modalStore.setShowModal(false)
   showPrivateKeyCautionModal.value = false
-}
-
-function handleHideExportKeyModal() {
-  modalStore.setShowModal(false)
-  showExportKeyModal.value = false
-}
-
-function handlePrivateKeyDownload() {
-  const fileData = new Blob([privateKey.value], {
-    type: 'text/plain',
-  })
-  downloadFile(`${walletAddress.value}-private-key.txt`, fileData)
 }
 
 function handleShowMFAProceedModal(show: boolean) {
@@ -271,13 +279,6 @@ watch(
         @proceed="handleProceed"
         @close="handleHidePrivateKeyCautionModal"
       />
-      <ExportKeyModal
-        v-if="showExportKeyModal"
-        :private-key="privateKey"
-        @copy="copyToClipboard(privateKey, 'Private key copied')"
-        @download="handlePrivateKeyDownload"
-        @close="handleHideExportKeyModal"
-      />
       <MFAProceedModal
         v-if="showMFAProceedModal"
         @proceed="handleMFASetupClick"
@@ -286,40 +287,3 @@ watch(
     </Teleport>
   </div>
 </template>
-
-<style scoped>
-.home__title {
-  font-size: var(--fs-500);
-}
-
-.home__body-container {
-  padding: var(--p-400);
-  color: var(--fg-color);
-  border-radius: 10px;
-}
-
-.home__body-content-label {
-  font-size: var(--fs-300);
-  font-weight: 600;
-  color: var(--fg-color-secondary);
-}
-
-.home__body-content-value {
-  display: flex;
-  align-items: center;
-  font-size: var(--fs-400);
-  font-weight: 400;
-}
-
-.home__footer-button-outline {
-  color: var(--outlined-button-fg-color);
-  border-color: var(--outlined-button-border-color);
-}
-
-.home__footer-button-filled {
-  flex: 1;
-  color: var(--filled-button-fg-color);
-  background-color: var(--filled-button-bg-color);
-  border-radius: 10px;
-}
-</style>

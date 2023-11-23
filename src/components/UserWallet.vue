@@ -14,10 +14,12 @@ import { useToast } from 'vue-toastification'
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
+import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -45,6 +47,7 @@ type ModalState =
 const userStore = useUserStore()
 const modalStore = useModalStore()
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 const showModal: Ref<ModalState> = ref(false)
 const { currency } = storeToRefs(rpcStore)
 const chainSelectedForEdit: Ref<number | null> = ref(null)

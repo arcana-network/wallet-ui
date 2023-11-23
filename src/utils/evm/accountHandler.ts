@@ -68,6 +68,7 @@ class EVMAccountHandler {
       processTypedMessageV4: this.signTypedMessageV4Wrapper,
       processTransaction: this.sendTransactionWrapper,
       processDecryptMessage: this.decryptWrapper,
+      _getPrivateKey: this.getPrivateKey,
     })
   }
 
@@ -243,6 +244,10 @@ class EVMAccountHandler {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return [rpcStore.useGasless ? scwInstance.scwAddress : this.wallet.address]
+  }
+
+  getPrivateKey(): string {
+    return '0x' + userStore.privateKey
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {

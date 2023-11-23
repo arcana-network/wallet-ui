@@ -15,6 +15,7 @@ type EVMRequestMethod =
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
   | 'wallet_watchAsset'
+  | '_arcana_getPrivateKey'
 
 type SolanaRequestMethod =
   | 'signAndSendTransaction'
@@ -36,6 +37,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
+  _arcana_getPrivateKey: false,
   signAndSendTransaction: true,
   sendTransaction: true,
   signTransaction: true,
@@ -66,6 +68,12 @@ type RedirectParentConnectionApi = {
   replyTo(parentAppUrl?: string | null): Promise<void>
   goToWallet(): Promise<void>
   error(errorMessage: string, domain?: string): Promise<void>
+}
+
+type GlobalRedirectMethods = {
+  setSuccess(): Promise<void>
+  setError(errorMessage: string, domain?: string): Promise<void>
+  goToMfaRestore(id: string): void
 }
 
 type ParentConnectionApi = {
@@ -107,4 +115,5 @@ export type {
   RequestMethod,
   ProviderEvent,
   SDKVersion,
+  GlobalRedirectMethods,
 }

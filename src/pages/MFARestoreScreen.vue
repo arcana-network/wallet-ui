@@ -15,6 +15,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
+import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
@@ -28,6 +29,7 @@ const user = useUserStore()
 const toast = useToast()
 const app = useAppStore()
 const recoveryMethod = ref('')
+let global = false
 const securityQuestionModule = new SecurityQuestionModule(3)
 let questions: Ref<
   {
@@ -63,6 +65,8 @@ onBeforeMount(async () => {
     show: true,
     message: 'Loading metadata...',
   }
+  const config = await getAppConfig(appId)
+  global = config.data.global
   const userInfoSession = storage.session.getUserInfo()
   if (isInAppLogin(userInfoSession?.loginType)) {
     dkgShare = {
@@ -86,7 +90,7 @@ onBeforeMount(async () => {
   core = new Core({
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
-    appId,
+    appId: global ? 'global' : appId,
     gatewayUrl: GATEWAY_URL,
     debug: AUTH_NETWORK === 'dev',
     curve: app.curve,
@@ -158,7 +162,7 @@ async function handleLocalRecovery(key: string) {
     const core = new Core({
       dkgKey: userInfo.pk,
       userId: userInfo.userInfo.id,
-      appId: `${appId}`,
+      appId: global ? 'global' : `${appId}`,
       gatewayUrl: GATEWAY_URL,
       debug: AUTH_NETWORK === 'dev',
       curve: app.curve,
@@ -217,7 +221,7 @@ async function returnToParent(key: string) {
   const loginSrc = storage.local.getLoginSrc()
   const state = storage.session.getState() as string
 
-  const stateInfo = decodeJSON<StateInfo>(state)
+  const stateInfo = global ? { i: state } : decodeJSON<StateInfo>(state)
   const isStandalone =
     loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
 

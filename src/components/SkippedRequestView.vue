@@ -5,9 +5,14 @@ import { useToast } from 'vue-toastification'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessage from '@/components/SignMessage.vue'
 import { router } from '@/routes'
+import { makeRequest } from '@/services/request.service'
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 
 const requestStore = useRequestStore()
+const rpcStore = useRpcStore()
+const appStore = useAppStore()
 const toast = useToast()
 
 const currentRequest = computed(() => {
@@ -31,6 +36,35 @@ const onApproveClick = (requestId) => {
 
 const onRejectClick = (requestId) => {
   requestStore.rejectSkippedRequest(requestId)
+}
+
+const onProceedClick = async (request) => {
+  function getRequestObject() {
+    const requestObj = {
+      method: request.method,
+      params: [...JSON.parse(JSON.stringify(request.params))],
+    }
+    return {
+      type: 'json_rpc_request',
+      data: {
+        requestOrigin: 'wallet-ui',
+        request: requestObj,
+        chainId: rpcStore.selectedChainId,
+      },
+    }
+  }
+  await makeRequest(appStore.id, getRequestObject())
+  window.addEventListener('message', (event) => {
+    const { data } = event
+    const { type, response } = data
+    if (type === 'json_rpc_response') {
+      if (response.message === 'approve') {
+        requestStore.approveSkippedRequest(request.id)
+      } else if (response.message === 'reject') {
+        requestStore.rejectSkippedRequest(request.id)
+      }
+    }
+  })
 }
 
 const isSendTransactionRequest = (requestId) => {
@@ -63,12 +97,14 @@ watch(
         @gas-price-input="handleGasPriceInput"
         @reject="() => onRejectClick(currentRequest?.request.id)"
         @approve="() => onApproveClick(currentRequest?.request.id)"
+        @proceed="onProceedClick(currentRequest.request)"
       />
       <SignMessage
         v-else
         :request="currentRequest"
         @reject="() => onRejectClick(currentRequest?.request.id)"
         @approve="() => onApproveClick(currentRequest?.request.id)"
+        @proceed="onProceedClick(currentRequest.request)"
       />
     </div>
     <div
