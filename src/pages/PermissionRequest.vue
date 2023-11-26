@@ -447,6 +447,7 @@ function handleGasPriceInput(value, request) {
           <ExportKeyModal
             :private-key="request.params.privateKey"
             :wallet-address="request.params.walletAddress"
+            :wallet-domain="walletDomain"
           />
         </div>
         <div v-else-if="request?.method === ARCANA_SEND_TOKEN_METHOD">

@@ -5,6 +5,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
+import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -278,6 +279,11 @@ watch(
         v-if="showPrivateKeyCautionModal"
         @proceed="handleProceed"
         @close="handleHidePrivateKeyCautionModal"
+      />
+      <ExportKeyModal
+        v-if="showExportKeyModal"
+        :private-key="user.privateKey"
+        :wallet-address="user.walletAddress"
       />
       <MFAProceedModal
         v-if="showMFAProceedModal"
