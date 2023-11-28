@@ -83,6 +83,7 @@ type ParentConnectionApi = {
   getAppMode(): Promise<AppMode>
   getWalletPosition(): Position
   getSDKVersion(): SDKVersion
+  setAddressType(addressType: string): void
 
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
   setSessionID(sessionID: string, expiry: number): void

@@ -49,6 +49,10 @@ class EVMRequestHandler {
     }
   }
 
+  public sendAddressType(addressType: string) {
+    this.emitEvent('addressChanged', addressType)
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     try {
       this.handler = this.initRpcEngine(c)
