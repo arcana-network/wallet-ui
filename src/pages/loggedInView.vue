@@ -16,6 +16,7 @@ import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
+import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
   getGaslessEnabledStatus,
@@ -27,6 +28,7 @@ import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
@@ -55,6 +57,7 @@ const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
 const activitiesStore = useActivitiesStore()
+const starterTipsStore = useStarterTipsStore()
 const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
@@ -94,12 +97,12 @@ function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
 }
 
-function showStarterTips() {
+function setShowStarterTips() {
   const userId = userStore.info.id
   const loginCount = storage.local.getLoginCount(userId)
   const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
   if (Number(loginCount) <= 2 && !hasStarterTipShown) {
-    router.push({ name: 'StarterTips' })
+    starterTipsStore.setShowStarterTips()
     return
   }
 }
@@ -147,7 +150,7 @@ onMounted(async () => {
     console.log(e)
   } finally {
     loader.value.show = false
-    showStarterTips()
+    setShowStarterTips()
   }
 })
 
@@ -525,5 +528,9 @@ watch(
         <component :is="Component" />
       </Transition>
     </RouterView>
+    <StarterTips
+      v-if="starterTipsStore.show"
+      @close="starterTipsStore.setHideStarterTips()"
+    />
   </div>
 </template>

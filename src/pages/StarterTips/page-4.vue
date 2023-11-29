@@ -3,7 +3,7 @@ const dots = [1, 2, 3, 4]
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 h-full p-6 bg-black-100 opacity-90">
     <h1 class="text-xl uppercase font-black">Digital Collectibles Support</h1>
     <p class="text-sm text-[#8D8D8D]">
       View, send or receive NFTs from all the supported blockchains right within

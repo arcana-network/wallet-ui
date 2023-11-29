@@ -18,6 +18,7 @@ import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
@@ -35,6 +36,7 @@ const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 const toast = useToast()
+const starterTipsStore = useStarterTipsStore()
 
 type ModalState =
   | 'send'
@@ -229,6 +231,11 @@ async function copyToClipboard(value: string) {
             <ListboxButton class="flex justify-between items-center">
               <button
                 class="flex items-center space-x-2"
+                :class="{
+                  'z-[2147483648] cursor-pointer':
+                    starterTipsStore.showWalletAddress,
+                }"
+                :disabled="starterTipsStore.showWalletAddress"
                 @click.stop="showAddressListDropDown = true"
               >
                 <img
@@ -243,6 +250,7 @@ async function copyToClipboard(value: string) {
                     >
                     <button
                       title="Click to copy wallet address"
+                      :disabled="starterTipsStore.showWalletAddress"
                       @click.stop="copyToClipboard(selectedAddressType.address)"
                     >
                       <img :src="getImage('copy.svg')" class="w-xl h-xl" />
@@ -344,7 +352,13 @@ async function copyToClipboard(value: string) {
         </button>
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          :disabled="!transakNetwork && onRampMoney === false"
+          :class="{
+            'z-[2147483648] cursor-pointer': starterTipsStore.showBuyButton,
+          }"
+          :disabled="
+            (!transakNetwork && onRampMoney === false) ||
+            starterTipsStore.showBuyButton
+          "
           @click.stop="handleBuy(true)"
         >
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />

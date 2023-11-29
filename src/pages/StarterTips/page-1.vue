@@ -3,7 +3,7 @@ const dots = [1, 2, 3, 4]
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 bg-black-100 h-full p-6">
     <h1 class="text-xl uppercase font-black">New user orientation</h1>
     <p class="text-sm text-[#8D8D8D]">
       The following screens will help you understand the main functionalities

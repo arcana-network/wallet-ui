@@ -13,6 +13,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -35,6 +36,7 @@ const loader = ref({
   show: false,
   message: '',
 })
+const starterTipsStore = useStarterTipsStore()
 
 const {
   info: { email, name },
@@ -241,7 +243,11 @@ watch(
         <span class="text-sm text-gray-100">Private Key</span>
         <button
           class="flex gap-2 items-center"
+          :class="{
+            'z-[2147483648] cursor-pointer': starterTipsStore.showExportkey,
+          }"
           title="Click to export private key"
+          :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
           <span class="text-lg font-bold"> Export Key </span>
