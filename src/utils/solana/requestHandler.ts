@@ -41,6 +41,10 @@ class SolanaRequestHandler {
     }
   }
 
+  public sendAddressType(addressType: string) {
+    this.emitEvent('addressChanged', addressType)
+  }
+
   public async emitEvent(e: string, params?: ProviderEvent) {
     const c = await this.getConnection('onEvent')
     if (!(c instanceof Error)) {

@@ -36,7 +36,6 @@ import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
-import { EVMRequestHandler } from '@/utils/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -118,6 +117,7 @@ onMounted(async () => {
     await getKeySpaceType()
     await connectToParent()
     await getRpcConfigFromParent()
+    sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
     await getAccountDetails()
     startCurrencyInterval()
@@ -459,10 +459,16 @@ function getWalletAddressType() {
   rpcStore.setPreferredWalletAddressType(preferredAddressType)
 }
 
+async function sendAddressType(addressType: string) {
+  const parentConnectionInstance = await parentConnection.promise
+  parentConnectionInstance.setAddressType(addressType)
+}
+
 watch(
   () => rpcStore.preferredAddressType,
   () => {
     const addressType = rpcStore.preferredAddressType
+    getRequestHandler().sendAddressType(addressType)
     storage.local.setPreferredAddressType(addressType)
   }
 )
