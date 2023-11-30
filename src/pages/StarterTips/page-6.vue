@@ -5,9 +5,6 @@ const dots = [1, 2, 3, 4]
 <template>
   <div class="h-full w-full flex flex-col">
     <div class="h-3/4 w-full relative">
-      <div
-        class="w-40 h-40 border-2 z-[999] border-[#444444] rounded-full absolute top-64 right-6"
-      ></div>
       <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
     </div>
     <div class="bg-black-100 opacity-90 h-1/4 p-6">

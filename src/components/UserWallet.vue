@@ -232,12 +232,16 @@ async function copyToClipboard(value: string) {
               <button
                 class="flex items-center space-x-2"
                 :class="{
-                  'z-[2147483648] cursor-pointer':
+                  'z-[2147483648] cursor-pointer relative scale-90':
                     starterTipsStore.showWalletAddress,
                 }"
                 :disabled="starterTipsStore.showWalletAddress"
                 @click.stop="showAddressListDropDown = true"
               >
+                <div
+                  v-if="starterTipsStore.showWalletAddress"
+                  class="startertips-circle z-[2147483648] w-[192px] h-[192px] -top-[66px] left-1"
+                ></div>
                 <img
                   src="@/assets/images/fallback-logo-dark-mode.png"
                   class="w-xl h-xl rounded-full"
@@ -353,7 +357,8 @@ async function copyToClipboard(value: string) {
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :class="{
-            'z-[2147483648] cursor-pointer': starterTipsStore.showBuyButton,
+            'z-[2147483648] cursor-pointer relative':
+              starterTipsStore.showBuyButton,
           }"
           :disabled="
             (!transakNetwork && onRampMoney === false) ||
@@ -361,6 +366,10 @@ async function copyToClipboard(value: string) {
           "
           @click.stop="handleBuy(true)"
         >
+          <div
+            v-if="starterTipsStore.showBuyButton"
+            class="startertips-circle z-[2147483648] w-40 h-40 -top-16 -left-3"
+          ></div>
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
           Buy
         </button>

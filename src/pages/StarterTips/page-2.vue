@@ -3,14 +3,8 @@ const dots = [1, 2, 3, 4]
 </script>
 
 <template>
-  <div class="h-full w-full flex flex-col">
-    <div class="h-3/4 w-full relative">
-      <div
-        class="w-48 h-48 border-1 z-[999] border-[#444444] rounded-full absolute top-24 left-8"
-      ></div>
-      <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
-    </div>
-    <div class="bg-black-100 opacity-90 p-6 flex flex-col justify-end">
+  <div class="h-full w-full flex flex-col justify-end bg-black-100 opacity-90">
+    <div class="bg-black-100 p-6 flex flex-col justify-end">
       <h1 class="text-xl uppercase font-black">Your Account</h1>
       <p class="text-sm text-[#8D8D8D]">
         This is also known as your wallet address, public key or public address.

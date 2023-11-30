@@ -130,4 +130,8 @@
     background: rgb(49 49 49 / 62%);
     backdrop-filter: blur(3.5px);
   }
+
+  .startertips-circle {
+    @apply absolute rounded-full bg-transparent border-2 border-white-100;
+  }
 }

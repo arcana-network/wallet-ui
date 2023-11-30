@@ -88,10 +88,15 @@ function handleFallbackLogo(event) {
         <button
           class="flex items-center"
           :class="{
-            'z-[2147483648] cursor-pointer': starterTipsStore.showSwitchNetwork,
+            'z-[2147483648] cursor-pointer relative':
+              starterTipsStore.showSwitchNetwork,
           }"
           :disabled="starterTipsStore.showSwitchNetwork"
         >
+          <div
+            v-if="starterTipsStore.showSwitchNetwork"
+            class="startertips-circle z-[2147483648] w-16 h-16 -top-5 -right-2"
+          ></div>
           <div
             v-if="hasChainUpdated"
             class="w-xl h-xl rounded-full"

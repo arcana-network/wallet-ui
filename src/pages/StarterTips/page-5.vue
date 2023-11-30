@@ -22,9 +22,6 @@ const dots = [1, 2, 3, 4]
       </div>
     </div>
     <div class="h-3/5 w-full relative">
-      <div
-        class="w-32 h-32 border-1 z-[999] border-[#444444] rounded-full absolute top-36 left-6"
-      ></div>
       <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
     </div>
   </div>
