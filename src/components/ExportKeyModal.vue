@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification'
 
+import { AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getImage } from '@/utils/getImage'
 
@@ -9,9 +10,21 @@ const toast = useToast()
 type ExportKeyModalProps = {
   privateKey: string
   walletAddress: string
+  walletDomain?: string
 }
 
 const props = defineProps<ExportKeyModalProps>()
+
+function sendCopyRequest(data) {
+  const allowedDomain = props.walletDomain!
+  window.parent.postMessage(
+    {
+      type: 'copy_to_clipboard',
+      data,
+    },
+    allowedDomain
+  )
+}
 
 function handlePrivateKeyDownload(privateKey, walletAddress) {
   const fileData = new Blob([privateKey], {
@@ -22,8 +35,14 @@ function handlePrivateKeyDownload(privateKey, walletAddress) {
 
 async function copyToClipboard(value: string, message: string) {
   try {
-    await navigator.clipboard.writeText(value)
-    toast.success(message)
+    const a = new URL(AUTH_URL)
+    const b = new URL(document.referrer)
+    if (a.href === b.href) {
+      sendCopyRequest(value)
+    } else {
+      await navigator.clipboard.writeText(value)
+      toast.success(message)
+    }
   } catch (err) {
     toast.error('Failed to copy')
   }
