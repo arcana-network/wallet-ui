@@ -118,7 +118,10 @@ const transakNetwork = computed(() => {
 
 const onRampMoney = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
-  if (isSupportedByOnRampMoney(selectedChainId)) {
+  if (
+    appStore.chainType === ChainType.evm_secp256k1 &&
+    isSupportedByOnRampMoney(selectedChainId)
+  ) {
     return selectedChainId
   } else {
     return false
