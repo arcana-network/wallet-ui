@@ -248,9 +248,11 @@ async function copyToClipboard(value: string) {
                       <img :src="getImage('copy.svg')" class="w-xl h-xl" />
                     </button>
                   </div>
-                  <span class="text-left text-xs text-[#8d8d8d]">{{
-                    selectedAddressType.label
-                  }}</span>
+                  <span
+                    v-if="appStore.chainType === ChainType.evm_secp256k1"
+                    class="text-left text-xs text-[#8d8d8d]"
+                    >{{ selectedAddressType.label }}</span
+                  >
                 </div>
               </button>
               <img
