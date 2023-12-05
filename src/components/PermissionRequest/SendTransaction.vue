@@ -149,7 +149,9 @@ onMounted(async () => {
       <span v-else class="text-sm text-[#8D8D8D]">
         Additional
         <span class="text-white-400">{{
-          calculateGasPrice(request.params[0].gas || request.params[0].gasPrice)
+          calculateGasPrice(
+            customGasPrice.maxFeePerGas || request.params[0].gasPrice
+          )
         }}</span>
         for Transaction Fees
       </span>
