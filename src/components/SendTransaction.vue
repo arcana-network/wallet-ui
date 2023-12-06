@@ -142,7 +142,7 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gas || params.gasPrice)
+  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 1.5)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
