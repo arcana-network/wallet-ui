@@ -367,17 +367,23 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
               showToast('error', displayError)
             }
           }
-          return
-        } else {
-          const asyncMethods = [
-            'eth_sendTransaction',
-            'wallet_watchAsset',
-            'wallet_switchEthereumChain',
-            'wallet_addEthereumChain',
-          ]
-          if (asyncMethods.includes(request.method)) {
-            const message = `${request.method} execution completed`
-            await showToast('success', message)
+          if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
+            const params = JSON.parse(request.params[1])
+            if (params.domain.name === 'Arcana Forwarder') {
+              await activitiesStore.saveFileActivity(
+                rpcStore.selectedRpcConfig?.chainId,
+                params.message,
+                params.domain.verifyingContract
+              )
+            }
+          } else if (
+            request.method === 'eth_sendTransaction' &&
+            response.result
+          ) {
+            await activitiesStore.fetchAndSaveActivityFromHash({
+              txHash: response.result,
+              chainId: rpcStore.selectedRpcConfig?.chainId,
+            })
           }
         }
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
@@ -439,9 +445,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-
-  if (request.method === 'wallet_switchEthereumChain') {
+  } else if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
       await keeper.reply(request.method, {
@@ -452,8 +456,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-  if (request.method === 'eth_signTypedData_v4') {
+  } else if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])
     let error: string | unknown | null = null
     if (typeof params !== 'object' || !params.domain) {
@@ -466,6 +469,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }
+
     if (error) {
       await keeper.reply(request.method, {
         jsonrpc: '2.0',
