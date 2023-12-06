@@ -142,7 +142,7 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gas || params.gasPrice)
+  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 1.5)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
@@ -194,7 +194,10 @@ function calculateCurrencyValue(value) {
     @reject="emits('reject')"
   />
   <div v-else class="card p-4 flex flex-1 flex-col gap-4">
-    <div class="flex flex-col space-y-2">
+    <div
+      v-if="route.name !== 'PermissionRequest'"
+      class="flex flex-col space-y-2"
+    >
       <p class="text-lg text-center font-bold flex-grow">Send Transaction</p>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
@@ -292,7 +295,10 @@ function calculateCurrencyValue(value) {
         @gas-price-input="handleSetGasPrice"
       />
     </div>
-    <div class="mt-auto flex flex-col gap-4">
+    <div
+      v-if="route.name !== 'PermissionRequest'"
+      class="mt-auto flex flex-col gap-4"
+    >
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
