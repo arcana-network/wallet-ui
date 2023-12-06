@@ -71,10 +71,19 @@ const LoginState = {
 }
 
 const initPasswordlessLogin = async (email: string) => {
+  const provider = await getAuthProvider(appId as string)
+  if (provider.appConfig.global) {
+    const response = await provider.loginWithPasswordlessStart({
+      email,
+      kind: 'otp',
+    })
+    if ((response as { url: string }).url) {
+      return (response as { url: string }).url
+    }
+  }
   if (passwordlessLoginHandler) {
     passwordlessLoginHandler.cancel()
   }
-  const provider = await getAuthProvider(appId as string)
 
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
@@ -84,6 +93,7 @@ const initPasswordlessLogin = async (email: string) => {
     kind: 'link',
     state,
   })
+
   LoginState.passwordless.success = response.success
   if (!response.success) {
     LoginState.passwordless.error = response.error ?? "Couldn't start login"
