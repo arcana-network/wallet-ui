@@ -6,6 +6,7 @@ import type { NFT, NFTContractType } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
 import { useUserStore } from '@/store/user'
+import { EVMAccountHandler } from '@/utils/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type ContractParams = {
@@ -14,7 +15,8 @@ type ContractParams = {
 }
 
 async function getERCStandard(address): Promise<NFTContractType | undefined> {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const provider = accountHandler.provider
 
   const ERC165Abi = [
@@ -51,7 +53,8 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
 }
 
 function get721Contract(contractAddress: string) {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   return new ethers.Contract(
     contractAddress,
     erc721abi,
@@ -60,7 +63,8 @@ function get721Contract(contractAddress: string) {
 }
 
 function get1155Contract(contractAddress: string) {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   return new ethers.Contract(
     contractAddress,
     erc1155abi,

@@ -80,7 +80,7 @@ function truncateAddress(address: string) {
           <span class="text-base font-normal text-gray-100">Quantity</span>
           <span class="text-base">{{ props.previewData.quantity || 1 }}</span>
         </div>
-        <div class="flex justify-between">
+        <div v-if="Number(txFees)" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
           <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
         </div>

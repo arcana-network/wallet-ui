@@ -21,10 +21,10 @@ async function setChain() {
   const { chainId, ...rpcConfig } = rpcStore.selectedRpcConfig
 
   const selectedChainId = Number(chainId)
-  await getRequestHandler().setRpcConfig({
-    ...rpcConfig,
-    chainId: selectedChainId,
-  })
+  // await getRequestHandler().setRpcConfig({
+  //   ...rpcConfig,
+  //   chainId: selectedChainId,
+  // })
 }
 watch(selectedChain, async () => {
   rpcStore.setSelectedChainId(selectedChain.value.chainId)

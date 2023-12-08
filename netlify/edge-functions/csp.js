@@ -13,7 +13,7 @@ export default async (req, context) => {
       throw new Error('Invalid AppId')
     }
 
-    if (appId !== 'assets') {
+    if (!(appId == 'assets' || appId == 'global-redirect')) {
       const domain = await fetchDomain(appId)
       header = getHeader(domain)
     }
@@ -67,5 +67,7 @@ const getHeader = (domain = '') =>
   "style-src 'self' 'unsafe-inline' https://*.cloudfront.net;" +
   'frame-src *.arcana.network *.transak.com *.ramp.network;' +
   (domain.length > 0
-    ? `frame-ancestors *.arcana.network http://localhost ${domain};`
+    ? `frame-ancestors ${Netlify.env.get(
+        'VUE_APP_WALLET_AUTH_URL'
+      )} *.arcana.network http://localhost http://localhost:* ${domain};`
     : '')

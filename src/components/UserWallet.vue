@@ -14,10 +14,12 @@ import { useToast } from 'vue-toastification'
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
+import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -45,6 +47,7 @@ type ModalState =
 const userStore = useUserStore()
 const modalStore = useModalStore()
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 const showModal: Ref<ModalState> = ref(false)
 const { currency } = storeToRefs(rpcStore)
 const chainSelectedForEdit: Ref<number | null> = ref(null)
@@ -52,12 +55,13 @@ const showAddressListDropDown = ref(false)
 
 const currencyStore = useCurrencyStore()
 const walletBalance = computed(() => {
+  const DecimalPow = getRequestHandler().getAccountHandler().decimals
   return rpcStore.walletBalance
     ? new Decimal(rpcStore.walletBalance)
-        .div(Decimal.pow(10, 18))
+        .div(Decimal.pow(10, DecimalPow))
         .toDecimalPlaces(9)
         .toString()
-    : ''
+    : '0'
 })
 const walletBalanceInCurrency = computed(() => {
   const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
@@ -114,7 +118,10 @@ const transakNetwork = computed(() => {
 
 const onRampMoney = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
-  if (isSupportedByOnRampMoney(selectedChainId)) {
+  if (
+    appStore.chainType === ChainType.evm_secp256k1 &&
+    isSupportedByOnRampMoney(selectedChainId)
+  ) {
     return selectedChainId
   } else {
     return false
@@ -167,17 +174,17 @@ function hasWalletBalanceAfterDecimals() {
   return false
 }
 
-watch(
-  () => rpcStore.selectedRPCConfig?.chainId,
-  async () => {
-    if (rpcStore.selectedRPCConfig) {
-      await getRequestHandler().setRpcConfig({
-        ...rpcStore.selectedRPCConfig,
-        chainId: Number(rpcStore.selectedRPCConfig.chainId),
-      })
-    }
-  }
-)
+// watch(
+//   () => rpcStore.selectedRPCConfig?.chainId,
+//   async () => {
+//     if (rpcStore.selectedRPCConfig) {
+//       await getRequestHandler().setRpcConfig({
+//         ...rpcStore.selectedRPCConfig,
+//         chainId: Number(rpcStore.selectedRPCConfig.chainId),
+//       })
+//     }
+//   }
+// )
 
 watch(
   () => userStore.scwAddress,
@@ -244,9 +251,11 @@ async function copyToClipboard(value: string) {
                       <img :src="getImage('copy.svg')" class="w-xl h-xl" />
                     </button>
                   </div>
-                  <span class="text-left text-xs text-[#8d8d8d]">{{
-                    selectedAddressType.label
-                  }}</span>
+                  <span
+                    v-if="appStore.chainType === ChainType.evm_secp256k1"
+                    class="text-left text-xs text-[#8d8d8d]"
+                    >{{ selectedAddressType.label }}</span
+                  >
                 </div>
               </button>
               <img

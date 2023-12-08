@@ -1,3 +1,4 @@
+import base58 from 'bs58'
 import { stripHexPrefix, isHexString } from 'ethereumjs-util'
 
 function isJson(str: string) {
@@ -13,7 +14,10 @@ function hex2a(hexx: string) {
   return Buffer.from(stripHexPrefix(hexx), 'hex').toString()
 }
 
-export const advancedInfo = (method: string, params: string | string[]) => {
+export const advancedInfo = (
+  method: string,
+  params: string | string[] | any
+) => {
   let data
   if (method == 'eth_sign' && isJson(params[1])) {
     const jsonData = JSON.parse(params[1])
@@ -58,6 +62,18 @@ export const advancedInfo = (method: string, params: string | string[]) => {
     data = {
       'Cipher text': params[0],
     }
+  } else if (
+    method === 'signTransaction' ||
+    method === 'signAndSendTransaction'
+  ) {
+    data = params.message
+  } else if (method === 'signAllTransactions') {
+    data = params.message
+  } else if (method === 'signMessage') {
+    const bs58decoded = new TextDecoder().decode(
+      base58.decode(params.message as unknown as string)
+    )
+    data = bs58decoded
   } else {
     data = params
   }

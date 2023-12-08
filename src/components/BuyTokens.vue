@@ -4,6 +4,9 @@ import { ref, type Ref } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
 import { openTransak } from '@/utils/transak'
+import { useImage } from '@/utils/useImage'
+
+const getImage = useImage()
 
 type BuyTokenProps = {
   transakNetwork?: string
@@ -93,69 +96,79 @@ function handleDone() {
           choose the provider and click PROCEED.
         </p>
       </div>
-      <form class="flex flex-col gap-2 mt-5" @submit.prevent="handleBuy">
-        <div
-          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
-          :class="{
-            'opacity-60 cursor-not-allowed': !props.transakNetwork,
-            'hover:border-gray-100 cursor-pointer': props.transakNetwork,
-            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
-              selectedProvider === 'transak',
-            'border-gray-800 dark:border-gray-200':
-              selectedProvider !== 'transak',
-          }"
-          @click.stop="
-            props.transakNetwork ? (selectedProvider = 'transak') : void 0
-          "
-        >
-          <label for="Transak" class="flex gap-2 items-center cursor-pointer">
-            <img src="@/assets/images/transak.png" class="h-xl w-xl" />
-            <span class="text-base font-normal">Transak</span>
-          </label>
-          <input
-            id="Transak"
-            v-model="selectedProvider"
-            type="radio"
-            value="transak"
-            name="provider"
-            :disabled="!props.transakNetwork"
-            class="radio"
-          />
-        </div>
-        <div
-          class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
-          :class="{
-            'opacity-60 cursor-not-allowed': !props.onRampMoney,
-            'hover:border-gray-100 cursor-pointer': props.onRampMoney,
-            'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
-              selectedProvider === 'onramp.money',
-            'border-gray-800 dark:border-gray-200':
-              selectedProvider !== 'onramp.money',
-          }"
-          @click.stop="
-            props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0
-          "
-        >
-          <label
-            for="OnRampMoney"
-            class="flex gap-2 items-center cursor-pointer"
-            :class="{ 'opacity-50': props.onRampMoney === false }"
+      <form class="flex flex-col mt-5 space-y-4" @submit.prevent="handleBuy">
+        <div class="flex flex-col gap-2">
+          <div
+            class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+            :class="{
+              'opacity-60 cursor-not-allowed': !props.transakNetwork,
+              'hover:border-gray-100 cursor-pointer': props.transakNetwork,
+              'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
+                selectedProvider === 'transak',
+              'border-gray-800 dark:border-gray-200':
+                selectedProvider !== 'transak',
+            }"
+            @click.stop="
+              props.transakNetwork ? (selectedProvider = 'transak') : void 0
+            "
           >
-            <img
-              src="@/assets/images/onrampmoney.png"
-              class="h-7 w-7 bg-[#F2F2F2] rounded-full"
+            <label for="Transak" class="flex gap-2 items-center cursor-pointer">
+              <img src="@/assets/images/transak.png" class="h-xl w-xl" />
+              <span class="text-base font-normal">Transak</span>
+            </label>
+            <input
+              id="Transak"
+              v-model="selectedProvider"
+              type="radio"
+              value="transak"
+              name="provider"
+              :disabled="!props.transakNetwork"
+              class="radio"
             />
-            <span class="text-base">onramp.money</span>
-          </label>
-          <input
-            id="OnRampMoney"
-            v-model="selectedProvider"
-            type="radio"
-            value="onramp.money"
-            name="provider"
-            :disabled="props.onRampMoney === false"
-            class="radio"
-          />
+          </div>
+          <div
+            class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+            :class="{
+              'opacity-60 cursor-not-allowed': !props.onRampMoney,
+              'hover:border-gray-100 cursor-pointer': props.onRampMoney,
+              'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
+                selectedProvider === 'onramp.money',
+              'border-gray-800 dark:border-gray-200':
+                selectedProvider !== 'onramp.money',
+            }"
+            @click.stop="
+              props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0
+            "
+          >
+            <label
+              for="OnRampMoney"
+              class="flex gap-2 items-center cursor-pointer"
+              :class="{ 'opacity-50': props.onRampMoney === false }"
+            >
+              <img
+                src="@/assets/images/onrampmoney.png"
+                class="h-7 w-7 bg-[#F2F2F2] rounded-full"
+              />
+              <span class="text-base">onramp.money</span>
+            </label>
+            <input
+              id="OnRampMoney"
+              v-model="selectedProvider"
+              type="radio"
+              value="onramp.money"
+              name="provider"
+              :disabled="props.onRampMoney === false"
+              class="radio"
+            />
+          </div>
+        </div>
+        <div class="flex space-x-3 bg-[#313131] p-3 rounded-sm">
+          <img class="w-4 h-4 mt-1" :src="getImage('info-icon')" />
+          <p class="text-xs text-[#8D8D8D]">
+            Your wallet address will be auto-filled, please verify. The time
+            taken for funds to reflect in the wallet varies based on payment
+            method.
+          </p>
         </div>
         <div class="flex mt-8">
           <button

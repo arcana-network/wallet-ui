@@ -1,8 +1,10 @@
 import { GetInfoOutput } from '@arcana/auth-core'
+import { CURVE } from '@arcana/key-helper'
 import dayjs from 'dayjs'
 
 import { AssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
+import { Theme } from '@/models/Theme'
 
 enum StorageKey {
   UserInfo = 'userInfo',
@@ -17,7 +19,10 @@ enum StorageKey {
   NFT = 'nft_list',
   AssetContract = 'asset-contracts',
   PK = 'pk',
+  hasStarterTipShown = 'has-starter-tip-shown',
   PreferredAddressType = 'preferred-address-type',
+  Theme = 'theme',
+  Curve = 'curve',
 }
 
 type UserInfo = GetInfoOutput & {
@@ -193,6 +198,14 @@ class UserLocalStorage extends BaseStorage {
     )
   }
 
+  setHasStarterTipShown(userId: string, val: boolean) {
+    this.set(`${userId}-${StorageKey.hasStarterTipShown}`, val)
+  }
+
+  getHasStarterTipShown(userId: string) {
+    return this.get<boolean>(`${userId}-${StorageKey.hasStarterTipShown}`)
+  }
+
   setPK(val: { pk: string; id: string; exp: dayjs.Dayjs | undefined }) {
     this.set(StorageKey.PK, val)
   }
@@ -217,6 +230,21 @@ class UserLocalStorage extends BaseStorage {
     return this.get<PreferredAddressType | null>(
       StorageKey.PreferredAddressType
     )
+  }
+
+  storeThemePreference(val: Theme) {
+    this.set(StorageKey.Theme, val)
+  }
+
+  getThemePreference(): Theme {
+    return this.get(StorageKey.Theme)
+  }
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
   }
 }
 
@@ -310,6 +338,14 @@ class UserSessionStorage extends BaseStorage {
     return this.get<UserInfo>(StorageKey.UserInfo)
   }
 
+  setCurve(curve: CURVE) {
+    this.set(StorageKey.Curve, curve)
+  }
+
+  getCurve() {
+    return this.get<CURVE>(StorageKey.Curve)
+  }
+
   clearUserInfo() {
     this.delete(StorageKey.UserInfo)
   }
@@ -326,6 +362,7 @@ class UserSessionStorage extends BaseStorage {
   }
 }
 export {
+  are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,

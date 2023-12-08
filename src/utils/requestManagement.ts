@@ -1,4 +1,3 @@
-// Todo: Find a better place for these functions
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import { ethers } from 'ethers'
@@ -18,6 +17,7 @@ import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
@@ -29,8 +29,8 @@ const activitiesStore = useActivitiesStore(store)
 const rpcStore = useRpcStore(store)
 const userStore = useUserStore(store)
 const toast = useToast()
-const reqStore = useRequestStore()
-const appStore = useAppStore()
+const reqStore = useRequestStore(store)
+const appStore = useAppStore(store)
 
 async function showToast(type, message) {
   return new Promise((res) => {
@@ -45,8 +45,10 @@ async function showToast(type, message) {
 }
 
 function getSendRequestFn(handleRequest, requestStore, appStore, keeper) {
-  return function sendRequest(request) {
-    return handleRequest(request, requestStore, appStore, keeper)
+  return function sendRequest(request, requestOrigin) {
+    if (requestOrigin !== 'auth-verify') {
+      return handleRequest(request, requestStore, appStore, keeper)
+    }
   }
 }
 
@@ -247,9 +249,11 @@ async function addNetwork(request, keeper) {
         networkInfo.blockExplorerUrls || existingChain.blockExplorerUrls,
       chainName: name || existingChain.chainName,
     })
-    rpcStore.setSelectedChainId(existingChain.chainId)
+    rpcStore.setSelectedChainId(existingChain.chainId as string)
     await getRequestHandler().setRpcConfig({
       ...existingChain,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       chainId: Number(existingChain.chainId),
     })
   } else {
@@ -269,6 +273,8 @@ async function addNetwork(request, keeper) {
     rpcStore.setSelectedChainId(payload.chainId)
     await getRequestHandler().setRpcConfig({
       ...payload,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       chainId: Number(payload.chainId),
     })
   }
@@ -328,10 +334,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
     } else {
-      const sanitizedRequest = sanitizeRequest({ ...request })
+      const sanitizedRequest =
+        appStore.chainType === ChainType.solana_cv25519
+          ? { ...request }
+          : sanitizeRequest({ ...request })
       try {
         const response = await keeper.request({ ...sanitizedRequest })
-        await keeper.reply(request.method, response)
+        await keeper.reply(request.method, JSON.parse(JSON.stringify(response)))
         if (response.error) {
           if (response.error.code === 'INSUFFICIENT_FUNDS') {
             showToast('error', 'Insufficient Gas to make this transaction.')
@@ -348,33 +357,40 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
                 showToast('error', errorBody?.error || errorBody)
               }
             } else {
-              const displayError = (response.error?.data?.originalError?.error
-                ?.message ||
-                response.error?.data?.originalError?.reason ||
-                response.error?.data?.originalError?.code ||
-                response.error?.message ||
-                response.error) as string
+              const displayError =
+                ((response.error?.data?.originalError?.error?.message ||
+                  response.error?.data?.originalError?.reason ||
+                  response.error?.data?.originalError?.code ||
+                  response.error?.error?.message ||
+                  response.error?.message ||
+                  response.error) as string) || 'Something went wrong'
               showToast('error', displayError)
             }
           }
-          return
-        } else {
-          const asyncMethods = [
-            'eth_sendTransaction',
-            'wallet_watchAsset',
-            'wallet_switchEthereumChain',
-            'wallet_addEthereumChain',
-          ]
-          if (asyncMethods.includes(request.method)) {
-            const message = `${request.method} execution completed`
-            await showToast('success', message)
+          if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
+            const params = JSON.parse(request.params[1])
+            if (params.domain.name === 'Arcana Forwarder') {
+              await activitiesStore.saveFileActivity(
+                rpcStore.selectedRpcConfig?.chainId,
+                params.message,
+                params.domain.verifyingContract
+              )
+            }
+          } else if (
+            request.method === 'eth_sendTransaction' &&
+            response.result
+          ) {
+            await activitiesStore.fetchAndSaveActivityFromHash({
+              txHash: response.result,
+              chainId: rpcStore.selectedRpcConfig?.chainId,
+            })
           }
         }
         if (request.method === 'eth_signTypedData_v4' && request.params[1]) {
           const params = JSON.parse(request.params[1])
           if (params.domain.name === 'Arcana Forwarder') {
             activitiesStore.saveFileActivity(
-              rpcStore.selectedRpcConfig?.chainId,
+              rpcStore.selectedRpcConfig?.chainId as string,
               params.message,
               params.domain.verifyingContract
             )
@@ -383,7 +399,14 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
         if (request.method === 'eth_sendTransaction' && response.result) {
           activitiesStore.fetchAndSaveActivityFromHash({
             txHash: response.result,
-            chainId: rpcStore.selectedRpcConfig?.chainId,
+            chainId: rpcStore.selectedRpcConfig?.chainId as string,
+          })
+        }
+        if (request.method === 'signAndSendTransaction' && response.result) {
+          activitiesStore.fetchAndSaveActivityFromHash({
+            txHash: response.result.signature,
+            chainId: rpcStore.selectedRpcConfig?.chainId as string,
+            chainType: ChainType.solana_cv25519,
           })
         }
       } catch (err) {
@@ -422,9 +445,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-
-  if (request.method === 'wallet_switchEthereumChain') {
+  } else if (request.method === 'wallet_switchEthereumChain') {
     const validationResponse = validateSwitchChainParams(request.params[0])
     if (!validationResponse.isValid) {
       await keeper.reply(request.method, {
@@ -435,8 +456,7 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       })
       return
     }
-  }
-  if (request.method === 'eth_signTypedData_v4') {
+  } else if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])
     let error: string | unknown | null = null
     if (typeof params !== 'object' || !params.domain) {
@@ -445,10 +465,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
       rpcStore.selectedRPCConfig?.chainId &&
       params.domain.chainId &&
       parseInt(params.domain.chainId) !==
-        parseInt(rpcStore.selectedRPCConfig.chainId)
+        parseInt(rpcStore.selectedRPCConfig.chainId as string)
     ) {
       error = `domain chain ID ${params.domain.chainId} does not match network chain id ${rpcStore.selectedRPCConfig?.chainId}`
     }
+
     if (error) {
       await keeper.reply(request.method, {
         jsonrpc: '2.0',
