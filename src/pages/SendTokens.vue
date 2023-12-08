@@ -488,8 +488,6 @@ async function handleShowPreview() {
               }
             }
           })
-
-          router.back()
         } else {
           showPreview.value = true
         }
@@ -539,7 +537,7 @@ watch(
       <button
         class="absolute left-0"
         title="Click to go back"
-        @click.stop="router.go(-1)"
+        @click.stop="router.push({ name: 'home' })"
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
