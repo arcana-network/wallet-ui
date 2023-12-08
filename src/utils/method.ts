@@ -1,4 +1,4 @@
-export const methodAndAction = {
+const evmMethodAndAction = {
   eth_sign: 'Sign Message (Deprecated)',
   personal_sign: 'Sign Message',
   eth_signTypedData_v4: 'Sign Message',
@@ -8,4 +8,20 @@ export const methodAndAction = {
   wallet_addEthereumChain: 'Add Chain',
   wallet_switchEthereumChain: 'Switch Chain',
   wallet_watchAsset: 'Add Token',
+  _arcana_privateKey: 'Export Private Key',
+  _send_token: 'Send Token',
 }
+
+const solanaMethodAndAction = {
+  signAndSendTransaction: 'Sign and Send Transaction',
+  signTransaction: 'Sign Transaction',
+  signMessage: 'Sign Message',
+  signAllTransactions: 'Sign All Transactions',
+}
+
+const methodAndAction = {
+  ...evmMethodAndAction,
+  ...solanaMethodAndAction,
+}
+
+export { evmMethodAndAction, methodAndAction, solanaMethodAndAction }

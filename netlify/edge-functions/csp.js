@@ -13,7 +13,7 @@ export default async (req, context) => {
       throw new Error('Invalid AppId')
     }
 
-    if (appId !== 'assets') {
+    if (!(appId == 'assets' || appId == 'global-redirect')) {
       const domain = await fetchDomain(appId)
       header = getHeader(domain)
     }

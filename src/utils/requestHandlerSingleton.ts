@@ -1,5 +1,5 @@
 import { AccountHandler } from '@/utils/accountHandler'
-import { RequestHandler } from '@/utils/requestHandler'
+import { RequestHandler, createRequestHandler } from '@/utils/requestHandler'
 
 let requestHandler: RequestHandler | null = null
 
@@ -9,7 +9,7 @@ const requestHandlerExists = () => {
 
 const setRequestHandler = (accountHandler: AccountHandler) => {
   if (!requestHandler) {
-    requestHandler = new RequestHandler(accountHandler)
+    requestHandler = createRequestHandler(accountHandler)
     return
   }
   throw new Error('RequestHandler already initialized.')

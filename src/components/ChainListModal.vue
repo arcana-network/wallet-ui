@@ -3,7 +3,9 @@ import { ref, watch } from 'vue'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import {
   getRequestHandler,
@@ -15,6 +17,7 @@ const rpcStore = useRpcStore()
 
 const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
 const showAddNetworkModal = ref(false)
+const appStore = useAppStore()
 
 watch(
   () => selectedRPCConfig.value,
@@ -46,14 +49,14 @@ function handleFallbackLogo(event) {
         class="flex items-center gap-2"
       >
         <input
-          :id="chain.chainId"
+          :id="String(chain.chainId)"
           v-model="selectedRPCConfig"
           type="radio"
           :value="chain"
           name="chain"
           class="radio"
         />
-        <label class="flex items-center gap-2" :for="chain.chainId">
+        <label class="flex items-center gap-2" :for="String(chain.chainId)">
           <img
             :src="getChainLogoUrl(chain)"
             class="w-xl h-xl"
@@ -66,6 +69,7 @@ function handleFallbackLogo(event) {
         </label>
       </div>
       <button
+        v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="btn-primary uppercase font-bold text-base py-2 mt-4"
         @click.stop="showAddNetworkModal = true"
       >

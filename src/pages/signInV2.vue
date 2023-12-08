@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
-import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
+import { SocialLoginType } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
@@ -14,6 +14,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { AUTH_NETWORK, AUTH_URL, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
+import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
 import {
@@ -70,10 +71,19 @@ const LoginState = {
 }
 
 const initPasswordlessLogin = async (email: string) => {
+  const provider = await getAuthProvider(appId as string)
+  if (provider.appConfig.global) {
+    const response = await provider.loginWithPasswordlessStart({
+      email,
+      kind: 'otp',
+    })
+    if ((response as { url: string }).url) {
+      return (response as { url: string }).url
+    }
+  }
   if (passwordlessLoginHandler) {
     passwordlessLoginHandler.cancel()
   }
-  const provider = await getAuthProvider(appId as string)
 
   passwordlessLoginHandler = new PasswordlessLoginHandler(email)
   const params = passwordlessLoginHandler.params()
@@ -83,6 +93,7 @@ const initPasswordlessLogin = async (email: string) => {
     kind: 'link',
     state,
   })
+
   LoginState.passwordless.success = response.success
   if (!response.success) {
     LoginState.passwordless.error = response.error ?? "Couldn't start login"
@@ -160,13 +171,25 @@ async function storeUserInfoAndRedirect(
   const storage = getStorage()
   if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
     try {
-      const core = new Core(
-        userInfo.pk as string,
-        userInfo.userInfo.id,
-        `${appId}`,
-        GATEWAY_URL,
-        AUTH_NETWORK === 'dev'
+      devLogger.log(
+        '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
+        {
+          dkgKey: userInfo.pk as string,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        }
       )
+      const core = new Core({
+        dkgKey: userInfo.pk as string,
+        userId: userInfo.userInfo.id,
+        appId: `${appId}`,
+        gatewayUrl: GATEWAY_URL,
+        debug: AUTH_NETWORK === 'dev',
+        curve: app.curve,
+      })
       await core.init()
       const key = await core.getKey()
       userInfo.privateKey = key
@@ -183,16 +206,26 @@ async function storeUserInfoAndRedirect(
   }
   storage.session.setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
+  storage.local.setCurve(app.curve)
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
-    const core = new Core(
-      userInfo.pk,
-      userInfo.userInfo.id,
-      `${appId}`,
-      GATEWAY_URL,
-      AUTH_NETWORK === 'dev'
-    )
+    devLogger.log('[signInV2] before core (storeUserInfoAndRedirect)', {
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: app.curve,
+    })
+    const core = new Core({
+      dkgKey: userInfo.pk,
+      userId: userInfo.userInfo.id,
+      appId: `${appId}`,
+      gatewayUrl: GATEWAY_URL,
+      debug: AUTH_NETWORK === 'dev',
+      curve: app.curve,
+    })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
@@ -312,13 +345,22 @@ async function init() {
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       if (!hasMfa && userInfo.pk) {
-        const core = new Core(
-          userInfo.pk,
-          userInfo.userInfo.id,
-          `${appId}`,
-          GATEWAY_URL,
-          AUTH_NETWORK === 'dev'
-        )
+        devLogger.log('[signInV2] before core (init)', {
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
+        const core = new Core({
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
         const securityQuestionModule = new SecurityQuestionModule(3)
         securityQuestionModule.init(core)
         const isEnabled = await securityQuestionModule.isEnabled()
@@ -386,6 +428,7 @@ async function handleBearerLoginRequest(
         userInfo: {
           id: data.uid,
         },
+        token: '',
       }
       await storeUserInfoAndRedirect(userInfo)
 

@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
@@ -116,6 +117,12 @@ const canShowCollapseButton = computed(
       requestStore.areRequestsPendingForApproval
     )
 )
+
+const showHeader = computed(() => {
+  const routeName = route.name
+  const routes = ['requests', 'PermissionRequest']
+  return !routes.includes(routeName as string)
+})
 </script>
 
 <template>
@@ -145,7 +152,7 @@ const canShowCollapseButton = computed(
           <img v-else :src="getImage('collapse-arrow.svg')" />
         </button>
       </div>
-      <WalletHeader v-if="route.name !== 'requests'" />
+      <WalletHeader v-if="showHeader" />
       <div class="flex-grow wallet__container m-1 p-3">
         <RouterView class="flex-grow" />
         <img

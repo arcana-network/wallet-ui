@@ -4,10 +4,14 @@ import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { SolanaAccountHandler } from '@/utils/accountHandler'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
@@ -15,6 +19,7 @@ const rpcStore = useRpcStore()
 const storage = getStorage()
 let nftDB: NFTDB
 const searchTerm = ref('')
+const appStore = useAppStore()
 
 type NFTViewProps = {
   refreshState?: boolean
@@ -32,8 +37,14 @@ const loader = reactive({
 
 async function getNFTAssets() {
   loader.show = true
-  nftDB = await NFTDB.create(storage.local, userStore.walletAddress, true)
-  nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as SolanaAccountHandler
+    nfts.value = await accountHandler.getAllUserNFTs()
+  } else {
+    nftDB = await NFTDB.create(storage.local, userStore.walletAddress, true)
+    nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
+  }
   loader.show = false
 }
 
@@ -146,7 +157,10 @@ function handleFallbackNft(event) {
           >
         </div>
       </div>
-      <div class="flex justify-center">
+      <div
+        v-if="appStore.chainType !== ChainType.solana_cv25519"
+        class="flex justify-center"
+      >
         <button
           class="btn-quaternery border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
           @click.stop="handleManageNFT"
