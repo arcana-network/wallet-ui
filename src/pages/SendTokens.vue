@@ -101,7 +101,8 @@ onMounted(async () => {
     if (appStore.chainType === ChainType.evm_secp256k1) {
       await fetchBaseFee()
       baseFeePoll = setInterval(fetchBaseFee, 2000)
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
@@ -141,7 +142,8 @@ onUnmounted(() => {
 })
 
 async function fetchBaseFee() {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
 }
@@ -149,7 +151,7 @@ async function fetchBaseFee() {
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
     (item) => item.address === selectedToken.value.address
-  )
+  ) as any
 
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance.value
