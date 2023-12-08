@@ -101,7 +101,8 @@ onMounted(async () => {
     if (appStore.chainType === ChainType.evm_secp256k1) {
       await fetchBaseFee()
       baseFeePoll = setInterval(fetchBaseFee, 2000)
-      const accountHandler = getRequestHandler().getAccountHandler()
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as EVMAccountHandler
       if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
@@ -141,7 +142,8 @@ onUnmounted(() => {
 })
 
 async function fetchBaseFee() {
-  const accountHandler = getRequestHandler().getAccountHandler()
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
   const baseGasPrice = (await accountHandler.provider.getGasPrice()).toString()
   baseFee.value = new Decimal(baseGasPrice).div(Decimal.pow(10, 9)).toString()
 }
@@ -149,7 +151,7 @@ async function fetchBaseFee() {
 async function fetchTokenBalance() {
   const tokenInfo = tokenList.value.find(
     (item) => item.address === selectedToken.value.address
-  )
+  ) as any
 
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance.value
@@ -381,14 +383,6 @@ function addToActivity(result) {
         recipientAddress: setHexPrefix(recipientWalletAddress.value),
       })
     }
-    clearForm()
-    router.push({ name: 'home' })
-    toast.success('Tokens sent Successfully')
-  } catch (err: any) {
-    toast.error(err.reason || 'Something went wrong')
-  } finally {
-    showPreview.value = false
-    hideLoader()
   }
 }
 
@@ -494,8 +488,7 @@ async function handleShowPreview() {
               }
             }
           })
-
-          router.back()
+          router.push({ name: 'home' })
         } else {
           showPreview.value = true
         }
@@ -545,7 +538,7 @@ watch(
       <button
         class="absolute left-0"
         title="Click to go back"
-        @click.stop="router.go(-1)"
+        @click.stop="router.push({ name: 'home' })"
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
