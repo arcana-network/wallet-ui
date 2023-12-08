@@ -488,6 +488,7 @@ async function handleShowPreview() {
               }
             }
           })
+          router.push({ name: 'home' })
         } else {
           showPreview.value = true
         }
