@@ -89,7 +89,9 @@ const completeOTPLogin = async (otp: string) => {
     email: OTPLoginParams.email,
   })
 
-  const userInfo = provider.getUserInfo()
+  const userInfo: GetInfoOutput & { pk?: string; hasMfa?: boolean } =
+    provider.getUserInfo()
+  userInfo.pk = userInfo.privateKey
   storeUserInfoAndRedirect(userInfo, true)
 }
 
