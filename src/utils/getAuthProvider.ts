@@ -17,7 +17,7 @@ const getDefaultParams = () => {
     // @ts-ignore
     network: AUTH_NETWORK,
     autoRedirect: false,
-    debug: true,
+    debug: AUTH_NETWORK === 'dev',
     shouldVerifyState: false,
     // useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
     revokeTokenPostLogin: false,
