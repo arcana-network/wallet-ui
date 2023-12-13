@@ -62,6 +62,37 @@ const parseHashAndSetSettings = () => {
   }
 }
 
+let OTPLoginParams = {
+  email: '',
+}
+
+const initOTPLogin = async (email: string) => {
+  const provider = await getAuthProvider(appId as string)
+  if (provider.appConfig.global) {
+    throw new Error('not available')
+  }
+  await provider.loginWithPasswordlessV2Start({
+    email,
+    kind: 'otp',
+  })
+  OTPLoginParams.email = email
+}
+
+const completeOTPLogin = async (otp: string) => {
+  const provider = await getAuthProvider(appId as string)
+  if (provider.appConfig.global) {
+    throw new Error('not available')
+  }
+
+  await provider.loginWithPasswordlessV2Complete({
+    otp,
+    email: OTPLoginParams.email,
+  })
+
+  const userInfo = provider.getUserInfo()
+  storeUserInfoAndRedirect(userInfo, true)
+}
+
 const LoginState = {
   passwordless: {
     success: false,
@@ -131,6 +162,8 @@ const initSocialLogin = async (type: SocialLogins): Promise<string> => {
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
   initPasswordlessLogin: (email: string) => initPasswordlessLogin(email),
+  initOTPLogin: (email: string) => initOTPLogin(email),
+  completeOTPLogin: (otp: string) => completeOTPLogin(otp),
   initSocialLogin: (type: SocialLogins) => initSocialLogin(type),
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
@@ -166,10 +199,11 @@ async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & {
     hasMfa?: boolean
     pk?: string
-  }
+  },
+  addMFA = false
 ) {
   const storage = getStorage()
-  if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
+  if (addMFA && app.isMfaEnabled) {
     try {
       devLogger.log(
         '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
@@ -430,7 +464,7 @@ async function handleBearerLoginRequest(
         },
         token: '',
       }
-      await storeUserInfoAndRedirect(userInfo)
+      await storeUserInfoAndRedirect(userInfo, true)
 
       return true
     }
