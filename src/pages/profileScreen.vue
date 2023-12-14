@@ -245,8 +245,7 @@ watch(
         <button
           class="flex gap-2 items-center"
           :class="{
-            'z-[2147483648] cursor-pointer relative':
-              starterTipsStore.showExportkey,
+            'z-[2147483648] startertips': starterTipsStore.showExportkey,
           }"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
@@ -254,8 +253,13 @@ watch(
         >
           <div
             v-if="starterTipsStore.showExportkey"
-            class="startertips-circle z-[2147483648] w-32 h-32 -top-12 -left-2"
-          ></div>
+            class="absolute z-[2147483648] w-32 h-32 -top-12 -left-2"
+          >
+            <img
+              src="@/assets/images/starter-tips/page-5.png"
+              alt="wallet-address"
+            />
+          </div>
           <span class="text-lg font-bold"> Export Key </span>
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>

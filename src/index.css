@@ -131,7 +131,13 @@
     backdrop-filter: blur(3.5px);
   }
 
-  .startertips-circle {
-    @apply absolute rounded-full bg-transparent border-2 border-white-100;
+  .startertips {
+    @apply cursor-pointer relative;
+  }
+
+  @media (max-height: 560px) {
+    .startertips {
+      display: none;
+    }
   }
 }
