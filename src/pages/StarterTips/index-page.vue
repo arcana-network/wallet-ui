@@ -38,21 +38,22 @@ function next() {
   } else currentPage.value += 1
 }
 
-function skip() {
-  storage.local.setHasStarterTipShown(userStore.info.id, true)
-  emits('close')
+function previous() {
+  if (currentPage.value !== 1) {
+    currentPage.value -= 1
+  }
 }
 
 watch(
   () => currentPage.value,
   (val) => {
     starterTipsStore.setActivePageNumber(val)
-    if (val === 4) {
+    if (val === 2 || val === 3 || val === 6) {
+      router.push({ name: 'home' })
+    } else if (val === 4) {
       router.push({ name: 'Nfts' })
     } else if (val === 5) {
       router.push({ name: 'profile' })
-    } else if (val === 6) {
-      router.push({ name: 'home' })
     }
   }
 )
@@ -63,8 +64,22 @@ watch(
     <div class="flex-1">
       <component :is="PagesIndex[currentPage]" />
     </div>
-    <div class="flex justify-between bg-black-100 p-6">
-      <button class="text-xs" @click="skip">Skip</button>
+    <div
+      class="flex bg-black-100 p-6"
+      :class="[currentPage === 1 ? 'justify-end' : 'justify-between']"
+    >
+      <button
+        v-if="currentPage !== 1"
+        class="flex items-center space-x-2 text-xs"
+        @click="previous"
+      >
+        <img
+          src="@/assets/images/arrow-left.svg"
+          alt="previous"
+          class="h-3 w-3"
+        />
+        <span>Previous</span>
+      </button>
       <button class="flex items-center space-x-2 text-xs" @click="next">
         <span>Next</span>
         <img src="@/assets/images/arrow-right.svg" alt="next" class="h-3 w-3" />
