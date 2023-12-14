@@ -102,7 +102,7 @@ function handleFallbackLogo(event) {
             />
           </div>
           <div
-            v-if="hasChainUpdated"
+            v-if="hasChainUpdated && !starterTipsStore.showSwitchNetwork"
             class="w-xl h-xl rounded-full"
             @click.stop="openChainList()"
           >
@@ -115,6 +115,7 @@ function handleFallbackLogo(event) {
             />
           </div>
           <img
+            v-if="!starterTipsStore.showSwitchNetwork"
             :src="getImage('arrow-down.svg')"
             class="transition-all duration-200 ease-in-out"
             :class="{ '-rotate-180': isChainListExpanded }"

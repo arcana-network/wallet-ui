@@ -371,7 +371,8 @@ async function copyToClipboard(value: string) {
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :class="{
-            'z-[2147483648] startertips': starterTipsStore.showBuyButton,
+            'z-[2147483648] startertips border-none':
+              starterTipsStore.showBuyButton,
           }"
           :disabled="
             (!transakNetwork && onRampMoney === false) ||

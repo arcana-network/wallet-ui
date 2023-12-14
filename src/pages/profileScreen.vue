@@ -260,8 +260,10 @@ watch(
               alt="wallet-address"
             />
           </div>
-          <span class="text-lg font-bold"> Export Key </span>
-          <img :src="getImage('external-link.svg')" class="w-md h-md" />
+          <div v-if="!starterTipsStore.showExportkey">
+            <span class="text-lg font-bold"> Export Key </span>
+            <img :src="getImage('external-link.svg')" class="w-md h-md" />
+          </div>
         </button>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
