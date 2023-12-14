@@ -7,7 +7,7 @@ const dots = [1, 2, 3, 4]
     <div class="h-3/4 w-full relative">
       <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
     </div>
-    <div class="bg-black-100 opacity-90 h-1/4 p-6">
+    <div class="bg-black-100 h-1/4 p-6">
       <h1 class="text-xl uppercase font-black">On-RAMP Support</h1>
       <p class="text-sm text-[#8D8D8D]">
         Easily purchase a wide range of crypto assets directly within the wallet

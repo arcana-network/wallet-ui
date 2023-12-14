@@ -4,7 +4,7 @@ const dots = [1, 2, 3, 4]
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="bg-black-100 opacity-90 h-2/5 p-6">
+    <div class="bg-black-100 h-2/5 p-6">
       <h1 class="text-xl uppercase font-black">Freedom Above All Else</h1>
       <p class="text-sm text-[#8D8D8D]">
         Should you ever need to switch to a different Web3 wallet, you can

@@ -243,7 +243,7 @@ async function copyToClipboard(value: string) {
               >
                 <div
                   v-if="starterTipsStore.showWalletAddress"
-                  class="absolute z-[2147483648] w-[192px] h-[192px] -top-[66px] left-1"
+                  class="absolute z-[2147483648] w-[192px] h-[192px] -top-[60px] left-2"
                 >
                   <img
                     src="@/assets/images/starter-tips/page-2.png"
