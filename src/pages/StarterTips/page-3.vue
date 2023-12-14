@@ -4,8 +4,15 @@ const dots = [1, 2, 3, 4]
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="h-3/5 w-full relative">
-      <div class="h-full w-full bg-black-100 bg-opacity-90 absolute"></div>
+    <div class="h-3/5 w-full relative bg-black-100 bg-opacity-90">
+      <div class="h-full w-full relative">
+        <div class="absolute z-[2147483648] w-16 h-16 top-12 right-10">
+          <img
+            src="@/assets/images/starter-tips/page-3.png"
+            alt="wallet-address"
+          />
+        </div>
+      </div>
     </div>
     <div class="bg-black-100 h-2/5 p-6">
       <h1 class="text-xl uppercase font-black">Access Multiple Networks</h1>

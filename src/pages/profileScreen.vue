@@ -251,15 +251,6 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <div
-            v-if="starterTipsStore.showExportkey"
-            class="absolute z-[2147483648] w-32 h-32 -top-12 -left-2"
-          >
-            <img
-              src="@/assets/images/starter-tips/page-5.png"
-              alt="wallet-address"
-            />
-          </div>
           <div v-if="!starterTipsStore.showExportkey">
             <span class="text-lg font-bold"> Export Key </span>
             <img :src="getImage('external-link.svg')" class="w-md h-md" />

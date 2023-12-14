@@ -21,8 +21,15 @@ const dots = [1, 2, 3, 4]
         ></span>
       </div>
     </div>
-    <div class="h-3/5 w-full relative">
-      <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
+    <div class="h-3/5 w-full relative bg-black-100 bg-opacity-90">
+      <div class="h-full w-full startertips">
+        <div class="absolute z-[2147483648] w-32 h-32 top-32 left-5">
+          <img
+            src="@/assets/images/starter-tips/page-5.png"
+            alt="wallet-address"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>

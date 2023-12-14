@@ -85,24 +85,9 @@ function handleFallbackLogo(event) {
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button
-          class="flex items-center"
-          :class="{
-            'z-[2147483648] startertips': starterTipsStore.showSwitchNetwork,
-          }"
-          :disabled="starterTipsStore.showSwitchNetwork"
-        >
+        <button class="flex items-center">
           <div
-            v-if="starterTipsStore.showSwitchNetwork"
-            class="absolute z-[2147483648] w-16 h-16 -top-5 -right-2"
-          >
-            <img
-              src="@/assets/images/starter-tips/page-3.png"
-              alt="wallet-address"
-            />
-          </div>
-          <div
-            v-if="hasChainUpdated && !starterTipsStore.showSwitchNetwork"
+            v-if="hasChainUpdated"
             class="w-xl h-xl rounded-full"
             @click.stop="openChainList()"
           >
@@ -115,7 +100,6 @@ function handleFallbackLogo(event) {
             />
           </div>
           <img
-            v-if="!starterTipsStore.showSwitchNetwork"
             :src="getImage('arrow-down.svg')"
             class="transition-all duration-200 ease-in-out"
             :class="{ '-rotate-180': isChainListExpanded }"

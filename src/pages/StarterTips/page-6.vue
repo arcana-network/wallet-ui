@@ -4,8 +4,15 @@ const dots = [1, 2, 3, 4]
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="h-3/4 w-full relative">
-      <div class="h-full w-full bg-black-100 opacity-90 absolute"></div>
+    <div class="h-3/4 w-full bg-black-100 opacity-90">
+      <div class="h-full w-full startertips">
+        <div class="absolute z-[2147483648] w-36 h-36 top-72 right-8">
+          <img
+            src="@/assets/images/starter-tips/page-6.png"
+            alt="wallet-address"
+          />
+        </div>
+      </div>
     </div>
     <div class="bg-black-100 h-1/4 p-6">
       <h1 class="text-xl uppercase font-black">On-RAMP Support</h1>

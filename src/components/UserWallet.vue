@@ -234,23 +234,9 @@ async function copyToClipboard(value: string) {
             <ListboxButton class="flex justify-between items-center">
               <button
                 class="flex items-center space-x-2"
-                :class="{
-                  'z-[2147483648] startertips':
-                    starterTipsStore.showWalletAddress,
-                }"
-                :disabled="starterTipsStore.showWalletAddress"
                 @click.stop="showAddressListDropDown = true"
               >
-                <div
-                  v-if="starterTipsStore.showWalletAddress"
-                  class="absolute z-[2147483648] w-[192px] h-[192px] -top-[60px] left-2"
-                >
-                  <img
-                    src="@/assets/images/starter-tips/page-2.png"
-                    alt="wallet-address"
-                  />
-                </div>
-                <div v-if="!starterTipsStore.showWalletAddress">
+                <div>
                   <img
                     src="@/assets/images/fallback-logo-dark-mode.png"
                     class="w-xl h-xl rounded-full"
@@ -263,7 +249,6 @@ async function copyToClipboard(value: string) {
                       >
                       <button
                         title="Click to copy wallet address"
-                        :disabled="starterTipsStore.showWalletAddress"
                         @click.stop="
                           copyToClipboard(selectedAddressType.address)
                         "
@@ -370,29 +355,11 @@ async function copyToClipboard(value: string) {
         </button>
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          :class="{
-            'z-[2147483648] startertips border-none':
-              starterTipsStore.showBuyButton,
-          }"
-          :disabled="
-            (!transakNetwork && onRampMoney === false) ||
-            starterTipsStore.showBuyButton
-          "
+          :disabled="!transakNetwork && onRampMoney === false"
           @click.stop="handleBuy(true)"
         >
-          <div
-            v-if="starterTipsStore.showBuyButton"
-            class="absolute z-[2147483648] w-40 h-40 -top-17 -left-3"
-          >
-            <img
-              src="@/assets/images/starter-tips/page-6.png"
-              alt="wallet-address"
-            />
-          </div>
-          <div v-if="!starterTipsStore.showBuyButton">
-            <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-            <span>Buy</span>
-          </div>
+          <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
+          <span>Buy</span>
         </button>
       </div>
     </div>
