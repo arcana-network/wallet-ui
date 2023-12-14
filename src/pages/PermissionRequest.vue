@@ -15,8 +15,8 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
-import SendTransaction from '@/components/PermissionRequest/SendTransaction.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
+import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import { getAppConfig } from '@/services/gateway.service'
@@ -462,15 +462,15 @@ function handleGasPriceInput(value, request) {
             }"
           />
         </div>
-        <div v-else class="h-full">
+        <div v-else class="h-full overflow-auto">
           <SendTransaction
             v-if="isSendTransactionRequest(request?.method)"
-            :request="request"
-            :chain-config="chainConfig"
-            :app-details="appDetails"
+            :request="{ request }"
             @gas-price-input="
               ({ value }) => handleGasPriceInput(value, request)
             "
+            @reject="() => {}"
+            @approve="() => {}"
           />
           <SignMessageAdvancedInfo
             v-else

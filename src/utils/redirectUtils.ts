@@ -225,18 +225,14 @@ const handleGlobalLogin = async (
     connection: AsyncMethodReturns<GlobalRedirectMethods>
   }
 ) => {
-  if (params.userInfo.loginType === SocialLoginType.passwordless) {
-    // Skip for now
-  } else {
-    try {
-      await contactParentPage(params, LOGIN_INFO)
-      await params.connection.setSuccess()
-    } catch (e) {
-      console.log('A very unexpected error occurred', e)
-      await params.connection.setError(
-        'Could not login, an unexpected error occurred'
-      )
-    }
+  try {
+    await contactParentPage(params, LOGIN_INFO)
+    await params.connection.setSuccess()
+  } catch (e) {
+    console.log('A very unexpected error occurred', e)
+    await params.connection.setError(
+      'Could not login, an unexpected error occurred'
+    )
   }
 }
 
