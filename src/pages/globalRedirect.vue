@@ -85,7 +85,9 @@ onMounted(async () => {
       }
     }
     try {
-      await cleanup()
+      if (cleanup) {
+        await cleanup()
+      }
     } catch (e) {
       console.log({ e })
     }
