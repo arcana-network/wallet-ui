@@ -16,6 +16,8 @@ type EVMRequestMethod =
   | 'wallet_switchEthereumChain'
   | 'wallet_watchAsset'
   | '_arcana_getPrivateKey'
+  | '_arcana_switchAccountType'
+  | '_arcana_getAccountType'
 
 type SolanaRequestMethod =
   | 'signAndSendTransaction'
@@ -38,6 +40,8 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
   _arcana_getPrivateKey: false,
+  _arcana_switchAccountType: true,
+  _arcana_getAccountType: false,
   signAndSendTransaction: true,
   sendTransaction: true,
   signTransaction: true,

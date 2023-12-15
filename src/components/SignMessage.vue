@@ -70,6 +70,9 @@ function getPermissionText() {
           : 'switching a chain'
       } else response = `switching a chain`
       break
+    case '_arcana_switchAccountType':
+      response = 'switching account type'
+      break
     case 'wallet_watchAsset':
       response = ['erc721', 'erc1155'].includes(
         params.value.type?.toLowerCase()
