@@ -27,6 +27,7 @@ const dots = [1, 2, 3, 4]
           <img
             src="@/assets/images/starter-tips/page-5.png"
             alt="wallet-address"
+            class="border-1 border-white-400 rounded-full"
           />
         </div>
       </div>
