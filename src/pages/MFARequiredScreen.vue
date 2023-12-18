@@ -8,7 +8,6 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL, DOCS_URL } from '@/utils/constants'
-import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -25,13 +24,14 @@ let mfaWindow: Window | null
 const storage = getStorage()
 
 async function handleProceed() {
-  const userInfo = storage.local.getUserInfo()
-  if (!userInfo) {
-    return
-  }
-  const { loginType } = userInfo
-  if (isInAppLogin(loginType)) {
-    router.push({ name: 'MFASetup', params: { appId: appStore.id } })
+  if (storage.session.getInAppLogin()) {
+    router.push({
+      name: 'MFASetup',
+      params: { appId: appStore.id },
+      query: {
+        inApp: '1',
+      },
+    })
   } else {
     cleanExit = false
     const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
