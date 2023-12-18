@@ -18,7 +18,6 @@ import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
-import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -114,9 +113,15 @@ async function handleMFASetupClick() {
     return
   }
 
-  if (isInAppLogin(info.loginType)) {
+  if (getStorage().session.getInAppLogin()) {
     modalStore.setShowModal(false)
-    router.push({ name: 'MFASetup', params: { appId: appStore.id } })
+    router.push({
+      name: 'MFASetup',
+      params: { appId: appStore.id },
+      query: {
+        inApp: '1',
+      },
+    })
   } else {
     cleanExit = false
     const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)

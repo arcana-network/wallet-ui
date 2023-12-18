@@ -16,6 +16,7 @@ enum StorageKey {
   LoginSrc = 'login-src',
   LoginCount = 'login-count',
   State = 'state',
+  IsInAppLogin = 'is-in-app-login',
   NFT = 'nft_list',
   AssetContract = 'asset-contracts',
   PK = 'pk',
@@ -320,6 +321,14 @@ class UserSessionStorage extends BaseStorage {
 
   setState(state: string) {
     this.set(StorageKey.State, state)
+  }
+
+  setInAppLogin(value: boolean) {
+    this.set(StorageKey.IsInAppLogin, value)
+  }
+
+  getInAppLogin() {
+    return this.get<boolean>(StorageKey.IsInAppLogin)
   }
 
   getState() {
