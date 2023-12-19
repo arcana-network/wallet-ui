@@ -171,7 +171,7 @@ async function handleLocalRecovery(key: string) {
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
+    userInfo.hasMfa = isEnabled
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true

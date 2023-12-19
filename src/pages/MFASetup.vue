@@ -58,10 +58,10 @@ app.curve = storage.local.getCurve()
 document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
+let dkgShare
 
 onBeforeMount(async () => {
   const loginInfo = storage.session.getUserInfo()
-  let dkgShare
   if (loginInfo) {
     dkgShare = {
       pk: loginInfo.pk,
@@ -254,11 +254,8 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
-      if (!inAppLogin) {
-        const dkgShare = storage.local.getPK()
-        storage.local.setHasMFA(dkgShare.id)
-        storage.local.clearPK()
-      }
+      storage.local.setHasMFA(dkgShare.id)
+      storage.local.clearPK()
     } catch (e) {
       if (inAppLogin) {
         return toast.error(e as string)

@@ -90,8 +90,10 @@ const completeOTPLogin = async (otp: string) => {
     email: OTPLoginParams.email,
   })
 
-  const userInfo: GetInfoOutput & { pk?: string; hasMfa?: boolean } =
-    provider.getUserInfo()
+  const userInfo: GetInfoOutput & { pk: string; hasMfa?: boolean } = {
+    ...provider.getUserInfo(),
+    pk: provider.getUserInfo().privateKey,
+  }
   userInfo.pk = userInfo.privateKey
   storeUserInfoAndRedirect(userInfo, true)
 }
@@ -276,7 +278,7 @@ async function storeUserInfoAndRedirect(
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
+    userInfo.hasMfa = isEnabled
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
@@ -381,16 +383,12 @@ async function init() {
     authProvider = await getAuthProvider(`${appId}`)
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    // 3PC is disabled or wallet UI cannot store data by a policy decision
-    // if (storage.local.storageType === StorageType.IN_MEMORY) {
-
-    // }
-
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+      user.hasMfa = hasMfa
       if (!hasMfa && userInfo.pk) {
         devLogger.log('[signInV2] before core (init)', {
           dkgKey: userInfo.pk,
@@ -415,7 +413,6 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      user.hasMfa = hasMfa
       await router.push({ name: 'home' })
     } else {
       const parentConnectionInstance = await initializeParentConnection()
