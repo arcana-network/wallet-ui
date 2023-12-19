@@ -29,7 +29,6 @@ const loader = ref({
   show: false,
   message: '',
 })
-
 const inAppLogin = route.query.inApp === '1'
 
 const showPinScreen = ref(false)
