@@ -175,6 +175,28 @@ function isDeprecatedMethod() {
       :params="props.request.request.token"
       class="flex flex-col gap-1"
     />
+    <div
+      v-else-if="method === '_arcana_switchAccountType'"
+      class="flex flex-col gap-2 text-sm"
+    >
+      <div class="flex justify-between gap-4">
+        <span class="w-[120px]">Switch Account To</span>
+        <span
+          class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis"
+          :title="
+            params.type === 'scw'
+              ? 'Smart Contract Wallet'
+              : 'Externally Owned Address'
+          "
+        >
+          {{
+            params.type === 'scw'
+              ? 'Smart Contract Wallet'
+              : 'Externally Owned Address'
+          }}
+        </span>
+      </div>
+    </div>
     <div v-else class="flex flex-col gap-1">
       <div class="text-sm">Message</div>
       <SignMessageAdvancedInfo
