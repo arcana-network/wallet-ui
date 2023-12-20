@@ -206,6 +206,9 @@ async function storeUserInfoAndRedirect(
   addMFA = false
 ) {
   const storage = getStorage()
+  if (app.isMfaEnabled) {
+    storage.session.setInAppLogin(addMFA)
+  }
   if (addMFA && app.isMfaEnabled) {
     try {
       devLogger.log(
