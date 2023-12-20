@@ -337,7 +337,7 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
       request.method === 'wallet_switchEthereumChain' ||
       request.method === 'wallet_addEthereumChain' ||
       request.method === 'wallet_watchAsset' ||
-      request.method === '_arcana_switchAccount'
+      request.method === '_arcana_switchAccountType'
     ) {
       const { method } = request
       if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
