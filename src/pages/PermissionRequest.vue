@@ -19,8 +19,12 @@ import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getAppConfig } from '@/services/gateway.service'
+import {
+  getAppConfig,
+  getGaslessEnabledStatus,
+} from '@/services/gateway.service'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import {
   CreateAccountHandler,
   EVMAccountHandler,
@@ -36,9 +40,11 @@ import {
   getRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { initSCW, scwInstance } from '@/utils/scw'
 import { initStorage, getStorage } from '@/utils/storageWrapper'
 import { truncateMid } from '@/utils/stringUtils'
 
+const rpcStore = useRpcStore()
 const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
 const ARCANA_SEND_TOKEN_METHOD = '_send_token'
 const WALLET_DOMAIN_DEFAULT = '*'
@@ -114,6 +120,43 @@ function formatRPCConfig(config): RpcConfig {
   }
 }
 
+async function checkIfGaslessEnabled(chainId: string, appId: string) {
+  let isGaslessEnabled = false
+  const chainId_int = Number(chainId)
+  try {
+    isGaslessEnabled = await (
+      await getGaslessEnabledStatus(appId, chainId_int)
+    ).data.status
+  } catch (e) {
+    isGaslessEnabled = false
+  } finally {
+    rpcStore.setGaslessEnabledStatus(`${chainId_int}`, isGaslessEnabled)
+  }
+}
+
+function getWalletAddressType() {
+  let preferredAddressType = getStorage().local.getPreferredAddressType()
+  if (!preferredAddressType) {
+    preferredAddressType = rpcStore.isGaslessConfigured ? 'scw' : 'eoa'
+    getStorage().local.setPreferredAddressType(preferredAddressType)
+  } else {
+    preferredAddressType = !rpcStore.isGaslessConfigured
+      ? 'eoa'
+      : preferredAddressType
+  }
+  rpcStore.setPreferredWalletAddressType(preferredAddressType)
+}
+
+async function initScwSdk() {
+  try {
+    const requestHandler = getRequestHandler()
+    const accountHandler = requestHandler.getAccountHandler()
+    await initSCW(appId, (accountHandler as EVMAccountHandler).getSigner())
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 onMounted(async () => {
   try {
     showLoader.value = true
@@ -125,6 +168,9 @@ onMounted(async () => {
           request: JsonRpcRequest<unknown>
         }) => {
           await initFromChainId(r.chainId)
+          await checkIfGaslessEnabled(r.chainId, appId)
+          getWalletAddressType()
+          initScwSdk()
           addToPendingQueue(r)
         },
       },
@@ -156,6 +202,19 @@ async function initFromChainId(chainId: string) {
     chainInit = true
     const chainDetails = await getChainDetails(appId, chainId)
     chainConfig.value = { ...chainDetails }
+    const rpcConfig = {
+      rpcUrls: chainDetails.rpc_url,
+      chainId: chainDetails.chain_id,
+      chainName: chainDetails.chain_name,
+      blockExplorerUrls: chainDetails.rpc_url,
+      nativeCurrency: {
+        symbol: chainDetails.currency,
+        decimals: 18,
+      },
+      favicon: '',
+      isCustom: false,
+    }
+    rpcStore.setSelectedRPCConfig(rpcConfig)
     initAccountHandler(chainDetails.rpc_url)
     setRPCConfigInRequestHandler(chainDetails)
   }
