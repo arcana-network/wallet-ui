@@ -20,7 +20,6 @@ import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { devLogger } from '@/utils/devLogger'
-import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -53,6 +52,8 @@ let dkgShare: {
 let userInfoSession
 let channel: BroadcastChannel
 const route = useRoute()
+const inAppLogin = route.query.inApp === '1'
+
 const router = useRouter()
 const appId = route.params.appId as string
 initStorage(appId)
@@ -67,8 +68,8 @@ onBeforeMount(async () => {
   }
   const config = await getAppConfig(appId)
   global = config.data.global
-  const userInfoSession = storage.session.getUserInfo()
-  if (isInAppLogin(userInfoSession?.loginType)) {
+  userInfoSession = storage.session.getUserInfo()
+  if (inAppLogin) {
     dkgShare = {
       id: userInfoSession?.userInfo.id,
       pk: userInfoSession?.pk,
@@ -126,11 +127,11 @@ async function handleAnswerBasedRecovery(ev) {
       answers: ev.answers,
     })
     const key = await core.getKey(reconstructedShare)
-    if (isInAppLogin(userInfoSession?.loginType)) {
+    if (inAppLogin) {
       await handleLocalRecovery(key)
       router.push({ name: 'home' })
     } else {
-      returnToParent(key)
+      await returnToParent(key)
     }
   } catch (e) {
     console.error(e)
@@ -193,7 +194,7 @@ async function handlePinBasedRecovery(ev: any) {
       password: ev.password,
     })
     const key = await core.getKey(reconstructedShare)
-    if (isInAppLogin(userInfoSession?.loginType)) {
+    if (inAppLogin) {
       await handleLocalRecovery(key)
       router.push({ name: 'home' })
     } else {

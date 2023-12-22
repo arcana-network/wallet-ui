@@ -322,17 +322,29 @@ async function addToken(request, keeper) {
   }
 }
 
+async function switchAccountType(request, keeper) {
+  const accountType = request.params.type?.toLowerCase()
+  rpcStore.setPreferredWalletAddressType(accountType)
+  keeper.reply(request.method, {
+    result: 'Account type changed successfully',
+    id: request.id,
+  })
+}
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
     if (
       request.method === 'wallet_switchEthereumChain' ||
       request.method === 'wallet_addEthereumChain' ||
-      request.method === 'wallet_watchAsset'
+      request.method === 'wallet_watchAsset' ||
+      request.method === '_arcana_switchAccountType'
     ) {
       const { method } = request
       if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
       if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
       if (method === 'wallet_watchAsset') addToken(request, keeper)
+      if (method === '_arcana_switchAccountType')
+        switchAccountType(request, keeper)
     } else {
       const sanitizedRequest =
         appStore.chainType === ChainType.solana_cv25519
@@ -455,6 +467,24 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         id: request.id,
       })
       return
+    }
+  } else if (request.method === '_arcana_switchAccountType') {
+    const accountType = request.params.type?.toLowerCase()
+    if (!['eoa', 'scw'].includes(accountType)) {
+      return await keeper.reply(request.method, {
+        jsonrpc: '2.0',
+        error: 'Incorrect account type',
+        result: null,
+        id: request.id,
+      })
+    }
+    if (rpcStore.preferredAddressType === accountType) {
+      return await keeper.reply(request.method, {
+        jsonrpc: '2.0',
+        error: 'Already using the same account type',
+        result: null,
+        id: request.id,
+      })
     }
   } else if (request.method === 'eth_signTypedData_v4') {
     const params = JSON.parse(request.params[1])

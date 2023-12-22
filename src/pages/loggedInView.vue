@@ -464,7 +464,9 @@ function getWalletAddressType() {
 
 async function sendAddressType(addressType: string) {
   const parentConnectionInstance = await parentConnection.promise
-  parentConnectionInstance.setAddressType(addressType)
+  if (parentConnectionInstance.setAddressType) {
+    parentConnectionInstance.setAddressType(addressType)
+  }
 }
 
 watch(

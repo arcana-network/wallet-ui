@@ -3,6 +3,7 @@ import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import dayjs from 'dayjs'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
 import { onMounted, onUnmounted, ref, toRefs } from 'vue'
@@ -200,11 +201,14 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & {
     hasMfa?: boolean
-    pk?: string
+    pk: string
   },
   addMFA = false
 ) {
   const storage = getStorage()
+  if (app.isMfaEnabled) {
+    storage.session.setInAppLogin(addMFA)
+  }
   if (addMFA && app.isMfaEnabled) {
     try {
       devLogger.log(
@@ -230,14 +234,21 @@ async function storeUserInfoAndRedirect(
       const key = await core.getKey()
       userInfo.privateKey = key
     } catch (e) {
-      storage.session.setUserInfo(userInfo)
-      router.push({
-        name: 'MFARestore',
-        params: { appId: appId as string },
-      })
-      app.showWallet = true
-      app.expandRestoreScreen = true
-      return
+      if (e instanceof Error) {
+        if (e.message === 'LOCAL_SHARE_MISSING') {
+          storage.session.setUserInfo(userInfo)
+          router.push({
+            name: 'MFARestore',
+            params: { appId: appId as string },
+            query: { inApp: '1' },
+          })
+          const parent = await parentConnection?.promise
+          parent?.onEvent('message', 'mfa_flow')
+          app.showWallet = true
+          app.expandRestoreScreen = true
+          return
+        }
+      }
     }
   }
   storage.session.setUserInfo(userInfo)
