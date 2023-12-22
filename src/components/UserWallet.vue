@@ -236,32 +236,28 @@ async function copyToClipboard(value: string) {
                 class="flex items-center space-x-2"
                 @click.stop="showAddressListDropDown = true"
               >
-                <div>
-                  <img
-                    src="@/assets/images/fallback-logo-dark-mode.png"
-                    class="w-xl h-xl rounded-full"
-                  />
-                  <div class="flex flex-col">
-                    <div class="flex">
-                      <span
-                        class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
-                        >{{ truncateMid(selectedAddressType.address, 6) }}</span
-                      >
-                      <button
-                        title="Click to copy wallet address"
-                        @click.stop="
-                          copyToClipboard(selectedAddressType.address)
-                        "
-                      >
-                        <img :src="getImage('copy.svg')" class="w-xl h-xl" />
-                      </button>
-                    </div>
+                <img
+                  src="@/assets/images/fallback-logo-dark-mode.png"
+                  class="w-xl h-xl rounded-full"
+                />
+                <div class="flex flex-col">
+                  <div class="flex">
                     <span
-                      v-if="appStore.chainType === ChainType.evm_secp256k1"
-                      class="text-left text-xs text-[#8d8d8d]"
-                      >{{ selectedAddressType.label }}</span
+                      class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
+                      >{{ truncateMid(selectedAddressType.address, 6) }}</span
                     >
+                    <button
+                      title="Click to copy wallet address"
+                      @click.stop="copyToClipboard(selectedAddressType.address)"
+                    >
+                      <img :src="getImage('copy.svg')" class="w-xl h-xl" />
+                    </button>
                   </div>
+                  <span
+                    v-if="appStore.chainType === ChainType.evm_secp256k1"
+                    class="text-left text-xs text-[#8d8d8d]"
+                    >{{ selectedAddressType.label }}</span
+                  >
                 </div>
               </button>
               <img
