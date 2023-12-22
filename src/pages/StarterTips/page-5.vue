@@ -25,7 +25,7 @@ const dots = [1, 2, 3, 4]
       <div class="h-full w-full startertips">
         <div class="absolute z-[2147483648] w-32 h-32 top-32 left-5">
           <img
-            src="@/assets/images/starter-tips/page-5.png"
+            src="@/assets/images/starter-tips/page-5.svg"
             alt="wallet-address"
             class="border-1 border-white-400 rounded-full"
           />

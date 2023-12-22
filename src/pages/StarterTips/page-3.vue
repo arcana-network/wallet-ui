@@ -8,7 +8,7 @@ const dots = [1, 2, 3, 4]
       <div class="h-full w-full relative">
         <div class="absolute z-[2147483648] w-16 h-16 top-12 right-10">
           <img
-            src="@/assets/images/starter-tips/page-3.png"
+            src="@/assets/images/starter-tips/page-3.svg"
             alt="wallet-address"
             class="border-1 border-white-400 rounded-full"
           />

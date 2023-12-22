@@ -6,9 +6,9 @@ const dots = [1, 2, 3, 4]
   <div class="h-full w-full flex flex-col">
     <div class="h-3/4 w-full bg-black-100 opacity-90">
       <div class="h-full w-full startertips">
-        <div class="absolute z-[2147483648] w-36 h-36 top-[274px] right-8">
+        <div class="absolute z-[2147483648] w-36 h-36 top-[266px] right-8">
           <img
-            src="@/assets/images/starter-tips/page-6.png"
+            src="@/assets/images/starter-tips/page-6.svg"
             alt="wallet-address"
             class="border-1 border-white-400 rounded-full"
           />
