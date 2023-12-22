@@ -3,9 +3,9 @@ const dots = [1, 2, 3, 4]
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 bg-black-100 h-full p-6 bg-opacity-80">
     <h1 class="text-xl uppercase font-black">New user orientation</h1>
-    <p class="text-sm text-[#8D8D8D]">
+    <p class="text-sm">
       The following screens will help you understand the main functionalities
       that are available in your wallet. You can quickly go through the same or
       click “Skip” if you’re familiar with wallets.
