@@ -11,7 +11,7 @@ const dots = [1, 2, 3, 4]
         class="absolute z-[2147483648] w-[192px] h-[192px] top-[70px] left-5"
       >
         <img
-          src="@/assets/images/starter-tips/page-2.svg"
+          src="@/assets/images/starter-tips/page-2.png"
           alt="wallet-address"
           class="border-1 border-white-400 rounded-full"
         />
