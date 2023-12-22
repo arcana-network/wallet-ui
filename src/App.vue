@@ -12,7 +12,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
-import { ChainType } from '@/utils/chainType'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
@@ -24,6 +24,7 @@ const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
 const parentConnectionStore = useParentConnectionStore()
+const starterTipsStore = useStarterTipsStore()
 const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
@@ -162,7 +163,7 @@ const showHeader = computed(() => {
         />
         <BaseModal v-if="modal.show" />
       </div>
-      <WalletFooter v-if="showFooter" />
+      <WalletFooter v-if="showFooter && !starterTipsStore.show" />
     </div>
     <div
       v-if="sdkVersion === 'v3'"
