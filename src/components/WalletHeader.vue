@@ -85,7 +85,10 @@ function handleFallbackLogo(event) {
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button class="flex items-center">
+        <button
+          class="flex items-center"
+          :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
+        >
           <div
             v-if="hasChainUpdated"
             class="w-xl h-xl rounded-full"

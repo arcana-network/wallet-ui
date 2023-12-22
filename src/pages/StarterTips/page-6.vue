@@ -4,15 +4,11 @@ const dots = [1, 2, 3, 4]
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="h-3/4 w-full bg-black-100 opacity-90">
+    <div class="h-3/4 w-full bg-black-100 bg-opacity-80">
       <div class="h-full w-full startertips">
-        <div class="absolute z-[2147483648] w-36 h-36 top-[266px] right-8">
-          <img
-            src="@/assets/images/starter-tips/page-6.png"
-            alt="wallet-address"
-            class="border-1 border-white-400 rounded-full"
-          />
-        </div>
+        <div
+          class="absolute z-[2147483648] w-36 h-36 top-[266px] right-8"
+        ></div>
       </div>
     </div>
     <div class="bg-black-100 h-1/4 p-4">

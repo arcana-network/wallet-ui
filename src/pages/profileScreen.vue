@@ -245,21 +245,21 @@ watch(
           </button>
         </div>
       </div>
-      <div class="flex flex-col">
+      <div
+        class="flex flex-col"
+        :class="{
+          'z-[999]': starterTipsStore.showExportkey,
+        }"
+      >
         <span class="text-sm text-gray-100">Private Key</span>
         <button
-          class="flex gap-2 items-center"
-          :class="{
-            'z-[2147483648] startertips': starterTipsStore.showExportkey,
-          }"
+          class="flex gap-2 items-cente disabled:opacity-100"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <div v-if="!starterTipsStore.showExportkey">
-            <span class="text-lg font-bold"> Export Key </span>
-            <img :src="getImage('external-link.svg')" class="w-md h-md" />
-          </div>
+          <span class="text-lg font-bold text-white-100"> Export Key </span>
+          <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
