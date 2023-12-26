@@ -229,7 +229,10 @@ async function copyToClipboard(value: string) {
         <span class="text-[#8D8D8D] text-sm">Wallet</span>
         <div
           class="dark:bg-[#313131] bg-[#FFFFFF] flex flex-col justify-between p-2 rounded-md relative"
-          :class="{ 'z-[999]': starterTipsStore.showWalletAddress }"
+          :class="{
+            'z-[999] startertips_highlighted':
+              starterTipsStore.showWalletAddress,
+          }"
         >
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
             <ListboxButton class="flex justify-between items-center">
@@ -357,7 +360,7 @@ async function copyToClipboard(value: string) {
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :disabled="!transakNetwork && onRampMoney === false"
           :class="{
-            'z-[999]': starterTipsStore.showBuyButton,
+            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
           }"
           @click.stop="handleBuy(true)"
         >

@@ -136,8 +136,8 @@
   }
 
   @media (max-height: 560px) {
-    .startertips {
-      display: none;
+    .startertips_highlighted {
+      z-index: 0;
     }
   }
 }

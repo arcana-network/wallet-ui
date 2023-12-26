@@ -248,7 +248,7 @@ watch(
       <div
         class="flex flex-col"
         :class="{
-          'z-[999]': starterTipsStore.showExportkey,
+          'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
         }"
       >
         <span class="text-sm text-gray-100">Private Key</span>
