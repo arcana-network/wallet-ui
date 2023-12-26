@@ -86,7 +86,7 @@ function handleFallbackLogo(event) {
       </div>
       <div class="flex items-center gap-3">
         <button
-          class="flex items-center"
+          class="flex items-center startertips_highlighted"
           :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
         >
           <div
