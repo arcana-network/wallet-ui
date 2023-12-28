@@ -7,8 +7,7 @@ const dots = [1, 2, 3, 4]
     <h1 class="text-xl uppercase font-black">New user orientation</h1>
     <p class="text-sm">
       The following screens will help you understand the main functionalities
-      that are available in your wallet. You can quickly go through the same or
-      click “Skip” if you’re familiar with wallets.
+      that are available in your wallet.
     </p>
     <div class="h-7 m-auto space-x-2 w-full flex justify-center items-center">
       <span

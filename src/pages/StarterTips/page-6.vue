@@ -13,7 +13,7 @@ const dots = [1, 2, 3, 4]
     </div>
     <div class="bg-black-100 h-1/4 p-4">
       <h1 class="text-xl uppercase font-black">On-RAMP Support</h1>
-      <p class="text-sm text-[#8D8D8D]">
+      <p class="text-sm">
         Easily purchase a wide range of crypto assets directly within the wallet
         using our integrated on-ramp providers.
       </p>
