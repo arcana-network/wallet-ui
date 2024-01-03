@@ -70,7 +70,10 @@ async function handleSocialLoginRequest(
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     const loginSrc = await (await parentConnection?.promise)?.getLoginSource()
-    if (!loginSrc || !['rn', 'flutter', 'unity'].includes(loginSrc)) {
+    if (
+      !loginSrc ||
+      !['rn', 'flutter', 'unity', 'unity-ws'].includes(loginSrc)
+    ) {
       await catchupSigninPage(state)
     }
     return url

@@ -42,7 +42,10 @@ async function init() {
   const storage = getStorage()
   const loginSrc = storage.local.getLoginSrc()
   const isStandalone =
-    loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
+    loginSrc === 'rn' ||
+    loginSrc === 'flutter' ||
+    loginSrc === 'unity' ||
+    loginSrc === 'unity-ws'
   try {
     const state = getStateFromUrl(route.fullPath)
     storage.session.setState(state)

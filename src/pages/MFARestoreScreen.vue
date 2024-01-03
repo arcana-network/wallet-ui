@@ -223,7 +223,10 @@ async function returnToParent(key: string) {
   const state = storage.session.getState() as string
   const stateInfo = global ? { i: state } : decodeJSON<StateInfo>(state)
   const isStandalone =
-    loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
+    loginSrc === 'rn' ||
+    loginSrc === 'flutter' ||
+    loginSrc === 'unity' ||
+    loginSrc === 'unity-ws'
 
   storage.local.setHasMFA(info.userInfo.id)
   info.privateKey = key
