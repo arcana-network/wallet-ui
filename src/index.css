@@ -130,4 +130,14 @@
     background: rgb(49 49 49 / 62%);
     backdrop-filter: blur(3.5px);
   }
+
+  .startertips {
+    @apply cursor-pointer relative;
+  }
+
+  @media (max-height: 560px) {
+    .startertips_highlighted {
+      z-index: 0;
+    }
+  }
 }
