@@ -70,6 +70,7 @@ async function handleSocialLoginRequest(
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     const loginSrc = await (await parentConnection?.promise)?.getLoginSource()
+    console.log({ loginSrc })
     if (
       !loginSrc ||
       !['rn', 'flutter', 'unity', 'unity-ws'].includes(loginSrc)
