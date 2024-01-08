@@ -3,7 +3,9 @@ import Decimal from 'decimal.js'
 import { computed } from 'vue'
 
 import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 const props = defineProps({
@@ -14,6 +16,7 @@ const props = defineProps({
 })
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 
 const chainId = computed(() => new Decimal(props.params.chainId).toString())
 
@@ -47,7 +50,12 @@ function handleFallbackLogo(event) {
         :title="chain.chainName"
       >
         <img
-          :src="getChainLogoUrl(chain)"
+          :src="
+            getChainLogoUrl(
+              chain,
+              appStore.chainType === ChainType.evm_secp256k1 ? 'EVM' : 'solana'
+            )
+          "
           class="h-4 w-4"
           @error="handleFallbackLogo"
         />

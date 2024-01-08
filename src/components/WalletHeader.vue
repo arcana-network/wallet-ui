@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 type ModalState = 'receive' | 'chain-list' | false
@@ -95,7 +96,14 @@ function handleFallbackLogo(event) {
             @click.stop="openChainList()"
           >
             <img
-              :src="getChainLogoUrl(rpcStore.selectedRPCConfig)"
+              :src="
+                getChainLogoUrl(
+                  rpcStore.selectedRPCConfig,
+                  appStore.chainType === ChainType.evm_secp256k1
+                    ? 'EVM'
+                    : 'solana'
+                )
+              "
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
               class="w-xl h-xl"
