@@ -69,13 +69,13 @@ let OTPLoginParams = {
 
 const initOTPLogin = async (email: string) => {
   const provider = await getAuthProvider(appId as string)
-  if (provider.appConfig.global) {
-    throw new Error('not available')
-  }
-  await provider.loginWithPasswordlessV2Start({
+  const response = await provider.loginWithPasswordlessV2Start({
     email,
     kind: 'otp',
   })
+  if ((response as { url: string }).url) {
+    return (response as { url: string }).url
+  }
   OTPLoginParams.email = email
 }
 
