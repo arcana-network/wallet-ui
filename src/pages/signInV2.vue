@@ -10,6 +10,7 @@ import { onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
+import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
@@ -45,6 +46,12 @@ const {
   hash,
 } = toRefs(route)
 
+let keyspaceType: 'global' | 'local' | null = null
+
+const getKeySpaceType = async () => {
+  const { data } = await getAppConfig(appId)
+  return data.global ? 'global' : 'local'
+}
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
 
@@ -155,6 +162,10 @@ const initPasswordlessLogin = async (email: string) => {
   return params
 }
 
+getKeySpaceType().then((type) => {
+  keyspaceType = type
+})
+
 const initSocialLogin = async (type: SocialLogins): Promise<string> => {
   const val = await authProvider?.loginWithSocial(type)
   if (val) {
@@ -179,6 +190,7 @@ const penpalMethods = {
     const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
     return reconURL.toString()
   },
+  getKeySpaceConfigType: () => keyspaceType,
 }
 
 const cleanup = () => {
