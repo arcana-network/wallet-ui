@@ -81,9 +81,14 @@ const initOTPLogin = async (email: string) => {
     kind: 'otp',
   })
   if ((response as { url: string }).url) {
+    devLogger.log('initOTPLogin: in response.url', { response })
     return (response as { url: string }).url
   }
   OTPLoginParams.email = email
+  devLogger.log('initOTPLogin: after response.url', {
+    response,
+    OTPLoginParams,
+  })
 }
 
 const completeOTPLogin = async (otp: string) => {
