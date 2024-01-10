@@ -80,7 +80,7 @@ const initOTPLogin = async (email: string) => {
     email,
     kind: 'otp',
   })
-  if ((response as { url: string }).url) {
+  if (response && (response as { url: string }).url) {
     devLogger.log('initOTPLogin: in response.url', { response })
     return (response as { url: string }).url
   }
