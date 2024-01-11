@@ -401,7 +401,10 @@ async function handleShowPreview() {
     toast.error('Amount should not be greater than max balance')
     return
   }
-  if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
+  if (
+    !rpcStore.useGasless &&
+    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
+  ) {
     toast.error('Insufficient gas balance')
     return
   }
