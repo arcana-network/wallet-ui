@@ -58,7 +58,14 @@ function handleFallbackLogo(event) {
         />
         <label class="flex items-center gap-2" :for="String(chain.chainId)">
           <img
-            :src="getChainLogoUrl(chain)"
+            :src="
+              getChainLogoUrl(
+                chain,
+                appStore.chainType === ChainType.evm_secp256k1
+                  ? 'EVM'
+                  : 'solana'
+              )
+            "
             class="w-xl h-xl"
             @error="handleFallbackLogo"
           />

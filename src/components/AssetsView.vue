@@ -77,7 +77,10 @@ function fetchNativeAsset() {
       : nativeAssetBalance.value.toDecimalPlaces(4).toNumber(),
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
-    image: getChainLogoUrl(Number(rpcStore.selectedRPCConfig?.chainId)),
+    image: getChainLogoUrl(
+      Number(rpcStore.selectedRPCConfig?.chainId),
+      appStore.chainType === ChainType.evm_secp256k1 ? 'EVM' : 'solana'
+    ),
   }
 }
 
