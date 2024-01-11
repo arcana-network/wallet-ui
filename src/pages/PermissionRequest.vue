@@ -134,26 +134,31 @@ async function checkIfGaslessEnabled(chainId: string, appId: string) {
   }
 }
 
-function getWalletAddressType() {
-  let preferredAddressType = getStorage().local.getPreferredAddressType()
-  if (!preferredAddressType) {
-    preferredAddressType = rpcStore.isGaslessConfigured ? 'scw' : 'eoa'
-    getStorage().local.setPreferredAddressType(preferredAddressType)
-  } else {
-    preferredAddressType = !rpcStore.isGaslessConfigured
-      ? 'eoa'
-      : preferredAddressType
-  }
-  rpcStore.setPreferredWalletAddressType(preferredAddressType)
+function setWalletAddressType(address) {
+  const isSCW = address === scwInstance.scwAddress
+  rpcStore.setPreferredWalletAddressType(isSCW ? 'scw' : 'eoa')
 }
 
 async function initScwSdk() {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler()
+  await initSCW(appId, (accountHandler as EVMAccountHandler).getSigner())
+}
+
+async function sendRequest(r: {
+  chainId: string
+  request: JsonRpcRequest<unknown>
+}) {
+  showLoader.value = true
   try {
-    const requestHandler = getRequestHandler()
-    const accountHandler = requestHandler.getAccountHandler()
-    await initSCW(appId, (accountHandler as EVMAccountHandler).getSigner())
+    await initFromChainId(r.chainId)
+    await checkIfGaslessEnabled(r.chainId, appId)
+    await initScwSdk()
+    addToPendingQueue(r)
   } catch (e) {
     console.log(e)
+  } finally {
+    showLoader.value = false
   }
 }
 
@@ -163,23 +168,9 @@ onMounted(async () => {
 
     await connectToParent({
       methods: {
-        sendRequest: async (r: {
-          chainId: string
-          request: JsonRpcRequest<unknown>
-        }) => {
-          await initFromChainId(r.chainId)
-          await checkIfGaslessEnabled(r.chainId, appId)
-          getWalletAddressType()
-          initScwSdk()
-          addToPendingQueue(r)
-        },
+        sendRequest,
       },
     }).promise
-    // V Add this for other requests
-    // if (!checkIfMethodSupported(request.method as RequestMethod)) {
-    //   denyProcessing(request.id)
-    //   return
-    // }
     initStorage(appId)
     updateTheme()
     const info = await getAppDetails(appId)
@@ -226,6 +217,7 @@ function setHexPrefix(value: string) {
 }
 
 async function onApprove(request) {
+  setWalletAddressType(request.params[0].from)
   const reqObj = pendingQueue.value[0]
   try {
     if (reqObj.requestOrigin === 'wallet-ui') {
@@ -287,6 +279,7 @@ function onReject(request) {
 }
 
 async function handleSendToken(params) {
+  setWalletAddressType(params.senderWalletAddress)
   const tokenDetails = JSON.parse(params.tokenDetails)
   const tokenList = JSON.parse(params.tokenList)
   const gas = JSON.parse(params.gas)
