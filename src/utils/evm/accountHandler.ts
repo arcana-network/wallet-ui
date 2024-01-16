@@ -124,7 +124,7 @@ class EVMAccountHandler {
               gaslessStore.showUseWalletBalancePermission = false
               gaslessStore.canUseWalletBalance = null
             }
-          })
+          }, 500)
         })
       }
       const tx = await scwInstance.doTx(txParams)
@@ -375,7 +375,7 @@ class EVMAccountHandler {
                 gaslessStore.showUseWalletBalancePermission = false
                 gaslessStore.canUseWalletBalance = null
               }
-            })
+            }, 500)
           })
         }
         const tx = await scwInstance.doTx(txParams)
