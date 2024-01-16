@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Chain } from '@arcana/auth/types/chainList'
 import Decimal from 'decimal.js'
 import { onMounted, onBeforeUnmount, ref, watch, type Ref, computed } from 'vue'
 
