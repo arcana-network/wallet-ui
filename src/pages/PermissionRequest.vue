@@ -18,11 +18,14 @@ import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
   getAppConfig,
   getGaslessEnabledStatus,
 } from '@/services/gateway.service'
+import { useGaslessStore } from '@/store/gasless'
+import { useModalStore } from '@/store/modal'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import {
@@ -57,6 +60,8 @@ const appDetails = ref({})
 const pendingQueue = ref([])
 const route = useRoute()
 const appId = route.params.appId as string
+const gaslessStore = useGaslessStore()
+const modalStore = useModalStore()
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -563,5 +568,10 @@ function handleGasPriceInput(value, request) {
         </div>
       </div>
     </div>
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <UseWalletBalanceGasless
+        v-if="gaslessStore.showUseWalletBalancePermission"
+      />
+    </Teleport>
   </div>
 </template>
