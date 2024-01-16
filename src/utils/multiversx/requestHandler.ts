@@ -1,26 +1,30 @@
 import type { RpcConfig } from '@arcana/auth'
-import bs58 from 'bs58'
 import {
+  SignableMessage,
+  type ISignature,
+  Transaction,
+} from '@multiversx/sdk-core'
+import {
+  createAsyncMiddleware,
   JsonRpcEngine,
   JsonRpcRequest,
   PendingJsonRpcResponse,
-  createAsyncMiddleware,
 } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
-import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
+import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
 import { toHex } from '@/utils/toHex'
 
-class SolanaRequestHandler {
+class MultiversXRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   private connectSent = false
-  constructor(private accountHandler: SolanaAccountHandler) {}
+  constructor(private accountHandler: MultiversXAccountHandler) {}
 
   get chainType() {
-    return ChainType.solana_cv25519
+    return ChainType.multiversx_cv25519
   }
 
   public async setRpcConfig(c: RpcConfig) {
@@ -112,44 +116,30 @@ class SolanaRequestHandler {
     }
     switch (req.method) {
       case 'getAccounts': {
-        const result = await this.accountHandler.getAccounts()
+        const result = this.accountHandler.getAccounts()
         res.result = result
         break
       }
       case 'signTransaction': {
         const p = req.params as {
-          message: string
+          transaction: string
         }
-        res.result = bs58.encode(
-          await this.accountHandler.signTransaction(bs58.decode(p.message))
-        )
+        res.result = Buffer.from(
+          this.accountHandler.signTransactions([
+            Transaction.fromPlainObject(JSON.parse(p.transaction)),
+          ])[0]
+        ).toString('hex')
         break
       }
       case 'signAllTransactions': {
         const p = req.params as {
-          message: string[]
+          transactions: string[]
         }
-        const signatures = [] as any[]
-        for (const m of p.message) {
-          const encoded = bs58.encode(
-            await this.accountHandler.signTransaction(bs58.decode(m))
+        res.result = this.accountHandler.signTransactions(
+          p.transactions.map((tx) =>
+            Transaction.fromPlainObject(JSON.parse(tx))
           )
-          signatures.push(encoded)
-        }
-        res.result = signatures
-        break
-      }
-      case 'signAndSendTransaction': {
-        const p = req.params as {
-          message: string
-        }
-        const sig = await this.accountHandler.signAndSendTransaction(
-          bs58.decode(p.message)
         )
-        res.result = {
-          signature: sig,
-          publicKey: this.accountHandler.publicKey.toBase58(),
-        }
         break
       }
       case 'signMessage': {
@@ -157,11 +147,11 @@ class SolanaRequestHandler {
           message: string
           display: string
         }
-        const data = bs58.decode(p.message)
-        const sig = await this.accountHandler.signMessage(data)
+        const sig = this.accountHandler.signMessage(
+          new SignableMessage(JSON.parse(p.message))
+        )
         res.result = {
-          signature: bs58.encode(sig),
-          publicKey: this.accountHandler.publicKey.toBase58(),
+          signature: sig.hex(),
         }
         break
       }
@@ -177,5 +167,3 @@ class SolanaRequestHandler {
     return engine
   }
 }
-
-export { SolanaRequestHandler }

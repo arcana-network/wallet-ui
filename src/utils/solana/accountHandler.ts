@@ -144,9 +144,9 @@ export class SolanaAccountHandler {
     }
   }
 
-  setRpcConfig(rc: RpcConfig) {
+  setRpcConfig(rc: RpcConfig): Promise<void> {
     this.rpcConfig = rc
-    this.setProvider(rc.rpcUrls[0])
+    return this.setProvider(rc.rpcUrls[0])
   }
   getChainId() {
     return this.rpcConfig.chainId
