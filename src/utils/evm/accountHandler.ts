@@ -106,6 +106,7 @@ class EVMAccountHandler {
         data: encodedData,
       }
       const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
+      console.log(paymasterBalance, 'paymasterBalance')
       if (paymasterBalance > 0.1) {
         modalStore.setShowModal(true)
         appStore.expandWallet = true
@@ -359,6 +360,7 @@ class EVMAccountHandler {
         }
         const paymasterBalance =
           (await scwInstance.getPaymasterBalance()) / 1e18
+        console.log(paymasterBalance, 'paymasterBalance')
         if (paymasterBalance < 0.1) {
           modalStore.setShowModal(true)
           appStore.expandWallet = true
