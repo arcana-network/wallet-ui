@@ -122,13 +122,15 @@ class EVMAccountHandler {
               modalStore.setShowModal(false)
               appStore.expandWallet = false
               gaslessStore.showUseWalletBalancePermission = false
-              gaslessStore.canUseWalletBalance = null
             }
           }, 500)
         })
       }
-      const tx = await scwInstance.doTx(txParams)
+      const tx = gaslessStore.canUseWalletBalance
+        ? await scwInstance.doTx(txParams, { mode: 'scw' })
+        : await scwInstance.doTx(txParams)
       const txDetails = await tx.wait()
+      gaslessStore.canUseWalletBalance = null
       return txDetails.receipt.transactionHash
     } else {
       const signer = this.wallet.connect(this.provider)
