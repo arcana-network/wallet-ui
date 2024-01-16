@@ -1,9 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
-import {
-  SignableMessage,
-  type ISignature,
-  Transaction,
-} from '@multiversx/sdk-core'
+import { SignableMessage, Transaction } from '@multiversx/sdk-core'
 import {
   createAsyncMiddleware,
   JsonRpcEngine,
@@ -116,8 +112,7 @@ class MultiversXRequestHandler {
     }
     switch (req.method) {
       case 'getAccounts': {
-        const result = this.accountHandler.getAccounts()
-        res.result = result
+        res.result = this.accountHandler.getAccounts()
         break
       }
       case 'signTransaction': {
@@ -135,11 +130,13 @@ class MultiversXRequestHandler {
         const p = req.params as {
           transactions: string[]
         }
-        res.result = this.accountHandler.signTransactions(
-          p.transactions.map((tx) =>
-            Transaction.fromPlainObject(JSON.parse(tx))
+        res.result = this.accountHandler
+          .signTransactions(
+            p.transactions.map((tx) =>
+              Transaction.fromPlainObject(JSON.parse(tx))
+            )
           )
-        )
+          .map((buf) => Buffer.from(buf).toString('hex'))
         break
       }
       case 'signMessage': {
