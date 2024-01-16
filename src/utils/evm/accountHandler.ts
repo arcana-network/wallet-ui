@@ -19,6 +19,9 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc20abi from '@/abis/erc20.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
+import { useAppStore } from '@/store/app'
+import { useGaslessStore } from '@/store/gasless'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
@@ -32,6 +35,9 @@ import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
+const modalStore = useModalStore()
+const appStore = useAppStore()
+const gaslessStore = useGaslessStore()
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
@@ -98,6 +104,28 @@ class EVMAccountHandler {
         from: userStore.walletAddress,
         to: contractAddress,
         data: encodedData,
+      }
+      const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
+      if (paymasterBalance > 0.1) {
+        modalStore.setShowModal(true)
+        appStore.expandWallet = true
+        gaslessStore.showUseWalletBalancePermission = true
+        await new Promise((resolve, reject) => {
+          const intervalId = setInterval(() => {
+            if (gaslessStore.canUseWalletBalance !== null) {
+              clearInterval(intervalId)
+              if (gaslessStore.canUseWalletBalance) {
+                resolve(null)
+              } else {
+                reject(new Error('Gastank balance too low'))
+              }
+              modalStore.setShowModal(false)
+              appStore.expandWallet = false
+              gaslessStore.showUseWalletBalancePermission = false
+              gaslessStore.canUseWalletBalance = null
+            }
+          })
+        })
       }
       const tx = await scwInstance.doTx(txParams)
       const txDetails = await tx.wait()
@@ -326,6 +354,29 @@ class EVMAccountHandler {
           from: address,
           to: data.to,
           value: data.value,
+        }
+        const paymasterBalance =
+          (await scwInstance.getPaymasterBalance()) / 1e18
+        if (paymasterBalance < 0.1) {
+          modalStore.setShowModal(true)
+          appStore.expandWallet = true
+          gaslessStore.showUseWalletBalancePermission = true
+          await new Promise((resolve, reject) => {
+            const intervalId = setInterval(() => {
+              if (gaslessStore.canUseWalletBalance !== null) {
+                clearInterval(intervalId)
+                if (gaslessStore.canUseWalletBalance) {
+                  resolve(null)
+                } else {
+                  reject(new Error('Gastank balance too low'))
+                }
+                modalStore.setShowModal(false)
+                appStore.expandWallet = false
+                gaslessStore.showUseWalletBalancePermission = false
+                gaslessStore.canUseWalletBalance = null
+              }
+            })
+          })
         }
         const tx = await scwInstance.doTx(txParams)
         const txDetails = await tx.wait()
