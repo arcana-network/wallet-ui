@@ -1,7 +1,10 @@
 import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
 import { AsyncMethodReturns } from 'penpal'
 
-import { RedirectParentConnectionApi } from '@/models/Connection'
+import {
+  type GlobalRedirectMethods,
+  RedirectParentConnectionApi,
+} from '@/models/Connection'
 import { encrypt } from '@/utils/crypto'
 import {
   getCredentialKey,
@@ -128,7 +131,10 @@ const verifyOpenerPage = async (state: string) => {
   }
 }
 
-const contactParentPage = async (params: HandleLoginParams, status: string) => {
+const contactParentPage = async (
+  params: Omit<HandleLoginParams, 'connection'>,
+  status: string
+) => {
   const data = await interactWithIframe<{ messageId: number }>({
     status,
     params: {
@@ -152,6 +158,8 @@ async function handlePasswordlessLoginV2(params: HandleLoginParams) {
     pk: params.userInfo.pk,
     sessionID: params.sessionID,
     expiry: params.sessionExpiry,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     token: params.userInfo.token,
   }
   let ciphertext = await encrypt(JSON.stringify(dataToEncrypt), publicKey)
@@ -212,6 +220,22 @@ const handleLogin = async (params: HandleLoginParams) => {
   }
 }
 
+const handleGlobalLogin = async (
+  params: Omit<HandleLoginParams, 'connection'> & {
+    connection: AsyncMethodReturns<GlobalRedirectMethods>
+  }
+) => {
+  try {
+    await contactParentPage(params, LOGIN_INFO)
+    await params.connection.setSuccess()
+  } catch (e) {
+    console.log('A very unexpected error occurred', e)
+    await params.connection.setError(
+      'Could not login, an unexpected error occurred'
+    )
+  }
+}
+
 export {
   interactWithIframe,
   catchupSigninPage,
@@ -224,4 +248,5 @@ export {
   LOGIN_INFO,
   MFA_SETUP_ACK,
   LOGIN_INFO_ACK,
+  handleGlobalLogin,
 }

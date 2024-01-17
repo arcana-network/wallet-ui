@@ -4,25 +4,32 @@ import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
 
 type SDKVersion = 'v2' | 'v3'
 
-type RequestMethod =
-  | 'eth_sign'
+type EVMRequestMethod =
   | 'personal_sign'
   | 'eth_decrypt'
   | 'eth_signTypedData_v4'
-  | 'eth_signTransaction'
   | 'eth_sendTransaction'
   | 'eth_accounts'
   | 'eth_requestAccounts'
   | 'eth_getEncryptionPublicKey'
   | 'wallet_addEthereumChain'
   | 'wallet_switchEthereumChain'
+  | 'wallet_watchAsset'
+  | '_arcana_getPrivateKey'
+
+type SolanaRequestMethod =
+  | 'signAndSendTransaction'
+  | 'sendTransaction'
+  | 'signTransaction'
+  | 'signMessage'
+  | 'signAllTransactions'
+
+type RequestMethod = EVMRequestMethod | SolanaRequestMethod
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
-  eth_sign: true,
   personal_sign: true,
   eth_decrypt: true,
   eth_signTypedData_v4: true,
-  eth_signTransaction: true,
   eth_sendTransaction: true,
   eth_accounts: false,
   eth_requestAccounts: false,
@@ -30,7 +37,15 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   wallet_addEthereumChain: true,
   wallet_switchEthereumChain: true,
   wallet_watchAsset: true,
+  _arcana_getPrivateKey: false,
+  signAndSendTransaction: true,
+  sendTransaction: true,
+  signTransaction: true,
+  signAllTransactions: true,
+  signMessage: true,
 })
+
+const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']
 
 function requirePermission(
   request: JsonRpcRequest<unknown>,
@@ -55,6 +70,12 @@ type RedirectParentConnectionApi = {
   error(errorMessage: string, domain?: string): Promise<void>
 }
 
+type GlobalRedirectMethods = {
+  setSuccess(): Promise<void>
+  setError(errorMessage: string, domain?: string): Promise<void>
+  goToMfaRestore(id: string): void
+}
+
 type ParentConnectionApi = {
   getAppConfig(): AppConfig
   getRpcConfig(): RpcConfig
@@ -62,6 +83,7 @@ type ParentConnectionApi = {
   getAppMode(): Promise<AppMode>
   getWalletPosition(): Position
   getSDKVersion(): SDKVersion
+  setAddressType(addressType: string): void
 
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
   setSessionID(sessionID: string, expiry: number): void
@@ -85,7 +107,7 @@ type InitParentConnectionApi = {
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 
-export { requirePermission, PERMISSIONS }
+export { requirePermission, PERMISSIONS, UNSUPPORTED_METHODS }
 
 export type {
   RedirectParentConnectionApi,
@@ -94,4 +116,5 @@ export type {
   RequestMethod,
   ProviderEvent,
   SDKVersion,
+  GlobalRedirectMethods,
 }

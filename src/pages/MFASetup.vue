@@ -12,7 +12,9 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
+import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -34,6 +36,7 @@ const showSuccessScreen = ref(false)
 const showPinError = ref('')
 const pinToEncryptMFAShare = ref('')
 const passwordType = ref('password')
+const app = useAppStore()
 
 const securityQuestionModule = new SecurityQuestionModule(3)
 
@@ -48,6 +51,8 @@ const customPlaceholders: Ref<string[]> = ref(
 initStorage(String(route.params.appId))
 
 const storage = getStorage()
+
+app.curve = storage.local.getCurve()
 
 document.documentElement.classList.add('dark')
 
@@ -72,13 +77,22 @@ onBeforeMount(async () => {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
-  const core = new Core(
-    dkgShare.pk,
-    dkgShare.id,
-    String(route.params.appId),
-    GATEWAY_URL,
-    AUTH_NETWORK === 'dev'
-  )
+  devLogger.log('[MFASetup] before core (onBeforeMount)', {
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId: String(route.params.appId),
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: app.curve,
+  })
+  const core = new Core({
+    dkgKey: dkgShare.pk,
+    userId: dkgShare.id,
+    appId: String(route.params.appId),
+    gatewayUrl: GATEWAY_URL,
+    debug: AUTH_NETWORK === 'dev',
+    curve: app.curve,
+  })
   try {
     await core.init()
   } catch (e) {
@@ -252,7 +266,7 @@ async function handlePinProceed() {
       if (isInAppLogin(loginInfo?.loginType)) {
         return toast.error(e as string)
       }
-      return connectionToParent.error(
+      return connectionToParent?.error(
         e as string,
         // eslint-disable-next-line no-undef
         process.env.VUE_APP_WALLET_DOMAIN
@@ -279,7 +293,7 @@ function handleCancel() {
   if (isInAppLogin(loginInfo?.loginType)) {
     return router.back()
   }
-  return connectionToParent.error(
+  return connectionToParent?.error(
     'User cancelled the setup',
     // eslint-disable-next-line no-undef
     process.env.VUE_APP_WALLET_DOMAIN

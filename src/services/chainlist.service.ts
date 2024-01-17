@@ -10,9 +10,18 @@ async function getEnabledChainList(appId) {
   return (await axios.get(url.toString())).data
 }
 
-function getChainLogoUrl(chainId) {
-  const url = new URL(`${chainLogoApi}/${chainId}/`, gatewayUrl)
-  return url.toString()
+function getChainLogoUrl(selectedRpcConfig) {
+  if (selectedRpcConfig) {
+    if (selectedRpcConfig?.favicon) {
+      return selectedRpcConfig.favicon
+    }
+    const url = new URL(
+      `${chainLogoApi}/${Number(selectedRpcConfig?.chainId)}/`,
+      gatewayUrl
+    )
+    return url.toString()
+  }
+  return ''
 }
 
 export { getEnabledChainList, getChainLogoUrl }

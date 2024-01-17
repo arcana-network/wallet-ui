@@ -1,4 +1,4 @@
-type NFTContractType = 'erc721' | 'erc1155'
+type NFTContractType = 'erc721' | 'erc1155' | 'mpl'
 
 type NFTContract = {
   type: NFTContractType
@@ -7,7 +7,7 @@ type NFTContract = {
   collectionName: string
   name: string
   description?: string
-  imageUrl: string
+  imageUrl?: string
   animationUrl?: string
   attributes?: {
     trait: string

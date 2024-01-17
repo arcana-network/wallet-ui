@@ -1,26 +1,28 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
+import { getImage } from '@/utils/getImage'
 import {
-  setRequestHandler,
   getRequestHandler,
+  requestHandlerExists,
 } from '@/utils/requestHandlerSingleton'
 
 const emit = defineEmits(['close'])
-const toast = useToast()
 const rpcStore = useRpcStore()
 
 const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
 const showAddNetworkModal = ref(false)
+const appStore = useAppStore()
 
 watch(
   () => selectedRPCConfig.value,
   () => {
-    if (selectedRPCConfig.value) {
+    if (selectedRPCConfig.value && requestHandlerExists()) {
       rpcStore.setSelectedRPCConfig(selectedRPCConfig.value)
       const requestHandler = getRequestHandler()
       requestHandler.setRpcConfig(selectedRPCConfig.value)
@@ -28,6 +30,10 @@ watch(
     emit('close')
   }
 )
+
+function handleFallbackLogo(event) {
+  event.target.src = getImage('blockchain-icon.png')
+}
 </script>
 
 <template>
@@ -43,18 +49,18 @@ watch(
         class="flex items-center gap-2"
       >
         <input
-          :id="chain.chainId"
+          :id="String(chain.chainId)"
           v-model="selectedRPCConfig"
           type="radio"
           :value="chain"
           name="chain"
           class="radio"
         />
-        <label class="flex items-center gap-2" :for="chain.chainId">
+        <label class="flex items-center gap-2" :for="String(chain.chainId)">
           <img
-            :src="getChainLogoUrl(Number(chain.chainId))"
-            onerror="this.src = '/chain-logos/blockchain-icon.png'"
+            :src="getChainLogoUrl(chain)"
             class="w-xl h-xl"
+            @error="handleFallbackLogo"
           />
           <span class="text-base">{{ chain.chainName }}</span>
           <span v-if="chain.chainType === 'testnet'" class="testnet-tag">
@@ -63,6 +69,7 @@ watch(
         </label>
       </div>
       <button
+        v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="btn-primary uppercase font-bold text-base py-2 mt-4"
         @click.stop="showAddNetworkModal = true"
       >

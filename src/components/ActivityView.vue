@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { ethers } from 'ethers'
+import Decimal from 'decimal.js'
 import { computed, ComputedRef } from 'vue'
 
 import { useActivitiesStore } from '@/store/activities'
@@ -8,7 +8,8 @@ import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
-import { beautifyBalance } from '@/utils/formatTokenDecimals'
+import { ChainType } from '@/utils/chainType'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
 
@@ -69,40 +70,48 @@ function getTransactionIcon(operation: TransactionOps | FileOps) {
 
 function calculateCurrencyValue(valueInCrypto: bigint) {
   if (props.currencyExchangeRate) {
+    const decimals = getRequestHandler().getAccountHandler().decimals
     return {
       amount: new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
       }).format(
-        Math.round(
-          Number(ethers.utils.formatEther(valueInCrypto.toString())) *
-            Number(props.currencyExchangeRate)
-        )
+        new Decimal(valueInCrypto.toString())
+          .div(Decimal.pow(10, decimals))
+          .mul(props.currencyExchangeRate)
+          .toNumber()
       ),
       currency: 'USD',
     }
   }
   return {
-    amount: String(getAmount(valueInCrypto)),
+    amount: getAmount(valueInCrypto),
     currency: rpcStore.currency,
   }
 }
 
 function calculateTotal(activity: Activity) {
   if (activity.transaction) {
-    return (
-      activity.transaction.amount +
-      activity.transaction.gasUsed * activity.transaction.gasPrice
-    )
+    const gasUsed = activity.transaction?.gasUsed || 0n
+    const gasPrice = activity.transaction?.gasPrice || 0n
+    return activity.transaction.amount + gasUsed * gasPrice
   }
   return 0n
 }
 
 function getAmount(amount: bigint, isGas = false) {
   if (isGas) {
-    return beautifyBalance(Number(ethers.utils.formatUnits(amount, 'gwei')), 5)
+    const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+    return new Decimal(amount.toString())
+      .div(Decimal.pow(10, gasDecimals))
+      .toDecimalPlaces(gasDecimals)
+      .toString()
   }
-  return beautifyBalance(Number(ethers.utils.formatEther(amount)), 5)
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toDecimalPlaces(decimals)
+    .toString()
 }
 
 function canShowDropdown(activity: Activity) {
@@ -112,6 +121,36 @@ function canShowDropdown(activity: Activity) {
     activity.file?.recipient ||
     activity.file?.ruleHash
   )
+}
+
+function getDisplayAmount(activity: any) {
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+  return `${new Decimal(activity.transaction.amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toDecimalPlaces(gasDecimals)
+    .toString()} ${rpcStore.currency}`
+}
+
+function getAmountInNativeCurrency(amount: bigint) {
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(amount.toString())
+    .div(Decimal.pow(10, decimals))
+    .toString()
+}
+
+function calculateSolanaTotal(activity) {
+  const total: bigint = activity.fee + activity.amount
+  return new Decimal(total.toString()).div(Decimal.pow(10, 9))
+}
+
+function generateExplorerURL(explorerUrl: string, txHash: string) {
+  const urlFormatExplorerUrl = new URL(explorerUrl)
+  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  if (urlFormatExplorerUrl.search) {
+    actualTxUrl.search = urlFormatExplorerUrl.search
+  }
+  return actualTxUrl.href
 }
 </script>
 
@@ -202,15 +241,19 @@ function canShowDropdown(activity: Activity) {
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
-            >{{ beautifyBalance(Number(activity.customToken.amount), 3) }}
+            >{{
+              new Decimal(activity.customToken.amount)
+                .toDecimalPlaces(5)
+                .toString()
+            }}
             {{ activity.customToken.symbol }}</span
           >
           <span
             v-else
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :title="`${ethers.utils.formatEther(activity.transaction.amount)} ${
-              rpcStore.currency
-            }`"
+            :title="`${getAmountInNativeCurrency(
+              activity.transaction.amount
+            )} ${rpcStore.currency}`"
             >{{ getAmount(activity.transaction.amount) }}
             {{ rpcStore.currency }}</span
           >
@@ -303,29 +346,52 @@ function canShowDropdown(activity: Activity) {
               <span class="text-sm text-gray-100">Transaction Details</span>
               <div class="flex flex-col gap-2 text-base">
                 <div class="flex justify-between">
-                  <span>Nonce</span>
+                  <span v-if="app.chainType === ChainType.solana_cv25519"
+                    >Slot</span
+                  >
+                  <span v-else>Nonce</span>
                   <span>{{ activity.transaction.nonce }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Amount</span>
                   <span
+                    v-if="activity.customToken"
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${ethers.utils.formatEther(
-                      activity.transaction.amount
-                    )} ${rpcStore.currency}`"
+                    :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+                  >
+                    {{
+                      new Decimal(activity.customToken.amount)
+                        .toDecimalPlaces(5)
+                        .toString()
+                    }}
+                    {{ activity.customToken.symbol }}
+                  </span>
+                  <span
+                    v-else
+                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
                     {{ rpcStore.currency }}</span
                   >
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction.gasLimit"
+                  class="flex justify-between"
+                >
                   <span>Gas Limits (Units)</span>
                   <span>{{ activity.transaction.gasLimit }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction?.gasUsed"
+                  class="flex justify-between"
+                >
                   <span>Gas Used (Units)</span>
                   <span>{{ activity.transaction?.gasUsed || 0 }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div
+                  v-if="activity.transaction.gasPrice"
+                  class="flex justify-between"
+                >
                   <span>Gas Price</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
@@ -339,15 +405,53 @@ function canShowDropdown(activity: Activity) {
                     Gwei</span
                   >
                 </div>
+                <div
+                  v-if="activity.transaction?.computeUnitsConsumed"
+                  class="flex justify-between"
+                >
+                  <span>Compute Units Consumed</span>
+                  <span>{{
+                    activity.transaction?.computeUnitsConsumed || 0
+                  }}</span>
+                </div>
+                <div
+                  v-if="activity.transaction?.fee"
+                  class="flex justify-between"
+                >
+                  <span>Fee</span>
+                  <span
+                    >{{ getAmount(activity.transaction?.fee) }}
+                    {{ rpcStore.nativeCurrency?.symbol }}</span
+                  >
+                </div>
               </div>
-              <div class="flex justify-between mt-4 font-bold text-base">
+              <div
+                v-if="app.chainType === ChainType.evm_secp256k1"
+                class="flex justify-between mt-4 font-bold text-base"
+              >
                 <span>Total:</span>
                 <span
                   class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :title="`${ethers.utils.formatEther(
+                  :title="`${getAmountInNativeCurrency(
                     calculateTotal(activity)
                   )} ${rpcStore.currency}`"
                   >{{ getAmount(calculateTotal(activity)) }}
+                  {{ rpcStore.currency }}</span
+                >
+              </div>
+              <div
+                v-if="app.chainType === ChainType.solana_cv25519"
+                class="flex justify-between mt-4 font-bold text-base"
+              >
+                <span>Total:</span>
+                <span
+                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                  :title="calculateSolanaTotal(activity.transaction).toString()"
+                  >{{
+                    calculateSolanaTotal(activity.transaction).toDecimalPlaces(
+                      9
+                    )
+                  }}
                   {{ rpcStore.currency }}</span
                 >
               </div>
@@ -359,10 +463,10 @@ function canShowDropdown(activity: Activity) {
           class="flex justify-center mt-4"
         >
           <a
-            :href="`${explorerUrl}/tx/${activity.txHash}`"
+            :href="generateExplorerURL(explorerUrl, activity.txHash)"
             class="flex font-montserrat font-medium text-xs"
             target="_blank"
-            @click="handleExplorerClick"
+            @click.stop="handleExplorerClick"
           >
             View on Explorer
             <img

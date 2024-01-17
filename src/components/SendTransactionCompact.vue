@@ -5,9 +5,11 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { getImage } from '@/utils/getImage'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -16,6 +18,7 @@ const appStore = useAppStore()
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
 const route = useRoute()
+const currencyStore = useCurrencyStore()
 
 const props = defineProps({
   request: {
@@ -50,9 +53,30 @@ const gasFee = computed(() => {
       .mul(props.gasLimit)
       .div(Decimal.pow(10, 18))
       .toString()
-      .slice(0, 10)
   }
   return 'Unknown'
+})
+
+const gasFeeInCurrency = computed(() => {
+  if (gasFee.value === 'Unknown') {
+    return null
+  }
+  const rpcSymbol = rpcStore.selectedRpcConfig?.nativeCurrency?.symbol
+  if (!rpcSymbol) {
+    return null
+  }
+  const chainType = rpcStore.selectedRpcConfig?.chainType
+  if (chainType?.toLowerCase() === 'testnet') {
+    return null
+  }
+  const perTokenPrice = currencyStore.currencies[rpcSymbol]
+  if (!perTokenPrice) {
+    return null
+  }
+  return new Decimal(gasFee.value)
+    .mul(Decimal.div(1, perTokenPrice))
+    .toDecimalPlaces(2)
+    .toString()
 })
 
 async function setHeight() {
@@ -61,6 +85,17 @@ async function setHeight() {
   await parentConnectionInstance?.setIframeStyle({
     ...appStore.iframeStyle(),
   })
+}
+
+async function onViewDetails() {
+  const c = await parentConnectionStore.parentConnection?.promise
+  if (appStore.compactMode) {
+    appStore.compactMode = false
+  } else {
+    appStore.standaloneMode == 1 || appStore.standaloneMode == 2
+      ? c?.uiEvent('wallet_close', null)
+      : (appStore.expandWallet = false)
+  }
 }
 </script>
 
@@ -72,25 +107,37 @@ async function setHeight() {
       </div>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
-        send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}. Do
-        you approve the transaction?
+        send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
     </div>
     <div class="flex flex-col gap-1 flex-1">
       <div class="flex justify-center">
-        <div class="flex justify-center gap-2 items-baseline">
+        <div class="flex flex-col justify-center items-center">
           <span class="text-sm text-gray-100">Transaction Fees</span>
-          <div class="flex gap-1 items-baseline">
-            <span class="text-lg font-bold">{{ gasFee }}</span>
-            <span v-if="gasFee !== 'Unknown'" class="text-sm">{{
-              rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
-            }}</span>
+          <div class="flex gap-2 items-baseline justify-center">
+            <div class="flex items-baseline">
+              <span class="text-lg font-bold"
+                >{{ gasFee.slice(0, 9) }}&nbsp;</span
+              ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
+                rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+              }}</span>
+            </div>
+            <div
+              v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
+              class="text-sm font-medium"
+            >
+              ({{ currencyStore.getCurrencySymbol }}{{ gasFeeInCurrency }})
+            </div>
           </div>
         </div>
       </div>
-      <!-- <div class="text-xs text-center">
-        Expand the wallet to view more details
-      </div> -->
+      <button
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase text-[12px] font-bold"
+        @click.stop="onViewDetails"
+      >
+        View Details
+        <img :src="getImage('arrow-down.svg')" />
+      </button>
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 text-sm font-bold">

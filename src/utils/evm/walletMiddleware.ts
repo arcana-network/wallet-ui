@@ -1,3 +1,4 @@
+import { AppMode } from '@arcana/auth'
 import { ethErrors } from 'eth-rpc-errors'
 import sigUtil from 'eth-sig-util'
 import {
@@ -8,6 +9,7 @@ import {
   PendingJsonRpcResponse,
 } from 'json-rpc-engine'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 
 interface TransactionParams {
@@ -25,6 +27,8 @@ interface TypedMessageParams extends MessageParams {
 interface WalletMiddlewareOptions {
   getAccounts: (req: JsonRpcRequest<unknown>) => Promise<string[]>
   requestAccounts: (req: JsonRpcRequest<unknown>) => Promise<string[]>
+  // if multiple addresses are ever supported, this will need address indexes here
+  _getPrivateKey: () => string
   processDecryptMessage?: (
     msgParams: MessageParams,
     req: JsonRpcRequest<unknown>
@@ -66,6 +70,7 @@ interface WalletMiddlewareOptions {
 function createWalletMiddleware({
   requestAccounts,
   getAccounts,
+  _getPrivateKey,
   processDecryptMessage,
   processEncryptionPublicKey,
   processEthSignMessage,
@@ -85,6 +90,7 @@ function createWalletMiddleware({
     eth_requestAccounts: createAsyncMiddleware(permissionedLookupAccounts),
     eth_accounts: createAsyncMiddleware(lookupAccounts),
     eth_coinbase: createAsyncMiddleware(lookupDefaultAccount),
+    _arcana_getPrivateKey: createAsyncMiddleware(getPrivateKey),
     // tx signatures
     eth_sendTransaction: createAsyncMiddleware(sendTransaction),
     eth_signTransaction: createAsyncMiddleware(signTransaction),
@@ -109,6 +115,16 @@ function createWalletMiddleware({
   ): Promise<void> {
     res.result = await getAccounts(req)
   }
+
+  async function getPrivateKey(
+    req: JsonRpcRequest<unknown>,
+    res: PendingJsonRpcResponse<unknown>
+  ): Promise<void> {
+    if (useAppStore().validAppMode !== AppMode.NoUI) {
+      throw ethErrors.rpc.methodNotSupported()
+    } else res.result = _getPrivateKey()
+  }
+
   async function permissionedLookupAccounts(
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>

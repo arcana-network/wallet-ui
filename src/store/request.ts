@@ -1,10 +1,13 @@
 import { JsonRpcRequest } from 'json-rpc-engine'
 import { defineStore } from 'pinia'
 
+type RequestOrigin = 'wallet-ui' | 'auth-verify'
+
 type PendingRequest = {
   request: JsonRpcRequest<unknown>
   receivedTime?: Date
   isPermissionGranted: boolean
+  requestOrigin?: RequestOrigin
 }
 
 type EIP1559GasFee = {

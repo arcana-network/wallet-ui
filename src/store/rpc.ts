@@ -18,7 +18,10 @@ type RpcConfigState = {
   walletBalanceChainId: string | undefined
   walletBalancePollingIntervalID: NodeJS.Timer | null
   walletBalancePollingCleanupID: NodeJS.Timer | null
-
+  gaslessEnabledStatus: {
+    [chainId: string]: boolean
+  }
+  preferredAddressType: 'scw' | 'eoa'
   rpcConfigs: RpcConfigs | null
   editChainId: number | null
 }
@@ -28,12 +31,12 @@ export const useRpcStore = defineStore('rpcStore', {
     ({
       selectedRPCConfig: null,
       selectedChainId: null,
-
       walletBalance: '0',
       walletBalanceChainId: '',
       walletBalancePollingCleanupID: null,
       walletBalancePollingIntervalID: null,
-
+      gaslessEnabledStatus: {},
+      preferredAddressType: 'eoa',
       rpcConfigs: null,
       editChainId: null,
     } as RpcConfigState),
@@ -87,8 +90,20 @@ export const useRpcStore = defineStore('rpcStore', {
       const selectedRpcConfig: RpcConfigWallet | null = this.selectedRpcConfig
       return Number(selectedRpcConfig?.chainId) === 1
     },
+    isGaslessConfigured(state: RpcConfigState) {
+      return state.gaslessEnabledStatus[state.selectedChainId as string]
+    },
+    useGasless(state: RpcConfigState) {
+      return (
+        state.gaslessEnabledStatus[state.selectedChainId as string] &&
+        state.preferredAddressType === 'scw'
+      )
+    },
   },
   actions: {
+    setGaslessEnabledStatus(chainId: string, status: boolean) {
+      this.gaslessEnabledStatus[chainId] = status
+    },
     getRpcConfig(chainId: number) {
       return this.rpcConfigs ? this.rpcConfigs[Number(chainId)] : null
     },
@@ -109,7 +124,7 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     setWalletBalance(balance): void {
       this.walletBalance = balance
-      this.walletBalanceChainId = this.selectedRPCConfig?.chainId
+      this.walletBalanceChainId = this.selectedRPCConfig?.chainId as string
     },
     setSelectedChainId(chainId: string): void {
       this.selectedRPCConfig = this.rpcConfigs
@@ -123,25 +138,26 @@ export const useRpcStore = defineStore('rpcStore', {
     },
     setRpcConfig(config: RpcConfigWallet) {
       if (this.rpcConfigs) {
-        this.rpcConfigs[Number(config.chainId)].rpcUrls = config.rpcUrls
+        this.rpcConfigs[Number(config.chainId)] = config
       }
     },
     setRpcConfigs(list: Array<RpcConfigWallet>) {
       const configs = {}
       list.forEach((chainConfig) => {
-        configs[chainConfig.chainId] = chainConfig
+        configs[Number(chainConfig.chainId)] = chainConfig
       })
       this.rpcConfigs = configs
     },
-
+    setPreferredWalletAddressType(addressType: 'scw' | 'eoa') {
+      this.preferredAddressType = addressType
+    },
     async getWalletBalance() {
       const accountHandler = getRequestHandler().getAccountHandler()
       if (accountHandler) {
-        const balance = (await accountHandler.getBalance()) || '0'
-        this.setWalletBalance(balance.toString())
+        const balance = await accountHandler.getBalance()
+        this.setWalletBalance(balance.toString() || '0')
       }
     },
-
     cleanUpBalancePolling() {
       if (this.walletBalancePollingIntervalID != null) {
         clearInterval(this.walletBalancePollingIntervalID)
@@ -152,7 +168,6 @@ export const useRpcStore = defineStore('rpcStore', {
         this.walletBalancePollingCleanupID = null
       }
     },
-
     async setUpBalancePolling() {
       this.cleanUpBalancePolling()
       await this.getWalletBalance()

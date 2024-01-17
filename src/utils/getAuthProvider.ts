@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import { AuthProvider } from '@arcana/auth-core'
 import type { InitParams } from '@arcana/auth-core/types/types'
 
@@ -10,41 +12,59 @@ const AUTH_NETWORK = process.env
 
 let authProvider: AuthProvider | null = null
 
+const getDefaultParams = () => {
+  const params: Omit<InitParams, 'appId'> = {
+    // @ts-ignore
+    network: AUTH_NETWORK,
+    autoRedirect: false,
+    debug: true,
+    shouldVerifyState: false,
+    // useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+    revokeTokenPostLogin: false,
+  }
+  return params
+}
+
 async function getAuthProvider(
   appId: string,
-  shouldVerifyState = false,
   autoClean = true
 ): Promise<AuthProvider> {
   if (!authProvider) {
+    const appStore = useAppStore()
+    const params = getDefaultParams()
     const stor = getStorage()
 
-    const params: InitParams = {
-      appId: appId,
-      redirectUri: `${AUTH_URL}/verify/${appId}/`,
-      network: AUTH_NETWORK,
-      flow: 'redirect',
-      autoRedirect: false,
-      debug: true,
-      shouldVerifyState,
-      useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
-    }
     if (!autoClean) {
       authProvider = new AuthProvider({
         ...params,
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
+        autoRedirect: false,
+        appId,
         revokeTokenPostLogin: false,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
       })
       await authProvider.init()
     } else {
-      authProvider = await AuthProvider.init(params)
+      authProvider = await AuthProvider.init({
+        ...params,
+        redirectUri: `${AUTH_URL}/verify/${appId}/`,
+        autoRedirect: false,
+        appId,
+        curve: appStore.curve,
+        useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
+      })
     }
-    const appStore = useAppStore()
     // TODO find a comprehensive solution to this
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
+    appStore.setChainType(
+      //@ts-ignore
+      authProvider.appConfig.chain_type?.toLowerCase() || 'evm'
+    )
   }
   // authProvider.shouldVerifyState = shouldVerifyState
   return authProvider
 }
 
-export { getAuthProvider }
+export { getAuthProvider, getDefaultParams }

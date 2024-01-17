@@ -5,6 +5,7 @@ import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
 import AddTokenScreen from '@/pages/AddTokenScreen.vue'
 import InitPage from '@/pages/backCompat/initPage.vue'
 import SignIn from '@/pages/backCompat/signIn.vue'
+import GlobalRedirect from '@/pages/globalRedirect.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
@@ -15,6 +16,7 @@ import MFARestoreScreen from '@/pages/MFARestoreScreen.vue'
 import MFASetup from '@/pages/MFASetup.vue'
 import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
 import NFTScreen from '@/pages/NFTScreen.vue'
+import PermissionRequest from '@/pages/PermissionRequest.vue'
 import ProfileScreen from '@/pages/profileScreen.vue'
 import ReconnectV1 from '@/pages/ReconnectV1.vue'
 import RequestsScreen from '@/pages/RequestsScreen.vue'
@@ -22,11 +24,16 @@ import SelectNftScreen from '@/pages/SelectNftScreen.vue'
 import SendNft from '@/pages/SendNft.vue'
 import SendTokens from '@/pages/SendTokens.vue'
 import SignInV2 from '@/pages/signInV2.vue'
+import StarterTips from '@/pages/StarterTips/index-page.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
     component: SignIn,
+  },
+  {
+    path: '/global-redirect/',
+    component: GlobalRedirect,
   },
   {
     path: '/:appId/redirect/',
@@ -65,6 +72,11 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    name: 'PermissionRequest',
+    path: '/:appId/permission',
+    component: PermissionRequest,
+  },
+  {
     path: '/loggedin',
     component: LoggedInView,
     children: [
@@ -77,6 +89,11 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         path: '/',
         component: HomeScreen,
+      },
+      {
+        name: 'StarterTips',
+        path: '/starterTips',
+        component: StarterTips,
       },
       {
         name: 'Nfts',
