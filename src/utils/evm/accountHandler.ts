@@ -398,6 +398,7 @@ class EVMAccountHandler {
         }
       }
     } catch (e) {
+      alert(JSON.stringify(e))
       return Promise.reject(e)
     }
   }
