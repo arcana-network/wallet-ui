@@ -384,6 +384,8 @@ class EVMAccountHandler {
           : await scwInstance.doTx(txParams)
         gaslessStore.canUseWalletBalance = null
         const txDetails = await tx.wait()
+        alert(JSON.stringify(tx))
+        alert(JSON.stringify(txDetails))
         return txDetails.receipt.transactionHash
       } else {
         const wallet = this.getWallet(address)
@@ -397,6 +399,7 @@ class EVMAccountHandler {
       }
     } catch (e) {
       alert(JSON.stringify(e))
+      console.log(e)
       return Promise.reject(e)
     }
   }
