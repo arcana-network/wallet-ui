@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type RpcConfig } from '@arcana/auth'
+import { Dialog } from '@headlessui/vue'
 import {
   PublicKey,
   SystemProgram,
@@ -568,8 +569,8 @@ function handleGasPriceInput(value, request) {
         </div>
       </div>
     </div>
-    <Teleport v-if="true" to="#modal-container">
+    <Dialog v-if="true">
       <UseWalletBalanceGasless />
-    </Teleport>
+    </Dialog>
   </div>
 </template>
