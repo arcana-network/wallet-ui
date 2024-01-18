@@ -569,7 +569,7 @@ function handleGasPriceInput(value, request) {
         </div>
       </div>
     </div>
-    <Dialog v-if="true">
+    <Dialog :open="true">
       <UseWalletBalanceGasless />
     </Dialog>
   </div>
