@@ -165,7 +165,7 @@ const showHeader = computed(() => {
           :src="getImage('secured-by-arcana.svg')"
           class="h-3 select-none mt-5"
         />
-        <BaseModal v-if="false" />
+        <BaseModal v-if="modal.show" />
       </div>
       <WalletFooter v-if="showFooter && !starterTipsStore.show" />
     </div>
