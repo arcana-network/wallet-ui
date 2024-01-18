@@ -569,9 +569,6 @@ function handleGasPriceInput(value, request) {
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
-      <UseWalletBalanceGasless
-        v-if="gaslessStore.showUseWalletBalancePermission"
-      />
       <p>Test</p>
     </Teleport>
   </div>
