@@ -572,6 +572,7 @@ function handleGasPriceInput(value, request) {
       <UseWalletBalanceGasless
         v-if="gaslessStore.showUseWalletBalancePermission"
       />
+      <p>Test</p>
     </Teleport>
   </div>
 </template>
