@@ -569,7 +569,7 @@ function handleGasPriceInput(value, request) {
         </div>
       </div>
     </div>
-    <Dialog :open="true">
+    <Dialog :open="modalStore.show">
       <UseWalletBalanceGasless />
     </Dialog>
   </div>
