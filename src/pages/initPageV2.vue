@@ -9,6 +9,7 @@ import type { InitParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
+import { devLogger } from '@/utils/devLogger'
 import emailScheme from '@/utils/emailScheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import {
@@ -70,7 +71,11 @@ async function handleSocialLoginRequest(
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     const loginSrc = await (await parentConnection?.promise)?.getLoginSource()
-    if (!loginSrc || !['rn', 'flutter', 'unity'].includes(loginSrc)) {
+    devLogger.log({ loginSrc })
+    if (
+      !loginSrc ||
+      !['rn', 'flutter', 'unity', 'unity-ws'].includes(loginSrc)
+    ) {
       await catchupSigninPage(state)
     }
     return url

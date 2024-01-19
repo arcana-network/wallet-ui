@@ -10,6 +10,7 @@ import { onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
+import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
@@ -45,6 +46,12 @@ const {
   hash,
 } = toRefs(route)
 
+let keyspaceType: 'global' | 'local' | null = null
+
+const getKeySpaceType = async () => {
+  const { data } = await getAppConfig(appId)
+  return data.global ? 'global' : 'local'
+}
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
 
@@ -69,14 +76,19 @@ let OTPLoginParams = {
 
 const initOTPLogin = async (email: string) => {
   const provider = await getAuthProvider(appId as string)
-  if (provider.appConfig.global) {
-    throw new Error('not available')
-  }
-  await provider.loginWithPasswordlessV2Start({
+  const response = await provider.loginWithPasswordlessV2Start({
     email,
     kind: 'otp',
   })
+  if (response && (response as { url: string }).url) {
+    devLogger.log('initOTPLogin: in response.url', { response })
+    return (response as { url: string }).url
+  }
   OTPLoginParams.email = email
+  devLogger.log('initOTPLogin: after response.url', {
+    response,
+    OTPLoginParams,
+  })
 }
 
 const completeOTPLogin = async (otp: string) => {
@@ -90,8 +102,10 @@ const completeOTPLogin = async (otp: string) => {
     email: OTPLoginParams.email,
   })
 
-  const userInfo: GetInfoOutput & { pk?: string; hasMfa?: boolean } =
-    provider.getUserInfo()
+  const userInfo: GetInfoOutput & { pk: string; hasMfa?: boolean } = {
+    ...provider.getUserInfo(),
+    pk: provider.getUserInfo().privateKey,
+  }
   userInfo.pk = userInfo.privateKey
   storeUserInfoAndRedirect(userInfo, true)
 }
@@ -153,6 +167,10 @@ const initPasswordlessLogin = async (email: string) => {
   return params
 }
 
+getKeySpaceType().then((type) => {
+  keyspaceType = type
+})
+
 const initSocialLogin = async (type: SocialLogins): Promise<string> => {
   const val = await authProvider?.loginWithSocial(type)
   if (val) {
@@ -177,6 +195,7 @@ const penpalMethods = {
     const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
     return reconURL.toString()
   },
+  getKeySpaceConfigType: () => keyspaceType,
 }
 
 const cleanup = () => {
@@ -276,7 +295,7 @@ async function storeUserInfoAndRedirect(
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
+    userInfo.hasMfa = isEnabled
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
@@ -381,16 +400,12 @@ async function init() {
     authProvider = await getAuthProvider(`${appId}`)
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    // 3PC is disabled or wallet UI cannot store data by a policy decision
-    // if (storage.local.storageType === StorageType.IN_MEMORY) {
-
-    // }
-
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+      user.hasMfa = hasMfa
       if (!hasMfa && userInfo.pk) {
         devLogger.log('[signInV2] before core (init)', {
           dkgKey: userInfo.pk,
@@ -415,7 +430,6 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      user.hasMfa = hasMfa
       await router.push({ name: 'home' })
     } else {
       const parentConnectionInstance = await initializeParentConnection()
