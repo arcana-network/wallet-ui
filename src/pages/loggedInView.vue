@@ -120,7 +120,7 @@ onMounted(async () => {
     await getKeySpaceType()
     await connectToParent()
     await getRpcConfigFromParent()
-    sendAddressType(rpcStore.preferredAddressType)
+    await sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
     await getAccountDetails()
     startCurrencyInterval()
@@ -144,7 +144,7 @@ onMounted(async () => {
       }
 
       await requestHandler.sendConnect()
-      watchRequestQueue(requestHandler)
+      await watchRequestQueue(requestHandler)
     }
   } catch (e) {
     console.log(e)
@@ -465,7 +465,7 @@ function getWalletAddressType() {
 async function sendAddressType(addressType: string) {
   const parentConnectionInstance = await parentConnection.promise
   if (parentConnectionInstance.setAddressType) {
-    parentConnectionInstance.setAddressType(addressType)
+    await parentConnectionInstance.setAddressType(addressType)
   }
 }
 

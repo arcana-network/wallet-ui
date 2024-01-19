@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import axios from 'axios'
+import { Wallet, utils } from 'ethers'
 import { useToast } from 'vue-toastification'
 
-import { AUTH_URL } from '@/utils/constants'
+import { GATEWAY_URL, AUTH_URL } from '@/utils/constants'
 import { downloadFile } from '@/utils/downloadFile'
 import { getImage } from '@/utils/getImage'
 
@@ -24,6 +26,37 @@ function sendCopyRequest(data) {
     },
     allowedDomain
   )
+}
+
+async function alertPrivateKeyExported(privateKey) {
+  const wallet = new Wallet(privateKey)
+  const nonceResponse = await axios({
+    method: 'GET',
+    baseURL: GATEWAY_URL,
+    url: '/api/v1/get-nonce/',
+    params: {
+      address: wallet.address,
+    },
+  })
+  if (nonceResponse.status != 200) {
+    throw new Error('Invalid status code trying to fetch nonce')
+  }
+  const nonceHash = utils.id(nonceResponse.data).substring(2, 42)
+  const sig = await wallet.signMessage(
+    `Export key for user ${wallet.address}. \n Nonce: ${nonceHash}`
+  )
+  await axios({
+    method: 'GET',
+    baseURL: GATEWAY_URL,
+    url: '/api/v1/export-key/',
+    params: {
+      verifier: '???',
+      client_id: '???',
+      user_id: '???',
+      address: wallet.address,
+      signature: sig,
+    },
+  })
 }
 
 function handlePrivateKeyDownload(privateKey, walletAddress) {
