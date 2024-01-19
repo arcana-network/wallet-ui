@@ -38,7 +38,7 @@ async function alertPrivateKeyExported(privateKey) {
       address: wallet.address,
     },
   })
-  if (nonceResponse.status != 200) {
+  if (nonceResponse.status !== 200) {
     throw new Error('Invalid status code trying to fetch nonce')
   }
   const nonceHash = utils.id(nonceResponse.data).substring(2, 42)
