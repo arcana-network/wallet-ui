@@ -29,6 +29,7 @@ interface WalletMiddlewareOptions {
   requestAccounts: (req: JsonRpcRequest<unknown>) => Promise<string[]>
   // if multiple addresses are ever supported, this will need address indexes here
   _getPrivateKey: () => string
+  _getAccountType: () => 'eoa' | 'scw'
   processDecryptMessage?: (
     msgParams: MessageParams,
     req: JsonRpcRequest<unknown>
@@ -71,6 +72,7 @@ function createWalletMiddleware({
   requestAccounts,
   getAccounts,
   _getPrivateKey,
+  _getAccountType,
   processDecryptMessage,
   processEncryptionPublicKey,
   processEthSignMessage,
@@ -91,6 +93,7 @@ function createWalletMiddleware({
     eth_accounts: createAsyncMiddleware(lookupAccounts),
     eth_coinbase: createAsyncMiddleware(lookupDefaultAccount),
     _arcana_getPrivateKey: createAsyncMiddleware(getPrivateKey),
+    _arcana_getAccountType: createAsyncMiddleware(getAccountType),
     // tx signatures
     eth_sendTransaction: createAsyncMiddleware(sendTransaction),
     eth_signTransaction: createAsyncMiddleware(signTransaction),
@@ -123,6 +126,13 @@ function createWalletMiddleware({
     if (useAppStore().validAppMode !== AppMode.NoUI) {
       throw ethErrors.rpc.methodNotSupported()
     } else res.result = _getPrivateKey()
+  }
+
+  async function getAccountType(
+    req: JsonRpcRequest<unknown>,
+    res: PendingJsonRpcResponse<unknown>
+  ): Promise<void> {
+    res.result = _getAccountType()
   }
 
   async function permissionedLookupAccounts(

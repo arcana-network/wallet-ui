@@ -69,6 +69,7 @@ class EVMAccountHandler {
       processTransaction: this.sendTransactionWrapper,
       processDecryptMessage: this.decryptWrapper,
       _getPrivateKey: this.getPrivateKey,
+      _getAccountType: this.getAccountType,
     })
   }
 
@@ -248,6 +249,10 @@ class EVMAccountHandler {
 
   getPrivateKey(): string {
     return '0x' + userStore.privateKey
+  }
+
+  getAccountType(): 'scw' | 'eoa' {
+    return rpcStore.useGasless ? 'scw' : 'eoa'
   }
 
   private getWallet(address: string): ethers.Wallet | undefined {

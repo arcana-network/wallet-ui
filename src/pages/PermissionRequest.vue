@@ -19,8 +19,12 @@ import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import { getAppConfig } from '@/services/gateway.service'
+import {
+  getAppConfig,
+  getGaslessEnabledStatus,
+} from '@/services/gateway.service'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
+import { useRpcStore } from '@/store/rpc'
 import {
   CreateAccountHandler,
   EVMAccountHandler,
@@ -36,9 +40,11 @@ import {
   getRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { initSCW, scwInstance } from '@/utils/scw'
 import { initStorage, getStorage } from '@/utils/storageWrapper'
 import { truncateMid } from '@/utils/stringUtils'
 
+const rpcStore = useRpcStore()
 const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
 const ARCANA_SEND_TOKEN_METHOD = '_send_token'
 const WALLET_DOMAIN_DEFAULT = '*'
@@ -114,26 +120,57 @@ function formatRPCConfig(config): RpcConfig {
   }
 }
 
+async function checkIfGaslessEnabled(chainId: string, appId: string) {
+  let isGaslessEnabled = false
+  const chainId_int = Number(chainId)
+  try {
+    isGaslessEnabled = await (
+      await getGaslessEnabledStatus(appId, chainId_int)
+    ).data.status
+  } catch (e) {
+    isGaslessEnabled = false
+  } finally {
+    rpcStore.setGaslessEnabledStatus(`${chainId_int}`, isGaslessEnabled)
+  }
+}
+
+function setWalletAddressType(address) {
+  const isSCW = address === scwInstance.scwAddress
+  rpcStore.setPreferredWalletAddressType(isSCW ? 'scw' : 'eoa')
+}
+
+async function initScwSdk() {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler()
+  await initSCW(appId, (accountHandler as EVMAccountHandler).getSigner())
+}
+
+async function sendRequest(r: {
+  chainId: string
+  request: JsonRpcRequest<unknown>
+}) {
+  showLoader.value = true
+  try {
+    await initFromChainId(r.chainId)
+    await checkIfGaslessEnabled(r.chainId, appId)
+    await initScwSdk()
+    addToPendingQueue(r)
+  } catch (e) {
+    console.log(e)
+  } finally {
+    showLoader.value = false
+  }
+}
+
 onMounted(async () => {
   try {
     showLoader.value = true
 
     await connectToParent({
       methods: {
-        sendRequest: async (r: {
-          chainId: string
-          request: JsonRpcRequest<unknown>
-        }) => {
-          await initFromChainId(r.chainId)
-          addToPendingQueue(r)
-        },
+        sendRequest,
       },
     }).promise
-    // V Add this for other requests
-    // if (!checkIfMethodSupported(request.method as RequestMethod)) {
-    //   denyProcessing(request.id)
-    //   return
-    // }
     initStorage(appId)
     updateTheme()
     const info = await getAppDetails(appId)
@@ -156,6 +193,19 @@ async function initFromChainId(chainId: string) {
     chainInit = true
     const chainDetails = await getChainDetails(appId, chainId)
     chainConfig.value = { ...chainDetails }
+    const rpcConfig = {
+      rpcUrls: chainDetails.rpc_url,
+      chainId: chainDetails.chain_id,
+      chainName: chainDetails.chain_name,
+      blockExplorerUrls: chainDetails.rpc_url,
+      nativeCurrency: {
+        symbol: chainDetails.currency,
+        decimals: 18,
+      },
+      favicon: '',
+      isCustom: false,
+    }
+    rpcStore.setSelectedRPCConfig(rpcConfig)
     initAccountHandler(chainDetails.rpc_url)
     setRPCConfigInRequestHandler(chainDetails)
   }
@@ -167,6 +217,7 @@ function setHexPrefix(value: string) {
 }
 
 async function onApprove(request) {
+  setWalletAddressType(request.params[0].from)
   const reqObj = pendingQueue.value[0]
   try {
     if (reqObj.requestOrigin === 'wallet-ui') {
@@ -228,6 +279,7 @@ function onReject(request) {
 }
 
 async function handleSendToken(params) {
+  setWalletAddressType(params.senderWalletAddress)
   const tokenDetails = JSON.parse(params.tokenDetails)
   const tokenList = JSON.parse(params.tokenList)
   const gas = JSON.parse(params.gas)
