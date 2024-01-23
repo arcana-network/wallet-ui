@@ -3,6 +3,7 @@ import {
   SignableMessage,
   Transaction,
   IPlainTransactionObject,
+  Address,
 } from '@multiversx/sdk-core'
 import {
   createAsyncMiddleware,
@@ -104,6 +105,16 @@ class MultiversXRequestHandler {
     return response
   }
 
+  private getSerializedSignatureOfTransaction(tx: Transaction) {
+    return {
+      signature: tx.getSignature().toString('hex'),
+      guardian: undefined,
+      guardianSignature: undefined,
+      options: tx.getOptions().valueOf(),
+      version: tx.getVersion().valueOf(),
+    }
+  }
+
   // 1st is the actual data and the 2nd is the address used
 
   private principalHandler = async (
@@ -119,35 +130,39 @@ class MultiversXRequestHandler {
         res.result = this.accountHandler.getAccounts()
         break
       }
-      case 'signTransaction': {
+      case 'mvx_signTransaction': {
         const p = req.params as {
           transaction: IPlainTransactionObject
         }
-        res.result = Buffer.from(
-          this.accountHandler.signTransactions([
-            Transaction.fromPlainObject(p.transaction),
-          ])[0]
-        ).toString('hex')
+        const sigs = this.accountHandler.signTransactions([
+          Transaction.fromPlainObject(p.transaction),
+        ])
+        res.result = this.getSerializedSignatureOfTransaction(sigs[0])
         break
       }
-      case 'signAllTransactions': {
+      case 'mvx_signTransactions': {
         const p = req.params as {
           transactions: IPlainTransactionObject[]
         }
-        res.result = this.accountHandler
-          .signTransactions(
-            p.transactions.map((tx) => Transaction.fromPlainObject(tx))
-          )
-          .map((buf) => Buffer.from(buf).toString('hex'))
+        res.result = {
+          signatures: this.accountHandler
+            .signTransactions(
+              p.transactions.map((tx) => Transaction.fromPlainObject(tx))
+            )
+            .map((tx) => this.getSerializedSignatureOfTransaction(tx)),
+        }
         break
       }
-      case 'signMessage': {
+      case 'mvx_signMessage': {
         const p = req.params as {
-          message: Partial<SignableMessage>
-          display: string
+          message: string
+          address: string
         }
         const sig = this.accountHandler.signMessage(
-          new SignableMessage(p.message)
+          new SignableMessage({
+            message: Buffer.from(p.message, 'utf-8'),
+            address: new Address(this.accountHandler.addrStr),
+          })
         )
         res.result = {
           signature: sig.hex(),
