@@ -1,3 +1,4 @@
+import { RpcConfig } from '@arcana/auth'
 import {
   SignableMessage,
   type ISignature,
@@ -14,8 +15,9 @@ import { Signature } from '@multiversx/sdk-wallet/out/signature'
 export class MultiversXAccountHandler {
   private privateKey: UserSecretKey
   private publicKey: UserPublicKey
-  private readonly addrStr: string
   private conn: ApiNetworkProvider
+  private rpcConfig!: RpcConfig
+  public readonly addrStr: string
 
   constructor(privateKey: Uint8Array | Buffer, rpcURL: string) {
     this.privateKey = new UserSecretKey(privateKey)
@@ -33,12 +35,21 @@ export class MultiversXAccountHandler {
     return [this.addrStr]
   }
 
-  async setProvider(rpcURL) {
-    this.conn = new ApiNetworkProvider(rpcURL)
+  async setRpcConfig(rpcConfig: RpcConfig) {
+    this.rpcConfig = rpcConfig
+    this.conn = new ApiNetworkProvider(rpcConfig.rpcUrls[0])
   }
 
-  signTransactions(txes: Transaction[]): Uint8Array[] {
-    return txes.map((tx) => this.privateKey.sign(tx.serializeForSigning()))
+  getChainId() {
+    return this.rpcConfig.chainId
+  }
+
+  signTransactions(txes: Transaction[]): Transaction[] {
+    return txes.map((tx) => {
+      const sig = this.privateKey.sign(tx.serializeForSigning())
+      tx.applySignature(sig)
+      return tx
+    })
   }
 
   signMessage(signableMessage: SignableMessage): ISignature {

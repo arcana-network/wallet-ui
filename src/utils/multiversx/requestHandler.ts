@@ -1,26 +1,31 @@
 import type { RpcConfig } from '@arcana/auth'
-import bs58 from 'bs58'
 import {
+  SignableMessage,
+  Transaction,
+  IPlainTransactionObject,
+  Address,
+} from '@multiversx/sdk-core'
+import {
+  createAsyncMiddleware,
   JsonRpcEngine,
   JsonRpcRequest,
   PendingJsonRpcResponse,
-  createAsyncMiddleware,
 } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
-import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
+import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
 import { toHex } from '@/utils/toHex'
 
-class SolanaRequestHandler {
+class MultiversXRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   private connectSent = false
-  constructor(private accountHandler: SolanaAccountHandler) {}
+  constructor(private accountHandler: MultiversXAccountHandler) {}
 
   get chainType() {
-    return ChainType.solana_cv25519
+    return ChainType.multiversx_cv25519
   }
 
   public async setRpcConfig(c: RpcConfig) {
@@ -100,6 +105,16 @@ class SolanaRequestHandler {
     return response
   }
 
+  private getSerializedSignatureOfTransaction(tx: Transaction) {
+    return {
+      signature: tx.getSignature().toString('hex'),
+      guardian: undefined,
+      guardianSignature: undefined,
+      options: tx.getOptions().valueOf(),
+      version: tx.getVersion().valueOf(),
+    }
+  }
+
   // 1st is the actual data and the 2nd is the address used
 
   private principalHandler = async (
@@ -112,56 +127,45 @@ class SolanaRequestHandler {
     }
     switch (req.method) {
       case 'getAccounts': {
-        const result = await this.accountHandler.getAccounts()
-        res.result = result
+        res.result = this.accountHandler.getAccounts()
         break
       }
-      case 'signTransaction': {
+      case 'mvx_signTransaction': {
+        const p = req.params as {
+          transaction: IPlainTransactionObject
+        }
+        const sigs = this.accountHandler.signTransactions([
+          Transaction.fromPlainObject(p.transaction),
+        ])
+        res.result = this.getSerializedSignatureOfTransaction(sigs[0])
+        break
+      }
+      case 'mvx_signTransactions': {
+        const p = req.params as {
+          transactions: IPlainTransactionObject[]
+        }
+        res.result = {
+          signatures: this.accountHandler
+            .signTransactions(
+              p.transactions.map((tx) => Transaction.fromPlainObject(tx))
+            )
+            .map((tx) => this.getSerializedSignatureOfTransaction(tx)),
+        }
+        break
+      }
+      case 'mvx_signMessage': {
         const p = req.params as {
           message: string
+          address: string
         }
-        res.result = bs58.encode(
-          await this.accountHandler.signTransaction(bs58.decode(p.message))
-        )
-        break
-      }
-      case 'signAllTransactions': {
-        const p = req.params as {
-          message: string[]
-        }
-        const signatures = [] as any[]
-        for (const m of p.message) {
-          const encoded = bs58.encode(
-            await this.accountHandler.signTransaction(bs58.decode(m))
-          )
-          signatures.push(encoded)
-        }
-        res.result = signatures
-        break
-      }
-      case 'signAndSendTransaction': {
-        const p = req.params as {
-          message: string
-        }
-        const sig = await this.accountHandler.signAndSendTransaction(
-          bs58.decode(p.message)
+        const sig = this.accountHandler.signMessage(
+          new SignableMessage({
+            message: Buffer.from(p.message, 'utf-8'),
+            address: new Address(this.accountHandler.addrStr),
+          })
         )
         res.result = {
-          signature: sig,
-          publicKey: this.accountHandler.publicKey.toBase58(),
-        }
-        break
-      }
-      case 'signMessage': {
-        const p = req.params as {
-          message: string
-          display: string
-        }
-        const data = bs58.decode(p.message)
-        const sig = await this.accountHandler.signMessage(data)
-        res.result = {
-          signature: bs58.encode(sig),
-          publicKey: this.accountHandler.publicKey.toBase58(),
+          signature: sig.hex(),
         }
         break
       }
@@ -177,5 +181,3 @@ class SolanaRequestHandler {
     return engine
   }
 }
-
-export { SolanaRequestHandler }
