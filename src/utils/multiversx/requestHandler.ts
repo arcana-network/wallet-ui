@@ -181,3 +181,5 @@ class MultiversXRequestHandler {
     return engine
   }
 }
+
+export { MultiversXRequestHandler }
