@@ -12,6 +12,8 @@ import type { TransactionOnNetwork } from '@multiversx/sdk-network-providers/out
 import { UserSecretKey, UserPublicKey } from '@multiversx/sdk-wallet'
 import { Signature } from '@multiversx/sdk-wallet/out/signature'
 
+import { ChainType } from '@/utils/chainType'
+
 export class MultiversXAccountHandler {
   private privateKey: UserSecretKey
   private publicKey: UserPublicKey
@@ -26,6 +28,14 @@ export class MultiversXAccountHandler {
     this.conn = new ApiNetworkProvider(rpcURL)
   }
 
+  get decimals() {
+    return 18
+  }
+
+  get gasDecimals() {
+    return 9
+  }
+
   async getAccountOnNetwork(): Promise<AccountOnNetwork> {
     return this.conn.getAccount(this.publicKey.toAddress())
   }
@@ -33,6 +43,10 @@ export class MultiversXAccountHandler {
   // the accounts are returned in serialized form
   getAccounts(): string[] {
     return [this.addrStr]
+  }
+
+  getBalance() {
+    return 0
   }
 
   async setRpcConfig(rpcConfig: RpcConfig) {
@@ -65,5 +79,9 @@ export class MultiversXAccountHandler {
   async getLatestBlockHash() {
     const s = await this.conn.getNetworkStatus()
     return s.HighestFinalNonce
+  }
+
+  get chainType() {
+    return ChainType.solana_cv25519
   }
 }
