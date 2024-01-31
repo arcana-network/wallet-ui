@@ -22,7 +22,7 @@ export class MultiversXAccountHandler {
   public readonly addrStr: string
 
   constructor(privateKey: Uint8Array | Buffer, rpcURL: string) {
-    this.privateKey = new UserSecretKey(privateKey)
+    this.privateKey = new UserSecretKey(privateKey.subarray(32))
     this.publicKey = this.privateKey.generatePublicKey()
     this.addrStr = this.publicKey.toAddress().toString()
     this.conn = new ApiNetworkProvider(rpcURL)
@@ -40,13 +40,28 @@ export class MultiversXAccountHandler {
     return this.conn.getAccount(this.publicKey.toAddress())
   }
 
+  getBalance() {
+    return 0
+  }
+
+  getPublicKey(params: Array<unknown>): any {
+    if (this.addrStr === params[0]) {
+      return this.publicKey.hex()
+    } else {
+      throw new Error('No Wallet found for the provided address')
+    }
+  }
+
   // the accounts are returned in serialized form
   getAccounts(): string[] {
     return [this.addrStr]
   }
 
-  getBalance() {
-    return 0
+  getAccount() {
+    return {
+      address: this.addrStr,
+      publicKey: this.publicKey,
+    }
   }
 
   async setRpcConfig(rpcConfig: RpcConfig) {
@@ -70,6 +85,10 @@ export class MultiversXAccountHandler {
     return new Signature(
       this.privateKey.sign(signableMessage.serializeForSigning())
     )
+  }
+
+  async broadcastTransaction(tx) {
+    return await this.conn.sendTransaction(tx)
   }
 
   getTransaction(hash: string): Promise<TransactionOnNetwork> {
