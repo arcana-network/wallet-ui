@@ -86,7 +86,7 @@ function fetchNativeAsset() {
 
 async function getAssetsBalance() {
   if (appStore.chainType === ChainType.solana_cv25519) {
-    await getSolanaBalance()
+    // await getSolanaBalance()
   } else {
     await getEVMAssetBalance()
   }
