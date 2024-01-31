@@ -122,9 +122,10 @@ class MultiversXRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    if (req.params == null) {
-      throw new Error('???')
-    }
+    console.log(req, 'req')
+    // if (req.params == null) {
+    //   throw new Error('???')
+    // }
     switch (req.method) {
       case 'getAccounts': {
         res.result = this.accountHandler.getAccounts()
