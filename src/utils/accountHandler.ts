@@ -17,7 +17,10 @@ function CreateAccountHandler(
 ): AccountHandler {
   if (chainType === ChainType.solana_cv25519) {
     // return new SolanaAccountHandler(base58.decode(privateKey), rpcUrl)
-    return new MultiversXAccountHandler(base58.decode(privateKey), rpcUrl)
+    return new MultiversXAccountHandler(
+      base58.decode(privateKey),
+      'https://devnet-api.multiversx.com/'
+    )
   }
   return new EVMAccountHandler(privateKey, rpcUrl)
 }
