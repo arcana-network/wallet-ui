@@ -46,13 +46,13 @@ const showWalletButton = computed(() => {
   return !app.expandWallet && app.validAppMode !== AppMode.Widget
 })
 
-onBeforeMount(async () => {
-  try {
-    await Promise.all([fetchTransakNetworks(), initializeOnRampMoney()])
-  } catch (e) {
-    console.error('Failed to initialize one or more on-ramps:', e)
-  }
-})
+// onBeforeMount(async () => {
+//   try {
+//     await Promise.all([fetchTransakNetworks(), initializeOnRampMoney()])
+//   } catch (e) {
+//     console.error('Failed to initialize one or more on-ramps:', e)
+//   }
+// })
 
 async function setIframeStyle() {
   if (app.validAppMode === AppMode.NoUI) {
