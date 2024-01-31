@@ -130,6 +130,12 @@ class MultiversXRequestHandler {
         res.result = this.accountHandler.getAccounts()
         break
       }
+      case 'getPublicKey': {
+        res.result = this.accountHandler.getPublicKey(
+          req.params as Array<unknown>
+        )
+        break
+      }
       case 'mvx_signTransaction': {
         const p = req.params as {
           transaction: IPlainTransactionObject
