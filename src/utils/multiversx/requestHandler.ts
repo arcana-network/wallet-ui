@@ -1,9 +1,9 @@
 import type { RpcConfig } from '@arcana/auth'
 import {
   SignableMessage,
-  Transaction,
   IPlainTransactionObject,
   Address,
+  Transaction,
 } from '@multiversx/sdk-core'
 import {
   createAsyncMiddleware,
@@ -140,10 +140,10 @@ class MultiversXRequestHandler {
         const p = req.params as {
           transaction: IPlainTransactionObject
         }
-        const sigs = this.accountHandler.signTransactions([
-          Transaction.fromPlainObject(p.transaction),
-        ])
-        res.result = this.getSerializedSignatureOfTransaction(sigs[0])
+        const tx = Transaction.fromPlainObject(p.transaction)
+        // this.accountHandler.signTransactions([tx])
+        const txHash = await this.accountHandler.broadcastTransaction(tx)
+        res.result = txHash
         break
       }
       case 'mvx_signTransactions': {
