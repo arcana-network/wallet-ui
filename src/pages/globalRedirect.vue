@@ -47,7 +47,9 @@ onMounted(async () => {
     app.id = appId
     app.isMfaEnabled = provider.appConfig.mfa_enabled
     app.curve =
-      provider.appConfig.chain_type == 'EVM' ? CURVE.SECP256K1 : CURVE.ED25519
+      provider.appConfig.chain_type.toLowerCase() == 'evm'
+        ? CURVE.SECP256K1
+        : CURVE.ED25519
 
     const info = provider.getUserInfo()
     const userInfo: LoginInfo = {
@@ -85,7 +87,9 @@ onMounted(async () => {
       }
     }
     try {
-      await cleanup()
+      if (cleanup) {
+        await cleanup()
+      }
     } catch (e) {
       console.log({ e })
     }

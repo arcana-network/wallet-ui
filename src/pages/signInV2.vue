@@ -3,12 +3,14 @@ import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import dayjs from 'dayjs'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
 import { onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
+import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
@@ -44,6 +46,12 @@ const {
   hash,
 } = toRefs(route)
 
+let keyspaceType: 'global' | 'local' | null = null
+
+const getKeySpaceType = async () => {
+  const { data } = await getAppConfig(appId)
+  return data.global ? 'global' : 'local'
+}
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
 
@@ -60,6 +68,46 @@ const parseHashAndSetSettings = () => {
       app.setWalletPosition(settings.position)
     }
   }
+}
+
+let OTPLoginParams = {
+  email: '',
+}
+
+const initOTPLogin = async (email: string) => {
+  const provider = await getAuthProvider(appId as string)
+  const response = await provider.loginWithPasswordlessV2Start({
+    email,
+    kind: 'otp',
+  })
+  if (response && (response as { url: string }).url) {
+    devLogger.log('initOTPLogin: in response.url', { response })
+    return (response as { url: string }).url
+  }
+  OTPLoginParams.email = email
+  devLogger.log('initOTPLogin: after response.url', {
+    response,
+    OTPLoginParams,
+  })
+}
+
+const completeOTPLogin = async (otp: string) => {
+  const provider = await getAuthProvider(appId as string)
+  if (provider.appConfig.global) {
+    throw new Error('not available')
+  }
+
+  await provider.loginWithPasswordlessV2Complete({
+    otp,
+    email: OTPLoginParams.email,
+  })
+
+  const userInfo: GetInfoOutput & { pk: string; hasMfa?: boolean } = {
+    ...provider.getUserInfo(),
+    pk: provider.getUserInfo().privateKey,
+  }
+  userInfo.pk = userInfo.privateKey
+  storeUserInfoAndRedirect(userInfo, true)
 }
 
 const LoginState = {
@@ -119,6 +167,10 @@ const initPasswordlessLogin = async (email: string) => {
   return params
 }
 
+getKeySpaceType().then((type) => {
+  keyspaceType = type
+})
+
 const initSocialLogin = async (type: SocialLogins): Promise<string> => {
   const val = await authProvider?.loginWithSocial(type)
   if (val) {
@@ -131,6 +183,8 @@ const initSocialLogin = async (type: SocialLogins): Promise<string> => {
 const penpalMethods = {
   isLoggedIn: () => user.isLoggedIn,
   initPasswordlessLogin: (email: string) => initPasswordlessLogin(email),
+  initOTPLogin: (email: string) => initOTPLogin(email),
+  completeOTPLogin: (otp: string) => completeOTPLogin(otp),
   initSocialLogin: (type: SocialLogins) => initSocialLogin(type),
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
@@ -141,6 +195,7 @@ const penpalMethods = {
     const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
     return reconURL.toString()
   },
+  getKeySpaceConfigType: () => keyspaceType,
 }
 
 const cleanup = () => {
@@ -165,11 +220,15 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & {
     hasMfa?: boolean
-    pk?: string
-  }
+    pk: string
+  },
+  addMFA = false
 ) {
   const storage = getStorage()
-  if ((userInfo.loginType as string) === 'firebase' && app.isMfaEnabled) {
+  if (app.isMfaEnabled) {
+    storage.session.setInAppLogin(addMFA)
+  }
+  if (addMFA && app.isMfaEnabled) {
     try {
       devLogger.log(
         '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
@@ -194,14 +253,21 @@ async function storeUserInfoAndRedirect(
       const key = await core.getKey()
       userInfo.privateKey = key
     } catch (e) {
-      storage.session.setUserInfo(userInfo)
-      router.push({
-        name: 'MFARestore',
-        params: { appId: appId as string },
-      })
-      app.showWallet = true
-      app.expandRestoreScreen = true
-      return
+      if (e instanceof Error) {
+        if (e.message === 'LOCAL_SHARE_MISSING') {
+          storage.session.setUserInfo(userInfo)
+          router.push({
+            name: 'MFARestore',
+            params: { appId: appId as string },
+            query: { inApp: '1' },
+          })
+          const parent = await parentConnection?.promise
+          parent?.onEvent('message', 'mfa_flow')
+          app.showWallet = true
+          app.expandRestoreScreen = true
+          return
+        }
+      }
     }
   }
   storage.session.setUserInfo(userInfo)
@@ -229,7 +295,7 @@ async function storeUserInfoAndRedirect(
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
+    userInfo.hasMfa = isEnabled
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
@@ -334,16 +400,12 @@ async function init() {
     authProvider = await getAuthProvider(`${appId}`)
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    // 3PC is disabled or wallet UI cannot store data by a policy decision
-    // if (storage.local.storageType === StorageType.IN_MEMORY) {
-
-    // }
-
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+      user.hasMfa = hasMfa
       if (!hasMfa && userInfo.pk) {
         devLogger.log('[signInV2] before core (init)', {
           dkgKey: userInfo.pk,
@@ -368,7 +430,6 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
-      user.hasMfa = hasMfa
       await router.push({ name: 'home' })
     } else {
       const parentConnectionInstance = await initializeParentConnection()
@@ -430,7 +491,7 @@ async function handleBearerLoginRequest(
         },
         token: '',
       }
-      await storeUserInfoAndRedirect(userInfo)
+      await storeUserInfoAndRedirect(userInfo, true)
 
       return true
     }

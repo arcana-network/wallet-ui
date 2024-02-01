@@ -7,6 +7,8 @@ import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 type ModalState = 'receive' | 'chain-list' | false
@@ -17,6 +19,7 @@ const modalStore = useModalStore()
 const isChainListExpanded = ref(false)
 const rpcStore = useRpcStore()
 const hasChainUpdated = ref(true)
+const starterTipsStore = useStarterTipsStore()
 
 function openReceiveTokens(open) {
   modalStore.setShowModal(open)
@@ -83,10 +86,24 @@ function handleFallbackLogo(event) {
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button class="flex items-center" @click.stop="openChainList()">
-          <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
+        <button
+          class="flex items-center startertips_highlighted"
+          :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
+        >
+          <div
+            v-if="hasChainUpdated"
+            class="w-xl h-xl rounded-full"
+            @click.stop="openChainList()"
+          >
             <img
-              :src="getChainLogoUrl(rpcStore.selectedRPCConfig)"
+              :src="
+                getChainLogoUrl(
+                  rpcStore.selectedRPCConfig,
+                  appStore.chainType === ChainType.evm_secp256k1
+                    ? 'EVM'
+                    : 'solana'
+                )
+              "
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
               class="w-xl h-xl"

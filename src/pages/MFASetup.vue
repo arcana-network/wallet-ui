@@ -16,7 +16,6 @@ import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
-import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 type CustomObject = {
@@ -30,6 +29,7 @@ const loader = ref({
   show: false,
   message: '',
 })
+const inAppLogin = route.query.inApp === '1'
 
 const showPinScreen = ref(false)
 const showSuccessScreen = ref(false)
@@ -57,14 +57,10 @@ app.curve = storage.local.getCurve()
 document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
-let loginInfo
+let dkgShare
 
 onBeforeMount(async () => {
-  const loginInfo = storage.local.getUserInfo()
-  if (!loginInfo) {
-    return
-  }
-  let dkgShare
+  const loginInfo = storage.session.getUserInfo()
   if (loginInfo) {
     dkgShare = {
       pk: loginInfo.pk,
@@ -73,7 +69,7 @@ onBeforeMount(async () => {
   } else {
     dkgShare = storage.local.getPK()
   }
-  if (!isInAppLogin(loginInfo?.loginType)) {
+  if (!inAppLogin) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
   }
@@ -257,13 +253,10 @@ async function handlePinProceed() {
     }
     try {
       await createShare(pinToEncryptMFAShare.value)
-      if (!isInAppLogin(loginInfo?.loginType)) {
-        const dkgShare = storage.local.getPK()
-        storage.local.setHasMFA(dkgShare.id)
-        storage.local.clearPK()
-      }
+      storage.local.setHasMFA(dkgShare.id)
+      storage.local.clearPK()
     } catch (e) {
-      if (isInAppLogin(loginInfo?.loginType)) {
+      if (inAppLogin) {
         return toast.error(e as string)
       }
       return connectionToParent?.error(
@@ -282,7 +275,7 @@ async function handlePinProceed() {
 }
 
 async function handleDone() {
-  if (isInAppLogin(loginInfo?.loginType)) {
+  if (inAppLogin) {
     return router.push({ name: 'home' })
   }
   // eslint-disable-next-line no-undef
@@ -290,7 +283,7 @@ async function handleDone() {
 }
 
 function handleCancel() {
-  if (isInAppLogin(loginInfo?.loginType)) {
+  if (inAppLogin) {
     return router.back()
   }
   return connectionToParent?.error(

@@ -7,6 +7,7 @@ const evmMethodAndAction = {
   eth_decrypt: 'Request Decryption',
   wallet_addEthereumChain: 'Add Chain',
   wallet_switchEthereumChain: 'Switch Chain',
+  _arcana_switchAccountType: 'Switch Account Type',
   wallet_watchAsset: 'Add Token',
   _arcana_privateKey: 'Export Private Key',
   _send_token: 'Send Token',

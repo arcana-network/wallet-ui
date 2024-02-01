@@ -14,11 +14,11 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
-import { isInAppLogin } from '@/utils/isInAppLogin'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -36,6 +36,7 @@ const loader = ref({
   show: false,
   message: '',
 })
+const starterTipsStore = useStarterTipsStore()
 
 const {
   info: { email, name },
@@ -114,9 +115,15 @@ async function handleMFASetupClick() {
     return
   }
 
-  if (isInAppLogin(info.loginType)) {
+  if (getStorage().session.getInAppLogin()) {
     modalStore.setShowModal(false)
-    router.push({ name: 'MFASetup', params: { appId: appStore.id } })
+    router.push({
+      name: 'MFASetup',
+      params: { appId: appStore.id },
+      query: {
+        inApp: '1',
+      },
+    })
   } else {
     cleanExit = false
     const mfaSetupPath = new URL(`mfa/${appStore.id}/setup`, AUTH_URL)
@@ -238,14 +245,20 @@ watch(
           </button>
         </div>
       </div>
-      <div class="flex flex-col">
+      <div
+        class="flex flex-col"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
+        }"
+      >
         <span class="text-sm text-gray-100">Private Key</span>
         <button
-          class="flex gap-2 items-center"
+          class="flex gap-2 items-cente disabled:opacity-100"
           title="Click to export private key"
+          :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold"> Export Key </span>
+          <span class="text-lg font-bold text-white-100"> Export Key </span>
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>

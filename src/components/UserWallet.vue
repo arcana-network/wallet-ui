@@ -18,6 +18,7 @@ import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
@@ -35,6 +36,7 @@ const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 const toast = useToast()
+const starterTipsStore = useStarterTipsStore()
 
 type ModalState =
   | 'send'
@@ -227,6 +229,10 @@ async function copyToClipboard(value: string) {
         <span class="text-[#8D8D8D] text-sm">Wallet</span>
         <div
           class="dark:bg-[#313131] bg-[#FFFFFF] flex flex-col justify-between p-2 rounded-md relative"
+          :class="{
+            'z-[999] startertips_highlighted':
+              starterTipsStore.showWalletAddress,
+          }"
         >
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
             <ListboxButton class="flex justify-between items-center">
@@ -259,7 +265,10 @@ async function copyToClipboard(value: string) {
                 </div>
               </button>
               <img
-                v-if="rpcStore.isGaslessConfigured"
+                v-if="
+                  rpcStore.isGaslessConfigured &&
+                  !starterTipsStore.showWalletAddress
+                "
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-transform"
                 :class="{ 'rotate-180': open }"
@@ -350,10 +359,13 @@ async function copyToClipboard(value: string) {
         <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :disabled="!transakNetwork && onRampMoney === false"
+          :class="{
+            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+          }"
           @click.stop="handleBuy(true)"
         >
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-          Buy
+          <span>Buy</span>
         </button>
       </div>
     </div>

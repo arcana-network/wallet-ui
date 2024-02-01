@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Transition } from 'vue'
+import { ref, Transition, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import NFTIcon from '@/assets/images/starter-tips/nft-icon.png'
@@ -11,6 +11,7 @@ import Page3 from '@/pages/StarterTips/page-3.vue'
 import Page4 from '@/pages/StarterTips/page-4.vue'
 import Page5 from '@/pages/StarterTips/page-5.vue'
 import Page6 from '@/pages/StarterTips/page-6.vue'
+import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -18,6 +19,8 @@ const storage = getStorage()
 const currentPage = ref(1)
 const userStore = useUserStore()
 const router = useRouter()
+const starterTipsStore = useStarterTipsStore()
+const emits = defineEmits(['close'])
 
 const PagesIndex = {
   1: Page1,
@@ -31,33 +34,61 @@ const PagesIndex = {
 function next() {
   if (currentPage.value === 6) {
     storage.local.setHasStarterTipShown(userStore.info.id, true)
-    router.push({ name: 'home' })
+    emits('close')
   } else currentPage.value += 1
 }
 
-function skip() {
-  storage.local.setHasStarterTipShown(userStore.info.id, true)
-  router.push({ name: 'home' })
+function previous() {
+  if (currentPage.value !== 1) {
+    currentPage.value -= 1
+  }
 }
+
+watch(
+  () => currentPage.value,
+  (val) => {
+    starterTipsStore.setActivePageNumber(val)
+    if (val === 2 || val === 3 || val === 6) {
+      router.push({ name: 'home' })
+    } else if (val === 4) {
+      router.push({ name: 'Nfts' })
+    } else if (val === 5) {
+      router.push({ name: 'profile' })
+    }
+  }
+)
 </script>
 
 <template>
-  <div
-    class="space-y-4 flex flex-col p-6 rounded-md absolute top-0 left-0 bg-black-100 h-full"
-  >
-    <div class="flex-1 space-y-4">
-      <Transition appear name="fade" mode="out-in">
-        <component :is="PagesIndex[currentPage]" />
-      </Transition>
+  <div class="flex flex-col w-full rounded-md absolute top-0 left-0 h-full">
+    <div class="flex-1">
+      <component :is="PagesIndex[currentPage]" />
     </div>
-    <div class="flex justify-between">
-      <button class="text-xs" @click="skip">Skip</button>
+    <div
+      class="flex bg-black-100 p-6"
+      :class="[currentPage === 1 ? 'justify-end' : 'justify-between']"
+    >
+      <button
+        v-if="currentPage !== 1"
+        class="flex items-center space-x-2 text-xs"
+        @click="previous"
+      >
+        <img
+          src="@/assets/images/arrow-left.svg"
+          alt="previous"
+          class="h-3 w-3"
+        />
+        <span>Previous</span>
+      </button>
       <button class="flex items-center space-x-2 text-xs" @click="next">
         <span>Next</span>
         <img src="@/assets/images/arrow-right.svg" alt="next" class="h-3 w-3" />
       </button>
     </div>
-    <div v-if="currentPage > 1" class="h-16 flex justify-around items-center">
+    <div
+      v-if="currentPage > 1"
+      class="h-16 flex justify-around items-center bg-black-100"
+    >
       <img
         :src="TokensIcon"
         alt="token"
