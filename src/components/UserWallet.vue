@@ -7,13 +7,14 @@ import {
 } from '@headlessui/vue'
 import Decimal from 'decimal.js'
 import { storeToRefs } from 'pinia'
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, ref, watch, onBeforeMount, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import BuyTokens from '@/components/BuyTokens.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
+import SellTokens from '@/components/SellTokens.vue'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
@@ -25,12 +26,24 @@ import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateMid } from '@/utils/stringUtils'
-import { getTransakSupportedNetworks } from '@/utils/transak'
+import {
+  getTransakSupportedNetworks,
+  fetchTransakNetworks,
+  getTransakSellableNetworks,
+} from '@/utils/transak'
 
 type UserWalletProps = {
   page: 'home' | 'nft'
   refreshIconAnimating: boolean
 }
+
+onBeforeMount(async () => {
+  try {
+    await Promise.all([fetchTransakNetworks()])
+  } catch (e) {
+    console.error('Failed to initialize one or more on-ramps:', e)
+  }
+})
 
 const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
@@ -44,6 +57,7 @@ type ModalState =
   | 'add-network'
   | 'edit-network'
   | 'buy'
+  | 'sell'
   | false
 
 const userStore = useUserStore()
@@ -118,6 +132,26 @@ const transakNetwork = computed(() => {
   )
 })
 
+const transakSellNetwork = computed(() => {
+  const selectedChainId = Number(rpcStore.selectedChainId)
+  return getTransakSellableNetworks().find(
+    (network) => network.chainId === selectedChainId
+  )
+})
+
+watch(
+  () => rpcStore.selectedChainId,
+  () => {
+    console.log(
+      Number(rpcStore.selectedChainId),
+      getTransakSellableNetworks(),
+      getTransakSupportedNetworks(),
+      transakNetwork.value,
+      transakSellNetwork.value
+    )
+  }
+)
+
 const onRampMoney = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   if (
@@ -164,6 +198,11 @@ function goToSendTokens() {
 function handleBuy(open: boolean) {
   modalStore.setShowModal(open)
   showModal.value = open ? 'buy' : false
+}
+
+function handleSell(open: boolean) {
+  modalStore.setShowModal(open)
+  showModal.value = open ? 'sell' : false
 }
 
 function hasWalletBalanceAfterDecimals() {
@@ -367,6 +406,17 @@ async function copyToClipboard(value: string) {
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
           <span>Buy</span>
         </button>
+        <button
+          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          :disabled="!transakSellNetwork"
+          :class="{
+            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+          }"
+          @click.stop="handleSell(true)"
+        >
+          <img :src="getImage('sell.svg')" class="w-md h-md" />
+          <span>Sell</span>
+        </button>
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
@@ -382,8 +432,12 @@ async function copyToClipboard(value: string) {
       <BuyTokens
         v-if="showModal === 'buy'"
         :transak-network="transakNetwork?.value"
-        :on-ramp-money="onRampMoney"
         @close="handleBuy(false)"
+      />
+      <SellTokens
+        v-if="showModal === 'sell'"
+        :transak-network="transakSellNetwork?.value"
+        @close="handleSell(false)"
       />
     </Teleport>
   </div>

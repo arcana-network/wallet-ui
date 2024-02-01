@@ -4,6 +4,7 @@ import { store } from '@/store'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
+import { getWindowFeatures } from '@/utils/popupProps'
 
 const userStore = useUserStore(store)
 const appStore = useAppStore(store)
@@ -14,8 +15,10 @@ type TransakNetwork = {
 }
 
 const transakSupportedNetworks: TransakNetwork[] = []
+const transakSellableNetworks: TransakNetwork[] = []
+let isFetched = false
 
-function openTransak(network: string) {
+function openTransak(network: string, isSell?: boolean) {
   const Transak =
     process.env.VUE_APP_TRANSAK_ENV === 'STAGING'
       ? 'https://global-stg.transak.com'
@@ -27,16 +30,27 @@ function openTransak(network: string) {
   transakUrl.searchParams.append('email', userStore.info.email || '')
   transakUrl.searchParams.append('network', network)
   transakUrl.searchParams.append('themeColor', '#262626')
+  if (isSell) {
+    transakUrl.searchParams.append('productsAvailed', 'SELL')
+    transakUrl.searchParams.append('walletRedirection', 'true')
+    transakUrl.searchParams.append(
+      'redirectURL',
+      'https://verify.dev.arcana.network/sell/transak'
+    )
+  }
 
-  window.open(transakUrl.toString(), '_blank')
+  window.open(transakUrl.toString(), '_blank', getWindowFeatures())
 }
 
 async function fetchTransakNetworks() {
+  if (isFetched) return
   const TransakApi =
     process.env.VUE_APP_TRANSAK_ENV === 'STAGING'
       ? 'https://api-stg.transak.com'
       : 'https://api.transak.com'
   const isStaging = process.env.VUE_APP_TRANSAK_ENV === 'STAGING'
+  transakSupportedNetworks.length = 0
+  transakSellableNetworks.length = 0
 
   const supportedCurrencies = (
     await axios.get(`${TransakApi}/api/v2/currencies/crypto-currencies`)
@@ -46,10 +60,18 @@ async function fetchTransakNetworks() {
       supportedCurrencies
         .filter((r) => r.uniqueId?.toLowerCase().includes('solana'))
         .forEach((currency) => {
-          transakSupportedNetworks.push({
-            chainId: isStaging ? 3 : 1,
-            value: currency.network.name,
-          })
+          if (currency.isAllowed) {
+            transakSupportedNetworks.push({
+              chainId: isStaging ? 3 : 1,
+              value: currency.network.name,
+            })
+          }
+          if (currency.isPayInAllowed) {
+            transakSellableNetworks.push({
+              chainId: isStaging ? 3 : 1,
+              value: currency.network.name,
+            })
+          }
         })
     } else {
       supportedCurrencies.forEach((currency) => {
@@ -57,22 +79,45 @@ async function fetchTransakNetworks() {
           const chainId = Number(currency.network.chainId)
           if (
             !transakSupportedNetworks.find(
-              (network) => network.chainId === chainId
-            )
+              (network) => Number(network.chainId) === Number(chainId)
+            ) &&
+            currency.isAllowed
           ) {
             transakSupportedNetworks.push({
               chainId,
               value: currency.network.name,
             })
           }
+          if (
+            !transakSellableNetworks.find(
+              (network) => Number(network.chainId) === Number(chainId)
+            ) &&
+            currency.isPayInAllowed
+          ) {
+            transakSellableNetworks.push({
+              chainId,
+              value: currency.network.name,
+            })
+          }
         }
       })
+      console.log(transakSupportedNetworks, transakSellableNetworks)
     }
   }
+  isFetched = true
 }
 
 function getTransakSupportedNetworks() {
   return transakSupportedNetworks
 }
 
-export { openTransak, fetchTransakNetworks, getTransakSupportedNetworks }
+function getTransakSellableNetworks() {
+  return transakSellableNetworks
+}
+
+export {
+  openTransak,
+  fetchTransakNetworks,
+  getTransakSupportedNetworks,
+  getTransakSellableNetworks,
+}

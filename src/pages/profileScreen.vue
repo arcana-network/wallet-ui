@@ -258,7 +258,7 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold text-white-100"> Export Key </span>
+          <span class="text-lg font-bold"> Export Key </span>
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
