@@ -7,7 +7,7 @@ import {
 } from '@headlessui/vue'
 import Decimal from 'decimal.js'
 import { storeToRefs } from 'pinia'
-import { computed, ref, watch, type Ref } from 'vue'
+import { computed, ref, watch, onBeforeMount, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -25,12 +25,23 @@ import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateMid } from '@/utils/stringUtils'
-import { getTransakSupportedNetworks } from '@/utils/transak'
+import {
+  getTransakSupportedNetworks,
+  fetchTransakNetworks,
+} from '@/utils/transak'
 
 type UserWalletProps = {
   page: 'home' | 'nft'
   refreshIconAnimating: boolean
 }
+
+onBeforeMount(async () => {
+  try {
+    await Promise.all([fetchTransakNetworks()])
+  } catch (e) {
+    console.error('Failed to initialize one or more on-ramps:', e)
+  }
+})
 
 const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
