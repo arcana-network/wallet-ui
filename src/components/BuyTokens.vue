@@ -126,41 +126,6 @@ function handleDone() {
               class="radio"
             />
           </div>
-          <div
-            class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
-            :class="{
-              'opacity-60 cursor-not-allowed': !props.onRampMoney,
-              'hover:border-gray-100 cursor-pointer': props.onRampMoney,
-              'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
-                selectedProvider === 'onramp.money',
-              'border-gray-800 dark:border-gray-200':
-                selectedProvider !== 'onramp.money',
-            }"
-            @click.stop="
-              props.onRampMoney ? (selectedProvider = 'onramp.money') : void 0
-            "
-          >
-            <label
-              for="OnRampMoney"
-              class="flex gap-2 items-center cursor-pointer"
-              :class="{ 'opacity-50': props.onRampMoney === false }"
-            >
-              <img
-                src="@/assets/images/onrampmoney.png"
-                class="h-7 w-7 bg-[#F2F2F2] rounded-full"
-              />
-              <span class="text-base">onramp.money</span>
-            </label>
-            <input
-              id="OnRampMoney"
-              v-model="selectedProvider"
-              type="radio"
-              value="onramp.money"
-              name="provider"
-              :disabled="props.onRampMoney === false"
-              class="radio"
-            />
-          </div>
         </div>
         <div class="flex space-x-3 bg-[#313131] p-3 rounded-sm">
           <img class="w-4 h-4 mt-1" :src="getImage('info-icon')" />
