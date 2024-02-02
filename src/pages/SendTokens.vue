@@ -394,20 +394,7 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
-  if (
-    !amount.value ||
-    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
-  ) {
-    toast.error('Amount should not be greater than max balance')
-    return
-  }
-  if (
-    !rpcStore.useGasless &&
-    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
-  ) {
-    toast.error('Insufficient gas balance')
-    return
-  }
+  if (handleTransactionErrors()) return
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
@@ -496,8 +483,9 @@ async function handleShowPreview() {
           showPreview.value = true
         }
       } catch (e) {
-        toast.error('Cannot estimate gas fee. Please try again later.')
-        console.error({ e })
+        //handle errors in transaction
+        toast.error('Something went wrong, Please try again.')
+        console.log({ e })
       } finally {
         hideLoader()
       }
@@ -505,6 +493,24 @@ async function handleShowPreview() {
       toast.error('Please fill all values')
     }
   }
+}
+
+// Function to Handle Transaction Errors.
+function handleTransactionErrors() {
+  if (
+    !rpcStore.useGasless &&
+    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
+  ) {
+    toast.error('Insufficient funds for gas.')
+    return true
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
+  ) {
+    toast.error('Amount should not be greater than Max Balance.')
+    return true
+  }
+  return false
 }
 
 function handleTokenChange(e) {
