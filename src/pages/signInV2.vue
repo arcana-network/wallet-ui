@@ -225,6 +225,7 @@ async function storeUserInfoAndRedirect(
   addMFA = false
 ) {
   const storage = getStorage()
+  storage.local.setCurve(app.curve)
   if (app.isMfaEnabled) {
     storage.session.setInAppLogin(addMFA)
   }
@@ -272,7 +273,6 @@ async function storeUserInfoAndRedirect(
   }
   storage.session.setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
-  storage.local.setCurve(app.curve)
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
