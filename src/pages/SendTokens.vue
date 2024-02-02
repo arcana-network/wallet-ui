@@ -393,6 +393,7 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
+  if (handleTransactionErrors()) return
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
@@ -481,7 +482,7 @@ async function handleShowPreview() {
         }
       } catch (e) {
         //handle errors in transaction
-        handleTransactionErrors()
+        toast.error('Something went wrong, Please try again.')
         console.log({ e })
       } finally {
         hideLoader()
@@ -499,14 +500,15 @@ function handleTransactionErrors() {
     new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
   ) {
     toast.error('Insufficient funds for gas.')
+    return true
   } else if (
     !amount.value ||
     new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
   ) {
     toast.error('Amount should not be greater than Max Balance.')
-  } else {
-    toast.error('Something went wrong, Please try again later.')
+    return true
   }
+  return false
 }
 
 function handleTokenChange(e) {
