@@ -501,7 +501,13 @@ function handleTransactionErrors() {
     !rpcStore.useGasless &&
     new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
   ) {
-    toast.error('Insufficient funds for gas.')
+    toast.error('Insufficient funds for Transfer.')
+    return true
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).equals(selectedTokenBalance.value)
+  ) {
+    toast.error('Insufficient funds for Gas.')
     return true
   } else if (
     !amount.value ||
@@ -511,6 +517,17 @@ function handleTransactionErrors() {
     return true
   }
   return false
+}
+
+function getMaxTransferValue() {
+  let gasRequired = Number(gasFeeInEth.value) * Number(estimatedGas.value)
+  // let gas = parseFloat(gasRequired.toFixed(9))
+  let MaxValue = Number(selectedTokenBalance.value) - Number(gasRequired)
+  let formattedMax = parseFloat(MaxValue.toFixed(9))
+  if (formattedMax < 0) {
+    formattedMax = 0
+  }
+  return formattedMax
 }
 
 function handleTokenChange(e) {
@@ -594,7 +611,7 @@ watch(
               <button
                 class="btn-primary uppercase m-1 px-3 py-2 font-medium text-xs"
                 type="button"
-                @click.stop="void 0"
+                @click.stop="amount = getMaxTransferValue().toString()"
               >
                 Max
               </button>
