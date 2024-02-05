@@ -520,8 +520,9 @@ function handleTransactionErrors() {
 }
 
 function getMaxTransferValue() {
-  let gasFees = Number(gasFeeInEth.value) * Number(estimatedGas.value)
-  let MaxTokenforTransfer = Number(selectedTokenBalance.value) - Number(gasFees)
+  const gasFees = Number(gasFeeInEth.value) * Number(estimatedGas.value)
+  const MaxTokenforTransfer =
+    Number(selectedTokenBalance.value) - Number(gasFees)
   let MaxValueInput = new Decimal(MaxTokenforTransfer).toDecimalPlaces(9)
 
   if (MaxTokenforTransfer < 0) {
