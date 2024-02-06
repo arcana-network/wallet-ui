@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { IPlainTransactionObject, Transaction } from '@multiversx/sdk-core/out'
 import {
   PublicKey,
   SystemProgram,
@@ -19,7 +20,11 @@ import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
@@ -207,7 +212,53 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+        const transaction = {
+          gasLimit: 70000,
+          sender: userStore.walletAddress,
+          receiver: recipientWalletAddress.value,
+          value: amount.value,
+          chainID: 'T',
+          version: 1,
+        } as IPlainTransactionObject
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        const sigs = accountHandler.signTransactions([
+          Transaction.fromPlainObject(transaction),
+        ])
+        const txHash = await accountHandler.broadcastTransaction(sigs[0])
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: txHash,
+          chainType: ChainType.multiversx_cv25519,
+        })
+      } else {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        // const sig = await accountHandler.sendCustomToken({
+        //   to: recipientWalletAddress.value,
+        //   amount: amount.value,
+        //   mint: selectedToken.value.address,
+        //   decimals: selectedToken.value.decimals,
+        // })
+        // const tokenInfo = tokenList.value.find(
+        //   (item) => item.address === selectedToken.value.address
+        // )
+        // activitiesStore.fetchAndSaveActivityFromHash({
+        //   txHash: sig,
+        //   chainId: rpcStore.selectedRpcConfig?.chainId,
+        //   customToken: {
+        //     operation: 'Send',
+        //     amount: amount.value,
+        //     symbol: tokenInfo?.symbol as string,
+        //     decimals: tokenInfo?.decimals as number,
+        //   },
+        //   recipientAddress: recipientWalletAddress.value,
+        //   chainType: ChainType.multiversx_cv25519,
+        // })
+      }
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
@@ -408,7 +459,10 @@ async function handleShowPreview() {
     toast.error('Insufficient gas balance')
     return
   }
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (
+    appStore.chainType === ChainType.solana_cv25519 ||
+    appStore.chainType === ChainType.multiversx_cv25519
+  ) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
     } else {
