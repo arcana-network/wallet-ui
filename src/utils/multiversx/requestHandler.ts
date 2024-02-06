@@ -144,21 +144,8 @@ class MultiversXRequestHandler {
         const sigs = this.accountHandler.signTransactions([
           Transaction.fromPlainObject(p.transaction),
         ])
-        // const data = sigs[0].toSendable()
-
-        // fetch('https://devnet-api.multiversx.com/transactions', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(data),
-        // })
-        //   .then((res) => res.json())
-        //   .then(console.log)
-        //   .catch(console.log)
-
-        // res.result = ''
-        res.result = sigs[0].toSendable()
+        const txHash = await this.accountHandler.broadcastTransaction(sigs[0])
+        res.result = txHash
         break
       }
       case 'mvx_signTransactions': {
