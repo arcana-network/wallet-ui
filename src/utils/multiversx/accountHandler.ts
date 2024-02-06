@@ -22,7 +22,7 @@ export class MultiversXAccountHandler {
   public readonly addrStr: string
 
   constructor(privateKey: Uint8Array | Buffer, rpcURL: string) {
-    this.privateKey = new UserSecretKey(privateKey.subarray(32))
+    this.privateKey = new UserSecretKey(privateKey.subarray(0, -32))
     this.publicKey = this.privateKey.generatePublicKey()
     this.addrStr = this.publicKey.toAddress().toString()
     this.conn = new ApiNetworkProvider(rpcURL)
