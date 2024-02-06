@@ -45,6 +45,15 @@ export class MultiversXAccountHandler {
     return Number(account.balance)
   }
 
+  async getAccountNonce() {
+    const account = await this.conn.getAccount(this.publicKey.toAddress())
+    return account.nonce
+  }
+
+  getNetworkProvider() {
+    return this.conn
+  }
+
   getPublicKey(params: Array<unknown>): any {
     if (this.addrStr === params[0]) {
       return this.publicKey.hex()
