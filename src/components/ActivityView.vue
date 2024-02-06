@@ -146,7 +146,11 @@ function calculateSolanaTotal(activity) {
 
 function generateExplorerURL(explorerUrl: string, txHash: string) {
   const urlFormatExplorerUrl = new URL(explorerUrl)
-  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  const url =
+    app.chainType === ChainType.multiversx_cv25519
+      ? `/transactions/${txHash}`
+      : `/tx/${txHash}`
+  const actualTxUrl = new URL(url, explorerUrl)
   if (urlFormatExplorerUrl.search) {
     actualTxUrl.search = urlFormatExplorerUrl.search
   }

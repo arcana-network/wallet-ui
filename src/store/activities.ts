@@ -212,6 +212,24 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               chainType,
             })
           }, 2000)
+        } else {
+          const activity: Activity = {
+            txHash: tx.hash,
+            operation: 'Send',
+            date: new Date(),
+            status: tx.status.status as ActivityStatus,
+            address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
+            transaction: {
+              hash: tx.hash,
+              amount: BigInt(tx.value),
+              gasLimit: BigInt(tx.gasLimit),
+              gasPrice: BigInt(tx.gasPrice),
+              nonce: tx.nonce,
+              data: tx.data.toString(),
+            },
+          }
+          console.log(activity, 'activity-activity')
+          this.saveActivity(chainId, activity)
         }
       } else if (chainType === ChainType.solana_cv25519) {
         const accountHandler =
