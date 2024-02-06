@@ -356,7 +356,9 @@ async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
-      if (appStore.chainType === ChainType.solana_cv25519) {
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        return chain.compatibility?.toLowerCase() === 'multiversx'
+      } else if (appStore.chainType === ChainType.solana_cv25519) {
         return chain.compatibility?.toLowerCase() === 'solana'
       } else {
         return chain.compatibility?.toLowerCase() === 'evm'
