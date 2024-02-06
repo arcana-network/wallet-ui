@@ -15,11 +15,12 @@ type RequestHandler =
   | MultiversXRequestHandler
 
 function createRequestHandler(accountHandler: AccountHandler) {
-  if (accountHandler.chainType === ChainType.solana_cv25519) {
-    // return new SolanaRequestHandler(accountHandler as SolanaAccountHandler)
+  if (accountHandler.chainType === ChainType.multiversx_cv25519) {
     return new MultiversXRequestHandler(
       accountHandler as MultiversXAccountHandler
     )
+  } else if (accountHandler.chainType === ChainType.solana_cv25519) {
+    return new SolanaRequestHandler(accountHandler as SolanaAccountHandler)
   } else {
     return new EVMRequestHandler(accountHandler as EVMAccountHandler)
   }
