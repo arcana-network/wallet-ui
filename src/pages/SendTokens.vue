@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { IPlainTransactionObject, Transaction } from '@multiversx/sdk-core/out'
+import {
+  TokenTransfer,
+  IPlainTransactionObject,
+  Transaction,
+} from '@multiversx/sdk-core'
 import {
   PublicKey,
   SystemProgram,
@@ -224,9 +228,12 @@ async function handleSendToken() {
         } as IPlainTransactionObject
         const accountHandler =
           getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-        const sigs = accountHandler.signTransactions([
-          Transaction.fromPlainObject(transaction),
-        ])
+        const txObject = Transaction.fromPlainObject(transaction)
+        txObject.setNonce((await accountHandler.getAccountNonce()) + 1)
+        txObject.setValue(
+          TokenTransfer.egldFromAmount(txObject.getValue().toString())
+        )
+        const sigs = accountHandler.signTransactions([txObject])
         const txHash = await accountHandler.broadcastTransaction(sigs[0])
         activitiesStore.fetchAndSaveActivityFromHash({
           chainId: rpcStore.selectedRpcConfig?.chainId,
