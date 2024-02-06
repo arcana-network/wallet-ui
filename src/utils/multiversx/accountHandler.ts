@@ -102,6 +102,6 @@ export class MultiversXAccountHandler {
   }
 
   get chainType() {
-    return ChainType.solana_cv25519
+    return ChainType.multiversx_cv25519
   }
 }
