@@ -4,6 +4,7 @@ import {
   Transaction,
   IPlainTransactionObject,
   Address,
+  TokenTransfer,
 } from '@multiversx/sdk-core'
 import {
   createAsyncMiddleware,
@@ -141,9 +142,12 @@ class MultiversXRequestHandler {
         const p = req.params as {
           transaction: IPlainTransactionObject
         }
-        const sigs = this.accountHandler.signTransactions([
-          Transaction.fromPlainObject(p.transaction),
-        ])
+        const txObject = Transaction.fromPlainObject(p.transaction)
+        txObject.setNonce((await this.accountHandler.getAccountNonce()) + 1)
+        txObject.setValue(
+          TokenTransfer.egldFromAmount(txObject.getValue().toString())
+        )
+        const sigs = this.accountHandler.signTransactions([txObject])
         const txHash = await this.accountHandler.broadcastTransaction(sigs[0])
         res.result = txHash
         break
