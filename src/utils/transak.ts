@@ -42,7 +42,16 @@ async function fetchTransakNetworks() {
     await axios.get(`${TransakApi}/api/v2/currencies/crypto-currencies`)
   ).data?.response
   if (supportedCurrencies?.length) {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      supportedCurrencies
+        .filter((r) => r.uniqueId?.toLowerCase().includes('multiversx'))
+        .forEach((currency) => {
+          transakSupportedNetworks.push({
+            chainId: isStaging ? 3 : 1,
+            value: currency.network.name,
+          })
+        })
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       supportedCurrencies
         .filter((r) => r.uniqueId?.toLowerCase().includes('solana'))
         .forEach((currency) => {
