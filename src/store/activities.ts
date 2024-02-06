@@ -6,7 +6,11 @@ import { defineStore } from 'pinia'
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import {
   CONTRACT_EVENT_CODE,
@@ -194,7 +198,22 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
       chainType = ChainType.evm_secp256k1,
     }: TransactionFetchParams) {
-      if (chainType === ChainType.solana_cv25519) {
+      if (chainType === ChainType.multiversx_cv25519) {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        const tx = await accountHandler.getTransaction(txHash)
+        if (!tx) {
+          setTimeout(() => {
+            this.fetchAndSaveActivityFromHash({
+              txHash,
+              chainId,
+              customToken,
+              recipientAddress,
+              chainType,
+            })
+          }, 2000)
+        }
+      } else if (chainType === ChainType.solana_cv25519) {
         const accountHandler =
           getRequestHandler().getAccountHandler() as SolanaAccountHandler
         const tx = await accountHandler.getTransaction(txHash)
