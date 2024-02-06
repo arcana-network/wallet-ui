@@ -40,8 +40,9 @@ export class MultiversXAccountHandler {
     return this.conn.getAccount(this.publicKey.toAddress())
   }
 
-  getBalance() {
-    return 0
+  async getBalance() {
+    const account = await this.conn.getAccount(this.publicKey.toAddress())
+    return Number(account.balance)
   }
 
   getPublicKey(params: Array<unknown>): any {
