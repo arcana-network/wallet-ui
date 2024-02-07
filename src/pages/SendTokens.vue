@@ -32,6 +32,7 @@ import {
 import { ChainType } from '@/utils/chainType'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
+import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -223,13 +224,13 @@ async function handleSendToken() {
           sender: userStore.walletAddress,
           receiver: recipientWalletAddress.value,
           value: amount.value,
-          chainID: 'T',
+          chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
           version: 1,
         } as IPlainTransactionObject
         const accountHandler =
           getRequestHandler().getAccountHandler() as MultiversXAccountHandler
         const txObject = Transaction.fromPlainObject(transaction)
-        txObject.setNonce((await accountHandler.getAccountNonce()) + 1)
+        txObject.setNonce(await accountHandler.getAccountNonce())
         txObject.setValue(
           TokenTransfer.egldFromAmount(txObject.getValue().toString())
         )
