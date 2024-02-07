@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Chain } from '@arcana/auth/types/chainList'
 import Decimal from 'decimal.js'
 import { onMounted, onBeforeUnmount, ref, watch, type Ref, computed } from 'vue'
 
@@ -98,7 +97,7 @@ function fetchNativeAsset() {
 async function getAssetsBalance() {
   if (appStore.chainType === ChainType.solana_cv25519) {
     await getSolanaBalance()
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     await getEVMAssetBalance()
   }
 }
