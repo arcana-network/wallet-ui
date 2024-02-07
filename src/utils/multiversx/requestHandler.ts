@@ -144,9 +144,7 @@ class MultiversXRequestHandler {
         }
         const txObject = Transaction.fromPlainObject(p.transaction)
         txObject.setNonce(await this.accountHandler.getAccountNonce())
-        txObject.setValue(
-          TokenTransfer.egldFromAmount(txObject.getValue().toString())
-        )
+        txObject.setValue(TokenTransfer.egldFromAmount(p.transaction.value))
         const sigs = this.accountHandler.signTransactions([txObject])
         const txHash = await this.accountHandler.broadcastTransaction(sigs[0])
         res.result = txHash

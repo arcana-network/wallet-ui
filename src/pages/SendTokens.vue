@@ -231,9 +231,7 @@ async function handleSendToken() {
           getRequestHandler().getAccountHandler() as MultiversXAccountHandler
         const txObject = Transaction.fromPlainObject(transaction)
         txObject.setNonce(await accountHandler.getAccountNonce())
-        txObject.setValue(
-          TokenTransfer.egldFromAmount(txObject.getValue().toString())
-        )
+        txObject.setValue(TokenTransfer.egldFromAmount(amount.value))
         const sigs = accountHandler.signTransactions([txObject])
         const txHash = await accountHandler.broadcastTransaction(sigs[0])
         activitiesStore.fetchAndSaveActivityFromHash({
