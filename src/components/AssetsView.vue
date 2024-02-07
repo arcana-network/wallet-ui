@@ -40,6 +40,17 @@ const nativeAssetBalance = computed(() => {
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, decimals))
 })
 
+function getChainType(chainType: ChainType) {
+  switch (chainType) {
+    case ChainType.evm_secp256k1:
+      return 'EVM'
+    case ChainType.solana_cv25519:
+      return 'solana'
+    case ChainType.multiversx_cv25519:
+      return 'multiversx'
+  }
+}
+
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = storage.local.getAssetContractList(
     userStore.walletAddress,
@@ -78,8 +89,8 @@ function fetchNativeAsset() {
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(
-      Number(rpcStore.selectedRPCConfig?.chainId),
-      appStore.chainType === ChainType.evm_secp256k1 ? 'EVM' : 'solana'
+      Number(rpcStore.selectedChainId),
+      getChainType(appStore.chainType)
     ),
   }
 }
