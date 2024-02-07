@@ -228,8 +228,20 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               data: tx.data.toString(),
             },
           }
-          console.log(activity, 'activity-activity')
           this.saveActivity(chainId, activity)
+          const checkStatusInterval = setInterval(async () => {
+            const status = await accountHandler
+              .getNetworkProvider()
+              .getTransactionStatus(tx.hash)
+            if (status.status === 'success') {
+              this.updateActivityStatusByTxHash(
+                chainId as ChainId,
+                txHash,
+                'Success'
+              )
+              clearInterval(checkStatusInterval)
+            }
+          }, 3000)
         }
       } else if (chainType === ChainType.solana_cv25519) {
         const accountHandler =
