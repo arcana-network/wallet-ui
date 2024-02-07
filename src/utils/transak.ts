@@ -1,6 +1,8 @@
 import axios from 'axios'
+import Pusher from 'pusher-js'
 
 import { store } from '@/store'
+import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
@@ -16,6 +18,8 @@ type TransakNetwork = {
 
 const transakSupportedNetworks: TransakNetwork[] = []
 const transakSellableNetworks: TransakNetwork[] = []
+const transakSellableCryptos = [] as any[]
+const transakSupportedCryptos = [] as any[]
 let isFetched = false
 
 function openTransak(network: string, isSell?: boolean) {
@@ -35,11 +39,16 @@ function openTransak(network: string, isSell?: boolean) {
     transakUrl.searchParams.append('walletRedirection', 'true')
     transakUrl.searchParams.append(
       'redirectURL',
-      'https://verify.dev.arcana.network/sell/transak'
+      `https://verify.dev.arcana.network/${appStore.id}/sell/transak`
     )
+    transakUrl.searchParams.append('partnerCustomerId', userStore.walletAddress)
   }
-
-  window.open(transakUrl.toString(), '_blank', getWindowFeatures())
+  window.open(
+    'http://localhost:8080/50ced61430ba1dfd8d0d7aaac1a55053ea2e5ca2/sell/transak?partnerCustomerId=0x9aa22E7B506763DC679233224C4C1aBDa9f0b918&orderId=a5d69485-dc7b-419d-952e-77b9cd44a1b6&fiatCurrency=GBP&cryptoCurrency=USDT&fiatAmount=391.74&cryptoAmount=504.49&isBuyOrSell=SELL&status=AWAITING_PAYMENT_FROM_USER&walletAddress=0x85569bcA6262f2E5a84B738C8dc85188C6612FdB&totalFeeInFiat=3.92&isNFTOrder=undefined&network=polygon',
+    '_blank',
+    getWindowFeatures()
+  )
+  // window.open(transakUrl.toString(), '_blank', getWindowFeatures())
 }
 
 async function fetchTransakNetworks() {
@@ -99,9 +108,12 @@ async function fetchTransakNetworks() {
               value: currency.network.name,
             })
           }
+          transakSupportedCryptos.push(currency)
+          if (currency.isPayInAllowed) {
+            transakSellableCryptos.push(currency)
+          }
         }
       })
-      console.log(transakSupportedNetworks, transakSellableNetworks)
     }
   }
   isFetched = true
@@ -115,9 +127,94 @@ function getTransakSellableNetworks() {
   return transakSellableNetworks
 }
 
+function getTransakSellableCryptos() {
+  return transakSellableCryptos
+}
+
+function getTransakSupportedCryptos() {
+  return transakSupportedCryptos
+}
+
+const TransakStatus = {
+  AWAITING_PAYMENT_FROM_USER: 'Unapproved',
+  PROCESSING: 'Processing',
+  PENDING_DELIVERY_FROM_TRANSAK: 'Pending',
+  COMPLETED: 'Success',
+  CANCELLED: 'Cancelled',
+  FAILED: 'Failed',
+  REFUNDED: 'Refunded',
+  EXPIRED: 'Expired',
+}
+
+const CompletedTransakStatus = [
+  'COMPLETED',
+  'CANCELLED',
+  'FAILED',
+  'REFUNDED',
+  'EXPIRED',
+]
+
+function subscribeTransakOrderId(orderId: string, chainId: string) {
+  const activitiesStore = useActivitiesStore()
+  const pusher = getTransakPusherChannel()
+
+  const channel = pusher.subscribe(orderId)
+  const events = Object.keys(TransakStatus)
+  events.forEach((event) => {
+    channel.bind(event, (ev) => {
+      const activityIndex = activitiesStore
+        .activities(Number(chainId))
+        .findIndex((activity) => {
+          return (
+            activity.operation === 'Sell' &&
+            activity.sellDetails?.orderId === orderId
+          )
+        })
+      if (activityIndex !== -1) {
+        activitiesStore.activitiesByChainId[Number(chainId)][
+          activityIndex
+        ].status = TransakStatus[event]
+        if (ev.transactionHash) {
+          activitiesStore.activitiesByChainId[Number(chainId)][
+            activityIndex
+          ].txHash = ev.transactionHash
+        }
+        if (ev.transactionLink) {
+          activitiesStore.activitiesByChainId[Number(chainId)][
+            activityIndex
+          ].explorerUrl = ev.transactionLink
+        }
+        if (CompletedTransakStatus.includes(event)) {
+          pusher.unsubscribe(orderId)
+        }
+      }
+    })
+  })
+}
+
+function unsubscribeTransakOrderId(orderId: string) {
+  const pusher = getTransakPusherChannel()
+  pusher.unsubscribe(orderId)
+}
+
+function getTransakPusherChannel() {
+  const pusher = new Pusher(process.env.VUE_APP_TRANSAK_PUSHER_ID, {
+    cluster: 'ap2',
+  })
+
+  return pusher
+}
+
 export {
   openTransak,
   fetchTransakNetworks,
   getTransakSupportedNetworks,
   getTransakSellableNetworks,
+  getTransakSellableCryptos,
+  getTransakSupportedCryptos,
+  subscribeTransakOrderId,
+  unsubscribeTransakOrderId,
+  getTransakPusherChannel,
+  TransakStatus,
+  type TransakNetwork,
 }

@@ -139,19 +139,6 @@ const transakSellNetwork = computed(() => {
   )
 })
 
-watch(
-  () => rpcStore.selectedChainId,
-  () => {
-    console.log(
-      Number(rpcStore.selectedChainId),
-      getTransakSellableNetworks(),
-      getTransakSupportedNetworks(),
-      transakNetwork.value,
-      transakSellNetwork.value
-    )
-  }
-)
-
 const onRampMoney = computed(() => {
   const selectedChainId = Number(rpcStore.selectedChainId)
   if (
