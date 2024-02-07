@@ -143,7 +143,7 @@ class MultiversXRequestHandler {
           transaction: IPlainTransactionObject
         }
         const txObject = Transaction.fromPlainObject(p.transaction)
-        txObject.setNonce((await this.accountHandler.getAccountNonce()) + 1)
+        txObject.setNonce(await this.accountHandler.getAccountNonce())
         txObject.setValue(
           TokenTransfer.egldFromAmount(txObject.getValue().toString())
         )
