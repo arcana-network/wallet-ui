@@ -45,6 +45,12 @@ export class MultiversXAccountHandler {
     return Number(account.balance)
   }
 
+  async getFungibleTokens() {
+    return await this.conn.getFungibleTokensOfAccount(
+      this.publicKey.toAddress()
+    )
+  }
+
   async getAccountNonce() {
     const account = await this.conn.getAccount(this.publicKey.toAddress())
     return account.nonce

@@ -9,7 +9,10 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
@@ -95,11 +98,29 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    await getMultiversxBalance()
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     await getSolanaBalance()
   } else if (appStore.chainType === ChainType.evm_secp256k1) {
     await getEVMAssetBalance()
   }
+}
+
+async function getMultiversxBalance() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+  const multiversxTokens = await accountHandler.getFungibleTokens()
+  console.log({ multiversxTokens })
+  assets.value = multiversxTokens.map((item) => {
+    return {
+      name: item.rawResponse.name,
+      balance: Number(item.rawResponse.balance),
+      symbol: item.rawResponse.ticker,
+      decimals: item.rawResponse.decimals,
+      logo: 'fallback-token.png',
+    } as Asset
+  })
 }
 
 async function getSolanaBalance() {
