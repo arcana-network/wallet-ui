@@ -115,7 +115,10 @@ async function getMultiversxBalance() {
   assets.value = multiversxTokens.map((item) => {
     return {
       name: item.rawResponse.name,
-      balance: item.balance.integerValue().toNumber(),
+      balance: formatTokenDecimals(
+        item.rawResponse.balance,
+        item.rawResponse.decimals
+      ),
       symbol: item.rawResponse.ticker,
       decimals: item.rawResponse.decimals,
       logo: 'fallback-token.png',

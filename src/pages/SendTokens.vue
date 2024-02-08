@@ -34,6 +34,7 @@ import {
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getTokenBalance } from '@/utils/contractUtil'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -198,7 +199,10 @@ async function setTokenList() {
       symbol: item.rawResponse.ticker,
       decimals: item.rawResponse.decimals,
       address: item.rawResponse.address,
-      balance: Number(item.rawResponse.balance),
+      balance: formatTokenDecimals(
+        item.rawResponse.balance,
+        item.rawResponse.decimals
+      ),
     }))
     tokenList.value.push(...tokens)
   } else if (appStore.chainType === ChainType.solana_cv25519) {
