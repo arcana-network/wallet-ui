@@ -410,7 +410,7 @@ async function handleSendToken() {
       }
     }
     clearForm()
-    router.push({ name: 'home' })
+    router.push({ name: 'activities' })
     toast.success('Transaction under process')
   } catch (error: any) {
     console.log(error, 'error')
