@@ -111,7 +111,6 @@ async function getMultiversxBalance() {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
   const multiversxTokens = await accountHandler.getFungibleTokens()
-  console.log({ multiversxTokens })
   assets.value = multiversxTokens.map((item) => {
     return {
       name: item.rawResponse.name,
