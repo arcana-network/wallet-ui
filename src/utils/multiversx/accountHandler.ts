@@ -51,12 +51,6 @@ export class MultiversXAccountHandler {
     )
   }
 
-  async getNFTs() {
-    return await this.conn.getNonFungibleTokensOfAccount(
-      this.publicKey.toAddress()
-    )
-  }
-
   async getAccountNonce() {
     const account = await this.conn.getAccount(this.publicKey.toAddress())
     return account.nonce
