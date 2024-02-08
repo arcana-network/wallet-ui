@@ -39,16 +39,11 @@ function openTransak(network: string, isSell?: boolean) {
     transakUrl.searchParams.append('walletRedirection', 'true')
     transakUrl.searchParams.append(
       'redirectURL',
-      `https://verify.dev.arcana.network/${appStore.id}/sell/transak`
+      `${process.env.VUE_APP_WALLET_AUTH_URL}/${appStore.id}/sell/transak`
     )
     transakUrl.searchParams.append('partnerCustomerId', userStore.walletAddress)
   }
-  window.open(
-    'http://localhost:8080/50ced61430ba1dfd8d0d7aaac1a55053ea2e5ca2/sell/transak?partnerCustomerId=0x9aa22E7B506763DC679233224C4C1aBDa9f0b918&orderId=a5d69485-dc7b-419d-952e-77b9cd44a1b6&fiatCurrency=GBP&cryptoCurrency=USDT&fiatAmount=391.74&cryptoAmount=504.49&isBuyOrSell=SELL&status=AWAITING_PAYMENT_FROM_USER&walletAddress=0x85569bcA6262f2E5a84B738C8dc85188C6612FdB&totalFeeInFiat=3.92&isNFTOrder=undefined&network=polygon',
-    '_blank',
-    getWindowFeatures()
-  )
-  // window.open(transakUrl.toString(), '_blank', getWindowFeatures())
+  window.open(transakUrl.toString(), '_blank', getWindowFeatures())
 }
 
 async function fetchTransakNetworks() {
