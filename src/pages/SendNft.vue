@@ -393,6 +393,11 @@ watch(
             :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
           />
+          <span
+            v-else
+            class="text-xs text-green-100 font-medium text-center w-full"
+            >This is a Gasless Transaction. Click Below to Approve.
+          </span>
         </div>
         <div class="flex">
           <button

@@ -115,13 +115,19 @@ async function onViewDetails() {
         <div class="flex flex-col justify-center items-center">
           <span class="text-sm text-gray-100">Transaction Fees</span>
           <div class="flex gap-2 items-baseline justify-center">
-            <div class="flex items-baseline">
+            <div v-if="!rpcStore.useGasless" class="flex items-baseline">
               <span class="text-lg font-bold"
                 >{{ gasFee.slice(0, 9) }}&nbsp;</span
               ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
               }}</span>
             </div>
+            <span
+              v-else-if="rpcStore.useGasless"
+              class="text-sm font-medium text-green-100"
+            >
+              Sponsored
+            </span>
             <div
               v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
               class="text-sm font-medium"
@@ -132,7 +138,7 @@ async function onViewDetails() {
         </div>
       </div>
       <button
-        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase text-[12px] font-bold"
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-bold"
         @click.stop="onViewDetails"
       >
         View Details

@@ -621,12 +621,20 @@ watch(
           </div>
         </div>
         <GasPrice
-          v-if="appStore.chainType === ChainType.evm_secp256k1"
+          v-if="
+            appStore.chainType === ChainType.evm_secp256k1 &&
+            !rpcStore.useGasless
+          "
           :gas-prices="gasPrices"
           :base-fee="baseFee"
           :gas-limit="estimatedGas"
           @gas-price-input="handleSetGasPrice"
         />
+        <span
+          v-else-if="rpcStore.useGasless"
+          class="text-xs text-green-100 font-medium text-center w-full"
+          >This is a Gasless Transaction. Click Below to Approve.
+        </span>
       </div>
       <div class="flex">
         <button

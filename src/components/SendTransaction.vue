@@ -253,9 +253,14 @@ function calculateCurrencyValue(value) {
       <div class="flex justify-between gap-4">
         <span>Transaction Fee</span>
         <span class="text-right">
-          <span :title="calculateGasPrice(request.request.params[0])">{{
-            calculateGasPrice(request.request.params[0])
-          }}</span>
+          <span
+            v-if="!rpcStore.useGasless"
+            :title="calculateGasPrice(request.request.params[0])"
+            >{{ calculateGasPrice(request.request.params[0]) }}</span
+          >
+          <span v-else-if="rpcStore.useGasless" class="text-base">
+            Sponsored
+          </span>
           <span
             v-if="
               calculateCurrencyValue(getGasValue(request.request.params[0]))
@@ -288,12 +293,16 @@ function calculateCurrencyValue(value) {
     </div>
     <div v-if="appStore.chainType === ChainType.evm_secp256k1" class="mt-4">
       <GasPrice
+        v-if="!rpcStore.useGasless"
         :base-fee="baseFee"
         :gas-limit="gasLimit"
         :max-fee-per-gas="customGasPrice.maxFeePerGas"
         :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
         @gas-price-input="handleSetGasPrice"
       />
+      <span v-else class="text-xs text-green-100 font-medium text-center w-full"
+        >This is a Gasless Transaction. Click Below to Approve.
+      </span>
     </div>
     <div
       v-if="route.name !== 'PermissionRequest'"
