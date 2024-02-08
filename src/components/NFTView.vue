@@ -7,7 +7,10 @@ import { NFTDB } from '@/services/nft.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
@@ -37,11 +40,16 @@ const loader = reactive({
 
 async function getNFTAssets() {
   loader.show = true
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+    const data = await accountHandler.getNFTs()
+    nfts.value = []
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as SolanaAccountHandler
     nfts.value = await accountHandler.getAllUserNFTs()
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     nftDB = await NFTDB.create(storage.local, userStore.walletAddress, true)
     nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
   }
