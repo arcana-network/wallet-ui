@@ -281,6 +281,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             }}</span
           >
           <span
+            v-else-if="activity.sellDetails"
+            class="flex text-xs text-secondary text-right"
+            >{{ activity.sellDetails.fiat.amount }}
+            {{ activity.sellDetails.fiat.currency }}</span
+          >
+          <span
             class="text-sm"
             :class="{
               'text-green-100': activity.status === 'Success',
