@@ -89,12 +89,9 @@ function handleFallbackLogo(event) {
         <button
           class="flex items-center startertips_highlighted"
           :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
+          @click.stop="openChainList()"
         >
-          <div
-            v-if="hasChainUpdated"
-            class="w-xl h-xl rounded-full"
-            @click.stop="openChainList()"
-          >
+          <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
             <img
               :src="
                 getChainLogoUrl(
