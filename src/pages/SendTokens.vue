@@ -411,7 +411,7 @@ async function handleSendToken() {
     }
     clearForm()
     router.push({ name: 'home' })
-    toast.success('Tokens sent Successfully')
+    toast.success('Transaction under process')
   } catch (error: any) {
     console.log(error, 'error')
     const displayMessage =
