@@ -213,31 +213,52 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             })
           }, 2000)
         } else {
-          const activity: Activity = {
-            txHash: tx.hash,
-            operation: 'Send',
-            date: new Date(),
-            status: tx.status.status as ActivityStatus,
-            address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
-            transaction: {
-              hash: tx.hash,
-              amount: BigInt(tx.value),
-              gasLimit: BigInt(tx.gasLimit),
-              gasPrice: BigInt(tx.gasPrice),
-              nonce: tx.nonce,
-              data: tx.data.toString(),
-            },
+          if (customToken) {
+            const activity: Activity = {
+              operation: customToken.operation,
+              txHash,
+              transaction: {
+                hash: txHash,
+                amount: BigInt(customToken.amount),
+                nonce: tx.nonce,
+                fee: BigInt(tx.gasPrice as number),
+              },
+              status: tx.status.status as ActivityStatus,
+              date: new Date(),
+              address: {
+                from: userStore.walletAddress,
+                to: recipientAddress,
+              },
+              customToken,
+            }
+            this.saveActivity(Number(chainId), activity)
+          } else {
+            const activity: Activity = {
+              txHash: tx.hash,
+              operation: 'Send',
+              date: new Date(),
+              status: tx.status.status as ActivityStatus,
+              address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
+              transaction: {
+                hash: tx.hash,
+                amount: BigInt(tx.value),
+                gasLimit: BigInt(tx.gasLimit),
+                gasPrice: BigInt(tx.gasPrice),
+                nonce: tx.nonce,
+                data: tx.data.toString(),
+              },
+            }
+            this.saveActivity(chainId, activity)
           }
-          this.saveActivity(chainId, activity)
           const checkStatusInterval = setInterval(async () => {
             const status = await accountHandler
               .getNetworkProvider()
               .getTransactionStatus(tx.hash)
-            if (status.status === 'success') {
+            if (status.status !== 'pending') {
               this.updateActivityStatusByTxHash(
                 chainId as ChainId,
                 txHash,
-                'Success'
+                status.status as ActivityStatus
               )
               clearInterval(checkStatusInterval)
             }
