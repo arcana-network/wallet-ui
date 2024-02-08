@@ -274,7 +274,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             v-if="
               !activity.customToken && !activity.nft && activity.transaction
             "
-            class="flex text-xs text-secondary text-right"
+            class="flex text-xs text-[#8d8d8d] text-right"
             >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
             {{
               calculateCurrencyValue(activity.transaction.amount).currency
@@ -282,7 +282,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           >
           <span
             v-else-if="activity.sellDetails"
-            class="flex text-xs text-secondary text-right"
+            class="flex text-xs text-[#8d8d8d] text-right"
             >{{ activity.sellDetails.fiat.amount }}
             {{ activity.sellDetails.fiat.currency }}</span
           >

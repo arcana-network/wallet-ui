@@ -131,43 +131,52 @@ onMounted(() => {
   window.addEventListener('message', (ev) => {
     const response = ev.data.response
     if (ev.data.type === 'sell_token_init') {
-      activitiesStore.saveActivity(response.chainId, {
-        txHash: response.txHash,
-        status: TransakStatus[response.status],
-        transaction: response.transaction || undefined,
-        operation: 'Sell',
-        date: new Date(),
-        address: {
-          from: response.partnerCustomerId,
-          to: response.walletAddress,
-        },
-        customToken:
-          response.contractAddress !== 'NATIVE'
-            ? {
-                operation: 'Sell',
-                amount: response.cryptoAmount,
-                symbol: response.cryptoCurrency,
-                decimals: response.tokenDecimals,
-              }
-            : undefined,
-        sellDetails: {
-          orderId: response.orderId,
-          provider: response.provider,
-          crypto: {
-            amount: response.cryptoAmount,
-            currency: response.cryptoCurrency,
-            contractAddress: response.contractAddress,
-            decimals: response.tokenDecimals,
-            logo: response.tokenLogo,
-          },
-          fiat: {
-            amount: response.fiatAmount,
-            currency: response.fiatCurrency,
-            fee: response.totalFeeInFiat,
-          },
-        },
+      const existingActivities = activitiesStore.activities(response.chainId)
+      const existingActivity = existingActivities?.find((activity) => {
+        return (
+          activity.operation === 'Sell' &&
+          activity.sellDetails?.orderId === response.orderId
+        )
       })
-      subscribeTransakOrderId(response.orderId, response.chainId)
+      if (!existingActivity) {
+        activitiesStore.saveActivity(response.chainId, {
+          txHash: response.txHash,
+          status: TransakStatus[response.status],
+          transaction: response.transaction || undefined,
+          operation: 'Sell',
+          date: new Date(),
+          address: {
+            from: response.partnerCustomerId,
+            to: response.walletAddress,
+          },
+          customToken:
+            response.contractAddress !== 'NATIVE'
+              ? {
+                  operation: 'Sell',
+                  amount: response.cryptoAmount,
+                  symbol: response.cryptoCurrency,
+                  decimals: response.tokenDecimals,
+                }
+              : undefined,
+          sellDetails: {
+            orderId: response.orderId,
+            provider: response.provider,
+            crypto: {
+              amount: response.cryptoAmount,
+              currency: response.cryptoCurrency,
+              contractAddress: response.contractAddress,
+              decimals: response.tokenDecimals,
+              logo: response.tokenLogo,
+            },
+            fiat: {
+              amount: response.fiatAmount,
+              currency: response.fiatCurrency,
+              fee: response.totalFeeInFiat,
+            },
+          },
+        })
+        subscribeTransakOrderId(response.orderId, response.chainId)
+      }
     } else if (ev.data.type === 'sell_token_reject') {
       const activityIndex = activitiesStore
         .activities(Number(response.chainId))
