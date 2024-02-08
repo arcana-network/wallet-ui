@@ -3,6 +3,7 @@ import { onMounted, ref, type Ref, reactive, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
+import { getMVXNfts } from '@/services/multiversx.service'
 import { NFTDB } from '@/services/nft.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
@@ -43,8 +44,22 @@ async function getNFTAssets() {
   if (appStore.chainType === ChainType.multiversx_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-    const data = await accountHandler.getNFTs()
-    nfts.value = []
+    const address = accountHandler.addrStr
+    const rpc = rpcStore.selectedRPCConfig?.rpcUrls[0]
+    const nftUrl = `${rpc}/accounts/${address}/nfts`
+    const nftList = await getMVXNfts(nftUrl)
+    nfts.value = nftList.map((nft) => {
+      return {
+        type: nft.type,
+        address: '',
+        tokenId: '',
+        collectionName: nft.collection,
+        name: nft.name,
+        description: nft.metadata.description,
+        imageUrl: nft.url,
+        tokenUrl: '',
+      }
+    })
   } else if (appStore.chainType === ChainType.solana_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as SolanaAccountHandler
