@@ -2,6 +2,7 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ParsedInstruction } from '@solana/web3.js'
 import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
+import { useToast } from 'vue-toastification'
 
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
@@ -19,6 +20,7 @@ import {
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
+const toast = useToast()
 
 type ChainId = string | number
 
@@ -255,6 +257,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               .getNetworkProvider()
               .getTransactionStatus(tx.hash)
             if (status.status !== 'pending') {
+              if (status.status !== 'success') {
+                toast.error(`Transaction to ${recipientAddress} failed`)
+              }
               this.updateActivityStatusByTxHash(
                 chainId as ChainId,
                 txHash,
