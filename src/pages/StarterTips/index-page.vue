@@ -44,6 +44,10 @@ function previous() {
   }
 }
 
+function skip() {
+  emits('close')
+}
+
 watch(
   () => currentPage.value,
   (val) => {
@@ -61,7 +65,12 @@ watch(
 
 <template>
   <div class="flex flex-col w-full rounded-md absolute top-0 left-0 h-full">
-    <div class="flex-1">
+    <div class="flex-1 bg-black-100 bg-opacity-80 py-3">
+      <div class="px-6 flex justify-end">
+        <button class="flex items-center space-x-2 text-xs" @click="skip">
+          Skip
+        </button>
+      </div>
       <component :is="PagesIndex[currentPage]" />
     </div>
     <div
