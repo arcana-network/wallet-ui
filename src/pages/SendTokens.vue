@@ -394,20 +394,7 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
-  if (
-    !amount.value ||
-    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
-  ) {
-    toast.error('Amount should not be greater than max balance')
-    return
-  }
-  if (
-    !rpcStore.useGasless &&
-    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
-  ) {
-    toast.error('Insufficient gas balance')
-    return
-  }
+  if (handleTransactionErrors()) return
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
@@ -496,8 +483,9 @@ async function handleShowPreview() {
           showPreview.value = true
         }
       } catch (e) {
-        toast.error('Cannot estimate gas fee. Please try again later.')
-        console.error({ e })
+        //handle errors in transaction
+        toast.error('Something went wrong, Please try again.')
+        console.log({ e })
       } finally {
         hideLoader()
       }
@@ -505,6 +493,42 @@ async function handleShowPreview() {
       toast.error('Please fill all values')
     }
   }
+}
+
+// Function to Handle Transaction Errors.
+function handleTransactionErrors() {
+  if (
+    !rpcStore.useGasless &&
+    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
+  ) {
+    toast.error('Insufficient funds for Transfer.')
+    return true
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).equals(selectedTokenBalance.value)
+  ) {
+    toast.error('Insufficient funds for Gas.')
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
+  ) {
+    toast.error('Amount should not be greater than Max Balance.')
+    return true
+  }
+  return false
+}
+
+function getMaxTransferValue() {
+  const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
+  const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
+    gasFees
+  )
+  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(7)
+  if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
+    maxValueInput = new Decimal(0)
+    toast.error('Insufficient funds for Transfer.')
+  }
+  return maxValueInput
 }
 
 function handleTokenChange(e) {
@@ -588,7 +612,7 @@ watch(
               <button
                 class="btn-primary uppercase m-1 px-3 py-2 font-medium text-xs"
                 type="button"
-                @click.stop="void 0"
+                @click.stop="amount = getMaxTransferValue().toString()"
               >
                 Max
               </button>
