@@ -258,7 +258,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               .getTransactionStatus(tx.hash)
             if (status.status !== 'pending') {
               if (status.status !== 'success') {
-                toast.error(`Transaction to ${recipientAddress} failed`)
+                toast.error(`Transaction failed`)
               }
               this.updateActivityStatusByTxHash(
                 chainId as ChainId,
