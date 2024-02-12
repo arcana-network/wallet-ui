@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  GasEstimator,
+  TransferTransactionsFactory,
+  TokenTransfer,
+  Address,
+} from '@multiversx/sdk-core'
 import { Decimal } from 'decimal.js'
 import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -14,9 +20,14 @@ import { useAppStore } from '@/store/app'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -84,7 +95,7 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  if (appStore.chainType !== ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.evm_secp256k1) {
     showLoader('Loading...')
     try {
       await fetchBaseFee()
@@ -148,7 +159,38 @@ async function handleSendToken() {
   }
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+      const factory = new TransferTransactionsFactory(new GasEstimator())
+      const transfer = TokenTransfer.nonFungible(
+        props.name,
+        await accountHandler.getAccountNonce()
+      )
+
+      const txObject = factory.createESDTNFTTransfer({
+        tokenTransfer: transfer,
+        nonce: await accountHandler.getAccountNonce(),
+        sender: new Address(userStore.walletAddress),
+        destination: new Address(recipientWalletAddress.value),
+        chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
+      })
+
+      const sigs = accountHandler.signTransactions([txObject])
+      const txHash = await accountHandler.broadcastTransaction(sigs[0])
+
+      const nft = {
+        ...props,
+      } as NFT
+
+      await activitiesStore.fetchAndSaveNFTActivityFromHash({
+        txHash,
+        chainId: rpcStore.selectedRpcConfig?.chainId as string,
+        nft,
+        recipientAddress: recipientWalletAddress.value,
+        chainType: ChainType.multiversx_cv25519,
+      })
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
       const signature = await accountHandler.sendCustomToken({
@@ -223,6 +265,7 @@ async function handleSendToken() {
     }
     router.push({ name: 'Nfts' })
   } catch (error: any) {
+    console.log({ error })
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
@@ -265,7 +308,10 @@ async function handleShowPreview() {
     toast.error('Please enter a valid quantity')
     return
   }
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (
+    appStore.chainType === ChainType.solana_cv25519 ||
+    appStore.chainType === ChainType.multiversx_cv25519
+  ) {
     showPreview.value = true
     return
   }
@@ -273,7 +319,11 @@ async function handleShowPreview() {
     toast.error('Insufficient gas balance')
     return
   }
-  if (recipientWalletAddress.value && gas.value) {
+  if (
+    recipientWalletAddress.value &&
+    gas.value &&
+    appStore.chainType === ChainType.evm_secp256k1
+  ) {
     showLoader('Loading preview...')
     try {
       const accountHandler =
