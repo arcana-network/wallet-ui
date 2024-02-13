@@ -114,6 +114,15 @@ function getPermissionText() {
     case 'signAllTransactions':
       response = 'signing all transactions'
       break
+    case 'mvx_signTransaction':
+      response = 'signing a transaction'
+      break
+    case 'mvx_signMessage':
+      response = 'signing a message'
+      break
+    case 'mvx_signTransactions':
+      response = 'signing all transactions'
+      break
     default:
       response = 'performing an action'
       break
