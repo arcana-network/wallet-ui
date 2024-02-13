@@ -146,8 +146,7 @@ class MultiversXRequestHandler {
         txObject.setNonce(await this.accountHandler.getAccountNonce())
         txObject.setValue(TokenTransfer.egldFromAmount(p.transaction.value))
         const sigs = this.accountHandler.signTransactions([txObject])
-        const txHash = await this.accountHandler.broadcastTransaction(sigs[0])
-        res.result = txHash
+        res.result = this.getSerializedSignatureOfTransaction(sigs[0])
         break
       }
       case 'mvx_signTransactions': {
