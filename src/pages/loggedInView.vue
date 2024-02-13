@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
-import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { Core, CURVE, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
 import {
-  onMounted,
-  ref,
   onBeforeMount,
-  type Ref,
   onBeforeUnmount,
+  onMounted,
+  type Ref,
+  ref,
   watch,
 } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
@@ -19,8 +19,8 @@ import { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
-  getGaslessEnabledStatus,
   getAppConfig,
+  getGaslessEnabledStatus,
 } from '@/services/gateway.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
@@ -32,7 +32,7 @@ import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -195,8 +195,7 @@ async function setMFABannerState() {
     })
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
-    const isEnabled = await securityQuestionModule.isEnabled()
-    userStore.hasMfa = isEnabled
+    userStore.hasMfa = await securityQuestionModule.isEnabled()
   }
   const hasMfaDnd = storage.local.HasMFADND(userStore.info.id)
   const mfaSkipUntil = storage.local.getMFASkip(userStore.info.id)
@@ -204,9 +203,9 @@ async function setMFABannerState() {
   const hasMfaSkip =
     mfaSkipUntil && loginCount && Number(loginCount) < Number(mfaSkipUntil)
   if (requestStore.areRequestsPendingForApproval) {
-    router.push({ name: 'requests', params: { appId: appStore.id } })
+    await router.push({ name: 'requests', params: { appId: appStore.id } })
   } else {
-    router.push({ name: 'home' })
+    await router.push({ name: 'home' })
   }
   if (!userStore.hasMfa && !hasMfaDnd && !hasMfaSkip && !appStore.compactMode) {
     showMfaBanner.value = true
@@ -357,7 +356,9 @@ async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
-      if (appStore.chainType === ChainType.solana_cv25519) {
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        return chain.compatibility?.toLowerCase() === 'multiversx'
+      } else if (appStore.chainType === ChainType.solana_cv25519) {
         return chain.compatibility?.toLowerCase() === 'solana'
       } else {
         return chain.compatibility?.toLowerCase() === 'evm'

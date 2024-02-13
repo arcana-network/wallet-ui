@@ -116,7 +116,10 @@ export const useAppStore = defineStore('app', {
       this.id = id
     },
     setChainType(chainType: string): void {
-      if (chainType?.toLowerCase() === 'solana') {
+      if (chainType.toLowerCase() === 'multiversx') {
+        this.chainType = ChainType.multiversx_cv25519
+        this.curve = CURVE.ED25519
+      } else if (chainType?.toLowerCase() === 'solana') {
         this.chainType = ChainType.solana_cv25519
         this.curve = CURVE.ED25519
       } else {
