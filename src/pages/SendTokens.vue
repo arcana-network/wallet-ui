@@ -617,7 +617,6 @@ function getMaxTransferValue() {
     gasFees
   )
   let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
-
   if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
     maxValueInput = new Decimal(0)
     toast.error('Insufficient funds for Transfer.')
