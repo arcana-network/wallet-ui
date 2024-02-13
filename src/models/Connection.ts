@@ -49,6 +49,7 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   signMessage: true,
   mvx_signMessage: true,
   mvx_signTransaction: true,
+  mvx_signTransactions: true,
 })
 
 const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']
