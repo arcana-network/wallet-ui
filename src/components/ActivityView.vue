@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { TokenTransfer } from '@multiversx/sdk-core/out'
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 import { computed, ComputedRef } from 'vue'
@@ -101,11 +102,17 @@ function calculateTotal(activity: Activity) {
 
 function getAmount(amount: bigint, isGas = false) {
   if (isGas) {
-    const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
-    return new Decimal(amount.toString())
-      .div(Decimal.pow(10, gasDecimals))
-      .toDecimalPlaces(gasDecimals)
-      .toString()
+    if (app.chainType === ChainType.multiversx_cv25519) {
+      return TokenTransfer.egldFromBigInteger(
+        amount.toString()
+      ).toPrettyString()
+    } else {
+      const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+      return new Decimal(amount.toString())
+        .div(Decimal.pow(10, gasDecimals))
+        .toDecimalPlaces(gasDecimals)
+        .toString()
+    }
   }
   const decimals = getRequestHandler().getAccountHandler().decimals
   return new Decimal(amount.toString())
@@ -146,7 +153,11 @@ function calculateSolanaTotal(activity) {
 
 function generateExplorerURL(explorerUrl: string, txHash: string) {
   const urlFormatExplorerUrl = new URL(explorerUrl)
-  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  const url =
+    app.chainType === ChainType.multiversx_cv25519
+      ? `/transactions/${txHash}`
+      : `/tx/${txHash}`
+  const actualTxUrl = new URL(url, explorerUrl)
   if (urlFormatExplorerUrl.search) {
     actualTxUrl.search = urlFormatExplorerUrl.search
   }
@@ -395,14 +406,13 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                   <span>Gas Price</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${getAmount(
-                      activity.transaction.gasPrice,
-                      true
-                    )} Gwei`"
-                    >{{
-                      getAmount(activity.transaction.gasPrice, true)
-                    }}
-                    Gwei</span
+                    :title="`${getAmount(activity.transaction.gasPrice, true)}`"
+                    >{{ getAmount(activity.transaction.gasPrice, true) }}
+                    {{
+                      app.chainType === ChainType.multiversx_cv25519
+                        ? ''
+                        : 'Gwei'
+                    }}</span
                   >
                 </div>
                 <div

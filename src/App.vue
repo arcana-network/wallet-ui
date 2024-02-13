@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { computed, onBeforeMount, toRefs, watch } from 'vue'
+import { computed, toRefs, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import WalletFooter from '@/components/AppFooter.vue'
@@ -15,8 +15,6 @@ import { useRequestStore } from '@/store/request'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
-import { initializeOnRampMoney } from '@/utils/onrampmoney.ramp'
-import { fetchTransakNetworks } from '@/utils/transak'
 
 import '@/index.css'
 
@@ -44,14 +42,6 @@ const showRequestPage = computed(() => {
 
 const showWalletButton = computed(() => {
   return !app.expandWallet && app.validAppMode !== AppMode.Widget
-})
-
-onBeforeMount(async () => {
-  try {
-    await Promise.all([fetchTransakNetworks(), initializeOnRampMoney()])
-  } catch (e) {
-    console.error('Failed to initialize one or more on-ramps:', e)
-  }
 })
 
 async function setIframeStyle() {

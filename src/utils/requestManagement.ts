@@ -421,6 +421,13 @@ async function processRequest({ request, isPermissionGranted }, keeper) {
             chainType: ChainType.solana_cv25519,
           })
         }
+        if (request.method === 'mvx_signTransaction' && response.result) {
+          activitiesStore.fetchAndSaveActivityFromHash({
+            txHash: response.result,
+            chainId: rpcStore.selectedRpcConfig?.chainId as string,
+            chainType: ChainType.multiversx_cv25519,
+          })
+        }
       } catch (err) {
         console.error({ err })
       }
