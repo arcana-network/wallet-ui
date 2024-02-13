@@ -21,6 +21,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -323,7 +324,7 @@ async function handleSendToken() {
     }
     clearForm()
     router.push({ name: 'home' })
-    toast.success('Tokens sent Successfully')
+    toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
@@ -331,7 +332,7 @@ async function handleSendToken() {
         error?.data?.originalError?.code ||
         error?.error?.message ||
         error?.message ||
-        error?.reason) as string) || 'Something went wrong'
+        error?.reason) as string) || errors.GENERIC.WRONG
     toast.error(displayMessage)
   } finally {
     showPreview.value = false
@@ -399,7 +400,7 @@ async function handleShowPreview() {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   } else {
     if (recipientWalletAddress.value && amount.value && gas.value) {
@@ -484,13 +485,13 @@ async function handleShowPreview() {
         }
       } catch (e) {
         //handle errors in transaction
-        toast.error('Something went wrong, Please try again.')
+        toast.error(errors.GENERIC.WRONG)
         console.log({ e })
       } finally {
         hideLoader()
       }
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   }
 }
@@ -501,18 +502,18 @@ function handleTransactionErrors() {
     !rpcStore.useGasless &&
     new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
   ) {
-    toast.error('Insufficient funds for Transfer.')
+    toast.error(content.TOKEN.INSUFFICIENT)
     return true
   } else if (
     !amount.value ||
     new Decimal(amount.value).equals(selectedTokenBalance.value)
   ) {
-    toast.error('Insufficient funds for Gas.')
+    toast.error(content.GAS.INSUFFICIENT)
   } else if (
     !amount.value ||
     new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
   ) {
-    toast.error('Amount should not be greater than Max Balance.')
+    toast.error(content.TOKEN.AMOUNT)
     return true
   }
   return false
@@ -526,7 +527,7 @@ function getMaxTransferValue() {
   let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(7)
   if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
     maxValueInput = new Decimal(0)
-    toast.error('Insufficient funds for Transfer.')
+    toast.error(content.TOKEN.INSUFFICIENT)
   }
   return maxValueInput
 }

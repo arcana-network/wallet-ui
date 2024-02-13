@@ -32,6 +32,7 @@ import {
 } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { ChainType } from '@/utils/chainType'
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
 import {
@@ -241,8 +242,8 @@ async function onApprove(request) {
   } catch (e) {
     console.log(e)
     if (e.message && e.message.includes('postMessage')) {
-      toast.error('Please make the request again')
-    } else toast.error('something went wrong')
+      toast.error(errors.GENERIC.REQUEST)
+    } else toast.error(errors.GENERIC.WRONG)
   } finally {
     pendingQueue.value.shift()
     showLoader.value = false
@@ -268,8 +269,8 @@ function onReject(request) {
     }
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
-      toast.error('Please make the request again')
-    } else toast.error('something went wrong')
+      toast.error(errors.GENERIC.REQUEST)
+    } else toast.error(errors.GENERIC.WRONG)
   } finally {
     pendingQueue.value.shift()
     if (pendingQueue.value.length === 0) {
@@ -384,7 +385,7 @@ async function handleSendToken(params) {
     }
   } catch (err: any) {
     console.log(err)
-    toast.error(err.reason || 'Something went wrong')
+    toast.error(err.reason || errors.GENERIC.WRONG)
   } finally {
     const response = {
       jsonrpc: '2.0',

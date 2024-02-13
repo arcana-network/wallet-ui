@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL, DOCS_URL } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -52,7 +53,7 @@ async function handleProceed() {
           mfaWindow?.close()
           storage.local.setHasMFA(user.info.id)
           user.hasMfa = true
-          toast.success('MFA setup completed')
+          toast.success(content.MFA.SETUP)
           window.removeEventListener('message', handler, false)
           hideLoader()
           router.push({ name: 'home' })
@@ -62,7 +63,7 @@ async function handleProceed() {
           hideLoader()
           if (data.error !== 'User cancelled the setup') toast.error(data.error)
         } else {
-          toast.error('Error occured while setting up MFA. Please try again')
+          toast.error(errors.MFA.ERROR)
           console.log('Unexpected event')
         }
       }

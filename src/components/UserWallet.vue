@@ -21,6 +21,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { isSupportedByOnRampMoney } from '@/utils/onrampmoney.ramp'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -142,9 +143,7 @@ function openAddNetwork(open) {
 function openEditNetwork(open, chainId: number | null = null) {
   if (rpcStore.selectedRpcConfig) {
     if (Number(rpcStore.selectedRpcConfig.chainId) === Number(chainId)) {
-      toast.error(
-        'This network is current selected, please chose a different one and try again'
-      )
+      toast.error(content.NETWORK.INPUT_EXISTS)
     } else {
       chainSelectedForEdit.value = chainId
       modalStore.setShowModal(open)
@@ -215,9 +214,9 @@ watch(
 async function copyToClipboard(value: string) {
   try {
     await navigator.clipboard.writeText(value)
-    toast.success('Wallet address copied')
+    toast.success(content.WALLET.COPY)
   } catch (err) {
-    toast.error('Failed to copy wallet address')
+    toast.error(errors.WALLET.COPY)
   }
 }
 </script>
