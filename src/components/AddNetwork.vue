@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['close'])
@@ -41,16 +42,14 @@ async function handleSubmit() {
     const chainId = rpcConfig.value.chainId
     const existingChain = isExistingChain(chainId)
     if (isExistingRpcUrl(rpcUrl)) {
-      return toast.error(
-        `RPC URL - ${rpcUrl} already exists, please use different one`
-      )
+      return toast.error(content.RPC.INPUT_EXISTS(rpcUrl))
     } else {
       const provider = new ethers.providers.StaticJsonRpcProvider(
         rpcConfig.value.rpcUrl
       )
       const chainId = await provider.getNetwork()
       if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
-        return toast(`Incorrect combination of chain Id and RPC URL`)
+        return toast(errors.RPC.ERROR)
       }
       if (existingChain) {
         rpcStore.setRpcConfig({
@@ -80,7 +79,7 @@ async function handleSubmit() {
       emit('close')
     }
   } catch (e) {
-    toast.error('Invalid RPC URL')
+    toast.error(errors.RPC.INVALID)
   }
 }
 </script>
