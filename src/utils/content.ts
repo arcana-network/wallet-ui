@@ -9,7 +9,7 @@ const content = {
   },
   NETWORK: {
     INPUT_EXISTS:
-      'This network is current selected, please chose a different one and try again.',
+      'This network is currently selected, please choose a different one and try again.',
   },
   PIN: 'Enter the pin to continue.',
   WALLET: {
