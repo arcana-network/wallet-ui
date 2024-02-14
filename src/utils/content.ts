@@ -22,7 +22,7 @@ const content = {
   },
   GAS: {
     PROVIDE: 'Please provide Gas Fee.',
-    INSUFFICIENT: 'Insufficient balance to pay for gas fee.',
+    INSUFFICIENT: 'Insufficient balance to pay for the gas fee.',
     ESTIMATE: 'Cannot estimate gas fee. Please try again later.',
   },
   DETAILS: 'Enter all the details to continue.',
