@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const dots = [1, 2, 3, 4]
+const dots = [1, 2, 3, 4, 5, 6]
 </script>
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="h-3/4 w-full bg-black-100 bg-opacity-80">
+    <div class="h-3/4 w-full">
       <div class="h-full w-full startertips">
         <div
           class="absolute z-[2147483648] w-36 h-36 top-[266px] right-8"
@@ -22,7 +22,7 @@ const dots = [1, 2, 3, 4]
           v-for="dot in dots"
           :key="dot"
           class="block h-[5px] w-[5px] rounded-full"
-          :class="dot === 4 ? 'bg-[#FFFFFF]' : 'bg-[#8D8D8D]'"
+          :class="dot === 6 ? 'bg-[#FFFFFF]' : 'bg-[#8D8D8D]'"
         ></span>
       </div>
     </div>
