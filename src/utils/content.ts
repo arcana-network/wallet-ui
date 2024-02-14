@@ -31,7 +31,7 @@ const content = {
     EXISTS: 'Token already added.',
     ETH_MAINNET: 'Token belongs to Ethereum Mainnet.',
     SENT: 'Token sent successfully.',
-    INSUFFICIENT: 'Insufficient balance for Transfer.',
+      INSUFFICIENT: 'Insufficient balance for transfer.',
     AMOUNT: 'Amount should not be greater than Max Balance.',
   },
   NFT: {
