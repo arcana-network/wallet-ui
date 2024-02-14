@@ -55,11 +55,8 @@ async function getAuthProvider(
         useInMemoryStore: stor.local.storageType === StorageType.IN_MEMORY,
       })
     }
-    // TODO find a comprehensive solution to this
-    // @ts-ignore
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
     appStore.setChainType(
-      //@ts-ignore
       authProvider.appConfig.chain_type?.toLowerCase() || 'evm'
     )
   }

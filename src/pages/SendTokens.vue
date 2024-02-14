@@ -1,5 +1,13 @@
 <script setup lang="ts">
 import {
+  TokenTransfer,
+  IPlainTransactionObject,
+  Transaction,
+  GasEstimator,
+  TransferTransactionsFactory,
+  Address,
+} from '@multiversx/sdk-core'
+import {
   PublicKey,
   SystemProgram,
   TransactionMessage,
@@ -19,11 +27,17 @@ import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
+import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -157,7 +171,9 @@ async function fetchTokenBalance() {
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance.value
   } else {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
     } else {
       const balance = await getTokenBalance({
@@ -176,7 +192,21 @@ async function fetchTokenBalance() {
 async function setTokenList() {
   const chainId = rpcStore.selectedChainId
   const walletAddress = userStore.walletAddress
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+    const multiversxTokens = await accountHandler.getFungibleTokens()
+    const tokens = multiversxTokens.map((item) => ({
+      symbol: item.rawResponse.ticker,
+      decimals: item.rawResponse.decimals,
+      address: item.rawResponse.address,
+      balance: formatTokenDecimals(
+        item.rawResponse.balance,
+        item.rawResponse.decimals
+      ),
+    }))
+    tokenList.value.push(...tokens)
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as SolanaAccountHandler
     let tokens = accountHandler.storedTokens
@@ -185,7 +215,7 @@ async function setTokenList() {
       tokens = accountHandler.storedTokens
     }
     tokenList.value.push(...tokens)
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     const contracts = getStorage().local.getAssetContractList(
       walletAddress,
       Number(chainId)
@@ -208,7 +238,65 @@ function setHexPrefix(value: string) {
 async function handleSendToken() {
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+        const transaction = {
+          gasLimit: 70000,
+          sender: userStore.walletAddress,
+          receiver: recipientWalletAddress.value,
+          value: amount.value,
+          chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
+          version: 1,
+        } as IPlainTransactionObject
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        const txObject = Transaction.fromPlainObject(transaction)
+        txObject.setNonce(await accountHandler.getAccountNonce())
+        txObject.setValue(TokenTransfer.egldFromAmount(amount.value))
+        const sigs = accountHandler.signTransactions([txObject])
+        const txHash = await accountHandler.broadcastTransaction(sigs[0])
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: txHash,
+          chainType: ChainType.multiversx_cv25519,
+        })
+      } else {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
+        const factory = new TransferTransactionsFactory(new GasEstimator())
+
+        const transfer1 = TokenTransfer.fungibleFromAmount(
+          selectedToken.value.symbol as string,
+          amount.value,
+          selectedToken.value.decimals
+        )
+
+        const txObject = factory.createESDTTransfer({
+          tokenTransfer: transfer1,
+          nonce: await accountHandler.getAccountNonce(),
+          sender: new Address(userStore.walletAddress),
+          receiver: new Address(recipientWalletAddress.value),
+          chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
+        })
+
+        const sigs = accountHandler.signTransactions([txObject])
+        const txHash = await accountHandler.broadcastTransaction(sigs[0])
+
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: txHash,
+          chainType: ChainType.multiversx_cv25519,
+          customToken: {
+            operation: 'Send',
+            amount: amount.value,
+            symbol: selectedToken.value.symbol as string,
+            decimals: selectedToken.value.decimals as number,
+          },
+          recipientAddress: recipientWalletAddress.value,
+        })
+      }
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
@@ -323,9 +411,10 @@ async function handleSendToken() {
       }
     }
     clearForm()
-    router.push({ name: 'home' })
+    router.push({ name: 'activities' })
     toast.success(content.TOKEN.SENT)
   } catch (error: any) {
+    console.log(error, 'error')
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
@@ -396,7 +485,10 @@ async function handleShowPreview() {
     }
   }
   if (handleTransactionErrors()) return
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (
+    appStore.chainType === ChainType.solana_cv25519 ||
+    appStore.chainType === ChainType.multiversx_cv25519
+  ) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
     } else {
@@ -524,7 +616,7 @@ function getMaxTransferValue() {
   const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
     gasFees
   )
-  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(7)
+  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
   if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
     maxValueInput = new Decimal(0)
     toast.error(content.TOKEN.INSUFFICIENT)

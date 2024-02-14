@@ -31,6 +31,8 @@ const props = defineProps({
   },
 })
 
+console.log(props.request)
+
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 
@@ -112,6 +114,15 @@ function getPermissionText() {
       response = 'signing a message'
       break
     case 'signAllTransactions':
+      response = 'signing all transactions'
+      break
+    case 'mvx_signTransaction':
+      response = 'signing a transaction'
+      break
+    case 'mvx_signMessage':
+      response = 'signing a message'
+      break
+    case 'mvx_signTransactions':
       response = 'signing all transactions'
       break
     default:
