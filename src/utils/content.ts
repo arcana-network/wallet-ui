@@ -32,7 +32,7 @@ const content = {
     ETH_MAINNET: 'Token belongs to Ethereum Mainnet.',
     SENT: 'Token sent successfully.',
       INSUFFICIENT: 'Insufficient balance for transfer.',
-    AMOUNT: 'Amount should not be greater than Max Balance.',
+    AMOUNT: 'Amount cannot be greater than the maximum available balance.',
   },
   NFT: {
     ADD: 'NFT Added.',
