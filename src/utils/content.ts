@@ -66,7 +66,7 @@ const errors = {
     COPY: 'Failed to copy wallet address.',
   },
   TOKEN: {
-    INVALID: 'Invalid token ID.',
+    INVALID: 'Invalid token Id',
   },
   MFA: {
     ERROR: 'Error occured while setting up MFA. Please try again!',
