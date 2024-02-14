@@ -31,7 +31,7 @@ const content = {
     EXISTS: 'Token already added.',
     ETH_MAINNET: 'Token belongs to Ethereum Mainnet.',
     SENT: 'Token sent successfully.',
-      INSUFFICIENT: 'Insufficient balance for transfer.',
+    INSUFFICIENT: 'Insufficient balance for transfer.',
     AMOUNT: 'Amount cannot be greater than the maximum available balance.',
   },
   NFT: {
@@ -52,7 +52,6 @@ const content = {
     INCORRECT_PIN: 'Incorrect pin.',
     QUESTIONNAIRE: 'Please fill in all the questionnaires.',
     QUESTIONS_REPEAT: 'Questions cannot be repeated.',
-    QUESTIONS_REPEAT: 'Questions cannot be empty.',
     CANCELLED: 'User cancelled the setup.',
   },
 }
