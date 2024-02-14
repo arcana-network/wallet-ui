@@ -1,7 +1,7 @@
 const content = {
   RPC: {
     INPUT_EXISTS: (rpcUrl: string) =>
-      `RPC URL - ${rpcUrl} already exists, please use different one.`,
+      `RPC URL - ${rpcUrl} already exists, please use a different one.`,
   },
   CHAIN_ID: {
     INPUT_EXISTS: (chainId: string) =>
