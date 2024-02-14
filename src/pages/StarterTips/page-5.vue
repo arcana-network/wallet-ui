@@ -21,6 +21,5 @@ const dots = [1, 2, 3, 4, 5, 6]
         ></span>
       </div>
     </div>
-    <div class="h-3/5 w-full relative bg-black-100 bg-opacity-80"></div>
   </div>
 </template>
