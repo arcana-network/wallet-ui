@@ -18,7 +18,7 @@ const content = {
   },
   RECOVERY: {
     ANSWER_ALL: 'Answer all the questions to recover the key.',
-    QUESTIONS: 'Questions must be different!',
+    QUESTIONS: 'Questions must be unique!',
   },
   GAS: {
     PROVIDE: 'Please provide Gas Fee.',
