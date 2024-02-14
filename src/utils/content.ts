@@ -1,11 +1,11 @@
 const content = {
   RPC: {
     INPUT_EXISTS: (rpcUrl: string) =>
-      `RPC URL - ${rpcUrl} already exists, please use different one`,
+      `RPC URL - ${rpcUrl} already exists, please use different one.`,
   },
   CHAIN_ID: {
     INPUT_EXISTS: (chainId: string) =>
-      `Chain ID - ${chainId} already exists, please use different one`,
+      `Chain ID - ${chainId} already exists, please use different one.`,
   },
   NETWORK: {
     INPUT_EXISTS:
@@ -13,7 +13,7 @@ const content = {
   },
   PIN: 'Enter the pin to continue.',
   WALLET: {
-    COPY: 'Wallet address copied',
+    COPY: 'Wallet address copied.',
     INVALID: 'Please enter a valid wallet address.',
   },
   RECOVERY: {
@@ -38,7 +38,7 @@ const content = {
     ADD: 'NFT Added.',
     ADDED: 'NFT already added.',
     UNSUPPORTED: 'Unsupported NFT.',
-    OWNERSHIP: "You don't have ownership for this NFT",
+    OWNERSHIP: "You don't have ownership for this NFT.",
     DELETED: 'NFT Deleted.',
     NO_NFT_QUATITY: (quantity: number, balance: number | undefined) =>
       `You don't own enough NFTs to send ${quantity} NFTs. You can send ${balance} NFTs at most.`,
@@ -69,13 +69,13 @@ const errors = {
     INVALID: 'Invalid token ID.',
   },
   MFA: {
-    ERROR: 'Error occured while setting up MFA. Please try again',
+    ERROR: 'Error occured while setting up MFA. Please try again!',
   },
   GENERIC: {
     QUANTITY: 'Please enter a valid quantity.',
     REQUEST: 'Please make the request again.',
     WRONG: 'Something went wrong, please try again.',
-    VALUE: 'Please fill all values',
+    VALUE: 'Please fill all values!',
   },
 }
 export { errors, content }
