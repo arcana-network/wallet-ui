@@ -51,7 +51,7 @@ const content = {
     INCORRECT_ANSWERS: 'Incorrect answers.',
     INCORRECT_PIN: 'Incorrect pin.',
     QUESTIONNAIRE: 'Please fill in all the questionnaires.',
-    QUESTIONS_REPEAT: 'Questions should not be repeated.',
+    QUESTIONS_REPEAT: 'Questions cannot be repeated.',
     QUESTIONS_EMPTY: 'Questions should not be empty.',
     CANCELLED: 'User cancelled the setup.',
   },
