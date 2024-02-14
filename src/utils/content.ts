@@ -17,7 +17,7 @@ const content = {
     INVALID: 'Please enter a valid wallet address.',
   },
   RECOVERY: {
-    ANSWER_ALL: 'Answer all the questions to recover key.',
+    ANSWER_ALL: 'Answer all the questions to recover the key.',
     QUESTIONS: 'Questions must be different!',
   },
   GAS: {
