@@ -5,7 +5,7 @@ const content = {
   },
   CHAIN_ID: {
     INPUT_EXISTS: (chainId: string) =>
-      `Chain ID - ${chainId} already exists, please use different one.`,
+      `Chain ID - ${chainId} already exists, please use a different one.`,
   },
   NETWORK: {
     INPUT_EXISTS:
