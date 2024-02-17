@@ -15,7 +15,7 @@ const dots = [1, 2, 3, 4, 5, 6]
           v-for="dot in dots"
           :key="dot"
           class="block h-[5px] w-[5px] rounded-full"
-          :class="dot === 4 ? 'bg-[#FFFFFF]' : 'bg-[#8D8D8D]'"
+          :class="dot === 4 ? 'dark:bg-white-100 bg-black-100' : 'bg-[#8D8D8D]'"
         ></span>
       </div>
     </div>
