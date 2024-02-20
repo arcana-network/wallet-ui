@@ -12,6 +12,7 @@ import { NFTDB } from '@/services/nft.service'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { errors, content } from '@/utils/content'
 import {
   getCollectionName,
   getERCStandard,
@@ -89,12 +90,12 @@ async function handleSubmit() {
   loader.show = true
   if (!nftContract.name || !nftContract.tokenId) {
     loader.show = false
-    return toast.error('Enter all the details to continue')
+    return toast.error(content.DETAILS)
   }
 
   if (doesTokenBelongsToEthMainnet()) {
     loader.show = false
-    return toast.error('Token belongs to Ethereum Mainnet')
+    return toast.error(content.TOKEN.ETH_MAINNET)
   }
 
   const storedNfts = nftDB.getNFTs(Number(rpcStore.selectedChainId))
@@ -107,13 +108,13 @@ async function handleSubmit() {
 
   if (existingStoredNft) {
     loader.show = false
-    return toast.error('NFT already added')
+    return toast.error(content.NFT.ADDED)
   }
 
   const ercStandard = await getERCStandard(nftContract.address)
   if (!ercStandard) {
     loader.show = false
-    return toast.error('Unsupported NFT')
+    return toast.error(content.NFT.UNSUPPORTED)
   }
 
   let hasOwnership: {
@@ -128,14 +129,14 @@ async function handleSubmit() {
     })
   } catch (e) {
     console.error(e)
-    toast.error('Invalid token ID')
+    toast.error(errors.TOKEN.INVALID)
     loader.show = false
     return
   }
 
   if (!hasOwnership.owner) {
     loader.show = false
-    return toast.error("You don't have ownership for this NFT")
+    return toast.error(content.NFT.OWNERSHIP)
   }
 
   const tokenUri = await getTokenUri(ercStandard, {
@@ -171,7 +172,7 @@ async function handleSubmit() {
     }
 
     nftDB.addNFT(nftDetails, Number(rpcStore.selectedChainId))
-    toast.success('NFT added')
+    toast.success(content.NFT.ADD)
 
     modalStore.setShowModal(false)
   } catch (e) {
@@ -192,7 +193,7 @@ function handleDeleteNft() {
   )
   if (existingNft)
     nftDB.removeNFT(existingNft, Number(rpcStore.selectedChainId))
-  toast.success('NFT deleted')
+  toast.success(content.NFT.DELETED)
   router.back()
   loader.show = false
 }
@@ -205,7 +206,7 @@ watch(
         const name = await getCollectionName(nftContract.address)
         nftContract.name = name
       } catch (e) {
-        toast.error('Invalid contract address')
+        toast.error(content.CONTRACT.INVALID)
         nftContract.name = ''
       }
     } else {

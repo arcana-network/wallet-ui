@@ -9,7 +9,10 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { PREDEFINED_ERC20_TOKENS } from '@/utils/constants'
 import { getTokenBalance } from '@/utils/contractUtil'
@@ -38,6 +41,17 @@ const nativeAssetBalance = computed(() => {
   const decimals = getRequestHandler().getAccountHandler().decimals
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, decimals))
 })
+
+function getChainType(chainType: ChainType) {
+  switch (chainType) {
+    case ChainType.evm_secp256k1:
+      return 'EVM'
+    case ChainType.solana_cv25519:
+      return 'solana'
+    case ChainType.multiversx_cv25519:
+      return 'multiversx'
+  }
+}
 
 function fetchStoredAssetContracts(): AssetContract[] {
   const assetContracts = storage.local.getAssetContractList(
@@ -77,18 +91,38 @@ function fetchNativeAsset() {
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(
-      Number(rpcStore.selectedRPCConfig?.chainId),
-      appStore.chainType === ChainType.evm_secp256k1 ? 'EVM' : 'solana'
+      Number(rpcStore.selectedChainId),
+      getChainType(appStore.chainType)
     ),
   }
 }
 
 async function getAssetsBalance() {
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    await getMultiversxBalance()
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     await getSolanaBalance()
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     await getEVMAssetBalance()
   }
+}
+
+async function getMultiversxBalance() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+  const multiversxTokens = await accountHandler.getFungibleTokens()
+  assets.value = multiversxTokens.map((item) => {
+    return {
+      name: item.rawResponse.name,
+      balance: formatTokenDecimals(
+        item.rawResponse.balance,
+        item.rawResponse.decimals
+      ),
+      symbol: item.rawResponse.ticker,
+      decimals: item.rawResponse.decimals,
+      logo: 'fallback-token.png',
+    } as Asset
+  })
 }
 
 async function getSolanaBalance() {

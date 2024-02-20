@@ -14,14 +14,18 @@ import { useToast } from 'vue-toastification'
 import AppLoader from '@/components/AppLoader.vue'
 import PinBasedRecoveryModal from '@/components/PinBasedRecoveryModal.vue'
 import SecurityQuestionRecoveryModal from '@/components/SecurityQuestionRecoveryModal.vue'
-import type { RedirectParentConnectionApi } from '@/models/Connection'
+import type {
+  GlobalRedirectMethods,
+  RedirectParentConnectionApi,
+} from '@/models/Connection'
 import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getLoginToken } from '@/utils/loginToken'
-import { handleLogin } from '@/utils/redirectUtils'
+import { handleGlobalLogin, handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
@@ -135,7 +139,7 @@ async function handleAnswerBasedRecovery(ev) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Incorrect answers')
+    toast.error(content.MFA.INCORRECT_ANSWERS)
   } finally {
     loader.value = {
       show: false,
@@ -171,7 +175,7 @@ async function handleLocalRecovery(key: string) {
     const securityQuestionModule = new SecurityQuestionModule(3)
     securityQuestionModule.init(core)
     const isEnabled = await securityQuestionModule.isEnabled()
-    user.hasMfa = isEnabled
+    userInfo.hasMfa = isEnabled
   }
   if (userInfo.hasMfa) {
     user.hasMfa = true
@@ -202,7 +206,7 @@ async function handlePinBasedRecovery(ev: any) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Incorrect Pin')
+    toast.error(content.MFA.INCORRECT_PIN)
   } finally {
     loader.value = {
       show: false,
@@ -212,19 +216,18 @@ async function handlePinBasedRecovery(ev: any) {
 }
 
 async function returnToParent(key: string) {
-  const connectionToParent = await connectToParent<RedirectParentConnectionApi>(
-    {}
-  ).promise
   const info = storage.session.getUserInfo()
   if (!info) {
     return
   }
   const loginSrc = storage.local.getLoginSrc()
   const state = storage.session.getState() as string
-
   const stateInfo = global ? { i: state } : decodeJSON<StateInfo>(state)
   const isStandalone =
-    loginSrc === 'rn' || loginSrc === 'flutter' || loginSrc === 'unity'
+    loginSrc === 'rn' ||
+    loginSrc === 'flutter' ||
+    loginSrc === 'unity' ||
+    loginSrc === 'unity-ws'
 
   storage.local.setHasMFA(info.userInfo.id)
   info.privateKey = key
@@ -259,6 +262,18 @@ async function returnToParent(key: string) {
     timestamp: Date.now(),
   })
   const messageId = getUniqueId()
+  if (global) {
+    await handleGlobalLogin({
+      connection: await connectToParent<GlobalRedirectMethods>({}).promise,
+      userInfo: info,
+      state: stateInfo.i,
+      sessionID: uuid,
+      sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
+      messageId,
+      isStandalone,
+    })
+    return
+  }
   await handleLogin({
     state: stateInfo.i,
     isStandalone,
@@ -266,7 +281,7 @@ async function returnToParent(key: string) {
     sessionID: uuid,
     sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
     messageId,
-    connection: connectionToParent,
+    connection: await connectToParent<RedirectParentConnectionApi>({}).promise,
   })
     .catch(async (e) => {
       if (e instanceof Error) {

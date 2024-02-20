@@ -11,6 +11,7 @@ import { router } from '@/routes'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { content, errors } from '@/utils/content'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
@@ -31,7 +32,7 @@ const onApproveClick = (requestId) => {
       } else {
         const gasPrice = String(param.gasPrice)
         if (!gasPrice.length) {
-          toast.error('Please provide Gas Fee')
+          toast.error(content.GAS.PROVIDE)
           return
         }
       }

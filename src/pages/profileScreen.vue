@@ -17,6 +17,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { getWindowFeatures } from '@/utils/popupProps'
@@ -54,7 +55,7 @@ async function copyToClipboard(value: string, message: string) {
     await navigator.clipboard.writeText(value)
     toast.success(message)
   } catch (err) {
-    toast.error('Failed to copy')
+    toast.error(errors.COPY)
   }
 }
 
@@ -145,7 +146,7 @@ async function handleMFASetupClick() {
           mfaWindow?.close()
           getStorage().local.setHasMFA(user.info.id)
           user.hasMfa = true
-          toast.success('MFA setup completed')
+          toast.success(content.MFA.SETUP)
           window.removeEventListener('message', handler, false)
           handleShowMFAProceedModal(false)
           hideLoader()
@@ -153,9 +154,9 @@ async function handleMFASetupClick() {
           mfaWindow?.close()
           window.removeEventListener('message', handler, false)
           hideLoader()
-          if (data.error !== 'User cancelled the setup') toast.error(data.error)
+          if (data.error !== content.MFA.CANCELLED) toast.error(data.error)
         } else {
-          toast.error('Error occured while setting up MFA. Please try again')
+          toast.error(errors.MFA.ERROR)
           console.log('Unexpected event')
         }
       }
@@ -258,7 +259,7 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold text-white-100"> Export Key </span>
+          <span class="text-lg font-bold"> Export Key </span>
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
