@@ -38,6 +38,7 @@ const userStore = useUserStore()
 const modalStore = useModalStore()
 const appStore = useAppStore()
 const gaslessStore = useGaslessStore()
+const isSendIt = document.referrer.includes('sendit')
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
@@ -128,6 +129,8 @@ class EVMAccountHandler {
       }
       const tx = gaslessStore.canUseWalletBalance
         ? await scwInstance.doTx(txParams, { mode: 'scw' })
+        : isSendIt
+        ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
         : await scwInstance.doTx(txParams)
       const txDetails = await tx.wait()
       gaslessStore.canUseWalletBalance = null
@@ -381,6 +384,8 @@ class EVMAccountHandler {
         }
         const tx = gaslessStore.canUseWalletBalance
           ? await scwInstance.doTx(txParams, { mode: 'scw' })
+          : isSendIt
+          ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
           : await scwInstance.doTx(txParams)
         gaslessStore.canUseWalletBalance = null
         const txDetails = await tx.wait()
