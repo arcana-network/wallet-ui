@@ -67,6 +67,8 @@ function handleDrag(e) {
     clientX = clientX - swiper.clientWidth / 2
     if (clientX >= swiper.parentElement.clientWidth - swiper.clientWidth) {
       clientX = swiper.parentElement.clientWidth - swiper.clientWidth
+    } else if (clientX <= swiper.clientWidth / 2) {
+      clientX = 0
     }
     translateUntil.value = `${clientX}px`
     isIntersecting.value = checkIntersection()
