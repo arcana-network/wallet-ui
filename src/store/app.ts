@@ -74,8 +74,8 @@ export const useAppStore = defineStore('app', {
               ? requestStore.pendingRequest?.request.method ===
                 'eth_sendTransaction'
                 ? AUTH_NETWORK === 'mainnet'
-                  ? '364px'
-                  : '400px'
+                  ? '464px'
+                  : '480px'
                 : AUTH_NETWORK === 'mainnet'
                 ? '296px'
                 : '326px'

@@ -88,6 +88,13 @@ module.exports = {
       content: {
         blank: '""',
       },
+      dropShadow: {
+        glow: [
+          '-4px -4px 16px rgba(255,255,255, 0.35)',
+          '4px 4px 16px rgba(255,255,255, 0.35)',
+          '0px 0px 4px rgba(255,255,255, 0.6)',
+        ],
+      },
     },
   },
 }
