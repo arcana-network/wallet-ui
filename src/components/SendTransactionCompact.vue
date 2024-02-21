@@ -141,7 +141,7 @@ async function onViewDetails() {
       </button>
     </div>
     <div class="flex flex-col gap-4">
-      <SlideToSolvePuzzle v-if="!appStore.global" @solved="emits('approve')" />
+      <SlideToSolvePuzzle v-if="appStore.global" @solved="emits('approve')" />
       <div v-else class="flex gap-2 text-sm font-bold">
         <button
           class="uppercase w-full btn-secondary p-2"
@@ -163,7 +163,7 @@ async function onViewDetails() {
         class="flex items-center justify-evenly"
       >
         <button
-          v-if="!appStore.global"
+          v-if="appStore.global"
           class="btn-tertiary text-sm font-bold"
           @click="emits('reject')"
         >

@@ -308,7 +308,7 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="mt-auto flex flex-col gap-4"
     >
-      <SlideToSolvePuzzle v-if="!appStore.global" @solved="emits('approve')" />
+      <SlideToSolvePuzzle v-if="appStore.global" @solved="emits('approve')" />
       <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
@@ -330,7 +330,7 @@ function calculateCurrencyValue(value) {
         class="flex items-center justify-evenly"
       >
         <button
-          v-if="!appStore.global"
+          v-if="appStore.global"
           class="btn-tertiary text-sm font-bold"
           @click="emits('reject')"
         >
