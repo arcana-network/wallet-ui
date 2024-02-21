@@ -1,11 +1,30 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { onBeforeMount, onMounted, ref } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
+const toast = useToast()
+
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (rpcStore.useGasless && paymasterBalance.value < 0.1) {
+    toast.error('Gasless Transaction not available, Gas Tank is Empty!')
+  }
+  loader.value.show = false
+})
 
 type NftPreviewProps = {
   previewData: {
@@ -85,8 +104,15 @@ function truncateAddress(address: string) {
           <span v-if="!rpcStore.useGasless" class="text-base"
             >{{ txFees }} {{ nativeCurrency }}</span
           >
-          <span v-else-if="rpcStore.useGasless" class="text-base"
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            class="text-base"
             >Sponsored</span
+          >
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            class="text-base"
+            >{{ txFees }} {{ nativeCurrency }}</span
           >
         </div>
       </div>

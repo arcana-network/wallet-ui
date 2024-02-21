@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
@@ -8,10 +10,12 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
+const toast = useToast()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
 
 const emits = defineEmits(['close', 'submit'])
@@ -20,6 +24,21 @@ const props = defineProps({
     type: PreviewData,
     required: true,
   },
+})
+
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (rpcStore.useGasless && paymasterBalance.value < 0.1) {
+    toast.error('Gasless Transaction not available, Gas Tank is Empty!')
+  }
+  loader.value.show = false
 })
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
@@ -81,8 +100,26 @@ function truncateAddress(address: string) {
         </div>
         <div v-if="txFees" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fees</span>
-          <span v-if="rpcStore.useGasless" class="text-base"> Sponsored </span>
-          <span v-else-if="!rpcStore.useGasless" class="text-base"
+          <span v-if="loader.show" class="text-base"> Loading... </span>
+          <span
+            v-else-if="
+              !loader.show && rpcStore.useGasless && paymasterBalance < 0.1
+            "
+            class="text-base"
+          >
+            {{ txFees }} {{ nativeCurrency }}
+          </span>
+          <span
+            v-else-if="
+              !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
+            "
+            class="text-base text-green-100"
+          >
+            Sponsored
+          </span>
+          <span
+            v-else-if="!loader.show && !rpcStore.useGasless"
+            class="text-base"
             >{{ txFees }} {{ nativeCurrency }}</span
           >
         </div>
