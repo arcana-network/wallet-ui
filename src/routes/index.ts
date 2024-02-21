@@ -25,6 +25,7 @@ import SendNft from '@/pages/SendNft.vue'
 import SendTokens from '@/pages/SendTokens.vue'
 import SignInV2 from '@/pages/signInV2.vue'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
+import TransakSell from '@/pages/TransakSell.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -75,6 +76,14 @@ const routes: RouteRecordRaw[] = [
     name: 'PermissionRequest',
     path: '/:appId/permission',
     component: PermissionRequest,
+  },
+  {
+    name: 'TransakSell',
+    path: '/:appId/sell/transak',
+    component: TransakSell,
+    meta: {
+      isFullPageView: true,
+    },
   },
   {
     path: '/loggedin',

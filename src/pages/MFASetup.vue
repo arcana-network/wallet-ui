@@ -14,6 +14,7 @@ import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -209,7 +210,7 @@ async function handleSubmit() {
     (question) => question.key?.trim() && question.value?.trim()
   )
   if (!isAllQuestionsAnswered) {
-    return toast.error('Please fill in all the questionnaires')
+    return toast.error(content.MFA.QUESTIONNAIRE)
   }
 
   let hasSameQuestions = false
@@ -233,11 +234,11 @@ async function handleSubmit() {
   }, {})
 
   if (hasSameQuestions) {
-    return toast.error('Questions should not be repeated')
+    return toast.error(content.MFA.QUESTIONS_REPEAT)
   }
 
   if (hasEmptyCustomQuestion) {
-    return toast.error('Questions should not be empty')
+    return toast.error(content.MFA.QUESTIONS_EMPTY)
   }
 
   showPinScreen.value = true
