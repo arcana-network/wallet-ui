@@ -12,6 +12,7 @@ const puzzlePieceDestination = ref<HTMLImageElement | null>(null)
 const emit = defineEmits(['solved'])
 const puzzleText = ref('Slide to solve the puzzle')
 const isPuzzleRefreshing = ref(false)
+const isSwiperFocused = ref(false)
 
 onMounted(() => {
   const destination = puzzlePieceDestination.value
@@ -47,8 +48,8 @@ function checkIntersection() {
     const sourceRect = source.getBoundingClientRect()
     const destinationRect = destination.getBoundingClientRect()
     return (
-      sourceRect.right >= destinationRect.right - 2 &&
-      sourceRect.right <= destinationRect.right + 2
+      sourceRect.right >= destinationRect.right - 1 &&
+      sourceRect.right <= destinationRect.right + 1
     )
   }
   return false
@@ -63,6 +64,7 @@ function handleDrag(e) {
     } else {
       clientX = e.layerX
     }
+    clientX = clientX - swiper.clientWidth / 2
     if (clientX >= swiper.parentElement.clientWidth - swiper.clientWidth) {
       clientX = swiper.parentElement.clientWidth - swiper.clientWidth
     }
@@ -72,28 +74,32 @@ function handleDrag(e) {
 }
 
 function handleDragEnd() {
-  isDragging.value = false
-  if (isIntersecting.value) {
-    const swiper = swiperEl.value
-    if (swiper) {
-      swiper.style.transform = ''
+  if (isSwiperFocused.value) {
+    isDragging.value = false
+    if (isIntersecting.value) {
+      const swiper = swiperEl.value
+      if (swiper) {
+        swiper.style.transform = ''
+      }
+      puzzleText.value = 'Puzzle Solved'
+      emit('solved')
+    } else {
+      translateUntil.value = '0'
+      isPuzzleRefreshing.value = true
+      const destination = puzzlePieceDestination.value
+      if (destination) {
+        destination.style.transform = `translateX(-${getRandomDestinationPlacement()})`
+      }
+      setTimeout(() => {
+        isPuzzleRefreshing.value = false
+      }, 1000)
     }
-    puzzleText.value = 'Puzzle Solved'
-    emit('solved')
-  } else {
-    translateUntil.value = '0'
-    isPuzzleRefreshing.value = true
-    const destination = puzzlePieceDestination.value
-    if (destination) {
-      destination.style.transform = `translateX(-${getRandomDestinationPlacement()})`
-    }
-    setTimeout(() => {
-      isPuzzleRefreshing.value = false
-    }, 1000)
+    isSwiperFocused.value = false
   }
 }
 
 function handleDragStart(e) {
+  isSwiperFocused.value = true
   const swiper = swiperEl.value
   if (
     swiper &&
