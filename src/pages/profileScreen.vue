@@ -253,12 +253,12 @@ watch(
       >
         <span class="text-sm text-gray-100">Private Key</span>
         <button
-          class="flex gap-2 items-cente disabled:opacity-100"
+          class="flex gap-2 items-center disabled:opacity-100"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold text-white-100"> Export Key </span>
+          <span class="text-lg font-bold"> Export Key </span>
           <img :src="getImage('external-link.svg')" class="w-md h-md" />
         </button>
       </div>
