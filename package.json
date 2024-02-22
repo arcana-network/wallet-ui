@@ -19,7 +19,7 @@
     "@arcana/auth": "^0.1.3",
     "@arcana/auth-core": "2.0.0-alpha.16",
     "@arcana/key-helper": "^2.0.0-beta.4",
-    "@arcana/scw": "^0.0.25",
+    "@arcana/scw": "^0.0.29",
     "@ethereumjs/tx": "^3.4.0",
     "@fontsource/montserrat": "^4.5.14",
     "@fontsource/sora": "^4.5.12",
