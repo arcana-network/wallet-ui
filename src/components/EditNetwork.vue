@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
+import { comment } from 'postcss'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
+import { content, errors } from '@/utils/content'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
@@ -56,15 +58,11 @@ async function handleSubmit() {
     const rpcUrl = rpcConfig.value.rpcUrl
     const chainId = rpcConfig.value.chainId
     if (isExistingRpcUrl(rpcUrl as string)) {
-      toast.error(
-        `RPC URL - ${rpcUrl} already exists, please use different one`
-      )
+      toast.error(content.RPC.INPUT_EXISTS(rpcUrl as string))
     } else if (isExistingChainId(Number(rpcConfig.value.chainId))) {
-      toast.error(
-        `Chain ID - ${chainId} already exists, please use different one`
-      )
+      toast.error(content.CHAIN_ID.INPUT_EXISTS(chainId as string))
     } else if (!(await validateRPCandChainID(rpcUrl, chainId))) {
-      toast(`Incorrect combination of chain Id and RPC URL`)
+      toast(errors.RPC.ERROR)
     } else {
       const payload = {
         chainName: rpcConfig.value.chainName,
@@ -95,15 +93,13 @@ async function handleSubmit() {
       emit('close')
     }
   } catch (e) {
-    toast.error('Invalid RPC URL')
+    toast.error(errors.RPC.INVALID)
   }
 }
 
 function deleteNetwork() {
   if (Number(rpcStore.selectedRpcConfig.chainId) === Number(props.chainId)) {
-    toast.error(
-      'This network is current selected, please chose a different one and try again'
-    )
+    toast.error(content.NETWORK.INPUT_EXISTS)
   } else {
     rpcStore.deleteNetwork(Number(props.chainId))
     emit('close')
