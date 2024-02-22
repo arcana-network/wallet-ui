@@ -188,11 +188,6 @@ async function getRemoteTransaction(
       const remoteTransaction = await accountHandler.provider.getTransaction(
         txHash
       )
-      const receipt = await accountHandler.provider.getTransactionReceipt(
-        txHash
-      )
-      console.log('remoteTransaction', remoteTransaction)
-      console.log('receipt', receipt)
       if (remoteTransaction) {
         clearInterval(txInterval)
         return resolve(remoteTransaction)
