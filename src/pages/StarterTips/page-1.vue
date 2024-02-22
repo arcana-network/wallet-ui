@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const dots = [1, 2, 3, 4]
+const dots = [1, 2, 3, 4, 5, 6]
 </script>
 
 <template>
-  <div class="space-y-4 bg-black-100 h-full p-6 bg-opacity-80">
+  <div class="space-y-4 h-full p-6 pt-2">
     <h1 class="text-xl uppercase font-black">New user orientation</h1>
     <p class="text-sm">
       The following screens will help you understand the main functionalities

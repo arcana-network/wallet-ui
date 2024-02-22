@@ -4,6 +4,7 @@ import { Decimal } from 'decimal.js'
 import { computed, onMounted, onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+import SlideToSolvePuzzle from '@/components/SlideToSolvePuzzle.vue'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -184,7 +185,8 @@ async function onViewDetails() {
       </button>
     </div>
     <div class="flex flex-col gap-4">
-      <div class="flex gap-2 text-sm font-bold">
+      <SlideToSolvePuzzle v-if="appStore.global" @solved="emits('approve')" />
+      <div v-else class="flex gap-2 text-sm font-bold">
         <button
           class="uppercase w-full btn-secondary p-2"
           @click="emits('reject')"
@@ -202,8 +204,15 @@ async function onViewDetails() {
         v-if="
           route.name === 'requests' && appStore.validAppMode === AppMode.Full
         "
-        class="flex items-center justify-center"
+        class="flex items-center justify-evenly"
       >
+        <button
+          v-if="appStore.global"
+          class="btn-tertiary text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
         <button
           class="btn-tertiary text-sm font-bold"
           @click.stop="requestStore.skipRequest(request.request.id)"

@@ -8,6 +8,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import SendTransactionCompact from '@/components/SendTransactionCompact.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import SlideToSolvePuzzle from '@/components/SlideToSolvePuzzle.vue'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useRequestStore } from '@/store/request'
@@ -61,50 +62,58 @@ function hideLoader() {
 
 onMounted(async () => {
   showLoader('Loading...')
-  try {
-    const accountHandler = getRequestHandler().getAccountHandler()
-    if (appStore.chainType === ChainType.solana_cv25519) {
+  const accountHandler = getRequestHandler().getAccountHandler()
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    try {
       const data = await (accountHandler as SolanaAccountHandler).getFee(
         props.request.request.params[0]
       )
-    } else {
-      const baseGasPrice = (
-        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
-      ).toString()
+    } catch (e) {
+      console.error(e)
+    }
+  } else {
+    try {
       gasLimit.value = (
         await (accountHandler as EVMAccountHandler).provider.estimateGas({
           ...sanitizeRequest(props.request.request).params[0],
         })
       ).toString()
+    } catch (e) {
+      gasLimit.value = '21000' // default value for ethereum
+    }
+    try {
+      const baseGasPrice = (
+        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
+      ).toString()
       baseFee.value = new Decimal(baseGasPrice)
         .div(Decimal.pow(10, 9))
         .toString()
+      if (props.request.request.params[0].maxFeePerGas) {
+        customGasPrice.value.maxFeePerGas = new Decimal(
+          props.request.request.params[0].maxFeePerGas
+        )
+          .div(Decimal.pow(10, 9))
+          .toString()
+      } else {
+        customGasPrice.value.maxFeePerGas = new Decimal(baseFee.value)
+          .add(1.5)
+          .toString()
+      }
+      if (props.request.request.params[0].maxPriorityFeePerGas) {
+        customGasPrice.value.maxPriorityFeePerGas = new Decimal(
+          props.request.request.params[0].maxPriorityFeePerGas
+        )
+          .div(Decimal.pow(10, 9))
+          .toString()
+      }
+      customGasPrice.value.gasLimit =
+        props.request.request.params[0].gasLimit || gasLimit.value
+      handleSetGasPrice(customGasPrice.value)
+    } catch (err) {
+      console.log({ err })
+    } finally {
+      hideLoader()
     }
-    if (props.request.request.params[0].maxFeePerGas) {
-      customGasPrice.value.maxFeePerGas = new Decimal(
-        props.request.request.params[0].maxFeePerGas
-      )
-        .div(Decimal.pow(10, 9))
-        .toString()
-    } else {
-      customGasPrice.value.maxFeePerGas = new Decimal(baseFee.value)
-        .add(1.5)
-        .toString()
-    }
-    if (props.request.request.params[0].maxPriorityFeePerGas) {
-      customGasPrice.value.maxPriorityFeePerGas = new Decimal(
-        props.request.request.params[0].maxPriorityFeePerGas
-      )
-        .div(Decimal.pow(10, 9))
-        .toString()
-    }
-    customGasPrice.value.gasLimit =
-      props.request.request.params[0].gasLimit || gasLimit.value
-    handleSetGasPrice(customGasPrice.value)
-  } catch (err) {
-    console.log({ err })
-  } finally {
-    hideLoader()
   }
 })
 
@@ -336,14 +345,7 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="mt-auto flex flex-col gap-4"
     >
-      <div v-if="request.requestOrigin === 'auth-verify'">
-        <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
-          @click="emits('proceed')"
-        >
-          Proceed
-        </button>
-      </div>
+      <SlideToSolvePuzzle v-if="appStore.global" @solved="emits('approve')" />
       <div v-else class="flex gap-2">
         <button
           class="btn-secondary p-2 uppercase w-full text-sm font-bold"
@@ -362,8 +364,15 @@ function calculateCurrencyValue(value) {
         v-if="
           route.name === 'requests' && appStore.validAppMode === AppMode.Full
         "
-        class="flex items-center justify-center"
+        class="flex items-center justify-evenly"
       >
+        <button
+          v-if="appStore.global"
+          class="btn-tertiary text-sm font-bold"
+          @click="emits('reject')"
+        >
+          Reject
+        </button>
         <button
           class="btn-tertiary text-sm font-bold"
           @click.stop="requestStore.skipRequest(request.request.id)"
