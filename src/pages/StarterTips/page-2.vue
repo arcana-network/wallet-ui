@@ -9,7 +9,9 @@ const dots = [1, 2, 3, 4, 5, 6]
         class="absolute z-[2147483648] w-[192px] h-[192px] top-[70px] left-5"
       ></div>
     </div>
-    <div class="bg-black-100 p-6 flex flex-col justify-end">
+    <div
+      class="text-black-100 dark:text-white-100 bg-gray-900 dark:bg-black-100 p-6 flex flex-col justify-end"
+    >
       <h1 class="text-xl uppercase font-black">Your Account</h1>
       <p class="text-sm">
         This is also known as your wallet address, public key or public address.
@@ -21,7 +23,7 @@ const dots = [1, 2, 3, 4, 5, 6]
           v-for="dot in dots"
           :key="dot"
           class="block h-[5px] w-[5px] rounded-full"
-          :class="dot === 2 ? 'bg-[#FFFFFF]' : 'bg-[#8D8D8D]'"
+          :class="dot === 2 ? 'dark:bg-white-100 bg-black-100' : 'bg-[#8D8D8D]'"
         ></span>
       </div>
     </div>
