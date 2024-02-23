@@ -131,7 +131,9 @@ function getTxOperation(
       return 'Receive'
     }
   } else {
-    if (
+    if (transaction.from && transaction.to && transaction.data) {
+      return 'Send'
+    } else if (
       transaction.from === userStore.walletAddress &&
       transaction.to === null
     ) {
