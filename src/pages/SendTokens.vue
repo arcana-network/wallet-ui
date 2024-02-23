@@ -120,7 +120,6 @@ onMounted(async () => {
       if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
         estimatedGas.value = (
           await accountHandler.provider.estimateGas({
-            from: userStore.walletAddress,
             to: recipientWalletAddress.value
               ? setHexPrefix(recipientWalletAddress.value)
               : userStore.walletAddress,
@@ -502,7 +501,6 @@ async function handleShowPreview() {
         if (rpcStore.nativeCurrency?.symbol === selectedToken.value.symbol) {
           estimatedGas.value = (
             await accountHandler.provider.estimateGas({
-              from: userStore.walletAddress,
               to: setHexPrefix(recipientWalletAddress.value),
               value: new Decimal(amount.value)
                 .mul(Decimal.pow(10, 18))
