@@ -55,25 +55,38 @@ function hideLoader() {
 
 onMounted(async () => {
   showLoader('Loading...')
-  try {
-    const accountHandler = getRequestHandler().getAccountHandler()
-    if (appStore.chainType === ChainType.solana_cv25519) {
+  const accountHandler = getRequestHandler().getAccountHandler()
+  if (appStore.chainType === ChainType.solana_cv25519) {
+    try {
       const data = await (accountHandler as SolanaAccountHandler).getFee(
         props.request.request.params[0]
       )
-    } else {
-      const baseGasPrice = (
-        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
-      ).toString()
+      console.log({ data })
+    } catch (e) {
+      console.error({ e })
+    }
+  } else {
+    try {
       gasLimit.value = (
         await (accountHandler as EVMAccountHandler).provider.estimateGas({
           ...sanitizeRequest(props.request.request).params[0],
         })
       ).toString()
+    } catch (e) {
+      gasLimit.value = '21000' // default gas limit
+    }
+    try {
+      const baseGasPrice = (
+        await (accountHandler as EVMAccountHandler).provider.getGasPrice()
+      ).toString()
       baseFee.value = new Decimal(baseGasPrice)
         .div(Decimal.pow(10, 9))
         .toString()
+    } catch (e) {
+      baseFee.value = '0'
     }
+  }
+  try {
     if (props.request.request.params[0].maxFeePerGas) {
       customGasPrice.value.maxFeePerGas = new Decimal(
         props.request.request.params[0].maxFeePerGas
