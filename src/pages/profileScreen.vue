@@ -241,7 +241,7 @@ watch(
             <img
               :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-md h-md"
+              class="w-md h-md dark:invert-0 invert"
             />
           </button>
         </div>
@@ -260,7 +260,10 @@ watch(
           @click.stop="handleShowPrivateKeyCautionModal"
         >
           <span class="text-lg font-bold"> Export Key </span>
-          <img :src="getImage('external-link.svg')" class="w-md h-md" />
+          <img
+            :src="getImage('external-link.svg')"
+            class="w-md h-md dark:invert-0 invert"
+          />
         </button>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
@@ -274,7 +277,10 @@ watch(
           >
             <span v-if="true">Setup Now</span>
             <span v-else>Update Security Questions</span>
-            <img :src="getImage('external-link.svg')" class="w-md h-md" />
+            <img
+              :src="getImage('external-link.svg')"
+              class="w-md h-md dark:invert-0 invert"
+            />
           </button>
           <span v-else class="text-lg font-bold">In use</span>
         </div>

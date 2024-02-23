@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const dots = [1, 2, 3, 4]
+const dots = [1, 2, 3, 4, 5, 6]
 </script>
 
 <template>
   <div class="h-full w-full flex flex-col">
-    <div class="bg-black-100 h-2/5 p-6">
+    <div class="h-2/5 p-6 bg-gray-900 dark:bg-black-100">
       <h1 class="text-xl uppercase font-black">Freedom Above All Else</h1>
       <p class="text-sm">
         Should you ever need to switch to a different Web3 wallet, you can
@@ -17,10 +17,9 @@ const dots = [1, 2, 3, 4]
           v-for="dot in dots"
           :key="dot"
           class="block h-[5px] w-[5px] rounded-full"
-          :class="dot === 3 ? 'bg-[#FFFFFF]' : 'bg-[#8D8D8D]'"
+          :class="dot === 5 ? 'dark:bg-white-100 bg-black-100' : 'bg-[#8D8D8D]'"
         ></span>
       </div>
     </div>
-    <div class="h-3/5 w-full relative bg-black-100 bg-opacity-80"></div>
   </div>
 </template>

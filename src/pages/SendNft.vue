@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
+import { onMounted, onBeforeMount, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -19,6 +19,7 @@ import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 type SendNftProps = {
@@ -108,6 +109,11 @@ onMounted(async () => {
       hideLoader()
     }
   }
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
 })
 
 onUnmounted(() => {
@@ -384,12 +390,26 @@ watch(
             </div>
           </div>
           <GasPrice
-            v-if="appStore.chainType !== ChainType.solana_cv25519"
+            v-if="
+              appStore.chainType !== ChainType.solana_cv25519 &&
+              (!rpcStore.useGasless ||
+                (rpcStore.useGasless && paymasterBalance < 0.1))
+            "
             :gas-prices="gasPrices"
             :base-fee="baseFee"
             :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
           />
+          <span
+            v-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            class="text-xs text-red-100 font-medium text-center w-full"
+            >Gasless Transaction not available.
+          </span>
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            class="text-xs text-green-100 font-medium text-center w-full"
+            >This is a Gasless Transaction. Click Below to Approve.
+          </span>
         </div>
         <div class="flex">
           <button

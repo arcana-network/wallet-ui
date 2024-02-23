@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { Decimal } from 'decimal.js'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
@@ -10,6 +10,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -20,6 +21,17 @@ const requestStore = useRequestStore()
 const route = useRoute()
 const currencyStore = useCurrencyStore()
 
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  loader.value.show = false
+})
 const props = defineProps({
   request: {
     type: Object,
@@ -115,12 +127,44 @@ async function onViewDetails() {
         <div class="flex flex-col justify-center items-center">
           <span class="text-sm text-gray-100">Transaction Fees</span>
           <div class="flex gap-2 items-baseline justify-center">
-            <div class="flex items-baseline">
+            <span v-if="loader.show" class="text-sm font-medium"
+              >Loading...</span
+            >
+            <div
+              v-else-if="!loader.show && !rpcStore.useGasless"
+              class="flex items-baseline"
+            >
               <span class="text-lg font-bold"
                 >{{ gasFee.slice(0, 9) }}&nbsp;</span
               ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
               }}</span>
+            </div>
+            <span
+              v-else-if="
+                !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
+              "
+              class="text-sm font-medium text-green-100"
+            >
+              Sponsored
+            </span>
+            <div
+              v-else-if="
+                !loader.show && rpcStore.useGasless && paymasterBalance < 0.1
+              "
+              class="flex-col text-center items-baseline"
+            >
+              <span class="text-lg font-bold"
+                >{{ gasFee.slice(0, 9) }}&nbsp;</span
+              ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
+                rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+              }}</span>
+              <div>
+                <span
+                  class="text-xs text-red-100 font-medium text-center w-full"
+                  >Gasless Transaction not available.
+                </span>
+              </div>
             </div>
             <div
               v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
@@ -132,7 +176,7 @@ async function onViewDetails() {
         </div>
       </div>
       <button
-        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase text-[12px] font-bold"
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-bold"
         @click.stop="onViewDetails"
       >
         View Details
