@@ -122,14 +122,7 @@ function truncateAddress(address: string) {
         </div>
       </div>
       <span
-        v-if="!loader.show && rpcStore.useGasless && paymasterBalance < 0.1"
-        class="text-xs text-red-100 font-medium text-center w-full"
-        >Gasless Transaction not available.
-      </span>
-      <span
-        v-else-if="
-          !loader.show && rpcStore.useGasless && paymasterBalance > 0.1
-        "
+        v-if="!loader.show && rpcStore.useGasless && paymasterBalance > 0.1"
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
