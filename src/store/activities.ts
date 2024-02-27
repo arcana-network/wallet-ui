@@ -194,6 +194,23 @@ async function getRemoteTransaction(
   })
 }
 
+function decodeLogDataHandleOps(
+  transaction: ethers.providers.TransactionResponse
+): ethers.utils.Result {
+  const abi = [
+    'function handleOps((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes)[],address)',
+  ]
+  const iface = new ethers.utils.Interface(abi)
+  return iface.decodeFunctionData('handleOps', transaction.data)
+}
+
+function getAmountUsingCallData(data: string): BigNumber {
+  const abi = ['function executeCall(address,uint256,bytes)']
+  const iface = new ethers.utils.Interface(abi)
+  const decodedData = iface.decodeFunctionData('executeCall', data)
+  return decodedData[1]
+}
+
 export const useActivitiesStore = defineStore('activitiesStore', {
   state: (): ActivitiesState => ({
     activitiesByChainId: {},
@@ -230,183 +247,193 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
       chainType = ChainType.evm_secp256k1,
     }: TransactionFetchParams) {
-      if (chainType === ChainType.multiversx_cv25519) {
-        const accountHandler =
-          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-        const tx = await accountHandler.getTransaction(txHash)
-        if (!tx) {
-          setTimeout(() => {
-            this.fetchAndSaveActivityFromHash({
-              txHash,
-              chainId,
-              customToken,
-              recipientAddress,
-              chainType,
-            })
-          }, 2000)
-        } else {
-          if (customToken) {
-            const activity: Activity = {
-              operation: customToken.operation,
-              txHash,
-              transaction: {
-                hash: txHash,
-                amount: BigInt(customToken.amount),
-                nonce: tx.nonce,
-                fee: BigInt(tx.gasPrice as number),
-              },
-              status: tx.status.status as ActivityStatus,
-              date: new Date(),
-              address: {
-                from: userStore.walletAddress,
-                to: recipientAddress,
-              },
-              customToken,
-            }
-            this.saveActivity(Number(chainId), activity)
-          } else {
-            const activity: Activity = {
-              txHash: tx.hash,
-              operation: 'Send',
-              date: new Date(),
-              status: tx.status.status as ActivityStatus,
-              address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
-              transaction: {
-                hash: tx.hash,
-                amount: BigInt(tx.value),
-                gasLimit: BigInt(tx.gasLimit),
-                gasPrice: BigInt(tx.gasPrice),
-                nonce: tx.nonce,
-                data: tx.data.toString(),
-              },
-            }
-            this.saveActivity(chainId, activity)
-          }
-          const checkStatusInterval = setInterval(async () => {
-            const status = await accountHandler
-              .getNetworkProvider()
-              .getTransactionStatus(tx.hash)
-            if (status.status !== 'pending') {
-              if (status.status !== 'success') {
-                toast.error(`Transaction failed`)
-              }
-              this.updateActivityStatusByTxHash(
-                chainId as ChainId,
+      try {
+        if (chainType === ChainType.multiversx_cv25519) {
+          const accountHandler =
+            getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+          const tx = await accountHandler.getTransaction(txHash)
+          if (!tx) {
+            setTimeout(() => {
+              this.fetchAndSaveActivityFromHash({
                 txHash,
-                status.status as ActivityStatus
-              )
-              clearInterval(checkStatusInterval)
-            }
-          }, 3000)
-        }
-      } else if (chainType === ChainType.solana_cv25519) {
-        const accountHandler =
-          getRequestHandler().getAccountHandler() as SolanaAccountHandler
-        const tx = await accountHandler.getTransaction(txHash)
-        if (!tx) {
-          setTimeout(() => {
-            this.fetchAndSaveActivityFromHash({
-              txHash,
-              chainId,
-              customToken,
-              recipientAddress,
-              chainType,
-            })
-          }, 2000)
-        } else {
-          if (customToken) {
-            const activity: Activity = {
-              operation: customToken.operation,
-              txHash,
-              transaction: {
-                hash: txHash,
-                amount: BigInt(customToken.amount),
-                nonce: tx.slot,
-                computeUnitsConsumed: BigInt(
-                  tx.meta?.computeUnitsConsumed as number
-                ),
-                fee: BigInt(tx.meta?.fee as number),
-              },
-              status: 'Success',
-              date: new Date(),
-              address: {
-                from: userStore.walletAddress,
-                to: recipientAddress,
-              },
-              customToken,
-            }
-            this.saveActivity(Number(chainId), activity)
+                chainId,
+                customToken,
+                recipientAddress,
+                chainType,
+              })
+            }, 2000)
           } else {
-            const instructions = tx.transaction.message.instructions
-            instructions.forEach((instruction) => {
-              const parsedInstruction = instruction as ParsedInstruction
+            if (customToken) {
               const activity: Activity = {
-                operation:
-                  parsedInstruction.parsed.info.source ===
-                  userStore.walletAddress
-                    ? 'Send'
-                    : 'Receive',
+                operation: customToken.operation,
                 txHash,
                 transaction: {
                   hash: txHash,
-                  amount: BigInt(parsedInstruction.parsed.info.lamports),
+                  amount: BigInt(customToken.amount),
+                  nonce: tx.nonce,
+                  fee: BigInt(tx.gasPrice as number),
+                },
+                status: tx.status.status as ActivityStatus,
+                date: new Date(),
+                address: {
+                  from: userStore.walletAddress,
+                  to: recipientAddress,
+                },
+                customToken,
+              }
+              this.saveActivity(Number(chainId), activity)
+            } else {
+              const activity: Activity = {
+                txHash: tx.hash,
+                operation: 'Send',
+                date: new Date(),
+                status: tx.status.status as ActivityStatus,
+                address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
+                transaction: {
+                  hash: tx.hash,
+                  amount: BigInt(tx.value),
+                  gasLimit: BigInt(tx.gasLimit),
+                  gasPrice: BigInt(tx.gasPrice),
+                  nonce: tx.nonce,
+                  data: tx.data.toString(),
+                },
+              }
+              this.saveActivity(chainId, activity)
+            }
+            const checkStatusInterval = setInterval(async () => {
+              const status = await accountHandler
+                .getNetworkProvider()
+                .getTransactionStatus(tx.hash)
+              if (status.status !== 'pending') {
+                if (status.status !== 'success') {
+                  toast.error(`Transaction failed`)
+                }
+                this.updateActivityStatusByTxHash(
+                  chainId as ChainId,
+                  txHash,
+                  status.status as ActivityStatus
+                )
+                clearInterval(checkStatusInterval)
+              }
+            }, 3000)
+          }
+        } else if (chainType === ChainType.solana_cv25519) {
+          const accountHandler =
+            getRequestHandler().getAccountHandler() as SolanaAccountHandler
+          const tx = await accountHandler.getTransaction(txHash)
+          if (!tx) {
+            setTimeout(() => {
+              this.fetchAndSaveActivityFromHash({
+                txHash,
+                chainId,
+                customToken,
+                recipientAddress,
+                chainType,
+              })
+            }, 2000)
+          } else {
+            if (customToken) {
+              const activity: Activity = {
+                operation: customToken.operation,
+                txHash,
+                transaction: {
+                  hash: txHash,
+                  amount: BigInt(customToken.amount),
                   nonce: tx.slot,
                   computeUnitsConsumed: BigInt(
-                    (tx.meta?.computeUnitsConsumed as number) ?? 0
+                    tx.meta?.computeUnitsConsumed as number
                   ),
-                  fee: BigInt((tx.meta?.fee as number) ?? 0),
+                  fee: BigInt(tx.meta?.fee as number),
                 },
                 status: 'Success',
                 date: new Date(),
                 address: {
-                  from: parsedInstruction.parsed.info.source,
-                  to:
-                    recipientAddress ||
-                    parsedInstruction.parsed.info.destination,
+                  from: userStore.walletAddress,
+                  to: recipientAddress,
                 },
+                customToken,
               }
-              this.saveActivity(chainId, activity)
-            })
+              this.saveActivity(Number(chainId), activity)
+            } else {
+              const instructions = tx.transaction.message.instructions
+              instructions.forEach((instruction) => {
+                const parsedInstruction = instruction as ParsedInstruction
+                const activity: Activity = {
+                  operation:
+                    parsedInstruction.parsed.info.source ===
+                    userStore.walletAddress
+                      ? 'Send'
+                      : 'Receive',
+                  txHash,
+                  transaction: {
+                    hash: txHash,
+                    amount: BigInt(parsedInstruction.parsed.info.lamports),
+                    nonce: tx.slot,
+                    computeUnitsConsumed: BigInt(
+                      (tx.meta?.computeUnitsConsumed as number) ?? 0
+                    ),
+                    fee: BigInt((tx.meta?.fee as number) ?? 0),
+                  },
+                  status: 'Success',
+                  date: new Date(),
+                  address: {
+                    from: parsedInstruction.parsed.info.source,
+                    to:
+                      recipientAddress ||
+                      parsedInstruction.parsed.info.destination,
+                  },
+                }
+                this.saveActivity(chainId, activity)
+              })
+            }
+          }
+        } else {
+          const accountHandler =
+            getRequestHandler().getAccountHandler() as EVMAccountHandler
+          const remoteTransaction = await getRemoteTransaction(
+            accountHandler,
+            txHash
+          )
+          const operation = getTxOperation(remoteTransaction, customToken)
+          if (operation === 'Contract Interaction') {
+            const data = decodeLogDataHandleOps(remoteTransaction)
+            const amount = getAmountUsingCallData(data[0][0][3]) // 4th element is the data as per ABI in decodeLogDataHandleOps fn
+            remoteTransaction.value = amount
+          }
+          const activity: Activity = {
+            operation: operation,
+            txHash,
+            transaction: {
+              hash: txHash,
+              amount: remoteTransaction.value.toBigInt(),
+              nonce: remoteTransaction.nonce,
+              gasLimit: remoteTransaction.gasLimit.toBigInt(),
+              gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+              gasUsed: remoteTransaction.gasLimit.toBigInt(),
+              data: remoteTransaction.data,
+            },
+            status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+            date: new Date(),
+            address: {
+              from: remoteTransaction.from,
+              to: recipientAddress || remoteTransaction.to,
+            },
+            customToken,
+          }
+          this.saveActivity(chainId, activity)
+          if (!remoteTransaction?.blockNumber) {
+            const txInterval = setInterval(async () => {
+              const remoteTransaction =
+                await accountHandler.provider.getTransaction(txHash)
+              if (remoteTransaction?.blockNumber && chainId) {
+                this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+                clearInterval(txInterval)
+              }
+            }, 3000)
           }
         }
-      } else {
-        const accountHandler =
-          getRequestHandler().getAccountHandler() as EVMAccountHandler
-        const remoteTransaction = await getRemoteTransaction(
-          accountHandler,
-          txHash
-        )
-        const activity: Activity = {
-          operation: getTxOperation(remoteTransaction, customToken),
-          txHash,
-          transaction: {
-            hash: txHash,
-            amount: remoteTransaction.value.toBigInt(),
-            nonce: remoteTransaction.nonce,
-            gasLimit: remoteTransaction.gasLimit.toBigInt(),
-            gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
-            gasUsed: remoteTransaction.gasLimit.toBigInt(),
-            data: remoteTransaction.data,
-          },
-          status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
-          date: new Date(),
-          address: {
-            from: remoteTransaction.from,
-            to: recipientAddress || remoteTransaction.to,
-          },
-          customToken,
-        }
-        this.saveActivity(chainId, activity)
-        if (!remoteTransaction?.blockNumber) {
-          const txInterval = setInterval(async () => {
-            const remoteTransaction =
-              await accountHandler.provider.getTransaction(txHash)
-            if (remoteTransaction?.blockNumber && chainId) {
-              this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
-              clearInterval(txInterval)
-            }
-          }, 3000)
-        }
+      } catch (err) {
+        console.log(err)
       }
     },
     async fetchAndSaveNFTActivityFromHash({
