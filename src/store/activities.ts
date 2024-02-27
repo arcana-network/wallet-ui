@@ -211,6 +211,19 @@ function getAmountUsingCallData(data: string): BigNumber {
   return decodedData[1]
 }
 
+function isGaslessTransaction(
+  operation: TransactionOps,
+  transaction: TransactionResponse
+) {
+  const toAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'
+  const inputDataStartsWithString = '0x1fad948c'
+  return (
+    operation === 'Contract Interaction' &&
+    transaction.to === toAddress &&
+    transaction.data.startsWith(inputDataStartsWithString)
+  )
+}
+
 export const useActivitiesStore = defineStore('activitiesStore', {
   state: (): ActivitiesState => ({
     activitiesByChainId: {},
@@ -395,7 +408,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             txHash
           )
           const operation = getTxOperation(remoteTransaction, customToken)
-          if (operation === 'Contract Interaction') {
+          if (isGaslessTransaction(operation, remoteTransaction)) {
             const data = decodeLogDataHandleOps(remoteTransaction)
             const amount = getAmountUsingCallData(data[0][0][3]) // 4th element is the data as per ABI in decodeLogDataHandleOps fn
             remoteTransaction.value = amount
