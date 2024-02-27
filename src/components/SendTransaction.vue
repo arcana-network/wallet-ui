@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { Decimal } from 'decimal.js'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -17,6 +17,7 @@ import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { scwInstance } from '@/utils/scw'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
@@ -24,6 +25,11 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
 })
 
 const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
@@ -253,9 +259,23 @@ function calculateCurrencyValue(value) {
       <div class="flex justify-between gap-4">
         <span>Transaction Fee</span>
         <span class="text-right">
-          <span :title="calculateGasPrice(request.request.params[0])">{{
-            calculateGasPrice(request.request.params[0])
-          }}</span>
+          <span
+            v-if="!rpcStore.useGasless"
+            :title="calculateGasPrice(request.request.params[0])"
+            >{{ calculateGasPrice(request.request.params[0]) }}</span
+          >
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            class="text-right text-green-100"
+          >
+            Sponsored
+          </span>
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            class="text-right"
+          >
+            {{ calculateGasPrice(request.request.params[0]) }}
+          </span>
           <span
             v-if="
               calculateCurrencyValue(getGasValue(request.request.params[0]))
@@ -286,14 +306,31 @@ function calculateCurrencyValue(value) {
         <SignMessageAdvancedInfo :info="request.request.params.message" />
       </div>
     </div>
-    <div v-if="appStore.chainType === ChainType.evm_secp256k1" class="mt-4">
+    <div
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="mt-4 text-center"
+    >
       <GasPrice
+        v-if="
+          !rpcStore.useGasless ||
+          (rpcStore.useGasless && paymasterBalance < 0.1)
+        "
         :base-fee="baseFee"
         :gas-limit="gasLimit"
         :max-fee-per-gas="customGasPrice.maxFeePerGas"
         :max-priority-fee-per-gas="customGasPrice.maxPriorityFeePerGas"
         @gas-price-input="handleSetGasPrice"
       />
+      <span
+        v-if="rpcStore.useGasless && paymasterBalance < 0.1"
+        class="text-xs text-red-100 font-medium text-center w-full"
+        >Gasless Transaction not available.
+      </span>
+      <span
+        v-else-if="rpcStore.useGasless && paymasterBalance > 0.1"
+        class="text-xs text-green-100 font-medium text-center w-full"
+        >This is a Gasless Transaction. Click Below to Approve.
+      </span>
     </div>
     <div
       v-if="route.name !== 'PermissionRequest'"
