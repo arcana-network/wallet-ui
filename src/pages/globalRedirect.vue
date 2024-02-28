@@ -2,6 +2,8 @@
 import { AuthProvider, type GetInfoOutput } from '@arcana/auth-core'
 import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
 import dayjs from 'dayjs'
+import { addHexPrefix } from 'ethereumjs-util'
+import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
@@ -11,6 +13,7 @@ import { type GlobalRedirectMethods } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { getDefaultParams } from '@/utils/getAuthProvider'
+import { getLoginToken } from '@/utils/loginToken'
 import { handleGlobalLogin } from '@/utils/redirectUtils'
 import { are3PCEnabled } from '@/utils/storage'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -42,7 +45,6 @@ onMounted(async () => {
     const storage = getStorage()
     storage.session.setState(state)
     storage.local.setCurve(app.curve)
-    // TODO: Verify state
 
     app.id = appId
     app.isMfaEnabled = provider.appConfig.mfa_enabled
@@ -86,12 +88,26 @@ onMounted(async () => {
         userInfo.hasMfa = await securityQuestionModule.isEnabled()
       }
     }
+
     try {
+      const loginToken = await getLoginToken({
+        provider: info.loginType,
+        token: info.token,
+        signerAddress: ethers.utils.computeAddress(
+          addHexPrefix(userInfo.privateKey)
+        ),
+        userID: userInfo.userInfo.id,
+        appID: appId,
+        privateKey: userInfo.privateKey,
+      })
+
+      userInfo.token = loginToken
+    } catch (e) {
+      console.log('could not get token', e)
+    } finally {
       if (cleanup) {
         await cleanup()
       }
-    } catch (e) {
-      console.log({ e })
     }
 
     const uuid = genUUID()

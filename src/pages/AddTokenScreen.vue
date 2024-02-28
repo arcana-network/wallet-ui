@@ -10,6 +10,7 @@ import type { AssetContract, EthAssetContract } from '@/models/Asset'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
+import { content, errors } from '@/utils/content'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
@@ -62,7 +63,7 @@ async function addTokenContract() {
       tokenContract.decimals !== 0
     ) {
       loader.show = false
-      return toast.error('Enter all the details to continue')
+      return toast.error(content.DETAILS)
     }
     const assetContracts = storage.local.getAssetContractList(
       userStore.walletAddress,
@@ -75,11 +76,11 @@ async function addTokenContract() {
       assetContracts
     )
     loader.show = false
-    toast.success('Token Added successfully')
+    toast.success(content.TOKEN.ADDED)
     modalStore.setShowModal(false)
   } else {
     loader.show = false
-    toast.error('Invalid contract address')
+    toast.error(content.CONTRACT.INVALID)
   }
 }
 
@@ -112,12 +113,12 @@ function doesTokenBelongsToEthMainnet() {
 async function validateAndPopulateContract() {
   if (isContractInLocalStorage()) {
     loader.show = false
-    toast.error('Token already added')
+    toast.error(content.TOKEN.EXISTS)
     return false
   }
   if (doesTokenBelongsToEthMainnet()) {
     loader.show = false
-    toast.error('Token belongs to Ethereum Mainnet')
+    toast.error(content.TOKEN.ETH_MAINNET)
     return false
   }
   try {
@@ -137,7 +138,7 @@ async function validateAndPopulateContract() {
     loader.show = false
     tokenContract.symbol = ''
     tokenContract.decimals = 0
-    toast.error('Invalid contract address')
+    toast.error(content.CONTRACT.INVALID)
     return false
   }
 }

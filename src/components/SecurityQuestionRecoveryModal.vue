@@ -3,6 +3,7 @@ import { computed, ref, onBeforeMount, type Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import SelectQuestion from '@/components/SelectQuestion.vue'
+import { content, errors } from '@/utils/content'
 
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 const props = defineProps<{
@@ -58,7 +59,7 @@ function handleProceed() {
   )
 
   if (!isAllQuestionsAnswered) {
-    return toast.error('Answer all the questions to recover key')
+    return toast.error(content.RECOVERY.ANSWER_ALL)
   }
 
   let hasSameQuestions = false
@@ -70,7 +71,7 @@ function handleProceed() {
   }, {})
 
   if (hasSameQuestions) {
-    return toast.error('Questions must be different')
+    return toast.error(content.RECOVERY.QUESTIONS)
   }
 
   emit('proceed', {

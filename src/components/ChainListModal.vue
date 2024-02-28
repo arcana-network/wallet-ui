@@ -34,6 +34,17 @@ watch(
 function handleFallbackLogo(event) {
   event.target.src = getImage('blockchain-icon.png')
 }
+
+function getChainType(chainType: ChainType) {
+  switch (chainType) {
+    case ChainType.evm_secp256k1:
+      return 'EVM'
+    case ChainType.solana_cv25519:
+      return 'solana'
+    case ChainType.multiversx_cv25519:
+      return 'multiversx'
+  }
+}
 </script>
 
 <template>
@@ -58,14 +69,7 @@ function handleFallbackLogo(event) {
         />
         <label class="flex items-center gap-2" :for="String(chain.chainId)">
           <img
-            :src="
-              getChainLogoUrl(
-                chain,
-                appStore.chainType === ChainType.evm_secp256k1
-                  ? 'EVM'
-                  : 'solana'
-              )
-            "
+            :src="getChainLogoUrl(chain, getChainType(appStore.chainType))"
             class="w-xl h-xl"
             @error="handleFallbackLogo"
           />
