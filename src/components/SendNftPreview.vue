@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, onMounted, ref } from 'vue'
-import { useToast } from 'vue-toastification'
+import { onBeforeMount, ref } from 'vue'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
-const toast = useToast()
+const appStore = useAppStore()
 
 const loader = ref({
   show: false,
@@ -19,7 +20,9 @@ const loader = ref({
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
   loader.value.show = true
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
   loader.value.show = false
 })
 
