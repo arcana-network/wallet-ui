@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useToast } from 'vue-toastification'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
@@ -15,7 +14,6 @@ import { scwInstance } from '@/utils/scw'
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
-const toast = useToast()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
 
 const emits = defineEmits(['close', 'submit'])
@@ -33,11 +31,11 @@ const loader = ref({
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  if (appStore.chainType === ChainType.evm_secp256k1) {
-    loader.value.show = true
+  loader.value.show = true
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    loader.value.show = false
   }
+  loader.value.show = false
 })
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
@@ -124,14 +122,7 @@ function truncateAddress(address: string) {
         </div>
       </div>
       <span
-        v-if="!loader.show && rpcStore.useGasless && paymasterBalance < 0.1"
-        class="text-xs text-red-100 font-medium text-center w-full"
-        >Gasless Transaction not available.
-      </span>
-      <span
-        v-else-if="
-          !loader.show && rpcStore.useGasless && paymasterBalance > 0.1
-        "
+        v-if="!loader.show && rpcStore.useGasless && paymasterBalance >= 0.1"
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>

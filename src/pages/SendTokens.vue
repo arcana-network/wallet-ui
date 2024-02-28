@@ -99,7 +99,7 @@ const walletBalance = computed(() => {
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  if (appStore.chainType === ChainType.evm_secp256k1) {
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
   }
 })
@@ -834,11 +834,6 @@ watch(
           :min-gas-limit="gasParamsMVX.minGasLimit"
           @gas-limit-input="onGasLimitChangeMVX"
         />
-        <span
-          v-if="rpcStore.useGasless && paymasterBalance < 0.1"
-          class="text-xs text-red-100 font-medium text-center w-full"
-          >Gasless Transaction not available.
-        </span>
         <span
           v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
           class="text-xs text-green-100 font-medium text-center w-full"

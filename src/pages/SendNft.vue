@@ -113,7 +113,9 @@ onMounted(async () => {
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 onUnmounted(() => {
@@ -400,11 +402,6 @@ watch(
             :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
           />
-          <span
-            v-if="rpcStore.useGasless && paymasterBalance < 0.1"
-            class="text-xs text-red-100 font-medium text-center w-full"
-            >Gasless Transaction not available.
-          </span>
           <span
             v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
             class="text-xs text-green-100 font-medium text-center w-full"
