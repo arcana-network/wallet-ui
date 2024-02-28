@@ -112,7 +112,9 @@ onMounted(async () => {
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 onUnmounted(() => {
