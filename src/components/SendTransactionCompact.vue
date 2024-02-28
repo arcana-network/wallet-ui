@@ -9,6 +9,7 @@ import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { scwInstance } from '@/utils/scw'
 
@@ -29,7 +30,9 @@ const loader = ref({
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
   loader.value.show = true
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
   loader.value.show = false
 })
 const props = defineProps({
