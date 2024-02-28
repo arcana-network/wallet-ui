@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, onMounted, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useToast } from 'vue-toastification'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { PreviewData } from '@/models/SendTokenPreview'
@@ -15,7 +14,6 @@ import { scwInstance } from '@/utils/scw'
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
-const toast = useToast()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
 
 const emits = defineEmits(['close', 'submit'])
