@@ -142,7 +142,7 @@ async function onViewDetails() {
             </div>
             <span
               v-else-if="
-                !loader.show && rpcStore.useGasless && paymasterBalance > 0.1
+                !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
               "
               class="text-sm font-medium text-green-100"
             >
