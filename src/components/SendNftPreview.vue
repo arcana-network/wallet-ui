@@ -102,7 +102,7 @@ function truncateAddress(address: string) {
             >{{ txFees }} {{ nativeCurrency }}</span
           >
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="rpcStore.useGasless && paymasterBalance > 0.1"
             class="text-base"
             >Sponsored</span
           >

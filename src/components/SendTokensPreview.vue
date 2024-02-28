@@ -108,7 +108,7 @@ function truncateAddress(address: string) {
           </span>
           <span
             v-else-if="
-              !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
+              !loader.show && rpcStore.useGasless && paymasterBalance > 0.1
             "
             class="text-base text-green-100"
           >
