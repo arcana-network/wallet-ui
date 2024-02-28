@@ -220,7 +220,7 @@ function isDeprecatedMethod() {
           class="flex justify-between gap-4"
         >
           <span class="w-[120px] capitalize">{{ key }}</span>
-          <span>
+          <span :title="String(value)">
             {{
               key === 'sender' || key === 'receiver'
                 ? truncateMid(value as string, 8)
