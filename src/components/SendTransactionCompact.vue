@@ -159,12 +159,6 @@ async function onViewDetails() {
               ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
               }}</span>
-              <div>
-                <span
-                  class="text-xs text-red-100 font-medium text-center w-full"
-                  >Gasless Transaction not available.
-                </span>
-              </div>
             </div>
             <div
               v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
