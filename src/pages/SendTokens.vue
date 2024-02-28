@@ -99,7 +99,9 @@ const walletBalance = computed(() => {
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 watch(gas, () => {
@@ -189,7 +191,7 @@ onUnmounted(() => {
   if (gasSliderPoll) clearInterval(gasSliderPoll)
 })
 
-async function determineGasParamsMVX(gasLimitInput: string | number) {
+async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
   const networkConfig = await accountHandler

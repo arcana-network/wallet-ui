@@ -33,9 +33,11 @@ const loader = ref({
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
-  loader.value.show = true
-  paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-  loader.value.show = false
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    loader.value.show = true
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    loader.value.show = false
+  }
 })
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
