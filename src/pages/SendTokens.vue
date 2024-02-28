@@ -563,12 +563,18 @@ async function handleShowPreview() {
     appStore.chainType === ChainType.solana_cv25519 ||
     appStore.chainType === ChainType.multiversx_cv25519
   ) {
-    if (gasParamsMVX.value.minGasLimit > gasParamsMVX.value.gasLimit) {
+    if (
+      appStore.chainType === ChainType.multiversx_cv25519 &&
+      gasParamsMVX.value.minGasLimit > gasParamsMVX.value.gasLimit
+    ) {
       toast.error(
         `${content.GAS.GREATER_LIMIT_MVX} ${gasParamsMVX.value.minGasLimit}`
       )
     } else if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        estimatedGas.value = String(gasParamsMVX.value.gasFee)
+      }
     } else {
       toast.error(errors.GENERIC.VALUE)
     }
