@@ -111,6 +111,7 @@ type InitParentConnectionApi = {
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
   uiEvent(event: string, val: any): void
+  goTo(url: string): void
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 
