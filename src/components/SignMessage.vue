@@ -16,6 +16,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { methodAndAction } from '@/utils/method'
+import { truncateMid } from '@/utils/stringUtils'
 
 const appStore = useAppStore()
 const requestStore = useRequestStore()
@@ -210,20 +211,28 @@ function isDeprecatedMethod() {
     </div>
     <div v-else class="flex flex-col gap-1">
       <div class="text-sm">Message</div>
+      <div v-if="request.request.method === 'mvx_signTransaction'">
+        <div
+          v-for="[key, value] in Object.entries(
+            request.request.params.transaction
+          )"
+          :key="key"
+          class="flex justify-between gap-4"
+        >
+          <span class="w-[120px] capitalize">{{ key }}</span>
+          <span :title="String(value)">
+            {{
+              key === 'sender' || key === 'receiver'
+                ? truncateMid(value as string, 8)
+                : value
+            }}
+          </span>
+        </div>
+      </div>
       <SignMessageAdvancedInfo
+        v-else
         :info="advancedInfo(request.request.method, request.request.params)"
       />
-      <!-- <div
-        v-if="method !== 'eth_signTransaction'"
-        class="flex justify-center mt-4"
-      >
-        <div
-          class="flex bg-white-100 border-1 border border-gray-300 dark:bg-gray-300 rounded-sm p-2 text-xs gap-1 dark:text-gray-100"
-        >
-          <img src="@/assets/images/info-circle.svg" />
-          <span>You're not going to be charged</span>
-        </div>
-      </div> -->
     </div>
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
