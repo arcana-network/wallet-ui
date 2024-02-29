@@ -26,16 +26,16 @@ ol[role='list'] {
 }
 
 /* Set core root defaults */
-html:focus-within {
+html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Set core body defaults */
 body {
   min-height: 100vh;
-  text-rendering: optimizeLegibility;
   line-height: 1.5;
 }
 
