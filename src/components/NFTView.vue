@@ -170,8 +170,8 @@ function handleFallbackNft(event) {
               >
               <span
                 class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
-                :title="nft.collectionName"
-                >{{ nft.identifier }}</span
+                :title="nft.identifier || nft.collectionName"
+                >{{ nft.identifier || nft.collectionName }}</span
               >
             </div>
           </div>
