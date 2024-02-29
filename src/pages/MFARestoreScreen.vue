@@ -22,6 +22,7 @@ import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { GATEWAY_URL, AUTH_NETWORK, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleGlobalLogin, handleLogin } from '@/utils/redirectUtils'
@@ -138,7 +139,7 @@ async function handleAnswerBasedRecovery(ev) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Incorrect answers')
+    toast.error(content.MFA.INCORRECT_ANSWERS)
   } finally {
     loader.value = {
       show: false,
@@ -205,7 +206,7 @@ async function handlePinBasedRecovery(ev: any) {
     }
   } catch (e) {
     console.error(e)
-    toast.error('Incorrect Pin')
+    toast.error(content.MFA.INCORRECT_PIN)
   } finally {
     loader.value = {
       show: false,

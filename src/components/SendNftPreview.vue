@@ -1,11 +1,30 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { onBeforeMount, ref } from 'vue'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
+
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
+  loader.value.show = false
+})
 
 type NftPreviewProps = {
   previewData: {
@@ -82,9 +101,26 @@ function truncateAddress(address: string) {
         </div>
         <div v-if="Number(txFees)" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
-          <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
+          <span v-if="!rpcStore.useGasless" class="text-base"
+            >{{ txFees }} {{ nativeCurrency }}</span
+          >
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            class="text-base"
+            >Sponsored</span
+          >
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            class="text-base"
+            >{{ txFees }} {{ nativeCurrency }}</span
+          >
         </div>
       </div>
+      <span
+        v-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+        class="text-xs text-green-100 font-medium text-center w-full"
+        >This is a Gasless Transaction. Click Below to Approve.
+      </span>
     </div>
     <SwipeToAction @approve="emits('submit')" @reject="emits('close')" />
   </div>

@@ -20,9 +20,21 @@ const solanaMethodAndAction = {
   signAllTransactions: 'Sign All Transactions',
 }
 
+const mvxMethodAndAction = {
+  mvx_signTransaction: 'Sign Transaction',
+  mvx_signTransactions: 'Sign Transactions',
+  mvx_signMessage: 'Sign Message',
+}
+
 const methodAndAction = {
   ...evmMethodAndAction,
   ...solanaMethodAndAction,
+  ...mvxMethodAndAction,
 }
 
-export { evmMethodAndAction, methodAndAction, solanaMethodAndAction }
+export {
+  evmMethodAndAction,
+  methodAndAction,
+  solanaMethodAndAction,
+  mvxMethodAndAction,
+}
