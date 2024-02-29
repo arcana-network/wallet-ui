@@ -45,10 +45,11 @@ type SendNftProps = {
   attributes?: string
   balance?: number
   tokenUrl: string
+  identifier?: string
+  nonce?: number
 }
 
 const emit = defineEmits(['close'])
-const props = defineProps<SendNftProps>()
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -72,6 +73,9 @@ const loader = ref({
 const baseFee = ref('0')
 const quantity = ref(1)
 const isQuantityFocused = ref(false)
+
+const props: SendNftProps = router.currentRoute.value
+  .query as unknown as SendNftProps
 
 watch(gas, () => {
   if (gas.value) {
@@ -171,8 +175,8 @@ async function handleSendToken() {
         getRequestHandler().getAccountHandler() as MultiversXAccountHandler
       const factory = new TransferTransactionsFactory(new GasEstimator())
       const transfer = TokenTransfer.nonFungible(
-        props.name,
-        await accountHandler.getAccountNonce()
+        props.collectionName as string,
+        props.nonce as number
       )
 
       const txObject = factory.createESDTNFTTransfer({
@@ -443,7 +447,7 @@ watch(
           </div>
           <GasPrice
             v-if="
-              appStore.chainType !== ChainType.solana_cv25519 &&
+              appStore.chainType === ChainType.evm_secp256k1 &&
               (!rpcStore.useGasless ||
                 (rpcStore.useGasless && paymasterBalance < 0.1))
             "

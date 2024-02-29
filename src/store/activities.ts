@@ -71,7 +71,7 @@ type Activity = {
   explorerUrl?: string
   transaction?: {
     hash: string
-    amount: bigint
+    amount?: bigint
     nonce: number
     gasLimit?: bigint
     gasUsed?: bigint
@@ -99,8 +99,8 @@ type Activity = {
     decimals?: number
   }
   nft?: {
-    address: string
-    tokenId: string
+    address?: string
+    tokenId?: string
     imageUrl?: string
     collectionName: string
     name: string
@@ -456,7 +456,31 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
       chainType = ChainType.evm_secp256k1,
     }: TransactionFetchNftParams) {
-      if (chainType === ChainType.solana_cv25519) {
+      if (chainType === ChainType.multiversx_cv25519) {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        const tx = await accountHandler.getTransaction(txHash)
+        const activity: Activity = {
+          operation: 'Send',
+          txHash,
+          transaction: {
+            hash: txHash,
+            nonce: tx.nonce,
+          },
+          status: 'Success',
+          date: new Date(),
+          address: {
+            from: userStore.walletAddress,
+            to: recipientAddress,
+          },
+          nft: {
+            imageUrl: nft.imageUrl,
+            name: nft.name,
+            collectionName: nft.collectionName,
+          },
+        }
+        this.saveActivity(chainId, activity)
+      } else if (chainType === ChainType.solana_cv25519) {
         const accountHandler =
           getRequestHandler().getAccountHandler() as SolanaAccountHandler
         const tx = await accountHandler.getTransaction(txHash)
