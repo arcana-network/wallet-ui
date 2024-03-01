@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import {
-  GasEstimator,
-  TransferTransactionsFactory,
-  TokenTransfer,
-  Address,
-} from '@multiversx/sdk-core'
 import { Decimal } from 'decimal.js'
 import { onMounted, onBeforeMount, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -30,7 +24,6 @@ import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
@@ -193,7 +186,7 @@ async function handleSendToken() {
       if (gasParamsMVX.value.gasLimit > gasParamsMVX.value.minGasLimit) {
         txObject.setGasLimit(gasParamsMVX.value.gasLimit)
       }
-      const txHash = await accountHandler.sendNft(txObject)
+      const txHash = await accountHandler.sendToken(txObject)
 
       const nft = {
         ...props,

@@ -71,7 +71,7 @@ type Activity = {
   explorerUrl?: string
   transaction?: {
     hash: string
-    amount?: bigint
+    amount?: bigint | string
     nonce: number
     gasLimit?: bigint
     gasUsed?: bigint
@@ -282,7 +282,10 @@ export const useActivitiesStore = defineStore('activitiesStore', {
                 txHash,
                 transaction: {
                   hash: txHash,
-                  amount: BigInt(customToken.amount),
+                  amount:
+                    Number(customToken.amount) >= 1
+                      ? BigInt(customToken.amount)
+                      : customToken.amount,
                   nonce: tx.nonce,
                   fee: BigInt(tx.gasPrice as number),
                 },

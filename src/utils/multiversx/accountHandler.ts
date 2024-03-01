@@ -7,6 +7,7 @@ import {
   GasEstimator,
   TokenTransfer,
   Address,
+  IPlainTransactionObject,
 } from '@multiversx/sdk-core'
 import {
   ApiNetworkProvider,
@@ -129,7 +130,55 @@ export class MultiversXAccountHandler {
     })
   }
 
-  async sendNft(txObject) {
+  async getTransactionObjectNativeToken(
+    sender,
+    reeciever,
+    value,
+    chainID,
+    gasLimit
+  ) {
+    const transaction = {
+      sender: sender,
+      receiver: reeciever,
+      value: value,
+      chainID: MVXChainIdMap[chainID],
+      version: 1,
+    } as IPlainTransactionObject
+
+    const txObject = Transaction.fromPlainObject(transaction)
+    txObject.setNonce(await this.getAccountNonce())
+    txObject.setValue(TokenTransfer.egldFromAmount(value))
+    txObject.setGasLimit(gasLimit)
+    return txObject
+  }
+
+  async getTransactionObjectESDTToken(
+    sender,
+    receiver,
+    value,
+    tokenInfo,
+    chainID
+  ) {
+    const factory = new TransferTransactionsFactory(new GasEstimator())
+
+    const transfer = TokenTransfer.fungibleFromAmount(
+      tokenInfo.symbol,
+      value,
+      tokenInfo.decimals
+    )
+
+    const txObject = factory.createESDTTransfer({
+      tokenTransfer: transfer,
+      nonce: await this.getAccountNonce(),
+      sender: new Address(sender),
+      receiver: new Address(receiver),
+      chainID: MVXChainIdMap[chainID],
+    })
+
+    return txObject
+  }
+
+  async sendToken(txObject) {
     const tx = this.signTransactions([txObject])
     return await this.broadcastTransaction(tx[0])
   }
