@@ -3,6 +3,10 @@ import {
   SignableMessage,
   type ISignature,
   Transaction,
+  TransferTransactionsFactory,
+  GasEstimator,
+  TokenTransfer,
+  Address,
 } from '@multiversx/sdk-core'
 import {
   ApiNetworkProvider,
@@ -13,6 +17,7 @@ import { UserSecretKey, UserPublicKey } from '@multiversx/sdk-wallet'
 import { Signature } from '@multiversx/sdk-wallet/out/signature'
 
 import { ChainType } from '@/utils/chainType'
+import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 
 export class MultiversXAccountHandler {
   private privateKey: UserSecretKey
@@ -109,6 +114,24 @@ export class MultiversXAccountHandler {
 
   getTransaction(hash: string): Promise<TransactionOnNetwork> {
     return this.conn.getTransaction(hash)
+  }
+
+  async getTransactionObjectNFT(collection, nonce, sender, reeciever, chainID) {
+    const factory = new TransferTransactionsFactory(new GasEstimator())
+    const transfer = TokenTransfer.nonFungible(collection, nonce)
+
+    return factory.createESDTNFTTransfer({
+      tokenTransfer: transfer,
+      nonce: await this.getAccountNonce(),
+      sender: new Address(sender),
+      destination: new Address(reeciever),
+      chainID: MVXChainIdMap[chainID],
+    })
+  }
+
+  async sendNft(txObject) {
+    const tx = this.signTransactions([txObject])
+    return await this.broadcastTransaction(tx[0])
   }
 
   async getLatestBlockHash() {

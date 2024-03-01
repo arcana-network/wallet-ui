@@ -182,13 +182,18 @@ async function handleSendToken() {
       const accountHandler =
         getRequestHandler().getAccountHandler() as MultiversXAccountHandler
 
-      const txObject = await getMVXTransactionObject()
+      const txObject = await accountHandler.getTransactionObjectNFT(
+        props.collectionName,
+        props.nonce,
+        userStore.walletAddress,
+        recipientWalletAddress.value,
+        rpcStore.selectedChainId
+      )
 
       if (gasParamsMVX.value.gasLimit > gasParamsMVX.value.minGasLimit) {
         txObject.setGasLimit(gasParamsMVX.value.gasLimit)
       }
-      const sigs = accountHandler.signTransactions([txObject])
-      const txHash = await accountHandler.broadcastTransaction(sigs[0])
+      const txHash = await accountHandler.sendNft(txObject)
 
       const nft = {
         ...props,
@@ -297,27 +302,17 @@ function handleSetGasPrice(value) {
   gas.value = value
 }
 
-async function getMVXTransactionObject() {
+async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
 
-  const factory = new TransferTransactionsFactory(new GasEstimator())
-  const transfer = TokenTransfer.nonFungible(
-    props.collectionName as string,
-    props.nonce as number
+  const txObject = await accountHandler.getTransactionObjectNFT(
+    props.collectionName,
+    props.nonce,
+    userStore.walletAddress,
+    recipientWalletAddress.value,
+    rpcStore.selectedChainId
   )
-
-  return factory.createESDTNFTTransfer({
-    tokenTransfer: transfer,
-    nonce: await accountHandler.getAccountNonce(),
-    sender: new Address(userStore.walletAddress),
-    destination: new Address(recipientWalletAddress.value),
-    chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
-  })
-}
-
-async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
-  const txObject = await getMVXTransactionObject()
 
   gasParamsMVX.value.gasPrice = formatTokenDecimals(
     Number(txObject.getGasPrice()),
