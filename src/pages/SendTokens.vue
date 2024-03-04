@@ -1,13 +1,5 @@
 <script setup lang="ts">
 import {
-  TokenTransfer,
-  IPlainTransactionObject,
-  Transaction,
-  GasEstimator,
-  TransferTransactionsFactory,
-  Address,
-} from '@multiversx/sdk-core'
-import {
   PublicKey,
   SystemProgram,
   TransactionMessage,
@@ -124,7 +116,11 @@ watch(
 )
 
 watch(selectedToken, async () => {
-  if (appStore.chainType === ChainType.multiversx_cv25519) {
+  if (
+    appStore.chainType === ChainType.multiversx_cv25519 &&
+    recipientWalletAddress.value &&
+    amount.value
+  ) {
     await determineGasParamsMVX()
   }
   await fetchTokenBalance()
@@ -302,36 +298,27 @@ async function getMVXTransactionObject() {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
 
+  const sender = userStore.walletAddress
+  const receiver = recipientWalletAddress.value
+  const gasLimit = gasParamsMVX.value.gasLimit
+  const chainId = rpcStore.selectedChainId
+
   if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-    const transaction = {
-      sender: userStore.walletAddress,
-      receiver: recipientWalletAddress.value,
-      value: amount.value,
-      chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
-      version: 1,
-    } as IPlainTransactionObject
-    const txObject = Transaction.fromPlainObject(transaction)
-    txObject.setNonce(await accountHandler.getAccountNonce())
-    txObject.setValue(TokenTransfer.egldFromAmount(amount.value))
-    txObject.setGasLimit(gasParamsMVX.value.gasLimit)
-    return txObject
-  } else {
-    const factory = new TransferTransactionsFactory(new GasEstimator())
-
-    const transfer = TokenTransfer.fungibleFromAmount(
-      selectedToken.value.symbol as string,
+    return await accountHandler.getTransactionObjectNativeToken(
+      sender,
+      receiver,
       amount.value,
-      selectedToken.value.decimals
+      chainId,
+      gasLimit
     )
-
-    const txObject = factory.createESDTTransfer({
-      tokenTransfer: transfer,
-      nonce: await accountHandler.getAccountNonce(),
-      sender: new Address(userStore.walletAddress),
-      receiver: new Address(recipientWalletAddress.value),
-      chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
-    })
-    return txObject
+  } else {
+    return await accountHandler.getTransactionObjectESDTToken(
+      sender,
+      receiver,
+      amount.value,
+      selectedToken.value,
+      chainId
+    )
   }
 }
 
@@ -342,8 +329,7 @@ async function handleSendToken() {
       const accountHandler =
         getRequestHandler().getAccountHandler() as MultiversXAccountHandler
       const txObject = await getMVXTransactionObject()
-      const sigs = accountHandler.signTransactions([txObject])
-      const txHash = await accountHandler.broadcastTransaction(sigs[0])
+      const txHash = await accountHandler.sendToken(txObject)
 
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
         activitiesStore.fetchAndSaveActivityFromHash({

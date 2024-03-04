@@ -18,6 +18,7 @@ type NftDetails = {
   animationUrl?: string
   attributes?: string
   balance?: string
+  identifier?: string
 }
 
 type NftAttributes = {
@@ -43,7 +44,7 @@ const nftAttributes: ComputedRef<NftAttributes[]> = computed(() => {
 })
 
 function openNftModal() {
-  router.push({ name: 'SendNfts', params: { ...props } })
+  router.push({ name: 'SendNfts', query: props })
 }
 
 function handleClose() {

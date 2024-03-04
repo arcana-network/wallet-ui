@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref, onMounted } from 'vue'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useAppStore } from '@/store/app'
@@ -16,6 +16,7 @@ const loader = ref({
   show: false,
   message: '',
 })
+const txFees = ref('0')
 
 const paymasterBalance = ref(0)
 onBeforeMount(async () => {
@@ -44,9 +45,15 @@ const props = defineProps<NftPreviewProps>()
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees = new Decimal(props.previewData.gasFee)
-  .mul(props.previewData.estimatedGas)
-  .toString()
+onMounted(() => {
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    txFees.value = new Decimal(props.previewData.gasFee)
+      .mul(props.previewData.estimatedGas)
+      .toString()
+  } else if (appStore.chainType === ChainType.multiversx_cv25519) {
+    txFees.value = props.previewData.estimatedGas
+  }
+})
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`

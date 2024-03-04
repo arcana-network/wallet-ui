@@ -260,7 +260,9 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             {{ activity.customToken.symbol }}</span
           >
           <span
-            v-else
+            v-else-if="
+              activity.transaction && app.chainType === ChainType.evm_secp256k1
+            "
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${getAmountInNativeCurrency(
               activity.transaction.amount
@@ -378,7 +380,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                     {{ activity.customToken.symbol }}
                   </span>
                   <span
-                    v-else
+                    v-else-if="app.chainType === ChainType.evm_secp256k1"
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
