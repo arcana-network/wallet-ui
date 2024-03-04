@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { Decimal } from 'decimal.js'
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
@@ -9,7 +9,9 @@ import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -20,6 +22,19 @@ const requestStore = useRequestStore()
 const route = useRoute()
 const currencyStore = useCurrencyStore()
 
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
+  loader.value.show = false
+})
 const props = defineProps({
   request: {
     type: Object,

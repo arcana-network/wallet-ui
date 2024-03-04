@@ -15,6 +15,8 @@ type NFTContract = {
   }[]
   tokenUrl: string
   autodetected?: boolean
+  identifier?: string
+  nonce?: number
 }
 
 type NFT = NFTContract & { balance?: number }

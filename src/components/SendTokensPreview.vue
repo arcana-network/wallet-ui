@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
@@ -8,11 +9,13 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
+const txFees = ref('0')
 
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps({
@@ -22,14 +25,31 @@ const props = defineProps({
   },
 })
 
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
+  loader.value.show = false
+})
+
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees =
-  appStore.chainType === ChainType.evm_secp256k1
-    ? new Decimal(props.previewData.gasFee)
-        .mul(props.previewData.estimatedGas)
-        .toString()
-    : undefined
+onMounted(() => {
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    txFees.value = new Decimal(props.previewData.gasFee)
+      .mul(props.previewData.estimatedGas)
+      .toString()
+  } else if (appStore.chainType === ChainType.multiversx_cv25519) {
+    txFees.value = props.previewData.estimatedGas
+  }
+})
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
@@ -84,6 +104,11 @@ function truncateAddress(address: string) {
           <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
         </div>
       </div>
+      <span
+        v-if="!loader.show && rpcStore.useGasless && paymasterBalance >= 0.1"
+        class="text-xs text-green-100 font-medium text-center w-full"
+        >This is a Gasless Transaction. Click Below to Approve.
+      </span>
     </div>
     <SwipeToAction
       v-if="!isPermissionRequestPage"

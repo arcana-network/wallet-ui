@@ -58,6 +58,8 @@ async function getNFTAssets() {
         description: nft.metadata.description,
         imageUrl: nft.url,
         tokenUrl: '',
+        identifier: nft.identifier,
+        nonce: nft.nonce,
       }
     })
   } else if (appStore.chainType === ChainType.solana_cv25519) {
@@ -168,8 +170,8 @@ function handleFallbackNft(event) {
               >
               <span
                 class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
-                :title="nft.collectionName"
-                >{{ nft.collectionName }}</span
+                :title="nft.identifier || nft.collectionName"
+                >{{ nft.identifier || nft.collectionName }}</span
               >
             </div>
           </div>

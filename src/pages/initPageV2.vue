@@ -71,7 +71,6 @@ async function handleSocialLoginRequest(
   if (authProvider) {
     const { url, state } = await user.handleSocialLogin(authProvider, type)
     const loginSrc = await (await parentConnection?.promise)?.getLoginSource()
-    devLogger.log({ loginSrc })
     if (
       !loginSrc ||
       !['rn', 'flutter', 'unity', 'unity-ws'].includes(loginSrc)
@@ -85,12 +84,16 @@ async function handleSocialLoginRequest(
 async function handlePasswordlessLoginRequest(email: string) {
   const isEmailValid = await emailScheme.isValid(email)
   if (isEmailValid) {
-    const connection = await parentConnection?.promise
-    const params = await connection?.getPasswordlessParams()
-    if (!params) {
-      throw new Error('No params found')
+    if (authProvider) {
+      const result = await authProvider.loginWithPasswordlessV2Start({
+        email: email,
+        kind: 'otp',
+        json: false,
+      })
+      if (result && result.url) {
+        await (await parentConnection?.promise)?.goTo(result.url)
+      }
     }
-    return await fetchPasswordlessResponseFromSignIn(params)
   }
 }
 </script>
