@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
@@ -15,6 +15,7 @@ const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
+const txFees = ref('0')
 
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps({
@@ -40,12 +41,15 @@ onBeforeMount(async () => {
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-const txFees =
-  appStore.chainType === ChainType.evm_secp256k1
-    ? new Decimal(props.previewData.gasFee)
-        .mul(props.previewData.estimatedGas)
-        .toString()
-    : undefined
+onMounted(() => {
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    txFees.value = new Decimal(props.previewData.gasFee)
+      .mul(props.previewData.estimatedGas)
+      .toString()
+  } else if (appStore.chainType === ChainType.multiversx_cv25519) {
+    txFees.value = props.previewData.estimatedGas
+  }
+})
 
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`

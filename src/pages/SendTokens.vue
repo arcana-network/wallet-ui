@@ -28,6 +28,7 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
+import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
@@ -41,6 +42,7 @@ import {
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { content } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
@@ -79,6 +81,12 @@ const tokenList = ref([
 const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
+const gasParamsMVX = ref({
+  gasFee: 0,
+  gasPrice: 0,
+  gasLimit: 0,
+  minGasLimit: 0,
+})
 
 const walletBalance = computed(() => {
   if (appStore.chainType === ChainType.solana_cv25519) {
@@ -106,7 +114,19 @@ watch(gas, () => {
   }
 })
 
+watch(
+  () => !!recipientWalletAddress.value && !!amount.value,
+  async (val) => {
+    if (val) {
+      await determineGasParamsMVX()
+    }
+  }
+)
+
 watch(selectedToken, async () => {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    await determineGasParamsMVX()
+  }
   await fetchTokenBalance()
 })
 
@@ -169,6 +189,35 @@ onUnmounted(() => {
   if (baseFeePoll) clearInterval(baseFeePoll)
   if (gasSliderPoll) clearInterval(gasSliderPoll)
 })
+
+async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+  const networkConfig = await accountHandler
+    .getNetworkProvider()
+    .getNetworkConfig()
+
+  const tokenInfo = tokenList.value.find(
+    (item) => item.symbol === rpcStore.nativeCurrency?.symbol
+  ) as any
+
+  const txObject = await getMVXTransactionObject()
+
+  gasParamsMVX.value.gasPrice = formatTokenDecimals(
+    networkConfig.MinGasPrice,
+    tokenInfo.decimals
+  )
+
+  gasParamsMVX.value.minGasLimit = networkConfig.MinGasLimit
+
+  const gasLimit = Number(gasLimitInput) || networkConfig.MinGasLimit
+
+  gasParamsMVX.value.gasLimit =
+    gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
+
+  gasParamsMVX.value.gasFee =
+    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+}
 
 async function fetchBaseFee() {
   const accountHandler =
@@ -249,54 +298,60 @@ function setHexPrefix(value: string) {
   return value.startsWith(hexPrefix) ? value : `${hexPrefix}${value}`
 }
 
+async function getMVXTransactionObject() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
+  if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+    const transaction = {
+      sender: userStore.walletAddress,
+      receiver: recipientWalletAddress.value,
+      value: amount.value,
+      chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
+      version: 1,
+    } as IPlainTransactionObject
+    const txObject = Transaction.fromPlainObject(transaction)
+    txObject.setNonce(await accountHandler.getAccountNonce())
+    txObject.setValue(TokenTransfer.egldFromAmount(amount.value))
+    txObject.setGasLimit(gasParamsMVX.value.gasLimit)
+    return txObject
+  } else {
+    const factory = new TransferTransactionsFactory(new GasEstimator())
+
+    const transfer = TokenTransfer.fungibleFromAmount(
+      selectedToken.value.symbol as string,
+      amount.value,
+      selectedToken.value.decimals
+    )
+
+    const txObject = factory.createESDTTransfer({
+      tokenTransfer: transfer,
+      nonce: await accountHandler.getAccountNonce(),
+      sender: new Address(userStore.walletAddress),
+      receiver: new Address(recipientWalletAddress.value),
+      chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
+    })
+    return txObject
+  }
+}
+
 async function handleSendToken() {
   showLoader('Sending...')
   try {
     if (appStore.chainType === ChainType.multiversx_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+      const txObject = await getMVXTransactionObject()
+      const sigs = accountHandler.signTransactions([txObject])
+      const txHash = await accountHandler.broadcastTransaction(sigs[0])
+
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-        const transaction = {
-          gasLimit: 70000,
-          sender: userStore.walletAddress,
-          receiver: recipientWalletAddress.value,
-          value: amount.value,
-          chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
-          version: 1,
-        } as IPlainTransactionObject
-        const accountHandler =
-          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-        const txObject = Transaction.fromPlainObject(transaction)
-        txObject.setNonce(await accountHandler.getAccountNonce())
-        txObject.setValue(TokenTransfer.egldFromAmount(amount.value))
-        const sigs = accountHandler.signTransactions([txObject])
-        const txHash = await accountHandler.broadcastTransaction(sigs[0])
         activitiesStore.fetchAndSaveActivityFromHash({
           chainId: rpcStore.selectedRpcConfig?.chainId,
           txHash: txHash,
           chainType: ChainType.multiversx_cv25519,
         })
       } else {
-        const accountHandler =
-          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-
-        const factory = new TransferTransactionsFactory(new GasEstimator())
-
-        const transfer1 = TokenTransfer.fungibleFromAmount(
-          selectedToken.value.symbol as string,
-          amount.value,
-          selectedToken.value.decimals
-        )
-
-        const txObject = factory.createESDTTransfer({
-          tokenTransfer: transfer1,
-          nonce: await accountHandler.getAccountNonce(),
-          sender: new Address(userStore.walletAddress),
-          receiver: new Address(recipientWalletAddress.value),
-          chainID: MVXChainIdMap[rpcStore.selectedChainId as number],
-        })
-
-        const sigs = accountHandler.signTransactions([txObject])
-        const txHash = await accountHandler.broadcastTransaction(sigs[0])
-
         activitiesStore.fetchAndSaveActivityFromHash({
           chainId: rpcStore.selectedRpcConfig?.chainId,
           txHash: txHash,
@@ -447,6 +502,10 @@ function handleSetGasPrice(value) {
   gas.value = value
 }
 
+function onGasLimitChangeMVX(val) {
+  determineGasParamsMVX(val)
+}
+
 function addToActivity(result) {
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
@@ -503,8 +562,18 @@ async function handleShowPreview() {
     appStore.chainType === ChainType.solana_cv25519 ||
     appStore.chainType === ChainType.multiversx_cv25519
   ) {
-    if (recipientWalletAddress.value && amount.value) {
+    if (
+      appStore.chainType === ChainType.multiversx_cv25519 &&
+      gasParamsMVX.value.minGasLimit > gasParamsMVX.value.gasLimit
+    ) {
+      toast.error(
+        `${content.GAS.GREATER_LIMIT_MVX} ${gasParamsMVX.value.minGasLimit}`
+      )
+    } else if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        estimatedGas.value = String(gasParamsMVX.value.gasFee)
+      }
     } else {
       toast.error('Please fill all values')
     }
@@ -757,6 +826,14 @@ watch(
           :base-fee="baseFee"
           :gas-limit="estimatedGas"
           @gas-price-input="handleSetGasPrice"
+        />
+        <GasPriceMVX
+          v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
+          :gas-fee="gasParamsMVX.gasFee"
+          :gas-price="gasParamsMVX.gasPrice"
+          :gas-limit="gasParamsMVX.gasLimit"
+          :min-gas-limit="gasParamsMVX.minGasLimit"
+          @gas-limit-input="onGasLimitChangeMVX"
         />
         <span
           v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
