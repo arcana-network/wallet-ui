@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { Decimal } from 'decimal.js'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -17,6 +17,7 @@ import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { scwInstance } from '@/utils/scw'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
@@ -24,6 +25,13 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])

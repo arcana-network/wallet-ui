@@ -14,7 +14,15 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 import { Decimal } from 'decimal.js'
-import { onMounted, onUnmounted, ref, Ref, watch, computed } from 'vue'
+import {
+  onMounted,
+  onUnmounted,
+  ref,
+  Ref,
+  watch,
+  computed,
+  onBeforeMount,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -38,6 +46,7 @@ import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const showPreview = ref(false)
@@ -78,6 +87,13 @@ const walletBalance = computed(() => {
       .toString()
   }
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 watch(gas, () => {

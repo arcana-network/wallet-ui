@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onMounted, onUnmounted, ref, Ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, Ref, watch, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -18,6 +18,7 @@ import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 type SendNftProps = {
@@ -106,6 +107,13 @@ onMounted(async () => {
     } finally {
       hideLoader()
     }
+  }
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
   }
 })
 

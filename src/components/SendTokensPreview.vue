@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
+import { onBeforeMount, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
@@ -8,6 +9,7 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -20,6 +22,20 @@ const props = defineProps({
     type: PreviewData,
     required: true,
   },
+})
+
+const loader = ref({
+  show: false,
+  message: '',
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  loader.value.show = true
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
+  loader.value.show = false
 })
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
