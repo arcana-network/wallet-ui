@@ -209,13 +209,13 @@ type HandleLoginParams = {
 }
 
 const handleLogin = async (params: HandleLoginParams) => {
+  if (params.isStandalone) {
+    await params.connection.goToWallet()
+    return
+  }
   if (params.userInfo.loginType === SocialLoginType.passwordless) {
     await handlePasswordlessLoginV2(params)
   } else {
-    if (params.isStandalone) {
-      await params.connection.goToWallet()
-      return
-    }
     await handleSocialLogin(params)
   }
 }
