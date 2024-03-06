@@ -235,45 +235,20 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             }
             this.saveActivity(Number(chainId), activity)
           } else {
-            if (customToken) {
-              const activity: Activity = {
-                operation: customToken.operation,
-                txHash,
-                transaction: {
-                  hash: txHash,
-                  amount:
-                    Number(customToken.amount) >= 1
-                      ? BigInt(customToken.amount)
-                      : customToken.amount,
-                  nonce: tx.nonce,
-                  fee: BigInt(tx.gasPrice as number),
-                },
-                status: tx.status.status as ActivityStatus,
-                date: new Date(),
-                address: {
-                  from: userStore.walletAddress,
-                  to: recipientAddress,
-                },
-                customToken,
-              }
-              this.saveActivity(Number(chainId), activity)
-            } else {
-              const activity: Activity = {
-                txHash: tx.hash,
-                operation: 'Send',
-                date: new Date(),
-                status: tx.status.status as ActivityStatus,
-                address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
-                transaction: {
-                  hash: tx.hash,
-                  amount: BigInt(tx.value),
-                  gasLimit: BigInt(tx.gasLimit),
-                  gasPrice: BigInt(tx.gasPrice),
-                  nonce: tx.nonce,
-                  data: tx.data.toString(),
-                },
-              }
-              this.saveActivity(chainId, activity)
+            const activity: Activity = {
+              txHash: tx.hash,
+              operation: 'Send',
+              date: new Date(),
+              status: tx.status.status as ActivityStatus,
+              address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
+              transaction: {
+                hash: tx.hash,
+                amount: BigInt(tx.value),
+                gasLimit: BigInt(tx.gasLimit),
+                gasPrice: BigInt(tx.gasPrice),
+                nonce: tx.nonce,
+                data: tx.data.toString(),
+              },
             }
             this.saveActivity(chainId, activity)
           }
