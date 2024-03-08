@@ -53,7 +53,7 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'TransakSell',
     path: '/:appId/sell/transak',
-    component: TransakSell,
+    component: () => import('@/pages/TransakSell.vue'),
     meta: {
       isFullPageView: true,
     },
