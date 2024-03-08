@@ -51,6 +51,14 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/PermissionRequest.vue'),
   },
   {
+    name: 'TransakSell',
+    path: '/:appId/sell/transak',
+    component: TransakSell,
+    meta: {
+      isFullPageView: true,
+    },
+  },
+  {
     path: '/loggedin',
     component: () => import('@/pages/loggedInView.vue'),
     children: [

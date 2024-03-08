@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
@@ -11,7 +12,7 @@ const passwordType = ref('password')
 const toast = useToast()
 
 function handleProceed() {
-  if (!password.value) return toast.error('Enter the pin to continue')
+  if (!password.value) return toast.error(content.PIN)
   emit('proceed', {
     password: password.value,
   })
