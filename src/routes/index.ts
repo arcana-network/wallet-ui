@@ -1,63 +1,37 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
-import Activities from '@/pages/ActivitiesScreen.vue'
-import AddOrEditNFTScreen from '@/pages/AddOrEditNFTScreen.vue'
-import AddTokenScreen from '@/pages/AddTokenScreen.vue'
-import InitPage from '@/pages/backCompat/initPage.vue'
-import SignIn from '@/pages/backCompat/signIn.vue'
-import GlobalRedirect from '@/pages/globalRedirect.vue'
-import HomeScreen from '@/pages/homeScreen.vue'
-import InitPageV2 from '@/pages/initPageV2.vue'
-import LoggedInView from '@/pages/loggedInView.vue'
-import LoginRedirect from '@/pages/loginRedirect.vue'
-import ManageNFTScreen from '@/pages/ManageNFTScreen.vue'
-import MFARequiredScreen from '@/pages/MFARequiredScreen.vue'
-import MFARestoreScreen from '@/pages/MFARestoreScreen.vue'
-import MFASetup from '@/pages/MFASetup.vue'
-import NftDetailsScreen from '@/pages/NftDetailsScreen.vue'
-import NFTScreen from '@/pages/NFTScreen.vue'
-import PermissionRequest from '@/pages/PermissionRequest.vue'
-import ProfileScreen from '@/pages/profileScreen.vue'
-import ReconnectV1 from '@/pages/ReconnectV1.vue'
-import RequestsScreen from '@/pages/RequestsScreen.vue'
-import SelectNftScreen from '@/pages/SelectNftScreen.vue'
-import SendNft from '@/pages/SendNft.vue'
-import SendTokens from '@/pages/SendTokens.vue'
-import SignInV2 from '@/pages/signInV2.vue'
-import StarterTips from '@/pages/StarterTips/index-page.vue'
-
 const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
-    component: SignIn,
+    component: () => import('@/pages/backCompat/signIn.vue'),
   },
   {
     path: '/global-redirect/',
-    component: GlobalRedirect,
+    component: () => import('@/pages/globalRedirect.vue'),
   },
   {
     path: '/:appId/redirect/',
-    component: LoginRedirect,
+    component: () => import('@/pages/loginRedirect.vue'),
   },
   {
     path: '/:appId/init/',
-    component: InitPage,
+    component: () => import('@/pages/backCompat/initPage.vue'),
   },
   {
     path: '/:appId/v2/login',
-    component: SignInV2,
+    component: () => import('@/pages/signInV2.vue'),
   },
   {
     path: '/:appId/v2/init/',
-    component: InitPageV2,
+    component: () => import('@/pages/initPageV2.vue'),
   },
   {
     path: '/:appId/v1/reconnect/',
-    component: ReconnectV1,
+    component: () => import('@/pages/ReconnectV1.vue'),
   },
   {
     path: '/:appId/mfa/setup',
-    component: MFASetup,
+    component: () => import('@/pages/MFASetup.vue'),
     name: 'MFASetup',
     meta: {
       isFullPageView: true,
@@ -65,7 +39,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:appId/mfa/restore',
-    component: MFARestoreScreen,
+    component: () => import('@/pages/MFARestoreScreen.vue'),
     name: 'MFARestore',
     meta: {
       isFullPageView: true,
@@ -74,87 +48,87 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'PermissionRequest',
     path: '/:appId/permission',
-    component: PermissionRequest,
+    component: () => import('@/pages/PermissionRequest.vue'),
   },
   {
     path: '/loggedin',
-    component: LoggedInView,
+    component: () => import('@/pages/loggedInView.vue'),
     children: [
       {
         path: '/mfa/required',
-        component: MFARequiredScreen,
+        component: () => import('@/pages/MFARequiredScreen.vue'),
         name: 'MFARequired',
       },
       {
         name: 'home',
         path: '/',
-        component: HomeScreen,
+        component: () => import('@/pages/homeScreen.vue'),
       },
       {
         name: 'StarterTips',
         path: '/starterTips',
-        component: StarterTips,
+        component: () => import('@/pages/StarterTips/index-page.vue'),
       },
       {
         name: 'Nfts',
         path: '/nfts',
-        component: NFTScreen,
+        component: () => import('@/pages/NFTScreen.vue'),
       },
       {
         name: 'SelectNft',
         path: '/nfts/select',
-        component: SelectNftScreen,
+        component: () => import('@/pages/SelectNftScreen.vue'),
       },
       {
         name: 'ManageNft',
         path: '/nfts/manage',
-        component: ManageNFTScreen,
+        component: () => import('@/pages/ManageNFTScreen.vue'),
       },
       {
         name: 'AddNft',
         path: '/nfts/add',
-        component: AddOrEditNFTScreen,
+        component: () => import('@/pages/AddOrEditNFTScreen.vue'),
       },
       {
         name: 'EditNft',
         path: '/nfts/edit',
-        component: AddOrEditNFTScreen,
+        component: () => import('@/pages/AddOrEditNFTScreen.vue'),
         props: true,
       },
       {
         name: 'NftDetails',
         path: '/nfts/details',
-        component: NftDetailsScreen,
+        component: () => import('@/pages/NftDetailsScreen.vue'),
       },
       {
         name: 'requests',
         path: '/requests',
-        component: RequestsScreen,
+        component: () => import('@/pages/RequestsScreen.vue'),
       },
       {
         name: 'profile',
         path: '/profileScreen',
-        component: ProfileScreen,
+        component: () => import('@/pages/profileScreen.vue'),
       },
       {
         name: 'AddToken',
         path: '/addToken',
-        component: AddTokenScreen,
+        component: () => import('@/pages/AddTokenScreen.vue'),
       },
       {
         name: 'activities',
         path: '/activities',
-        component: Activities,
+        component: () => import('@/pages/ActivitiesScreen.vue'),
       },
       {
         name: 'SendTokens',
         path: '/tokens/send',
-        component: SendTokens,
+        component: () => import('@/pages/SendTokens.vue'),
       },
       {
         name: 'SendNfts',
         path: '/nfts/send',
-        component: SendNft,
+        component: () => import('@/pages/SendNft.vue'),
         props: true,
       },
     ],
