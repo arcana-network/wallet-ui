@@ -84,6 +84,35 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
+  async getBalanceGasSponsorship(receiverAddress: string) {
+    const payload = {
+      method: 'eth_call',
+      params: [
+        {
+          to: receiverAddress,
+          from: userStore.walletAddress,
+          data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
+        },
+        'latest',
+      ],
+      id: 1,
+      jsonrpc: '2.0',
+    }
+
+    const response = await fetch(
+      rpcStore.selectedRPCConfig?.rpcUrls[0] as string,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    )
+
+    console.log(response, 'response')
+  }
+
   sendCustomToken = async (
     contractAddress,
     recipientAddress,
@@ -353,6 +382,7 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
+    await this.getBalanceGasSponsorship(data.to)
     try {
       if (rpcStore.useGasless) {
         const txParams = {
