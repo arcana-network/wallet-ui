@@ -110,7 +110,7 @@ class EVMAccountHandler {
       }
     )
 
-    console.log(response, 'response')
+    console.log(response, 'getBalanceGasSponsorship')
   }
 
   sendCustomToken = async (
