@@ -1,4 +1,5 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
+import axios from 'axios'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -99,15 +100,9 @@ class EVMAccountHandler {
       jsonrpc: '2.0',
     }
 
-    const response = await fetch(
+    const response = await axios.post(
       rpcStore.selectedRPCConfig?.rpcUrls[0] as string,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      }
+      payload
     )
 
     console.log(response, 'getBalanceGasSponsorship')
