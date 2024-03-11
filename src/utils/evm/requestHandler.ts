@@ -20,6 +20,7 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { type EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { toHex } from '@/utils/toHex'
 
 interface RpcConfig {
@@ -58,7 +59,9 @@ class EVMRequestHandler {
       this.handler = this.initRpcEngine(c)
       this.accountHandler.setProvider(c.rpcUrls[0])
       // Emit `chainChanged` event
+      devLogger.time('setRpcConfig')
       const chainId = await this.accountHandler.getChainId()
+      devLogger.timeEnd('setRpcConfig')
       this.emitEvent('chainChanged', { chainId })
     } catch (e) {
       console.log({ e })

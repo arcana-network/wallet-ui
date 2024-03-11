@@ -112,6 +112,7 @@ function setShowStarterTips() {
 }
 
 onMounted(async () => {
+  devLogger.time('[loggedInView][total]')
   try {
     loader.value.show = true
     devLogger.log('[loggedInView]', { curve: appStore.curve })
@@ -120,15 +121,27 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-    await setRpcConfigs()
-    await getRpcConfig()
-    await getKeySpaceType()
+
+    devLogger.time('[loggedInView][1]')
+    await Promise.all([
+      setRpcConfigs().then(async () => await getRpcConfig()),
+      getKeySpaceType(),
+    ])
+    devLogger.timeEnd('[loggedInView][1]')
+
+    devLogger.time('[loggedInView][2]')
     await connectToParent()
     await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
+    devLogger.timeEnd('[loggedInView][2]')
+
+    devLogger.time('[loggedInView][3]')
     await getAccountDetails()
     startCurrencyInterval()
+    devLogger.timeEnd('[loggedInView][3]')
+
+    devLogger.time('[loggedInView][4]')
     appStore.showWallet = true
     await setMFABannerState()
     const requestHandler = getRequestHandler()
@@ -137,10 +150,12 @@ onMounted(async () => {
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
-      await requestHandler.setRpcConfig({
-        chainId: selectedChainId,
-        ...rpcConfig,
-      })
+      requestHandler
+        .setRpcConfig({
+          chainId: selectedChainId,
+          ...rpcConfig,
+        })
+        .then(async () => await requestHandler.sendConnect())
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
@@ -148,7 +163,7 @@ onMounted(async () => {
         await initScwSdk()
       }
 
-      await requestHandler.sendConnect()
+      devLogger.timeEnd('[loggedInView][4]')
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
@@ -157,6 +172,7 @@ onMounted(async () => {
     loader.value.show = false
     setShowStarterTips()
   }
+  devLogger.timeEnd('[loggedInView][total]')
 })
 
 async function initScwSdk() {
@@ -241,8 +257,15 @@ async function initAccountHandler() {
       userStore.setWalletAddress(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
-        const walletType = await getWalletType(appStore.id)
-        await setAppMode(walletType, parentConnectionInstance)
+        let walletMode = storage.local.getWalletMode()
+        devLogger.log('[initAccountHandler] setWalletMode = ', walletMode)
+        if (!walletMode) {
+          const walletType = await getWalletType(appStore.id)
+          devLogger.log('walletType', walletType)
+          storage.local.setWalletMode(walletType)
+          walletMode = walletType
+        }
+        await setAppMode(walletMode, parentConnectionInstance)
       }
     }
   } catch (err) {
@@ -387,12 +410,14 @@ async function setRpcConfigs() {
 
 async function getRpcConfig() {
   try {
+    devLogger.time('getRpcConfig')
     let rpcConfig =
       enabledChainList.value.find((chain) => chain.defaultChain) ||
       enabledChainList.value[0] // some time, chain list don't have default chain
     initKeeper(rpcConfig.rpcUrls[0])
     rpcStore.setSelectedRPCConfig(rpcConfig)
     rpcStore.setRpcConfig(rpcConfig)
+    devLogger.timeEnd('getRpcConfig')
   } catch (err) {
     console.log({ err })
   }

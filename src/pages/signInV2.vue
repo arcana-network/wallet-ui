@@ -25,6 +25,8 @@ import {
 } from '@/utils/PasswordlessLoginHandler'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
+devLogger.time('[signinV2][script]')
+
 const route = useRoute()
 const router = useRouter()
 const user = useUserStore()
@@ -387,8 +389,10 @@ async function initializeParentConnection() {
 }
 
 async function init() {
+  devLogger.time('[signinV2-init][total]')
   isLoading.value = true
   try {
+    devLogger.time('[signinV2-init][1]')
     const storage = getStorage()
 
     parseHashAndSetSettings()
@@ -397,12 +401,11 @@ async function init() {
     window.addEventListener('message', windowEventHandler)
     app.setAppId(`${appId}`)
 
-    authProvider = await getAuthProvider(`${appId}`)
-    availableLogins.value = await fetchAvailableLogins(authProvider)
+    devLogger.time('[signinV2-init][2]')
 
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
-
+    devLogger.timeEnd('[signinV2-init][2]')
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       user.hasMfa = hasMfa
@@ -430,22 +433,36 @@ async function init() {
       }
       user.setUserInfo(userInfo)
       user.setLoginStatus(true)
+      devLogger.timeEnd('[signinV2-init][1]')
       await router.push({ name: 'home' })
     } else {
+      devLogger.time('[signinV2-init][getAuthProvider')
+      authProvider = await getAuthProvider(`${appId}`)
+      devLogger.timeEnd('[signinV2-init][getAuthProvider')
+      devLogger.time('[signinV2-init][fetchAvailableLogins')
+      availableLogins.value = await fetchAvailableLogins(authProvider)
+      devLogger.timeEnd('[signinV2-init][fetchAvailableLogins')
+      devLogger.time('[signinV2-init][initializeParentConnection')
       const parentConnectionInstance = await initializeParentConnection()
+      devLogger.timeEnd('[signinV2-init][initializeParentConnection')
+      devLogger.time('[signinV2-init][getAppConfig')
       const {
         themeConfig: { theme },
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
+      devLogger.timeEnd('[signinV2-init][getAppConfig')
+      devLogger.time('[signinV2-init][setTheme')
 
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
       if (theme === 'dark') htmlEl.classList.add(theme)
       app.setName(appName)
+      devLogger.timeEnd('[signinV2-init][setTheme')
     }
   } finally {
     isLoading.value = false
   }
+  devLogger.timeEnd('[signinV2-init][total]')
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
@@ -499,6 +516,7 @@ async function handleBearerLoginRequest(
       return false
   }
 }
+devLogger.timeEnd('[signinV2][script]')
 </script>
 
 <template>

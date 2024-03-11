@@ -5,6 +5,13 @@ module.exports = defineConfig({
   assetsDir: 'assets',
   transpileDependencies: true,
   configureWebpack: {
+    optimization: {
+      splitChunks: {
+        minSize: 100000,
+        maxSize: 250000,
+        hidePathInfo: true,
+      },
+    },
     resolve: {
       fallback: {
         buffer: require.resolve('buffer/'),
@@ -30,4 +37,5 @@ module.exports = defineConfig({
       },
     },
   },
+  integrity: true,
 })
