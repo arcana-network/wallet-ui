@@ -359,49 +359,6 @@ function handleSetGasPrice(value) {
   gas.value = value
 }
 
-function addToActivity(result) {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionSent,
-        chainType: ChainType.solana_cv25519,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        txHash: result.sig,
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-          decimals: result.tokenInfo?.decimals as number,
-        },
-        recipientAddress: recipientWalletAddress.value,
-        chainType: ChainType.solana_cv25519,
-      })
-    }
-  } else {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.txHash,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionHash,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-        },
-        recipientAddress: setHexPrefix(recipientWalletAddress.value),
-      })
-    }
-  }
-}
-
 async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
