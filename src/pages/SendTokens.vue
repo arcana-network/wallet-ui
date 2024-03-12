@@ -456,47 +456,7 @@ async function handleShowPreview() {
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
-        const isGlobalKeyspace = appStore.global
-        if (isGlobalKeyspace) {
-          const requestObject = {
-            type: 'json_rpc_request',
-            data: {
-              request: {
-                method: '_send_token',
-                params: {
-                  senderWalletAddress: userStore.walletAddress,
-                  recipientWalletAddress: recipientWalletAddress.value,
-                  amount: amount.value,
-                  gasFee: gasFeeInEth.value,
-                  selectedToken: selectedToken.value.symbol as string,
-                  estimatedGas: estimatedGas.value,
-                  tokenDetails: JSON.stringify(selectedToken.value),
-                  chaintype: appStore.chainType,
-                  tokenList: JSON.stringify(tokenList.value),
-                  gas: JSON.stringify(gas.value),
-                },
-              },
-              chainId: rpcStore.selectedChainId,
-            },
-          }
-
-          makeRequest(appStore.id, requestObject)
-
-          window.addEventListener('message', (event) => {
-            const { data } = event
-            const { type, response } = data
-            if (type === 'json_rpc_response') {
-              if (response.error) {
-                toast.error(response.error)
-              } else {
-                addToActivity(response.result)
-              }
-            }
-          })
-          router.push({ name: 'home' })
-        } else {
-          showPreview.value = true
-        }
+        showPreview.value = true
       } catch (e) {
         //handle errors in transaction
         toast.error(errors.GENERIC.WRONG)

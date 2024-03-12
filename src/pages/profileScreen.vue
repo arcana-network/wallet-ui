@@ -85,14 +85,8 @@ function getRequestObject() {
 }
 
 async function handleProceed() {
-  const isGlobalKeyspace = appStore.global
-  if (isGlobalKeyspace) {
-    await makeRequest(appId, getRequestObject())
-    handleHidePrivateKeyCautionModal()
-  } else {
-    showPrivateKeyCautionModal.value = false
-    showExportKeyModal.value = true
-  }
+  showPrivateKeyCautionModal.value = false
+  showExportKeyModal.value = true
 }
 
 function handleShowPrivateKeyCautionModal() {
