@@ -518,15 +518,17 @@ function handleTransactionErrors() {
 }
 
 function getMaxTransferValue() {
-  let gasFees = Number(gasFeeInEth.value) * Number(estimatedGas.value)
-  let MaxTokenforTransfer = Number(selectedTokenBalance.value) - Number(gasFees)
-  let MaxValueInput = parseFloat(MaxTokenforTransfer.toFixed(9))
+  const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
+  const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
+    gasFees
+  )
+  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
 
-  if (MaxValueInput < 0) {
-    MaxValueInput = 0
+  if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
+    maxValueInput = new Decimal(0)
     toast.error('Insufficient funds for Transfer.')
   }
-  return MaxValueInput
+  return maxValueInput
 }
 
 function handleTokenChange(e) {
