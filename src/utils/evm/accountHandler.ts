@@ -111,9 +111,28 @@ class EVMAccountHandler {
       rpcStore.selectedRPCConfig?.nativeCurrency?.decimals
     )
 
-    console.log(value, response, 'response-gas-sponsorship')
+    return value
+  }
 
-    return ''
+  async determineScwMode() {
+    const userBalance = await this.getBalanceGasSponsorship()
+    const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
+
+    const thresholdUserBalance = 0.00001
+    const thresholdPaymasterBalance = 0.1
+    let mode = 'SCW'
+    if (paymasterBalance > thresholdPaymasterBalance) {
+      if (isSendIt) {
+        if (userBalance < thresholdUserBalance) {
+          mode = 'SCW'
+        } else {
+          mode = 'ARCANA'
+        }
+      } else {
+        mode = 'SPONSORED' // you can make it as undefined
+      }
+    } else mode = 'SCW'
+    return mode
   }
 
   sendCustomToken = async (
@@ -138,8 +157,8 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
-      if (paymasterBalance < 0.1) {
+      const transactionMode = await this.determineScwMode()
+      if (transactionMode === 'SCW') {
         modalStore.setShowModal(true)
         appStore.expandWallet = true
         gaslessStore.showUseWalletBalancePermission = true
@@ -153,17 +172,12 @@ class EVMAccountHandler {
                 reject(new Error('Gastank balance too low'))
               }
               modalStore.setShowModal(false)
-              appStore.expandWallet = false
               gaslessStore.showUseWalletBalancePermission = false
             }
           }, 500)
         })
       }
-      const tx = gaslessStore.canUseWalletBalance
-        ? await scwInstance.doTx(txParams, { mode: 'scw' })
-        : isSendIt
-        ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
-        : await scwInstance.doTx(txParams)
+      const tx = await scwInstance.doTx(txParams, { mode: transactionMode })
       const txDetails = await tx.wait()
       gaslessStore.canUseWalletBalance = null
       return txDetails.receipt.transactionHash
@@ -393,9 +407,8 @@ class EVMAccountHandler {
           to: data.to,
           value: data.value,
         }
-        const paymasterBalance =
-          (await scwInstance.getPaymasterBalance()) / 1e18
-        if (paymasterBalance < 0.1) {
+        const transactionMode = await this.determineScwMode()
+        if (transactionMode === 'SCW') {
           modalStore.setShowModal(true)
           appStore.expandWallet = true
           gaslessStore.showUseWalletBalancePermission = true
@@ -409,17 +422,12 @@ class EVMAccountHandler {
                   reject(new Error('Gastank balance too low'))
                 }
                 modalStore.setShowModal(false)
-                appStore.expandWallet = false
                 gaslessStore.showUseWalletBalancePermission = false
               }
             }, 500)
           })
         }
-        const tx = gaslessStore.canUseWalletBalance
-          ? await scwInstance.doTx(txParams, { mode: 'scw' })
-          : isSendIt
-          ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
-          : await scwInstance.doTx(txParams)
+        const tx = await scwInstance.doTx(txParams, { mode: transactionMode })
         gaslessStore.canUseWalletBalance = null
         const txDetails = await tx.wait()
         return txDetails.receipt.transactionHash
