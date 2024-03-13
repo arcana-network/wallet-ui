@@ -380,7 +380,7 @@ class EVMAccountHandler {
 
   public async sendTransaction(data, address: string): Promise<string> {
     try {
-      return await this.getBalanceGasSponsorship(data.to)
+      await this.getBalanceGasSponsorship(data.to)
       if (rpcStore.useGasless) {
         const txParams = {
           from: address,
