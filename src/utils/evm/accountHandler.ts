@@ -90,7 +90,7 @@ class EVMAccountHandler {
       method: 'eth_call',
       params: [
         {
-          from: null,
+          from: userStore.walletAddress,
           to: receiverAddress,
           data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
         },
