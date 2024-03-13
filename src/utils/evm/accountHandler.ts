@@ -381,52 +381,52 @@ class EVMAccountHandler {
   public async sendTransaction(data, address: string): Promise<string> {
     try {
       return await this.getBalanceGasSponsorship(data.to)
-      // if (rpcStore.useGasless) {
-      //   const txParams = {
-      //     from: address,
-      //     to: data.to,
-      //     value: data.value,
-      //   }
-      //   const paymasterBalance =
-      //     (await scwInstance.getPaymasterBalance()) / 1e18
-      //   if (paymasterBalance < 0.1) {
-      //     modalStore.setShowModal(true)
-      //     appStore.expandWallet = true
-      //     gaslessStore.showUseWalletBalancePermission = true
-      //     await new Promise((resolve, reject) => {
-      //       const intervalId = setInterval(() => {
-      //         if (gaslessStore.canUseWalletBalance !== null) {
-      //           clearInterval(intervalId)
-      //           if (gaslessStore.canUseWalletBalance) {
-      //             resolve(null)
-      //           } else {
-      //             reject(new Error('Gastank balance too low'))
-      //           }
-      //           modalStore.setShowModal(false)
-      //           appStore.expandWallet = false
-      //           gaslessStore.showUseWalletBalancePermission = false
-      //         }
-      //       }, 500)
-      //     })
-      //   }
-      //   const tx = gaslessStore.canUseWalletBalance
-      //     ? await scwInstance.doTx(txParams, { mode: 'scw' })
-      //     : isSendIt
-      //     ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
-      //     : await scwInstance.doTx(txParams)
-      //   gaslessStore.canUseWalletBalance = null
-      //   const txDetails = await tx.wait()
-      //   return txDetails.receipt.transactionHash
-      // } else {
-      //   const wallet = this.getWallet(address)
-      //   if (wallet) {
-      //     const signer = wallet.connect(this.provider)
-      //     const tx = await signer.sendTransaction(data)
-      //     return tx.hash
-      //   } else {
-      //     throw new Error('No Wallet found for the provided address')
-      //   }
-      // }
+      if (rpcStore.useGasless) {
+        const txParams = {
+          from: address,
+          to: data.to,
+          value: data.value,
+        }
+        const paymasterBalance =
+          (await scwInstance.getPaymasterBalance()) / 1e18
+        if (paymasterBalance < 0.1) {
+          modalStore.setShowModal(true)
+          appStore.expandWallet = true
+          gaslessStore.showUseWalletBalancePermission = true
+          await new Promise((resolve, reject) => {
+            const intervalId = setInterval(() => {
+              if (gaslessStore.canUseWalletBalance !== null) {
+                clearInterval(intervalId)
+                if (gaslessStore.canUseWalletBalance) {
+                  resolve(null)
+                } else {
+                  reject(new Error('Gastank balance too low'))
+                }
+                modalStore.setShowModal(false)
+                appStore.expandWallet = false
+                gaslessStore.showUseWalletBalancePermission = false
+              }
+            }, 500)
+          })
+        }
+        const tx = gaslessStore.canUseWalletBalance
+          ? await scwInstance.doTx(txParams, { mode: 'scw' })
+          : isSendIt
+          ? await scwInstance.doTx(txParams, { mode: 'ARCANA' })
+          : await scwInstance.doTx(txParams)
+        gaslessStore.canUseWalletBalance = null
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
+      } else {
+        const wallet = this.getWallet(address)
+        if (wallet) {
+          const signer = wallet.connect(this.provider)
+          const tx = await signer.sendTransaction(data)
+          return tx.hash
+        } else {
+          throw new Error('No Wallet found for the provided address')
+        }
+      }
     } catch (e) {
       return Promise.reject(e)
     }
