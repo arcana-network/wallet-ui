@@ -158,6 +158,7 @@ class EVMAccountHandler {
         data: encodedData,
       }
       const transactionMode = await this.determineScwMode()
+      console.log(transactionMode, 'transactionMode')
       if (transactionMode === 'SCW') {
         modalStore.setShowModal(true)
         appStore.expandWallet = true
@@ -408,6 +409,7 @@ class EVMAccountHandler {
           value: data.value,
         }
         const transactionMode = await this.determineScwMode()
+        console.log(transactionMode, 'transactionMode')
         if (transactionMode === 'SCW') {
           modalStore.setShowModal(true)
           appStore.expandWallet = true
