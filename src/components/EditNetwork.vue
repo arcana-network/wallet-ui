@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ethers } from 'ethers'
-import { comment } from 'postcss'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
