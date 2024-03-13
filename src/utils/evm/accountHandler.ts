@@ -32,6 +32,7 @@ import {
   TypedMessageParams,
   createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
@@ -105,7 +106,12 @@ class EVMAccountHandler {
       payload
     )
 
-    console.log(response, 'response-gas-sponsorship')
+    const value = formatTokenDecimals(
+      response.data.result,
+      rpcStore.selectedRPCConfig?.nativeCurrency?.decimals
+    )
+
+    console.log(value, response, 'response-gas-sponsorship')
 
     return ''
   }
