@@ -100,7 +100,7 @@ class EVMAccountHandler {
       jsonrpc: '2.0',
     }
 
-    const response = axios.post(
+    const response = await axios.post(
       rpcStore.selectedRPCConfig?.rpcUrls[0] as string,
       payload
     )
