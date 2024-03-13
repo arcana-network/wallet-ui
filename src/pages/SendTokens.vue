@@ -6,7 +6,15 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 import { Decimal } from 'decimal.js'
-import { onMounted, onUnmounted, ref, Ref, watch, computed } from 'vue'
+import {
+  onMounted,
+  onUnmounted,
+  onBeforeMount,
+  ref,
+  Ref,
+  watch,
+  computed,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -21,9 +29,11 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const showPreview = ref(false)
@@ -64,6 +74,13 @@ const walletBalance = computed(() => {
       .toString()
   }
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
+})
+
+const paymasterBalance = ref(0)
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+  }
 })
 
 watch(gas, () => {
@@ -321,8 +338,8 @@ async function handleSendToken() {
       }
     }
     clearForm()
-    router.push({ name: 'home' })
-    toast.success('Tokens sent Successfully')
+    router.push({ name: 'activities' })
+    toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
@@ -330,7 +347,7 @@ async function handleSendToken() {
         error?.data?.originalError?.code ||
         error?.error?.message ||
         error?.message ||
-        error?.reason) as string) || 'Something went wrong'
+        error?.reason) as string) || errors.GENERIC.WRONG
     toast.error(displayMessage)
   } finally {
     showPreview.value = false
@@ -342,49 +359,6 @@ function handleSetGasPrice(value) {
   gas.value = value
 }
 
-function addToActivity(result) {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionSent,
-        chainType: ChainType.solana_cv25519,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        txHash: result.sig,
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-          decimals: result.tokenInfo?.decimals as number,
-        },
-        recipientAddress: recipientWalletAddress.value,
-        chainType: ChainType.solana_cv25519,
-      })
-    }
-  } else {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.txHash,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionHash,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-        },
-        recipientAddress: setHexPrefix(recipientWalletAddress.value),
-      })
-    }
-  }
-}
-
 async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
@@ -393,25 +367,12 @@ async function handleShowPreview() {
       gasLimit: 0,
     }
   }
-  if (
-    !amount.value ||
-    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
-  ) {
-    toast.error('Amount should not be greater than max balance')
-    return
-  }
-  if (
-    !rpcStore.useGasless &&
-    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
-  ) {
-    toast.error('Insufficient gas balance')
-    return
-  }
+  if (handleTransactionErrors()) return
   if (appStore.chainType === ChainType.solana_cv25519) {
     if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   } else {
     if (recipientWalletAddress.value && amount.value && gas.value) {
@@ -452,57 +413,55 @@ async function handleShowPreview() {
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
-        const isGlobalKeyspace = appStore.global
-        if (isGlobalKeyspace) {
-          const requestObject = {
-            type: 'json_rpc_request',
-            data: {
-              request: {
-                method: '_send_token',
-                params: {
-                  senderWalletAddress: userStore.walletAddress,
-                  recipientWalletAddress: recipientWalletAddress.value,
-                  amount: amount.value,
-                  gasFee: gasFeeInEth.value,
-                  selectedToken: selectedToken.value.symbol as string,
-                  estimatedGas: estimatedGas.value,
-                  tokenDetails: JSON.stringify(selectedToken.value),
-                  chaintype: appStore.chainType,
-                  tokenList: JSON.stringify(tokenList.value),
-                  gas: JSON.stringify(gas.value),
-                },
-              },
-              chainId: rpcStore.selectedChainId,
-            },
-          }
-
-          makeRequest(appStore.id, requestObject)
-
-          window.addEventListener('message', (event) => {
-            const { data } = event
-            const { type, response } = data
-            if (type === 'json_rpc_response') {
-              if (response.error) {
-                toast.error(response.error)
-              } else {
-                addToActivity(response.result)
-              }
-            }
-          })
-          router.push({ name: 'home' })
-        } else {
-          showPreview.value = true
-        }
+        showPreview.value = true
       } catch (e) {
-        toast.error('Cannot estimate gas fee. Please try again later.')
-        console.error({ e })
+        //handle errors in transaction
+        toast.error(errors.GENERIC.WRONG)
+        console.log({ e })
       } finally {
         hideLoader()
       }
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   }
+}
+
+// Function to Handle Transaction Errors.
+function handleTransactionErrors() {
+  if (
+    !rpcStore.useGasless &&
+    new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
+  ) {
+    toast.error(content.TOKEN.INSUFFICIENT)
+    return true
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).equals(selectedTokenBalance.value)
+  ) {
+    toast.error(content.GAS.INSUFFICIENT)
+  } else if (
+    !amount.value ||
+    new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
+  ) {
+    toast.error(content.TOKEN.AMOUNT)
+    return true
+  }
+  return false
+}
+
+function getMaxTransferValue() {
+  const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
+  const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
+    gasFees
+  )
+  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
+
+  if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
+    maxValueInput = new Decimal(0)
+    toast.error(content.TOKEN.INSUFFICIENT)
+  }
+  return maxValueInput
 }
 
 function handleTokenChange(e) {
@@ -586,7 +545,7 @@ watch(
               <button
                 class="btn-primary uppercase m-1 px-3 py-2 font-medium text-xs"
                 type="button"
-                @click.stop="void 0"
+                @click.stop="amount = getMaxTransferValue().toString()"
               >
                 Max
               </button>
@@ -619,12 +578,21 @@ watch(
           </div>
         </div>
         <GasPrice
-          v-if="appStore.chainType === ChainType.evm_secp256k1"
+          v-if="
+            appStore.chainType === ChainType.evm_secp256k1 &&
+            (!rpcStore.useGasless ||
+              (rpcStore.useGasless && paymasterBalance < 0.1))
+          "
           :gas-prices="gasPrices"
           :base-fee="baseFee"
           :gas-limit="estimatedGas"
           @gas-price-input="handleSetGasPrice"
         />
+        <span
+          v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+          class="text-xs text-green-100 font-medium text-center w-full"
+          >This is a Gasless Transaction. Click Below to Approve.
+        </span>
       </div>
       <div class="flex">
         <button

@@ -16,8 +16,8 @@ type RpcConfigState = {
 
   walletBalance: string
   walletBalanceChainId: string | undefined
-  walletBalancePollingIntervalID: NodeJS.Timer | null
-  walletBalancePollingCleanupID: NodeJS.Timer | null
+  walletBalancePollingIntervalID: NodeJS.Timeout | null
+  walletBalancePollingCleanupID: NodeJS.Timeout | null
   gaslessEnabledStatus: {
     [chainId: string]: boolean
   }

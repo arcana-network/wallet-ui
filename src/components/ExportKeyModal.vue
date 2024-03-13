@@ -2,6 +2,7 @@
 import { useToast } from 'vue-toastification'
 
 import { AUTH_URL } from '@/utils/constants'
+import { errors } from '@/utils/content'
 import { downloadFile } from '@/utils/downloadFile'
 import { getImage } from '@/utils/getImage'
 
@@ -44,7 +45,7 @@ async function copyToClipboard(value: string, message: string) {
       toast.success(message)
     }
   } catch (err) {
-    toast.error('Failed to copy')
+    toast.error(errors.COPY)
   }
 }
 </script>
