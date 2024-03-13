@@ -85,13 +85,13 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
-  async getBalanceGasSponsorship(receiverAddress: string) {
+  async getBalanceGasSponsorship() {
     const payload = {
       method: 'eth_call',
       params: [
         {
+          to: '0xBb7AfAF1aE1E36A2b92A0b9DED0a59622725d74c',
           from: userStore.walletAddress,
-          to: receiverAddress,
           data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
         },
         'latest',
