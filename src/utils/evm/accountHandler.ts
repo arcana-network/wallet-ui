@@ -86,16 +86,27 @@ class EVMAccountHandler {
   }
 
   async getBalanceGasSponsorship(receiverAddress: string) {
-    const response = await this.provider.send('eth_call', [
-      {
-        from: null,
-        to: receiverAddress,
-        data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
-      },
-      'latest',
-    ])
+    const payload = {
+      method: 'eth_call',
+      params: [
+        {
+          from: null,
+          to: receiverAddress,
+          data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
+        },
+        'latest',
+      ],
+      id: 1,
+      jsonrpc: '2.0',
+    }
 
-    console.log(response, 'response')
+    const response = axios.post(
+      rpcStore.selectedRPCConfig?.rpcUrls[0] as string,
+      payload
+    )
+
+    console.log(response, 'response-gas-sponsorship')
+
     return ''
   }
 
