@@ -118,6 +118,8 @@ class EVMAccountHandler {
     const userBalance = await this.getBalanceGasSponsorship()
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
 
+    console.log({ userBalance, paymasterBalance })
+
     const thresholdUserBalance = 0.00001
     const thresholdPaymasterBalance = 0.1
     let mode = 'SCW'
