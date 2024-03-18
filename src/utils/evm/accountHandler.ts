@@ -506,6 +506,23 @@ class EVMAccountHandler {
   get chainType() {
     return ChainType.evm_secp256k1
   }
+
+  public async cancelTransaction(txHash: string) {
+    try {
+      const transaction = (await this.provider.getTransaction(
+        txHash
+      )) as TransactionResponse
+      const payload = {
+        nonce: transaction.nonce,
+        to: transaction.to,
+        from: transaction.from,
+        value: 0,
+      }
+      return await this.sendTransactionWrapper(payload)
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
 }
 
 export { EVMAccountHandler }
