@@ -178,19 +178,21 @@ async function speedUpTransaction(speedupPercent, activity) {
       factor
     )
 
-    await activitiesStore.fetchAndSaveActivityFromHash({
+    activitiesStore.fetchAndSaveActivityFromHash({
       chainId: chainId.value as string,
       txHash: transaction,
       recipientAddress: activity.address.to,
     })
 
-    const cancelledActivityIndex = activities.value.findIndex(
-      (act) => act.txHash !== activity.txHash
-    )
-    activitiesStore.deleteActivity(
-      chainId.value as string,
-      cancelledActivityIndex
-    )
+    setTimeout(() => {
+      const cancelledActivityIndex = activities.value.findIndex(
+        (act) => act.txHash !== activity.txHash
+      )
+      activitiesStore.deleteActivity(
+        chainId.value as string,
+        cancelledActivityIndex
+      )
+    }, 3000)
   } catch (error) {
     toast.error(error.message)
   } finally {
@@ -206,21 +208,22 @@ async function stopTransaction(activity) {
     const transaction = await accountHandler.cancelTransaction(
       activity.txHash as string
     )
-
-    await activitiesStore.fetchAndSaveActivityFromHash({
+    activitiesStore.fetchAndSaveActivityFromHash({
       chainId: chainId.value as string,
       txHash: transaction,
       recipientAddress: activity.address.to,
       isCancelRequest: true,
     })
 
-    const cancelledActivityIndex = activities.value.findIndex(
-      (act) => act.txHash !== activity.txHash
-    )
-    activitiesStore.deleteActivity(
-      chainId.value as string,
-      cancelledActivityIndex
-    )
+    setTimeout(() => {
+      const cancelledActivityIndex = activities.value.findIndex(
+        (act) => act.txHash !== activity.txHash
+      )
+      activitiesStore.deleteActivity(
+        chainId.value as string,
+        cancelledActivityIndex
+      )
+    }, 3000)
   } catch (error) {
     toast.error(error.message)
   } finally {
