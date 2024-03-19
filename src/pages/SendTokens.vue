@@ -363,7 +363,7 @@ async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: String(1),
+      maxPriorityFeePerGas: String(0),
       gasLimit: 0,
     }
   }
