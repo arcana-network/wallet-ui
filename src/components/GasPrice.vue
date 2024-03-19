@@ -30,7 +30,7 @@ watch(selectedGasMethod, () => {
 if (props.maxFeePerGas) {
   maxFeePerGas.value = new Decimal(props.maxFeePerGas).toNumber()
 } else {
-  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
+  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).toNumber()
 }
 
 if (props.maxPriorityFeePerGas) {
@@ -38,7 +38,7 @@ if (props.maxPriorityFeePerGas) {
     props.maxPriorityFeePerGas
   ).toNumber()
 } else {
-  maxPriorityFeePerGas.value = 1.5
+  maxPriorityFeePerGas.value = 0
 }
 
 emits('gasPriceInput', {
@@ -49,11 +49,13 @@ emits('gasPriceInput', {
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal') {
-    maxPriorityFeePerGas.value = 1.5
-    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
+    maxPriorityFeePerGas.value = 0
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).toNumber()
   } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = 6
-    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).mul(2).toNumber()
+    maxPriorityFeePerGas.value = 4
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+      .add(maxPriorityFeePerGas.value)
+      .toNumber()
   }
   emits('gasPriceInput', {
     maxFeePerGas: maxFeePerGas.value,

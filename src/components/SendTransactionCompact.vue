@@ -63,7 +63,7 @@ onMounted(async () => {
 const gasFee = computed(() => {
   if (props.gas?.maxFeePerGas) {
     return new Decimal(props.gas.maxFeePerGas || props.baseFee)
-      .add(props.gas.maxPriorityFeePerGas || 1.5)
+      .add(props.gas.maxPriorityFeePerGas || 0)
       .mul(Decimal.pow(10, 9))
       .mul(props.gasLimit)
       .div(Decimal.pow(10, 18))
