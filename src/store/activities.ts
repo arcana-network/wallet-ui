@@ -115,6 +115,7 @@ type Activity = {
       fee: string
     }
   }
+  isCancelRequest?: boolean
 }
 
 type ActivitiesState = {
@@ -366,6 +367,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               to: recipientAddress || remoteTransaction.to,
             },
             customToken,
+            isCancelRequest: isCancelRequest,
           }
           this.saveActivity(chainId, activity)
           if (!remoteTransaction?.blockNumber) {
