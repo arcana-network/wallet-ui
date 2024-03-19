@@ -125,7 +125,7 @@ onMounted(async () => {
 
 function computeMaxFee(value) {
   return new Decimal(value.maxFeePerGas)
-    .add(value.maxPriorityFeePerGas || 1.5)
+    .add(value.maxPriorityFeePerGas || 0)
     .toString()
 }
 
@@ -164,7 +164,7 @@ function calculateGasPrice(params) {
 
 function getGasValue(params) {
   return `${new Decimal(params.maxFeePerGas || params.gasPrice)
-    .add(params.maxPriorityFeePerGas || 1.5)
+    .add(params.maxPriorityFeePerGas || 0)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
 }
