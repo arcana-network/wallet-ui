@@ -51,7 +51,7 @@ function calculateGasPrice(gasPrice) {
 
 function computeMaxFee(value) {
   return new Decimal(value.maxFeePerGas)
-    .add(value.maxPriorityFeePerGas || 1.5)
+    .add(value.maxPriorityFeePerGas || 0)
     .toString()
 }
 
