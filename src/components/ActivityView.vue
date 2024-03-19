@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
-import { computed, ComputedRef } from 'vue'
+import { computed, ComputedRef, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import AppLoader from '@/components/AppLoader.vue'
+import GasPriceSpeedUp from '@/components/GasPriceSpeedUp.vue'
 import { useActivitiesStore } from '@/store/activities'
 import type { Activity, TransactionOps, FileOps } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { EVMAccountHandler } from '@/utils/accountHandler'
@@ -23,6 +26,8 @@ type ActivityViewProps = {
 const app = useAppStore()
 const props = defineProps<ActivityViewProps>()
 const toast = useToast()
+const modalStore = useModalStore()
+const showLoader = ref(false)
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
@@ -156,8 +161,48 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
   return actualTxUrl.href
 }
 
+function onSpeedupClick() {
+  modalStore.setShowModal(true)
+}
+
+async function speedUpTransaction(speedupPercent, activity) {
+  try {
+    showLoader.value = true
+    modalStore.setShowModal(false)
+    const factor = 1 + speedupPercent / 100
+
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as EVMAccountHandler
+    const transaction = await accountHandler.speedUpTransaction(
+      activity.txHash as string,
+      factor
+    )
+
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: chainId.value as string,
+      txHash: transaction,
+      recipientAddress: activity.address.to,
+    })
+
+    setTimeout(() => {
+      const cancelledActivityIndex = activities.value.findIndex(
+        (act) => act.txHash !== activity.txHash
+      )
+      activitiesStore.deleteActivity(
+        chainId.value as string,
+        cancelledActivityIndex
+      )
+    }, 3000)
+  } catch (error) {
+    toast.error(error.message)
+  } finally {
+    showLoader.value = false
+  }
+}
+
 async function stopTransaction(activity) {
   try {
+    showLoader.value = true
     const accountHandler =
       getRequestHandler().getAccountHandler() as EVMAccountHandler
     const transaction = await accountHandler.cancelTransaction(
@@ -181,352 +226,375 @@ async function stopTransaction(activity) {
     }, 3000)
   } catch (error) {
     toast.error(error.message)
+  } finally {
+    showLoader.value = false
   }
 }
 </script>
 
 <template>
-  <ul v-if="activities.length" class="flex flex-col gap-8">
-    <li
-      v-for="activity in activities"
-      :key="activity.transaction?.hash || activity.file?.did"
-      class="flex flex-col gap-2"
-    >
-      <div class="flex">
-        <div class="mr-3">
-          <div
-            v-if="activity.nft?.imageUrl"
-            class="rounded-sm w-xxxl h-xxxl overflow-hidden mt-1"
-          >
-            <img
-              :src="activity.nft.imageUrl"
-              class="object-contain object-center"
-            />
-          </div>
-          <img
-            v-else
-            :src="getTransactionIcon(activity.operation)"
-            :style="{
-              filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
-            }"
-            :title="activity.operation"
-          />
-        </div>
-        <div class="flex flex-col flex-grow">
-          <div class="flex">
-            <span
-              v-if="activity.customToken"
-              class="font-bold text-base"
-              :title="`${activity.operation} ${activity.customToken.symbol}`"
-            >
-              {{ truncateEnd(activity.operation, 12) }}
-              {{ activity.customToken.symbol }}
-            </span>
-            <span
-              v-else-if="activity.nft"
-              class="font-bold text-base"
-              :title="`${activity.operation} NFT`"
-            >
-              {{ truncateEnd(activity.operation, 12) }}
-              NFT
-            </span>
-            <span
-              v-else
-              class="font-bold text-base"
-              :title="activity.operation"
-            >
-              {{ truncateEnd(activity.operation, 12) }}
-            </span>
-            <img
-              v-if="canShowDropdown(activity)"
-              src="@/assets/images/arrow-up.svg"
-              class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
-              :style="{
-                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
-              }"
-              :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
-              role="button"
-              @click="activity.isExpanded = !activity.isExpanded"
-            />
-          </div>
-          <span
-            v-if="activity.transaction && activity.address.to"
-            class="text-sm text-gray-100"
-            :title="activity.address.to"
-            >To: {{ truncateMid(activity.address.to) }}</span
-          >
-          <span
-            v-if="activity.file"
-            class="text-sm text-gray-100"
-            :title="activity.file.did"
-            >File DID: {{ truncateMid(activity.file.did) }}</span
-          >
-          <div class="flex text-sm text-gray-100 gap-1 items-center">
-            <span class="whitespace-nowrap">{{
-              dayjs(activity.date).format('MMM D, YYYY H:mm')
-            }}</span>
-          </div>
-        </div>
-        <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
-          <span
-            v-if="activity.customToken"
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
-            >{{
-              new Decimal(activity.customToken.amount)
-                .toDecimalPlaces(5)
-                .toString()
-            }}
-            {{ activity.customToken.symbol }}</span
-          >
-          <span
-            v-else
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-            :title="`${getAmountInNativeCurrency(
-              activity.transaction.amount
-            )} ${rpcStore.currency}`"
-            >{{ getAmount(activity.transaction.amount) }}
-            {{ rpcStore.currency }}</span
-          >
-          <span
-            v-if="!activity.customToken && !activity.nft"
-            class="flex text-xs text-secondary text-right"
-            >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
-            {{
-              calculateCurrencyValue(activity.transaction.amount).currency
-            }}</span
-          >
-          <span
-            class="text-sm"
-            :class="{
-              'text-green-100': activity.status === 'Success',
-              'text-yellow-100': activity.status === 'Pending',
-              'text-red-100': activity.status === 'Cancelled',
-            }"
-          >
-            {{ activity.status }}
-          </span>
-        </div>
-      </div>
-      <div
-        v-if="canShowDropdown(activity) && activity.isExpanded"
-        class="flex flex-col card p-4"
+  <AppLoader v-if="showLoader" />
+  <div v-else>
+    <ul v-if="activities.length" class="flex flex-col gap-8">
+      <li
+        v-for="activity in activities"
+        :key="activity.transaction?.hash || activity.file?.did"
+        class="flex flex-col gap-2"
       >
-        <div v-if="activity.file?.recipient">
-          <div class="flex flex-col gap-[5px]">
-            <span class="font-montserrat color-secondary text-xs font-semibold"
-              >To</span
-            >
-            <span
-              class="text-base font-normal leading-5"
-              :title="activity.file.recipient"
-            >
-              {{ truncateMid(activity.file.recipient) }}
-            </span>
-          </div>
-        </div>
-        <div v-if="activity.file?.ruleHash">
-          <div class="flex flex-col gap-[5px]">
-            <span class="font-montserrat color-secondary text-xs font-semibold"
-              >Rule Hash</span
-            >
-            <span
-              class="text-base font-normal leading-5"
-              :title="activity.file.ruleHash"
-            >
-              {{ truncateMid(activity.file.ruleHash) }}
-            </span>
-          </div>
-        </div>
-        <div v-else-if="activity.transaction">
-          <div class="flex flex-col gap-4">
+        <div class="flex">
+          <div class="mr-3">
             <div
               v-if="activity.nft?.imageUrl"
-              class="flex justify-center items-center"
+              class="rounded-sm w-xxxl h-xxxl overflow-hidden mt-1"
             >
               <img
                 :src="activity.nft.imageUrl"
-                :title="`${activity.nft.name} by ${activity.nft.collectionName}`"
-                class="w-16 h-16 rounded-[10px]"
+                class="object-contain object-center"
               />
             </div>
-            <div class="flex justify-between">
-              <div class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">From</span>
-                <span
-                  class="text-base font-bold"
-                  :title="activity.address.from"
-                >
-                  {{ truncateMid(activity.address.from) }}
-                </span>
-              </div>
+            <img
+              v-else
+              :src="getTransactionIcon(activity.operation)"
+              :style="{
+                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+              }"
+              :title="activity.operation"
+            />
+          </div>
+          <div class="flex flex-col flex-grow">
+            <div class="flex">
+              <span
+                v-if="activity.customToken"
+                class="font-bold text-base"
+                :title="`${activity.operation} ${activity.customToken.symbol}`"
+              >
+                {{ truncateEnd(activity.operation, 12) }}
+                {{ activity.customToken.symbol }}
+              </span>
+              <span
+                v-else-if="activity.nft"
+                class="font-bold text-base"
+                :title="`${activity.operation} NFT`"
+              >
+                {{ truncateEnd(activity.operation, 12) }}
+                NFT
+              </span>
+              <span
+                v-else
+                class="font-bold text-base"
+                :title="activity.operation"
+              >
+                {{ truncateEnd(activity.operation, 12) }}
+              </span>
               <img
-                v-if="activity.address.to"
-                src="@/assets/images/arrow-right.svg"
+                v-if="canShowDropdown(activity)"
+                src="@/assets/images/arrow-up.svg"
+                class="cursor-pointer transition-transform duration-500 will-change-transform -mt-[2px]"
                 :style="{
                   filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
                 }"
+                :class="activity.isExpanded ? 'rotate-0' : 'rotate-180'"
+                role="button"
+                @click="activity.isExpanded = !activity.isExpanded"
               />
-              <div v-if="activity.address.to" class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">To</span>
-                <span class="text-base font-bold" :title="activity.address.to">
-                  {{ truncateMid(activity.address.to) }}
-                </span>
-              </div>
             </div>
-            <div v-if="!activity.nft" class="flex flex-col gap-2">
-              <span class="text-sm text-gray-100">Transaction Details</span>
-              <div class="flex flex-col gap-2 text-base">
-                <div class="flex justify-between">
-                  <span v-if="app.chainType === ChainType.solana_cv25519"
-                    >Slot</span
-                  >
-                  <span v-else>Nonce</span>
-                  <span>{{ activity.transaction.nonce }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span>Amount</span>
+            <span
+              v-if="activity.transaction && activity.address.to"
+              class="text-sm text-gray-100"
+              :title="activity.address.to"
+              >To: {{ truncateMid(activity.address.to) }}</span
+            >
+            <span
+              v-if="activity.file"
+              class="text-sm text-gray-100"
+              :title="activity.file.did"
+              >File DID: {{ truncateMid(activity.file.did) }}</span
+            >
+            <div class="flex text-sm text-gray-100 gap-1 items-center">
+              <span class="whitespace-nowrap">{{
+                dayjs(activity.date).format('MMM D, YYYY H:mm')
+              }}</span>
+            </div>
+          </div>
+          <div
+            v-if="activity.transaction"
+            class="flex flex-col items-end gap-1"
+          >
+            <span
+              v-if="activity.customToken"
+              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+              :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+              >{{
+                new Decimal(activity.customToken.amount)
+                  .toDecimalPlaces(5)
+                  .toString()
+              }}
+              {{ activity.customToken.symbol }}</span
+            >
+            <span
+              v-else
+              class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+              :title="`${getAmountInNativeCurrency(
+                activity.transaction.amount
+              )} ${rpcStore.currency}`"
+              >{{ getAmount(activity.transaction.amount) }}
+              {{ rpcStore.currency }}</span
+            >
+            <span
+              v-if="!activity.customToken && !activity.nft"
+              class="flex text-xs text-secondary text-right"
+              >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
+              {{
+                calculateCurrencyValue(activity.transaction.amount).currency
+              }}</span
+            >
+            <span
+              class="text-sm"
+              :class="{
+                'text-green-100': activity.status === 'Success',
+                'text-yellow-100': activity.status === 'Pending',
+                'text-red-100': activity.status === 'Cancelled',
+              }"
+            >
+              {{ activity.status }}
+            </span>
+          </div>
+        </div>
+        <div
+          v-if="canShowDropdown(activity) && activity.isExpanded"
+          class="flex flex-col card p-4"
+        >
+          <div v-if="activity.file?.recipient">
+            <div class="flex flex-col gap-[5px]">
+              <span
+                class="font-montserrat color-secondary text-xs font-semibold"
+                >To</span
+              >
+              <span
+                class="text-base font-normal leading-5"
+                :title="activity.file.recipient"
+              >
+                {{ truncateMid(activity.file.recipient) }}
+              </span>
+            </div>
+          </div>
+          <div v-if="activity.file?.ruleHash">
+            <div class="flex flex-col gap-[5px]">
+              <span
+                class="font-montserrat color-secondary text-xs font-semibold"
+                >Rule Hash</span
+              >
+              <span
+                class="text-base font-normal leading-5"
+                :title="activity.file.ruleHash"
+              >
+                {{ truncateMid(activity.file.ruleHash) }}
+              </span>
+            </div>
+          </div>
+          <div v-else-if="activity.transaction">
+            <div class="flex flex-col gap-4">
+              <div
+                v-if="activity.nft?.imageUrl"
+                class="flex justify-center items-center"
+              >
+                <img
+                  :src="activity.nft.imageUrl"
+                  :title="`${activity.nft.name} by ${activity.nft.collectionName}`"
+                  class="w-16 h-16 rounded-[10px]"
+                />
+              </div>
+              <div class="flex justify-between">
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray-100">From</span>
                   <span
-                    v-if="activity.customToken"
-                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+                    class="text-base font-bold"
+                    :title="activity.address.from"
                   >
-                    {{
-                      new Decimal(activity.customToken.amount)
-                        .toDecimalPlaces(5)
-                        .toString()
-                    }}
-                    {{ activity.customToken.symbol }}
+                    {{ truncateMid(activity.address.from) }}
                   </span>
+                </div>
+                <img
+                  v-if="activity.address.to"
+                  src="@/assets/images/arrow-right.svg"
+                  :style="{
+                    filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+                  }"
+                />
+                <div v-if="activity.address.to" class="flex flex-col gap-1">
+                  <span class="text-sm text-gray-100">To</span>
                   <span
-                    v-else
-                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="getDisplayAmount(activity)"
-                    >{{ getAmount(activity.transaction.amount) }}
+                    class="text-base font-bold"
+                    :title="activity.address.to"
+                  >
+                    {{ truncateMid(activity.address.to) }}
+                  </span>
+                </div>
+              </div>
+              <div v-if="!activity.nft" class="flex flex-col gap-2">
+                <span class="text-sm text-gray-100">Transaction Details</span>
+                <div class="flex flex-col gap-2 text-base">
+                  <div class="flex justify-between">
+                    <span v-if="app.chainType === ChainType.solana_cv25519"
+                      >Slot</span
+                    >
+                    <span v-else>Nonce</span>
+                    <span>{{ activity.transaction.nonce }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Amount</span>
+                    <span
+                      v-if="activity.customToken"
+                      class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                      :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+                    >
+                      {{
+                        new Decimal(activity.customToken.amount)
+                          .toDecimalPlaces(5)
+                          .toString()
+                      }}
+                      {{ activity.customToken.symbol }}
+                    </span>
+                    <span
+                      v-else
+                      class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                      :title="getDisplayAmount(activity)"
+                      >{{ getAmount(activity.transaction.amount) }}
+                      {{ rpcStore.currency }}</span
+                    >
+                  </div>
+                  <div
+                    v-if="activity.transaction.gasLimit"
+                    class="flex justify-between"
+                  >
+                    <span>Gas Limits (Units)</span>
+                    <span>{{ activity.transaction.gasLimit }}</span>
+                  </div>
+                  <div
+                    v-if="activity.transaction?.gasUsed"
+                    class="flex justify-between"
+                  >
+                    <span>Gas Used (Units)</span>
+                    <span>{{ activity.transaction?.gasUsed || 0 }}</span>
+                  </div>
+                  <div
+                    v-if="activity.transaction.gasPrice"
+                    class="flex justify-between"
+                  >
+                    <span>Gas Price</span>
+                    <span
+                      class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                      :title="`${getAmount(
+                        activity.transaction.gasPrice,
+                        true
+                      )} Gwei`"
+                      >{{
+                        getAmount(activity.transaction.gasPrice, true)
+                      }}
+                      Gwei</span
+                    >
+                  </div>
+                  <div
+                    v-if="activity.transaction?.computeUnitsConsumed"
+                    class="flex justify-between"
+                  >
+                    <span>Compute Units Consumed</span>
+                    <span>{{
+                      activity.transaction?.computeUnitsConsumed || 0
+                    }}</span>
+                  </div>
+                  <div
+                    v-if="activity.transaction?.fee"
+                    class="flex justify-between"
+                  >
+                    <span>Fee</span>
+                    <span
+                      >{{ getAmount(activity.transaction?.fee) }}
+                      {{ rpcStore.nativeCurrency?.symbol }}</span
+                    >
+                  </div>
+                </div>
+                <div
+                  v-if="app.chainType === ChainType.evm_secp256k1"
+                  class="flex justify-between mt-4 font-bold text-base"
+                >
+                  <span>Total:</span>
+                  <span
+                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    :title="`${getAmountInNativeCurrency(
+                      calculateTotal(activity)
+                    )} ${rpcStore.currency}`"
+                    >{{ getAmount(calculateTotal(activity)) }}
                     {{ rpcStore.currency }}</span
                   >
                 </div>
                 <div
-                  v-if="activity.transaction.gasLimit"
-                  class="flex justify-between"
+                  v-if="app.chainType === ChainType.solana_cv25519"
+                  class="flex justify-between mt-4 font-bold text-base"
                 >
-                  <span>Gas Limits (Units)</span>
-                  <span>{{ activity.transaction.gasLimit }}</span>
-                </div>
-                <div
-                  v-if="activity.transaction?.gasUsed"
-                  class="flex justify-between"
-                >
-                  <span>Gas Used (Units)</span>
-                  <span>{{ activity.transaction?.gasUsed || 0 }}</span>
-                </div>
-                <div
-                  v-if="activity.transaction.gasPrice"
-                  class="flex justify-between"
-                >
-                  <span>Gas Price</span>
+                  <span>Total:</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${getAmount(
-                      activity.transaction.gasPrice,
-                      true
-                    )} Gwei`"
+                    :title="
+                      calculateSolanaTotal(activity.transaction).toString()
+                    "
                     >{{
-                      getAmount(activity.transaction.gasPrice, true)
+                      calculateSolanaTotal(
+                        activity.transaction
+                      ).toDecimalPlaces(9)
                     }}
-                    Gwei</span
+                    {{ rpcStore.currency }}</span
                   >
                 </div>
-                <div
-                  v-if="activity.transaction?.computeUnitsConsumed"
-                  class="flex justify-between"
-                >
-                  <span>Compute Units Consumed</span>
-                  <span>{{
-                    activity.transaction?.computeUnitsConsumed || 0
-                  }}</span>
-                </div>
-                <div
-                  v-if="activity.transaction?.fee"
-                  class="flex justify-between"
-                >
-                  <span>Fee</span>
-                  <span
-                    >{{ getAmount(activity.transaction?.fee) }}
-                    {{ rpcStore.nativeCurrency?.symbol }}</span
-                  >
-                </div>
-              </div>
-              <div
-                v-if="app.chainType === ChainType.evm_secp256k1"
-                class="flex justify-between mt-4 font-bold text-base"
-              >
-                <span>Total:</span>
-                <span
-                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :title="`${getAmountInNativeCurrency(
-                    calculateTotal(activity)
-                  )} ${rpcStore.currency}`"
-                  >{{ getAmount(calculateTotal(activity)) }}
-                  {{ rpcStore.currency }}</span
-                >
-              </div>
-              <div
-                v-if="app.chainType === ChainType.solana_cv25519"
-                class="flex justify-between mt-4 font-bold text-base"
-              >
-                <span>Total:</span>
-                <span
-                  class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                  :title="calculateSolanaTotal(activity.transaction).toString()"
-                  >{{
-                    calculateSolanaTotal(activity.transaction).toDecimalPlaces(
-                      9
-                    )
-                  }}
-                  {{ rpcStore.currency }}</span
-                >
               </div>
             </div>
           </div>
-        </div>
-        <div
-          v-if="explorerUrl && activity.txHash"
-          class="flex justify-center mt-4"
-        >
-          <a
-            :href="generateExplorerURL(explorerUrl, activity.txHash)"
-            class="flex font-montserrat font-medium text-xs"
-            target="_blank"
-            @click.stop="handleExplorerClick"
+          <div
+            v-if="explorerUrl && activity.txHash"
+            class="flex justify-center mt-4"
           >
-            View on Explorer
-            <img
-              src="@/assets/images/arrow-up-right.svg"
-              :style="{
-                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
-              }"
-            />
-          </a>
+            <a
+              :href="generateExplorerURL(explorerUrl, activity.txHash)"
+              class="flex font-montserrat font-medium text-xs"
+              target="_blank"
+              @click.stop="handleExplorerClick"
+            >
+              View on Explorer
+              <img
+                src="@/assets/images/arrow-up-right.svg"
+                :style="{
+                  filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+                }"
+              />
+            </a>
+          </div>
+          <div class="flex justify-between space-x-2 mt-4">
+            <button
+              class="btn-secondary flex-1 text-sm font-bold py-2 uppercase"
+              @click.stop="stopTransaction(activity)"
+            >
+              Stop
+            </button>
+            <button
+              class="btn-primary flex-1 text-sm font-bold py-2 uppercase"
+              @click.stop="onSpeedupClick"
+            >
+              Speed Up
+            </button>
+          </div>
         </div>
-        <div
-          v-if="activity.status === 'Pending'"
-          class="flex justify-between space-x-2 mt-4"
-        >
-          <button
-            class="btn-secondary flex-1 text-sm font-bold py-2 uppercase"
-            @click.stop="stopTransaction(activity)"
-          >
-            Stop
-          </button>
-          <button class="btn-primary flex-1 text-sm font-bold py-2 uppercase">
-            Speed Up
-          </button>
-        </div>
-      </div>
-    </li>
-  </ul>
-  <div v-else class="flex justify-center text-center text-sm text-gray-100">
-    You have no transactions
+        <Teleport v-if="modalStore.show" to="#modal-container">
+          <GasPriceSpeedUp
+            @close="modalStore.setShowModal(false)"
+            @proceed="
+              (speedupPercent) => speedUpTransaction(speedupPercent, activity)
+            "
+          />
+        </Teleport>
+      </li>
+    </ul>
+    <div v-else class="flex justify-center text-center text-sm text-gray-100">
+      You have no transactions
+    </div>
   </div>
 </template>

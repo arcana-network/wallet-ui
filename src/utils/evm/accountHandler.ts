@@ -507,6 +507,30 @@ class EVMAccountHandler {
     return ChainType.evm_secp256k1
   }
 
+  public async speedUpTransaction(txHash: string, factor: number) {
+    try {
+      const transaction = (await this.provider.getTransaction(
+        txHash
+      )) as TransactionResponse
+
+      const newgasPrice =
+        Number(
+          ethers.utils.formatEther(transaction.gasPrice as ethers.BigNumberish)
+        ) * factor
+
+      const payload = {
+        nonce: transaction.nonce,
+        to: transaction.to,
+        from: transaction.from,
+        value: transaction.value,
+        gasPrice: ethers.utils.parseEther(newgasPrice.toFixed(18)),
+      }
+      return await this.sendTransactionWrapper(payload)
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
   public async cancelTransaction(txHash: string) {
     try {
       const transaction = (await this.provider.getTransaction(
