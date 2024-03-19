@@ -101,7 +101,28 @@ function truncateAddress(address: string) {
         </div>
         <div v-if="txFees" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fees</span>
-          <span class="text-base">{{ txFees }} {{ nativeCurrency }}</span>
+          <span v-if="loader.show" class="text-base"> Loading... </span>
+          <span
+            v-else-if="
+              !loader.show && rpcStore.useGasless && paymasterBalance < 0.1
+            "
+            class="text-base"
+          >
+            {{ txFees }} {{ nativeCurrency }}
+          </span>
+          <span
+            v-else-if="
+              !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
+            "
+            class="text-base text-green-100"
+          >
+            Sponsored
+          </span>
+          <span
+            v-else-if="!loader.show && !rpcStore.useGasless"
+            class="text-base"
+            >{{ txFees }} {{ nativeCurrency }}</span
+          >
         </div>
       </div>
       <span

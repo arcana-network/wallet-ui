@@ -30,6 +30,8 @@ type TransactionOps =
   | 'Contract Deployment'
   | 'Contract Interaction'
 
+type TransakOps = 'Buy' | 'Sell'
+
 type FileOps =
   | 'Upload'
   | 'Download'
@@ -53,8 +55,20 @@ type ContractFileActivityMessage = {
 
 type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
 
+type TransakStatus =
+  | 'Unapproved'
+  | 'Processing'
+  | 'Pending'
+  | 'Success'
+  | 'Cancelled'
+  | 'Failed'
+  | 'Refunded'
+  | 'Expired'
+  | 'Rejected'
+
 type Activity = {
   txHash?: string
+  explorerUrl?: string
   transaction?: {
     hash: string
     amount?: bigint | string
@@ -66,9 +80,9 @@ type Activity = {
     computeUnitsConsumed?: bigint
     fee?: bigint
   }
-  operation: TransactionOps | FileOps
+  operation: TransactionOps | FileOps | TransakOps
   date: Date
-  status: ActivityStatus
+  status: ActivityStatus | TransakStatus
   address: {
     from: string
     to?: string | null
@@ -90,6 +104,22 @@ type Activity = {
     imageUrl?: string
     collectionName: string
     name: string
+  }
+  sellDetails?: {
+    provider: 'transak'
+    orderId: string
+    crypto: {
+      amount: string
+      currency: string
+      decimals: string
+      contractAddress: string
+      logo: string
+    }
+    fiat: {
+      amount: string
+      currency: string
+      fee: string
+    }
   }
 }
 
@@ -162,6 +192,36 @@ async function getRemoteTransaction(
       }
     }, 3000)
   })
+}
+
+function decodeLogDataHandleOps(
+  transaction: ethers.providers.TransactionResponse
+): ethers.utils.Result {
+  const abi = [
+    'function handleOps((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes)[],address)',
+  ]
+  const iface = new ethers.utils.Interface(abi)
+  return iface.decodeFunctionData('handleOps', transaction.data)
+}
+
+function getAmountUsingCallData(data: string): BigNumber {
+  const abi = ['function executeCall(address,uint256,bytes)']
+  const iface = new ethers.utils.Interface(abi)
+  const decodedData = iface.decodeFunctionData('executeCall', data)
+  return decodedData[1]
+}
+
+function isGaslessTransaction(
+  operation: TransactionOps,
+  transaction: TransactionResponse
+) {
+  const toAddress = '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789'
+  const inputDataStartsWithString = '0x1fad948c'
+  return (
+    operation === 'Contract Interaction' &&
+    transaction.to === toAddress &&
+    transaction.data.startsWith(inputDataStartsWithString)
+  )
 }
 
 export const useActivitiesStore = defineStore('activitiesStore', {
@@ -307,36 +367,60 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             }
             this.saveActivity(Number(chainId), activity)
           } else {
-            const instructions = tx.transaction.message.instructions
-            instructions.forEach((instruction) => {
-              const parsedInstruction = instruction as ParsedInstruction
+            if (customToken) {
               const activity: Activity = {
-                operation:
-                  parsedInstruction.parsed.info.source ===
-                  userStore.walletAddress
-                    ? 'Send'
-                    : 'Receive',
+                operation: customToken.operation,
                 txHash,
                 transaction: {
                   hash: txHash,
-                  amount: BigInt(parsedInstruction.parsed.info.lamports),
+                  amount: BigInt(customToken.amount),
                   nonce: tx.slot,
                   computeUnitsConsumed: BigInt(
-                    (tx.meta?.computeUnitsConsumed as number) ?? 0
+                    tx.meta?.computeUnitsConsumed as number
                   ),
-                  fee: BigInt((tx.meta?.fee as number) ?? 0),
+                  fee: BigInt(tx.meta?.fee as number),
                 },
                 status: 'Success',
                 date: new Date(),
                 address: {
-                  from: parsedInstruction.parsed.info.source,
-                  to:
-                    recipientAddress ||
-                    parsedInstruction.parsed.info.destination,
+                  from: userStore.walletAddress,
+                  to: recipientAddress,
                 },
+                customToken,
               }
-              this.saveActivity(chainId, activity)
-            })
+              this.saveActivity(Number(chainId), activity)
+            } else {
+              const instructions = tx.transaction.message.instructions
+              instructions.forEach((instruction) => {
+                const parsedInstruction = instruction as ParsedInstruction
+                const activity: Activity = {
+                  operation:
+                    parsedInstruction.parsed.info.source ===
+                    userStore.walletAddress
+                      ? 'Send'
+                      : 'Receive',
+                  txHash,
+                  transaction: {
+                    hash: txHash,
+                    amount: BigInt(parsedInstruction.parsed.info.lamports),
+                    nonce: tx.slot,
+                    computeUnitsConsumed: BigInt(
+                      (tx.meta?.computeUnitsConsumed as number) ?? 0
+                    ),
+                    fee: BigInt((tx.meta?.fee as number) ?? 0),
+                  },
+                  status: 'Success',
+                  date: new Date(),
+                  address: {
+                    from: parsedInstruction.parsed.info.source,
+                    to:
+                      recipientAddress ||
+                      parsedInstruction.parsed.info.destination,
+                  },
+                }
+                this.saveActivity(chainId, activity)
+              })
+            }
           }
         }
       } else {
@@ -346,8 +430,14 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           accountHandler,
           txHash
         )
+        const operation = getTxOperation(remoteTransaction, customToken)
+        if (isGaslessTransaction(operation, remoteTransaction)) {
+          const data = decodeLogDataHandleOps(remoteTransaction)
+          const amount = getAmountUsingCallData(data[0][0][3]) // 4th element is the data as per ABI in decodeLogDataHandleOps fn
+          remoteTransaction.value = amount
+        }
         const activity: Activity = {
-          operation: getTxOperation(remoteTransaction, customToken),
+          operation: operation,
           txHash,
           transaction: {
             hash: txHash,
@@ -553,4 +643,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
   },
 })
 
-export type { ChainId, Activity, TransactionOps, FileOps, ActivityStatus }
+export type {
+  ChainId,
+  Activity,
+  TransactionOps,
+  FileOps,
+  ActivityStatus,
+  TransakOps,
+}

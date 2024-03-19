@@ -125,7 +125,7 @@ onMounted(async () => {
 
 function computeMaxFee(value) {
   return new Decimal(value.maxFeePerGas)
-    .add(value.maxPriorityFeePerGas || 1.5)
+    .add(value.maxPriorityFeePerGas || 0)
     .toString()
 }
 
@@ -164,7 +164,7 @@ function calculateGasPrice(params) {
 
 function getGasValue(params) {
   return `${new Decimal(params.maxFeePerGas || params.gasPrice)
-    .add(params.maxPriorityFeePerGas || 1.5)
+    .add(params.maxPriorityFeePerGas || 0)
     .mul(params.gasLimit || params.gas || 21000)
     .toHexadecimal()}`
 }
@@ -274,9 +274,23 @@ function calculateCurrencyValue(value) {
       <div class="flex justify-between gap-4">
         <span>Transaction Fee</span>
         <span class="text-right">
-          <span :title="calculateGasPrice(request.request.params[0])">{{
-            calculateGasPrice(request.request.params[0])
-          }}</span>
+          <span
+            v-if="!rpcStore.useGasless"
+            :title="calculateGasPrice(request.request.params[0])"
+            >{{ calculateGasPrice(request.request.params[0]) }}</span
+          >
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            class="text-right text-green-100"
+          >
+            Sponsored
+          </span>
+          <span
+            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            class="text-right"
+          >
+            {{ calculateGasPrice(request.request.params[0]) }}
+          </span>
           <span
             v-if="
               calculateCurrencyValue(getGasValue(request.request.params[0]))
@@ -307,8 +321,15 @@ function calculateCurrencyValue(value) {
         <SignMessageAdvancedInfo :info="request.request.params.message" />
       </div>
     </div>
-    <div v-if="appStore.chainType === ChainType.evm_secp256k1" class="mt-4">
+    <div
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="mt-4 text-center"
+    >
       <GasPrice
+        v-if="
+          !rpcStore.useGasless ||
+          (rpcStore.useGasless && paymasterBalance < 0.1)
+        "
         :base-fee="baseFee"
         :gas-limit="gasLimit"
         :max-fee-per-gas="customGasPrice.maxFeePerGas"

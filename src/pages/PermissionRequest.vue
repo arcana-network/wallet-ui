@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type RpcConfig } from '@arcana/auth'
+import { Dialog } from '@headlessui/vue'
 import {
   PublicKey,
   SystemProgram,
@@ -18,11 +19,14 @@ import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
   getAppConfig,
   getGaslessEnabledStatus,
 } from '@/services/gateway.service'
+import { useGaslessStore } from '@/store/gasless'
+import { useModalStore } from '@/store/modal'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import {
@@ -32,6 +36,7 @@ import {
 } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { ChainType } from '@/utils/chainType'
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
 import {
@@ -57,6 +62,8 @@ const appDetails = ref({})
 const pendingQueue = ref([])
 const route = useRoute()
 const appId = route.params.appId as string
+const gaslessStore = useGaslessStore()
+const modalStore = useModalStore()
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -241,8 +248,8 @@ async function onApprove(request) {
   } catch (e) {
     console.log(e)
     if (e.message && e.message.includes('postMessage')) {
-      toast.error('Please make the request again')
-    } else toast.error('something went wrong')
+      toast.error(errors.GENERIC.REQUEST)
+    } else toast.error(errors.GENERIC.WRONG)
   } finally {
     pendingQueue.value.shift()
     showLoader.value = false
@@ -268,8 +275,8 @@ function onReject(request) {
     }
   } catch (e) {
     if (e.message && e.message.includes('postMessage')) {
-      toast.error('Please make the request again')
-    } else toast.error('something went wrong')
+      toast.error(errors.GENERIC.REQUEST)
+    } else toast.error(errors.GENERIC.WRONG)
   } finally {
     pendingQueue.value.shift()
     if (pendingQueue.value.length === 0) {
@@ -334,7 +341,7 @@ async function handleSendToken(params) {
       let gasFees: string | null = null
       if (gas) {
         const maxFee = new Decimal(gas.maxFeePerGas).add(
-          gas.maxPriorityFeePerGas || 1.5
+          gas.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFees = maxFeeInWei.toHexadecimal()
@@ -384,7 +391,7 @@ async function handleSendToken(params) {
     }
   } catch (err: any) {
     console.log(err)
-    toast.error(err.reason || 'Something went wrong')
+    toast.error(err.reason || errors.GENERIC.WRONG)
   } finally {
     const response = {
       jsonrpc: '2.0',
@@ -564,4 +571,9 @@ function handleGasPriceInput(value, request) {
       </div>
     </div>
   </div>
+  <Teleport v-if="modalStore.show" to="#modal-container">
+    <UseWalletBalanceGasless
+      v-if="gaslessStore.showUseWalletBalancePermission"
+    />
+  </Teleport>
 </template>

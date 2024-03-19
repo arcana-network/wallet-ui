@@ -17,6 +17,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { AUTH_URL } from '@/utils/constants'
+import { content, errors } from '@/utils/content'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { getWindowFeatures } from '@/utils/popupProps'
@@ -54,7 +55,7 @@ async function copyToClipboard(value: string, message: string) {
     await navigator.clipboard.writeText(value)
     toast.success(message)
   } catch (err) {
-    toast.error('Failed to copy')
+    toast.error(errors.COPY)
   }
 }
 
@@ -84,14 +85,8 @@ function getRequestObject() {
 }
 
 async function handleProceed() {
-  const isGlobalKeyspace = appStore.global
-  if (isGlobalKeyspace) {
-    await makeRequest(appId, getRequestObject())
-    handleHidePrivateKeyCautionModal()
-  } else {
-    showPrivateKeyCautionModal.value = false
-    showExportKeyModal.value = true
-  }
+  showPrivateKeyCautionModal.value = false
+  showExportKeyModal.value = true
 }
 
 function handleShowPrivateKeyCautionModal() {
@@ -145,7 +140,7 @@ async function handleMFASetupClick() {
           mfaWindow?.close()
           getStorage().local.setHasMFA(user.info.id)
           user.hasMfa = true
-          toast.success('MFA setup completed')
+          toast.success(content.MFA.SETUP)
           window.removeEventListener('message', handler, false)
           handleShowMFAProceedModal(false)
           hideLoader()
@@ -153,9 +148,9 @@ async function handleMFASetupClick() {
           mfaWindow?.close()
           window.removeEventListener('message', handler, false)
           hideLoader()
-          if (data.error !== 'User cancelled the setup') toast.error(data.error)
+          if (data.error !== content.MFA.CANCELLED) toast.error(data.error)
         } else {
-          toast.error('Error occured while setting up MFA. Please try again')
+          toast.error(errors.MFA.ERROR)
           console.log('Unexpected event')
         }
       }
