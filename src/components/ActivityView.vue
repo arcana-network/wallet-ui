@@ -586,15 +586,15 @@ async function stopTransaction(activity) {
               Speed Up
             </button>
           </div>
+          <Teleport v-if="modalStore.show" to="#modal-container">
+            <GasPriceSpeedUp
+              @close="modalStore.setShowModal(false)"
+              @proceed="
+                (speedupPercent) => speedUpTransaction(speedupPercent, activity)
+              "
+            />
+          </Teleport>
         </div>
-        <Teleport v-if="modalStore.show" to="#modal-container">
-          <GasPriceSpeedUp
-            @close="modalStore.setShowModal(false)"
-            @proceed="
-              (speedupPercent) => speedUpTransaction(speedupPercent, activity)
-            "
-          />
-        </Teleport>
       </li>
     </ul>
     <div v-else class="flex justify-center text-center text-sm text-gray-100">
