@@ -137,6 +137,15 @@ class EVMAccountHandler {
     return mode
   }
 
+  getParamsForDoTx(transactionMode) {
+    if (transactionMode === 'ARCANA') {
+      return {
+        mode: 'ARCANA',
+        verificationGasLimit: 100000,
+      }
+    } else return { mode: transactionMode }
+  }
+
   sendCustomToken = async (
     contractAddress,
     recipientAddress,
@@ -180,7 +189,10 @@ class EVMAccountHandler {
           }, 500)
         })
       }
-      const tx = await scwInstance.doTx(txParams, { mode: transactionMode })
+      const tx = await scwInstance.doTx(
+        txParams,
+        this.getParamsForDoTx(transactionMode)
+      )
       const txDetails = await tx.wait()
       gaslessStore.canUseWalletBalance = null
       return txDetails.receipt.transactionHash
@@ -431,7 +443,10 @@ class EVMAccountHandler {
             }, 500)
           })
         }
-        const tx = await scwInstance.doTx(txParams, { mode: transactionMode })
+        const tx = await scwInstance.doTx(
+          txParams,
+          this.getParamsForDoTx(transactionMode)
+        )
         gaslessStore.canUseWalletBalance = null
         const txDetails = await tx.wait()
         return txDetails.receipt.transactionHash
