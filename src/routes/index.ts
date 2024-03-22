@@ -1,5 +1,11 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
+import ActivitiesScreen from '@/pages/ActivitiesScreen.vue'
+import homeScreen from '@/pages/homeScreen.vue'
+import NFTScreen from '@/pages/NFTScreen.vue'
+import profileScreen from '@/pages/profileScreen.vue'
+import RequestsScreen from '@/pages/RequestsScreen.vue'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
@@ -70,7 +76,7 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'home',
         path: '/',
-        component: () => import('@/pages/homeScreen.vue'),
+        component: homeScreen,
       },
       {
         name: 'StarterTips',
@@ -80,7 +86,7 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'Nfts',
         path: '/nfts',
-        component: () => import('@/pages/NFTScreen.vue'),
+        component: NFTScreen,
       },
       {
         name: 'SelectNft',
@@ -111,12 +117,12 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'requests',
         path: '/requests',
-        component: () => import('@/pages/RequestsScreen.vue'),
+        component: RequestsScreen,
       },
       {
         name: 'profile',
         path: '/profileScreen',
-        component: () => import('@/pages/profileScreen.vue'),
+        component: profileScreen,
       },
       {
         name: 'AddToken',
@@ -126,7 +132,7 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'activities',
         path: '/activities',
-        component: () => import('@/pages/ActivitiesScreen.vue'),
+        component: ActivitiesScreen,
       },
       {
         name: 'SendTokens',
