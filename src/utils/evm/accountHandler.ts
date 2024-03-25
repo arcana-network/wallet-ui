@@ -154,10 +154,18 @@ class EVMAccountHandler {
   }
 
   getParamsForDoTx(transactionMode) {
+    const verificationGasLimitMap = {
+      '80001': 100000,
+      '137': 500000,
+    }
+
     if (transactionMode === 'ARCANA') {
       return {
         mode: 'ARCANA',
-        verificationGasLimit: 100000,
+        verificationGasLimit:
+          verificationGasLimitMap[
+            rpcStore.selectedRPCConfig?.chainId as string
+          ],
       }
     } else return { mode: transactionMode }
   }
