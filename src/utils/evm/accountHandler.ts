@@ -414,6 +414,7 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
+    console.log(rpcStore.useGasless, 'rpcStore.useGasless')
     try {
       if (rpcStore.useGasless) {
         const txParams = {
@@ -460,6 +461,7 @@ class EVMAccountHandler {
         }
       }
     } catch (e) {
+      console.log(e, 'error-send-transaction')
       return Promise.reject(e)
     }
   }
