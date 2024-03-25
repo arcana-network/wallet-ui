@@ -87,11 +87,16 @@ class EVMAccountHandler {
   }
 
   async getBalanceGasSponsorship() {
+    const toAddress = {
+      '80001': '0xBb7AfAF1aE1E36A2b92A0b9DED0a59622725d74c',
+      '137': '0x36ebe56b996ef1b3BB0efBD7C3271311Db81E316',
+    }
+
     const payload = {
       method: 'eth_call',
       params: [
         {
-          to: '0xBb7AfAF1aE1E36A2b92A0b9DED0a59622725d74c',
+          to: toAddress[rpcStore.selectedRPCConfig?.chainId as string],
           from: userStore.walletAddress,
           data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
         },
