@@ -156,7 +156,7 @@ class EVMAccountHandler {
   getParamsForDoTx(transactionMode) {
     const verificationGasLimitMap = {
       '80001': 100000,
-      '137': 500000,
+      '137': 300000,
     }
 
     if (transactionMode === 'ARCANA') {
