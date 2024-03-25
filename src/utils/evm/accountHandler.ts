@@ -122,6 +122,11 @@ class EVMAccountHandler {
   }
 
   async determineScwMode() {
+    const thresholdUserBalanceMap = {
+      '80001': 0.00001,
+      '137': 0.15,
+    }
+
     const userBalance = await this.getBalanceGasSponsorship()
 
     console.log(userBalance, 'userBalance')
@@ -130,7 +135,8 @@ class EVMAccountHandler {
 
     console.log({ userBalance, paymasterBalance })
 
-    const thresholdUserBalance = 0.00001
+    const thresholdUserBalance =
+      thresholdUserBalanceMap[rpcStore.selectedRPCConfig?.chainId as string]
     const thresholdPaymasterBalance = 0.1
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
