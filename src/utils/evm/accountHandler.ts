@@ -106,6 +106,8 @@ class EVMAccountHandler {
       payload
     )
 
+    console.log(response.data.result, 'response.data.result')
+
     const value = formatTokenDecimals(
       response.data.result,
       rpcStore.selectedRPCConfig?.nativeCurrency?.decimals
@@ -116,6 +118,9 @@ class EVMAccountHandler {
 
   async determineScwMode() {
     const userBalance = await this.getBalanceGasSponsorship()
+
+    console.log(userBalance, 'userBalance')
+
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
 
     console.log({ userBalance, paymasterBalance })
