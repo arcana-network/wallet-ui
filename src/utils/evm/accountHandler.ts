@@ -147,7 +147,7 @@ class EVMAccountHandler {
           mode = 'ARCANA'
         }
       } else {
-        mode = 'SPONSORED' // you can make it as undefined
+        mode = 'BICONOMY' // you can make it as undefined
       }
     } else mode = 'SCW'
     return mode
