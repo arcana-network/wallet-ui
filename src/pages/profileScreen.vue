@@ -64,7 +64,8 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
   appStore.showWallet = false
-  parentConnectionInstance?.onEvent('disconnect')
+  await parentConnectionInstance?.onEvent('disconnect')
+  router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
 function getRequestObject() {
