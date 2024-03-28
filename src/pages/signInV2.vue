@@ -433,6 +433,12 @@ async function init() {
       await router.push({ name: 'home' })
     } else {
       const parentConnectionInstance = await initializeParentConnection()
+      if (route.query.logout && route.query.logout == '1') {
+        await parentConnectionInstance.onEvent(
+          'internal_message',
+          'logout_complete'
+        )
+      }
       const {
         themeConfig: { theme },
         name: appName,
