@@ -347,18 +347,13 @@ async function setAppMode(walletType, parentConnectionInstance) {
 }
 
 async function handleLogout(isV2 = false) {
-  if (parentConnectionStore.parentConnection) {
-    const parentConnectionInstance = await parentConnectionStore
-      .parentConnection.promise
-    const authProvider = await getAuthProvider(appStore.id as string)
-    appStore.showWallet = false
-    await userStore.handleLogout(authProvider)
-    await parentConnectionInstance?.onEvent('disconnect')
-    const route = isV2
-      ? `/${appStore.id}/v2/login?logout=1`
-      : `/${appStore.id}/login?logout=1`
-    router.push(route)
-  }
+  appStore.showWallet = false
+  const authProvider = await getAuthProvider(appStore.id as string)
+  await userStore.handleLogout(authProvider)
+  const route = isV2
+    ? `/${appStore.id}/v2/login?logout=1`
+    : `/${appStore.id}/login?logout=1`
+  router.push(route)
 }
 
 async function setRpcConfigs() {

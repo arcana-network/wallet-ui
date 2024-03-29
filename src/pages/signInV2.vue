@@ -434,10 +434,7 @@ async function init() {
     } else {
       const parentConnectionInstance = await initializeParentConnection()
       if (route.query.logout && route.query.logout == '1') {
-        await parentConnectionInstance.onEvent(
-          'internal_message',
-          'logout_complete'
-        )
+        await parentConnectionInstance.onEvent('disconnect')
       }
       const {
         themeConfig: { theme },
