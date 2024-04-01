@@ -413,6 +413,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           const operation = getTxOperation(remoteTransaction, customToken)
           if (isGaslessTransaction(operation, remoteTransaction)) {
             const data = decodeLogDataHandleOps(remoteTransaction)
+            console.log(data, 'data-getAmountUsingCallData')
             const amount = getAmountUsingCallData(data[0][0][3]) // 4th element is the data as per ABI in decodeLogDataHandleOps fn
             remoteTransaction.value = amount
           }
