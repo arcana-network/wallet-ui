@@ -205,9 +205,9 @@ function decodeLogDataHandleOps(
 }
 
 function getAmountUsingCallData(data: string): BigNumber {
-  const abi = ['function executeCall(address,uint256,bytes)']
+  const abi = ['function execute_ncC(address,uint256,bytes)']
   const iface = new ethers.utils.Interface(abi)
-  const decodedData = iface.decodeFunctionData('executeCall', data)
+  const decodedData = iface.decodeFunctionData('execute_ncC', data)
   return decodedData[1]
 }
 
