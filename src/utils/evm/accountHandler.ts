@@ -121,7 +121,7 @@ class EVMAccountHandler {
     return value
   }
 
-  async determineScwMode() {
+  async determineScwMode(nonce) {
     const thresholdUserBalanceMap = {
       '80001': 0.00001,
       '137': 0.15,
@@ -151,6 +151,41 @@ class EVMAccountHandler {
       }
     } else mode = 'SCW'
     return mode
+  }
+
+  async getNonceForArcanaSponsorship(address: string) {
+    const c = new ethers.Contract(
+      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+      [
+        {
+          inputs: [
+            {
+              internalType: 'address',
+              name: 'sender',
+              type: 'address',
+            },
+            {
+              internalType: 'uint192',
+              name: 'key',
+              type: 'uint192',
+            },
+          ],
+          name: 'getNonce',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'nonce',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      this.provider
+    )
+
+    return await c.getNonce(address, 0)
   }
 
   getParamsForDoTx(transactionMode) {
@@ -438,7 +473,9 @@ class EVMAccountHandler {
           to: data.to,
           value: data.value,
         }
-        const transactionMode = await this.determineScwMode()
+        const nonce = await this.getNonceForArcanaSponsorship(address)
+        console.log({ nonce })
+        const transactionMode = await this.determineScwMode(nonce)
         console.log(transactionMode, 'transactionMode')
         if (transactionMode === 'SCW') {
           modalStore.setShowModal(true)
