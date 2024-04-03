@@ -86,62 +86,16 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
-  async getBalanceGasSponsorship() {
-    const toAddress = {
-      '80001': '0xBb7AfAF1aE1E36A2b92A0b9DED0a59622725d74c',
-      '137': '0x36ebe56b996ef1b3BB0efBD7C3271311Db81E316',
-    }
-
-    const payload = {
-      method: 'eth_call',
-      params: [
-        {
-          to: toAddress[rpcStore.selectedRPCConfig?.chainId as string],
-          from: userStore.walletAddress,
-          data: '0xf8b2cb4f000000000000000000000000bb7afaf1ae1e36a2b92a0b9ded0a59622725d74c',
-        },
-        'latest',
-      ],
-      id: 1,
-      jsonrpc: '2.0',
-    }
-
-    const response = await axios.post(
-      rpcStore.selectedRPCConfig?.rpcUrls[0] as string,
-      payload
-    )
-
-    console.log(response.data.result, 'response.data.result')
-
-    const value = formatTokenDecimals(
-      response.data.result,
-      rpcStore.selectedRPCConfig?.nativeCurrency?.decimals
-    )
-
-    return value
-  }
-
   async determineScwMode(nonce) {
-    const thresholdUserBalanceMap = {
-      '80001': 0.00001,
-      '137': 0.15,
-    }
-
-    const userBalance = await this.getBalanceGasSponsorship()
-
-    console.log(userBalance, 'userBalance')
-
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
 
-    console.log({ userBalance, paymasterBalance })
+    console.log({ paymasterBalance })
 
-    const thresholdUserBalance =
-      thresholdUserBalanceMap[rpcStore.selectedRPCConfig?.chainId as string]
     const thresholdPaymasterBalance = 0.1
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt) {
-        if (userBalance < thresholdUserBalance && Number(nonce) > 0) {
+        if (Number(nonce) > 0) {
           mode = 'SCW'
         } else {
           mode = 'ARCANA'
