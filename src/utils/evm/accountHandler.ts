@@ -223,7 +223,7 @@ class EVMAccountHandler {
       const nonce = await this.getNonceForArcanaSponsorship(
         userStore.walletAddress
       )
-      console.log({ nonce })
+      console.log(Number(nonce), 'nonce')
       const transactionMode = await this.determineScwMode(nonce)
       console.log(transactionMode, 'transactionMode')
       if (transactionMode === 'SCW') {
@@ -479,7 +479,7 @@ class EVMAccountHandler {
           value: data.value,
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
-        console.log({ nonce })
+        console.log(Number(nonce), 'nonce')
         const transactionMode = await this.determineScwMode(nonce)
         console.log(transactionMode, 'transactionMode')
         if (transactionMode === 'SCW') {
