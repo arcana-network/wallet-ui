@@ -185,7 +185,8 @@ class EVMAccountHandler {
       this.provider
     )
 
-    return await c.getNonce(address, 0)
+    const nonce = await c.getNonce(address, 0)
+    return nonce.toString()
   }
 
   getParamsForDoTx(transactionMode) {
