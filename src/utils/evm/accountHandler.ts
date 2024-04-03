@@ -219,7 +219,11 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const transactionMode = await this.determineScwMode()
+      const nonce = await this.getNonceForArcanaSponsorship(
+        userStore.walletAddress
+      )
+      console.log({ nonce })
+      const transactionMode = await this.determineScwMode(nonce)
       console.log(transactionMode, 'transactionMode')
       if (transactionMode === 'SCW') {
         modalStore.setShowModal(true)
