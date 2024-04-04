@@ -9,6 +9,7 @@ import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { content, errors } from '@/utils/content'
 
 const requestStore = useRequestStore()
 const rpcStore = useRpcStore()
@@ -26,7 +27,7 @@ const onApproveClick = (requestId) => {
       const param = request.params[0]
       const gasPrice = String(param.gasPrice)
       if (!gasPrice.length) {
-        toast.error('Please provide Gas Fee')
+        toast.error(content.GAS.PROVIDE)
         return
       }
     }

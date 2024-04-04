@@ -13,6 +13,15 @@ type GasPriceProps = {
 
 const props = defineProps<GasPriceProps>()
 
+const computedProps = computed(() => {
+  return {
+    baseFee: props.baseFee,
+    gasLimit: props.gasLimit,
+    maxFeePerGas: props.maxFeePerGas,
+    maxPriorityFeePerGas: props.maxPriorityFeePerGas,
+  }
+})
+
 const maxFeePerGas = ref(null as number | null)
 const maxPriorityFeePerGas = ref(null as number | null)
 const totalGasUsed = ref(Number(props.gasLimit) as number | null)
@@ -20,25 +29,33 @@ const transactionTime = ref(null)
 const selectedGasMethod: Ref<'normal' | 'fast' | 'custom'> = ref('normal')
 
 const sanitizedBaseFee = computed(() => {
-  return new Decimal(props.baseFee).toFixed(9)
+  return new Decimal(computedProps.value.baseFee).toFixed(9)
 })
 
 watch(selectedGasMethod, () => {
   handleGasPriceSelect(selectedGasMethod.value)
 })
 
-if (props.maxFeePerGas) {
-  maxFeePerGas.value = new Decimal(props.maxFeePerGas).toNumber()
-} else {
-  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).toNumber()
-}
-
-if (props.maxPriorityFeePerGas) {
+if (computedProps.value.maxPriorityFeePerGas) {
   maxPriorityFeePerGas.value = new Decimal(
-    props.maxPriorityFeePerGas
+    computedProps.value.maxPriorityFeePerGas
   ).toNumber()
 } else {
-  maxPriorityFeePerGas.value = 0
+  maxPriorityFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+    .div(10)
+    .toDecimalPlaces(2)
+    .toNumber()
+}
+
+if (computedProps.value.maxFeePerGas) {
+  maxFeePerGas.value = new Decimal(computedProps.value.maxFeePerGas)
+    .add(maxPriorityFeePerGas.value)
+    .toNumber()
+} else {
+  maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+    .mul(1.25)
+    .add(maxPriorityFeePerGas.value)
+    .toNumber()
 }
 
 emits('gasPriceInput', {
@@ -49,11 +66,21 @@ emits('gasPriceInput', {
 
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal') {
-    maxPriorityFeePerGas.value = 0
-    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value).toNumber()
-  } else if (gasMethod === 'fast') {
-    maxPriorityFeePerGas.value = 4
+    maxPriorityFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+      .div(10)
+      .toDecimalPlaces(2)
+      .toNumber()
     maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+      .mul(1.25)
+      .add(maxPriorityFeePerGas.value)
+      .toNumber()
+  } else if (gasMethod === 'fast') {
+    maxPriorityFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+      .div(6)
+      .toDecimalPlaces(2)
+      .toNumber()
+    maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
+      .mul(2)
       .add(maxPriorityFeePerGas.value)
       .toNumber()
   }

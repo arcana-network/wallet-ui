@@ -9,11 +9,11 @@ import { Decimal } from 'decimal.js'
 import {
   onMounted,
   onUnmounted,
+  onBeforeMount,
   ref,
   Ref,
   watch,
   computed,
-  onBeforeMount,
 } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -34,11 +34,10 @@ import {
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { content } from '@/utils/content'
+import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
@@ -467,7 +466,7 @@ async function handleSendToken() {
     }
     clearForm()
     router.push({ name: 'activities' })
-    toast.success('Transaction under process')
+    toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     console.log(error, 'error')
     const displayMessage =
@@ -476,7 +475,7 @@ async function handleSendToken() {
         error?.data?.originalError?.code ||
         error?.error?.message ||
         error?.message ||
-        error?.reason) as string) || 'Something went wrong'
+        error?.reason) as string) || errors.GENERIC.WRONG
     toast.error(displayMessage)
   } finally {
     showPreview.value = false
@@ -561,7 +560,7 @@ async function handleShowPreview() {
         estimatedGas.value = String(gasParamsMVX.value.gasFee)
       }
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   } else {
     if (recipientWalletAddress.value && amount.value && gas.value) {
@@ -645,13 +644,13 @@ async function handleShowPreview() {
         }
       } catch (e) {
         //handle errors in transaction
-        toast.error('Something went wrong, Please try again.')
+        toast.error(errors.GENERIC.WRONG)
         console.log({ e })
       } finally {
         hideLoader()
       }
     } else {
-      toast.error('Please fill all values')
+      toast.error(errors.GENERIC.VALUE)
     }
   }
 }
@@ -662,19 +661,18 @@ function handleTransactionErrors() {
     !rpcStore.useGasless &&
     new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
   ) {
-    toast.error('Insufficient funds for Transfer.')
+    toast.error(content.TOKEN.INSUFFICIENT)
     return true
   } else if (
     !amount.value ||
     new Decimal(amount.value).equals(selectedTokenBalance.value)
   ) {
-    toast.error('Insufficient funds for Gas.')
-    return true
+    toast.error(content.GAS.INSUFFICIENT)
   } else if (
     !amount.value ||
     new Decimal(amount.value).greaterThan(selectedTokenBalance.value)
   ) {
-    toast.error('Amount should not be greater than Max Balance.')
+    toast.error(content.TOKEN.AMOUNT)
     return true
   }
   return false
@@ -688,7 +686,7 @@ function getMaxTransferValue() {
   let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
   if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
     maxValueInput = new Decimal(0)
-    toast.error('Insufficient funds for Transfer.')
+    toast.error(content.TOKEN.INSUFFICIENT)
   }
   return maxValueInput
 }
@@ -807,7 +805,11 @@ watch(
           </div>
         </div>
         <GasPrice
-          v-if="appStore.chainType === ChainType.evm_secp256k1"
+          v-if="
+            appStore.chainType === ChainType.evm_secp256k1 &&
+            (!rpcStore.useGasless ||
+              (rpcStore.useGasless && paymasterBalance < 0.1))
+          "
           :gas-prices="gasPrices"
           :base-fee="baseFee"
           :gas-limit="estimatedGas"
