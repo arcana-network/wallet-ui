@@ -38,7 +38,6 @@ import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
@@ -99,7 +98,7 @@ onBeforeMount(async () => {
 watch(gas, () => {
   if (gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-      gas.value.maxPriorityFeePerGas || 1.5
+      gas.value.maxPriorityFeePerGas || 0
     )
     const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
     gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
@@ -410,7 +409,7 @@ async function handleSendToken() {
       let gasFees: string | null = null
       if (gas.value) {
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFees = maxFeeInWei.toHexadecimal()
@@ -539,7 +538,7 @@ async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: String(4),
+      maxPriorityFeePerGas: String(0),
       gasLimit: 0,
     }
   }
@@ -598,7 +597,7 @@ async function handleShowPreview() {
           }
         }
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
