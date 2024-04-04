@@ -89,8 +89,6 @@ class EVMAccountHandler {
   async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
 
-    console.log({ paymasterBalance })
-
     const thresholdPaymasterBalance = 0.1
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
@@ -177,9 +175,7 @@ class EVMAccountHandler {
       const nonce = await this.getNonceForArcanaSponsorship(
         userStore.walletAddress
       )
-      console.log(Number(nonce), 'nonce')
       const transactionMode = await this.determineScwMode(nonce)
-      console.log(transactionMode, 'transactionMode')
       if (transactionMode === 'SCW') {
         modalStore.setShowModal(true)
         appStore.expandWallet = true
@@ -424,7 +420,6 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    console.log(rpcStore.useGasless, 'rpcStore.useGasless')
     try {
       if (rpcStore.useGasless) {
         const txParams = {
@@ -433,9 +428,7 @@ class EVMAccountHandler {
           value: data.value,
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
-        console.log(Number(nonce), 'nonce')
         const transactionMode = await this.determineScwMode(nonce)
-        console.log(transactionMode, 'transactionMode')
         if (transactionMode === 'SCW') {
           modalStore.setShowModal(true)
           appStore.expandWallet = true
@@ -473,7 +466,6 @@ class EVMAccountHandler {
         }
       }
     } catch (e) {
-      console.log(e, 'error-send-transaction')
       return Promise.reject(e)
     }
   }
