@@ -19,6 +19,9 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc20abi from '@/abis/erc20.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
+import { useAppStore } from '@/store/app'
+import { useGaslessStore } from '@/store/gasless'
+import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
@@ -32,6 +35,10 @@ import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
+const modalStore = useModalStore()
+const appStore = useAppStore()
+const gaslessStore = useGaslessStore()
+const isSendIt = document.referrer.includes('sendit')
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
@@ -77,6 +84,69 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
+  async determineScwMode(nonce) {
+    const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
+    const thresholdPaymasterBalance = 0.1
+    let mode = 'SCW'
+    if (paymasterBalance > thresholdPaymasterBalance) {
+      if (isSendIt) {
+        if (Number(nonce) > 0) {
+          mode = 'SCW'
+        } else {
+          mode = 'ARCANA'
+        }
+      } else {
+        mode = 'BICONOMY' // you can make it as undefined
+      }
+    } else mode = 'SCW'
+    return mode
+  }
+
+  async getNonceForArcanaSponsorship(address: string) {
+    const c = new ethers.Contract(
+      '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+      [
+        {
+          inputs: [
+            {
+              internalType: 'address',
+              name: 'sender',
+              type: 'address',
+            },
+            {
+              internalType: 'uint192',
+              name: 'key',
+              type: 'uint192',
+            },
+          ],
+          name: 'getNonce',
+          outputs: [
+            {
+              internalType: 'uint256',
+              name: 'nonce',
+              type: 'uint256',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      this.provider
+    )
+
+    const nonce = await c.getNonce(address, 0)
+    return nonce.toString()
+  }
+
+  getParamsForDoTx(transactionMode) {
+    if (transactionMode === 'ARCANA') {
+      return {
+        mode: 'ARCANA',
+        calculateGasLimits: true,
+      }
+    } else return { mode: transactionMode }
+  }
+
   sendCustomToken = async (
     contractAddress,
     recipientAddress,
@@ -99,8 +169,35 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const tx = await scwInstance.doTx(txParams)
+      const nonce = await this.getNonceForArcanaSponsorship(
+        userStore.walletAddress
+      )
+      const transactionMode = await this.determineScwMode(nonce)
+      if (transactionMode === 'SCW') {
+        modalStore.setShowModal(true)
+        appStore.expandWallet = true
+        gaslessStore.showUseWalletBalancePermission = true
+        await new Promise((resolve, reject) => {
+          const intervalId = setInterval(() => {
+            if (gaslessStore.canUseWalletBalance !== null) {
+              clearInterval(intervalId)
+              if (gaslessStore.canUseWalletBalance) {
+                resolve(null)
+              } else {
+                reject(new Error('Gastank balance too low'))
+              }
+              modalStore.setShowModal(false)
+              gaslessStore.showUseWalletBalancePermission = false
+            }
+          }, 500)
+        })
+      }
+      const tx = await scwInstance.doTx(
+        txParams,
+        this.getParamsForDoTx(transactionMode)
+      )
       const txDetails = await tx.wait()
+      gaslessStore.canUseWalletBalance = null
       return txDetails.receipt.transactionHash
     } else {
       const signer = this.wallet.connect(this.provider)
@@ -327,7 +424,32 @@ class EVMAccountHandler {
           to: data.to,
           value: data.value,
         }
-        const tx = await scwInstance.doTx(txParams)
+        const nonce = await this.getNonceForArcanaSponsorship(address)
+        const transactionMode = await this.determineScwMode(nonce)
+        if (transactionMode === 'SCW') {
+          modalStore.setShowModal(true)
+          appStore.expandWallet = true
+          gaslessStore.showUseWalletBalancePermission = true
+          await new Promise((resolve, reject) => {
+            const intervalId = setInterval(() => {
+              if (gaslessStore.canUseWalletBalance !== null) {
+                clearInterval(intervalId)
+                if (gaslessStore.canUseWalletBalance) {
+                  resolve(null)
+                } else {
+                  reject(new Error('Gastank balance too low'))
+                }
+                modalStore.setShowModal(false)
+                gaslessStore.showUseWalletBalancePermission = false
+              }
+            }, 500)
+          })
+        }
+        const tx = await scwInstance.doTx(
+          txParams,
+          this.getParamsForDoTx(transactionMode)
+        )
+        gaslessStore.canUseWalletBalance = null
         const txDetails = await tx.wait()
         return txDetails.receipt.transactionHash
       } else {
