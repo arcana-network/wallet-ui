@@ -106,7 +106,7 @@ onMounted(async () => {
     } catch (e) {
       console.log('could not get token', e)
       captureException(e)
-      captureMessage(`Login failed on ${id}, could not get token`)
+      captureMessage(`Login failed on ${id}`)
     } finally {
       if (cleanup) {
         await cleanup()

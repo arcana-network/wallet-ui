@@ -126,7 +126,7 @@ async function init() {
       } catch (e) {
         console.log('could not get token', e)
         captureException(e)
-        captureMessage(`Login failed on ${appId}, could not get token`)
+        captureMessage(`Login failed on ${appId}`)
       } finally {
         if (postLoginCleanup) {
           await postLoginCleanup()
