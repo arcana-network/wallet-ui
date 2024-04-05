@@ -122,7 +122,7 @@ onMounted(async () => {
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
 
     await Promise.all([
-      setRpcConfigs().then(async () => await getRpcConfig()),
+      setRpcConfigs().then(() => getRpcConfig()),
       getKeySpaceType(),
     ])
     await connectToParent()
