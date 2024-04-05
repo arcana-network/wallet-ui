@@ -60,10 +60,10 @@ async function copyToClipboard(value: string, message: string) {
 }
 
 async function handleLogout() {
+  appStore.showWallet = false
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
-  appStore.showWallet = false
   parentConnectionInstance?.onEvent('disconnect')
 }
 

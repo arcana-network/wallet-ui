@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { computed, toRefs, watch } from 'vue'
+import { computed, toRefs, watch, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import WalletFooter from '@/components/AppFooter.vue'
 import BaseModal from '@/components/BaseModal.vue'
-import WalletButton from '@/components/WalletButton.vue'
-import WalletHeader from '@/components/WalletHeader.vue'
 import type { Theme } from '@/models/Theme'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
@@ -17,6 +14,16 @@ import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 
 import '@/index.css'
+
+const WalletFooter = defineAsyncComponent(
+  () => import('@/components/AppFooter.vue')
+)
+const WalletButton = defineAsyncComponent(
+  () => import('@/components/WalletButton.vue')
+)
+const WalletHeader = defineAsyncComponent(
+  () => import('@/components/WalletHeader.vue')
+)
 
 const app = useAppStore()
 const modal = useModalStore()

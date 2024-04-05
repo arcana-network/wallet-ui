@@ -120,9 +120,11 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-    await setRpcConfigs()
-    await getRpcConfig()
-    await getKeySpaceType()
+
+    await Promise.all([
+      setRpcConfigs().then(() => getRpcConfig()),
+      getKeySpaceType(),
+    ])
     await connectToParent()
     await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
@@ -137,10 +139,12 @@ onMounted(async () => {
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
-      await requestHandler.setRpcConfig({
-        chainId: selectedChainId,
-        ...rpcConfig,
-      })
+      requestHandler
+        .setRpcConfig({
+          chainId: selectedChainId,
+          ...rpcConfig,
+        })
+        .then(() => requestHandler.sendConnect())
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
@@ -148,7 +152,6 @@ onMounted(async () => {
         await initScwSdk()
       }
 
-      await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
@@ -242,8 +245,14 @@ async function initAccountHandler() {
       userStore.setWalletAddress(account.address)
 
       if (typeof appStore.validAppMode !== 'number') {
-        const walletType = await getWalletType(appStore.id)
-        await setAppMode(walletType, parentConnectionInstance)
+        let walletMode = storage.local.getWalletMode()
+        if (walletMode == null) {
+          const walletType = await getWalletType(appStore.id)
+          devLogger.log('walletType', walletType)
+          storage.local.setWalletMode(walletType)
+          walletMode = walletType
+        }
+        await setAppMode(walletMode, parentConnectionInstance)
       }
     }
   } catch (err) {
@@ -294,6 +303,7 @@ async function connectToParent() {
       getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
+      logout,
       getUserInfo,
       expandWallet: () => (appStore.expandWallet = true),
     })
@@ -345,6 +355,13 @@ async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
   appStore.setAppMode(validAppMode as AppMode)
+}
+
+async function logout() {
+  appStore.showWallet = false
+  const authProvider = await getAuthProvider(appStore.id as string)
+  await userStore.handleLogout(authProvider)
+  router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
 async function handleLogout() {
