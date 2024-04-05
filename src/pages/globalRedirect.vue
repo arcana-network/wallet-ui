@@ -105,8 +105,6 @@ onMounted(async () => {
       userInfo.token = loginToken
     } catch (e) {
       console.log('could not get token', e)
-      captureException(e)
-      captureMessage(`Login failed on ${id}`)
     } finally {
       if (cleanup) {
         await cleanup()
@@ -139,12 +137,12 @@ onMounted(async () => {
       isStandalone: false,
     })
   } catch (e) {
+    captureException(e)
+    captureMessage(`Login failed on ${id}`)
     if (e instanceof Error && e.message == 'LOCAL_SHARE_MISSING') {
       connectionToParent.goToMfaRestore(id)
     } else {
       connectionToParent.setError(e as string)
-      captureException(e)
-      captureMessage(`Login failed on ${id}`)
     }
   }
 })
