@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AuthProvider, type GetInfoOutput } from '@arcana/auth-core'
 import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
-import { captureException } from '@sentry/vue'
+import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -105,7 +105,8 @@ onMounted(async () => {
       userInfo.token = loginToken
     } catch (e) {
       console.log('could not get token', e)
-      captureException(`Login failed on ${id}, could not get token`)
+      captureException(e)
+      captureMessage(`Login failed on ${id}, could not get token`)
     } finally {
       if (cleanup) {
         await cleanup()
@@ -142,7 +143,8 @@ onMounted(async () => {
       connectionToParent.goToMfaRestore(id)
     } else {
       connectionToParent.setError(e as string)
-      captureException(`Login failed on ${id}`)
+      captureException(e)
+      captureMessage(`Login failed on ${id}`)
     }
   }
 })

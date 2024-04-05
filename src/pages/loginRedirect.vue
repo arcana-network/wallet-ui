@@ -6,7 +6,7 @@ import {
   decodeJSON,
 } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
-import { captureException } from '@sentry/vue'
+import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -125,7 +125,8 @@ async function init() {
         userInfo.token = loginToken
       } catch (e) {
         console.log('could not get token', e)
-        captureException(`Login failed on ${appId}, could not get token`)
+        captureException(e)
+        captureMessage(`Login failed on ${appId}, could not get token`)
       } finally {
         if (postLoginCleanup) {
           await postLoginCleanup()
@@ -163,6 +164,8 @@ async function init() {
       return
     }
   } catch (e) {
+    captureException(e)
+    captureMessage(`Login failed on ${appId}`)
     if (e instanceof Error) {
       await reportError(e.message)
     }
@@ -180,7 +183,6 @@ async function reportError(errorMessage: string) {
     {}
   ).promise
   await connectionToParent.error(errorMessage)
-  captureException(`Login failed on ${appId}`)
   return
 }
 </script>
