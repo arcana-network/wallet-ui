@@ -61,9 +61,10 @@ async function copyToClipboard(value: string, message: string) {
 
 async function handleLogout() {
   appStore.showWallet = false
+  const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
   await user.handleLogout(authProvider)
-  router.push(`/${appStore.id}/v2/login?logout=1`)
+  parentConnectionInstance?.onEvent('disconnect')
 }
 
 function getRequestObject() {
