@@ -397,9 +397,6 @@ async function init() {
     window.addEventListener('message', windowEventHandler)
     app.setAppId(`${appId}`)
 
-    authProvider = await getAuthProvider(`${appId}`)
-    availableLogins.value = await fetchAvailableLogins(authProvider)
-
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
 
@@ -437,7 +434,8 @@ async function init() {
         themeConfig: { theme },
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
-
+      authProvider = await getAuthProvider(`${appId}`)
+      availableLogins.value = await fetchAvailableLogins(authProvider)
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
       if (theme === 'dark') htmlEl.classList.add(theme)
