@@ -5,6 +5,11 @@ module.exports = defineConfig({
   assetsDir: 'assets',
   transpileDependencies: true,
   configureWebpack: {
+    optimization: {
+      splitChunks: {
+        maxSize: 500 * 1024,
+      },
+    },
     resolve: {
       fallback: {
         buffer: require.resolve('buffer/'),
@@ -21,6 +26,9 @@ module.exports = defineConfig({
     plugins: [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
+      }),
+      new webpack.optimize.MinChunkSizePlugin({
+        minChunkSize: 1000 * 1024,
       }),
     ],
     devServer: {
