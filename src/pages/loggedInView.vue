@@ -303,6 +303,7 @@ async function connectToParent() {
       getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
+      logout,
       getUserInfo,
       expandWallet: () => (appStore.expandWallet = true),
     })
@@ -354,6 +355,13 @@ async function setAppMode(walletType, parentConnectionInstance) {
   const appModeFromParent = await parentConnectionInstance.getAppMode()
   const validAppMode = getValidAppMode(walletType, appModeFromParent)
   appStore.setAppMode(validAppMode as AppMode)
+}
+
+async function logout() {
+  appStore.showWallet = false
+  const authProvider = await getAuthProvider(appStore.id as string)
+  await userStore.handleLogout(authProvider)
+  router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
 async function handleLogout() {

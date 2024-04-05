@@ -432,6 +432,9 @@ async function init() {
       authProvider = await getAuthProvider(`${appId}`)
       availableLogins.value = await fetchAvailableLogins(authProvider)
       const parentConnectionInstance = await initializeParentConnection()
+      if (route.query.logout && route.query.logout == '1') {
+        await parentConnectionInstance.onEvent('disconnect')
+      }
       const {
         themeConfig: { theme },
         name: appName,
