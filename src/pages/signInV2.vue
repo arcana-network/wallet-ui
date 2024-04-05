@@ -429,13 +429,13 @@ async function init() {
       user.setLoginStatus(true)
       await router.push({ name: 'home' })
     } else {
+      authProvider = await getAuthProvider(`${appId}`)
+      availableLogins.value = await fetchAvailableLogins(authProvider)
       const parentConnectionInstance = await initializeParentConnection()
       const {
         themeConfig: { theme },
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
-      authProvider = await getAuthProvider(`${appId}`)
-      availableLogins.value = await fetchAvailableLogins(authProvider)
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
       if (theme === 'dark') htmlEl.classList.add(theme)
