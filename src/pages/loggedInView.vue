@@ -144,7 +144,7 @@ onMounted(async () => {
           chainId: selectedChainId,
           ...rpcConfig,
         })
-        .then(async () => await requestHandler.sendConnect())
+        .then(() => requestHandler.sendConnect())
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
