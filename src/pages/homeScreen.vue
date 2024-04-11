@@ -7,6 +7,7 @@ import UserWallet from '@/components/UserWallet.vue'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
+import { errors } from '@/utils/content'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
@@ -51,7 +52,7 @@ async function handleChainChange() {
     await sleep(100)
     await rpcStore.getWalletBalance()
   } catch (err) {
-    console.log({ err })
+    console.log(errors.WALLET.BALANCE)
   } finally {
     hideLoader()
   }
@@ -62,7 +63,7 @@ async function handleRefresh() {
   try {
     await rpcStore.getWalletBalance()
   } catch (err) {
-    console.log({ err })
+    console.log(errors.WALLET.BALANCE)
   } finally {
     refreshIconAnimating.value = false
   }

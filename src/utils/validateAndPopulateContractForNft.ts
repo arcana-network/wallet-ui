@@ -3,6 +3,7 @@ import { EthAssetContract } from '@/models/Asset'
 import type { NFT } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
+import { errors } from '@/utils/content'
 import {
   checkOwnership,
   getCollectionName,
@@ -52,19 +53,19 @@ async function validateAndPopulateContractForNft({
   const tokenId = nftContract.tokenId
   if (!nftContract.address || !tokenId) {
     result.isValid = false
-    result.error = 'Required params missing'
+    result.error = errors.VALIDATE_TOKEN.PARAMS_MISSING
     return result
   }
   const nftDB = await NFTDB.create(getStorage().local, walletAddress, true)
   const nfts = nftDB.getNFTs(Number(chainId))
 
   if (isNftInDB(nfts, nftContract)) {
-    result.error = 'Token already added'
+    result.error = errors.VALIDATE_TOKEN.ALREADY_ADDED
     result.isValid = false
     return result
   }
   if (doesNftBelongsToEthMainnet(isEthereumMainnet, nftContract)) {
-    result.error = 'Token belongs to Ethereum Mainnet'
+    result.error = errors.VALIDATE_TOKEN.BELONGS_ETH
     result.isValid = false
     return result
   }
@@ -73,7 +74,7 @@ async function validateAndPopulateContractForNft({
     result.nft.collectionName = name
     result.error = null
   } catch (e) {
-    result.error = 'Invalid contract address'
+    result.error = errors.VALIDATE_TOKEN.INVALID_CONTRACT
     result.isValid = false
     return result
   }
@@ -87,12 +88,12 @@ async function validateAndPopulateContractForNft({
     if (hasOwnership.owner) {
       result.nft.balance = hasOwnership.balance
     } else {
-      result.error = "You don't own this NFT"
+      result.error = errors.VALIDATE_TOKEN.NOT_OWNED
       result.isValid = false
       return result
     }
   } catch (e) {
-    result.error = 'Invalid token ID'
+    result.error = errors.VALIDATE_TOKEN.INVALID_TOKEN
     result.isValid = false
     return result
   }
@@ -131,12 +132,12 @@ async function validateAndPopulateContractForNft({
       result.isValid = true
       return result
     } catch (e) {
-      result.error = "Couldn't fetch NFT details"
+      result.error = errors.VALIDATE_TOKEN.FAILED_TO_FETCH
       result.isValid = false
       return result
     }
   } catch (e) {
-    result.error = "You don't own this NFT"
+    result.error = errors.VALIDATE_TOKEN.NOT_OWNED
     result.isValid = false
     return result
   }

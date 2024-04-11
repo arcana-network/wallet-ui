@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import type { NFT } from '@/models/NFT'
+import { content } from '@/utils/content'
 import { LocalStorage } from '@/utils/storage'
 
 const NFT_PAGE_SIZE = 50
@@ -126,7 +127,7 @@ class NFTDB {
               : resp.data.result.nextPageToken
         }
       } catch (e) {
-        console.error('Caught error while trying to get NFTs:', e)
+        console.error(content.NFT.CREATE_ERROR, e)
       }
 
       storage.setNFTList(walletAddress, existingNfts)

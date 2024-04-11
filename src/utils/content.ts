@@ -1,82 +1,119 @@
 const content = {
   RPC: {
     INPUT_EXISTS: (rpcUrl: string) =>
-      `RPC URL - ${rpcUrl} already exists, please use a different one.`,
+      `W-101: RPC URL - ${rpcUrl} already exists, please use a different one.`,
   },
   CHAIN_ID: {
     INPUT_EXISTS: (chainId: string) =>
-      `Chain ID - ${chainId} already exists, please use a different one.`,
+      `W-102: Chain ID - ${chainId} already exists, please use a different one.`,
   },
   NETWORK: {
     INPUT_EXISTS:
-      'This network is currently selected, please choose a different one and try again.',
+      'W-103: This network is currently selected, please choose a different one and try again.',
   },
-  PIN: 'Enter the pin to continue.',
+  PIN: 'W-104: Enter the pin to continue.',
   WALLET: {
     COPY: 'Wallet address copied.',
-    INVALID: 'Please enter a valid wallet address.',
+    INVALID: 'W-105: Please enter a valid wallet address.',
   },
   RECOVERY: {
     ANSWER_ALL: 'Answer all the questions to recover the key.',
     QUESTIONS: 'Questions must be unique!',
   },
   GAS: {
-    PROVIDE: 'Please provide Gas Fee.',
-    INSUFFICIENT: 'Insufficient balance to pay for the gas fee.',
-    ESTIMATE: 'Cannot estimate gas fee. Please try again later.',
-    GREATER_LIMIT_MVX: 'Gas limit cannot be lesser than',
+    PROVIDE: 'W-106: Please provide Gas Fee.',
+    INSUFFICIENT: 'W-107: Insufficient balance to pay for the gas fee.',
+    ESTIMATE: 'W-108: Cannot estimate gas fee. Please try again later.',
+    GREATER_LIMIT_MVX: 'W-109: Gas limit cannot be lesser than',
   },
-  DETAILS: 'Enter all the details to continue.',
+  DETAILS: 'W-110: Enter all the details to continue.',
   TOKEN: {
     ADDED: 'Token Added successfully.',
     EXISTS: 'Token already added.',
     ETH_MAINNET: 'Token belongs to Ethereum Mainnet.',
     SENT: 'Token sent successfully.',
-    INSUFFICIENT: 'Insufficient balance for transfer.',
-    AMOUNT: 'Amount cannot be greater than the maximum available balance.',
+    INSUFFICIENT: 'W-111: Insufficient balance for transfer.',
+    AMOUNT:
+      'W-112: Amount cannot be greater than the maximum available balance.',
   },
   NFT: {
     ADD: 'NFT Added.',
     ADDED: 'NFT already added.',
-    UNSUPPORTED: 'Unsupported NFT.',
-    OWNERSHIP: "You don't have ownership for this NFT.",
+    UNSUPPORTED: 'W-112: Unsupported NFT.',
+    OWNERSHIP: "W-113: You don't have ownership for this NFT.",
     DELETED: 'NFT Deleted.',
     NO_NFT_QUATITY: (quantity: number, balance: number | undefined) =>
-      `You don't own enough NFTs to send ${quantity} NFTs. You can send ${balance} NFTs at most.`,
+      `W-114: You don't own enough NFTs to send ${quantity} NFTs. You can send ${balance} NFTs at most.`,
+    CREATE_ERROR: 'W-116: Error creating NFT. Please try again.',
   },
   CONTRACT: {
-    INVALID: 'Invalid contract address.',
+    INVALID: 'W-115: Invalid contract address.',
   },
   MFA: {
     SETUP: 'MFA setup completed.',
-    INCORRECT_ANSWERS: 'Incorrect answers.',
-    INCORRECT_PIN: 'Incorrect pin.',
-    QUESTIONNAIRE: 'Please fill in all the questionnaires.',
-    QUESTIONS_REPEAT: 'Questions cannot be repeated.',
-    QUESTIONS_EMPTY: 'Questions cannot be empty.',
-    CANCELLED: 'User cancelled the setup.',
+    INCORRECT_ANSWERS: 'W-116: Incorrect answers.',
+    INCORRECT_PIN: 'W-117: Incorrect pin.',
+    QUESTIONNAIRE: 'W-118: Please fill in all the questionnaires.',
+    QUESTIONS_REPEAT: 'W-119: Questions cannot be repeated.',
+    QUESTIONS_EMPTY: 'W-120: Questions cannot be empty.',
+    CANCELLED: 'W-121: User cancelled the setup.',
   },
 }
 const errors = {
   RPC: {
-    ERROR: 'Incorrect combination of chain Id and RPC URL.',
-    INVALID: 'Invalid RPC URL!',
+    ERROR: 'W-122: Incorrect combination of chain Id and RPC URL.',
+    INVALID: 'W-123: Invalid RPC URL!',
   },
-  COPY: 'Failed to copy.',
+  COPY: 'W-124: Failed to copy.',
   WALLET: {
-    COPY: 'Failed to copy wallet address.',
+    COPY: 'W-125: Failed to copy wallet address.',
+    BALANCE: 'W-126: Failed to get balance.',
+    NOT_FOUND: 'W-148: No Wallet found for the provided address.',
   },
   TOKEN: {
-    INVALID: 'Invalid token Id',
+    INVALID: 'W-127: Invalid token Id',
   },
   MFA: {
-    ERROR: 'Error occured while setting up MFA. Please try again!',
+    ERROR: 'W-128: Error occured while setting up MFA. Please try again!',
   },
   GENERIC: {
-    QUANTITY: 'Please enter a valid quantity.',
-    REQUEST: 'Please make the request again.',
-    WRONG: 'Something went wrong, please try again.',
-    VALUE: 'Please fill all values!',
+    QUANTITY: 'W-129: Please enter a valid quantity.',
+    REQUEST: 'W-130: Please make the request again.',
+    WRONG: 'W-131: Something went wrong, please try again.',
+    VALUE: 'W-132: Please fill all values!',
+  },
+  TRANSAK: {
+    FAILED_INITIALIZATION: 'W-133: Failed to initialize one or more on-ramps:',
+  },
+  LOGIN_TOKEN: {
+    FAILED: 'W-134: Could not get token',
+  },
+  SCW: {
+    INIT: 'W-135: Failed to initialize SCW.',
+  },
+  ACTIVITIES: {
+    FAILED: 'W-136: Failed to add to activities.',
+  },
+  PASSWORDLESS: {
+    VERIFY: 'W-137: Could not verify credentials.',
+  },
+  REDIRECT: {
+    FAILED_CONTACT:
+      'W-138: Could not contact parent page, login did not succeed',
+    LOGIN_FAILED: 'W-139: Could not login, an unexpected error occurred',
+  },
+  STORAGE: {
+    FAILED:
+      "W-140: Local or session storage doesn't work, falling back to In-Memory storage.",
+  },
+  VALIDATE_TOKEN: {
+    PARAMS_MISSING: 'W-141: Required params missing',
+    ALREADY_ADDED: 'W-142: Token already added',
+    BELONGS_ETH: 'W-143: Token belongs to Ethereum Mainnet',
+    INVALID_CONTRACT: 'W-144: Invalid contract address',
+    NOT_OWNED: 'W-145: You do not own this token',
+    INVALID_TOKEN: 'W-146: Invalid token',
+    FAILED_TO_FETCH: 'W-147: Failed to fetch details',
   },
 }
 export { errors, content }
