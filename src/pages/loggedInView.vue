@@ -385,16 +385,12 @@ async function setRpcConfigs() {
 }
 
 async function getRpcConfig() {
-  try {
-    let rpcConfig =
-      enabledChainList.value.find((chain) => chain.defaultChain) ||
-      enabledChainList.value[0] // some time, chain list don't have default chain
-    initKeeper(rpcConfig.rpcUrls[0])
-    rpcStore.setSelectedRPCConfig(rpcConfig)
-    rpcStore.setRpcConfig(rpcConfig)
-  } catch (err) {
-    console.log({ err })
-  }
+  let rpcConfig =
+    enabledChainList.value.find((chain) => chain.defaultChain) ||
+    enabledChainList.value[0] // some time, chain list don't have default chain
+  initKeeper(rpcConfig.rpcUrls[0])
+  rpcStore.setSelectedRPCConfig(rpcConfig)
+  rpcStore.setRpcConfig(rpcConfig)
 }
 
 async function getRpcConfigFromParent() {

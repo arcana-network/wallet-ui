@@ -42,7 +42,7 @@ onBeforeMount(async () => {
   try {
     await Promise.all([fetchTransakNetworks()])
   } catch (e) {
-    console.error('Failed to initialize one or more on-ramps:', e)
+    console.error(errors.TRANSAK.FAILED_INITIALIZATION, e)
   }
 })
 
