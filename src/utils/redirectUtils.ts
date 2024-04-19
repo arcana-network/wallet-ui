@@ -5,6 +5,7 @@ import {
   type GlobalRedirectMethods,
   RedirectParentConnectionApi,
 } from '@/models/Connection'
+import { errors } from '@/utils/content'
 import { encrypt } from '@/utils/crypto'
 import {
   getCredentialKey,
@@ -73,7 +74,7 @@ const interactWithIframe = <T>(
         }
       }
     } catch (e) {
-      reject(new Error('Could not contact parent page, login did not succeed'))
+      reject(new Error(errors.REDIRECT.FAILED_CONTACT))
     }
   })
 }
@@ -175,10 +176,8 @@ async function handleSocialLogin(params: HandleLoginParams) {
     await contactParentPage(params, LOGIN_INFO)
     await params.connection.replyTo()
   } catch (e) {
-    console.log('A very unexpected error occurred', e)
-    await params.connection.error(
-      'Could not login, an unexpected error occurred'
-    )
+    console.log(errors.REDIRECT.LOGIN_FAILED, e)
+    await params.connection.error(errors.REDIRECT.LOGIN_FAILED)
   }
 }
 
@@ -229,10 +228,8 @@ const handleGlobalLogin = async (
     await contactParentPage(params, LOGIN_INFO)
     await params.connection.setSuccess()
   } catch (e) {
-    console.log('A very unexpected error occurred', e)
-    await params.connection.setError(
-      'Could not login, an unexpected error occurred'
-    )
+    console.log(errors.REDIRECT.LOGIN_FAILED, e)
+    await params.connection.setError(errors.REDIRECT.LOGIN_FAILED)
   }
 }
 

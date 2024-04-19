@@ -13,6 +13,7 @@ import {
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { errors } from '@/utils/content'
 import {
   CONTRACT_EVENT_CODE,
   getFileKeysFromContract,
@@ -450,7 +451,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           }
         }
       } catch (err) {
-        console.log(err)
+        console.log(errors.ACTIVITIES.FAILED, err)
       }
     },
     async fetchAndSaveNFTActivityFromHash({

@@ -19,6 +19,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
+import { errors } from '@/utils/content'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
@@ -170,12 +171,10 @@ async function validateRPCandChainID(rpcURL, chainId) {
     const { chainId: fetchedChainId } = await provider.getNetwork()
     const isValidChainId = Number(fetchedChainId) === Number(chainId)
     result.isValid = isValidChainId
-    result.error = isValidChainId
-      ? ''
-      : 'Incorrect combination of chain Id and RPC URL'
+    result.error = isValidChainId ? '' : errors.RPC.ERROR
   } catch (e) {
     result.isValid = false
-    result.error = 'Invalid RPC URL'
+    result.error = errors.RPC.INVALID
   }
   return result
 }
