@@ -21,6 +21,7 @@ export default async (req: Request) => {
     return next({
       headers: {
         'Content-Security-Policy': header,
+        'Cache-Control': 'no-cache',
       },
     })
   } catch (e) {
