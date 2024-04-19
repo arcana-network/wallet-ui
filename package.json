@@ -38,6 +38,7 @@
     "@solana/spl-token": "^0.3.8",
     "@solana/spl-token-registry": "^0.2.4574",
     "@solana/web3.js": "^1.87.1",
+    "@vercel/edge": "^1.1.1",
     "assert": "^2.0.0",
     "axios": "^0.27.2",
     "bignumber.js": "^9.1.0",
