@@ -13,6 +13,7 @@ import { type GlobalRedirectMethods } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { errors } from '@/utils/content'
+import { devLogger } from '@/utils/devLogger'
 import { getDefaultParams } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleGlobalLogin } from '@/utils/redirectUtils'
@@ -49,6 +50,10 @@ onMounted(async () => {
 
     app.id = appId
     app.isMfaEnabled = provider.appConfig.mfa_enabled
+    devLogger.log({
+      mfa_enabled: app.isMfaEnabled,
+      provider_mfa_enabled: provider.appConfig.mfa_enabled,
+    })
     app.curve =
       provider.appConfig.chain_type.toLowerCase() == 'evm'
         ? CURVE.SECP256K1

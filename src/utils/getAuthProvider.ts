@@ -5,6 +5,7 @@ import type { InitParams } from '@arcana/auth-core/types/types'
 
 import { useAppStore } from '@/store/app'
 import { AUTH_URL } from '@/utils/constants'
+import { devLogger } from '@/utils/devLogger'
 import { getStorage, StorageType } from '@/utils/storageWrapper'
 
 const AUTH_NETWORK = process.env
@@ -56,6 +57,8 @@ async function getAuthProvider(
       })
     }
     appStore.isMfaEnabled = authProvider.appConfig.mfa_enabled !== false
+    devLogger.log('AuthProvder isMfaEnabled', appStore.isMfaEnabled)
+    devLogger.log('AuthProvder appConfig', authProvider.appConfig)
     appStore.setChainType(
       authProvider.appConfig.chain_type?.toLowerCase() || 'evm'
     )
