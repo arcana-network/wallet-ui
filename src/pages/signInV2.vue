@@ -191,6 +191,7 @@ const penpalMethods = {
   getPublicKey: handleGetPublicKey,
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
+  triggerCustomLogin: handleCustomLoginRequest,
   getReconnectionUrl: () => {
     const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
     return reconURL.toString()
@@ -456,6 +457,38 @@ async function handleGetPublicKey(id: string, verifier: LoginType) {
   return await authProvider.getPublicKey({ id, verifier })
 }
 
+async function handleCustomLoginRequest(params: {
+  token: string
+  userID: string
+  provider: string
+}) {
+  const ap = await getAuthProvider(app.id)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  await ap.initKeyReconstructor()
+  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ap.keyReconstructor
+
+  const info = await kr.getPrivateKey({
+    verifier: params.provider,
+    id: params.userID,
+    idToken: params.token,
+  })
+
+  const userInfo = {
+    loginType: params.provider as LoginType,
+    hasMfa: false,
+    privateKey: info.privateKey as string,
+    pk: info.privateKey as string,
+    userInfo: {
+      id: params.userID,
+    },
+    token: '',
+  }
+  await storeUserInfoAndRedirect(userInfo, true)
+}
+
 async function handleBearerLoginRequest(
   type: BearerAuthentication,
   _data: unknown
@@ -485,7 +518,7 @@ async function handleBearerLoginRequest(
 
       // TODO
       const userInfo = {
-        loginType: 'firebase',
+        loginType: 'firebase' as LoginType,
         hasMfa: false,
         privateKey: info.privateKey as string,
         pk: info.privateKey as string,
