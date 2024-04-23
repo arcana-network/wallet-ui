@@ -1,5 +1,6 @@
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
+import { errors } from '@/utils/content'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 import { getStorage } from '@/utils/storageWrapper'
 
@@ -49,16 +50,16 @@ async function validateAndPopulateContractForToken({
   }
   if (!tokenContract.address) {
     result.isValid = false
-    result.error = 'Required params missing'
+    result.error = errors.VALIDATE_TOKEN.PARAMS_MISSING
     return result
   }
   if (isContractInLocalStorage(walletAddress, chainId, tokenContract)) {
-    result.error = 'Token already added'
+    result.error = errors.VALIDATE_TOKEN.ALREADY_ADDED
     result.isValid = false
     return result
   }
   if (doesTokenBelongsToEthMainnet(isEthereumMainnet, tokenContract)) {
-    result.error = 'Token belongs to Ethereum Mainnet'
+    result.error = errors.VALIDATE_TOKEN.BELONGS_ETH
     result.isValid = false
     return result
   }
@@ -73,7 +74,7 @@ async function validateAndPopulateContractForToken({
     result.error = null
     return result
   } catch (e) {
-    result.error = 'Invalid contract address'
+    result.error = errors.VALIDATE_TOKEN.INVALID_CONTRACT
     result.isValid = false
     return result
   }
