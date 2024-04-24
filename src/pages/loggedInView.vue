@@ -355,6 +355,7 @@ async function handleLogout(isV2 = false) {
     : `/${appStore.id}/login?logout=1`
   setTimeout(() => {
     router.push(route)
+    // added timeout because connection gets destoryed before sending reply to parent
   }, 10)
 }
 
