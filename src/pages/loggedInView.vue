@@ -353,7 +353,9 @@ async function handleLogout(isV2 = false) {
   const route = isV2
     ? `/${appStore.id}/v2/login?logout=1`
     : `/${appStore.id}/login?logout=1`
-  router.push(route)
+  setTimeout(() => {
+    router.push(route)
+  }, 1000)
 }
 
 async function setRpcConfigs() {
