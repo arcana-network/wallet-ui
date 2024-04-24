@@ -355,7 +355,7 @@ async function handleLogout(isV2 = false) {
     : `/${appStore.id}/login?logout=1`
   setTimeout(() => {
     router.push(route)
-  }, 1000)
+  }, 10)
 }
 
 async function setRpcConfigs() {
