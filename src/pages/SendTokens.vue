@@ -646,9 +646,10 @@ async function handleShowPreview() {
         } else {
           showPreview.value = true
         }
-      } catch (e) {
+      } catch (e: any) {
         //handle errors in transaction
-        toast.error(errors.GENERIC.WRONG)
+
+        toast.error(e?.reason || errors.GENERIC.WRONG)
         console.log({ e })
       } finally {
         hideLoader()
