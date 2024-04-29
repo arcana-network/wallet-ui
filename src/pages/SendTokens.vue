@@ -470,14 +470,16 @@ async function handleSendToken() {
     toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     console.log(error, 'error')
-    console.log(error?.error?.message, error?.message, error?.reason)
-    const displayMessage =
+    let displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
         error?.data?.originalError?.code ||
         error?.error?.message ||
         error?.message ||
         error?.reason) as string) || errors.GENERIC.WRONG
+    if (error?.message.includes('invalid BigNumber string')) {
+      displayMessage = 'invalid BigNumber string'
+    }
     toast.error(displayMessage)
   } finally {
     showPreview.value = false
