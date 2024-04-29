@@ -293,12 +293,20 @@ async function connectToParent() {
       getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
+      logout,
       getUserInfo,
       expandWallet: () => (appStore.expandWallet = true),
     })
     parentConnectionStore.setParentConnection(parentConnection)
   }
   await parentConnection.promise
+}
+
+async function logout() {
+  appStore.showWallet = false
+  const authProvider = await getAuthProvider(appStore.id as string)
+  await userStore.handleLogout(authProvider)
+  router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
 async function setTheme() {
