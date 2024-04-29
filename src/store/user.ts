@@ -73,8 +73,8 @@ export const useUserStore = defineStore('user', {
     async handleLogout(authProvider: AuthProvider): Promise<void> {
       authProvider.logout()
       const storage = getStorage()
-      storage.session.clearUserInfo()
-      storage.session.clearIsLoggedIn()
+      storage.local.clearUserInfo()
+      storage.local.clearIsLoggedIn()
       this.$reset()
     },
     setWalletAddress(walletAddress: string): void {

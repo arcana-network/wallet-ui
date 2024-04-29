@@ -272,8 +272,8 @@ async function storeUserInfoAndRedirect(
       }
     }
   }
-  storage.session.setUserInfo(userInfo)
-  storage.session.setIsLoggedIn()
+  storage.local.setUserInfo(userInfo)
+  storage.local.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
@@ -401,8 +401,8 @@ async function init() {
     authProvider = await getAuthProvider(`${appId}`)
     availableLogins.value = await fetchAvailableLogins(authProvider)
 
-    const userInfo = storage.session.getUserInfo()
-    const isLoggedIn = storage.session.getIsLoggedIn()
+    const userInfo = storage.local.getUserInfo()
+    const isLoggedIn = storage.local.getIsLoggedIn()
 
     if (isLoggedIn && userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
