@@ -470,6 +470,7 @@ async function handleSendToken() {
     toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     console.log(error, 'error')
+    console.log(error?.error?.message, error?.message, error?.reason)
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
