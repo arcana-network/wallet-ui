@@ -107,7 +107,10 @@ watch(gas, () => {
 })
 
 watch(
-  () => !!recipientWalletAddress.value && !!amount.value,
+  () =>
+    appStore.chainType === ChainType.multiversx_cv25519 &&
+    !!recipientWalletAddress.value &&
+    !!amount.value,
   async (val) => {
     if (val) {
       await determineGasParamsMVX()
