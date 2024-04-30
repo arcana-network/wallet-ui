@@ -579,6 +579,7 @@ async function handleShowPreview() {
               value: new Decimal(amount.value)
                 .mul(Decimal.pow(10, 18))
                 .toHexadecimal(),
+              from: userStore.walletAddress,
             })
           ).toString()
         } else {
