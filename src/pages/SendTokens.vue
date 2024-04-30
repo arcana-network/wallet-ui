@@ -107,7 +107,10 @@ watch(gas, () => {
 })
 
 watch(
-  () => !!recipientWalletAddress.value && !!amount.value,
+  () =>
+    appStore.chainType === ChainType.multiversx_cv25519 &&
+    !!recipientWalletAddress.value &&
+    !!amount.value,
   async (val) => {
     if (val) {
       await determineGasParamsMVX()
@@ -413,7 +416,7 @@ async function handleSendToken() {
           gas.value.maxPriorityFeePerGas || 1.5
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
-        gasFees = maxFeeInWei.toHexadecimal()
+        gasFees = maxFeeInWei.floor().toHexadecimal()
       }
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
         const payload: any = {
@@ -579,6 +582,7 @@ async function handleShowPreview() {
               value: new Decimal(amount.value)
                 .mul(Decimal.pow(10, 18))
                 .toHexadecimal(),
+              from: userStore.walletAddress,
             })
           ).toString()
         } else {
