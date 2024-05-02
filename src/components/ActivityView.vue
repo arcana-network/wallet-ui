@@ -648,7 +648,7 @@ async function stopTransaction(activity) {
             />
           </a>
         </div>
-        <div
+        <!-- <div
           v-if="activity.status === 'Pending'"
           class="flex justify-between space-x-2 mt-4"
         >
@@ -661,7 +661,7 @@ async function stopTransaction(activity) {
           <button class="btn-primary flex-1 text-sm font-bold py-2 uppercase">
             Speed Up
           </button>
-        </div>
+        </div> -->
       </div>
     </li>
   </ul>
