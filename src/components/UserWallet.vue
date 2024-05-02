@@ -392,7 +392,7 @@ async function copyToClipboard(value: string) {
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
           <span>Buy</span>
         </button>
-        <!-- <button
+        <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :disabled="!transakSellNetwork"
           :class="{
@@ -402,7 +402,7 @@ async function copyToClipboard(value: string) {
         >
           <img :src="getImage('sell.svg')" class="w-md h-md" />
           <span>Sell</span>
-        </button> -->
+        </button>
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

@@ -334,9 +334,7 @@ async function handleApprove() {
         selectedNetworkSymbol.value
       } balance to perform the transaction. Please recharge the wallet with atleast ${new Decimal(
         displayGasFees.value
-      )
-        .mul(1.25)
-        .add(query.value.cryptoAmount as string)} ${
+      ).add(query.value.cryptoAmount as string)} ${
         selectedNetworkSymbol.value
       } and try again.`
     )
@@ -354,9 +352,7 @@ async function handleApprove() {
         selectedNetworkSymbol.value
       } balance to pay for gas fees. Please recharge the wallet with atleast ${new Decimal(
         displayGasFees.value
-      )
-        .mul(1.25)
-        .toString()} ${selectedNetworkSymbol.value} and try again.`
+      ).toString()} ${selectedNetworkSymbol.value} and try again.`
     )
     return
   }
