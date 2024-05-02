@@ -6,6 +6,7 @@ import {
   decodeJSON,
 } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -161,6 +162,8 @@ async function init() {
       return
     }
   } catch (e) {
+    captureException(e)
+    captureMessage(`Login failed on ${appId}`)
     if (e instanceof Error) {
       await reportError(e.message)
     }

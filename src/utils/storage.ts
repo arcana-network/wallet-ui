@@ -9,6 +9,7 @@ import { Theme } from '@/models/Theme'
 enum StorageKey {
   UserInfo = 'userInfo',
   IsLoggedIn = 'isLoggedIn',
+  WalletMode = 'wallet-mode',
   Session = 'session',
   HasMFA = 'has-mfa',
   SkipMFAUntil = 'mfa-skip-until',
@@ -89,6 +90,14 @@ class BaseStorage {
 class UserLocalStorage extends BaseStorage {
   constructor(appId: string) {
     super('local', appId)
+  }
+
+  setWalletMode(val: number) {
+    this.set(StorageKey.WalletMode, val)
+  }
+
+  getWalletMode() {
+    return this.get(StorageKey.WalletMode)
   }
 
   setUserInfo(val: UserInfo) {

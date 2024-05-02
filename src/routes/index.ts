@@ -1,5 +1,13 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
+import HomeScreen from '@/pages/homeScreen.vue'
+import InitPageV2 from '@/pages/initPageV2.vue'
+import LoggedInView from '@/pages/loggedInView.vue'
+import LoginRedirect from '@/pages/loginRedirect.vue'
+import ReconnectV1 from '@/pages/ReconnectV1.vue'
+import RequestsScreen from '@/pages/RequestsScreen.vue'
+import SignInV2 from '@/pages/signInV2.vue'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/login',
@@ -11,7 +19,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:appId/redirect/',
-    component: () => import('@/pages/loginRedirect.vue'),
+    component: LoginRedirect,
   },
   {
     path: '/:appId/init/',
@@ -19,15 +27,15 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:appId/v2/login',
-    component: () => import('@/pages/signInV2.vue'),
+    component: SignInV2,
   },
   {
     path: '/:appId/v2/init/',
-    component: () => import('@/pages/initPageV2.vue'),
+    component: InitPageV2,
   },
   {
     path: '/:appId/v1/reconnect/',
-    component: () => import('@/pages/ReconnectV1.vue'),
+    component: ReconnectV1,
   },
   {
     path: '/:appId/mfa/setup',
@@ -60,7 +68,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/loggedin',
-    component: () => import('@/pages/loggedInView.vue'),
+    component: LoggedInView,
     children: [
       {
         path: '/mfa/required',
@@ -70,7 +78,7 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'home',
         path: '/',
-        component: () => import('@/pages/homeScreen.vue'),
+        component: HomeScreen,
       },
       {
         name: 'StarterTips',
@@ -111,7 +119,7 @@ const routes: RouteRecordRaw[] = [
       {
         name: 'requests',
         path: '/requests',
-        component: () => import('@/pages/RequestsScreen.vue'),
+        component: RequestsScreen,
       },
       {
         name: 'profile',
