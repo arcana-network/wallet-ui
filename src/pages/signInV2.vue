@@ -398,8 +398,6 @@ async function init() {
     app.setAppId(`${appId}`)
 
     authProvider = await getAuthProvider(`${appId}`)
-    availableLogins.value = await fetchAvailableLogins(authProvider)
-
     const userInfo = storage.session.getUserInfo()
     const isLoggedIn = storage.session.getIsLoggedIn()
 
@@ -432,6 +430,7 @@ async function init() {
       user.setLoginStatus(true)
       await router.push({ name: 'home' })
     } else {
+      availableLogins.value = await fetchAvailableLogins(authProvider)
       const parentConnectionInstance = await initializeParentConnection()
       if (route.query.logout && route.query.logout == '1') {
         await parentConnectionInstance.onEvent('disconnect')
@@ -440,7 +439,6 @@ async function init() {
         themeConfig: { theme },
         name: appName,
       } = await parentConnectionInstance.getAppConfig()
-
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
       if (theme === 'dark') htmlEl.classList.add(theme)

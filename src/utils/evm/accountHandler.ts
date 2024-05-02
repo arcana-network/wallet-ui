@@ -1,5 +1,4 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
-import axios from 'axios'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -32,7 +31,6 @@ import {
   TypedMessageParams,
   createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
-import { formatTokenDecimals } from '@/utils/formatTokens'
 import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
@@ -569,6 +567,23 @@ class EVMAccountHandler {
 
   get chainType() {
     return ChainType.evm_secp256k1
+  }
+
+  public async cancelTransaction(txHash: string) {
+    try {
+      const transaction = (await this.provider.getTransaction(
+        txHash
+      )) as TransactionResponse
+      const payload = {
+        nonce: transaction.nonce,
+        to: transaction.to,
+        from: transaction.from,
+        value: 0,
+      }
+      return await this.sendTransactionWrapper(payload)
+    } catch (e) {
+      return Promise.reject(e)
+    }
   }
 }
 
