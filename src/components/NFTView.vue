@@ -3,11 +3,15 @@ import { onMounted, ref, type Ref, reactive, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
+import { getMVXNfts } from '@/services/multiversx.service'
 import { NFTDB } from '@/services/nft.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
@@ -37,11 +41,32 @@ const loader = reactive({
 
 async function getNFTAssets() {
   loader.show = true
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+    const address = accountHandler.addrStr
+    const rpc = rpcStore.selectedRPCConfig?.rpcUrls[0]
+    const nftUrl = `${rpc}/accounts/${address}/nfts`
+    const nftList = await getMVXNfts(nftUrl)
+    nfts.value = nftList.map((nft) => {
+      return {
+        type: nft.type,
+        address: '',
+        tokenId: '',
+        collectionName: nft.collection,
+        name: nft.name,
+        description: nft.metadata.description,
+        imageUrl: nft.url,
+        tokenUrl: '',
+        identifier: nft.identifier,
+        nonce: nft.nonce,
+      }
+    })
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as SolanaAccountHandler
     nfts.value = await accountHandler.getAllUserNFTs()
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     nftDB = await NFTDB.create(storage.local, userStore.walletAddress, true)
     nfts.value = await getDetailedNFTs(nftDB, Number(rpcStore.selectedChainId))
   }
@@ -145,8 +170,8 @@ function handleFallbackNft(event) {
               >
               <span
                 class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
-                :title="nft.collectionName"
-                >{{ nft.collectionName }}</span
+                :title="nft.identifier || nft.collectionName"
+                >{{ nft.identifier || nft.collectionName }}</span
               >
             </div>
           </div>
@@ -158,7 +183,7 @@ function handleFallbackNft(event) {
         </div>
       </div>
       <div
-        v-if="appStore.chainType !== ChainType.solana_cv25519"
+        v-if="appStore.chainType === ChainType.multiversx_cv25519"
         class="flex justify-center"
       >
         <button

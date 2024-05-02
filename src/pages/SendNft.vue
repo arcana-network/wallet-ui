@@ -6,6 +6,7 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
+import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
 import { type NFTContractType, type NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
@@ -14,9 +15,14 @@ import { useAppStore } from '@/store/app'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
@@ -34,10 +40,11 @@ type SendNftProps = {
   attributes?: string
   balance?: number
   tokenUrl: string
+  identifier?: string
+  nonce?: number
 }
 
 const emit = defineEmits(['close'])
-const props = defineProps<SendNftProps>()
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -61,6 +68,15 @@ const loader = ref({
 const baseFee = ref('0')
 const quantity = ref(1)
 const isQuantityFocused = ref(false)
+const gasParamsMVX = ref({
+  gasFee: 0,
+  gasPrice: 0,
+  gasLimit: 0,
+  minGasLimit: 0,
+})
+
+const props: SendNftProps = router.currentRoute.value
+  .query as unknown as SendNftProps
 
 watch(gas, () => {
   if (gas.value) {
@@ -86,7 +102,7 @@ let baseFeePoll
 let gasSliderPoll
 
 onMounted(async () => {
-  if (appStore.chainType !== ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.evm_secp256k1) {
     showLoader('Loading...')
     try {
       await fetchBaseFee()
@@ -155,7 +171,35 @@ async function handleSendToken() {
   }
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
+      const txObject = await accountHandler.getTransactionObjectNFT(
+        props.collectionName,
+        props.nonce,
+        userStore.walletAddress,
+        recipientWalletAddress.value,
+        rpcStore.selectedChainId
+      )
+
+      if (gasParamsMVX.value.gasLimit > gasParamsMVX.value.minGasLimit) {
+        txObject.setGasLimit(gasParamsMVX.value.gasLimit)
+      }
+      const txHash = await accountHandler.sendToken(txObject)
+
+      const nft = {
+        ...props,
+      } as NFT
+
+      await activitiesStore.fetchAndSaveNFTActivityFromHash({
+        txHash,
+        chainId: rpcStore.selectedRpcConfig?.chainId as string,
+        nft,
+        recipientAddress: recipientWalletAddress.value,
+        chainType: ChainType.multiversx_cv25519,
+      })
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
       const signature = await accountHandler.sendCustomToken({
@@ -230,6 +274,7 @@ async function handleSendToken() {
     }
     router.push({ name: 'Nfts' })
   } catch (error: any) {
+    console.log({ error })
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
@@ -248,6 +293,35 @@ async function handleSendToken() {
 
 function handleSetGasPrice(value) {
   gas.value = value
+}
+
+async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
+  const txObject = await accountHandler.getTransactionObjectNFT(
+    props.collectionName,
+    props.nonce,
+    userStore.walletAddress,
+    recipientWalletAddress.value,
+    rpcStore.selectedChainId
+  )
+
+  gasParamsMVX.value.gasPrice = formatTokenDecimals(
+    Number(txObject.getGasPrice()),
+    rpcStore.nativeCurrency?.decimals
+  )
+
+  const minGasLimit = Number(txObject.getGasLimit())
+
+  gasParamsMVX.value.minGasLimit = minGasLimit
+  gasParamsMVX.value.gasLimit = Number(gasLimitInput) || minGasLimit
+  gasParamsMVX.value.gasFee =
+    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+}
+
+function onGasLimitChangeMVX(val) {
+  determineGasParamsMVX(val)
 }
 
 async function handleShowPreview() {
@@ -270,15 +344,34 @@ async function handleShowPreview() {
     toast.error(errors.GENERIC.QUANTITY)
     return
   }
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    showPreview.value = true
+  if (
+    appStore.chainType === ChainType.solana_cv25519 ||
+    appStore.chainType === ChainType.multiversx_cv25519
+  ) {
+    if (
+      appStore.chainType === ChainType.multiversx_cv25519 &&
+      gasParamsMVX.value.minGasLimit > gasParamsMVX.value.gasLimit
+    ) {
+      toast.error(
+        `${content.GAS.GREATER_LIMIT_MVX} ${gasParamsMVX.value.minGasLimit}`
+      )
+    } else {
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        estimatedGas.value = String(gasParamsMVX.value.gasFee)
+      }
+      showPreview.value = true
+    }
     return
   }
   if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
     toast.error(content.GAS.INSUFFICIENT)
     return
   }
-  if (recipientWalletAddress.value && gas.value) {
+  if (
+    recipientWalletAddress.value &&
+    gas.value &&
+    appStore.chainType === ChainType.evm_secp256k1
+  ) {
     showLoader('Loading preview...')
     try {
       const accountHandler =
@@ -316,6 +409,15 @@ watch(
     router.replace({ name: 'Nfts' })
   }
 )
+
+watch(
+  () => recipientWalletAddress.value,
+  async (val) => {
+    if (val) {
+      await determineGasParamsMVX()
+    }
+  }
+)
 </script>
 
 <template>
@@ -331,7 +433,7 @@ watch(
         gasFee: gasFeeInEth,
         estimatedGas,
         nftContractAddress: props.address,
-        tokenId: props.tokenId,
+        tokenId: props.tokenId || props.identifier as string,
         imageUrl: props.imageUrl,
         quantity,
       }"
@@ -393,7 +495,7 @@ watch(
           </div>
           <GasPrice
             v-if="
-              appStore.chainType !== ChainType.solana_cv25519 &&
+              appStore.chainType === ChainType.evm_secp256k1 &&
               (!rpcStore.useGasless ||
                 (rpcStore.useGasless && paymasterBalance < 0.1))
             "
@@ -401,6 +503,14 @@ watch(
             :base-fee="baseFee"
             :gas-limit="estimatedGas"
             @gas-price-input="handleSetGasPrice"
+          />
+          <GasPriceMVX
+            v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
+            :gas-fee="gasParamsMVX.gasFee"
+            :gas-price="gasParamsMVX.gasPrice"
+            :gas-limit="gasParamsMVX.gasLimit"
+            :min-gas-limit="gasParamsMVX.minGasLimit"
+            @gas-limit-input="onGasLimitChangeMVX"
           />
           <span
             v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"

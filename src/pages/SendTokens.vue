@@ -20,6 +20,7 @@ import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
+import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
@@ -27,10 +28,15 @@ import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
@@ -66,6 +72,12 @@ const tokenList = ref([
 const baseFee = ref('0')
 const selectedToken = ref(tokenList.value[0])
 const selectedTokenBalance = ref('0')
+const gasParamsMVX = ref({
+  gasFee: 0,
+  gasPrice: 0,
+  gasLimit: 0,
+  minGasLimit: 0,
+})
 
 const walletBalance = computed(() => {
   if (appStore.chainType === ChainType.solana_cv25519) {
@@ -93,7 +105,26 @@ watch(gas, () => {
   }
 })
 
+watch(
+  () =>
+    appStore.chainType === ChainType.multiversx_cv25519 &&
+    !!recipientWalletAddress.value &&
+    !!amount.value,
+  async (val) => {
+    if (val) {
+      await determineGasParamsMVX()
+    }
+  }
+)
+
 watch(selectedToken, async () => {
+  if (
+    appStore.chainType === ChainType.multiversx_cv25519 &&
+    recipientWalletAddress.value &&
+    amount.value
+  ) {
+    await determineGasParamsMVX()
+  }
   await fetchTokenBalance()
 })
 
@@ -157,6 +188,35 @@ onUnmounted(() => {
   if (gasSliderPoll) clearInterval(gasSliderPoll)
 })
 
+async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+  const networkConfig = await accountHandler
+    .getNetworkProvider()
+    .getNetworkConfig()
+
+  const tokenInfo = tokenList.value.find(
+    (item) => item.symbol === rpcStore.nativeCurrency?.symbol
+  ) as any
+
+  const txObject = await getMVXTransactionObject()
+
+  gasParamsMVX.value.gasPrice = formatTokenDecimals(
+    networkConfig.MinGasPrice,
+    tokenInfo.decimals
+  )
+
+  gasParamsMVX.value.minGasLimit = networkConfig.MinGasLimit
+
+  const gasLimit = Number(gasLimitInput) || networkConfig.MinGasLimit
+
+  gasParamsMVX.value.gasLimit =
+    gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
+
+  gasParamsMVX.value.gasFee =
+    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+}
+
 async function fetchBaseFee() {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
@@ -172,7 +232,9 @@ async function fetchTokenBalance() {
   if (tokenInfo?.symbol === rpcStore.nativeCurrency?.symbol) {
     selectedTokenBalance.value = walletBalance.value
   } else {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       selectedTokenBalance.value = tokenInfo?.balance.toString() ?? '0'
     } else {
       const balance = await getTokenBalance({
@@ -191,7 +253,21 @@ async function fetchTokenBalance() {
 async function setTokenList() {
   const chainId = rpcStore.selectedChainId
   const walletAddress = userStore.walletAddress
-  if (appStore.chainType === ChainType.solana_cv25519) {
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+    const multiversxTokens = await accountHandler.getFungibleTokens()
+    const tokens = multiversxTokens.map((item) => ({
+      symbol: item.rawResponse.ticker,
+      decimals: item.rawResponse.decimals,
+      address: item.rawResponse.address,
+      balance: formatTokenDecimals(
+        item.rawResponse.balance,
+        item.rawResponse.decimals
+      ),
+    }))
+    tokenList.value.push(...tokens)
+  } else if (appStore.chainType === ChainType.solana_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as SolanaAccountHandler
     let tokens = accountHandler.storedTokens
@@ -200,7 +276,7 @@ async function setTokenList() {
       tokens = accountHandler.storedTokens
     }
     tokenList.value.push(...tokens)
-  } else {
+  } else if (appStore.chainType === ChainType.evm_secp256k1) {
     const contracts = getStorage().local.getAssetContractList(
       walletAddress,
       Number(chainId)
@@ -220,10 +296,64 @@ function setHexPrefix(value: string) {
   return value.startsWith(hexPrefix) ? value : `${hexPrefix}${value}`
 }
 
+async function getMVXTransactionObject() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
+  const sender = userStore.walletAddress
+  const receiver = recipientWalletAddress.value
+  const gasLimit = gasParamsMVX.value.gasLimit
+  const chainId = rpcStore.selectedChainId
+
+  if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+    return await accountHandler.getTransactionObjectNativeToken(
+      sender,
+      receiver,
+      amount.value,
+      chainId,
+      gasLimit
+    )
+  } else {
+    return await accountHandler.getTransactionObjectESDTToken(
+      sender,
+      receiver,
+      amount.value,
+      selectedToken.value,
+      chainId
+    )
+  }
+}
+
 async function handleSendToken() {
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.solana_cv25519) {
+    if (appStore.chainType === ChainType.multiversx_cv25519) {
+      const accountHandler =
+        getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+      const txObject = await getMVXTransactionObject()
+      const txHash = await accountHandler.sendToken(txObject)
+
+      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: txHash,
+          chainType: ChainType.multiversx_cv25519,
+        })
+      } else {
+        activitiesStore.fetchAndSaveActivityFromHash({
+          chainId: rpcStore.selectedRpcConfig?.chainId,
+          txHash: txHash,
+          chainType: ChainType.multiversx_cv25519,
+          customToken: {
+            operation: 'Send',
+            amount: amount.value,
+            symbol: selectedToken.value.symbol as string,
+            decimals: selectedToken.value.decimals as number,
+          },
+          recipientAddress: recipientWalletAddress.value,
+        })
+      }
+    } else if (appStore.chainType === ChainType.solana_cv25519) {
       const accountHandler =
         getRequestHandler().getAccountHandler() as SolanaAccountHandler
       if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
@@ -341,6 +471,7 @@ async function handleSendToken() {
     router.push({ name: 'activities' })
     toast.success(content.TOKEN.SENT)
   } catch (error: any) {
+    console.log(error, 'error')
     const displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
@@ -359,6 +490,53 @@ function handleSetGasPrice(value) {
   gas.value = value
 }
 
+function onGasLimitChangeMVX(val) {
+  determineGasParamsMVX(val)
+}
+
+// function addToActivity(result) {
+//   if (appStore.chainType === ChainType.solana_cv25519) {
+//     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.transactionSent,
+//         chainType: ChainType.solana_cv25519,
+//       })
+//     } else {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         txHash: result.sig,
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         customToken: {
+//           operation: 'Send',
+//           amount: amount.value,
+//           symbol: result.tokenInfo?.symbol as string,
+//           decimals: result.tokenInfo?.decimals as number,
+//         },
+//         recipientAddress: recipientWalletAddress.value,
+//         chainType: ChainType.solana_cv25519,
+//       })
+//     }
+//   } else {
+//     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.txHash,
+//       })
+//     } else {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.transactionHash,
+//         customToken: {
+//           operation: 'Send',
+//           amount: amount.value,
+//           symbol: result.tokenInfo?.symbol as string,
+//         },
+//         recipientAddress: setHexPrefix(recipientWalletAddress.value),
+//       })
+//     }
+//   }
+// }
+
 async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
@@ -368,9 +546,22 @@ async function handleShowPreview() {
     }
   }
   if (handleTransactionErrors()) return
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    if (recipientWalletAddress.value && amount.value) {
+  if (
+    appStore.chainType === ChainType.solana_cv25519 ||
+    appStore.chainType === ChainType.multiversx_cv25519
+  ) {
+    if (
+      appStore.chainType === ChainType.multiversx_cv25519 &&
+      gasParamsMVX.value.minGasLimit > gasParamsMVX.value.gasLimit
+    ) {
+      toast.error(
+        `${content.GAS.GREATER_LIMIT_MVX} ${gasParamsMVX.value.minGasLimit}`
+      )
+    } else if (recipientWalletAddress.value && amount.value) {
       showPreview.value = true
+      if (appStore.chainType === ChainType.multiversx_cv25519) {
+        estimatedGas.value = String(gasParamsMVX.value.gasFee)
+      }
     } else {
       toast.error(errors.GENERIC.VALUE)
     }
@@ -457,7 +648,6 @@ function getMaxTransferValue() {
     gasFees
   )
   let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
-
   if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
     maxValueInput = new Decimal(0)
     toast.error(content.TOKEN.INSUFFICIENT)
@@ -588,6 +778,14 @@ watch(
           :base-fee="baseFee"
           :gas-limit="estimatedGas"
           @gas-price-input="handleSetGasPrice"
+        />
+        <GasPriceMVX
+          v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
+          :gas-fee="gasParamsMVX.gasFee"
+          :gas-price="gasParamsMVX.gasPrice"
+          :gas-limit="gasParamsMVX.gasLimit"
+          :min-gas-limit="gasParamsMVX.minGasLimit"
+          @gas-limit-input="onGasLimitChangeMVX"
         />
         <span
           v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"

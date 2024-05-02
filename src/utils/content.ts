@@ -24,6 +24,7 @@ const content = {
     PROVIDE: 'Please provide Gas Fee.',
     INSUFFICIENT: 'Insufficient balance to pay for the gas fee.',
     ESTIMATE: 'Cannot estimate gas fee. Please try again later.',
+    GREATER_LIMIT_MVX: 'Gas limit cannot be lesser than',
   },
   DETAILS: 'Enter all the details to continue.',
   TOKEN: {

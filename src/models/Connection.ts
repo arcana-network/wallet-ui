@@ -47,6 +47,9 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   signTransaction: true,
   signAllTransactions: true,
   signMessage: true,
+  mvx_signMessage: true,
+  mvx_signTransaction: true,
+  mvx_signTransactions: true,
 })
 
 const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']
@@ -108,6 +111,7 @@ type InitParentConnectionApi = {
   getPasswordlessParams(): { sessionId: string; setToken: string }
   error(e: string): void
   uiEvent(event: string, val: any): void
+  goTo(url: string): void
   setIframeStyle(styles: Partial<CSSStyleDeclaration>): void
 }
 

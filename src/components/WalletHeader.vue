@@ -61,6 +61,17 @@ watch(
 function handleFallbackLogo(event) {
   event.target.src = getImage('blockchain-icon.png')
 }
+
+function getChainType(chainType: ChainType) {
+  switch (chainType) {
+    case ChainType.evm_secp256k1:
+      return 'EVM'
+    case ChainType.solana_cv25519:
+      return 'solana'
+    case ChainType.multiversx_cv25519:
+      return 'multiversx'
+  }
+}
 </script>
 
 <template>
@@ -96,9 +107,7 @@ function handleFallbackLogo(event) {
               :src="
                 getChainLogoUrl(
                   rpcStore.selectedRPCConfig,
-                  appStore.chainType === ChainType.evm_secp256k1
-                    ? 'EVM'
-                    : 'solana'
+                  getChainType(appStore.chainType)
                 )
               "
               :alt="rpcStore.selectedRpcConfig?.chainName"

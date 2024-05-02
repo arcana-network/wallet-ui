@@ -1,11 +1,17 @@
 <script lang="ts" setup>
+import { TokenTransfer } from '@multiversx/sdk-core/out'
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 import { computed, ComputedRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useActivitiesStore } from '@/store/activities'
-import type { Activity, TransactionOps, FileOps } from '@/store/activities'
+import type {
+  Activity,
+  TransactionOps,
+  FileOps,
+  TransakOps,
+} from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
@@ -18,6 +24,10 @@ import { getIconAsset } from '@/utils/useImage'
 type ActivityViewProps = {
   currencyExchangeRate: number | string | null
   filterOperations: string[]
+}
+
+const OffRampProviders = {
+  transak: 'Transak',
 }
 
 const app = useAppStore()
@@ -53,7 +63,7 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
   return [...activitiesInStore]
 })
 
-function getTransactionIcon(operation: TransactionOps | FileOps) {
+function getTransactionIcon(operation: TransactionOps | FileOps | TransakOps) {
   const interaction = [
     'Contract Deployment',
     'Contract Interaction',
@@ -104,11 +114,17 @@ function calculateTotal(activity: Activity) {
 
 function getAmount(amount: bigint, isGas = false) {
   if (isGas) {
-    const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
-    return new Decimal(amount.toString())
-      .div(Decimal.pow(10, gasDecimals))
-      .toDecimalPlaces(gasDecimals)
-      .toString()
+    if (app.chainType === ChainType.multiversx_cv25519) {
+      return TokenTransfer.egldFromBigInteger(
+        amount.toString()
+      ).toPrettyString()
+    } else {
+      const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+      return new Decimal(amount.toString())
+        .div(Decimal.pow(10, gasDecimals))
+        .toDecimalPlaces(gasDecimals)
+        .toString()
+    }
   }
   const decimals = getRequestHandler().getAccountHandler().decimals
   return new Decimal(amount.toString())
@@ -122,7 +138,8 @@ function canShowDropdown(activity: Activity) {
     (explorerUrl && activity.txHash) ||
     activity.transaction ||
     activity.file?.recipient ||
-    activity.file?.ruleHash
+    activity.file?.ruleHash ||
+    activity.sellDetails
   )
 }
 
@@ -149,7 +166,11 @@ function calculateSolanaTotal(activity) {
 
 function generateExplorerURL(explorerUrl: string, txHash: string) {
   const urlFormatExplorerUrl = new URL(explorerUrl)
-  const actualTxUrl = new URL(`/tx/${txHash}`, explorerUrl)
+  const url =
+    app.chainType === ChainType.multiversx_cv25519
+      ? `/transactions/${txHash}`
+      : `/tx/${txHash}`
+  const actualTxUrl = new URL(url, explorerUrl)
   if (urlFormatExplorerUrl.search) {
     actualTxUrl.search = urlFormatExplorerUrl.search
   }
@@ -267,7 +288,10 @@ async function stopTransaction(activity) {
             }}</span>
           </div>
         </div>
-        <div v-if="activity.transaction" class="flex flex-col items-end gap-1">
+        <div
+          v-if="activity.transaction || activity.sellDetails"
+          class="flex flex-col items-end gap-1"
+        >
           <span
             v-if="activity.customToken"
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
@@ -280,7 +304,9 @@ async function stopTransaction(activity) {
             {{ activity.customToken.symbol }}</span
           >
           <span
-            v-else
+            v-else-if="
+              activity.transaction && app.chainType === ChainType.evm_secp256k1
+            "
             class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${getAmountInNativeCurrency(
               activity.transaction.amount
@@ -289,19 +315,36 @@ async function stopTransaction(activity) {
             {{ rpcStore.currency }}</span
           >
           <span
-            v-if="!activity.customToken && !activity.nft"
-            class="flex text-xs text-secondary text-right"
+            v-if="
+              !activity.customToken && !activity.nft && activity.transaction
+            "
+            class="flex text-xs text-[#8d8d8d] text-right"
             >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
             {{
               calculateCurrencyValue(activity.transaction.amount).currency
             }}</span
           >
           <span
+            v-else-if="activity.sellDetails"
+            class="flex text-xs text-[#8d8d8d] text-right"
+            >{{ activity.sellDetails.fiat.amount }}
+            {{ activity.sellDetails.fiat.currency }}</span
+          >
+          <span
             class="text-sm"
             :class="{
               'text-green-100': activity.status === 'Success',
-              'text-yellow-100': activity.status === 'Pending',
-              'text-red-100': activity.status === 'Cancelled',
+              'text-yellow-100': [
+                'Pending',
+                'Unapproved',
+                'Processing',
+              ].includes(activity.status),
+              'text-red-100': [
+                'Rejected',
+                'Failed',
+                'Refunded',
+                'Expired',
+              ].includes(activity.status),
             }"
           >
             {{ activity.status }}
@@ -336,6 +379,87 @@ async function stopTransaction(activity) {
             >
               {{ truncateMid(activity.file.ruleHash) }}
             </span>
+          </div>
+        </div>
+        <div v-else-if="activity.sellDetails">
+          <div class="flex flex-col gap-4">
+            <div class="flex justify-between">
+              <div class="flex flex-col gap-1">
+                <span class="text-sm text-gray-100">From</span>
+                <span
+                  class="text-base font-bold"
+                  :title="activity.address.from"
+                >
+                  {{ truncateMid(activity.address.from) }}
+                </span>
+              </div>
+              <img
+                v-if="activity.address.to"
+                src="@/assets/images/arrow-right.svg"
+                :style="{
+                  filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+                }"
+              />
+              <div v-if="activity.address.to" class="flex flex-col gap-1">
+                <span class="text-sm text-gray-100">To</span>
+                <span class="text-base font-bold" :title="activity.address.to">
+                  {{ truncateMid(activity.address.to) }}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <span class="text-sm text-gray-100">Transaction Details</span>
+              <div class="flex flex-col gap-2 text-base">
+                <div
+                  v-if="activity.sellDetails.provider"
+                  class="flex justify-between"
+                >
+                  <span>Provider</span>
+                  <span>{{
+                    OffRampProviders[activity.sellDetails.provider]
+                  }}</span>
+                </div>
+                <div
+                  v-if="activity.sellDetails.crypto.amount"
+                  class="flex justify-between"
+                >
+                  <span>Crypto Amount (Sent)</span>
+                  <span
+                    >{{ activity.sellDetails.crypto.amount }}
+                    {{ activity.sellDetails.crypto.currency }}</span
+                  >
+                </div>
+                <div
+                  v-if="activity.sellDetails.fiat.amount"
+                  class="flex justify-between"
+                >
+                  <span>Fiat Amount (Received)</span>
+                  <span
+                    >{{ activity.sellDetails.fiat.amount }}
+                    {{ activity.sellDetails.fiat.currency }}</span
+                  >
+                </div>
+                <div
+                  v-if="activity.sellDetails.fiat.fee"
+                  class="flex justify-between"
+                >
+                  <span>Provider Fees</span>
+                  <span
+                    >{{ activity.sellDetails.fiat.fee }}
+                    {{ activity.sellDetails.fiat.currency }}</span
+                  >
+                </div>
+                <div
+                  v-if="activity.sellDetails.orderId"
+                  class="flex justify-between"
+                >
+                  <span>Order ID</span>
+                  <span :title="activity.sellDetails.orderId">{{
+                    truncateMid(activity.sellDetails.orderId, 6)
+                  }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div v-else-if="activity.transaction">
@@ -399,7 +523,7 @@ async function stopTransaction(activity) {
                     {{ activity.customToken.symbol }}
                   </span>
                   <span
-                    v-else
+                    v-else-if="app.chainType === ChainType.evm_secp256k1"
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
@@ -427,14 +551,13 @@ async function stopTransaction(activity) {
                   <span>Gas Price</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${getAmount(
-                      activity.transaction.gasPrice,
-                      true
-                    )} Gwei`"
-                    >{{
-                      getAmount(activity.transaction.gasPrice, true)
-                    }}
-                    Gwei</span
+                    :title="`${getAmount(activity.transaction.gasPrice, true)}`"
+                    >{{ getAmount(activity.transaction.gasPrice, true) }}
+                    {{
+                      app.chainType === ChainType.multiversx_cv25519
+                        ? ''
+                        : 'Gwei'
+                    }}</span
                   >
                 </div>
                 <div
@@ -490,8 +613,24 @@ async function stopTransaction(activity) {
             </div>
           </div>
         </div>
+        <div v-if="activity.explorerUrl" class="flex justify-center mt-4">
+          <a
+            :href="activity.explorerUrl"
+            class="flex font-montserrat font-medium text-xs"
+            target="_blank"
+            @click.stop="handleExplorerClick"
+          >
+            View on Explorer
+            <img
+              src="@/assets/images/arrow-up-right.svg"
+              :style="{
+                filter: app.theme === 'light' ? 'invert(1)' : 'invert(0)',
+              }"
+            />
+          </a>
+        </div>
         <div
-          v-if="explorerUrl && activity.txHash"
+          v-else-if="explorerUrl && activity.txHash"
           class="flex justify-center mt-4"
         >
           <a
@@ -509,7 +648,7 @@ async function stopTransaction(activity) {
             />
           </a>
         </div>
-        <div
+        <!-- <div
           v-if="activity.status === 'Pending'"
           class="flex justify-between space-x-2 mt-4"
         >
@@ -522,7 +661,7 @@ async function stopTransaction(activity) {
           <button class="btn-primary flex-1 text-sm font-bold py-2 uppercase">
             Speed Up
           </button>
-        </div>
+        </div> -->
       </div>
     </li>
   </ul>

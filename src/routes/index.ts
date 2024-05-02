@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
-import GlobalRedirect from '@/pages/globalRedirect.vue'
 import HomeScreen from '@/pages/homeScreen.vue'
 import InitPageV2 from '@/pages/initPageV2.vue'
 import LoggedInView from '@/pages/loggedInView.vue'
@@ -16,7 +15,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/global-redirect/',
-    component: GlobalRedirect,
+    component: () => import('@/pages/globalRedirect.vue'),
   },
   {
     path: '/:appId/redirect/',
@@ -58,6 +57,14 @@ const routes: RouteRecordRaw[] = [
     name: 'PermissionRequest',
     path: '/:appId/permission',
     component: () => import('@/pages/PermissionRequest.vue'),
+  },
+  {
+    name: 'TransakSell',
+    path: '/:appId/sell/transak',
+    component: () => import('@/pages/TransakSell.vue'),
+    meta: {
+      isFullPageView: true,
+    },
   },
   {
     path: '/loggedin',

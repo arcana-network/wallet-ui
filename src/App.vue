@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { computed, toRefs, watch, defineAsyncComponent } from 'vue'
+import { computed, toRefs, watch, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import BaseModal from '@/components/BaseModal.vue'
 import type { Theme } from '@/models/Theme'
+import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -12,6 +13,11 @@ import { useRequestStore } from '@/store/request'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
+import {
+  TransakStatus,
+  subscribeTransakOrderId,
+  unsubscribeTransakOrderId,
+} from '@/utils/transak'
 
 import '@/index.css'
 
@@ -33,6 +39,7 @@ const starterTipsStore = useStarterTipsStore()
 const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
+const activitiesStore = useActivitiesStore()
 
 if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
@@ -94,6 +101,7 @@ const showFooter = computed(() => {
       'MFARestore',
       'SendTokens',
       'SendNfts',
+      'TransakSell',
     ].includes(route.name as string) ||
       (route.name === 'requests' && !requestStore.pendingRequest)) &&
     !app.compactMode
@@ -122,8 +130,77 @@ const canShowCollapseButton = computed(
 
 const showHeader = computed(() => {
   const routeName = route.name
-  const routes = ['requests', 'PermissionRequest']
+  const routes = ['requests', 'PermissionRequest', 'TransakSell']
   return !routes.includes(routeName as string)
+})
+
+onMounted(() => {
+  window.addEventListener('message', (ev) => {
+    const response = ev.data.response
+    if (ev.data.type === 'sell_token_init') {
+      const existingActivities = activitiesStore.activities(response.chainId)
+      const existingActivity = existingActivities?.find((activity) => {
+        return (
+          activity.operation === 'Sell' &&
+          activity.sellDetails?.orderId === response.orderId
+        )
+      })
+      if (!existingActivity) {
+        activitiesStore.saveActivity(response.chainId, {
+          txHash: response.txHash,
+          status: TransakStatus[response.status],
+          transaction: response.transaction || undefined,
+          operation: 'Sell',
+          date: new Date(),
+          address: {
+            from: response.partnerCustomerId,
+            to: response.walletAddress,
+          },
+          customToken:
+            response.contractAddress !== 'NATIVE'
+              ? {
+                  operation: 'Sell',
+                  amount: response.cryptoAmount,
+                  symbol: response.cryptoCurrency,
+                  decimals: response.tokenDecimals,
+                }
+              : undefined,
+          sellDetails: {
+            orderId: response.orderId,
+            provider: response.provider,
+            crypto: {
+              amount: response.cryptoAmount,
+              currency: response.cryptoCurrency,
+              contractAddress: response.contractAddress,
+              decimals: response.tokenDecimals,
+              logo: response.tokenLogo,
+            },
+            fiat: {
+              amount: response.fiatAmount,
+              currency: response.fiatCurrency,
+              fee: response.totalFeeInFiat,
+            },
+          },
+        })
+        subscribeTransakOrderId(response.orderId, response.chainId)
+      }
+    } else if (ev.data.type === 'sell_token_reject') {
+      const activityIndex = activitiesStore
+        .activities(Number(response.chainId))
+        .findIndex((activity) => {
+          return (
+            activity.operation === 'Sell' &&
+            activity.sellDetails?.orderId === response.orderId
+          )
+        })
+      if (activityIndex !== -1) {
+        activitiesStore.activitiesByChainId[Number(response.chainId)][
+          activityIndex
+        ].status = 'Rejected'
+        unsubscribeTransakOrderId(response.orderId)
+      }
+    }
+  })
 })
 </script>
 

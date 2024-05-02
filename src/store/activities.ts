@@ -2,11 +2,16 @@ import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ParsedInstruction } from '@solana/web3.js'
 import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
+import { useToast } from 'vue-toastification'
 
 import { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import {
+  EVMAccountHandler,
+  MultiversXAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import {
   CONTRACT_EVENT_CODE,
@@ -15,6 +20,7 @@ import {
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const userStore = useUserStore(store)
+const toast = useToast()
 
 type ChainId = string | number
 
@@ -65,7 +71,7 @@ type Activity = {
   explorerUrl?: string
   transaction?: {
     hash: string
-    amount: bigint
+    amount?: bigint | string
     nonce: number
     gasLimit?: bigint
     gasUsed?: bigint
@@ -93,8 +99,8 @@ type Activity = {
     decimals?: number
   }
   nft?: {
-    address: string
-    tokenId: string
+    address?: string
+    tokenId?: string
     imageUrl?: string
     collectionName: string
     name: string
@@ -200,9 +206,9 @@ function decodeLogDataHandleOps(
 }
 
 function getAmountUsingCallData(data: string): BigNumber {
-  const abi = ['function executeCall(address,uint256,bytes)']
+  const abi = ['function execute_ncC(address,uint256,bytes)']
   const iface = new ethers.utils.Interface(abi)
-  const decodedData = iface.decodeFunctionData('executeCall', data)
+  const decodedData = iface.decodeFunctionData('execute_ncC', data)
   return decodedData[1]
 }
 
@@ -260,7 +266,79 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       isCancelRequest = false,
     }: TransactionFetchParams) {
       try {
-        if (chainType === ChainType.solana_cv25519) {
+        if (chainType === ChainType.multiversx_cv25519) {
+          const accountHandler =
+            getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+          const tx = await accountHandler.getTransaction(txHash)
+          if (!tx) {
+            setTimeout(() => {
+              this.fetchAndSaveActivityFromHash({
+                txHash,
+                chainId,
+                customToken,
+                recipientAddress,
+                chainType,
+              })
+            }, 2000)
+          } else {
+            if (customToken) {
+              const activity: Activity = {
+                operation: customToken.operation,
+                txHash,
+                transaction: {
+                  hash: txHash,
+                  amount:
+                    Number(customToken.amount) >= 1
+                      ? BigInt(customToken.amount)
+                      : customToken.amount,
+                  nonce: tx.nonce,
+                  fee: BigInt(tx.gasPrice as number),
+                },
+                status: tx.status.status as ActivityStatus,
+                date: new Date(),
+                address: {
+                  from: userStore.walletAddress,
+                  to: recipientAddress,
+                },
+                customToken,
+              }
+              this.saveActivity(Number(chainId), activity)
+            } else {
+              const activity: Activity = {
+                txHash: tx.hash,
+                operation: 'Send',
+                date: new Date(),
+                status: tx.status.status as ActivityStatus,
+                address: { from: tx.sender.bech32(), to: tx.receiver.bech32() },
+                transaction: {
+                  hash: tx.hash,
+                  amount: BigInt(tx.value),
+                  gasLimit: BigInt(tx.gasLimit),
+                  gasPrice: BigInt(tx.gasPrice),
+                  nonce: tx.nonce,
+                  data: tx.data.toString(),
+                },
+              }
+              this.saveActivity(chainId, activity)
+            }
+            const checkStatusInterval = setInterval(async () => {
+              const status = await accountHandler
+                .getNetworkProvider()
+                .getTransactionStatus(tx.hash)
+              if (status.status !== 'pending') {
+                if (status.status !== 'success') {
+                  toast.error(`Transaction failed`)
+                }
+                this.updateActivityStatusByTxHash(
+                  chainId as ChainId,
+                  txHash,
+                  status.status as ActivityStatus
+                )
+                clearInterval(checkStatusInterval)
+              }
+            }, 3000)
+          }
+        } else if (chainType === ChainType.solana_cv25519) {
           const accountHandler =
             getRequestHandler().getAccountHandler() as SolanaAccountHandler
           const tx = await accountHandler.getTransaction(txHash)
@@ -394,7 +472,31 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       recipientAddress,
       chainType = ChainType.evm_secp256k1,
     }: TransactionFetchNftParams) {
-      if (chainType === ChainType.solana_cv25519) {
+      if (chainType === ChainType.multiversx_cv25519) {
+        const accountHandler =
+          getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+        const tx = await accountHandler.getTransaction(txHash)
+        const activity: Activity = {
+          operation: 'Send',
+          txHash,
+          transaction: {
+            hash: txHash,
+            nonce: tx.nonce,
+          },
+          status: 'Success',
+          date: new Date(),
+          address: {
+            from: userStore.walletAddress,
+            to: recipientAddress,
+          },
+          nft: {
+            imageUrl: nft.imageUrl,
+            name: nft.name,
+            collectionName: nft.collectionName,
+          },
+        }
+        this.saveActivity(chainId, activity)
+      } else if (chainType === ChainType.solana_cv25519) {
         const accountHandler =
           getRequestHandler().getAccountHandler() as SolanaAccountHandler
         const tx = await accountHandler.getTransaction(txHash)
