@@ -274,6 +274,7 @@ function handleReject() {
     },
     'sell_token_reject'
   )
+  window.parent ? window.parent.close() : window.close()
 }
 
 async function calculateBaseFee() {
