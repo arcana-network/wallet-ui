@@ -3,6 +3,7 @@ import VueQrious from 'vue-qrious'
 import { useToast } from 'vue-toastification'
 
 import { useUserStore } from '@/store/user'
+import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 
 const userStore = useUserStore()
@@ -11,9 +12,9 @@ const toast = useToast()
 async function copyToClipboard(value: string) {
   try {
     await navigator.clipboard.writeText(value)
-    toast.success('Wallet address copied')
+    toast.success(content.WALLET.COPY)
   } catch (err) {
-    toast.error('Failed to copy wallet address')
+    toast.error(errors.WALLET.COPY)
   }
 }
 </script>

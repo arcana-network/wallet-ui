@@ -30,6 +30,8 @@ type TransactionOps =
   | 'Contract Deployment'
   | 'Contract Interaction'
 
+type TransakOps = 'Buy' | 'Sell'
+
 type FileOps =
   | 'Upload'
   | 'Download'
@@ -53,6 +55,17 @@ type ContractFileActivityMessage = {
 
 type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
 
+type TransakStatus =
+  | 'Unapproved'
+  | 'Processing'
+  | 'Pending'
+  | 'Success'
+  | 'Cancelled'
+  | 'Failed'
+  | 'Refunded'
+  | 'Expired'
+  | 'Rejected'
+
 type Activity = {
   txHash?: string
   explorerUrl?: string
@@ -67,9 +80,9 @@ type Activity = {
     computeUnitsConsumed?: bigint
     fee?: bigint
   }
-  operation: TransactionOps | FileOps
+  operation: TransactionOps | FileOps | TransakOps
   date: Date
-  status: ActivityStatus
+  status: ActivityStatus | TransakStatus
   address: {
     from: string
     to?: string | null
@@ -91,6 +104,22 @@ type Activity = {
     imageUrl?: string
     collectionName: string
     name: string
+  }
+  sellDetails?: {
+    provider: 'transak'
+    orderId: string
+    crypto: {
+      amount: string
+      currency: string
+      decimals: string
+      contractAddress: string
+      logo: string
+    }
+    fiat: {
+      amount: string
+      currency: string
+      fee: string
+    }
   }
 }
 
@@ -597,4 +626,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
   },
 })
 
-export type { ChainId, Activity, TransactionOps, FileOps, ActivityStatus }
+export type {
+  ChainId,
+  Activity,
+  TransactionOps,
+  FileOps,
+  ActivityStatus,
+  TransakOps,
+}

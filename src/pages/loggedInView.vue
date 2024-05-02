@@ -14,6 +14,7 @@ import {
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
+import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
@@ -25,6 +26,8 @@ import {
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
+import { useGaslessStore } from '@/store/gasless'
+import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
@@ -55,6 +58,8 @@ import { getStorage } from '@/utils/storageWrapper'
 const userStore = useUserStore()
 const appStore = useAppStore()
 const rpcStore = useRpcStore()
+const gaslessStore = useGaslessStore()
+const modalStore = useModalStore()
 const activitiesStore = useActivitiesStore()
 const starterTipsStore = useStarterTipsStore()
 const showMfaBanner = ref(false)
@@ -341,15 +346,14 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode as AppMode)
 }
 
-async function handleLogout() {
-  if (parentConnectionStore.parentConnection) {
-    const parentConnectionInstance = await parentConnectionStore
-      .parentConnection.promise
-    const authProvider = await getAuthProvider(appStore.id as string)
-    await userStore.handleLogout(authProvider)
-    parentConnectionInstance?.onEvent('disconnect')
-    appStore.showWallet = false
-  }
+async function handleLogout(isV2 = false) {
+  appStore.showWallet = false
+  const authProvider = await getAuthProvider(appStore.id as string)
+  await userStore.handleLogout(authProvider)
+  const route = isV2
+    ? `/${appStore.id}/v2/login?logout=1`
+    : `/${appStore.id}/login?logout=1`
+  router.push(route)
 }
 
 async function setRpcConfigs() {
@@ -430,6 +434,7 @@ function handleMFACreation() {
 }
 
 onBeforeUnmount(() => {
+  parentConnectionStore.parentConnection?.destroy
   stopCurrencyInterval()
 })
 
@@ -541,5 +546,10 @@ watch(
       v-if="starterTipsStore.show"
       @close="starterTipsStore.setHideStarterTips()"
     />
+    <Teleport v-if="modalStore.show" to="#modal-container">
+      <UseWalletBalanceGasless
+        v-if="gaslessStore.showUseWalletBalancePermission"
+      />
+    </Teleport>
   </div>
 </template>

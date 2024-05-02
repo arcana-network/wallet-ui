@@ -2,21 +2,19 @@
 import { ref, type Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
-import { openOnRampMoneyHostedUI } from '@/utils/onrampmoney.ramp'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()
 
-type BuyTokenProps = {
+type SellTokenProps = {
   transakNetwork?: string
-  onRampMoney?: number | false | undefined
 }
 
-const props = defineProps<BuyTokenProps>()
+const props = defineProps<SellTokenProps>()
 
 const emit = defineEmits(['close'])
-const selectedProvider: Ref<'transak' | 'ramp' | 'onramp.money' | ''> = ref('')
+const selectedProvider: Ref<'transak' | ''> = ref('')
 const isLoading = ref(false)
 const showStatusModal: Ref<'success' | 'failed' | 'cancelled' | ''> = ref('')
 const statusText = ref({
@@ -26,11 +24,11 @@ const statusText = ref({
 
 function handleTransak() {
   isLoading.value = true
-  openTransak(props.transakNetwork as string)
+  openTransak(props.transakNetwork as string, true)
   handleStatusModalText('Transak')
 }
 
-function handleStatusModalText(provider: 'Transak' | 'Ramp' | 'onramp.money') {
+function handleStatusModalText(provider: 'Transak') {
   setTimeout(() => {
     isLoading.value = false
   }, 1500)
@@ -38,24 +36,13 @@ function handleStatusModalText(provider: 'Transak' | 'Ramp' | 'onramp.money') {
   statusText.value = {
     title: `You selected ${provider}`,
     message:
-      'Your buy transaction is in progress in another browser tab. Meanwhile, you can close this popup and resume wallet access.',
+      'Your sell transaction is in progress in another browser tab. Meanwhile, you can close this popup and resume wallet access.',
   }
-}
-
-function handleOnRampMoney() {
-  if (props.onRampMoney === undefined || props.onRampMoney === false) {
-    throw new Error('!!!')
-  }
-  isLoading.value = true
-  openOnRampMoneyHostedUI(props.onRampMoney)
-  handleStatusModalText('onramp.money')
 }
 
 function handleBuy() {
   if (selectedProvider.value === 'transak') {
     handleTransak()
-  } else if (selectedProvider.value === 'onramp.money') {
-    handleOnRampMoney()
   }
 }
 

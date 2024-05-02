@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onMounted, onUnmounted, ref, Ref, watch, onBeforeMount } from 'vue'
+import { onMounted, onBeforeMount, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -21,7 +21,7 @@ import {
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { content } from '@/utils/content'
+import { content, errors } from '@/utils/content'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
@@ -158,17 +158,15 @@ function setHexPrefix(value: string) {
 
 async function handleSendToken() {
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(
-      `You don't own enough NFTs to send ${quantity.value} NFTs. You can send ${props.balance} NFTs at most.`
-    )
+    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
-    toast.error('Please enter a valid wallet address')
+    toast.error(content.WALLET.INVALID)
     return
   }
   if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
-    toast.error('Please enter a valid quantity')
+    toast.error(errors.GENERIC.QUANTITY)
     return
   }
   showLoader('Sending...')
@@ -220,7 +218,7 @@ async function handleSendToken() {
         recipientAddress: recipientWalletAddress.value,
         chainType: ChainType.solana_cv25519,
       })
-      toast.success('Tokens sent Successfully')
+      toast.success(content.TOKEN.SENT)
     } else {
       const accountHandler =
         getRequestHandler().getAccountHandler() as EVMAccountHandler
@@ -253,7 +251,7 @@ async function handleSendToken() {
         nft,
         recipientAddress: setHexPrefix(recipientWalletAddress.value),
       })
-      toast.success('Tokens sent Successfully')
+      toast.success(content.TOKEN.SENT)
       const nftDb = await NFTDB.create(storage.local, userStore.walletAddress)
       if (props.type === 'erc1155') {
         nftDb.updateNFT(
@@ -335,17 +333,15 @@ async function handleShowPreview() {
     }
   }
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(
-      `You don't own enough NFTs to send ${quantity.value} NFTs. You can send ${props.balance} NFTs at most.`
-    )
+    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
-    toast.error('Please enter a valid wallet address')
+    toast.error(content.WALLET.INVALID)
     return
   }
   if (props.type === 'erc1155' && (!quantity.value || quantity.value == 0)) {
-    toast.error('Please enter a valid quantity')
+    toast.error(errors.GENERIC.QUANTITY)
     return
   }
   if (
@@ -368,7 +364,7 @@ async function handleShowPreview() {
     return
   }
   if (new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)) {
-    toast.error('Insufficient gas balance')
+    toast.error(content.GAS.INSUFFICIENT)
     return
   }
   if (
@@ -398,12 +394,12 @@ async function handleShowPreview() {
       showPreview.value = true
     } catch (e) {
       console.error({ e })
-      toast.error('Cannot estimate gas fee. Please try again later.')
+      toast.error(content.GAS.ESTIMATE)
     } finally {
       hideLoader()
     }
   } else {
-    toast.error('Please fill all values')
+    toast.error(errors.GENERIC.VALUE)
   }
 }
 

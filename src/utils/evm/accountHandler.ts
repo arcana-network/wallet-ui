@@ -1,4 +1,5 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
+import axios from 'axios'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -31,6 +32,7 @@ import {
   TypedMessageParams,
   createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
+import { formatTokenDecimals } from '@/utils/formatTokens'
 import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
