@@ -38,7 +38,10 @@ const userStore = useUserStore()
 const modalStore = useModalStore()
 const appStore = useAppStore()
 const gaslessStore = useGaslessStore()
-const isSendIt = document.referrer.includes('sendit')
+const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
+const isSendIt = SENDIT_APP_ID?.includes(appStore.id)
+
+console.log(isSendIt, SENDIT_APP_ID, appStore.id, 'isSendIt')
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
