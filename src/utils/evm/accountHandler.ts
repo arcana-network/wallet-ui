@@ -417,6 +417,7 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
+    console.log('type', rpcStore.useGasless, address, data)
     try {
       if (rpcStore.useGasless) {
         const txParams = {
@@ -426,6 +427,7 @@ class EVMAccountHandler {
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
         const transactionMode = await this.determineScwMode(nonce)
+        console.log('transactionMode', transactionMode)
         if (transactionMode === 'SCW') {
           modalStore.setShowModal(true)
           appStore.expandWallet = true
@@ -445,6 +447,7 @@ class EVMAccountHandler {
             }, 500)
           })
         }
+        console.log('getParamsForDoTx', this.getParamsForDoTx(transactionMode))
         const tx = await scwInstance.doTx(
           txParams,
           this.getParamsForDoTx(transactionMode)
