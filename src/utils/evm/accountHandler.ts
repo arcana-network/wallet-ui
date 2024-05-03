@@ -426,6 +426,7 @@ class EVMAccountHandler {
           value: data.value,
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
+        console.log('nonce', nonce)
         const transactionMode = await this.determineScwMode(nonce)
         console.log('transactionMode', transactionMode)
         if (transactionMode === 'SCW') {
