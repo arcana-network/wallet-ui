@@ -39,9 +39,6 @@ const modalStore = useModalStore()
 const appStore = useAppStore()
 const gaslessStore = useGaslessStore()
 const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
-const isSendIt = SENDIT_APP_ID?.includes(appStore.id)
-
-console.log(isSendIt, SENDIT_APP_ID, appStore.id, 'isSendIt')
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
@@ -87,9 +84,18 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
+  isSendItApp() {
+    const { id: appId } = appStore
+    console.log(appId, 'appId')
+    console.log(SENDIT_APP_ID, 'SENDIT_APP_ID')
+    return appId.length && SENDIT_APP_ID?.includes(appId)
+  }
+
   async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
     const thresholdPaymasterBalance = 0.1
+    const isSendIt = this.isSendItApp()
+    console.log(isSendIt, 'isSendIt')
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt) {
