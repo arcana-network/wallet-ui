@@ -1,5 +1,4 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
-import axios from 'axios'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -40,7 +39,7 @@ const userStore = useUserStore()
 const modalStore = useModalStore()
 const appStore = useAppStore()
 const gaslessStore = useGaslessStore()
-const isSendIt = document.referrer.includes('sendit')
+const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
@@ -86,10 +85,15 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
+  isSendItApp() {
+    const { id: appId } = appStore
+    return appId.length && SENDIT_APP_ID?.includes(appId)
+  }
+
   async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
-
     const thresholdPaymasterBalance = 0.1
+    const isSendIt = this.isSendItApp()
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt) {
