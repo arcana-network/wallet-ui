@@ -19,6 +19,7 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import {
   requestHandlerExists,
@@ -157,14 +158,21 @@ function populateFields(chain) {
   selectedNetworkChainId.value = Number(chain.chainId)
   selectedNetworkName.value = chain?.chainName || ''
   selectedNetworkSymbol.value = chain?.nativeCurrency?.symbol || 'Unknown'
+  devLogger.log(getTransakSellableNetworks())
   const currency = getTransakSellableCryptos().find(
     (crypto) =>
       crypto.network.name === query.value.network &&
       crypto.symbol === query.value.cryptoCurrency
   )
+  devLogger.log(currency)
   contractAddress.value = currency.address || ''
   selectedCryptoLogo.value = currency.image.large || ''
   selectedCryptoDecimals.value = currency.decimals
+  devLogger.log(
+    contractAddress.value,
+    selectedCryptoLogo.value,
+    selectedCryptoDecimals.value
+  )
 }
 
 async function setRpcConfigs() {
