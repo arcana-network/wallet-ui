@@ -167,12 +167,7 @@ function populateFields(chain) {
   devLogger.log(currency)
   contractAddress.value = currency.address || ethers.constants.AddressZero
   selectedCryptoLogo.value = currency.image.large || ''
-  selectedCryptoDecimals.value = currency.decimals
-  devLogger.log(
-    contractAddress.value,
-    selectedCryptoLogo.value,
-    selectedCryptoDecimals.value
-  )
+  selectedCryptoDecimals.value = currency.decimals || 18
 }
 
 async function setRpcConfigs() {
@@ -376,7 +371,6 @@ async function handleApprove() {
         .mul(Decimal.pow(10, 18))
         .toHexadecimal(),
       from: setHexPrefix(query.value.partnerCustomerId as string),
-      type: '0x2',
       maxFeePerGas: new Decimal(gas.maxFee)
         .mul(Decimal.pow(10, 9))
         .toHexadecimal(),
