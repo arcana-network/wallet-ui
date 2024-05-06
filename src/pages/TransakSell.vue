@@ -165,7 +165,7 @@ function populateFields(chain) {
       crypto.symbol === query.value.cryptoCurrency
   )
   devLogger.log(currency)
-  contractAddress.value = currency.address || ''
+  contractAddress.value = currency.address || ethers.constants.AddressZero
   selectedCryptoLogo.value = currency.image.large || ''
   selectedCryptoDecimals.value = currency.decimals
   devLogger.log(
