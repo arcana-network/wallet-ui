@@ -66,6 +66,7 @@ type TransakStatus =
   | 'Refunded'
   | 'Expired'
   | 'Rejected'
+  | 'Approved'
 
 type Activity = {
   txHash?: string

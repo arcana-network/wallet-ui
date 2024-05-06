@@ -192,6 +192,37 @@ onMounted(() => {
         ].status = 'Rejected'
         unsubscribeTransakOrderId(response.orderId)
       }
+    } else if (ev.data.type === 'sell_token_tx_success') {
+      const activityIndex = activitiesStore
+        .activities(Number(response.chainId))
+        .findIndex((activity) => {
+          return (
+            activity.operation === 'Sell' &&
+            activity.sellDetails?.orderId === response.orderId
+          )
+        })
+      if (activityIndex !== -1) {
+        activitiesStore.activitiesByChainId[Number(response.chainId)][
+          activityIndex
+        ].status = 'Approved'
+        activitiesStore.activitiesByChainId[Number(response.chainId)][
+          activityIndex
+        ].txHash = response.txHash
+      }
+    } else if (ev.data.type === 'sell_token_tx_failure') {
+      const activityIndex = activitiesStore
+        .activities(Number(response.chainId))
+        .findIndex((activity) => {
+          return (
+            activity.operation === 'Sell' &&
+            activity.sellDetails?.orderId === response.orderId
+          )
+        })
+      if (activityIndex !== -1) {
+        activitiesStore.activitiesByChainId[Number(response.chainId)][
+          activityIndex
+        ].status = 'Failed'
+      }
     }
   })
 })

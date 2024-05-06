@@ -307,6 +307,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
                 'Pending',
                 'Unapproved',
                 'Processing',
+                'Approved',
               ].includes(activity.status),
               'text-red-100': [
                 'Rejected',

@@ -72,7 +72,9 @@ const txStatus = reactive({
   success: false,
   failure: false,
   failureReason: 'Something went wrong',
+  hash: '',
 })
+const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
 
 const displayGasFees = computed(() => {
   return new Decimal(gas.maxFee)
@@ -386,10 +388,12 @@ async function handleApprove() {
         setHexPrefix(query.value.partnerCustomerId as string)
       )
       txStatus.success = true
+      txStatus.hash = txHash
       postMessage(
         {
           orderId: query.value.orderId as string,
           txHash,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_success'
       )
@@ -399,6 +403,7 @@ async function handleApprove() {
       postMessage(
         {
           orderId: query.value.orderId as string,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_failure'
       )
@@ -416,10 +421,12 @@ async function handleApprove() {
         gas.gasLimit
       )
       txStatus.success = true
+      txStatus.hash = txHash
       postMessage(
         {
           orderId: query.value.orderId as string,
           txHash,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_success'
       )
@@ -429,6 +436,7 @@ async function handleApprove() {
       postMessage(
         {
           orderId: query.value.orderId as string,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_failure'
       )
@@ -446,6 +454,16 @@ function tryAgain() {
   txStatus.success = false
   txStatus.failure = false
   txStatus.failureReason = ''
+}
+
+function generateExplorerURL(explorerUrl: string, txHash: string) {
+  const urlFormatExplorerUrl = new URL(explorerUrl)
+  const url = `/tx/${txHash}`
+  const actualTxUrl = new URL(url, explorerUrl)
+  if (urlFormatExplorerUrl.search) {
+    actualTxUrl.search = urlFormatExplorerUrl.search
+  }
+  return actualTxUrl.href
 }
 </script>
 
@@ -474,12 +492,15 @@ function tryAgain() {
             transaction on the explorer.</span
           >
         </div>
-        <div class="flex flex-col gap-3 flex-wrap items-center">
-          <a class="text-[14px] flex items-center gap-1"
-            >View Order on Transak
-            <img :src="getImage('external-link.svg')" class="h-4 w-4"
-          /></a>
-          <a class="text-[14px] flex items-center gap-1"
+        <div
+          v-if="explorerUrl && txStatus.hash"
+          class="flex flex-col gap-3 flex-wrap items-center"
+        >
+          <a
+            target="_blank"
+            rel="noopener"
+            :href="generateExplorerURL(explorerUrl, txStatus.hash)"
+            class="text-[14px] flex items-center gap-1"
             >View Transaction on Explorer
             <img :src="getImage('external-link.svg')" class="h-4 w-4"
           /></a>
