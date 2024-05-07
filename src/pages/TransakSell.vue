@@ -77,9 +77,9 @@ const txStatus = reactive({
 const explorerUrl = ref('')
 
 const displayGasFees = computed(() => {
-  return new Decimal(gas.maxFee)
+  return new Decimal(gas.maxFee || 0)
     .mul(Decimal.pow(10, 9))
-    .mul(gas.gasLimit)
+    .mul(gas.gasLimit || 0)
     .div(Decimal.pow(10, 18))
     .toDecimalPlaces(6)
 })
@@ -140,7 +140,9 @@ async function fetchNativeBalance() {
       query.value.partnerCustomerId as string
     )
   ).toString()
-  nativeBalance.value = new Decimal(balance).div(Decimal.pow(10, 18)).toString()
+  nativeBalance.value = new Decimal(balance || 0)
+    .div(Decimal.pow(10, 18))
+    .toString()
 }
 
 async function fetchERC20Balance() {
@@ -151,7 +153,7 @@ async function fetchERC20Balance() {
       query.value.partnerCustomerId as string
     )
   ).toString()
-  balance.value = new Decimal(tokenBalance)
+  balance.value = new Decimal(tokenBalance || 0)
     .div(Decimal.pow(10, selectedCryptoDecimals.value))
     .toString()
 }
@@ -325,7 +327,7 @@ async function calculateGas() {
         gas.gasLimit = '45000' // Estimated for ERC20 transfers
       }
     }
-    gas.maxFee = new Decimal(gas.baseFee).toString()
+    gas.maxFee = new Decimal(gas.baseFee || 0).toString()
   }
 }
 
