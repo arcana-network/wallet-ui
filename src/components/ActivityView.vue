@@ -338,6 +338,7 @@ async function stopTransaction(activity) {
                 'Pending',
                 'Unapproved',
                 'Processing',
+                'Approved',
               ].includes(activity.status),
               'text-red-100': [
                 'Rejected',

@@ -1,6 +1,7 @@
 import { SocialLoginType, encodeJSON } from '@arcana/auth-core'
 import axios from 'axios'
 
+import { errors } from '@/utils/content'
 import { getRandomPrivateKey, sign, decrypt } from '@/utils/crypto'
 
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
@@ -95,7 +96,7 @@ class PasswordlessLoginHandler {
       return res.data.ciphertext
     } catch (e) {
       clearTimeout(this.timer)
-      throw new Error('Could not verify credentials')
+      throw new Error(errors.PASSWORDLESS.VERIFY)
     }
   }
 

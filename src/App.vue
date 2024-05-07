@@ -184,7 +184,13 @@ onMounted(() => {
         })
         subscribeTransakOrderId(response.orderId, response.chainId)
       }
-    } else if (ev.data.type === 'sell_token_reject') {
+    } else if (
+      [
+        'sell_token_reject',
+        'sell_token_tx_success',
+        'sell_token_tx_failure',
+      ].includes(ev.data.type)
+    ) {
       const activityIndex = activitiesStore
         .activities(Number(response.chainId))
         .findIndex((activity) => {
@@ -194,10 +200,21 @@ onMounted(() => {
           )
         })
       if (activityIndex !== -1) {
+        let status = ''
+        if (ev.data.type === 'sell_token_reject') {
+          status = 'Rejected'
+          unsubscribeTransakOrderId(response.orderId)
+        } else if (ev.data.type === 'sell_token_tx_success') {
+          status = 'Approved'
+          activitiesStore.activitiesByChainId[Number(response.chainId)][
+            activityIndex
+          ].txHash = response.txHash
+        } else if (ev.data.type === 'sell_token_tx_failure') {
+          status = 'Failed'
+        }
         activitiesStore.activitiesByChainId[Number(response.chainId)][
           activityIndex
-        ].status = 'Rejected'
-        unsubscribeTransakOrderId(response.orderId)
+        ].status = status
       }
     }
   })

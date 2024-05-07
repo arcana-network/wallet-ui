@@ -245,7 +245,7 @@ async function returnToParent(key: string) {
 
     info.token = loginToken
   } catch (e) {
-    console.log('could not get login token', e)
+    console.log(errors.LOGIN_TOKEN.FAILED, e)
   }
 
   const uuid = genUUID()

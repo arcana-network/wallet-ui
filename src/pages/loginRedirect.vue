@@ -19,6 +19,7 @@ import { useRoute } from 'vue-router'
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
@@ -124,7 +125,7 @@ async function init() {
 
         userInfo.token = loginToken
       } catch (e) {
-        console.log('could not get token', e)
+        console.log(errors.LOGIN_TOKEN.FAILED, e)
       } finally {
         if (postLoginCleanup) {
           await postLoginCleanup()

@@ -25,6 +25,7 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
+import { errors } from '@/utils/content'
 import {
   MessageParams,
   TransactionParams,
@@ -395,7 +396,7 @@ class EVMAccountHandler {
         )
         return rawMessageSig
       } else {
-        throw new Error('No Wallet found for the provided address')
+        throw new Error(errors.WALLET.NOT_FOUND)
       }
     } catch (e) {
       return Promise.reject(e)
@@ -415,7 +416,7 @@ class EVMAccountHandler {
         )
         return signature
       } else {
-        throw new Error('No Wallet found for the provided address')
+        throw new Error(errors.WALLET.NOT_FOUND)
       }
     } catch (e) {
       return Promise.reject(e)
@@ -465,7 +466,7 @@ class EVMAccountHandler {
           const tx = await signer.sendTransaction(data)
           return tx.hash
         } else {
-          throw new Error('No Wallet found for the provided address')
+          throw new Error(errors.WALLET.NOT_FOUND)
         }
       }
     } catch (e) {
@@ -484,7 +485,7 @@ class EVMAccountHandler {
         )
         return decryptedMessage
       } else {
-        throw new Error('No Wallet found for the provided address')
+        throw new Error(errors.WALLET.NOT_FOUND)
       }
     } catch (e) {
       return Promise.reject(e)
@@ -498,7 +499,7 @@ class EVMAccountHandler {
         txData.from = this.wallet.address
         return await wallet.signTransaction({ ...txData })
       } else {
-        throw new Error('No Wallet found for the provided address')
+        throw new Error(errors.WALLET.NOT_FOUND)
       }
     } catch (e) {
       return Promise.reject(e)

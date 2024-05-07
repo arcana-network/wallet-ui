@@ -472,13 +472,16 @@ async function handleSendToken() {
     toast.success(content.TOKEN.SENT)
   } catch (error: any) {
     console.log(error, 'error')
-    const displayMessage =
+    let displayMessage =
       ((error?.data?.originalError?.error?.message ||
         error?.data?.originalError?.reason ||
         error?.data?.originalError?.code ||
         error?.error?.message ||
         error?.message ||
         error?.reason) as string) || errors.GENERIC.WRONG
+    if (error?.message.includes('invalid BigNumber string')) {
+      displayMessage = 'invalid BigNumber string'
+    }
     toast.error(displayMessage)
   } finally {
     showPreview.value = false
@@ -608,7 +611,8 @@ async function handleShowPreview() {
         showPreview.value = true
       } catch (e) {
         //handle errors in transaction
-        toast.error(errors.GENERIC.WRONG)
+
+        toast.error(e?.reason || errors.GENERIC.WRONG)
         console.log({ e })
       } finally {
         hideLoader()
