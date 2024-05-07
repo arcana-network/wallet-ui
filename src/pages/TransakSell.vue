@@ -19,6 +19,7 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import {
   requestHandlerExists,
@@ -71,12 +72,14 @@ const txStatus = reactive({
   success: false,
   failure: false,
   failureReason: 'Something went wrong',
+  hash: '',
 })
+const explorerUrl = ref('')
 
 const displayGasFees = computed(() => {
-  return new Decimal(gas.maxFee)
+  return new Decimal(gas.maxFee || 0)
     .mul(Decimal.pow(10, 9))
-    .mul(gas.gasLimit)
+    .mul(gas.gasLimit || 0)
     .div(Decimal.pow(10, 18))
     .toDecimalPlaces(6)
 })
@@ -96,6 +99,7 @@ onBeforeMount(async () => {
   initStorage(appId)
   updateTheme()
   initAccountHandler(chain?.rpcUrls[0])
+  explorerUrl.value = chain?.blockExplorerUrls ? chain.blockExplorerUrls[0] : ''
   await handleGasless(
     chain?.chainId as string,
     appId,
@@ -136,7 +140,9 @@ async function fetchNativeBalance() {
       query.value.partnerCustomerId as string
     )
   ).toString()
-  nativeBalance.value = new Decimal(balance).div(Decimal.pow(10, 18)).toString()
+  nativeBalance.value = new Decimal(balance || 0)
+    .div(Decimal.pow(10, 18))
+    .toString()
 }
 
 async function fetchERC20Balance() {
@@ -147,7 +153,7 @@ async function fetchERC20Balance() {
       query.value.partnerCustomerId as string
     )
   ).toString()
-  balance.value = new Decimal(tokenBalance)
+  balance.value = new Decimal(tokenBalance || 0)
     .div(Decimal.pow(10, selectedCryptoDecimals.value))
     .toString()
 }
@@ -157,14 +163,16 @@ function populateFields(chain) {
   selectedNetworkChainId.value = Number(chain.chainId)
   selectedNetworkName.value = chain?.chainName || ''
   selectedNetworkSymbol.value = chain?.nativeCurrency?.symbol || 'Unknown'
+  devLogger.log(getTransakSellableNetworks())
   const currency = getTransakSellableCryptos().find(
     (crypto) =>
       crypto.network.name === query.value.network &&
       crypto.symbol === query.value.cryptoCurrency
   )
-  contractAddress.value = currency.address || ''
+  devLogger.log(currency)
+  contractAddress.value = currency.address || ethers.constants.AddressZero
   selectedCryptoLogo.value = currency.image.large || ''
-  selectedCryptoDecimals.value = currency.decimals
+  selectedCryptoDecimals.value = currency.decimals || 18
 }
 
 async function setRpcConfigs() {
@@ -319,7 +327,7 @@ async function calculateGas() {
         gas.gasLimit = '45000' // Estimated for ERC20 transfers
       }
     }
-    gas.maxFee = new Decimal(gas.baseFee).toString()
+    gas.maxFee = new Decimal(gas.baseFee || 0).toString()
   }
 }
 
@@ -368,7 +376,6 @@ async function handleApprove() {
         .mul(Decimal.pow(10, 18))
         .toHexadecimal(),
       from: setHexPrefix(query.value.partnerCustomerId as string),
-      type: '0x2',
       maxFeePerGas: new Decimal(gas.maxFee)
         .mul(Decimal.pow(10, 9))
         .toHexadecimal(),
@@ -383,20 +390,25 @@ async function handleApprove() {
         payload,
         setHexPrefix(query.value.partnerCustomerId as string)
       )
+      devLogger.log({ txHash, explorerUrl: explorerUrl.value })
       txStatus.success = true
+      txStatus.hash = txHash
       postMessage(
         {
           orderId: query.value.orderId as string,
           txHash,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_success'
       )
     } catch (e: any) {
       txStatus.failure = true
       txStatus.failureReason = e.message
+      toast.error(e.message)
       postMessage(
         {
           orderId: query.value.orderId as string,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_failure'
       )
@@ -413,11 +425,14 @@ async function handleApprove() {
         new Decimal(gas.maxFee).mul(Decimal.pow(10, 9)).toHexadecimal(),
         gas.gasLimit
       )
+      devLogger.log({ txHash, explorerUrl: explorerUrl.value })
       txStatus.success = true
+      txStatus.hash = txHash
       postMessage(
         {
           orderId: query.value.orderId as string,
           txHash,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_success'
       )
@@ -427,6 +442,7 @@ async function handleApprove() {
       postMessage(
         {
           orderId: query.value.orderId as string,
+          chainId: selectedNetworkChainId.value,
         },
         'sell_token_tx_failure'
       )
@@ -444,6 +460,16 @@ function tryAgain() {
   txStatus.success = false
   txStatus.failure = false
   txStatus.failureReason = ''
+}
+
+function generateExplorerURL(explorerUrl: string, txHash: string) {
+  const urlFormatExplorerUrl = new URL(explorerUrl)
+  const url = `/tx/${txHash}`
+  const actualTxUrl = new URL(url, explorerUrl)
+  if (urlFormatExplorerUrl.search) {
+    actualTxUrl.search = urlFormatExplorerUrl.search
+  }
+  return actualTxUrl.href
 }
 </script>
 
@@ -472,12 +498,15 @@ function tryAgain() {
             transaction on the explorer.</span
           >
         </div>
-        <div class="flex flex-col gap-3 flex-wrap items-center">
-          <a class="text-[14px] flex items-center gap-1"
-            >View Order on Transak
-            <img :src="getImage('external-link.svg')" class="h-4 w-4"
-          /></a>
-          <a class="text-[14px] flex items-center gap-1"
+        <div
+          v-if="explorerUrl && txStatus.hash"
+          class="flex flex-col gap-3 flex-wrap items-center"
+        >
+          <a
+            target="_blank"
+            rel="noopener"
+            :href="generateExplorerURL(explorerUrl, txStatus.hash)"
+            class="text-[14px] flex items-center gap-1"
             >View Transaction on Explorer
             <img :src="getImage('external-link.svg')" class="h-4 w-4"
           /></a>
@@ -500,12 +529,12 @@ function tryAgain() {
           <span class="text-[#8d8d8d] text-[12px] mx-5"
             >The transaction was failed. Retry again.</span
           >
-          <span class="text-[12px]"
+          <!-- <span class="text-[12px]"
             ><span class="font-bold">Reason: </span
             ><span class="text-[#8d8d8d]">{{
               txStatus.failureReason
             }}</span></span
-          >
+          > -->
         </div>
         <div class="flex gap-5 justify-between flex-wrap items-center">
           <button class="text-[12px]" @click.stop="tryAgain">Try Again</button>
