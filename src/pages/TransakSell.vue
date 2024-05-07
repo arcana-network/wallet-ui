@@ -403,8 +403,8 @@ async function handleApprove() {
       )
     } catch (e: any) {
       txStatus.failure = true
-      window.transakError = e
       txStatus.failureReason = e.message
+      toast.error(e.message)
       postMessage(
         {
           orderId: query.value.orderId as string,
@@ -529,12 +529,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           <span class="text-[#8d8d8d] text-[12px] mx-5"
             >The transaction was failed. Retry again.</span
           >
-          <span class="text-[12px]"
+          <!-- <span class="text-[12px]"
             ><span class="font-bold">Reason: </span
             ><span class="text-[#8d8d8d]">{{
               txStatus.failureReason
             }}</span></span
-          >
+          > -->
         </div>
         <div class="flex gap-5 justify-between flex-wrap items-center">
           <button class="text-[12px]" @click.stop="tryAgain">Try Again</button>
