@@ -38,9 +38,12 @@ type UserWalletProps = {
   refreshIconAnimating: boolean
 }
 
+const isRampDataFetched = ref(false)
+
 onBeforeMount(async () => {
   try {
     await Promise.all([fetchTransakNetworks()])
+    isRampDataFetched.value = true
   } catch (e) {
     console.error(errors.TRANSAK.FAILED_INITIALIZATION, e)
   }
@@ -127,6 +130,7 @@ const selectedAddressType = ref(
 // TODO: move these to something else scoped to onramps
 
 const transakNetwork = computed(() => {
+  if (!isRampDataFetched.value) return []
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
     (network) => network.chainId === selectedChainId
@@ -134,6 +138,7 @@ const transakNetwork = computed(() => {
 })
 
 const transakSellNetwork = computed(() => {
+  if (!isRampDataFetched.value) return []
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSellableNetworks().find(
     (network) => network.chainId === selectedChainId

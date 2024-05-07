@@ -420,6 +420,7 @@ async function handleApprove() {
         new Decimal(gas.maxFee).mul(Decimal.pow(10, 9)).toHexadecimal(),
         gas.gasLimit
       )
+      console.log({ txHash, explorerUrl })
       txStatus.success = true
       txStatus.hash = txHash
       postMessage(
