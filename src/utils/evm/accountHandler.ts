@@ -19,6 +19,7 @@ import erc1155abi from '@/abis/erc1155.abi.json'
 import erc20abi from '@/abis/erc20.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
+import { store } from '@/store'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
@@ -30,8 +31,8 @@ import {
 } from '@/utils/evm/walletMiddleware'
 import { scwInstance } from '@/utils/scw'
 
-const rpcStore = useRpcStore()
-const userStore = useUserStore()
+const rpcStore = useRpcStore(store)
+const userStore = useUserStore(store)
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
