@@ -403,6 +403,7 @@ async function handleApprove() {
       )
     } catch (e: any) {
       txStatus.failure = true
+      console.log(e)
       txStatus.failureReason = e.message
       postMessage(
         {
