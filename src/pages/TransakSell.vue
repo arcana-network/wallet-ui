@@ -74,7 +74,7 @@ const txStatus = reactive({
   failureReason: 'Something went wrong',
   hash: '',
 })
-const [explorerUrl] = rpcStore.selectedRpcConfig?.blockExplorerUrls || []
+const explorerUrl = ref('')
 
 const displayGasFees = computed(() => {
   return new Decimal(gas.maxFee)
@@ -99,6 +99,7 @@ onBeforeMount(async () => {
   initStorage(appId)
   updateTheme()
   initAccountHandler(chain?.rpcUrls[0])
+  explorerUrl.value = chain?.blockExplorerUrls ? chain.blockExplorerUrls[0] : ''
   await handleGasless(
     chain?.chainId as string,
     appId,
@@ -387,7 +388,7 @@ async function handleApprove() {
         payload,
         setHexPrefix(query.value.partnerCustomerId as string)
       )
-      devLogger.log({ txHash, explorerUrl })
+      devLogger.log({ txHash, explorerUrl: explorerUrl.value })
       txStatus.success = true
       txStatus.hash = txHash
       postMessage(
@@ -421,7 +422,7 @@ async function handleApprove() {
         new Decimal(gas.maxFee).mul(Decimal.pow(10, 9)).toHexadecimal(),
         gas.gasLimit
       )
-      devLogger.log({ txHash, explorerUrl })
+      devLogger.log({ txHash, explorerUrl: explorerUrl.value })
       txStatus.success = true
       txStatus.hash = txHash
       postMessage(
