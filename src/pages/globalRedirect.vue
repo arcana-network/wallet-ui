@@ -13,6 +13,7 @@ import { onMounted } from 'vue'
 import { type GlobalRedirectMethods } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
+import { errors } from '@/utils/content'
 import { getDefaultParams } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleGlobalLogin } from '@/utils/redirectUtils'
@@ -104,7 +105,7 @@ onMounted(async () => {
 
       userInfo.token = loginToken
     } catch (e) {
-      console.log('could not get token', e)
+      console.log(errors.LOGIN_TOKEN.FAILED, e)
     } finally {
       if (cleanup) {
         await cleanup()
