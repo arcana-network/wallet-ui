@@ -328,7 +328,7 @@ function calculateCurrencyValue(value) {
       <GasPrice
         v-if="
           !rpcStore.useGasless ||
-          (rpcStore.useGasless && paymasterBalance < 0.1)
+          (rpcStore.useGasless && paymasterBalance <= 0.1)
         "
         :base-fee="baseFee"
         :gas-limit="gasLimit"
@@ -337,7 +337,7 @@ function calculateCurrencyValue(value) {
         @gas-price-input="handleSetGasPrice"
       />
       <span
-        v-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+        v-if="rpcStore.useGasless && paymasterBalance > 0.1"
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
