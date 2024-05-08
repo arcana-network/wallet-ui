@@ -38,11 +38,14 @@ type UserWalletProps = {
   refreshIconAnimating: boolean
 }
 
+const isRampDataFetched = ref(false)
+
 onBeforeMount(async () => {
   try {
     await Promise.all([fetchTransakNetworks()])
+    isRampDataFetched.value = true
   } catch (e) {
-    console.error('Failed to initialize one or more on-ramps:', e)
+    console.error(errors.TRANSAK.FAILED_INITIALIZATION, e)
   }
 })
 
@@ -127,6 +130,7 @@ const selectedAddressType = ref(
 // TODO: move these to something else scoped to onramps
 
 const transakNetwork = computed(() => {
+  if (!isRampDataFetched.value) return []
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSupportedNetworks().find(
     (network) => network.chainId === selectedChainId
@@ -134,6 +138,7 @@ const transakNetwork = computed(() => {
 })
 
 const transakSellNetwork = computed(() => {
+  if (!isRampDataFetched.value) return []
   const selectedChainId = Number(rpcStore.selectedChainId)
   return getTransakSellableNetworks().find(
     (network) => network.chainId === selectedChainId
@@ -392,7 +397,7 @@ async function copyToClipboard(value: string) {
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
           <span>Buy</span>
         </button>
-        <!-- <button
+        <button
           class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
           :disabled="!transakSellNetwork"
           :class="{
@@ -402,7 +407,7 @@ async function copyToClipboard(value: string) {
         >
           <img :src="getImage('sell.svg')" class="w-md h-md" />
           <span>Sell</span>
-        </button> -->
+        </button>
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

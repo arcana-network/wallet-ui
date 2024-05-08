@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import { AssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
 import { Theme } from '@/models/Theme'
+import { errors } from '@/utils/content'
 
 enum StorageKey {
   UserInfo = 'userInfo',
@@ -46,10 +47,7 @@ function are3PCEnabled() {
     storage.setItem('_', '_')
     enabled = storage.getItem('_') === '_'
   } catch (e) {
-    console.log(
-      "Local or session storage doesn't work, falling back to In-Memory storage.",
-      e
-    )
+    console.log(errors.STORAGE.FAILED, e)
   }
   return enabled
 }
