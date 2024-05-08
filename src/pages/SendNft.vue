@@ -158,7 +158,7 @@ function setHexPrefix(value: string) {
 
 async function handleSendToken() {
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
+    toast.error(content.NFT.NO_NFT_QUANTITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
@@ -333,7 +333,7 @@ async function handleShowPreview() {
     }
   }
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
+    toast.error(content.NFT.NO_NFT_QUANTITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
