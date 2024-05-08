@@ -7,7 +7,7 @@ import {
   transactions,
 } from 'near-api-js'
 
-class NEARAccountHandler {
+export class NEARAccountHandler {
   private keystore = new keyStores.InMemoryKeyStore()
   private readonly kp: utils.KeyPairEd25519
   private privateKey: string // should be binary
@@ -52,11 +52,19 @@ class NEARAccountHandler {
     return BigInt(bObj.available) // ???
   }
 
-  async signMessage(message: Uint8Array) {
+  signMessage(message: Uint8Array) {
     return this.kp.sign(message).signature
   }
 
-  async signAndSendTransaction(transaction: transactions.Transaction) {
+  signAndSendTransaction(transaction: transactions.Transaction) {
     return this.assertAccount().signAndSendTransaction(transaction)
+  }
+
+  deployContract(data: Uint8Array) {
+    return this.assertAccount().deployContract(data)
+  }
+
+  sendNEAR(recipient: string, amount: bigint) {
+    return this.assertAccount().sendMoney(recipient, amount)
   }
 }
