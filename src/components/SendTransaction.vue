@@ -280,13 +280,13 @@ function calculateCurrencyValue(value) {
             >{{ calculateGasPrice(request.request.params[0]) }}</span
           >
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="rpcStore.useGasless && paymasterBalance > 0.1"
             class="text-right text-green-100"
           >
             Sponsored
           </span>
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
+            v-else-if="rpcStore.useGasless && paymasterBalance <= 0.1"
             class="text-right"
           >
             {{ calculateGasPrice(request.request.params[0]) }}
