@@ -9,7 +9,7 @@ const content = {
   },
   NETWORK: {
     INPUT_EXISTS:
-      'W-103: This network is currently selected, please choose a different one and try again.',
+      'W-103: This network is currently active. Select a different to make it active.',
   },
   PIN: 'W-104: Enter the pin to continue.',
   WALLET: {
@@ -21,10 +21,11 @@ const content = {
     QUESTIONS: 'Questions must be unique!',
   },
   GAS: {
-    PROVIDE: 'W-106: Please provide Gas Fee.',
+    PROVIDE: 'W-106: Please provide the Gas Fee.',
     INSUFFICIENT: 'W-107: Insufficient balance to pay for the gas fee.',
     ESTIMATE: 'W-108: Cannot estimate gas fee. Please try again later.',
-    GREATER_LIMIT_MVX: 'W-109: Gas limit cannot be lesser than',
+    GREATER_LIMIT_MVX:
+      'W-109: Gas limit cannot be set to a value less than the required gas fee for this transaction.',
   },
   DETAILS: 'W-110: Enter all the details to continue.',
   TOKEN: {
@@ -32,7 +33,7 @@ const content = {
     EXISTS: 'Token already added.',
     ETH_MAINNET: 'Token belongs to Ethereum Mainnet.',
     SENT: 'Token sent successfully.',
-    INSUFFICIENT: 'W-111: Insufficient balance for transfer.',
+    INSUFFICIENT: 'W-111:  Insufficient balance for specified transfer amount.',
     AMOUNT:
       'W-112: Amount cannot be greater than the maximum available balance.',
   },
@@ -42,8 +43,8 @@ const content = {
     UNSUPPORTED: 'W-112: Unsupported NFT.',
     OWNERSHIP: "W-113: You don't have ownership for this NFT.",
     DELETED: 'NFT Deleted.',
-    NO_NFT_QUATITY: (quantity: number, balance: number | undefined) =>
-      `W-114: You don't own enough NFTs to send ${quantity} NFTs. You can send ${balance} NFTs at most.`,
+    NO_NFT_QUANTITY: (quantity: number, balance: number | undefined) =>
+      `W-114: Insufficient NFTs. At most, you can send ${balance} NFTs.`,
     CREATE_ERROR: 'W-116: Error creating NFT. Please try again.',
   },
   CONTRACT: {
@@ -68,13 +69,13 @@ const errors = {
   WALLET: {
     COPY: 'W-125: Failed to copy wallet address.',
     BALANCE: 'W-126: Failed to get balance.',
-    NOT_FOUND: 'W-148: No Wallet found for the provided address.',
+    NOT_FOUND: 'W-148: No valid wallet is associated for the given address.',
   },
   TOKEN: {
     INVALID: 'W-127: Invalid token Id',
   },
   MFA: {
-    ERROR: 'W-128: Error occured while setting up MFA. Please try again!',
+    ERROR: 'W-128: Error occurred while setting up MFA. Please try again!',
   },
   GENERIC: {
     QUANTITY: 'W-129: Please enter a valid quantity.',
@@ -83,7 +84,7 @@ const errors = {
     VALUE: 'W-132: Please fill all values!',
   },
   TRANSAK: {
-    FAILED_INITIALIZATION: 'W-133: Failed to initialize one or more on-ramps:',
+    FAILED_INITIALIZATION: 'W-133: Failed to initialize one or more on-ramps.',
   },
   LOGIN_TOKEN: {
     FAILED: 'W-134: Could not get token',
@@ -92,19 +93,19 @@ const errors = {
     INIT: 'W-135: Failed to initialize SCW.',
   },
   ACTIVITIES: {
-    FAILED: 'W-136: Failed to add to activities.',
+    FAILED: 'W-136: Failed to add to activities list.',
   },
   PASSWORDLESS: {
     VERIFY: 'W-137: Could not verify credentials.',
   },
   REDIRECT: {
     FAILED_CONTACT:
-      'W-138: Could not contact parent page, login did not succeed',
+      'W-138: Could not contact parent page causing login failure. Retry login.',
     LOGIN_FAILED: 'W-139: Could not login, an unexpected error occurred',
   },
   STORAGE: {
     FAILED:
-      "W-140: Local or session storage doesn't work, falling back to In-Memory storage.",
+      "W-140: Local or session storage doesn't work, falling back to in-memory storage.",
   },
   VALIDATE_TOKEN: {
     PARAMS_MISSING: 'W-141: Required params missing',
