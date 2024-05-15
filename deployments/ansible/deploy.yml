@@ -41,7 +41,7 @@
       state: absent
 
 
-  - name: Install npm dependencies
+  - name: Install npm  dependencies
     become: yes
     shell: "cd /home/deploy/wallet-ui/ && npm install"
 
