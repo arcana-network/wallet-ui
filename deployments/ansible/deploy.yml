@@ -3,7 +3,7 @@
   become: yes
   become_user: deploy
   vars:
-    temp_repo_path: "/tmp/gateway"
+    temp_repo_path: "/tmp/wallet-ui"
   tasks:
 
   - name: Clone the latest repo to tmp path
