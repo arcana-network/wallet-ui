@@ -1,0 +1,46 @@
+---
+- hosts: all       #we can also mention multiple servers by mention the groups name which present in inventory file
+  become: yes
+  become_user: deploy
+  vars:
+    temp_repo_path: "/tmp/gateway"
+  tasks:
+
+  - name: Clone the latest repo to tmp path
+    git:
+      repo: git@github.com:arcana-network/wallet-ui.git
+      key_file: /home/deploy/.ssh/wallet-ui/id_rsa
+      accept_hostkey: yes
+      dest: "{{ temp_repo_path }}"
+      version: "{{branch}}"
+    register: code_upload
+
+  - name: change the permissions of folders
+    become: yes
+    shell: "sudo chown deploy:tesla -R /tmp/wallet-ui/"
+
+  - name: Rsync the code to our running repo
+    delegate_to: "{{ inventory_hostname }}"
+    synchronize:
+      src: /tmp/wallet-ui/
+      dest: /home/deploy/wallet-ui/
+      rsync_opts:
+        - "--exclude=.env"
+      delete: yes
+      recursive: yes
+    when: code_upload.changed
+
+  - name: change the permissions of folders
+    become: yes
+    shell: "sudo chown deploy:deploy -R /tmp/wallet-ui"
+
+  - name: Remove the tmp cloned repo
+    become: yes
+    file:
+      path: "{{ temp_repo_path }}"
+      state: absent
+
+
+  - name: Reload systemctl
+    become: yes
+    shell: "sudo systemctl restart wallet-ui.service"

@@ -14,7 +14,7 @@ on:
 
 jobs:
   deployment-dev:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     name: Deployment on dev servers
     if:  ${{ github.event.inputs.server == 'dev' }}
     steps:
@@ -32,7 +32,7 @@ jobs:
             --extra-vars branch=${{github.ref_name}}
 
   deployment-testnet:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     name: Deployment on prod servers
     if:  ${{ github.event.inputs.server == 'testnet' }}
     steps:
@@ -51,7 +51,7 @@ jobs:
 
 
   deployment-mainnet:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     name: Deployment on mainnet servers
     if:  ${{ github.event.inputs.server == 'mainnet' }}
     steps:
