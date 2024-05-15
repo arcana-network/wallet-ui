@@ -1,5 +1,5 @@
 ---
-- hosts: all       #we can also mention multiple servers by mention the groups name which present in inventory file
+- hosts: all
   become: yes
   become_user: deploy
   vars:
@@ -41,6 +41,10 @@
       state: absent
 
 
-  - name: Reload systemctl
+  - name: Install npm dependencies
     become: yes
-    shell: "sudo systemctl restart wallet-ui.service"
+    shell: "cd /home/deploy/wallet-ui/ && npm install"
+
+  - name: Build the project
+    become: yes
+    shell: "cd /home/deploy/wallet-ui/ && npm run build"
