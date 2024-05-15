@@ -49,6 +49,6 @@
     become: yes
     shell: "cd /home/deploy/wallet-ui/ && npm run build"
 
-- name: Rsync build files to the production folder
-  become: yes
-  shell: rsync -av --delete /home/deploy/wallet-ui/ /home/deploy/wallet-ui-files/
+  - name: Rsync build files to the production folder
+    become: yes
+    shell: rsync -av --delete /home/deploy/wallet-ui/ /home/deploy/wallet-ui-files/
