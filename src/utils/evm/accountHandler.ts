@@ -85,9 +85,16 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
-  isSendItApp() {
+  public isSendItApp() {
     const { id: appId } = appStore
-    return appId.length && SENDIT_APP_ID?.includes(appId)
+    return appId.length > 0 && SENDIT_APP_ID?.includes(appId)
+  }
+
+  public async getTransactionMode() {
+    const nonce = await this.getNonceForArcanaSponsorship(
+      userStore.walletAddress
+    )
+    return await this.determineScwMode(nonce)
   }
 
   public async determineScwMode(nonce) {
@@ -98,10 +105,10 @@ class EVMAccountHandler {
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt && Number(nonce) === 0) {
         mode = 'ARCANA'
-      } else {
-        mode = 'BICONOMY' // you can make it as undefined
-      }
-    } else mode = 'SCW'
+      } else if (isSendIt && Number(nonce) > 0) {
+        mode = ''
+      } else mode = 'SCW'
+    } else mode = ''
     return mode
   }
 
