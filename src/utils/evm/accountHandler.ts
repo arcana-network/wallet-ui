@@ -90,18 +90,14 @@ class EVMAccountHandler {
     return appId.length && SENDIT_APP_ID?.includes(appId)
   }
 
-  async determineScwMode(nonce) {
+  public async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
     const thresholdPaymasterBalance = 0.1
     const isSendIt = this.isSendItApp()
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
-      if (isSendIt) {
-        if (Number(nonce) > 0) {
-          mode = 'SCW'
-        } else {
-          mode = 'ARCANA'
-        }
+      if (isSendIt && Number(nonce) === 0) {
+        mode = 'ARCANA'
       } else {
         mode = 'BICONOMY' // you can make it as undefined
       }
