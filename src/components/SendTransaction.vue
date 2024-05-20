@@ -28,9 +28,14 @@ const props = defineProps({
 })
 
 const paymasterBalance = ref(0)
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler() as EVMAccountHandler
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    transactionMode.value = await accountHandler.getTransactionMode()
   }
 })
 
@@ -275,21 +280,18 @@ function calculateCurrencyValue(value) {
         <span>Transaction Fee</span>
         <span class="text-right">
           <span
-            v-if="!rpcStore.useGasless"
+            v-if="!rpcStore.useGasless || transactionMode === ''"
             :title="calculateGasPrice(request.request.params[0])"
             >{{ calculateGasPrice(request.request.params[0]) }}</span
           >
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="
+              !loader.show &&
+              (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+            "
             class="text-right text-green-100"
           >
             Sponsored
-          </span>
-          <span
-            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
-            class="text-right"
-          >
-            {{ calculateGasPrice(request.request.params[0]) }}
           </span>
           <span
             v-if="
@@ -328,7 +330,7 @@ function calculateCurrencyValue(value) {
       <GasPrice
         v-if="
           !rpcStore.useGasless ||
-          (rpcStore.useGasless && paymasterBalance < 0.1)
+          (rpcStore.useGasless && transactionMode === '')
         "
         :base-fee="baseFee"
         :gas-limit="gasLimit"
@@ -337,7 +339,10 @@ function calculateCurrencyValue(value) {
         @gas-price-input="handleSetGasPrice"
       />
       <span
-        v-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+        v-if="
+          !loader.show &&
+          (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+        "
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
