@@ -437,6 +437,7 @@ class EVMAccountHandler {
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
         const transactionMode = await this.determineScwMode(nonce)
+        console.log(transactionMode, 'debug transaction mode')
         // if (transactionMode === 'SCW') {
         //   modalStore.setShowModal(true)
         //   appStore.expandWallet = true
