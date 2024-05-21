@@ -457,6 +457,11 @@ class EVMAccountHandler {
         //     }, 500)
         //   })
         // }
+        console.log(txParams, 'debug tx params')
+        console.log(
+          this.getParamsForDoTx(transactionMode),
+          'debug params for do tx'
+        )
         const tx = await scwInstance.doTx(
           txParams,
           this.getParamsForDoTx(transactionMode)
