@@ -158,7 +158,7 @@ onMounted(async () => {
     console.log(e)
   } finally {
     loader.value.show = false
-    setShowStarterTips()
+    // setShowStarterTips()
   }
 })
 
