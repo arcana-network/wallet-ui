@@ -346,7 +346,10 @@ function calculateCurrencyValue(value) {
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
-      <span v-else-if="!loader.show && transactionMode.length === 0">
+      <span
+        v-else-if="!loader.show && transactionMode.length === 0"
+        class="text-xs text-center"
+      >
         Limit exceeded for gasless transactions. You will be charged for this
         transaction.
       </span>
