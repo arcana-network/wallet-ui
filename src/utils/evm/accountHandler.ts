@@ -99,6 +99,7 @@ class EVMAccountHandler {
 
   public async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
+    console.log(paymasterBalance, 'debug paymaster balance')
     const thresholdPaymasterBalance = 0.1
     const isSendIt = this.isSendItApp()
     let mode = 'SCW'

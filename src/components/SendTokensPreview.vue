@@ -51,6 +51,7 @@ const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
 onMounted(() => {
   console.log(transactionMode.value, 'transactionMode')
+  console.log(paymasterBalance.value, 'paymasterBalance')
   if (appStore.chainType === ChainType.evm_secp256k1) {
     txFees.value = new Decimal(props.previewData.gasFee)
       .mul(props.previewData.estimatedGas)
