@@ -103,12 +103,12 @@ class EVMAccountHandler {
     const isSendIt = this.isSendItApp()
     let mode = 'SCW'
     if (paymasterBalance > thresholdPaymasterBalance) {
-      if (isSendIt && Number(nonce) === 0) {
-        mode = 'ARCANA'
-      } else if (isSendIt && Number(nonce) > 0) {
-        mode = ''
-      } else mode = 'SCW'
-    } else mode = ''
+      if (isSendIt) {
+        mode = Number(nonce) === 0 ? 'ARCANA' : ''
+      } else {
+        mode = 'SCW'
+      }
+    }
     return mode
   }
 
