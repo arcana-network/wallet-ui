@@ -118,7 +118,7 @@ function truncateAddress(address: string) {
             "
             class="text-base text-green-100"
           >
-            Sponsored
+            Sponsored - {{ transactionMode }}
           </span>
           <span
             v-else-if="!loader.show && transactionMode.length === 0"
