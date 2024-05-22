@@ -137,7 +137,9 @@ function truncateAddress(address: string) {
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
       <span
-        v-else-if="!loader.show && transactionMode.length === 0"
+        v-else-if="
+          !loader.show && transactionMode.length === 0 && rpcStore.useGasless
+        "
         class="text-xs text-center"
       >
         Limit exceeded for gasless transactions. You will be charged for this
