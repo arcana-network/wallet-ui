@@ -99,7 +99,6 @@ class EVMAccountHandler {
 
   public async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
-    console.log(paymasterBalance, 'debug paymaster balance')
     const thresholdPaymasterBalance = 0.1
     const isSendIt = this.isSendItApp()
     let mode = ''
@@ -184,25 +183,6 @@ class EVMAccountHandler {
         userStore.walletAddress
       )
       const transactionMode = await this.determineScwMode(nonce)
-      // if (transactionMode === 'SCW') {
-      //   modalStore.setShowModal(true)
-      //   appStore.expandWallet = true
-      //   gaslessStore.showUseWalletBalancePermission = true
-      //   await new Promise((resolve, reject) => {
-      //     const intervalId = setInterval(() => {
-      //       if (gaslessStore.canUseWalletBalance !== null) {
-      //         clearInterval(intervalId)
-      //         if (gaslessStore.canUseWalletBalance) {
-      //           resolve(null)
-      //         } else {
-      //           reject(new Error('Gastank balance too low'))
-      //         }
-      //         modalStore.setShowModal(false)
-      //         gaslessStore.showUseWalletBalancePermission = false
-      //       }
-      //     }, 500)
-      //   })
-      // }
       const tx = await scwInstance.doTx(
         txParams,
         this.getParamsForDoTx(transactionMode)
@@ -437,31 +417,6 @@ class EVMAccountHandler {
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
         const transactionMode = await this.determineScwMode(nonce)
-        console.log(transactionMode, 'debug transaction mode')
-        // if (transactionMode === 'SCW') {
-        //   modalStore.setShowModal(true)
-        //   appStore.expandWallet = true
-        //   gaslessStore.showUseWalletBalancePermission = true
-        //   await new Promise((resolve, reject) => {
-        //     const intervalId = setInterval(() => {
-        //       if (gaslessStore.canUseWalletBalance !== null) {
-        //         clearInterval(intervalId)
-        //         if (gaslessStore.canUseWalletBalance) {
-        //           resolve(null)
-        //         } else {
-        //           reject(new Error('Gastank balance too low'))
-        //         }
-        //         modalStore.setShowModal(false)
-        //         gaslessStore.showUseWalletBalancePermission = false
-        //       }
-        //     }, 500)
-        //   })
-        // }
-        console.log(txParams, 'debug tx params')
-        console.log(
-          this.getParamsForDoTx(transactionMode),
-          'debug params for do tx'
-        )
         const tx = await scwInstance.doTx(
           txParams,
           this.getParamsForDoTx(transactionMode)
