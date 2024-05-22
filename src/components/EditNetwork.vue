@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
-import { comment } from 'postcss'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
+import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
 
@@ -48,8 +47,9 @@ function isExistingChainId(chainId: number) {
 }
 
 async function validateRPCandChainID(rpcUrl, chainId) {
-  const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+  const provider = produceProviderFromURLString(rpcUrl)
   const { chainId: fetchedChainId } = await provider.getNetwork()
+  await provider.destroy()
   return Number(fetchedChainId) === Number(chainId)
 }
 

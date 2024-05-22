@@ -56,10 +56,10 @@ class EVMRequestHandler {
   public async setRpcConfig(c: RpcConfig) {
     try {
       this.handler = this.initRpcEngine(c)
-      this.accountHandler.setProvider(c.rpcUrls[0])
+      await this.accountHandler.setProvider(c.rpcUrls[0])
       // Emit `chainChanged` event
       const chainId = await this.accountHandler.getChainId()
-      this.emitEvent('chainChanged', { chainId })
+      await this.emitEvent('chainChanged', { chainId })
     } catch (e) {
       console.log({ e })
     }

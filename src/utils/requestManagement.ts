@@ -20,6 +20,7 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { errors } from '@/utils/content'
+import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
@@ -167,8 +168,9 @@ async function validateRPCandChainID(rpcURL, chainId) {
     error: null,
   }
   try {
-    const provider = new ethers.providers.StaticJsonRpcProvider(rpcURL)
+    const provider = produceProviderFromURLString(rpcURL)
     const { chainId: fetchedChainId } = await provider.getNetwork()
+    await provider.destroy()
     const isValidChainId = Number(fetchedChainId) === Number(chainId)
     result.isValid = isValidChainId
     result.error = isValidChainId ? '' : errors.RPC.ERROR
