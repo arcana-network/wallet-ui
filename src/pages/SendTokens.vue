@@ -840,7 +840,7 @@ watch(
       </div>
       <div class="flex">
         <button
-          class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
+          class="btn-primary uppercase p-[10px] font-medium text-base flex-grow text-center"
         >
           Preview
         </button>

@@ -206,7 +206,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           <div class="flex">
             <span
               v-if="activity.customToken"
-              class="font-bold text-base"
+              class="font-medium text-lg"
               :title="`${activity.operation} ${activity.customToken.symbol}`"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -214,7 +214,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             </span>
             <span
               v-else-if="activity.nft"
-              class="font-bold text-base"
+              class="font-medium text-lg"
               :title="`${activity.operation} NFT`"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -222,7 +222,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             </span>
             <span
               v-else
-              class="font-bold text-base"
+              class="font-medium text-lg"
               :title="activity.operation"
             >
               {{ truncateEnd(activity.operation, 12) }}
@@ -263,7 +263,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
         >
           <span
             v-if="activity.customToken"
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+            class="font-medium text-lg leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
             >{{
               new Decimal(activity.customToken.amount)
@@ -276,7 +276,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             v-else-if="
               activity.transaction && app.chainType === ChainType.evm_secp256k1
             "
-            class="font-bold text-base leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+            class="font-medium text-lg leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${getAmountInNativeCurrency(
               activity.transaction.amount
             )} ${rpcStore.currency}`"
@@ -357,7 +357,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               <div class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">From</span>
                 <span
-                  class="text-base font-bold"
+                  class="text-base text-medium"
                   :title="activity.address.from"
                 >
                   {{ truncateMid(activity.address.from) }}
@@ -372,7 +372,10 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">To</span>
-                <span class="text-base font-bold" :title="activity.address.to">
+                <span
+                  class="text-base text-medium"
+                  :title="activity.address.to"
+                >
                   {{ truncateMid(activity.address.to) }}
                 </span>
               </div>
@@ -448,7 +451,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               <div class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">From</span>
                 <span
-                  class="text-base font-bold"
+                  class="text-base text-medium"
                   :title="activity.address.from"
                 >
                   {{ truncateMid(activity.address.from) }}
@@ -463,7 +466,10 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span class="text-sm text-gray-100">To</span>
-                <span class="text-base font-bold" :title="activity.address.to">
+                <span
+                  class="text-base text-medium"
+                  :title="activity.address.to"
+                >
                   {{ truncateMid(activity.address.to) }}
                 </span>
               </div>
@@ -552,7 +558,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               </div>
               <div
                 v-if="app.chainType === ChainType.evm_secp256k1"
-                class="flex justify-between mt-4 font-bold text-base"
+                class="flex justify-between mt-4 font-medium text-lg"
               >
                 <span>Total:</span>
                 <span
@@ -566,7 +572,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               </div>
               <div
                 v-if="app.chainType === ChainType.solana_cv25519"
-                class="flex justify-between mt-4 font-bold text-base"
+                class="flex justify-between mt-4 font-medium text-lg"
               >
                 <span>Total:</span>
                 <span

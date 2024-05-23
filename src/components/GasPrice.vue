@@ -113,9 +113,9 @@ function handleCustomGasPriceInput() {
     </div>
     <div class="card flex p-1">
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-[#1D2A31] dark:bg-black-300':
             selectedGasMethod === 'normal',
           'text-gray-100': selectedGasMethod !== 'normal',
         }"
@@ -124,9 +124,9 @@ function handleCustomGasPriceInput() {
         Normal
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-[#1D2A31] dark:bg-black-300':
             selectedGasMethod === 'fast',
           'text-gray-100': selectedGasMethod !== 'fast',
         }"
@@ -135,9 +135,9 @@ function handleCustomGasPriceInput() {
         Fast
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-[#1D2A31] dark:bg-black-300':
             selectedGasMethod === 'custom',
           'text-gray-100': selectedGasMethod !== 'custom',
         }"

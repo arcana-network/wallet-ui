@@ -255,7 +255,7 @@ watch(
           </div>
           <button
             type="submit"
-            class="btn-primary uppercase font-bold text-base p-2 mt-5"
+            class="btn-primary uppercase font-medium text-base p-2 mt-5"
           >
             Save
           </button>

@@ -210,25 +210,25 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="text-lg font-bold">Profile</span>
+      <span class="text-base font-medium">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
         <span class="text-sm text-gray-100">Name</span>
-        <span class="text-lg font-bold">
+        <span class="text-base font-medium">
           {{ name }}
         </span>
       </div>
       <div class="flex flex-col">
         <span class="text-sm text-gray-100">Email ID</span>
-        <span class="text-lg font-bold">
+        <span class="text-base font-medium">
           {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
         <span class="text-sm text-gray-100">Wallet Address</span>
         <div class="flex gap-2">
-          <span class="text-lg font-bold">
+          <span class="text-base font-medium">
             {{ walletAddressShrinked }}
           </span>
           <button
@@ -258,7 +258,7 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold"> Export Key </span>
+          <span class="text-base font-medium"> Export Key </span>
           <img
             :src="getImage('external-link.svg')"
             class="w-md h-md dark:invert-0 invert"
@@ -270,7 +270,7 @@ watch(
         <div>
           <button
             v-if="!user.hasMfa"
-            class="text-lg font-bold flex gap-2 items-center"
+            class="text-base font-medium flex gap-2 items-center"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
@@ -281,12 +281,12 @@ watch(
               class="w-md h-md dark:invert-0 invert"
             />
           </button>
-          <span v-else class="text-lg font-bold">In use</span>
+          <span v-else class="text-base font-medium">In use</span>
         </div>
       </div>
       <div class="flex">
         <button
-          class="flex flex-grow justify-center items-center btn-secondary p-2 font-bold text-sm uppercase"
+          class="flex flex-grow justify-center items-center btn-primary p-2 font-bold text-sm uppercase"
           @click="handleLogout"
         >
           Logout
