@@ -104,7 +104,7 @@ class EVMAccountHandler {
     let mode = ''
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt) {
-        mode = Number(nonce) === 0 ? 'ARCANA' : ''
+        mode = Number(nonce) < 15 ? 'ARCANA' : ''
       } else {
         mode = 'SCW'
       }
