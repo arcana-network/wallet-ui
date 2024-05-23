@@ -38,7 +38,6 @@ import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
@@ -99,7 +98,7 @@ onBeforeMount(async () => {
 watch(gas, () => {
   if (gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-      gas.value.maxPriorityFeePerGas || 1.5
+      gas.value.maxPriorityFeePerGas || 0
     )
     const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
     gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
@@ -413,7 +412,7 @@ async function handleSendToken() {
       let gasFees: string | null = null
       if (gas.value) {
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFees = maxFeeInWei.floor().toHexadecimal()
@@ -498,54 +497,54 @@ function onGasLimitChangeMVX(val) {
   determineGasParamsMVX(val)
 }
 
-function addToActivity(result) {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionSent,
-        chainType: ChainType.solana_cv25519,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        txHash: result.sig,
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-          decimals: result.tokenInfo?.decimals as number,
-        },
-        recipientAddress: recipientWalletAddress.value,
-        chainType: ChainType.solana_cv25519,
-      })
-    }
-  } else {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.txHash,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionHash,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-        },
-        recipientAddress: setHexPrefix(recipientWalletAddress.value),
-      })
-    }
-  }
-}
+// function addToActivity(result) {
+//   if (appStore.chainType === ChainType.solana_cv25519) {
+//     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.transactionSent,
+//         chainType: ChainType.solana_cv25519,
+//       })
+//     } else {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         txHash: result.sig,
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         customToken: {
+//           operation: 'Send',
+//           amount: amount.value,
+//           symbol: result.tokenInfo?.symbol as string,
+//           decimals: result.tokenInfo?.decimals as number,
+//         },
+//         recipientAddress: recipientWalletAddress.value,
+//         chainType: ChainType.solana_cv25519,
+//       })
+//     }
+//   } else {
+//     if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.txHash,
+//       })
+//     } else {
+//       activitiesStore.fetchAndSaveActivityFromHash({
+//         chainId: rpcStore.selectedRpcConfig?.chainId,
+//         txHash: result.transactionHash,
+//         customToken: {
+//           operation: 'Send',
+//           amount: amount.value,
+//           symbol: result.tokenInfo?.symbol as string,
+//         },
+//         recipientAddress: setHexPrefix(recipientWalletAddress.value),
+//       })
+//     }
+//   }
+// }
 
 async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: String(4),
+      maxPriorityFeePerGas: String(0),
       gasLimit: 0,
     }
   }
@@ -605,52 +604,12 @@ async function handleShowPreview() {
           }
         }
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
-        const isGlobalKeyspace = appStore.global
-        if (isGlobalKeyspace) {
-          const requestObject = {
-            type: 'json_rpc_request',
-            data: {
-              request: {
-                method: '_send_token',
-                params: {
-                  senderWalletAddress: userStore.walletAddress,
-                  recipientWalletAddress: recipientWalletAddress.value,
-                  amount: amount.value,
-                  gasFee: gasFeeInEth.value,
-                  selectedToken: selectedToken.value.symbol as string,
-                  estimatedGas: estimatedGas.value,
-                  tokenDetails: JSON.stringify(selectedToken.value),
-                  chaintype: appStore.chainType,
-                  tokenList: JSON.stringify(tokenList.value),
-                  gas: JSON.stringify(gas.value),
-                },
-              },
-              chainId: rpcStore.selectedChainId,
-            },
-          }
-
-          makeRequest(appStore.id, requestObject)
-
-          window.addEventListener('message', (event) => {
-            const { data } = event
-            const { type, response } = data
-            if (type === 'json_rpc_response') {
-              if (response.error) {
-                toast.error(response.error)
-              } else {
-                addToActivity(response.result)
-              }
-            }
-          })
-          router.push({ name: 'home' })
-        } else {
-          showPreview.value = true
-        }
-      } catch (e: any) {
+        showPreview.value = true
+      } catch (e) {
         //handle errors in transaction
 
         toast.error(e?.reason || errors.GENERIC.WRONG)

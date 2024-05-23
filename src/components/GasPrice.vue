@@ -67,20 +67,18 @@ emits('gasPriceInput', {
 function handleGasPriceSelect(gasMethod: 'normal' | 'fast' | 'custom') {
   if (gasMethod === 'normal') {
     maxPriorityFeePerGas.value = new Decimal(sanitizedBaseFee.value)
-      .div(10)
+      .div(100)
       .toDecimalPlaces(2)
       .toNumber()
     maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
-      .mul(1.25)
       .add(maxPriorityFeePerGas.value)
       .toNumber()
   } else if (gasMethod === 'fast') {
     maxPriorityFeePerGas.value = new Decimal(sanitizedBaseFee.value)
-      .div(6)
+      .div(50)
       .toDecimalPlaces(2)
       .toNumber()
     maxFeePerGas.value = new Decimal(sanitizedBaseFee.value)
-      .mul(2)
       .add(maxPriorityFeePerGas.value)
       .toNumber()
   }
