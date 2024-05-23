@@ -120,7 +120,10 @@ function truncateAddress(address: string) {
             Sponsored
           </span>
           <span
-            v-else-if="!loader.show && transactionMode.length === 0"
+            v-else-if="
+              !loader.show &&
+              (transactionMode.length === 0 || !rpcStore.useGasless)
+            "
             class="text-base"
             >{{ txFees }} {{ nativeCurrency }}</span
           >

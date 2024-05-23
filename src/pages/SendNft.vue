@@ -128,9 +128,15 @@ onMounted(async () => {
 })
 
 const paymasterBalance = ref(0)
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    transactionMode.value = await accountHandler.getTransactionMode()
   }
 })
 
@@ -496,8 +502,7 @@ watch(
           <GasPrice
             v-if="
               appStore.chainType === ChainType.evm_secp256k1 &&
-              (!rpcStore.useGasless ||
-                (rpcStore.useGasless && paymasterBalance < 0.1))
+              (!rpcStore.useGasless || transactionMode.length === 0)
             "
             :gas-prices="gasPrices"
             :base-fee="baseFee"
@@ -513,9 +518,22 @@ watch(
             @gas-limit-input="onGasLimitChangeMVX"
           />
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="
+              transactionMode === 'SCW' || transactionMode === 'ARCANA'
+            "
             class="text-xs text-green-100 font-medium text-center w-full"
             >This is a Gasless Transaction. Click Below to Approve.
+          </span>
+          <span
+            v-else-if="
+              !loader.show &&
+              transactionMode.length === 0 &&
+              rpcStore.useGasless
+            "
+            class="text-xs text-center"
+          >
+            Limit exceeded for gasless transactions. You will be charged for
+            this transaction.
           </span>
         </div>
         <div class="flex">
