@@ -27,6 +27,10 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import {
+  JsonRpcProviderPlusDestroy,
+  produceProviderFromURLString,
+} from '@/utils/evm/rpcURLToProvider'
+import {
   MessageParams,
   TransactionParams,
   TypedMessageParams,
@@ -43,11 +47,11 @@ const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
-  provider: ethers.providers.JsonRpcProvider
+  provider: JsonRpcProviderPlusDestroy
 
   constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+    this.provider = produceProviderFromURLString(rpcUrl)
   }
 
   get decimals() {
@@ -61,8 +65,10 @@ class EVMAccountHandler {
   getBalance() {
     return this.provider.getBalance(this.getAddress()[0])
   }
-  setProvider(url: string) {
-    this.provider = new ethers.providers.StaticJsonRpcProvider(url)
+
+  async setProvider(url: string) {
+    await this.provider.destroy()
+    this.provider = produceProviderFromURLString(url)
   }
 
   asMiddleware() {
@@ -539,6 +545,23 @@ class EVMAccountHandler {
 
   get chainType() {
     return ChainType.evm_secp256k1
+  }
+
+  public async cancelTransaction(txHash: string) {
+    try {
+      const transaction = (await this.provider.getTransaction(
+        txHash
+      )) as TransactionResponse
+      const payload = {
+        nonce: transaction.nonce,
+        to: transaction.to,
+        from: transaction.from,
+        value: 0,
+      }
+      return await this.sendTransactionWrapper(payload)
+    } catch (e) {
+      return Promise.reject(e)
+    }
   }
 }
 

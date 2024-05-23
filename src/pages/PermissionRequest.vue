@@ -341,7 +341,7 @@ async function handleSendToken(params) {
       let gasFees: string | null = null
       if (gas) {
         const maxFee = new Decimal(gas.maxFeePerGas).add(
-          gas.maxPriorityFeePerGas || 1.5
+          gas.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFees = maxFeeInWei.toHexadecimal()

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { AuthProvider, type GetInfoOutput } from '@arcana/auth-core'
 import { CURVE, Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
 import { addHexPrefix } from 'ethereumjs-util'
 import { ethers } from 'ethers'
@@ -137,6 +138,8 @@ onMounted(async () => {
       isStandalone: false,
     })
   } catch (e) {
+    captureException(e)
+    captureMessage(`Login failed on ${id}`)
     if (e instanceof Error && e.message == 'LOCAL_SHARE_MISSING') {
       connectionToParent.goToMfaRestore(id)
     } else {

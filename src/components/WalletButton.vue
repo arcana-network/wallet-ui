@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
@@ -7,9 +8,18 @@ import { getImage } from '@/utils/getImage'
 
 const appStore = useAppStore()
 const requestStore = useRequestStore()
+const route = useRoute()
+const router = useRouter()
 
 function onClickOfButton() {
   appStore.expandWallet = true
+  if (
+    (requestStore.areRequestsPendingForApproval ||
+      requestStore.skippedRequestsPendingForApprovalLength > 0) &&
+    route.name !== 'requests'
+  ) {
+    router.push({ name: 'activities' })
+  }
 }
 
 const requestCount = computed(() => {
