@@ -89,8 +89,8 @@ watch(showRequestPage, (newValue) => {
   }
 })
 
-watch(requestStore.pendingRequests, () => {
-  setIframeStyle()
+watch(requestStore.pendingRequests, async () => {
+  await setIframeStyle()
 })
 
 const showFooter = computed(() => {
@@ -266,7 +266,9 @@ onMounted(() => {
       class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300 transition-all duration-500 hover:h-[100vh] hover:mt-0"
       style="z-index: 999"
       :class="{
-        'notification-animation': requestStore.areRequestsPendingForApproval,
+        'notification-animation':
+          requestStore.areRequestsPendingForApproval ||
+          requestStore.skippedRequestsPendingForApprovalLength > 0,
       }"
     >
       <WalletButton class="relative z-1" />
