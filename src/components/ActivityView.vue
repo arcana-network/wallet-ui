@@ -3,6 +3,7 @@ import { TokenTransfer } from '@multiversx/sdk-core/out'
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 import { computed, ComputedRef } from 'vue'
+import { useToast } from 'vue-toastification'
 
 import { useActivitiesStore } from '@/store/activities'
 import type {
@@ -14,6 +15,7 @@ import type {
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
+import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
@@ -30,6 +32,7 @@ const OffRampProviders = {
 
 const app = useAppStore()
 const props = defineProps<ActivityViewProps>()
+const toast = useToast()
 
 const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
@@ -172,6 +175,34 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
     actualTxUrl.search = urlFormatExplorerUrl.search
   }
   return actualTxUrl.href
+}
+
+async function stopTransaction(activity) {
+  try {
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as EVMAccountHandler
+    const transaction = await accountHandler.cancelTransaction(
+      activity.txHash as string
+    )
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: chainId.value as string,
+      txHash: transaction,
+      recipientAddress: activity.address.to,
+      isCancelRequest: true,
+    })
+
+    setTimeout(() => {
+      const cancelledActivityIndex = activities.value.findIndex(
+        (act) => act.txHash !== activity.txHash
+      )
+      activitiesStore.deleteActivity(
+        chainId.value as string,
+        cancelledActivityIndex
+      )
+    }, 3000)
+  } catch (error) {
+    toast.error(error.message)
+  }
 }
 </script>
 
@@ -618,6 +649,20 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             />
           </a>
         </div>
+        <!-- <div
+          v-if="activity.status === 'Pending'"
+          class="flex justify-between space-x-2 mt-4"
+        >
+          <button
+            class="btn-secondary flex-1 text-sm font-bold py-2 uppercase"
+            @click.stop="stopTransaction(activity)"
+          >
+            Stop
+          </button>
+          <button class="btn-primary flex-1 text-sm font-bold py-2 uppercase">
+            Speed Up
+          </button>
+        </div> -->
       </div>
     </li>
   </ul>

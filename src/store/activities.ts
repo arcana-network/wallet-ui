@@ -54,7 +54,7 @@ type ContractFileActivityMessage = {
   }
 }
 
-type ActivityStatus = 'Success' | 'Pending' | 'Unapproved'
+type ActivityStatus = 'Success' | 'Pending' | 'Unapproved' | 'Cancelled'
 
 type TransakStatus =
   | 'Unapproved'
@@ -144,6 +144,7 @@ type TransactionFetchParams = {
   customToken?: CustomTokenActivity
   recipientAddress?: string
   chainType?: ChainType
+  isCancelRequest?: boolean
 }
 
 type TransactionFetchNftParams = {
@@ -245,6 +246,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         }
       }
     },
+    deleteActivity(chainId: ChainId, index: number) {
+      this.activitiesByChainId[chainId].splice(index, 1)
+    },
     updateActivityStatusByTxHash(
       chainId: ChainId,
       txHash: string,
@@ -261,6 +265,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
       customToken,
       recipientAddress,
       chainType = ChainType.evm_secp256k1,
+      isCancelRequest = false,
     }: TransactionFetchParams) {
       try {
         if (chainType === ChainType.multiversx_cv25519) {
@@ -415,7 +420,6 @@ export const useActivitiesStore = defineStore('activitiesStore', {
           const operation = getTxOperation(remoteTransaction, customToken)
           if (isGaslessTransaction(operation, remoteTransaction)) {
             const data = decodeLogDataHandleOps(remoteTransaction)
-            console.log(data, 'data-getAmountUsingCallData')
             const amount = getAmountUsingCallData(data[0][0][3]) // 4th element is the data as per ABI in decodeLogDataHandleOps fn
             remoteTransaction.value = amount
           }
@@ -431,7 +435,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               gasUsed: remoteTransaction.gasLimit.toBigInt(),
               data: remoteTransaction.data,
             },
-            status: remoteTransaction.blockNumber ? 'Success' : 'Pending',
+            status: remoteTransaction.blockNumber
+              ? isCancelRequest
+                ? 'Cancelled'
+                : 'Success'
+              : 'Pending',
             date: new Date(),
             address: {
               from: remoteTransaction.from,
@@ -445,7 +453,11 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               const remoteTransaction =
                 await accountHandler.provider.getTransaction(txHash)
               if (remoteTransaction?.blockNumber && chainId) {
-                this.updateActivityStatusByTxHash(chainId, txHash, 'Success')
+                this.updateActivityStatusByTxHash(
+                  chainId,
+                  txHash,
+                  isCancelRequest ? 'Cancelled' : 'Success'
+                )
                 clearInterval(txInterval)
               }
             }, 3000)

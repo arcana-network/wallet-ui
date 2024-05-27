@@ -27,6 +27,10 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import {
+  JsonRpcProviderPlusDestroy,
+  produceProviderFromURLString,
+} from '@/utils/evm/rpcURLToProvider'
+import {
   MessageParams,
   TransactionParams,
   TypedMessageParams,
@@ -43,11 +47,11 @@ const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
-  provider: ethers.providers.JsonRpcProvider
+  provider: JsonRpcProviderPlusDestroy
 
   constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+    this.provider = produceProviderFromURLString(rpcUrl)
   }
 
   get decimals() {
@@ -61,8 +65,10 @@ class EVMAccountHandler {
   getBalance() {
     return this.provider.getBalance(this.getAddress()[0])
   }
-  setProvider(url: string) {
-    this.provider = new ethers.providers.StaticJsonRpcProvider(url)
+
+  async setProvider(url: string) {
+    await this.provider.destroy()
+    this.provider = produceProviderFromURLString(url)
   }
 
   asMiddleware() {
@@ -85,27 +91,30 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
-  isSendItApp() {
+  public isSendItApp() {
     const { id: appId } = appStore
-    return appId.length && SENDIT_APP_ID?.includes(appId)
+    return appId.length > 0 && SENDIT_APP_ID?.includes(appId)
   }
 
-  async determineScwMode(nonce) {
+  public async getTransactionMode() {
+    const nonce = await this.getNonceForArcanaSponsorship(
+      userStore.walletAddress
+    )
+    return await this.determineScwMode(nonce)
+  }
+
+  public async determineScwMode(nonce) {
     const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
     const thresholdPaymasterBalance = 0.1
     const isSendIt = this.isSendItApp()
-    let mode = 'SCW'
+    let mode = ''
     if (paymasterBalance > thresholdPaymasterBalance) {
       if (isSendIt) {
-        if (Number(nonce) > 0) {
-          mode = 'SCW'
-        } else {
-          mode = 'ARCANA'
-        }
+        mode = Number(nonce) < 15 ? 'ARCANA' : ''
       } else {
-        mode = 'BICONOMY' // you can make it as undefined
+        mode = 'SCW'
       }
-    } else mode = 'SCW'
+    }
     return mode
   }
 
@@ -180,25 +189,6 @@ class EVMAccountHandler {
         userStore.walletAddress
       )
       const transactionMode = await this.determineScwMode(nonce)
-      if (transactionMode === 'SCW') {
-        modalStore.setShowModal(true)
-        appStore.expandWallet = true
-        gaslessStore.showUseWalletBalancePermission = true
-        await new Promise((resolve, reject) => {
-          const intervalId = setInterval(() => {
-            if (gaslessStore.canUseWalletBalance !== null) {
-              clearInterval(intervalId)
-              if (gaslessStore.canUseWalletBalance) {
-                resolve(null)
-              } else {
-                reject(new Error('Gastank balance too low'))
-              }
-              modalStore.setShowModal(false)
-              gaslessStore.showUseWalletBalancePermission = false
-            }
-          }, 500)
-        })
-      }
       const tx = await scwInstance.doTx(
         txParams,
         this.getParamsForDoTx(transactionMode)
@@ -433,25 +423,6 @@ class EVMAccountHandler {
         }
         const nonce = await this.getNonceForArcanaSponsorship(address)
         const transactionMode = await this.determineScwMode(nonce)
-        if (transactionMode === 'SCW') {
-          modalStore.setShowModal(true)
-          appStore.expandWallet = true
-          gaslessStore.showUseWalletBalancePermission = true
-          await new Promise((resolve, reject) => {
-            const intervalId = setInterval(() => {
-              if (gaslessStore.canUseWalletBalance !== null) {
-                clearInterval(intervalId)
-                if (gaslessStore.canUseWalletBalance) {
-                  resolve(null)
-                } else {
-                  reject(new Error('Gastank balance too low'))
-                }
-                modalStore.setShowModal(false)
-                gaslessStore.showUseWalletBalancePermission = false
-              }
-            }, 500)
-          })
-        }
         const tx = await scwInstance.doTx(
           txParams,
           this.getParamsForDoTx(transactionMode)
@@ -574,6 +545,23 @@ class EVMAccountHandler {
 
   get chainType() {
     return ChainType.evm_secp256k1
+  }
+
+  public async cancelTransaction(txHash: string) {
+    try {
+      const transaction = (await this.provider.getTransaction(
+        txHash
+      )) as TransactionResponse
+      const payload = {
+        nonce: transaction.nonce,
+        to: transaction.to,
+        from: transaction.from,
+        value: 0,
+      }
+      return await this.sendTransactionWrapper(payload)
+    } catch (e) {
+      return Promise.reject(e)
+    }
   }
 }
 
