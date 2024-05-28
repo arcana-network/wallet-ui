@@ -1,5 +1,6 @@
 const { defineConfig } = require('@vue/cli-service')
 const webpack = require('webpack')
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 
 module.exports = defineConfig({
   assetsDir: 'assets',
@@ -10,22 +11,10 @@ module.exports = defineConfig({
         maxSize: 500 * 1024,
       },
     },
-    resolve: {
-      fallback: {
-        buffer: require.resolve('buffer/'),
-        crypto: require.resolve('crypto-browserify'),
-        stream: require.resolve('stream-browserify'),
-        zlib: require.resolve('browserify-zlib'),
-        https: require.resolve('https-browserify'),
-        http: require.resolve('stream-http'),
-        path: require.resolve('path-browserify'),
-        fs: false,
-      },
-    },
     devtool: process.env.VUE_APP_SOURCEMAPS ? 'source-map' : false,
     plugins: [
-      new webpack.ProvidePlugin({
-        Buffer: ['buffer', 'Buffer'],
+      new NodePolyfillPlugin({
+        additionalAliases: ['process']
       }),
       new webpack.optimize.MinChunkSizePlugin({
         minChunkSize: 1000 * 1024,
