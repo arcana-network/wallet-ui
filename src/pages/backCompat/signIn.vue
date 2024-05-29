@@ -277,7 +277,9 @@ async function init() {
       })
 
       const parentConnectionInstance = await parentConnection.promise
-
+      if (route.query.logout && route.query.logout == '1') {
+        await parentConnectionInstance.onEvent('disconnect')
+      }
       const {
         themeConfig: { theme },
         name: appName,

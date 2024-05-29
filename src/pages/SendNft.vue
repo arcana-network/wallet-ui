@@ -81,7 +81,7 @@ const props: SendNftProps = router.currentRoute.value
 watch(gas, () => {
   if (gas.value) {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-      gas.value.maxPriorityFeePerGas || 1.5
+      gas.value.maxPriorityFeePerGas || 0
     )
     const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
     gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
@@ -128,9 +128,15 @@ onMounted(async () => {
 })
 
 const paymasterBalance = ref(0)
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    transactionMode.value = await accountHandler.getTransactionMode()
   }
 })
 
@@ -225,7 +231,7 @@ async function handleSendToken() {
       let gasFees = '0x1'
       if (gas.value) {
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFees = maxFeeInWei.toHexadecimal()
@@ -328,7 +334,7 @@ async function handleShowPreview() {
   if (!gas.value) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: String(4),
+      maxPriorityFeePerGas: String(0),
       gasLimit: 0,
     }
   }
@@ -387,7 +393,7 @@ async function handleShowPreview() {
         )
       ).toString()
       const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-        gas.value.maxPriorityFeePerGas || 1.5
+        gas.value.maxPriorityFeePerGas || 0
       )
       const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
       gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
@@ -496,8 +502,7 @@ watch(
           <GasPrice
             v-if="
               appStore.chainType === ChainType.evm_secp256k1 &&
-              (!rpcStore.useGasless ||
-                (rpcStore.useGasless && paymasterBalance < 0.1))
+              (!rpcStore.useGasless || transactionMode.length === 0)
             "
             :gas-prices="gasPrices"
             :base-fee="baseFee"
@@ -513,9 +518,22 @@ watch(
             @gas-limit-input="onGasLimitChangeMVX"
           />
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="
+              transactionMode === 'SCW' || transactionMode === 'ARCANA'
+            "
             class="text-xs text-green-100 font-medium text-center w-full"
             >This is a Gasless Transaction. Click Below to Approve.
+          </span>
+          <span
+            v-else-if="
+              !loader.show &&
+              transactionMode.length === 0 &&
+              rpcStore.useGasless
+            "
+            class="text-xs text-center"
+          >
+            Limit exceeded for gasless transactions. You will be charged for
+            this transaction.
           </span>
         </div>
         <div class="flex">

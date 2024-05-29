@@ -68,19 +68,18 @@ watch(
     <div
       class="flex-1 dark:bg-black-100 bg-gray-900 bg-opacity-90 dark:bg-opacity-80 py-3"
     >
-      <div class="px-6 flex justify-end">
-        <button class="flex items-center space-x-2 text-xs" @click="skip">
-          Skip
-        </button>
-      </div>
       <component :is="PagesIndex[currentPage]" />
     </div>
-    <div
-      class="flex dark:bg-black-100 bg-gray-900 p-6"
-      :class="[currentPage === 1 ? 'justify-end' : 'justify-between']"
-    >
+    <div class="flex dark:bg-black-100 bg-gray-900 p-6 justify-between">
       <button
-        v-if="currentPage !== 1"
+        v-if="currentPage === 1"
+        class="flex items-center space-x-2 text-xs"
+        @click="skip"
+      >
+        <span>Skip</span>
+      </button>
+      <button
+        v-else-if="currentPage !== 1"
         class="flex items-center space-x-2 text-xs"
         @click="previous"
       >

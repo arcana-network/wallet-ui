@@ -26,6 +26,7 @@
       dest: /home/deploy/wallet-ui/
       rsync_opts:
         - "--exclude=.env"
+        - "--exclude=.npmrpc"
       delete: yes
       recursive: yes
     when: code_upload.changed
