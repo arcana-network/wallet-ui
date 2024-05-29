@@ -98,11 +98,10 @@ class EVMAccountHandler {
     return appId.length > 0 && SENDIT_APP_ID?.includes(appId)
   }
 
-  public getTransactionMode() {
-    return this.determineScwMode()
-  }
-
-  public async determineScwMode() {
+  public async determineTransactionModeAndPaymasterBalance(): Promise<{
+    paymasterBalance: ethers.BigNumber
+    transactionMode: string
+  }> {
     const [nonce, paymasterBalance] = await Promise.all([
       this.getNonceForArcanaSponsorship(userStore.walletAddress),
       scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
@@ -117,7 +116,15 @@ class EVMAccountHandler {
         mode = 'SCW'
       }
     }
-    return mode
+    return {
+      paymasterBalance,
+      transactionMode: mode,
+    }
+  }
+
+  public async determineScwMode() {
+    return (await this.determineTransactionModeAndPaymasterBalance())
+      .transactionMode
   }
 
   async getNonceForArcanaSponsorship(
