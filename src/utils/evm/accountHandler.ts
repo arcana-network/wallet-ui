@@ -7,11 +7,11 @@ import {
   signTypedData_v4 as signTypedDataV4,
 } from 'eth-sig-util'
 import {
-  isHexString,
   addHexPrefix,
-  stripHexPrefix,
   ecsign,
+  isHexString,
   setLengthLeft,
+  stripHexPrefix,
 } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
@@ -31,10 +31,10 @@ import {
   produceProviderFromURLString,
 } from '@/utils/evm/rpcURLToProvider'
 import {
+  createWalletMiddleware,
   MessageParams,
   TransactionParams,
   TypedMessageParams,
-  createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
 import { scwInstance } from '@/utils/scw'
 
@@ -98,21 +98,21 @@ class EVMAccountHandler {
     return appId.length > 0 && SENDIT_APP_ID?.includes(appId)
   }
 
-  public async getTransactionMode() {
-    const nonce = await this.getNonceForArcanaSponsorship(
-      userStore.walletAddress
-    )
-    return await this.determineScwMode(nonce)
+  public getTransactionMode() {
+    return this.determineScwMode()
   }
 
-  public async determineScwMode(nonce) {
-    const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
-    const thresholdPaymasterBalance = 0.1
+  public async determineScwMode() {
+    const [nonce, paymasterBalance] = await Promise.all([
+      this.getNonceForArcanaSponsorship(userStore.walletAddress),
+      scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
+    ])
+    const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
     let mode = ''
-    if (paymasterBalance > thresholdPaymasterBalance) {
+    if (paymasterBalance.gt(thresholdPaymasterBalance)) {
       if (isSendIt) {
-        mode = Number(nonce) < 15 ? 'ARCANA' : ''
+        mode = nonce.gt(15) ? 'ARCANA' : ''
       } else {
         mode = 'SCW'
       }
@@ -120,7 +120,9 @@ class EVMAccountHandler {
     return mode
   }
 
-  async getNonceForArcanaSponsorship(address: string) {
+  async getNonceForArcanaSponsorship(
+    address: string
+  ): Promise<ethers.BigNumber> {
     const c = new ethers.Contract(
       '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
       [
@@ -152,8 +154,7 @@ class EVMAccountHandler {
       this.provider
     )
 
-    const nonce = await c.getNonce(address, 0)
-    return nonce.toString()
+    return await c.getNonce(address, 0)
   }
 
   getParamsForDoTx(transactionMode) {
@@ -187,10 +188,7 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const nonce = await this.getNonceForArcanaSponsorship(
-        userStore.walletAddress
-      )
-      const transactionMode = await this.determineScwMode(nonce)
+      const transactionMode = await this.determineScwMode()
       const tx = await scwInstance.doTx(
         txParams,
         this.getParamsForDoTx(transactionMode)
@@ -374,108 +372,87 @@ class EVMAccountHandler {
   }
 
   private async sign(address: string, msg: string): Promise<string> {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signature = ecsign(
-          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-        )
-        const rawMessageSig = concatSig(
-          signature.v as unknown as Buffer,
-          signature.r,
-          signature.s
-        )
-        return rawMessageSig
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const signature = ecsign(
+        setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+      )
+      const rawMessageSig = concatSig(
+        signature.v as unknown as Buffer,
+        signature.r,
+        signature.s
+      )
+      return rawMessageSig
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   private async personalSign(address: string, msg: string) {
-    try {
-      const msgToSign = isHexString(msg)
-        ? addHexPrefix(msg)
-        : addHexPrefix(Buffer.from(msg).toString('hex'))
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signature = personalSign(
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-          { data: msgToSign }
-        )
-        return signature
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const msgToSign = isHexString(msg)
+      ? addHexPrefix(msg)
+      : addHexPrefix(Buffer.from(msg).toString('hex'))
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const signature = personalSign(
+        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        { data: msgToSign }
+      )
+      return signature
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    try {
-      if (rpcStore.useGasless) {
-        const txParams = {
-          from: address,
-          to: data.to,
-          value: data.value,
-        }
-        const nonce = await this.getNonceForArcanaSponsorship(address)
-        const transactionMode = await this.determineScwMode(nonce)
-        const tx = await scwInstance.doTx(
-          txParams,
-          this.getParamsForDoTx(transactionMode)
-        )
-        gaslessStore.canUseWalletBalance = null
-        const txDetails = await tx.wait()
-        return txDetails.receipt.transactionHash
-      } else {
-        const wallet = this.getWallet(address)
-        if (wallet) {
-          const signer = wallet.connect(this.provider)
-          const tx = await signer.sendTransaction(data)
-          return tx.hash
-        } else {
-          throw new Error(errors.WALLET.NOT_FOUND)
-        }
+    if (rpcStore.useGasless) {
+      const txParams = {
+        from: address,
+        to: data.to,
+        value: data.value,
       }
-    } catch (e) {
-      return Promise.reject(e)
+      const transactionMode = await this.determineScwMode()
+      const tx = await scwInstance.doTx(
+        txParams,
+        this.getParamsForDoTx(transactionMode)
+      )
+      gaslessStore.canUseWalletBalance = null
+      const txDetails = await tx.wait()
+      return txDetails.receipt.transactionHash
+    } else {
+      const wallet = this.getWallet(address)
+      if (wallet) {
+        const signer = wallet.connect(this.provider)
+        const tx = await signer.sendTransaction(data)
+        return tx.hash
+      } else {
+        throw new Error(errors.WALLET.NOT_FOUND)
+      }
     }
   }
 
   private async decrypt(ciphertext: string, address: string) {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const parsedCipher = cipher.parse(ciphertext)
-        const decryptedMessage = await decryptWithPrivateKey(
-          wallet.privateKey,
-          parsedCipher
-        )
-        return decryptedMessage
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const parsedCipher = cipher.parse(ciphertext)
+      const decryptedMessage = await decryptWithPrivateKey(
+        wallet.privateKey,
+        parsedCipher
+      )
+      return decryptedMessage
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   private async signTransaction(txData, address: string) {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        txData.from = this.wallet.address
-        return await wallet.signTransaction({ ...txData })
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      txData.from = this.wallet.address
+      return await wallet.signTransaction({ ...txData })
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
