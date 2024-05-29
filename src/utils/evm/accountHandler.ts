@@ -66,8 +66,10 @@ class EVMAccountHandler {
     return this.provider.getBalance(this.getAddress()[0])
   }
 
-  async setProvider(url: string) {
-    await this.provider.destroy()
+  setProvider(url: string) {
+    this.provider
+      .destroy()
+      .catch((e) => console.error('Failed to destroy connection:', e))
     this.provider = produceProviderFromURLString(url)
   }
 
