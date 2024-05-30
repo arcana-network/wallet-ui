@@ -6,40 +6,40 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 300;
-  src: url('@/assets/fonts/OnestLight1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Regular.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 400;
-  src: url('@/assets/fonts/OnestRegular1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Regular.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 500;
-  src: url('@/assets/fonts/OnestMedium1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Medium.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 700;
-  src: url('@/assets/fonts/OnestBold1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Bold.woff2') format('woff');
 }
 
 @layer base {
   body {
-    @apply font-onest text-black-500 dark:text-white-100 leading-normal;
+    @apply font-Nohemi text-black-500 dark:text-white-100 leading-normal;
   }
 
   pre {
-    @apply font-onest;
+    @apply font-Nohemi;
   }
 
   button {
@@ -120,8 +120,8 @@
     text-shadow: 0 0 6px rgb(236 236 236 / 45%);
   }
 
-  .font-onest {
-    font-family: Onest, sans-serif;
+  .font-Nohemi {
+    font-family: Nohemi, sans-serif;
   }
 
   .glass-effect {
