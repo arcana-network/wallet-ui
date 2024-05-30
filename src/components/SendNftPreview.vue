@@ -9,7 +9,6 @@ import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -20,7 +19,7 @@ const loader = ref({
 })
 const txFees = ref('0')
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
@@ -29,8 +28,12 @@ onBeforeMount(async () => {
     const requestHandler = getRequestHandler()
     const accountHandler =
       requestHandler.getAccountHandler() as EVMAccountHandler
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })

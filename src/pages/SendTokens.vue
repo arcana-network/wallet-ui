@@ -22,7 +22,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
@@ -39,7 +38,6 @@ import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const showPreview = ref(false)
@@ -88,7 +86,7 @@ const walletBalance = computed(() => {
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
@@ -98,8 +96,12 @@ onBeforeMount(async () => {
     const accountHandler =
       requestHandler.getAccountHandler() as EVMAccountHandler
 
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })

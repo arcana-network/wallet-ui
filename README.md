@@ -24,7 +24,7 @@ Developers can also choose to disable the Arcana Wallet UI and plug in a custom 
 
 This repo contains Aracna Wallet UI implementation. It is a Vue app written in TypeScript and styled with Tailwind CSS.
 
-**Note:**  Arcana Wallet UI is NOT a standalone wallet. It is part of the Arcana Auth SDK.
+**Note:** Arcana Wallet UI is NOT a standalone wallet. It is part of the Arcana Auth SDK.
 
 ## 📋 Installation
 

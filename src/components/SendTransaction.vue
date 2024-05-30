@@ -17,7 +17,6 @@ import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
-import { scwInstance } from '@/utils/scw'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
@@ -27,15 +26,19 @@ const props = defineProps({
   },
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
   const requestHandler = getRequestHandler()
   const accountHandler = requestHandler.getAccountHandler() as EVMAccountHandler
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
 })
 
@@ -168,10 +171,10 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+  return new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 0)
     .mul(params.gasLimit || params.gas || 21000)
-    .toHexadecimal()}`
+    .toHexadecimal()
 }
 
 function calculateValue(value) {
