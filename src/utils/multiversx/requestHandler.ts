@@ -16,6 +16,7 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
 import { toHex } from '@/utils/toHex'
 
@@ -123,7 +124,7 @@ class MultiversXRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    console.log(req, 'req')
+    devLogger.log(req, 'req')
     // if (req.params == null) {
     //   throw new Error('???')
     // }
