@@ -111,7 +111,7 @@ class NEARRequestHandler {
     // }
     switch (req.method) {
       case 'getAccounts': {
-        res.result = this.accountHandler.getAccounts()
+        res.result = await this.accountHandler.getAccounts()
         break
       }
       case 'near_signAndSendTransaction': {
