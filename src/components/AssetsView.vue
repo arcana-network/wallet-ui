@@ -93,19 +93,28 @@ function fetchNativeAsset() {
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(
-      Number(rpcStore.selectedChainId),
+      rpcStore.selectedRPCConfig,
       getChainType(appStore.chainType)
     ),
   }
 }
 
 async function getAssetsBalance() {
-  if (appStore.chainType === ChainType.multiversx_cv25519) {
-    await getMultiversxBalance()
-  } else if (appStore.chainType === ChainType.solana_cv25519) {
-    await getSolanaBalance()
-  } else if (appStore.chainType === ChainType.evm_secp256k1) {
-    await getEVMAssetBalance()
+  switch (appStore.chainType) {
+    case ChainType.multiversx_cv25519:
+      await getMultiversxBalance()
+      break
+    case ChainType.solana_cv25519:
+      await getSolanaBalance()
+      break
+    case ChainType.near_cv25519:
+      await getNEARBalance()
+      break
+    case ChainType.evm_secp256k1:
+      await getEVMAssetBalance()
+      break
+    default:
+      break
   }
 }
 
@@ -125,6 +134,10 @@ async function getMultiversxBalance() {
       logo: 'fallback-token.png',
     } as Asset
   })
+}
+
+async function getNEARBalance() {
+  assets.value = [fetchNativeAsset()]
 }
 
 async function getSolanaBalance() {
