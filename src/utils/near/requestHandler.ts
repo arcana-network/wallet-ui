@@ -1,5 +1,6 @@
 import type { RpcConfig } from '@arcana/auth'
 import bs58 from 'bs58'
+import { Decimal } from 'decimal.js'
 import {
   createAsyncMiddleware,
   JsonRpcEngine,
@@ -28,8 +29,18 @@ class NEARRequestHandler {
     await this.accountHandler.initializeConnection(c.rpcUrls[0])
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    // const chainId = await this.accountHandler.getChainId()
-    // this.emitEvent('chainChanged', { chainId })
+    const chainId = await this.accountHandler.getChainId()
+    this.emitEvent('chainChanged', { chainId })
+  }
+
+  public async sendConnect() {
+    if (!this.connectSent) {
+      this.connectSent = true
+      const chainId = this.accountHandler.getChainId()
+      await this.emitEvent('connect', {
+        chainId: new Decimal(chainId).toHexadecimal(),
+      })
+    }
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {

@@ -74,6 +74,10 @@ export class NEARAccountHandler {
     return BigInt(bObj.available) // ???
   }
 
+  getChainId() {
+    return 1
+  }
+
   signMessage(message: Uint8Array) {
     return this.kp.sign(message).signature
   }

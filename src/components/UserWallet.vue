@@ -130,11 +130,27 @@ const selectedAddressType = ref(
 // TODO: move these to something else scoped to onramps
 
 const transakNetwork = computed(() => {
-  if (!isRampDataFetched.value) return []
-  const selectedChainId = Number(rpcStore.selectedChainId)
-  return getTransakSupportedNetworks().find(
-    (network) => network.chainId === selectedChainId
-  )
+  if (!isRampDataFetched.value) return false
+  switch (appStore.chainType) {
+    case ChainType.evm_secp256k1: {
+      const selectedChainId = Number(rpcStore.selectedChainId)
+      return getTransakSupportedNetworks().find(
+        (network) => network.chainId === selectedChainId
+      )
+    }
+    case ChainType.solana_cv25519:
+      return {
+        value: 'solana',
+      }
+    case ChainType.multiversx_cv25519:
+      return {
+        value: 'multiversx',
+      }
+    case ChainType.near_cv25519:
+      return false
+    default:
+      return false
+  }
 })
 
 const transakSellNetwork = computed(() => {
