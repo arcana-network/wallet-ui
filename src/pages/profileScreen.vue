@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Connection } from 'penpal'
-import { ref, toRefs, watch } from 'vue'
+import { computed, ref, toRefs, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -16,6 +16,7 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_URL } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { getAuthProvider } from '@/utils/getAuthProvider'
@@ -46,6 +47,13 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
+
+const privateKey = computed(() => {
+  if (appStore.chainType === ChainType.near_cv25519) {
+    return `ed25519:${user.privateKey}`
+  }
+  return user.privateKey
+})
 
 let mfaWindow: Window | null
 let cleanExit = false
@@ -296,7 +304,7 @@ watch(
       />
       <ExportKeyModal
         v-if="showExportKeyModal"
-        :private-key="user.privateKey"
+        :private-key="privateKey"
         :wallet-address="user.walletAddress"
       />
       <MFAProceedModal

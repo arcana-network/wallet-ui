@@ -11,6 +11,7 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 
 class NEARRequestHandler {
@@ -93,7 +94,7 @@ class NEARRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    console.log(req, 'req')
+    devLogger.log(req, 'req')
     // if (req.params == null) {
     //   throw new Error('???')
     // }

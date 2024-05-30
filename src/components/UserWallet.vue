@@ -100,7 +100,7 @@ const walletBalanceInCurrency = computed(() => {
     }
     const currencySymbol = currencyStore.getCurrencySymbol
     return `${currencySymbol}${new Decimal(rpcStore.walletBalance)
-      .div(Decimal.pow(10, 18))
+      .div(Decimal.pow(10, getRequestHandler().getAccountHandler().decimals))
       .mul(Decimal.div(1, perTokenPrice))
       .toDecimalPlaces(2)
       .toString()}`

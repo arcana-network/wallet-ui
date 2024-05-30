@@ -80,12 +80,10 @@ const gasParamsMVX = ref({
 })
 
 const walletBalance = computed(() => {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    return new Decimal(rpcStore.walletBalance)
-      .div(Decimal.pow(10, 9))
-      .toString()
-  }
-  return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(rpcStore.walletBalance)
+    .div(Decimal.pow(10, decimals))
+    .toString()
 })
 
 const paymasterBalance = ref(0)
@@ -656,16 +654,20 @@ function handleTransactionErrors() {
 }
 
 function getMaxTransferValue() {
-  const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
-  const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
-    gasFees
-  )
-  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
-  if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
-    maxValueInput = new Decimal(0)
-    toast.error(content.TOKEN.INSUFFICIENT)
+  console.log(selectedToken)
+  if (appStore.chainType === ChainType.evm_secp256k1) {
+    const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
+    const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
+      gasFees
+    )
+    let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
+    if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
+      maxValueInput = new Decimal(0)
+      toast.error(content.TOKEN.INSUFFICIENT)
+    }
+    return maxValueInput
   }
-  return maxValueInput
+  return new Decimal(selectedTokenBalance.value)
 }
 
 function handleTokenChange(e) {
