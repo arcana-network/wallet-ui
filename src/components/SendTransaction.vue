@@ -15,6 +15,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { scwInstance } from '@/utils/scw'
@@ -24,6 +25,10 @@ const props = defineProps({
   request: {
     type: Object,
     required: true,
+  },
+  shrinkMode: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -39,7 +44,13 @@ onBeforeMount(async () => {
   }
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
+const emits = defineEmits([
+  'gasPriceInput',
+  'reject',
+  'approve',
+  'proceed',
+  'expand',
+])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -209,6 +220,24 @@ function calculateCurrencyValue(value) {
 <template>
   <div v-if="loader.show" class="flex justify-center items-center flex-1 p-4">
     <AppLoader :message="loader.message" />
+  </div>
+  <div v-else-if="shrinkMode" class="flex justify-between p-3">
+    <div>
+      <div class="flex" @click="emits('expand')">
+        <span class="text-lg font-medium">Send</span>
+        <img :src="getImage('arrow-down.svg')" alt="" />
+      </div>
+      <span class="text-[#989898] text-sm font-normal">{{
+        truncateMid(request.request.params[0].to, 6)
+      }}</span>
+    </div>
+    <div class="flex flex-col items-end">
+      <span>{{ calculateValue(request.request.params[0].value) }}</span>
+      <span class="text-[#989898] text-sm font-normal">{{
+        calculateCurrencyValue(request.request.params[0].value)
+      }}</span>
+      <span class="text-[#FF9167] text-xs">Pending</span>
+    </div>
   </div>
   <SendTransactionCompact
     v-else-if="appStore.compactMode"

@@ -316,12 +316,11 @@ async function setTheme() {
     const parentConnectionInstance = await parentConnection.promise
     const {
       themeConfig: {
+        theme,
         assets: { logo },
       },
       name: appName,
     } = await parentConnectionInstance.getAppConfig()
-
-    const theme = 'light'
 
     if (parentConnectionInstance.getSDKVersion) {
       appStore.sdkVersion = await parentConnectionInstance.getSDKVersion()
@@ -337,7 +336,7 @@ async function setTheme() {
     appStore.setName(appName)
     storage.local.storeThemePreference(theme)
     const htmlEl = document.getElementsByTagName('html')[0]
-    if (theme === 'dark') htmlEl.classList.add('light')
+    if (theme === 'dark') htmlEl.classList.add('dark')
   }
 }
 

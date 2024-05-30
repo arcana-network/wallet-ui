@@ -253,7 +253,9 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-base font-medium"> Export Key </span>
+          <span class="text-base font-medium dark:text-white-100">
+            Export Key
+          </span>
           <img
             :src="getImage('external-link.svg')"
             class="w-md h-md dark:invert-0 invert"
@@ -269,8 +271,10 @@ watch(
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
-            <span v-if="true">Setup Now</span>
-            <span v-else>Update Security Questions</span>
+            <span v-if="true" class="dark:text-white-100">Setup Now</span>
+            <span v-else class="dark:text-white-100"
+              >Update Security Questions</span
+            >
             <img
               :src="getImage('external-link.svg')"
               class="w-md h-md dark:invert-0 invert"
@@ -281,7 +285,7 @@ watch(
       </div>
       <div class="flex">
         <button
-          class="flex flex-grow justify-center items-center btn-primary p-2 font-bold text-sm uppercase"
+          class="flex justify-center items-center bg-[#DFECEE] text-[#1D2A31] w-1/2 mx-auto rounded-full p-2 font-bold text-sm uppercase"
           @click="handleLogout"
         >
           Logout

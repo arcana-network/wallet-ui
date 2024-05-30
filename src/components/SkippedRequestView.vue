@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, computed } from 'vue'
+import { watch, computed, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import SendTransaction from '@/components/SendTransaction.vue'
@@ -9,12 +9,13 @@ import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 
 const requestStore = useRequestStore()
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const toast = useToast()
+const shrinkMode = ref(true)
 
 const currentRequest = computed(() => {
   return requestStore.skippedRequestsForApproval[0]
@@ -82,6 +83,7 @@ function handleGasPriceInput({ value, requestId }) {
 watch(
   () => requestStore.skippedRequestsPendingForApprovalLength,
   () => {
+    shrinkMode.value = true
     if (!requestStore.skippedRequestsPendingForApprovalLength) {
       router.push({ name: 'home' })
     }
@@ -95,6 +97,8 @@ watch(
       <SendTransaction
         v-if="isSendTransactionRequest(currentRequest?.request.id)"
         :request="currentRequest"
+        :shrink-mode="shrinkMode"
+        @expand="shrinkMode = false"
         @gas-price-input="handleGasPriceInput"
         @reject="() => onRejectClick(currentRequest?.request.id)"
         @approve="() => onApproveClick(currentRequest?.request.id)"
@@ -103,6 +107,8 @@ watch(
       <SignMessage
         v-else
         :request="currentRequest"
+        :shrink-mode="shrinkMode"
+        @expand="shrinkMode = false"
         @reject="() => onRejectClick(currentRequest?.request.id)"
         @approve="() => onApproveClick(currentRequest?.request.id)"
         @proceed="onProceedClick(currentRequest.request)"
@@ -110,11 +116,11 @@ watch(
     </div>
     <div
       v-if="requestStore.skippedRequestsForApproval.length > 1"
-      class="border-gray-800 dark:border-gray-200 bg-white-300 dark:bg-black-300 border rounded-md absolute w-[90%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20"
+      class="border-gray-800 dark:border-gray-200 bg-white-300 dark:bg-[#292929] border rounded-md absolute w-[90%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20"
     ></div>
     <div
       v-if="requestStore.skippedRequestsForApproval.length > 2"
-      class="border-gray-800 dark:border-gray-200 bg-white-300 dark:bg-black-300 border rounded-md absolute w-[82%] h-full -bottom-4 left-1/2 transform -translate-x-1/2 z-10"
+      class="border-gray-800 dark:border-gray-200 bg-white-300 dark:bg-[#292929] border rounded-md absolute w-[82%] h-full -bottom-4 left-1/2 transform -translate-x-1/2 z-10"
     ></div>
   </div>
 </template>

@@ -287,7 +287,7 @@ async function init() {
 
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
-      if (theme === 'dark') htmlEl.classList.add('light')
+      if (theme === 'dark') htmlEl.classList.add('dark')
       app.setName(appName)
     }
   } finally {

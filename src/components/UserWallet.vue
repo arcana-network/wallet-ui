@@ -254,7 +254,9 @@ async function copyToClipboard(value: string) {
 
 <template>
   <div>
-    <div class="card p-2 flex flex-col dark:bg-[#313131] bg-[#FFFFFF] rounded">
+    <div
+      class="card p-3 flex flex-col dark:bg-[#313131] bg-[#FFFFFF] rounded-xl"
+    >
       <div class="flex flex-col justify-between space-y-1">
         <div
           class="flex justify-between rounded-md relative"
@@ -381,8 +383,8 @@ async function copyToClipboard(value: string) {
           class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           @click.stop="goToSendTokens()"
         >
-          Send
           <img :src="getImage('send-icon.svg')" class="w-md h-md" />
+          <span>Send</span>
         </button>
         <button
           class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
@@ -392,8 +394,8 @@ async function copyToClipboard(value: string) {
           }"
           @click.stop="handleBuy(true)"
         >
-          <span>Buy</span>
           <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
+          <span>Buy</span>
         </button>
         <button
           class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
@@ -403,8 +405,8 @@ async function copyToClipboard(value: string) {
           }"
           @click.stop="handleSell(true)"
         >
-          <span>Sell</span>
           <img :src="getImage('sell.svg')" class="w-md h-md" />
+          <span>Sell</span>
         </button>
       </div>
     </div>
