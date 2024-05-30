@@ -112,7 +112,7 @@ function calculateTotal(activity: Activity) {
   return 0n
 }
 
-function getAmount(amount: bigint, isGas = false) {
+function getAmount(amount: bigint | string, isGas = false) {
   if (isGas) {
     if (app.chainType === ChainType.multiversx_cv25519) {
       return TokenTransfer.egldFromBigInteger(
@@ -145,10 +145,10 @@ function canShowDropdown(activity: Activity) {
 
 function getDisplayAmount(activity: any) {
   const decimals = getRequestHandler().getAccountHandler().decimals
-  const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+  const displayDecimals = decimals / 2
   return `${new Decimal(activity.transaction.amount.toString())
     .div(Decimal.pow(10, decimals))
-    .toDecimalPlaces(gasDecimals)
+    .toDecimalPlaces(displayDecimals)
     .toString()} ${rpcStore.currency}`
 }
 
@@ -524,7 +524,7 @@ async function stopTransaction(activity) {
                     {{ activity.customToken.symbol }}
                   </span>
                   <span
-                    v-else-if="app.chainType === ChainType.evm_secp256k1"
+                    v-else
                     class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}

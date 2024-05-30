@@ -4,7 +4,6 @@ import { onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
-import { PreviewData } from '@/models/SendTokenPreview'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { EVMAccountHandler } from '@/utils/accountHandler'
@@ -17,16 +16,20 @@ const rpcStore = useRpcStore()
 const appStore = useAppStore()
 const route = useRoute()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
-const txFees = ref('0')
+const txFees = ref<string | null>('0')
 const requestHandler = getRequestHandler()
 
+type PreviewData = {
+  senderWalletAddress: string
+  recipientWalletAddress: string
+  amount: string
+  gasFee: string
+  selectedToken: string
+  estimatedGas: string
+}
+
 const emits = defineEmits(['close', 'submit'])
-const props = defineProps({
-  previewData: {
-    type: PreviewData,
-    required: true,
-  },
-})
+const props = defineProps<{ previewData: PreviewData }>()
 
 const loader = ref({
   show: false,
@@ -49,13 +52,22 @@ onBeforeMount(async () => {
 
 const nativeCurrency = rpcStore.nativeCurrency?.symbol
 
-onMounted(() => {
-  if (appStore.chainType === ChainType.evm_secp256k1) {
-    txFees.value = new Decimal(props.previewData.gasFee)
-      .mul(props.previewData.estimatedGas)
-      .toString()
-  } else if (appStore.chainType === ChainType.multiversx_cv25519) {
-    txFees.value = props.previewData.estimatedGas
+onMounted(async () => {
+  switch (appStore.chainType) {
+    case ChainType.evm_secp256k1:
+      txFees.value = new Decimal(props.previewData.gasFee)
+        .mul(props.previewData.estimatedGas)
+        .toString()
+      break
+    case ChainType.multiversx_cv25519:
+      txFees.value = props.previewData.estimatedGas
+      break
+    case ChainType.near_cv25519: {
+      txFees.value = null
+      break
+    }
+    default:
+      break
   }
 })
 
@@ -108,7 +120,9 @@ function truncateAddress(address: string) {
           >
         </div>
         <div v-if="txFees" class="flex justify-between">
-          <span class="text-base font-normal text-gray-100">Gas Fees</span>
+          <span class="text-base font-normal text-gray-100"
+            >Estimated Gas Fees</span
+          >
           <span v-if="loader.show" class="text-base"> Loading... </span>
           <span
             v-else-if="
