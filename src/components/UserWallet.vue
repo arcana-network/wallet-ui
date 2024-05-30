@@ -327,9 +327,10 @@ async function copyToClipboard(value: string) {
                       class="w-xl h-xl rounded-full"
                     />
                     <div class="flex flex-col items-start">
-                      <span class="text-base">{{
-                        truncateMid(address.address, 6)
-                      }}</span>
+                      <span
+                        class="text-base dark:text-[#FFFFFF] text-[#000000]"
+                        >{{ truncateMid(address.address, 6) }}</span
+                      >
                       <span class="text-left text-xs text-[#8d8d8d]">{{
                         address.label
                       }}</span>
