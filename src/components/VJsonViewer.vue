@@ -63,7 +63,7 @@ function isString(value: any) {
       >
         <pre class="jv-key">{{ propKey }}:</pre>
         <div v-if="isArray(jsonValue[propKey])" class="flex flex-col">
-          <div v-for="val in jsonValue[propKey]" :key="JSON.stringify(val)">
+          <div v-for="val in jsonValue[propKey]" :key="val">
             <pre
               v-if="isString(val)"
               class="jv-push whitespace-pre-wrap break-words ml-4"
