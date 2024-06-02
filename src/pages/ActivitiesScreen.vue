@@ -72,7 +72,7 @@ async function getCurrencyExchangeRate() {
     </div>
     <div
       v-if="requestStore.skippedRequestsPendingForApprovalLength"
-      class="flex-1 flex flex-col gap-2"
+      class="flex flex-col gap-2"
     >
       <span class="text-xs text-gray-100 font-bold"
         >Pending ({{
