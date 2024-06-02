@@ -40,7 +40,10 @@ function getIcon(icon: string, pathName: string) {
         title="Assets"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{ 'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('home') }"
+        >
           <img
             :src="getIcon('tokens-icon', 'home')"
             alt="home"
@@ -62,7 +65,10 @@ function getIcon(icon: string, pathName: string) {
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{ 'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('Nfts') }"
+        >
           <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
         </div>
         <span
@@ -80,7 +86,12 @@ function getIcon(icon: string, pathName: string) {
         title="Profile"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{
+            'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('profile'),
+          }"
+        >
           <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
         </div>
         <span
@@ -98,7 +109,12 @@ function getIcon(icon: string, pathName: string) {
         title="Activities"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{
+            'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('activities'),
+          }"
+        >
           <img
             v-if="requestStore.skippedRequestsForApproval.length > 0"
             :src="getIcon('notifications-icon', 'activities')"
