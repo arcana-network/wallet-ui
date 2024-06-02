@@ -7,7 +7,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="px-1 py-2 flex flex-col gap-4">
     <div class="flex justify-center">
-      <div class="font-bold text-lg">Enhance Wallet Security</div>
+      <div class="font-medium text-lg">Enhance Wallet Security</div>
     </div>
     <div class="text-sm text-gray-100 flex flex-col gap-2">
       <p>
@@ -18,14 +18,14 @@ const emit = defineEmits(['proceed', 'close'])
         <a
           :href="`${DOCS_URL}/concepts/mfa.html`"
           target="_blank"
-          class="font-bold text-black-500 dark:text-white-100 cursor-pointer"
+          class="font-medium text-black-500 dark:text-white-100 cursor-pointer"
           >LEARN MORE</a
         >
       </p>
     </div>
     <div>
       <button
-        class="uppercase text-sm font-bold p-2 btn-primary flex justify-center items-center w-full"
+        class="uppercase text-sm font-medium p-2 btn-primary flex justify-center items-center w-full"
         @click.stop="emit('proceed')"
       >
         Proceed

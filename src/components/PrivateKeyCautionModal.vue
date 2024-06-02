@@ -7,7 +7,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="p-4 flex flex-col gap-5">
     <div class="flex justify-between">
-      <div class="text-lg font-bold">Export Private Key</div>
+      <div class="text-lg font-medium">Export Private Key</div>
     </div>
     <div class="text-sm text-gray-100 flex flex-col gap-2">
       <p>
@@ -21,14 +21,14 @@ const emit = defineEmits(['proceed', 'close'])
         <a
           :href="`${DOCS_URL}/howto/wallet_exkey.html`"
           target="_blank"
-          class="font-bold text-black-500 dark:text-white-100 cursor-pointer"
+          class="font-medium text-black-500 dark:text-white-100 cursor-pointer"
           >LEARN MORE</a
         >
       </p>
     </div>
     <div>
       <button
-        class="uppercase text-sm font-bold p-2 btn-primary flex justify-center items-center w-1/2 mx-auto rounded-full"
+        class="uppercase text-sm font-medium p-2 btn-primary flex justify-center items-center w-1/2 mx-auto rounded-full"
         @click.stop="emit('proceed')"
       >
         Proceed

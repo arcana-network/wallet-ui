@@ -327,7 +327,7 @@ onUnmounted(() => {
     />
     <div v-else>
       <div class="flex gap-2 items-center mb-2">
-        <div class="text-lg font-bold">
+        <div class="text-lg font-medium">
           New Device/Browser Detected: Verify Login
         </div>
       </div>
@@ -337,14 +337,14 @@ onUnmounted(() => {
       </div>
       <div class="flex mt-4 items-end justify-end gap-8">
         <button
-          class="text-sm font-bold text-sm btn-tertiary p-2 uppercase"
+          class="text-sm font-medium text-sm btn-tertiary p-2 uppercase"
           type="submit"
           @click.stop="handleProceed('pin-based')"
         >
           Enter Pin
         </button>
         <button
-          class="text-sm font-bold text-sm btn-tertiary p-2 uppercase"
+          class="text-sm font-medium text-sm btn-tertiary p-2 uppercase"
           type="submit"
           @click.stop="handleProceed('question-based')"
         >

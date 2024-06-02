@@ -177,7 +177,7 @@ function isDeprecatedMethod() {
   </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
-      <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
+      <h1 class="flex-1 m-0 font-medium text-lg text-center capitalize">
         {{ methodAndAction[request.request.method] }}
       </h1>
       <p class="text-xs text-gray-100 text-center">
@@ -264,7 +264,7 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -272,13 +272,13 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          class="btn-primary p-2 uppercase w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -291,7 +291,7 @@ function isDeprecatedMethod() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

@@ -136,7 +136,7 @@ function handleFallbackNft(event) {
         v-if="loader.show"
         class="flex justify-center items-center flex-1 p-3 m-1"
       >
-        <p class="text-sm font-bold">
+        <p class="text-sm font-medium">
           {{ loader.message }}
         </p>
       </div>
@@ -177,7 +177,7 @@ function handleFallbackNft(event) {
           </div>
         </div>
         <div v-else class="flex justify-between">
-          <span class="color-secondary m-auto font-bold text-sm"
+          <span class="color-secondary m-auto font-medium text-sm"
             >No NFTs added</span
           >
         </div>

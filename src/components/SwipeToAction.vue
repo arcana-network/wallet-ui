@@ -98,13 +98,13 @@ function handleDragStart(e) {
   </div> -->
   <div class="flex gap-2 items-center">
     <button
-      class="btn-secondary w-full uppercase p-2 text-sm font-bold rounded-full"
+      class="btn-secondary w-full uppercase p-2 text-sm font-medium rounded-full"
       @click="emit('reject')"
     >
       Reject
     </button>
     <button
-      class="btn-primary w-full uppercase p-2 text-sm font-bold rounded-full"
+      class="btn-primary w-full uppercase p-2 text-sm font-medium rounded-full"
       @click="emit('approve')"
     >
       Approve

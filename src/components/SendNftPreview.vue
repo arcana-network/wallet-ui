@@ -82,7 +82,7 @@ function truncateAddress(address: string) {
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="text-lg font-bold">Confirm Transfer</span>
+        <span class="text-lg font-medium">Confirm Transfer</span>
       </div>
       <div
         v-if="props.previewData?.imageUrl"

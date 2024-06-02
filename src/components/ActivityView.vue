@@ -519,7 +519,7 @@ async function stopTransaction(activity) {
                   <span>Amount</span>
                   <span
                     v-if="activity.customToken"
-                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
                   >
                     {{
@@ -531,7 +531,7 @@ async function stopTransaction(activity) {
                   </span>
                   <span
                     v-else-if="app.chainType === ChainType.evm_secp256k1"
-                    class="font-bold whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
                     {{ rpcStore.currency }}</span
@@ -660,12 +660,12 @@ async function stopTransaction(activity) {
           class="flex justify-between space-x-2 mt-4"
         >
           <button
-            class="btn-secondary flex-1 text-sm font-bold py-2 uppercase"
+            class="btn-secondary flex-1 text-sm font-medium py-2 uppercase"
             @click.stop="stopTransaction(activity)"
           >
             Stop
           </button>
-          <button class="btn-primary flex-1 text-sm font-bold py-2 uppercase">
+          <button class="btn-primary flex-1 text-sm font-medium py-2 uppercase">
             Speed Up
           </button>
         </div> -->
