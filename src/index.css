@@ -86,7 +86,7 @@
   }
 
   .input-field {
-    @apply bg-[#1D2A31] text-[#F7F7F7] dark:bg-[#EFEFEF] dark:text-[#1D2A31] rounded-sm flex items-center;
+    @apply bg-[#FFFFFF] text-[#1D2A31] dark:bg-[#F7F7F7] dark:text-[#1D2A31] rounded-2xl flex items-center h-14;
   }
 
   .input-active {
