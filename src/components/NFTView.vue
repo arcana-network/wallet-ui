@@ -183,7 +183,7 @@ function handleFallbackNft(event) {
         </div>
       </div>
       <div
-        v-if="appStore.chainType === ChainType.multiversx_cv25519"
+        v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="flex justify-center"
       >
         <button
