@@ -76,7 +76,7 @@
   }
 
   .btn-quaternery {
-    @apply bg-[#1D2A31] dark:bg-[#292929] text-[#F7F7F7] dark:text-white-100 dark:active:text-gray-400
+    @apply bg-[#1D2A31] dark:bg-[#292929] text-[#1D2A31] dark:text-white-100 dark:active:text-gray-400
            hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
            box-border border-gray-800 dark:border-gray-200 border-default;
   }
