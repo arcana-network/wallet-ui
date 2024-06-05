@@ -111,9 +111,9 @@ function handleCustomGasPriceInput() {
     </div>
     <div class="card dark:bg-[#EFEFEF] flex p-1">
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] focus-visible:bg-black-500 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-[#1D2A31] text-[#4C818E]':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'normal',
           'text-[#989898]': selectedGasMethod !== 'normal',
         }"
@@ -122,9 +122,9 @@ function handleCustomGasPriceInput() {
         Normal
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] focus-visible:bg-black-500 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-[#1D2A31] text-[#4C818E]':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'fast',
           'text-[#989898]': selectedGasMethod !== 'fast',
         }"
@@ -133,9 +133,9 @@ function handleCustomGasPriceInput() {
         Fast
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-[#1D2A31] focus-visible:bg-black-500 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-[#1D2A31] text-[#4C818E]':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'custom',
           'text-[#989898]': selectedGasMethod !== 'custom',
         }"

@@ -50,7 +50,7 @@
   }
 
   button {
-    @apply text-[#1D2A31];
+    @apply text-blue-dark;
   }
 
   input,
@@ -61,13 +61,13 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-[#1D2A31] dark:bg-[#354B55] dark:active:bg-gray-400 text-[#F7F7F7] dark:text-[#F7F7F7] hover:shadow-sm
+    @apply bg-blue-dark dark:bg-[#354B55] dark:active:bg-gray-400 text-white-100 dark:text-white-100 hover:shadow-sm
     focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-sm;
   }
 
   .btn-secondary {
-    @apply bg-[#DFECEE] dark:bg-[#DFECEE] text-[#1D2A31]
-           dark:text-[#1D2A31] hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
+    @apply bg-[#DFECEE] dark:bg-[#DFECEE] text-blue-dark
+           dark:text-blue-dark hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
            focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 border-default rounded-sm;
   }
 
@@ -76,7 +76,7 @@
   }
 
   .btn-quaternery {
-    @apply bg-[#1D2A31] dark:bg-[#292929] text-[#1D2A31] dark:text-white-100 dark:active:text-gray-400
+    @apply bg-blue-dark dark:bg-[#292929] text-blue-dark dark:text-white-100 dark:active:text-gray-400
            hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
            box-border border-gray-800 dark:border-gray-200 border-default;
   }
@@ -86,7 +86,7 @@
   }
 
   .input-field {
-    @apply bg-[#FFFFFF] text-[#1D2A31] dark:bg-[#F7F7F7] dark:text-[#1D2A31] rounded-2xl flex items-center h-14;
+    @apply bg-[#FFFFFF] text-blue-dark dark:bg-white-100 dark:text-blue-dark rounded-2xl flex items-center h-14;
   }
 
   .input-active {

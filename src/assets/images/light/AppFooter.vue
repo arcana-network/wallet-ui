@@ -42,7 +42,7 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('home') }"
+          :class="{ 'bg-blue-dark dark:bg-white-100': isCurrentRoute('home') }"
         >
           <img
             :src="getIcon('tokens-icon', 'home')"
@@ -54,7 +54,7 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('home')
-              ? 'text-[#1D2A31] dark:text-[#F7F7F7]'
+              ? 'text-blue-dark dark:text-white-100'
               : 'text-gray-100'
           "
           >Tokens</span
@@ -67,7 +67,7 @@ function getIcon(icon: string, pathName: string) {
       >
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
-          :class="{ 'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('Nfts') }"
+          :class="{ 'bg-blue-dark dark:bg-white-100': isCurrentRoute('Nfts') }"
         >
           <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
         </div>
@@ -75,7 +75,7 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('Nfts')
-              ? 'text-[#1D2A31] dark:text-[#F7F7F7]'
+              ? 'text-blue-dark dark:text-white-100'
               : 'text-gray-100'
           "
           >NFT</span
@@ -89,7 +89,7 @@ function getIcon(icon: string, pathName: string) {
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
           :class="{
-            'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('profile'),
+            'bg-blue-dark dark:bg-white-100': isCurrentRoute('profile'),
           }"
         >
           <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
@@ -98,7 +98,7 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('profile')
-              ? 'text-[#1D2A31] dark:text-[#F7F7F7]'
+              ? 'text-blue-dark dark:text-white-100'
               : 'text-gray-100'
           "
           >Profile</span
@@ -112,7 +112,7 @@ function getIcon(icon: string, pathName: string) {
         <div
           class="w-xxxl h-xxl rounded-md flex items-center justify-center"
           :class="{
-            'bg-[#1D2A31] dark:bg-[#F7F7F7]': isCurrentRoute('activities'),
+            'bg-blue-dark dark:bg-white-100': isCurrentRoute('activities'),
           }"
         >
           <img
@@ -130,7 +130,7 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('activities')
-              ? 'text-[#1D2A31] dark:text-[#F7F7F7]'
+              ? 'text-blue-dark dark:text-white-100'
               : 'text-gray-100'
           "
           >Activity</span
