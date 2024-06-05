@@ -51,7 +51,7 @@ function getIcon(icon: string, pathName: string) {
           />
         </div>
         <span
-          class="text-xs font-norma"
+          class="text-xs font-normal"
           :class="
             isCurrentRoute('home')
               ? 'text-[#1D2A31] dark:text-[#F7F7F7]'
