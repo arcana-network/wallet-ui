@@ -108,8 +108,8 @@ class SolanaRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    if (req.params == null) {
-      throw new Error('???')
+    if (req.params == null && req.method !== 'getAccounts') {
+      throw new Error('params is required')
     }
     switch (req.method) {
       case 'getAccounts': {
