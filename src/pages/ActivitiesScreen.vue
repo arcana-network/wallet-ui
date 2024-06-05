@@ -68,13 +68,13 @@ async function getCurrencyExchangeRate() {
 <template>
   <div class="flex flex-col gap-5" @click="showFilter = false">
     <div class="flex justify-between relative items-center">
-      <h1 class="font-bold text-xl text-center flex-grow">Activities</h1>
+      <h1 class="font-medium text-xl text-center flex-grow">Activities</h1>
     </div>
     <div
       v-if="requestStore.skippedRequestsPendingForApprovalLength"
-      class="flex-1 flex flex-col gap-2"
+      class="flex flex-col gap-2"
     >
-      <span class="text-xs text-gray-100 font-bold"
+      <span class="text-xs text-gray-100 font-medium"
         >Pending ({{
           requestStore.skippedRequestsPendingForApprovalLength
         }})</span
@@ -82,7 +82,7 @@ async function getCurrencyExchangeRate() {
       <SkippedRequestView />
     </div>
     <div class="flex-1 flex flex-col gap-2">
-      <span class="text-xs text-gray-100 font-bold"
+      <span class="text-xs text-gray-100 font-medium"
         >Confirmed ({{ activities.length }})</span
       >
       <ActivityView

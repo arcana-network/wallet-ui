@@ -122,7 +122,7 @@ function goToHome() {
         <AppLoader :message="loader.message" />
       </div>
       <div class="flex justify-center">
-        <div class="text-lg font-bold">Enhance Wallet Security</div>
+        <div class="text-lg font-medium">Enhance Wallet Security</div>
       </div>
       <div class="mt-2 mb-6 flex flex-col gap-4 text-sm text-gray-100">
         <span>
@@ -132,14 +132,14 @@ function goToHome() {
           <a
             :href="`${DOCS_URL}/concepts/mfa.html`"
             target="_blank"
-            class="text-black-500 dark:text-white-100 font-bold cursor-pointer"
+            class="text-black-500 dark:text-white-100 font-medium cursor-pointer"
             >LEARN MORE</a
           >
         </span>
       </div>
       <div class="flex flex-col mt-4 gap-2">
         <button
-          class="text-sm btn-primary font-bold text-sm p-2 uppercase cursor-pointer"
+          class="text-sm btn-primary font-medium text-sm p-2 uppercase cursor-pointer"
           type="submit"
           @click.stop="handleProceed"
         >
@@ -147,14 +147,14 @@ function goToHome() {
         </button>
         <div class="flex justify-center gap-6">
           <button
-            class="text-xs btn-tertiary font-bold text-sm p-2 uppercase cursor-pointer"
+            class="text-xs btn-tertiary font-medium text-sm p-2 uppercase cursor-pointer"
             type="submit"
             @click.stop="handleSkip"
           >
             Skip for now
           </button>
           <button
-            class="text-xs btn-tertiary font-bold text-sm p-2 uppercase cursor-pointer"
+            class="text-xs btn-tertiary font-medium text-sm p-2 uppercase cursor-pointer"
             type="submit"
             @click.stop="handleAskNever"
           >

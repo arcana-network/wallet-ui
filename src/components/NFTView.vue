@@ -136,7 +136,7 @@ function handleFallbackNft(event) {
         v-if="loader.show"
         class="flex justify-center items-center flex-1 p-3 m-1"
       >
-        <p class="text-sm font-bold">
+        <p class="text-sm font-medium">
           {{ loader.message }}
         </p>
       </div>
@@ -177,21 +177,21 @@ function handleFallbackNft(event) {
           </div>
         </div>
         <div v-else class="flex justify-between">
-          <span class="color-secondary m-auto font-bold text-sm"
+          <span class="color-secondary m-auto font-medium text-sm"
             >No NFTs added</span
           >
         </div>
       </div>
       <div
-        v-if="appStore.chainType === ChainType.multiversx_cv25519"
+        v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="flex justify-center"
       >
         <button
-          class="btn-quaternery border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
+          class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
           @click.stop="handleManageNFT"
         >
           <img :src="getImage('settings.svg')" />
-          <span class="text-sm">Manage</span>
+          <span class="text-base font-medium">Manage</span>
         </button>
       </div>
     </div>

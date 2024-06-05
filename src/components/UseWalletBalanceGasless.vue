@@ -18,7 +18,7 @@ function reject() {
       Seems like the gas tank is empty, would you like to use your wallet to pay
       gas fee?
     </p>
-    <div class="flex gap-2 text-sm font-bold">
+    <div class="flex gap-2 text-sm font-medium">
       <button class="uppercase w-full btn-secondary p-2" @click="reject">
         Reject
       </button>
