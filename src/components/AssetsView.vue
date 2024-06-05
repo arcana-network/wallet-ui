@@ -91,7 +91,7 @@ function fetchNativeAsset() {
     decimals: rpcStore.nativeCurrency?.decimals as number,
     symbol: rpcStore.nativeCurrency?.symbol as string,
     image: getChainLogoUrl(
-      Number(rpcStore.selectedChainId),
+      rpcStore.selectedRPCConfig,
       getChainType(appStore.chainType)
     ),
   }
