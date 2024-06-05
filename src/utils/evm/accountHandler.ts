@@ -7,11 +7,11 @@ import {
   signTypedData_v4 as signTypedDataV4,
 } from 'eth-sig-util'
 import {
-  isHexString,
   addHexPrefix,
-  stripHexPrefix,
   ecsign,
+  isHexString,
   setLengthLeft,
+  stripHexPrefix,
 } from 'ethereumjs-util'
 import { ethers } from 'ethers'
 
@@ -27,10 +27,14 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import {
+  JsonRpcProviderPlusDestroy,
+  produceProviderFromURLString,
+} from '@/utils/evm/rpcURLToProvider'
+import {
+  createWalletMiddleware,
   MessageParams,
   TransactionParams,
   TypedMessageParams,
-  createWalletMiddleware,
 } from '@/utils/evm/walletMiddleware'
 import { scwInstance } from '@/utils/scw'
 
@@ -43,11 +47,11 @@ const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
 
 class EVMAccountHandler {
   wallet: ethers.Wallet
-  provider: ethers.providers.JsonRpcProvider
+  provider: JsonRpcProviderPlusDestroy
 
   constructor(privateKey: string, rpcUrl: string) {
     this.wallet = new ethers.Wallet(privateKey)
-    this.provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
+    this.provider = produceProviderFromURLString(rpcUrl)
   }
 
   get decimals() {
@@ -61,8 +65,12 @@ class EVMAccountHandler {
   getBalance() {
     return this.provider.getBalance(this.getAddress()[0])
   }
+
   setProvider(url: string) {
-    this.provider = new ethers.providers.StaticJsonRpcProvider(url)
+    this.provider
+      .destroy()
+      .catch((e) => console.error('Failed to destroy connection:', e))
+    this.provider = produceProviderFromURLString(url)
   }
 
   asMiddleware() {
@@ -85,31 +93,43 @@ class EVMAccountHandler {
     return this.wallet.connect(this.provider)
   }
 
-  isSendItApp() {
+  public isSendItApp() {
     const { id: appId } = appStore
-    return appId.length && SENDIT_APP_ID?.includes(appId)
+    return appId.length > 0 && SENDIT_APP_ID?.includes(appId)
   }
 
-  async determineScwMode(nonce) {
-    const paymasterBalance = (await scwInstance.getPaymasterBalance()) / 1e18
-    const thresholdPaymasterBalance = 0.1
+  public async determineTransactionModeAndPaymasterBalance(): Promise<{
+    paymasterBalance: ethers.BigNumber
+    transactionMode: string
+  }> {
+    const [nonce, paymasterBalance] = await Promise.all([
+      this.getNonceForArcanaSponsorship(userStore.walletAddress),
+      scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
+    ])
+    const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
-    let mode = 'SCW'
-    if (paymasterBalance > thresholdPaymasterBalance) {
+    let mode = ''
+    if (paymasterBalance.gt(thresholdPaymasterBalance)) {
       if (isSendIt) {
-        if (Number(nonce) > 0) {
-          mode = 'SCW'
-        } else {
-          mode = 'ARCANA'
-        }
+        mode = nonce.lt(15) ? 'ARCANA' : ''
       } else {
-        mode = 'BICONOMY' // you can make it as undefined
+        mode = 'SCW'
       }
-    } else mode = 'SCW'
-    return mode
+    }
+    return {
+      paymasterBalance,
+      transactionMode: mode,
+    }
   }
 
-  async getNonceForArcanaSponsorship(address: string) {
+  public async determineScwMode() {
+    return (await this.determineTransactionModeAndPaymasterBalance())
+      .transactionMode
+  }
+
+  async getNonceForArcanaSponsorship(
+    address: string
+  ): Promise<ethers.BigNumber> {
     const c = new ethers.Contract(
       '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
       [
@@ -141,8 +161,7 @@ class EVMAccountHandler {
       this.provider
     )
 
-    const nonce = await c.getNonce(address, 0)
-    return nonce.toString()
+    return await c.getNonce(address, 0)
   }
 
   getParamsForDoTx(transactionMode) {
@@ -176,29 +195,7 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const nonce = await this.getNonceForArcanaSponsorship(
-        userStore.walletAddress
-      )
-      const transactionMode = await this.determineScwMode(nonce)
-      if (transactionMode === 'SCW') {
-        modalStore.setShowModal(true)
-        appStore.expandWallet = true
-        gaslessStore.showUseWalletBalancePermission = true
-        await new Promise((resolve, reject) => {
-          const intervalId = setInterval(() => {
-            if (gaslessStore.canUseWalletBalance !== null) {
-              clearInterval(intervalId)
-              if (gaslessStore.canUseWalletBalance) {
-                resolve(null)
-              } else {
-                reject(new Error('Gastank balance too low'))
-              }
-              modalStore.setShowModal(false)
-              gaslessStore.showUseWalletBalancePermission = false
-            }
-          }, 500)
-        })
-      }
+      const transactionMode = await this.determineScwMode()
       const tx = await scwInstance.doTx(
         txParams,
         this.getParamsForDoTx(transactionMode)
@@ -382,127 +379,87 @@ class EVMAccountHandler {
   }
 
   private async sign(address: string, msg: string): Promise<string> {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signature = ecsign(
-          setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
-        )
-        const rawMessageSig = concatSig(
-          signature.v as unknown as Buffer,
-          signature.r,
-          signature.s
-        )
-        return rawMessageSig
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const signature = ecsign(
+        setLengthLeft(Buffer.from(stripHexPrefix(msg), 'hex'), 32),
+        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex')
+      )
+      const rawMessageSig = concatSig(
+        signature.v as unknown as Buffer,
+        signature.r,
+        signature.s
+      )
+      return rawMessageSig
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   private async personalSign(address: string, msg: string) {
-    try {
-      const msgToSign = isHexString(msg)
-        ? addHexPrefix(msg)
-        : addHexPrefix(Buffer.from(msg).toString('hex'))
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const signature = personalSign(
-          Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-          { data: msgToSign }
-        )
-        return signature
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const msgToSign = isHexString(msg)
+      ? addHexPrefix(msg)
+      : addHexPrefix(Buffer.from(msg).toString('hex'))
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const signature = personalSign(
+        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        { data: msgToSign }
+      )
+      return signature
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    try {
-      if (rpcStore.useGasless) {
-        const txParams = {
-          from: address,
-          to: data.to,
-          value: data.value,
-        }
-        const nonce = await this.getNonceForArcanaSponsorship(address)
-        const transactionMode = await this.determineScwMode(nonce)
-        if (transactionMode === 'SCW') {
-          modalStore.setShowModal(true)
-          appStore.expandWallet = true
-          gaslessStore.showUseWalletBalancePermission = true
-          await new Promise((resolve, reject) => {
-            const intervalId = setInterval(() => {
-              if (gaslessStore.canUseWalletBalance !== null) {
-                clearInterval(intervalId)
-                if (gaslessStore.canUseWalletBalance) {
-                  resolve(null)
-                } else {
-                  reject(new Error('Gastank balance too low'))
-                }
-                modalStore.setShowModal(false)
-                gaslessStore.showUseWalletBalancePermission = false
-              }
-            }, 500)
-          })
-        }
-        const tx = await scwInstance.doTx(
-          txParams,
-          this.getParamsForDoTx(transactionMode)
-        )
-        gaslessStore.canUseWalletBalance = null
-        const txDetails = await tx.wait()
-        return txDetails.receipt.transactionHash
-      } else {
-        const wallet = this.getWallet(address)
-        if (wallet) {
-          const signer = wallet.connect(this.provider)
-          const tx = await signer.sendTransaction(data)
-          return tx.hash
-        } else {
-          throw new Error(errors.WALLET.NOT_FOUND)
-        }
+    if (rpcStore.useGasless) {
+      const txParams = {
+        from: address,
+        to: data.to,
+        value: data.value,
       }
-    } catch (e) {
-      return Promise.reject(e)
+      const transactionMode = await this.determineScwMode()
+      const tx = await scwInstance.doTx(
+        txParams,
+        this.getParamsForDoTx(transactionMode)
+      )
+      gaslessStore.canUseWalletBalance = null
+      const txDetails = await tx.wait()
+      return txDetails.receipt.transactionHash
+    } else {
+      const wallet = this.getWallet(address)
+      if (wallet) {
+        const signer = wallet.connect(this.provider)
+        const tx = await signer.sendTransaction(data)
+        return tx.hash
+      } else {
+        throw new Error(errors.WALLET.NOT_FOUND)
+      }
     }
   }
 
   private async decrypt(ciphertext: string, address: string) {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        const parsedCipher = cipher.parse(ciphertext)
-        const decryptedMessage = await decryptWithPrivateKey(
-          wallet.privateKey,
-          parsedCipher
-        )
-        return decryptedMessage
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      const parsedCipher = cipher.parse(ciphertext)
+      const decryptedMessage = await decryptWithPrivateKey(
+        wallet.privateKey,
+        parsedCipher
+      )
+      return decryptedMessage
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 
   private async signTransaction(txData, address: string) {
-    try {
-      const wallet = this.getWallet(address)
-      if (wallet) {
-        txData.from = this.wallet.address
-        return await wallet.signTransaction({ ...txData })
-      } else {
-        throw new Error(errors.WALLET.NOT_FOUND)
-      }
-    } catch (e) {
-      return Promise.reject(e)
+    const wallet = this.getWallet(address)
+    if (wallet) {
+      txData.from = this.wallet.address
+      return await wallet.signTransaction({ ...txData })
+    } else {
+      throw new Error(errors.WALLET.NOT_FOUND)
     }
   }
 

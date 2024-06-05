@@ -9,9 +9,10 @@ import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
-import { scwInstance } from '@/utils/scw'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -21,17 +22,27 @@ const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
 const route = useRoute()
 const currencyStore = useCurrencyStore()
+const requestHandler = getRequestHandler()
 
 const loader = ref({
   show: false,
   message: '',
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
   loader.value.show = true
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })
@@ -133,28 +144,17 @@ async function onViewDetails() {
             <span v-if="loader.show" class="text-sm font-medium"
               >Loading...</span
             >
-            <div
-              v-else-if="!loader.show && !rpcStore.useGasless"
-              class="flex items-baseline"
-            >
-              <span class="text-lg font-bold"
-                >{{ gasFee.slice(0, 9) }}&nbsp;</span
-              ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
-                rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
-              }}</span>
-            </div>
             <span
               v-else-if="
-                !loader.show && rpcStore.useGasless && paymasterBalance >= 0.1
+                !loader.show &&
+                (transactionMode === 'SCW' || transactionMode === 'ARCANA')
               "
               class="text-sm font-medium text-green-100"
             >
               Sponsored
             </span>
             <div
-              v-else-if="
-                !loader.show && rpcStore.useGasless && paymasterBalance < 0.1
-              "
+              v-else-if="!loader.show && transactionMode.length === 0"
               class="flex-col text-center items-baseline"
             >
               <span class="text-lg font-bold"

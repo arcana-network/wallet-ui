@@ -22,7 +22,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
@@ -39,7 +38,6 @@ import { getTokenBalance } from '@/utils/contractUtil'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const showPreview = ref(false)
@@ -88,11 +86,24 @@ const walletBalance = computed(() => {
   return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
+  loader.value.show = true
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
+
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
+  loader.value.show = false
 })
 
 watch(gas, () => {
@@ -775,8 +786,7 @@ watch(
         <GasPrice
           v-if="
             appStore.chainType === ChainType.evm_secp256k1 &&
-            (!rpcStore.useGasless ||
-              (rpcStore.useGasless && paymasterBalance < 0.1))
+            (!rpcStore.useGasless || transactionMode.length === 0)
           "
           :gas-prices="gasPrices"
           :base-fee="baseFee"
@@ -792,9 +802,21 @@ watch(
           @gas-limit-input="onGasLimitChangeMVX"
         />
         <span
-          v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+          v-else-if="
+            !loader.show &&
+            (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+          "
           class="text-xs text-green-100 font-medium text-center w-full"
           >This is a Gasless Transaction. Click Below to Approve.
+        </span>
+        <span
+          v-else-if="
+            !loader.show && transactionMode.length === 0 && rpcStore.useGasless
+          "
+          class="text-xs text-center"
+        >
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
         </span>
       </div>
       <div class="flex">

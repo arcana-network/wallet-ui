@@ -20,6 +20,7 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { errors } from '@/utils/content'
+import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
@@ -167,8 +168,9 @@ async function validateRPCandChainID(rpcURL, chainId) {
     error: null,
   }
   try {
-    const provider = new ethers.providers.StaticJsonRpcProvider(rpcURL)
+    const provider = produceProviderFromURLString(rpcURL)
     const { chainId: fetchedChainId } = await provider.getNetwork()
+    await provider.destroy()
     const isValidChainId = Number(fetchedChainId) === Number(chainId)
     result.isValid = isValidChainId
     result.error = isValidChainId ? '' : errors.RPC.ERROR
@@ -330,20 +332,18 @@ async function switchAccountType(request, keeper) {
   })
 }
 
+const manuallyHandledFunctionMap = new Map([
+  ['wallet_switchEthereumChain', switchChain],
+  ['wallet_addEthereumChain', addNetwork],
+  ['wallet_watchAsset', addToken],
+  ['_arcana_switchAccountType', switchAccountType],
+])
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    if (
-      request.method === 'wallet_switchEthereumChain' ||
-      request.method === 'wallet_addEthereumChain' ||
-      request.method === 'wallet_watchAsset' ||
-      request.method === '_arcana_switchAccountType'
-    ) {
-      const { method } = request
-      if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
-      if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
-      if (method === 'wallet_watchAsset') addToken(request, keeper)
-      if (method === '_arcana_switchAccountType')
-        switchAccountType(request, keeper)
+    const manuallyHandledFn = manuallyHandledFunctionMap.get(request.method)
+    if (manuallyHandledFn != null) {
+      await manuallyHandledFn(request, keeper)
     } else {
       const sanitizedRequest =
         appStore.chainType === ChainType.solana_cv25519

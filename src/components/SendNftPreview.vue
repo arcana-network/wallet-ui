@@ -5,9 +5,10 @@ import { onBeforeMount, ref, onMounted } from 'vue'
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
+import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
-import { scwInstance } from '@/utils/scw'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -18,11 +19,21 @@ const loader = ref({
 })
 const txFees = ref('0')
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
   loader.value.show = true
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })
@@ -108,25 +119,33 @@ function truncateAddress(address: string) {
         </div>
         <div v-if="Number(txFees)" class="flex justify-between">
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
-          <span v-if="!rpcStore.useGasless" class="text-base"
+          <span
+            v-if="!rpcStore.useGasless || transactionMode.length === 0"
+            class="text-base"
             >{{ txFees }} {{ nativeCurrency }}</span
           >
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="
+              transactionMode === 'SCW' || transactionMode === 'ARCANA'
+            "
             class="text-base"
             >Sponsored</span
-          >
-          <span
-            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
-            class="text-base"
-            >{{ txFees }} {{ nativeCurrency }}</span
           >
         </div>
       </div>
       <span
-        v-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+        v-if="transactionMode === 'SCW' || transactionMode === 'ARCANA'"
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
+      </span>
+      <span
+        v-else-if="
+          !loader.show && transactionMode.length === 0 && rpcStore.useGasless
+        "
+        class="text-xs text-center"
+      >
+        Limit exceeded for gasless transactions. You will be charged for this
+        transaction.
       </span>
     </div>
     <SwipeToAction @approve="emits('submit')" @reject="emits('close')" />
