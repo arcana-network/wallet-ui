@@ -442,7 +442,7 @@ async function init() {
       } = await parentConnectionInstance.getAppConfig()
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
-      if (theme === 'dark') htmlEl.classList.add(theme)
+      if (theme === 'dark') htmlEl.classList.add('dark')
       app.setName(appName)
     }
   } finally {

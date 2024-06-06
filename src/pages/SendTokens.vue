@@ -708,7 +708,7 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="text-lg font-bold">Send Token</span>
+      <span class="text-lg font-medium">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
@@ -749,7 +749,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="btn-primary uppercase m-1 px-3 py-2 font-medium text-xs"
+                class="bg-[#354B55] text-white-100 uppercase m-1 px-3 py-1 h-6 rounded-md font-medium text-xs"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
@@ -821,7 +821,7 @@ watch(
       </div>
       <div class="flex">
         <button
-          class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
+          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-1/2 mx-auto rounded-full"
         >
           Preview
         </button>

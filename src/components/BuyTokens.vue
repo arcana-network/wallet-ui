@@ -80,7 +80,7 @@ function handleDone() {
     >
       <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
       <div class="flex flex-col gap-2">
-        <div class="text-base font-bold text-center">
+        <div class="text-base font-medium text-center">
           {{ statusText.title }}
         </div>
         <div class="text-sm text-gray-100 text-center">
@@ -90,7 +90,7 @@ function handleDone() {
     </div>
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
-        <p class="font-bold text-center text-xl">Select Provider</p>
+        <p class="font-medium text-center text-xl">Select Provider</p>
         <p class="text-xs text-zinc-400">
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
@@ -137,7 +137,7 @@ function handleDone() {
         </div>
         <div class="flex mt-8">
           <button
-            class="flex-1 btn-primary py-[10px] uppercase text-base font-bold"
+            class="flex-1 btn-primary py-[10px] uppercase text-base font-medium"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed

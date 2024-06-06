@@ -72,6 +72,13 @@ function getChainType(chainType: ChainType) {
       return 'multiversx'
   }
 }
+
+function getLogo() {
+  return (
+    appStore.appLogo?.vertical ||
+    getImage('fallback-logo-dark-mode.png', 'light')
+  )
+}
 </script>
 
 <template>
@@ -79,21 +86,17 @@ function getChainType(chainType: ChainType) {
     <header class="flex justify-between px-4 py-2">
       <div class="flex gap-2">
         <img
-          :src="appStore.appLogo?.vertical"
+          :src="getLogo()"
           alt="App Logo"
           class="w-xl h-xl object-contain"
           onerror="this.style.display='none'"
         />
         <div class="flex flex-col items-start">
           <span
-            class="font-bold text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            class="font-medium text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
             >{{ appStore.name }}</span
           >
-          <img
-            :src="getImage('secured-by-arcana.svg')"
-            class="h-3 select-none"
-          />
         </div>
       </div>
       <div class="flex items-center gap-3">

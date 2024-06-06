@@ -129,7 +129,7 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col h-full gap-4 justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-center">
-        <h1 class="m-0 font-bold text-lg capitalize">Send Transaction</h1>
+        <h1 class="m-0 font-medium text-lg capitalize">Send Transaction</h1>
       </div>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
@@ -157,7 +157,7 @@ async function onViewDetails() {
               v-else-if="!loader.show && transactionMode.length === 0"
               class="flex-col text-center items-baseline"
             >
-              <span class="text-lg font-bold"
+              <span class="text-lg font-medium"
                 >{{ gasFee.slice(0, 9) }}&nbsp;</span
               ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
@@ -173,7 +173,7 @@ async function onViewDetails() {
         </div>
       </div>
       <button
-        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-bold"
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-medium"
         @click.stop="onViewDetails"
       >
         View Details
@@ -181,7 +181,7 @@ async function onViewDetails() {
       </button>
     </div>
     <div class="flex flex-col gap-4">
-      <div class="flex gap-2 text-sm font-bold">
+      <div class="flex gap-2 text-sm font-medium">
         <button
           class="uppercase w-full btn-secondary p-2"
           @click="emits('reject')"
@@ -202,7 +202,7 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

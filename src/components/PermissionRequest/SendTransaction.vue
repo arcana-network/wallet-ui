@@ -162,7 +162,7 @@ onMounted(async () => {
       :class="{ 'h-2/4': showDetails }"
     >
       <button
-        class="flex justify-center items-center text-sm font-bold"
+        class="flex justify-center items-center text-sm font-medium"
         @click="showDetails = !showDetails"
       >
         <span>View Details </span>
