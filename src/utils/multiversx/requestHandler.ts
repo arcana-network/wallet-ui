@@ -6,6 +6,7 @@ import {
   Address,
   TokenTransfer,
 } from '@multiversx/sdk-core'
+import Decimal from 'decimal.js'
 import {
   createAsyncMiddleware,
   JsonRpcEngine,
@@ -16,6 +17,7 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
 import { toHex } from '@/utils/toHex'
 
@@ -33,8 +35,8 @@ class MultiversXRequestHandler {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    // const chainId = await this.accountHandler.getChainId()
-    // this.emitEvent('chainChanged', { chainId })
+    const chainId = await this.accountHandler.getChainId()
+    this.emitEvent('chainChanged', { chainId })
   }
 
   public async sendConnect() {
@@ -42,7 +44,7 @@ class MultiversXRequestHandler {
       this.connectSent = true
       const chainId = this.accountHandler.getChainId()
       await this.emitEvent('connect', {
-        chainId: toHex(Number(chainId).toString(16)),
+        chainId: new Decimal(chainId).toHexadecimal(),
       })
     }
   }
@@ -123,7 +125,7 @@ class MultiversXRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    console.log(req, 'req')
+    devLogger.log(req, 'req')
     // if (req.params == null) {
     //   throw new Error('???')
     // }

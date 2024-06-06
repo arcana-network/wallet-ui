@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
   createFetchMiddleware,
@@ -14,6 +15,7 @@ import {
   PendingJsonRpcResponse,
   createScaffoldMiddleware,
   JsonRpcMiddleware,
+  createAsyncMiddleware,
 } from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
@@ -44,7 +46,7 @@ class EVMRequestHandler {
       this.connectSent = true
       const chainId = await this.accountHandler.getChainId()
       this.emitEvent('connect', {
-        chainId: toHex(Number(chainId).toString(16)),
+        chainId: new Decimal(chainId).toHexadecimal(),
       })
     }
   }
@@ -56,10 +58,10 @@ class EVMRequestHandler {
   public async setRpcConfig(c: RpcConfig) {
     try {
       this.handler = this.initRpcEngine(c)
-      this.accountHandler.setProvider(c.rpcUrls[0])
+      await this.accountHandler.setProvider(c.rpcUrls[0])
       // Emit `chainChanged` event
       const chainId = await this.accountHandler.getChainId()
-      this.emitEvent('chainChanged', { chainId })
+      await this.emitEvent('chainChanged', { chainId })
     } catch (e) {
       console.log({ e })
     }
@@ -127,8 +129,11 @@ class EVMRequestHandler {
     const walletMiddleware = this.accountHandler.asMiddleware()
     engine.push(walletMiddleware)
 
-    const fetchMiddleware = createFetchMiddleware({
-      rpcUrl: c.rpcUrls[0],
+    const fetchMiddleware = createAsyncMiddleware(async (req, res) => {
+      res.result = await this.accountHandler.provider.send(
+        req.method,
+        req.params as unknown[]
+      )
     })
     engine.push(fetchMiddleware)
 

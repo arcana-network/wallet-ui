@@ -32,8 +32,6 @@ const props = defineProps({
   },
 })
 
-console.log(props.request)
-
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 

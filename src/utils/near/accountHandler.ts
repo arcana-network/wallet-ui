@@ -7,6 +7,9 @@ import {
   transactions,
 } from 'near-api-js'
 
+import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
+
 export class NEARAccountHandler {
   private keystore = new keyStores.InMemoryKeyStore()
   private readonly kp: utils.KeyPairEd25519
@@ -17,11 +20,23 @@ export class NEARAccountHandler {
 
   constructor(privateKey: string) {
     this.privateKey = privateKey
-    this.kp = new utils.KeyPairEd25519(privateKey)
+    this.kp = new utils.KeyPairEd25519(this.privateKey)
     this.implicitAccountID = Buffer.from(this.kp.publicKey.data).toString('hex')
 
     // how do we handle this?
     this.keystore.setKey('default', this.implicitAccountID, this.kp)
+  }
+
+  get chainType() {
+    return ChainType.near_cv25519
+  }
+
+  get decimals() {
+    return 24
+  }
+
+  get gasDecimals() {
+    return 9
   }
 
   async initializeConnection(rpcURL: string) {
@@ -47,9 +62,20 @@ export class NEARAccountHandler {
     return Promise.resolve([this.implicitAccountID])
   }
 
+  getAccount() {
+    return {
+      address: this.implicitAccountID,
+    }
+  }
+
   async getBalance() {
     const bObj = await this.assertAccount().getAccountBalance()
+    devLogger.log({ bObj })
     return BigInt(bObj.available) // ???
+  }
+
+  getChainId() {
+    return 1
   }
 
   signMessage(message: Uint8Array) {

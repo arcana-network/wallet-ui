@@ -41,6 +41,7 @@ import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { NEARRequestHandler } from '@/utils/near/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -120,9 +121,11 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-    await setRpcConfigs()
-    await getRpcConfig()
-    await getKeySpaceType()
+
+    await Promise.all([
+      setRpcConfigs().then(() => getRpcConfig()),
+      getKeySpaceType(),
+    ])
     await connectToParent()
     await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
@@ -137,10 +140,12 @@ onMounted(async () => {
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
-      await requestHandler.setRpcConfig({
-        chainId: selectedChainId,
-        ...rpcConfig,
-      })
+      requestHandler
+        .setRpcConfig({
+          chainId: selectedChainId,
+          ...rpcConfig,
+        })
+        .then(() => requestHandler.sendConnect())
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
@@ -148,14 +153,13 @@ onMounted(async () => {
         await initScwSdk()
       }
 
-      await requestHandler.sendConnect()
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
     console.log(e)
   } finally {
     loader.value.show = false
-    setShowStarterTips()
+    // setShowStarterTips()
   }
 })
 
@@ -236,13 +240,22 @@ async function initAccountHandler() {
   try {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
-
       const account = getRequestHandler().getAccountHandler().getAccount()
       userStore.setWalletAddress(account.address)
-
+      if (appStore.chainType === ChainType.near_cv25519) {
+        await (getRequestHandler() as NEARRequestHandler).setRpcConfig(
+          rpcStore.selectedRpcConfig || enabledChainList.value[0]
+        )
+      }
       if (typeof appStore.validAppMode !== 'number') {
-        const walletType = await getWalletType(appStore.id)
-        await setAppMode(walletType, parentConnectionInstance)
+        let walletMode = storage.local.getWalletMode()
+        if (walletMode == null) {
+          const walletType = await getWalletType(appStore.id)
+          devLogger.log('walletType', walletType)
+          storage.local.setWalletMode(walletType)
+          walletMode = walletType
+        }
+        await setAppMode(walletMode, parentConnectionInstance)
       }
     }
   } catch (err) {
@@ -293,6 +306,7 @@ async function connectToParent() {
       getKeySpaceConfigType: () => keyspaceType.value,
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
+      logout,
       getUserInfo,
       expandWallet: () => (appStore.expandWallet = true),
     })
@@ -346,29 +360,38 @@ async function setAppMode(walletType, parentConnectionInstance) {
   appStore.setAppMode(validAppMode as AppMode)
 }
 
-async function handleLogout(isV2 = false) {
+async function logout() {
   appStore.showWallet = false
   const authProvider = await getAuthProvider(appStore.id as string)
   await userStore.handleLogout(authProvider)
-  const route = isV2
-    ? `/${appStore.id}/v2/login?logout=1`
-    : `/${appStore.id}/login?logout=1`
-  setTimeout(() => {
-    router.push(route)
-    // added timeout because connection gets destoryed before sending reply to parent
-  }, 10)
+  router.push(`/${appStore.id}/v2/login?logout=1`)
+}
+
+async function handleLogout() {
+  if (parentConnectionStore.parentConnection) {
+    const parentConnectionInstance = await parentConnectionStore
+      .parentConnection.promise
+    const authProvider = await getAuthProvider(appStore.id as string)
+    await userStore.handleLogout(authProvider)
+    parentConnectionInstance?.onEvent('disconnect')
+    appStore.showWallet = false
+  }
 }
 
 async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
-      if (appStore.chainType === ChainType.multiversx_cv25519) {
-        return chain.compatibility?.toLowerCase() === 'multiversx'
-      } else if (appStore.chainType === ChainType.solana_cv25519) {
-        return chain.compatibility?.toLowerCase() === 'solana'
-      } else {
-        return chain.compatibility?.toLowerCase() === 'evm'
+      const network = chain.compatibility?.toLowerCase()
+      switch (appStore.chainType) {
+        case ChainType.multiversx_cv25519:
+          return network === 'multiversx'
+        case ChainType.solana_cv25519:
+          return network === 'solana'
+        case ChainType.near_cv25519:
+          return network === 'near'
+        default:
+          return network === 'evm'
       }
     })
     .map((chain) => ({

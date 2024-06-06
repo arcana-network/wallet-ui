@@ -1,5 +1,6 @@
 import type { RpcConfig } from '@arcana/auth'
 import bs58 from 'bs58'
+import { Decimal } from 'decimal.js'
 import {
   createAsyncMiddleware,
   JsonRpcEngine,
@@ -11,6 +12,7 @@ import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 
 class NEARRequestHandler {
@@ -27,8 +29,18 @@ class NEARRequestHandler {
     await this.accountHandler.initializeConnection(c.rpcUrls[0])
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    // const chainId = await this.accountHandler.getChainId()
-    // this.emitEvent('chainChanged', { chainId })
+    const chainId = await this.accountHandler.getChainId()
+    this.emitEvent('chainChanged', { chainId })
+  }
+
+  public async sendConnect() {
+    if (!this.connectSent) {
+      this.connectSent = true
+      const chainId = this.accountHandler.getChainId()
+      await this.emitEvent('connect', {
+        chainId: new Decimal(chainId).toHexadecimal(),
+      })
+    }
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {
@@ -93,13 +105,13 @@ class NEARRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    console.log(req, 'req')
+    devLogger.log(req, 'req')
     // if (req.params == null) {
     //   throw new Error('???')
     // }
     switch (req.method) {
       case 'getAccounts': {
-        res.result = this.accountHandler.getAccounts()
+        res.result = await this.accountHandler.getAccounts()
         break
       }
       case 'near_signAndSendTransaction': {

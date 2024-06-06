@@ -36,9 +36,10 @@ import {
 import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
 import { getTokenBalance } from '@/utils/contractUtil'
+import { devLogger } from '@/utils/devLogger'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
-import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
+import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
@@ -81,25 +82,32 @@ const gasParamsMVX = ref({
 })
 
 const walletBalance = computed(() => {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    return new Decimal(rpcStore.walletBalance)
-      .div(Decimal.pow(10, 9))
-      .toString()
-  }
-  return new Decimal(rpcStore.walletBalance).div(Decimal.pow(10, 18)).toString()
+  const decimals = getRequestHandler().getAccountHandler().decimals
+  return new Decimal(rpcStore.walletBalance)
+    .div(Decimal.pow(10, decimals))
+    .toString()
 })
 
 const paymasterBalance = ref(0)
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
+  loader.value.show = true
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
+
     paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    transactionMode.value = await accountHandler.getTransactionMode()
   }
+  loader.value.show = false
 })
 
 watch(gas, () => {
   if (gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-      gas.value.maxPriorityFeePerGas || 1.5
+      gas.value.maxPriorityFeePerGas || 0
     )
     const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
     gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
@@ -325,148 +333,207 @@ async function getMVXTransactionObject() {
   }
 }
 
+async function handleMVXSendToken() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+  const txObject = await getMVXTransactionObject()
+  const txHash = await accountHandler.sendToken(txObject)
+
+  if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      txHash: txHash,
+      chainType: ChainType.multiversx_cv25519,
+    })
+  } else {
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      txHash: txHash,
+      chainType: ChainType.multiversx_cv25519,
+      customToken: {
+        operation: 'Send',
+        amount: amount.value,
+        symbol: selectedToken.value.symbol as string,
+        decimals: selectedToken.value.decimals as number,
+      },
+      recipientAddress: recipientWalletAddress.value,
+    })
+  }
+}
+
+async function handleSolanaSendToken() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as SolanaAccountHandler
+  if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+    const blockHash = await accountHandler.getLatestBlockHash()
+    const pk = accountHandler.publicKey
+    const toPk = new PublicKey(recipientWalletAddress.value)
+    const instructions = [
+      SystemProgram.transfer({
+        fromPubkey: pk,
+        toPubkey: toPk,
+        lamports: new Decimal(amount.value)
+          .mul(Decimal.pow(10, accountHandler.decimals))
+          .floor()
+          .toNumber(),
+      }),
+    ]
+    const messageV0 = new TransactionMessage({
+      payerKey: pk,
+      recentBlockhash: blockHash,
+      instructions,
+    }).compileToV0Message()
+    let transaction = new VersionedTransaction(messageV0)
+    const transactionSent = await accountHandler.signAndSendTransaction(
+      transaction.serialize()
+    )
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      txHash: transactionSent,
+      chainType: ChainType.solana_cv25519,
+    })
+  } else {
+    const sig = await accountHandler.sendCustomToken({
+      to: recipientWalletAddress.value,
+      amount: amount.value,
+      mint: selectedToken.value.address,
+      decimals: selectedToken.value.decimals,
+    })
+    const tokenInfo = tokenList.value.find(
+      (item) => item.address === selectedToken.value.address
+    )
+    activitiesStore.fetchAndSaveActivityFromHash({
+      txHash: sig,
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      customToken: {
+        operation: 'Send',
+        amount: amount.value,
+        symbol: tokenInfo?.symbol as string,
+        decimals: tokenInfo?.decimals as number,
+      },
+      recipientAddress: recipientWalletAddress.value,
+      chainType: ChainType.solana_cv25519,
+    })
+  }
+}
+
+async function handleEVMSendToken() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as EVMAccountHandler
+  let gasFees: string | null = null
+  if (gas.value) {
+    const maxFee = new Decimal(gas.value.maxFeePerGas).add(
+      gas.value.maxPriorityFeePerGas || 0
+    )
+    const maxFeeInWei = maxFee.mul(Decimal.pow(10, accountHandler.gasDecimals))
+    gasFees = maxFeeInWei.floor().toHexadecimal()
+  }
+  if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
+    const payload: any = {
+      to: setHexPrefix(recipientWalletAddress.value),
+      value: new Decimal(amount.value)
+        .mul(Decimal.pow(10, accountHandler.decimals))
+        .floor()
+        .toHexadecimal(),
+      from: userStore.walletAddress,
+    }
+
+    if (gasFees) {
+      payload.gasPrice = gasFees
+    }
+    payload.gasLimit = gas.value?.gasLimit || estimatedGas.value
+
+    const txHash = await accountHandler.sendTransaction(
+      payload,
+      userStore.walletAddress
+    )
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      txHash,
+    })
+  } else {
+    const tokenInfo = tokenList.value.find(
+      (item) => item.address === selectedToken.value.address
+    )
+    const sendAmount = tokenInfo?.decimals
+      ? new Decimal(amount.value)
+          .mul(Decimal.pow(10, tokenInfo.decimals))
+          .floor()
+          .toHexadecimal()
+      : new Decimal(amount.value).toHexadecimal()
+    const transactionHash = await accountHandler.sendCustomToken(
+      tokenInfo?.address,
+      setHexPrefix(recipientWalletAddress.value),
+      sendAmount,
+      gasFees,
+      estimatedGas.value
+    )
+    activitiesStore.fetchAndSaveActivityFromHash({
+      chainId: rpcStore.selectedRpcConfig?.chainId,
+      txHash: transactionHash,
+      customToken: {
+        operation: 'Send',
+        amount: amount.value,
+        symbol: tokenInfo?.symbol as string,
+      },
+      recipientAddress: setHexPrefix(recipientWalletAddress.value),
+    })
+  }
+}
+
+async function handleNEARSendToken() {
+  const accountHandler =
+    getRequestHandler().getAccountHandler() as NEARAccountHandler
+  const amountToSend = new Decimal(amount.value)
+    .mul(Decimal.pow(10, accountHandler.decimals))
+    .floor()
+    .toString()
+  const finalExecOutcome = await accountHandler.sendNEAR(
+    recipientWalletAddress.value,
+    // eslint-disable-next-line
+    BigInt(amountToSend)
+  )
+  devLogger.log({ finalExecOutcome })
+  const hash = finalExecOutcome.transaction.hash
+  activitiesStore.saveActivity(rpcStore.selectedChainId!, {
+    txHash: hash,
+    explorerUrl: `${rpcStore.selectedRPCConfig?.blockExplorerUrls?.[0]}/txns/${hash}`,
+    operation: 'Send',
+    date: new Date(),
+    status: 'Success',
+    address: {
+      from: userStore.walletAddress,
+      to: finalExecOutcome.transaction.receiver_id,
+    },
+    transaction: {
+      hash,
+      amount: finalExecOutcome.transaction.actions.reduce((acc, action) => {
+        if (action.Transfer) {
+          return new Decimal(action.Transfer.deposit).add(acc).toString()
+        }
+        return acc
+      }, '0'),
+      nonce: finalExecOutcome.transaction.nonce,
+    },
+  })
+}
+
 async function handleSendToken() {
   showLoader('Sending...')
   try {
-    if (appStore.chainType === ChainType.multiversx_cv25519) {
-      const accountHandler =
-        getRequestHandler().getAccountHandler() as MultiversXAccountHandler
-      const txObject = await getMVXTransactionObject()
-      const txHash = await accountHandler.sendToken(txObject)
-
-      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-        activitiesStore.fetchAndSaveActivityFromHash({
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          txHash: txHash,
-          chainType: ChainType.multiversx_cv25519,
-        })
-      } else {
-        activitiesStore.fetchAndSaveActivityFromHash({
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          txHash: txHash,
-          chainType: ChainType.multiversx_cv25519,
-          customToken: {
-            operation: 'Send',
-            amount: amount.value,
-            symbol: selectedToken.value.symbol as string,
-            decimals: selectedToken.value.decimals as number,
-          },
-          recipientAddress: recipientWalletAddress.value,
-        })
-      }
-    } else if (appStore.chainType === ChainType.solana_cv25519) {
-      const accountHandler =
-        getRequestHandler().getAccountHandler() as SolanaAccountHandler
-      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-        const blockHash = await accountHandler.getLatestBlockHash()
-        const pk = accountHandler.publicKey
-        const toPk = new PublicKey(recipientWalletAddress.value)
-        const instructions = [
-          SystemProgram.transfer({
-            fromPubkey: pk,
-            toPubkey: toPk,
-            lamports: new Decimal(amount.value)
-              .mul(Decimal.pow(10, 9))
-              .toNumber(),
-          }),
-        ]
-        const messageV0 = new TransactionMessage({
-          payerKey: pk,
-          recentBlockhash: blockHash,
-          instructions,
-        }).compileToV0Message()
-        let transaction = new VersionedTransaction(messageV0)
-        const transactionSent = await accountHandler.signAndSendTransaction(
-          transaction.serialize()
-        )
-        activitiesStore.fetchAndSaveActivityFromHash({
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          txHash: transactionSent,
-          chainType: ChainType.solana_cv25519,
-        })
-      } else {
-        const sig = await accountHandler.sendCustomToken({
-          to: recipientWalletAddress.value,
-          amount: amount.value,
-          mint: selectedToken.value.address,
-          decimals: selectedToken.value.decimals,
-        })
-        const tokenInfo = tokenList.value.find(
-          (item) => item.address === selectedToken.value.address
-        )
-        activitiesStore.fetchAndSaveActivityFromHash({
-          txHash: sig,
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          customToken: {
-            operation: 'Send',
-            amount: amount.value,
-            symbol: tokenInfo?.symbol as string,
-            decimals: tokenInfo?.decimals as number,
-          },
-          recipientAddress: recipientWalletAddress.value,
-          chainType: ChainType.solana_cv25519,
-        })
-      }
-    } else {
-      const accountHandler =
-        getRequestHandler().getAccountHandler() as EVMAccountHandler
-      let gasFees: string | null = null
-      if (gas.value) {
-        const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
-        )
-        const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
-        gasFees = maxFeeInWei.floor().toHexadecimal()
-      }
-      if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-        const payload: any = {
-          to: setHexPrefix(recipientWalletAddress.value),
-          value: new Decimal(amount.value)
-            .mul(Decimal.pow(10, 18))
-            .toHexadecimal(),
-          from: userStore.walletAddress,
-        }
-
-        if (gasFees) {
-          payload.gasPrice = gasFees
-        }
-        payload.gasLimit = gas.value?.gasLimit || estimatedGas.value
-
-        const txHash = await accountHandler.sendTransaction(
-          payload,
-          userStore.walletAddress
-        )
-        activitiesStore.fetchAndSaveActivityFromHash({
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          txHash,
-        })
-      } else {
-        const tokenInfo = tokenList.value.find(
-          (item) => item.address === selectedToken.value.address
-        )
-        const sendAmount = tokenInfo?.decimals
-          ? new Decimal(amount.value)
-              .mul(Decimal.pow(10, tokenInfo.decimals))
-              .toHexadecimal()
-          : new Decimal(amount.value).toHexadecimal()
-        const transactionHash = await accountHandler.sendCustomToken(
-          tokenInfo?.address,
-          setHexPrefix(recipientWalletAddress.value),
-          sendAmount,
-          gasFees,
-          estimatedGas.value
-        )
-        activitiesStore.fetchAndSaveActivityFromHash({
-          chainId: rpcStore.selectedRpcConfig?.chainId,
-          txHash: transactionHash,
-          customToken: {
-            operation: 'Send',
-            amount: amount.value,
-            symbol: tokenInfo?.symbol as string,
-          },
-          recipientAddress: setHexPrefix(recipientWalletAddress.value),
-        })
-      }
+    switch (appStore.chainType) {
+      case ChainType.multiversx_cv25519:
+        await handleMVXSendToken()
+        break
+      case ChainType.solana_cv25519:
+        await handleSolanaSendToken()
+        break
+      case ChainType.near_cv25519:
+        await handleNEARSendToken()
+        break
+      default:
+        await handleEVMSendToken()
+        break
     }
     clearForm()
     router.push({ name: 'activities' })
@@ -498,61 +565,22 @@ function onGasLimitChangeMVX(val) {
   determineGasParamsMVX(val)
 }
 
-function addToActivity(result) {
-  if (appStore.chainType === ChainType.solana_cv25519) {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionSent,
-        chainType: ChainType.solana_cv25519,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        txHash: result.sig,
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-          decimals: result.tokenInfo?.decimals as number,
-        },
-        recipientAddress: recipientWalletAddress.value,
-        chainType: ChainType.solana_cv25519,
-      })
-    }
-  } else {
-    if (selectedToken.value.symbol === rpcStore.nativeCurrency?.symbol) {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.txHash,
-      })
-    } else {
-      activitiesStore.fetchAndSaveActivityFromHash({
-        chainId: rpcStore.selectedRpcConfig?.chainId,
-        txHash: result.transactionHash,
-        customToken: {
-          operation: 'Send',
-          amount: amount.value,
-          symbol: result.tokenInfo?.symbol as string,
-        },
-        recipientAddress: setHexPrefix(recipientWalletAddress.value),
-      })
-    }
-  }
-}
-
 async function handleShowPreview() {
   if (!gas.value && appStore.chainType === ChainType.evm_secp256k1) {
     gas.value = {
       maxFeePerGas: baseFee.value,
-      maxPriorityFeePerGas: String(4),
+      maxPriorityFeePerGas: String(0),
       gasLimit: 0,
     }
   }
-  if (handleTransactionErrors()) return
+  if (appStore.chainType === ChainType.evm_secp256k1 && hasEVMTransaction())
+    return
   if (
-    appStore.chainType === ChainType.solana_cv25519 ||
-    appStore.chainType === ChainType.multiversx_cv25519
+    [
+      ChainType.multiversx_cv25519,
+      ChainType.near_cv25519,
+      ChainType.solana_cv25519,
+    ].includes(appStore.chainType)
   ) {
     if (
       appStore.chainType === ChainType.multiversx_cv25519 &&
@@ -605,52 +633,12 @@ async function handleShowPreview() {
           }
         }
         const maxFee = new Decimal(gas.value.maxFeePerGas).add(
-          gas.value.maxPriorityFeePerGas || 1.5
+          gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
         gasFeeInEth.value = maxFeeInWei.div(Decimal.pow(10, 18)).toString()
-        const isGlobalKeyspace = appStore.global
-        if (isGlobalKeyspace) {
-          const requestObject = {
-            type: 'json_rpc_request',
-            data: {
-              request: {
-                method: '_send_token',
-                params: {
-                  senderWalletAddress: userStore.walletAddress,
-                  recipientWalletAddress: recipientWalletAddress.value,
-                  amount: amount.value,
-                  gasFee: gasFeeInEth.value,
-                  selectedToken: selectedToken.value.symbol as string,
-                  estimatedGas: estimatedGas.value,
-                  tokenDetails: JSON.stringify(selectedToken.value),
-                  chaintype: appStore.chainType,
-                  tokenList: JSON.stringify(tokenList.value),
-                  gas: JSON.stringify(gas.value),
-                },
-              },
-              chainId: rpcStore.selectedChainId,
-            },
-          }
-
-          makeRequest(appStore.id, requestObject)
-
-          window.addEventListener('message', (event) => {
-            const { data } = event
-            const { type, response } = data
-            if (type === 'json_rpc_response') {
-              if (response.error) {
-                toast.error(response.error)
-              } else {
-                addToActivity(response.result)
-              }
-            }
-          })
-          router.push({ name: 'home' })
-        } else {
-          showPreview.value = true
-        }
-      } catch (e: any) {
+        showPreview.value = true
+      } catch (e) {
         //handle errors in transaction
 
         toast.error(e?.reason || errors.GENERIC.WRONG)
@@ -665,7 +653,7 @@ async function handleShowPreview() {
 }
 
 // Function to Handle Transaction Errors.
-function handleTransactionErrors() {
+function hasEVMTransaction() {
   if (
     !rpcStore.useGasless &&
     new Decimal(rpcStore.walletBalance).lessThanOrEqualTo(0)
@@ -688,16 +676,23 @@ function handleTransactionErrors() {
 }
 
 function getMaxTransferValue() {
-  const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
-  const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
-    gasFees
-  )
-  let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
-  if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
-    maxValueInput = new Decimal(0)
-    toast.error(content.TOKEN.INSUFFICIENT)
+  if (
+    appStore.chainType === ChainType.evm_secp256k1 &&
+    (selectedToken.value.address === '' ||
+      selectedToken.value.address?.toLowerCase() === 'native')
+  ) {
+    const gasFees = new Decimal(gasFeeInEth.value).mul(estimatedGas.value)
+    const maxTokenforTransfer = new Decimal(selectedTokenBalance.value).sub(
+      gasFees
+    )
+    let maxValueInput = new Decimal(maxTokenforTransfer).toDecimalPlaces(9)
+    if (new Decimal(maxTokenforTransfer).lessThanOrEqualTo(0)) {
+      maxValueInput = new Decimal(0)
+      toast.error(content.TOKEN.INSUFFICIENT)
+    }
+    return maxValueInput
   }
-  return maxValueInput
+  return new Decimal(selectedTokenBalance.value)
 }
 
 function handleTokenChange(e) {
@@ -720,7 +715,7 @@ watch(
     v-else-if="showPreview"
     :preview-data="{
     senderWalletAddress: userStore.walletAddress,
-    recipientWalletAddress: setHexPrefix(recipientWalletAddress),
+    recipientWalletAddress,
     amount,
     gasFee: gasFeeInEth,
     selectedToken: selectedToken.symbol as string,
@@ -816,8 +811,7 @@ watch(
         <GasPrice
           v-if="
             appStore.chainType === ChainType.evm_secp256k1 &&
-            (!rpcStore.useGasless ||
-              (rpcStore.useGasless && paymasterBalance < 0.1))
+            (!rpcStore.useGasless || transactionMode.length === 0)
           "
           :gas-prices="gasPrices"
           :base-fee="baseFee"
@@ -833,9 +827,21 @@ watch(
           @gas-limit-input="onGasLimitChangeMVX"
         />
         <span
-          v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+          v-else-if="
+            !loader.show &&
+            (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+          "
           class="text-xs text-green-100 font-medium text-center w-full"
           >This is a Gasless Transaction. Click Below to Approve.
+        </span>
+        <span
+          v-else-if="
+            !loader.show && transactionMode.length === 0 && rpcStore.useGasless
+          "
+          class="text-xs text-center"
+        >
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
         </span>
       </div>
       <div class="flex">

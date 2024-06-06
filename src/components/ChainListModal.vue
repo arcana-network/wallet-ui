@@ -43,6 +43,8 @@ function getChainType(chainType: ChainType) {
       return 'solana'
     case ChainType.multiversx_cv25519:
       return 'multiversx'
+    case ChainType.near_cv25519:
+      return 'near'
   }
 }
 </script>
