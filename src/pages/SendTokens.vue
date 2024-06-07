@@ -487,7 +487,7 @@ async function handleNEARSendToken() {
   const amountToSend = new Decimal(amount.value)
     .mul(Decimal.pow(10, accountHandler.decimals))
     .floor()
-    .toString()
+    .toNumber()
   const finalExecOutcome = await accountHandler.sendNEAR(
     recipientWalletAddress.value,
     // eslint-disable-next-line
