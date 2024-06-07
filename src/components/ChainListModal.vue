@@ -19,6 +19,12 @@ const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
 const showAddNetworkModal = ref(false)
 const appStore = useAppStore()
 
+const alphabeticalSort = (field) => (a, b) => a[field].localeCompare(b[field])
+
+const sortedRpcConfigs = rpcStore.rpcConfigList
+  ?.sort(alphabeticalSort('chainName'))
+  .sort(alphabeticalSort('chainType'))
+
 watch(
   () => selectedRPCConfig.value,
   () => {
@@ -55,7 +61,7 @@ function getChainType(chainType: ChainType) {
     </div>
     <div class="flex flex-col gap-4">
       <div
-        v-for="chain in rpcStore.rpcConfigs"
+        v-for="chain in sortedRpcConfigs"
         :key="chain.chainId"
         class="flex items-center gap-2"
       >
