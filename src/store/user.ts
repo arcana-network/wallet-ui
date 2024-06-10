@@ -14,6 +14,7 @@ type UserState = {
   scwAddress: string
   hasMfa: boolean
   token: string
+  userDIDToken: string
 }
 
 export const useUserStore = defineStore('user', {
@@ -28,6 +29,7 @@ export const useUserStore = defineStore('user', {
       scwAddress: '',
       hasMfa: false,
       token: '',
+      userDIDToken: '',
     } as UserState),
   getters: {
     walletAddressShrinked(state: UserState): string {
@@ -61,11 +63,12 @@ export const useUserStore = defineStore('user', {
       const { url, state } = val
       return { url, state }
     },
-    setUserInfo({ privateKey, loginType, userInfo, token }) {
+    setUserInfo({ privateKey, loginType, userInfo, token, userDIDToken }) {
       this.privateKey = privateKey
       this.loginType = loginType
       this.info = userInfo
       this.token = token
+      this.userDIDToken = userDIDToken
     },
     setLoginStatus(status: boolean) {
       this.isLoggedIn = status
