@@ -8,7 +8,12 @@ import axios from 'axios'
 import base58 from 'bs58'
 import dayjs from 'dayjs'
 import { personalSign } from 'eth-sig-util'
-import { fromUtf8, privateToPublic, stripHexPrefix } from 'ethereumjs-util'
+import {
+  addHexPrefix,
+  fromUtf8,
+  privateToPublic,
+  stripHexPrefix,
+} from 'ethereumjs-util'
 import { ethers } from 'ethers'
 // eslint-disable-next-line no-undef
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
@@ -90,8 +95,9 @@ const getRandomUUID = () => {
 const sign = (curve: 'secp256k1' | 'ed25519') => {
   return async (privateKey: string, data: string) => {
     if (curve === 'secp256k1') {
+      const msgToSign = addHexPrefix(Buffer.from(data).toString('hex'))
       return personalSign(Buffer.from(stripHexPrefix(privateKey), 'hex'), {
-        data,
+        data: msgToSign,
       })
     } else {
       const kp = Keypair.fromSeed(etc.hexToBytes(privateKey))
