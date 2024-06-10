@@ -182,18 +182,18 @@ function handleFallbackNft(event) {
           >
         </div>
       </div>
-      <div
-        v-if="appStore.chainType === ChainType.evm_secp256k1"
-        class="flex justify-center"
+    </div>
+    <div
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="flex justify-center"
+    >
+      <button
+        class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] border-none flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
+        @click.stop="handleManageNFT"
       >
-        <button
-          class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] border-b-0 border-t-1 border-x-0 flex py-1 gap-1 text-sm items-center cursor-pointer flex-grow justify-center rounded-b-md"
-          @click.stop="handleManageNFT"
-        >
-          <img :src="getImage('settings.svg')" />
-          <span class="text-base font-medium">Manage</span>
-        </button>
-      </div>
+        <img :src="getImage('settings.svg')" />
+        <span class="text-base font-medium">Manage</span>
+      </button>
     </div>
   </div>
 </template>

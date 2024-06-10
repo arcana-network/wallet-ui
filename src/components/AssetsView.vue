@@ -245,15 +245,15 @@ function handleFallbackLogo(event) {
       <div v-else class="flex flex-col flex-grow py-5 gap-5">
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
-      <button
-        v-if="appStore.chainType === ChainType.evm_secp256k1"
-        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0 border-t-1 dark:bg-black-300 bg-[#EFEFEF]"
-        @click.stop="handleAddToken"
-      >
-        <img :src="getImage('plus.svg')" class="h-3 w-3" />
-        <span class="text-base font-medium">New Asset</span>
-      </button>
     </div>
+    <button
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="flex items-center justify-center flex-grow btn-quaternery border-none dark:bg-black-300 bg-[#EFEFEF]"
+      @click.stop="handleAddToken"
+    >
+      <img :src="getImage('plus.svg')" class="h-3 w-3" />
+      <span class="text-base font-medium">New Asset</span>
+    </button>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddTokenScreen v-if="showModal" />
     </Teleport>

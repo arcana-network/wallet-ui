@@ -819,7 +819,7 @@ watch(
           transaction.
         </span>
       </div>
-      <div class="flex">
+      <div class="flex mt-2">
         <button
           class="btn-primary uppercase py-[10px] font-medium text-base text-center w-1/2 mx-auto rounded-full"
         >
