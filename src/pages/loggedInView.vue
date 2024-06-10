@@ -345,6 +345,7 @@ function getUserInfo() {
   return {
     loginType: userStore.loginType,
     loginToken: userStore.token,
+    userDIDToken: userStore.userDIDToken,
     ...userStore.info,
     ...accountDetails,
   }
