@@ -11,6 +11,7 @@ import { transactions } from 'near-api-js'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
+import { useActivitiesStore } from '@/store/activities'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
@@ -19,6 +20,7 @@ class NEARRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   private connectSent = false
+  private rpcConfig: RpcConfig | null = null
   constructor(private accountHandler: NEARAccountHandler) {}
 
   get chainType() {
@@ -26,11 +28,12 @@ class NEARRequestHandler {
   }
 
   public async setRpcConfig(c: RpcConfig) {
+    this.rpcConfig = c
     await this.accountHandler.initializeConnection(c.rpcUrls[0])
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    const chainId = await this.accountHandler.getChainId()
-    this.emitEvent('chainChanged', { chainId })
+    // const chainId = await this.accountHandler.getChainId()
+    // this.emitEvent('chainChanged', { chainId })
   }
 
   public async sendConnect() {
@@ -118,9 +121,47 @@ class NEARRequestHandler {
         const p = req.params as {
           transaction: transactions.Transaction
         }
-        res.result = await this.accountHandler.signAndSendTransaction(
+        const result = await this.accountHandler.signAndSendTransaction(
           p.transaction
         )
+        res.result = result
+        const activitiesStore = useActivitiesStore()
+        const hash = result.transaction.hash
+        activitiesStore.saveActivity(this.rpcConfig?.chainId, {
+          txHash: hash,
+          explorerUrl: this.rpcConfig?.blockExplorerUrls?.[0]
+            ? `${this.rpcConfig?.blockExplorerUrls[0]}/txns/${hash}`
+            : undefined,
+          operation:
+            result.transaction.actions?.length > 0
+              ? 'Batched Transaction'
+              : 'Transaction',
+          status: 'Success',
+          date: new Date(),
+          address: {
+            from: result.transaction.signer_id,
+            to: result.transaction.receiver_id,
+          },
+          transaction: {
+            hash,
+            amount: result.transaction.actions.reduce((acc, action) => {
+              if (action.Transfer) {
+                return new Decimal(action.Transfer.deposit).add(acc).toString()
+              }
+              if (action.Stake) {
+                return new Decimal(action.Stake.stake).add(acc).toString()
+              }
+              if (action.FunctionCall) {
+                return new Decimal(action.FunctionCall.deposit)
+                  .add(acc)
+                  .toString()
+              }
+              return acc
+            }, '0'),
+            nonce: result.transaction.nonce,
+            totalActions: result.transaction.actions.length,
+          },
+        })
         break
       }
       case 'near_signMessage': {

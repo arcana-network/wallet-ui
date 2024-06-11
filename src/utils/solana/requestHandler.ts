@@ -28,8 +28,8 @@ class SolanaRequestHandler {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    const chainId = await this.accountHandler.getChainId()
-    this.emitEvent('chainChanged', { chainId })
+    // const chainId = await this.accountHandler.getChainId()
+    // this.emitEvent('chainChanged', { chainId })
   }
 
   public async sendConnect() {

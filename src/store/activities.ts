@@ -30,6 +30,8 @@ type TransactionOps =
   | 'Receive'
   | 'Contract Deployment'
   | 'Contract Interaction'
+  | 'Batched Transaction'
+  | 'Transaction'
 
 type TransakOps = 'Buy' | 'Sell'
 
@@ -81,6 +83,7 @@ type Activity = {
     data?: string
     computeUnitsConsumed?: bigint
     fee?: bigint
+    totalActions?: number
   }
   operation: TransactionOps | FileOps | TransakOps
   date: Date

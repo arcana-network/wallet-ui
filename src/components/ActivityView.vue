@@ -78,6 +78,11 @@ function getTransactionIcon(operation: TransactionOps | FileOps | TransakOps) {
     return getIconAsset('activities/tx-transfer-ownership.svg')
   }
 
+  const nearTransaction = ['Transaction', 'Batched Transaction']
+  if (nearTransaction.includes(operation)) {
+    return getIconAsset('activities/tx-send.svg')
+  }
+
   return getIconAsset(`activities/tx-${operation.toLowerCase()}.svg`)
 }
 
@@ -579,6 +584,13 @@ async function stopTransaction(activity) {
                     >{{ getAmount(activity.transaction?.fee) }}
                     {{ rpcStore.nativeCurrency?.symbol }}</span
                   >
+                </div>
+                <div
+                  v-if="activity.transaction.totalActions"
+                  class="flex justify-between"
+                >
+                  <span>Total Actions Executed</span>
+                  <span>{{ activity.transaction.totalActions }}</span>
                 </div>
               </div>
               <div
