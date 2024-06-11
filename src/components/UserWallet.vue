@@ -254,9 +254,7 @@ async function copyToClipboard(value: string) {
 
 <template>
   <div>
-    <div
-      class="card p-3 flex flex-col dark:bg-[#313131] bg-[#FFFFFF] rounded-xl"
-    >
+    <div class="card p-3 flex flex-col rounded-xl">
       <div class="flex flex-col justify-between space-y-1">
         <div
           class="flex justify-between rounded-md relative"
@@ -381,14 +379,14 @@ async function copyToClipboard(value: string) {
       </div>
       <div class="mt-6 flex gap-3">
         <button
-          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           @click.stop="goToSendTokens()"
         >
           <img :src="getImage('send-icon.svg')" class="w-md h-md" />
           <span>Send</span>
         </button>
         <button
-          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           :disabled="!transakNetwork && onRampMoney === false"
           :class="{
             'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
@@ -399,7 +397,7 @@ async function copyToClipboard(value: string) {
           <span>Buy</span>
         </button>
         <button
-          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           :disabled="!transakSellNetwork"
           :class="{
             'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,

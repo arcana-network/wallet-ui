@@ -61,14 +61,12 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-dark dark:bg-[#354B55] dark:active:bg-gray-400 text-white-100 dark:text-white-100 hover:shadow-sm
+    @apply bg-[#1D2A31] dark:bg-[#F7F7F7] text-[#F7F7F7] dark:text-[#13171A] hover:shadow-sm
     focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full;
   }
 
   .btn-secondary {
-    @apply bg-[#DFECEE] dark:bg-[#DFECEE] text-blue-dark
-           dark:text-blue-dark hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
-           focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 rounded-full;
+    @apply bg-transparent text-[#1D2A31] dark:text-[#F7F7F7] box-border border-2 border-[#1D2A31] dark:border-[#F7F7F7] rounded-full;
   }
 
   .btn-tertiary {
@@ -76,17 +74,15 @@
   }
 
   .btn-quaternery {
-    @apply bg-blue-dark dark:bg-[#292929] text-blue-dark dark:text-white-100 dark:active:text-gray-400
-           hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
-           box-border border-gray-800 dark:border-gray-200 border-default;
+    @apply bg-transparent rounded-full h-9 box-border border-2 border-[#1D2A31] text-[#39444A] dark:border-[#F7F7F7] dark:text-[#F7F7F7];
   }
 
   .card {
-    @apply bg-[#FFFFFF] dark:bg-[#292929]  dark:border-gray-200  rounded-md;
+    @apply bg-[#E4E9EB] dark:bg-[#2D363B]  dark:border-gray-200  rounded-md;
   }
 
   .input-field {
-    @apply bg-[#FFFFFF] text-blue-dark dark:bg-white-100 dark:text-blue-dark rounded-2xl flex items-center h-14;
+    @apply bg-[#FFFFFF] text-blue-dark dark:bg-[#2D363B] dark:text-[#F7F7F7] rounded-2xl flex items-center h-14;
   }
 
   .input-active {

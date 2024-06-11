@@ -209,7 +209,7 @@ function handleFallbackLogo(event) {
 <template>
   <div class="flex flex-col gap-3">
     <span class="uppercase font-lg font-medium">Assets</span>
-    <div class="card flex flex-col overflow-hidden bg-[#FFFFFF]">
+    <div class="card flex flex-col overflow-hidden">
       <div
         v-if="assets.length"
         class="flex flex-col gap-4 p-3 m-1 max-h-[120px] overflow-y-auto"
@@ -248,7 +248,7 @@ function handleFallbackLogo(event) {
     </div>
     <button
       v-if="appStore.chainType === ChainType.evm_secp256k1"
-      class="flex items-center justify-center flex-grow btn-quaternery border-none dark:bg-black-300 bg-[#EFEFEF]"
+      class="flex items-center justify-center flex-grow btn-quaternery space-x-2"
       @click.stop="handleAddToken"
     >
       <img :src="getImage('plus.svg')" class="h-3 w-3" />

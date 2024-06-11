@@ -735,7 +735,7 @@ watch(
           <div class="flex flex-col gap-1 w-3/4">
             <label for="amount" class="text-sm font-light">Amount</label>
             <div
-              class="input-field flex"
+              class="input-field flex divide-x-1 divide-[#C8D5D9] dark:divide-[#39444A]"
               :class="{ 'input-active': isAmountFocused }"
             >
               <input
@@ -750,7 +750,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="dark:bg-[#354B55] dark:text-white-100 text-[#354B55] uppercase m-1 px-3 py-1 h-6 rounded-md font-light text-base"
+                class="text-[#FF4E9F] uppercase pl-2 h-6 font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
@@ -822,7 +822,7 @@ watch(
       </div>
       <div class="flex mt-2">
         <button
-          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-1/2 mx-auto rounded-full"
+          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-full"
         >
           Preview
         </button>

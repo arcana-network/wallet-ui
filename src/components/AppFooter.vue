@@ -2,16 +2,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
-import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
 const userStore = useUserStore()
 const route = useRoute()
 const requestStore = useRequestStore()
-const appStore = useAppStore()
 
 const currentRoute = computed(() => {
   return route.name
@@ -32,7 +29,7 @@ function getIcon(icon: string, pathName: string) {
 
 <template>
   <footer
-    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 border-t-1 dark:bg-black-400 dark:border-0 select-none"
+    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 border-t-1 dark:bg-[#13171A] dark:border-0 select-none"
   >
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link

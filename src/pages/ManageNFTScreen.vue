@@ -137,15 +137,13 @@ function truncateNFTTokenId(tokenId: string) {
             >
           </div>
         </div>
-        <div class="flex justify-center">
-          <button
-            class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] flex gap-1 items-center cursor-pointer flex-grow justify-center border-none"
-            @click.stop="handleAddToken"
-          >
-            <img :src="getImage('plus.svg')" />
-            <span class="text-base font-medium">New</span>
-          </button>
-        </div>
+        <button
+          class="btn-quaternery flex w-full space-x-1 items-center cursor-pointer justify-center"
+          @click.stop="handleAddToken"
+        >
+          <img :src="getImage('plus.svg')" />
+          <span class="text-base font-medium">New</span>
+        </button>
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

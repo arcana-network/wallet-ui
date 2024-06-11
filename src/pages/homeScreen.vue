@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
+import { getImage } from '@/utils/getImage'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
@@ -91,9 +92,9 @@ rpcStore.$subscribe(() => {
     <div class="my-6">
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
-    <div class="flex space-x-1 text-sm justify-center">
-      <span>Powered by</span>
-      <img src="@/assets/images/arcana-pink-logo.svg" alt="arcana" />
+    <div class="flex space-x-1 justify-center items-center">
+      <span class="text-sm">Powered by</span>
+      <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />
     </div>
   </div>
 </template>
