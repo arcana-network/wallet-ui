@@ -3,7 +3,6 @@ import { AppMode } from '@arcana/auth'
 import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 
-import NearSignAndSendTransaction from '@/components/CustomRequestScreen/Near/NearSignAndSendTransaction.vue'
 import { UNSUPPORTED_METHODS as DEPRECATED_METHODS } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
@@ -38,6 +37,15 @@ const ArcanaSwitchAccountType = defineAsyncComponent(
 )
 const MVXSignTransaction = defineAsyncComponent(
   () => import('@/components/CustomRequestScreen/Mvx/MVXSignTransaction.vue')
+)
+const NearSignAndSendTransaction = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/CustomRequestScreen/Near/NearSignAndSendTransaction.vue'
+    )
+)
+const MVXSignTransactions = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Mvx/MVXSignTransactions.vue')
 )
 
 const appStore = useAppStore()
@@ -206,6 +214,10 @@ function isDeprecatedMethod() {
     <MVXSignTransaction
       v-else-if="method === 'mvx_signTransaction'"
       :transaction="params.transaction"
+    />
+    <MVXSignTransactions
+      v-else-if="method === 'mvx_signTransactions'"
+      :transactions="params.transactions"
     />
     <NearSignAndSendTransaction
       v-else-if="method === 'near_signAndSendTransaction'"

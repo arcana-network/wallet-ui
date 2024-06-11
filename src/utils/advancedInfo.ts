@@ -64,7 +64,8 @@ export const advancedInfo = (
     }
   } else if (
     method === 'signTransaction' ||
-    method === 'signAndSendTransaction'
+    method === 'signAndSendTransaction' ||
+    method === 'mvx_signMessage'
   ) {
     data = params.message
   } else if (method === 'signAllTransactions') {
