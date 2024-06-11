@@ -716,7 +716,7 @@ watch(
     >
       <div class="flex flex-col gap-7">
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium" for="recipientWalletAddress">
+          <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address
           </label>
           <input
@@ -732,8 +732,8 @@ watch(
           />
         </div>
         <div class="flex gap-2">
-          <div class="flex flex-col gap-1">
-            <label for="amount" class="text-sm font-medium">Amount</label>
+          <div class="flex flex-col gap-1 w-3/4">
+            <label for="amount" class="text-sm font-light">Amount</label>
             <div
               class="input-field flex"
               :class="{ 'input-active': isAmountFocused }"
@@ -741,6 +741,7 @@ watch(
               <input
                 id="amount"
                 v-model="amount"
+                class="w-3/4"
                 autocomplete="off"
                 required
                 type="text"
@@ -749,7 +750,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="bg-[#354B55] text-white-100 uppercase m-1 px-3 py-1 h-6 rounded-md font-medium text-xs"
+                class="dark:bg-[#354B55] dark:text-white-100 text-[#354B55] uppercase m-1 px-3 py-1 h-6 rounded-md font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
@@ -764,7 +765,7 @@ watch(
             </div>
           </div>
           <div class="flex flex-col gap-1 flex-grow">
-            <label for="tokens" class="text-sm font-medium">Token</label>
+            <label for="tokens" class="text-sm font-light">Token</label>
             <div v-if="tokenList.length" class="input-field pt-[1px]">
               <select
                 :model-value="selectedToken.symbol"

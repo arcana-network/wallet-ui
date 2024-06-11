@@ -101,7 +101,7 @@ function handleCustomGasPriceInput() {
 <template>
   <div class="flex flex-col gap-1">
     <div class="flex justify-between items-baseline">
-      <span class="text-sm font-normal text-[#8D8D8D]">Gas Fees</span>
+      <span class="text-sm font-light">Gas Fees</span>
       <div v-if="false" class="text-xs font-normal">
         <span class="text-gray-100">Transaction Time:</span>
         <span class="text-black-500 dark:text-white-100">
