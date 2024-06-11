@@ -34,6 +34,8 @@ function openTransak(network: string, isSell?: boolean) {
   transakUrl.searchParams.append('email', userStore.info.email || '')
   if (network === 'near') {
     transakUrl.searchParams.append('cryptoCurrencyList', 'NEAR')
+  } else if (network === 'multiversx') {
+    transakUrl.searchParams.append('cryptoCurrencyList', 'EGLD')
   } else {
     transakUrl.searchParams.append('network', network)
   }
