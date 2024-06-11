@@ -147,7 +147,9 @@ const transakNetwork = computed(() => {
         value: 'multiversx',
       }
     case ChainType.near_cv25519:
-      return false
+      return {
+        value: 'near',
+      }
     default:
       return false
   }

@@ -32,8 +32,12 @@ function openTransak(network: string, isSell?: boolean) {
   transakUrl.searchParams.append('apiKey', process.env.VUE_APP_TRANSAK_API_KEY)
   transakUrl.searchParams.append('walletAddress', userStore.walletAddress)
   transakUrl.searchParams.append('email', userStore.info.email || '')
-  transakUrl.searchParams.append('network', network)
-  transakUrl.searchParams.append('themeColor', '#262626')
+  if (network === 'near') {
+    transakUrl.searchParams.append('cryptoCurrencyList', 'NEAR')
+  } else {
+    transakUrl.searchParams.append('network', network)
+  }
+  transakUrl.searchParams.append('themeColor', '#ff4e9f')
   if (isSell) {
     transakUrl.searchParams.append('productsAvailed', 'SELL')
     transakUrl.searchParams.append('walletRedirection', 'true')
