@@ -69,9 +69,36 @@ export class NEARAccountHandler {
   }
 
   async getBalance() {
-    const bObj = await this.assertAccount().getAccountBalance()
-    devLogger.log({ bObj })
-    return BigInt(bObj.available) // ???
+    try {
+      const bObj = await this.assertAccount().getAccountBalance()
+      return BigInt(bObj.available) < BigInt(0)
+        ? BigInt(0)
+        : BigInt(bObj.available)
+    } catch (e) {
+      return BigInt(0)
+    }
+  }
+
+  async getBalanceBreakdown() {
+    try {
+      const bObj = await this.assertAccount().getAccountBalance()
+      return {
+        total: BigInt(bObj.total) < BigInt(0) ? BigInt(0) : BigInt(bObj.total),
+        available:
+          BigInt(bObj.available) < BigInt(0)
+            ? BigInt(0)
+            : BigInt(bObj.available),
+        locked: BigInt(bObj.stateStaked),
+        staked: BigInt(bObj.staked),
+      }
+    } catch (e) {
+      return {
+        total: BigInt(0),
+        available: BigInt(0),
+        locked: BigInt(0),
+        staked: BigInt(0),
+      }
+    }
   }
 
   getChainId() {
