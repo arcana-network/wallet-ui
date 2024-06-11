@@ -9,6 +9,7 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { ChainType } from '@/utils/chainType'
 import { methodAndAction } from '@/utils/method'
 
 const WalletAddEthereumChain = defineAsyncComponent(
@@ -46,6 +47,13 @@ const NearSignAndSendTransaction = defineAsyncComponent(
 )
 const MVXSignTransactions = defineAsyncComponent(
   () => import('@/components/CustomRequestScreen/Mvx/MVXSignTransactions.vue')
+)
+const SolanaSignTransaction = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Solana/SignTransaction.vue')
+)
+const SolanaSignAllTransactions = defineAsyncComponent(
+  () =>
+    import('@/components/CustomRequestScreen/Solana/SignAllTransactions.vue')
 )
 
 const appStore = useAppStore()
@@ -222,6 +230,20 @@ function isDeprecatedMethod() {
     <NearSignAndSendTransaction
       v-else-if="method === 'near_signAndSendTransaction'"
       :transaction="params.transaction"
+    />
+    <SolanaSignTransaction
+      v-else-if="
+        ['signTransaction', 'signAndSendTransaction'].includes(method) &&
+        appStore.chainType === ChainType.solana_cv25519
+      "
+      :message="params.message"
+    />
+    <SolanaSignAllTransactions
+      v-else-if="
+        method === 'signAllTransactions' &&
+        appStore.chainType === ChainType.solana_cv25519
+      "
+      :message="params.message"
     />
     <div v-else class="flex flex-col gap-1">
       <div class="text-sm">Message</div>
