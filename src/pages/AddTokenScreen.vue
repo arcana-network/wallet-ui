@@ -192,7 +192,9 @@ watch(
               type="button"
               @click.stop="expandSection = !expandSection"
             >
-              <span class="text-sm font-normal">Add Custom Token</span>
+              <span class="text-sm font-normal dark:text-white-100"
+                >Add Custom Token</span
+              >
               <img
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-all will-change-transform duration-200"

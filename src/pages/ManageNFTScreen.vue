@@ -136,15 +136,15 @@ function truncateNFTTokenId(tokenId: string) {
               >No NFTs added</span
             >
           </div>
-          <div class="flex justify-center">
-            <button
-              class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] flex py-1 gap-1 items-center cursor-pointer flex-grow justify-center border-b-0 border-x-0 border-t-1"
-              @click.stop="handleAddToken"
-            >
-              <img :src="getImage('plus.svg')" />
-              <span class="text-base font-medium">New</span>
-            </button>
-          </div>
+        </div>
+        <div class="flex justify-center">
+          <button
+            class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] flex gap-1 items-center cursor-pointer flex-grow justify-center border-none"
+            @click.stop="handleAddToken"
+          >
+            <img :src="getImage('plus.svg')" />
+            <span class="text-base font-medium">New</span>
+          </button>
         </div>
       </div>
     </div>
