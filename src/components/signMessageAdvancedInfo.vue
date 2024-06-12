@@ -3,12 +3,7 @@ import { computed } from 'vue'
 
 import VJsonViewer from '@/components/VJsonViewer.vue'
 
-const props = defineProps({
-  info: {
-    type: Object,
-    required: true,
-  },
-})
+const props = defineProps<{ info: any }>()
 
 const signInfo = computed(() => {
   return props.info as any

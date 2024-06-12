@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import Decimal from 'decimal.js'
 import type { Connection } from 'penpal'
-import { ref, toRefs, watch } from 'vue'
+import { computed, onBeforeMount, ref, reactive, toRefs, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -16,11 +17,14 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_URL } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
+import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
@@ -38,6 +42,41 @@ const loader = ref({
   message: '',
 })
 const starterTipsStore = useStarterTipsStore()
+const balanceBreakdown = reactive({
+  total: '',
+  available: '',
+  staked: '',
+  locked: '',
+})
+
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.near_cv25519) {
+    loader.value = {
+      show: true,
+      message: 'Fetching balance...',
+    }
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as NEARAccountHandler
+    const breakdown = await accountHandler.getBalanceBreakdown()
+    balanceBreakdown.total = new Decimal(breakdown.total.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.available = new Decimal(breakdown.available.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.staked = new Decimal(breakdown.staked.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.locked = new Decimal(breakdown.locked.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    hideLoader()
+  }
+})
 
 const {
   info: { email, name },
@@ -46,6 +85,13 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
+
+const privateKey = computed(() => {
+  if (appStore.chainType === ChainType.near_cv25519) {
+    return `ed25519:${user.privateKey}`
+  }
+  return user.privateKey
+})
 
 let mfaWindow: Window | null
 let cleanExit = false
@@ -267,6 +313,37 @@ watch(
           <img :src="getImage('external-link.svg')" class="w-4 h-4" />
         </button>
       </div>
+      <div
+        v-if="appStore.chainType === ChainType.near_cv25519"
+        class="flex flex-col gap-2"
+      >
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-100">Total Balance</span>
+          <span class="text-base font-bold">
+            {{ balanceBreakdown.total }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-100">Available Balance</span>
+          <span class="text-base font-bold">
+            {{ balanceBreakdown.available }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-100"
+            >Balance Reserved for Storage</span
+          >
+          <span class="text-base font-bold">
+            {{ balanceBreakdown.locked }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm text-gray-100">Balance Staked</span>
+          <span class="text-base font-bold">
+            {{ balanceBreakdown.staked }} NEAR
+          </span>
+        </div>
+      </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
         <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
           >Enhance Wallet Security</span
@@ -304,7 +381,7 @@ watch(
       />
       <ExportKeyModal
         v-if="showExportKeyModal"
-        :private-key="user.privateKey"
+        :private-key="privateKey"
         :wallet-address="user.walletAddress"
       />
       <MFAProceedModal

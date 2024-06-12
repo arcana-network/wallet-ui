@@ -26,7 +26,18 @@ type SolanaRequestMethod =
   | 'signMessage'
   | 'signAllTransactions'
 
-type RequestMethod = EVMRequestMethod | SolanaRequestMethod
+type NEARRequestMethod = 'near_signMessage' | 'near_signAndSendTransaction'
+
+type MVXRequestMethod =
+  | 'mvx_signMessage'
+  | 'mvx_signTransaction'
+  | 'mvx_signTransactions'
+
+type RequestMethod =
+  | EVMRequestMethod
+  | SolanaRequestMethod
+  | NEARRequestMethod
+  | MVXRequestMethod
 
 const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   personal_sign: true,
@@ -50,6 +61,10 @@ const PERMISSIONS: Record<RequestMethod, boolean> = Object.freeze({
   mvx_signMessage: true,
   mvx_signTransaction: true,
   mvx_signTransactions: true,
+  near_signMessage: true,
+  near_signAndSendTransaction: true,
+  getAccounts: false,
+  getPublicKey: false,
 })
 
 const UNSUPPORTED_METHODS = ['eth_sign', 'eth_signTransaction']

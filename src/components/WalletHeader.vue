@@ -70,6 +70,8 @@ function getChainType(chainType: ChainType) {
       return 'solana'
     case ChainType.multiversx_cv25519:
       return 'multiversx'
+    case ChainType.near_cv25519:
+      return 'near'
   }
 }
 
@@ -115,7 +117,7 @@ function getLogo() {
               "
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
-              class="w-xl h-xl"
+              class="w-xl h-xl rounded-full"
               @error="handleFallbackLogo"
             />
           </div>

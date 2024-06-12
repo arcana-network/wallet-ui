@@ -55,6 +55,7 @@ function getIcon(icon: string, pathName: string) {
         >
       </router-link>
       <router-link
+        v-if="appStore.chainType !== ChainType.near_cv25519"
         :to="{ name: 'Nfts' }"
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"
