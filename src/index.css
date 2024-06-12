@@ -66,7 +66,7 @@
   }
 
   .btn-secondary {
-    @apply bg-transparent text-blue-dabg-blue-dark dark:text-white-200 box-border border-2 border-blue-dabg-blue-dark dark:border-white-200 rounded-full;
+    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-2 border-blue-dark dark:border-white-200 rounded-full;
   }
 
   .btn-tertiary {
@@ -74,7 +74,7 @@
   }
 
   .btn-quaternery {
-    @apply bg-transparent rounded-full h-9 box-border border-2 border-blue-dabg-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200;
+    @apply bg-transparent rounded-full h-9 box-border border-2 border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200;
   }
 
   .card {
