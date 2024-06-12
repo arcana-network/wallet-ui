@@ -436,6 +436,7 @@ async function copyToClipboard(value: string) {
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
+        :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >
         <img :src="getImage('sell.svg')" class="w-md h-md" />
