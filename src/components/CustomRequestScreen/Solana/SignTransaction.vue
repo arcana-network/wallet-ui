@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
-
-const SolanaTransactionDetails = defineAsyncComponent(
-  () => import('@/components/CustomRequestScreen/Solana/TransactionDetails.vue')
-)
+import SolanaTransactionDetails from '@/components/CustomRequestScreen/Solana/TransactionDetails.vue'
 
 const props = defineProps<{ message: string }>()
 </script>
