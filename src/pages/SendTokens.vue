@@ -750,7 +750,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="text-[#FF4E9F] uppercase pl-2 h-6 font-light text-base"
+                class="text-rose-briliant uppercase pl-2 h-6 font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >

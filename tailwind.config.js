@@ -23,6 +23,7 @@ module.exports = {
         yellow: { 100: '#eeb113' },
         blue: { 100: '#3e9aff', dark: '#1D2A31', columbia: 'C8D5D9' },
         green: { 100: '#05c168' },
+        rose: { briliant: '#ff4e9f' },
         black: {
           100: '#000000',
           200: '#1f1f1f',
