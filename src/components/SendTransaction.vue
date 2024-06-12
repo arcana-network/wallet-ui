@@ -256,7 +256,9 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="flex flex-col space-y-2"
     >
-      <p class="text-lg text-center font-medium flex-grow">Send Transaction</p>
+      <p class="font-Nohemi text-lg text-center font-medium flex-grow">
+        Send Transaction
+      </p>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.

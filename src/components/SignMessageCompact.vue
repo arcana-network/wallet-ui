@@ -38,7 +38,7 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col gap-8">
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-center">
-        <h1 class="m-0 font-medium text-lg capitalize">
+        <h1 class="font-Nohemi m-0 font-medium text-lg capitalize">
           {{ props.title }}
         </h1>
       </div>

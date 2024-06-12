@@ -205,7 +205,9 @@ function isDeprecatedMethod() {
   </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
-      <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
+      <h1
+        class="font-Nohemi flex-1 m-0 font-bold text-lg text-center capitalize"
+      >
         {{ methodAndAction[method] }}
       </h1>
       <p class="text-xs text-gray-100 text-center">

@@ -2,10 +2,13 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
+const appStore = useAppStore()
 const userStore = useUserStore()
 const route = useRoute()
 const requestStore = useRequestStore()

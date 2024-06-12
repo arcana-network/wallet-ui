@@ -482,7 +482,7 @@ function handleGasPriceInput(value, request) {
           'text-center': isArcanaPrivateKeyRequest(request?.method),
         }"
       >
-        <h1>{{ methodAndAction[request.method] }}</h1>
+        <h1 class="font-Nohemi">{{ methodAndAction[request.method] }}</h1>
         <p class="text-xs text-[#8D8D8D]">
           {{ truncateMid(request.params[0]?.from, 6) }}
         </p>

@@ -222,7 +222,7 @@ function handleFallbackLogo(event) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-2">
     <span class="uppercase font-lg font-medium text-gray-bermuda-grey"
       >Assets</span
     >

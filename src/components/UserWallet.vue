@@ -289,9 +289,9 @@ async function copyToClipboard(value: string) {
               >
                 <img
                   src="@/assets/images/fallback-logo-dark-mode.png"
-                  class="w-xl h-xl rounded-full"
+                  class="w-xxl h-xxl rounded-full"
                 />
-                <div class="flex flex-col">
+                <div class="flex flex-col0">
                   <div class="flex">
                     <div class="flex flex-col items-start">
                       <span
@@ -310,11 +310,6 @@ async function copyToClipboard(value: string) {
                       <img :src="getImage('copy.svg')" class="w-xl h-xl" />
                     </button>
                   </div>
-                  <span
-                    v-if="appStore.chainType === ChainType.evm_secp256k1"
-                    class="text-left text-xs text-[#8d8d8d]"
-                    >{{ selectedAddressType.label }}</span
-                  >
                 </div>
               </button>
               <img

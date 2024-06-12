@@ -251,7 +251,7 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="text-base font-medium">Profile</span>
+      <span class="font-Nohemi text-base font-medium">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
@@ -364,14 +364,14 @@ watch(
           <span v-else class="text-base font-medium">In use</span>
         </div>
       </div>
-      <div class="flex">
-        <button
-          class="flex justify-center btn-primary items-center w-full p-2 font-medium text-sm uppercase"
-          @click="handleLogout"
-        >
-          Logout
-        </button>
-      </div>
+    </div>
+    <div class="flex">
+      <button
+        class="flex justify-center btn-secondary items-center w-full p-2 font-medium text-sm uppercase"
+        @click="handleLogout"
+      >
+        Logout
+      </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <PrivateKeyCautionModal

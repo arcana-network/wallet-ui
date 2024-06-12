@@ -89,7 +89,7 @@ rpcStore.$subscribe(() => {
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div class="my-6">
+    <div class="my-5">
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
     <div class="flex space-x-1 justify-center items-center">

@@ -310,7 +310,7 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h2 class="font-medium text-lg uppercase">
+        <h2 class="font-Nohemi font-medium text-lg uppercase">
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="text-sm max-w-[26rem]"
@@ -339,7 +339,9 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-medium text-lg uppercase m-4">RECOVERY METHOD 2: PIN</h2>
+    <h2 class="font-Nohemi font-medium text-lg uppercase m-4">
+      RECOVERY METHOD 2: PIN
+    </h2>
     <hr />
     <div class="m-4 text-sm text-gray-100">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
@@ -400,7 +402,7 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-medium text-base uppercase m-4">
+      <h2 class="font-Nohemi font-medium text-base uppercase m-4">
         RECOVERY METHOD 1: Security Questions
       </h2>
       <hr />

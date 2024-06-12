@@ -68,7 +68,9 @@ async function getCurrencyExchangeRate() {
 <template>
   <div class="flex flex-col gap-5" @click="showFilter = false">
     <div class="flex justify-between relative items-center">
-      <h1 class="font-medium text-xl text-center flex-grow">Activities</h1>
+      <h1 class="font-Nohemi font-medium text-xl text-center flex-grow">
+        Activities
+      </h1>
     </div>
     <div
       v-if="requestStore.skippedRequestsPendingForApprovalLength"
@@ -84,10 +86,7 @@ async function getCurrencyExchangeRate() {
     </div>
     <div class="flex-1 flex flex-col gap-2">
       <span class="text-xs text-gray-bermuda-grey font-medium"
-        >Confirmed
-        <span class="text-red-pink-orange"
-          >({{ activities.length }})</span
-        ></span
+        >Confirmed <span>({{ activities.length }})</span></span
       >
       <ActivityView
         :currency-exchange-rate="exchangeRate"

@@ -344,7 +344,7 @@ body {
   min-height: unset !important;
   max-height: 120px !important;
   padding: 1rem !important;
-  font-family: Nohemi, sans-serif !important;
+  font-family: Inter, sans-serif !important;
   text-overflow: ellipsis !important;
 }
 

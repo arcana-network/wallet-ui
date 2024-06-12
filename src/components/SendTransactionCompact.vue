@@ -129,7 +129,9 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col h-full gap-4 justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-center">
-        <h1 class="m-0 font-medium text-lg capitalize">Send Transaction</h1>
+        <h1 class="font-Nohemi m-0 font-medium text-lg capitalize">
+          Send Transaction
+        </h1>
       </div>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to

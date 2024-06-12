@@ -5,7 +5,9 @@ const dots = [1, 2, 3, 4, 5, 6]
 <template>
   <div class="h-full p-6">
     <div class="space-y-4 h-1/4">
-      <h1 class="text-xl uppercase font-black">Digital Collectibles Support</h1>
+      <h1 class="font-Nohemi text-xl uppercase font-black">
+        Digital Collectibles Support
+      </h1>
       <p class="text-sm">
         View, send or receive NFTs from all the supported blockchains right
         within the Pop-Up Wallet.

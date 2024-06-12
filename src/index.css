@@ -33,13 +33,76 @@
   src: url('@/assets/fonts/nohemi/Nohemi-Bold.woff2') format('woff');
 }
 
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100;
+  src: url('@/assets/fonts/inter/Inter-Thin.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 200;
+  src: url('@/assets/fonts/inter/Inter-ExtraLight.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 300;
+  src: url('@/assets/fonts/inter/Inter-Light.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/inter/Inter-Regular.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/inter/Inter-Medium.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 600;
+  src: url('@/assets/fonts/inter/Inter-SemiBold.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/inter/Inter-Bold.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 800;
+  src: url('@/assets/fonts/inter/Inter-ExtraBold.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 900;
+  src: url('@/assets/fonts/inter/Inter-Black.ttf') format('ttf');
+}
+
 @layer base {
   body {
-    @apply font-Nohemi text-black-500 dark:text-white-100 leading-normal;
+    @apply font-Inter text-black-500 dark:text-white-100 leading-normal;
   }
 
   pre {
-    @apply font-Nohemi;
+    @apply font-Inter;
   }
 
   button {
@@ -118,6 +181,10 @@
 
   .font-Nohemi {
     font-family: Nohemi, sans-serif;
+  }
+
+  .font-Inter {
+    font-family: Inter, sans-serif;
   }
 
   .glass-effect {
