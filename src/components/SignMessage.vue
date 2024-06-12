@@ -165,7 +165,7 @@ function isDeprecatedMethod() {
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
       <div>
-        <span class="text-[#FF9167] text-xs">Pending</span>
+        <span class="text-red-pink-orange text-xs">Pending</span>
       </div>
     </div>
     <div>

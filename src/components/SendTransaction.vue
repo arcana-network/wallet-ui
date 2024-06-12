@@ -239,7 +239,7 @@ function calculateCurrencyValue(value) {
       <span class="text-[#989898] text-sm font-normal">{{
         calculateCurrencyValue(request.request.params[0].value)
       }}</span>
-      <span class="text-[#FF9167] text-xs">Pending</span>
+      <span class="text-red-pink-orange text-xs">Pending</span>
     </div>
   </div>
   <SendTransactionCompact

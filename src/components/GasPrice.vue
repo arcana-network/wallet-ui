@@ -109,7 +109,7 @@ function handleCustomGasPriceInput() {
         </span>
       </div>
     </div>
-    <div class="card dark:bg-[#EFEFEF] flex p-1">
+    <div class="card bg-gray-zinc dark:bg-crayola flex p-1">
       <div
         class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{

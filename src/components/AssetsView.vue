@@ -208,7 +208,9 @@ function handleFallbackLogo(event) {
 
 <template>
   <div class="flex flex-col gap-3">
-    <span class="uppercase font-lg font-medium">Assets</span>
+    <span class="uppercase font-lg font-medium text-gray-bermuda-grey"
+      >Assets</span
+    >
     <div class="card flex flex-col overflow-hidden">
       <div
         v-if="assets.length"

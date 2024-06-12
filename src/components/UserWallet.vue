@@ -338,18 +338,12 @@ async function copyToClipboard(value: string) {
               </ListboxOptions>
             </div>
           </Listbox>
-          <button
-            class="w-lg h-lg rounded-full"
-            :class="{ 'animate-spin': refreshIconAnimating }"
-            title="Click to refresh the balance"
-            @click.stop="handleRefresh()"
-          >
-            <img :src="getImage('refresh.svg')" />
-          </button>
         </div>
       </div>
       <div class="mt-4 flex flex-col">
-        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
+        <span class="font-normal text-sm text-gray-bermuda-grey"
+          >Total Balance:</span
+        >
         <div class="flex items-center gap-4">
           <div
             class="transition-all duration-200"
@@ -375,39 +369,47 @@ async function copyToClipboard(value: string) {
               >({{ walletBalanceInCurrency }})</span
             >
           </div>
+          <button
+            class="w-lg h-lg rounded-full"
+            :class="{ 'animate-spin': refreshIconAnimating }"
+            title="Click to refresh the balance"
+            @click.stop="handleRefresh()"
+          >
+            <img :src="getImage('refresh.svg')" />
+          </button>
         </div>
       </div>
-      <div class="mt-6 flex gap-3">
-        <button
-          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
-          @click.stop="goToSendTokens()"
-        >
-          <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-          <span>Send</span>
-        </button>
-        <button
-          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
-          :disabled="!transakNetwork && onRampMoney === false"
-          :class="{
-            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-          }"
-          @click.stop="handleBuy(true)"
-        >
-          <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-          <span>Buy</span>
-        </button>
-        <button
-          class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
-          :disabled="!transakSellNetwork"
-          :class="{
-            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-          }"
-          @click.stop="handleSell(true)"
-        >
-          <img :src="getImage('sell.svg')" class="w-md h-md" />
-          <span>Sell</span>
-        </button>
-      </div>
+    </div>
+    <div class="mt-4 flex gap-3">
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+        @click.stop="goToSendTokens()"
+      >
+        <img :src="getImage('send-icon.svg')" class="w-md h-md" />
+        <span>Send</span>
+      </button>
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+        :disabled="!transakNetwork && onRampMoney === false"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+        }"
+        @click.stop="handleBuy(true)"
+      >
+        <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
+        <span>Buy</span>
+      </button>
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+        :disabled="!transakSellNetwork"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+        }"
+        @click.stop="handleSell(true)"
+      >
+        <img :src="getImage('sell.svg')" class="w-md h-md" />
+        <span>Sell</span>
+      </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddNetwork

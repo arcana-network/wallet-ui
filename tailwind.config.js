@@ -19,7 +19,7 @@ module.exports = {
         bold: 700,
       },
       colors: {
-        red: { 100: '#ff4264' },
+        red: { 100: '#ff4264', 'pink-orange': '#FF9167' },
         yellow: { 100: '#eeb113' },
         blue: {
           100: '#3e9aff',
@@ -58,6 +58,8 @@ module.exports = {
           800: '#dbdbdb',
           900: '#f5f5f5',
           bright: '#E4E9EB',
+          'bermuda-grey': '#74919C',
+          zinc: '#C8D5D9',
         },
       },
       width: {

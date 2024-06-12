@@ -732,10 +732,10 @@ watch(
           />
         </div>
         <div class="flex gap-2">
-          <div class="flex flex-col gap-1 w-3/4">
+          <div class="flex flex-col gap-1 w-4/6">
             <label for="amount" class="text-sm font-light">Amount</label>
             <div
-              class="input-field flex divide-x-1 divide-blue-columbia dark:divide-black-arsenic"
+              class="input-field flex divide-x-1 divide-gray-zinc dark:divide-black-arsenic"
               :class="{ 'input-active': isAmountFocused }"
             >
               <input
@@ -759,9 +759,7 @@ watch(
             </div>
             <div class="text-gray-100 text-xs font-normal">
               Total Balance:
-              <span class="text-black-500 dark:text-white-100"
-                >{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span
-              >
+              <span>{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span>
             </div>
           </div>
           <div class="flex flex-col gap-1 flex-grow">

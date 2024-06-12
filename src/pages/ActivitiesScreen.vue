@@ -74,16 +74,20 @@ async function getCurrencyExchangeRate() {
       v-if="requestStore.skippedRequestsPendingForApprovalLength"
       class="flex flex-col gap-2"
     >
-      <span class="text-xs text-gray-100 font-medium"
-        >Pending ({{
-          requestStore.skippedRequestsPendingForApprovalLength
-        }})</span
+      <span class="text-xs text-gray-bermuda-grey font-medium"
+        >Pending
+        <span class="text-red-pink-orange"
+          >({{ requestStore.skippedRequestsPendingForApprovalLength }})</span
+        ></span
       >
       <SkippedRequestView />
     </div>
     <div class="flex-1 flex flex-col gap-2">
-      <span class="text-xs text-gray-100 font-medium"
-        >Confirmed ({{ activities.length }})</span
+      <span class="text-xs text-gray-bermuda-grey font-medium"
+        >Confirmed
+        <span class="text-red-pink-orange"
+          >({{ activities.length }})</span
+        ></span
       >
       <ActivityView
         :currency-exchange-rate="exchangeRate"
