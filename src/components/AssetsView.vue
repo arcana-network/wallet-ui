@@ -223,7 +223,8 @@ function handleFallbackLogo(event) {
 
 <template>
   <div class="flex flex-col gap-2">
-    <span class="uppercase font-lg font-medium text-gray-bermuda-grey"
+    <span
+      class="uppercase font-lg font-medium leading-none text-gray-bermuda-grey dark:text-gray-spanish"
       >Assets</span
     >
     <div class="card flex flex-col overflow-hidden">
@@ -269,7 +270,7 @@ function handleFallbackLogo(event) {
       @click.stop="handleAddToken"
     >
       <img :src="getImage('plus.svg')" class="h-3 w-3" />
-      <span class="text-base font-medium">New Asset</span>
+      <span class="font-semibold text-base">New Asset</span>
     </button>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddTokenScreen v-if="showModal" />

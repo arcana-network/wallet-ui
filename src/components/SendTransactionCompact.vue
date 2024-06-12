@@ -129,7 +129,7 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col h-full gap-4 justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-center">
-        <h1 class="font-Nohemi m-0 font-medium text-lg capitalize">
+        <h1 class="font-Nohemi m-0 text-[20px] font-semibold capitalize">
           Send Transaction
         </h1>
       </div>

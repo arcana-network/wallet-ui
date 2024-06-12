@@ -251,31 +251,34 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="font-Nohemi text-base font-medium">Profile</span>
+      <span class="font-Nohemi text-[20px] font-semibold">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
-        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Name</span
         >
-        <span class="text-base font-medium">
+        <span class="text-base font-semibold">
           {{ name }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Email ID</span
         >
-        <span class="text-base font-medium">
+        <span class="text-base font-semibold">
           {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Wallet Address</span
         >
         <div class="flex gap-2">
-          <span class="text-base font-medium">
+          <span class="text-base font-semibold">
             {{ walletAddressShrinked }}
           </span>
           <button
@@ -298,7 +301,8 @@ watch(
           'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
         }"
       >
-        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Private Key</span
         >
         <button
@@ -307,7 +311,7 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-base font-medium dark:text-white-100">
+          <span class="text-base font-semibold dark:text-white-100">
             Export Key
           </span>
           <img :src="getImage('external-link.svg')" class="w-4 h-4" />
@@ -318,40 +322,43 @@ watch(
         class="flex flex-col gap-2"
       >
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100">Total Balance</span>
-          <span class="text-base font-bold">
+          <span class="text-sm font-medium text-gray-100">Total Balance</span>
+          <span class="text-base font-semibold">
             {{ balanceBreakdown.total }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100">Available Balance</span>
-          <span class="text-base font-bold">
+          <span class="text-sm font-medium text-gray-100"
+            >Available Balance</span
+          >
+          <span class="text-base font-semibold">
             {{ balanceBreakdown.available }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100"
+          <span class="text-sm font-medium text-gray-100"
             >Balance Reserved for Storage</span
           >
-          <span class="text-base font-bold">
+          <span class="text-base font-semibold">
             {{ balanceBreakdown.locked }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100">Balance Staked</span>
-          <span class="text-base font-bold">
+          <span class="text-sm font-medium text-gray-100">Balance Staked</span>
+          <span class="text-base font-semibold">
             {{ balanceBreakdown.staked }} NEAR
           </span>
         </div>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
-        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Enhance Wallet Security</span
         >
         <div>
           <button
             v-if="!user.hasMfa"
-            class="text-base font-medium flex gap-2 items-center"
+            class="text-base font-semibold flex gap-2 items-center"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
@@ -361,7 +368,7 @@ watch(
             >
             <img :src="getImage('external-link.svg')" class="w-4 h-4" />
           </button>
-          <span v-else class="text-base font-medium">In use</span>
+          <span v-else class="text-base font-semibold">In use</span>
         </div>
       </div>
     </div>

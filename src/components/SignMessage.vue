@@ -187,7 +187,7 @@ function isDeprecatedMethod() {
   >
     <div class="flex justify-between" @click="emits('expand')">
       <div class="flex">
-        <span class="text-lg font-medium">{{
+        <span class="font-Nohemi text-lg font-medium">{{
           methodAndAction[request.request.method]
         }}</span>
         <img :src="getImage('arrow-down.svg')" alt="" />
@@ -206,7 +206,7 @@ function isDeprecatedMethod() {
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
       <h1
-        class="font-Nohemi flex-1 m-0 font-bold text-lg text-center capitalize"
+        class="font-Nohemi flex-1 m-0 text-[20px] font-semibold text-center capitalize"
       >
         {{ methodAndAction[method] }}
       </h1>

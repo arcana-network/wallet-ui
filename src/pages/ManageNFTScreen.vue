@@ -105,7 +105,7 @@ function truncateNFTTokenId(tokenId: string) {
           >
             <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
           </button>
-          <span class="text-lg font-Nohemi font-medium">Manage NFTs</span>
+          <span class="font-Nohemi text-[20px] font-semibold">Manage NFTs</span>
         </div>
         <div
           class="card flex flex-col w-full h-full max-h-max text-left flex-grow overflow-hidden"

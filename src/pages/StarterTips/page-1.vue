@@ -4,7 +4,9 @@ const dots = [1, 2, 3, 4, 5, 6]
 
 <template>
   <div class="space-y-4 h-full p-6 pt-2 text-black-100 dark:text-white-100">
-    <h1 class="font-Nohemi text-xl uppercase">New user orientation</h1>
+    <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+      New user orientation
+    </h1>
     <p class="text-sm">
       The following screens will help you understand the main functionalities
       that are available in your wallet.

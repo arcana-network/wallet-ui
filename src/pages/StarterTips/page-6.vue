@@ -14,7 +14,9 @@ const dots = [1, 2, 3, 4, 5, 6]
     <div
       class="text-black-100 dark:text-white-100 bg-gray-900 dark:bg-black-100 h-1/4 p-4"
     >
-      <h1 class="font-Nohemi text-xl uppercase font-black">On-RAMP Support</h1>
+      <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+        On-RAMP Support
+      </h1>
       <p class="text-sm">
         Easily purchase a wide range of crypto assets directly within the wallet
         using our integrated on-ramp providers.

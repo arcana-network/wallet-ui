@@ -294,21 +294,27 @@ async function copyToClipboard(value: string) {
                 <div class="flex flex-col0">
                   <div class="flex">
                     <div class="flex flex-col items-start">
-                      <span
-                        class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
-                        >{{ truncateMid(selectedAddressType.address, 6) }}</span
-                      >
-                      <span class="text-left text-xs text-[#8d8d8d]">{{
+                      <div class="flex items-center">
+                        <span
+                          class="text-sm font-semibold dark:text-white-100 text-black-100"
+                          >{{
+                            truncateMid(selectedAddressType.address, 6)
+                          }}</span
+                        >
+                        <button
+                          title="Click to copy wallet address"
+                          class="self-start"
+                          @click.stop="
+                            copyToClipboard(selectedAddressType.address)
+                          "
+                        >
+                          <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+                        </button>
+                      </div>
+                      <span class="text-left text-xs text-gray-100">{{
                         selectedAddressType.label
                       }}</span>
                     </div>
-                    <button
-                      title="Click to copy wallet address"
-                      class="self-start"
-                      @click.stop="copyToClipboard(selectedAddressType.address)"
-                    >
-                      <img :src="getImage('copy.svg')" class="w-xl h-xl" />
-                    </button>
                   </div>
                 </div>
               </button>
@@ -324,7 +330,7 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 dark:divide-[#8d8d8d] divide-[#eff1f3] mt-2 p-2 rounded-md absolute top-12 dark:bg-[#313131] bg-[#FFFFFF] w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-12 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
               >
                 <ListboxOption
                   v-for="address in addresses"
@@ -335,7 +341,7 @@ async function copyToClipboard(value: string) {
                   <button
                     class="flex items-center space-x-2 py-2"
                     :class="{
-                      'text-[#8d8d8d]':
+                      'text-gray-100':
                         address.address === selectedAddressType.address,
                     }"
                   >
@@ -362,15 +368,15 @@ async function copyToClipboard(value: string) {
       <div class="mt-4 flex flex-col">
         <span
           v-if="appStore.chainType === ChainType.near_cv25519"
-          class="font-normal text-gray-bermuda-grey dark:text-gray-spanish"
+          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Available Balance:</span
         >
         <span
           v-else
-          class="font-normal text-gray-bermuda-grey dark:text-gray-spanish"
+          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 text-base font-semibold">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"
@@ -408,14 +414,14 @@ async function copyToClipboard(value: string) {
     </div>
     <div class="mt-4 flex gap-3">
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-semibold text-base w-full"
         @click.stop="goToSendTokens()"
       >
         <img :src="getImage('send-icon.svg')" class="w-md h-md" />
         <span>Send</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-semibold text-base w-full"
         :disabled="!transakNetwork && onRampMoney === false"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
@@ -426,8 +432,7 @@ async function copyToClipboard(value: string) {
         <span>Buy</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
-        :disabled="!transakSellNetwork"
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center font-semibold text-base w-full"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
