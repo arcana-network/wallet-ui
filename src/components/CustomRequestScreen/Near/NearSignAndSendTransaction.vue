@@ -3,7 +3,7 @@ import Decimal from 'decimal.js'
 import { type SignAndSendTransactionOptions } from 'near-api-js/lib/account'
 import { computed } from 'vue'
 
-import SignMessageAdvancedInfo from '@/components/SignMessageAdvancedInfo.vue'
+import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { estimatedNearTxFees } from '@/utils/near/estimatedTxFees'
 import { getActionName } from '@/utils/near/getActionName'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'

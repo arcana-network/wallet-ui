@@ -3,7 +3,7 @@ import { Decimal } from 'decimal.js'
 import { onMounted, ref } from 'vue'
 
 import GasPrice from '@/components/GasPrice.vue'
-import SignMessageAdvancedInfo from '@/components/SignMessageAdvancedInfo.vue'
+import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'

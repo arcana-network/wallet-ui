@@ -18,7 +18,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import SendTransaction from '@/components/SendTransaction.vue'
-import SignMessageAdvancedInfo from '@/components/SignMessageAdvancedInfo.vue'
+import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
 import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
