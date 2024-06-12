@@ -375,7 +375,14 @@ async function copyToClipboard(value: string) {
         </div>
       </div>
       <div class="mt-4 flex flex-col">
-        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
+        <span
+          v-if="appStore.chainType === ChainType.near_cv25519"
+          class="font-normal text-sm text-gray-100"
+          >Available Balance:</span
+        >
+        <span v-else class="font-normal text-sm text-gray-100"
+          >Total Balance:</span
+        >
         <div class="flex items-center gap-4">
           <div
             class="transition-all duration-200"

@@ -314,25 +314,27 @@ watch(
       >
         <div class="flex flex-col">
           <span class="text-sm text-gray-100">Total Balance</span>
-          <span class="text-lg font-bold">
+          <span class="text-base font-bold">
             {{ balanceBreakdown.total }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100">Usable Balance</span>
-          <span class="text-lg font-bold">
+          <span class="text-sm text-gray-100">Available Balance</span>
+          <span class="text-base font-bold">
             {{ balanceBreakdown.available }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm text-gray-100">Balance Locked for Storage</span>
-          <span class="text-lg font-bold">
+          <span class="text-sm text-gray-100"
+            >Balance Reserved for Storage</span
+          >
+          <span class="text-base font-bold">
             {{ balanceBreakdown.locked }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
           <span class="text-sm text-gray-100">Balance Staked</span>
-          <span class="text-lg font-bold">
+          <span class="text-base font-bold">
             {{ balanceBreakdown.staked }} NEAR
           </span>
         </div>
