@@ -735,7 +735,7 @@ watch(
           <div class="flex flex-col gap-1 w-3/4">
             <label for="amount" class="text-sm font-light">Amount</label>
             <div
-              class="input-field flex divide-x-1 divide-[#C8D5D9] dark:divide-[#39444A]"
+              class="input-field flex divide-x-1 divide-blue-columbia dark:divide-black-arsenic"
               :class="{ 'input-active': isAmountFocused }"
             >
               <input
