@@ -31,7 +31,7 @@ const SignMessageCompact = defineAsyncComponent(
   () => import('@/components/SignMessageCompact.vue')
 )
 const SignMessageAdvancedInfo = defineAsyncComponent(
-  () => import('@/components/SignMessageAdvancedInfo.vue')
+  () => import('@/components/signMessageAdvancedInfo.vue')
 )
 const ArcanaSwitchAccountType = defineAsyncComponent(
   () =>
