@@ -1,5 +1,6 @@
 import type { RpcConfig } from '@arcana/auth'
 import bs58 from 'bs58'
+import Decimal from 'decimal.js'
 import {
   JsonRpcEngine,
   JsonRpcRequest,
@@ -36,7 +37,7 @@ class SolanaRequestHandler {
       this.connectSent = true
       const chainId = this.accountHandler.getChainId()
       await this.emitEvent('connect', {
-        chainId: toHex(Number(chainId).toString(16)),
+        chainId: new Decimal(chainId).toHexadecimal(),
       })
     }
   }
@@ -107,8 +108,8 @@ class SolanaRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    if (req.params == null) {
-      throw new Error('???')
+    if (req.params == null && req.method !== 'getAccounts') {
+      throw new Error('params is required')
     }
     switch (req.method) {
       case 'getAccounts': {

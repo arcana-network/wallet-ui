@@ -54,6 +54,7 @@
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
     "json-rpc-engine": "^6.1.0",
+    "near-api-js": "^4.0.1",
     "node-polyfill-webpack-plugin": "^4.0.0",
     "penpal": "^6.2.2",
     "pinia": "^2.1.7",

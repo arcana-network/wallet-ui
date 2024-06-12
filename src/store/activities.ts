@@ -30,6 +30,8 @@ type TransactionOps =
   | 'Receive'
   | 'Contract Deployment'
   | 'Contract Interaction'
+  | 'Batched Transaction'
+  | 'Transaction'
 
 type TransakOps = 'Buy' | 'Sell'
 
@@ -81,6 +83,7 @@ type Activity = {
     data?: string
     computeUnitsConsumed?: bigint
     fee?: bigint
+    totalActions?: number
   }
   operation: TransactionOps | FileOps | TransakOps
   date: Date
@@ -431,7 +434,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
               amount: remoteTransaction.value.toBigInt(),
               nonce: remoteTransaction.nonce,
               gasLimit: remoteTransaction.gasLimit.toBigInt(),
-              gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+              gasPrice: remoteTransaction.gasPrice?.toBigInt() || 0n,
               gasUsed: remoteTransaction.gasLimit.toBigInt(),
               data: remoteTransaction.data,
             },
@@ -554,7 +557,7 @@ export const useActivitiesStore = defineStore('activitiesStore', {
             amount: remoteTransaction.value.toBigInt(),
             nonce: remoteTransaction.nonce,
             gasLimit: remoteTransaction.gasLimit.toBigInt(),
-            gasPrice: remoteTransaction.gasPrice?.toBigInt() || BigInt(0),
+            gasPrice: remoteTransaction.gasPrice?.toBigInt() || 0n,
             gasUsed: remoteTransaction.gasLimit.toBigInt(),
             data: remoteTransaction.data,
           },

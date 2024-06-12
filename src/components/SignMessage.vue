@@ -1,23 +1,61 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 
-import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
-import SignMessageCompact from '@/components/SignMessageCompact.vue'
-import WalletAddEthereumChain from '@/components/WalletAddEthereumChain.vue'
-import WalletSwitchEthereumChain from '@/components/WalletSwitchEthereumChain.vue'
-import WalletWatchAssetErc20 from '@/components/WalletWatchAssetErc20.vue'
-import WalletWatchAssetNFT from '@/components/WalletWatchAssetNFT.vue'
 import { UNSUPPORTED_METHODS as DEPRECATED_METHODS } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { advancedInfo } from '@/utils/advancedInfo'
+import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
-import { truncateMid } from '@/utils/stringUtils'
+
+const WalletAddEthereumChain = defineAsyncComponent(
+  () =>
+    import('@/components/CustomRequestScreen/Evm/WalletAddEthereumChain.vue')
+)
+const WalletSwitchEthereumChain = defineAsyncComponent(
+  () =>
+    import('@/components/CustomRequestScreen/Evm/WalletSwitchEthereumChain.vue')
+)
+const WalletWatchAssetErc20 = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Evm/WalletWatchAssetErc20.vue')
+)
+const WalletWatchAssetNFT = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Evm/WalletWatchAssetNFT.vue')
+)
+const SignMessageCompact = defineAsyncComponent(
+  () => import('@/components/SignMessageCompact.vue')
+)
+const SignMessageAdvancedInfo = defineAsyncComponent(
+  () => import('@/components/SignMessageAdvancedInfo.vue')
+)
+const ArcanaSwitchAccountType = defineAsyncComponent(
+  () =>
+    import('@/components/CustomRequestScreen/Evm/ArcanaSwitchAccountType.vue')
+)
+const MVXSignTransaction = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Mvx/MVXSignTransaction.vue')
+)
+const NearSignAndSendTransaction = defineAsyncComponent(
+  () =>
+    import(
+      '@/components/CustomRequestScreen/Near/NearSignAndSendTransaction.vue'
+    )
+)
+const MVXSignTransactions = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Mvx/MVXSignTransactions.vue')
+)
+const SolanaSignTransaction = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Solana/SignTransaction.vue')
+)
+const SolanaSignAllTransactions = defineAsyncComponent(
+  () =>
+    import('@/components/CustomRequestScreen/Solana/SignAllTransactions.vue')
+)
 
 const appStore = useAppStore()
 const requestStore = useRequestStore()
@@ -36,8 +74,6 @@ const props = defineProps({
     default: false,
   },
 })
-
-console.log(props.request)
 
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
@@ -99,6 +135,9 @@ function getPermissionText() {
       }
       break
     case 'eth_sign':
+    case 'signMessage':
+    case 'near_signMessage':
+    case 'mvx_signMessage':
       response = 'signing a message'
       break
     case 'eth_signTypedData_v4':
@@ -108,26 +147,15 @@ function getPermissionText() {
       response = 'decrypting data'
       break
     case 'eth_signTransaction':
-      response = 'signing a transaction'
-      break
     case 'signTransaction':
-      response = 'signing a transaction'
-      break
-    case 'signAndSendTransaction':
-      response = 'signing and sending a transaction'
-      break
-    case 'signMessage':
-      response = 'signing a message'
-      break
-    case 'signAllTransactions':
-      response = 'signing all transactions'
-      break
     case 'mvx_signTransaction':
       response = 'signing a transaction'
       break
-    case 'mvx_signMessage':
-      response = 'signing a message'
+    case 'signAndSendTransaction':
+    case 'near_signAndSendTransaction':
+      response = 'signing and sending a transaction'
       break
+    case 'signAllTransactions':
     case 'mvx_signTransactions':
       response = 'signing all transactions'
       break
@@ -177,8 +205,8 @@ function isDeprecatedMethod() {
   </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
-      <h1 class="flex-1 m-0 font-medium text-lg text-center capitalize">
-        {{ methodAndAction[request.request.method] }}
+      <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
+        {{ methodAndAction[method] }}
       </h1>
       <p class="text-xs text-gray-100 text-center">
         {{ appStore.name }} requests your permission for
@@ -214,50 +242,39 @@ function isDeprecatedMethod() {
       :params="props.request.request.token"
       class="flex flex-col gap-1"
     />
-    <div
+    <ArcanaSwitchAccountType
       v-else-if="method === '_arcana_switchAccountType'"
-      class="flex flex-col gap-2 text-sm"
-    >
-      <div class="flex justify-between gap-4">
-        <span class="w-[120px]">Switch Account To</span>
-        <span
-          class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis"
-          :title="
-            params.type === 'scw'
-              ? 'Smart Contract Wallet'
-              : 'Externally Owned Address'
-          "
-        >
-          {{
-            params.type === 'scw'
-              ? 'Smart Contract Wallet'
-              : 'Externally Owned Address'
-          }}
-        </span>
-      </div>
-    </div>
+      :account-type="params.type"
+    />
+    <MVXSignTransaction
+      v-else-if="method === 'mvx_signTransaction'"
+      :transaction="params.transaction"
+    />
+    <MVXSignTransactions
+      v-else-if="method === 'mvx_signTransactions'"
+      :transactions="params.transactions"
+    />
+    <NearSignAndSendTransaction
+      v-else-if="method === 'near_signAndSendTransaction'"
+      :transaction="params.transaction"
+    />
+    <SolanaSignTransaction
+      v-else-if="
+        ['signTransaction', 'signAndSendTransaction'].includes(method) &&
+        appStore.chainType === ChainType.solana_cv25519
+      "
+      :message="params.message"
+    />
+    <SolanaSignAllTransactions
+      v-else-if="
+        method === 'signAllTransactions' &&
+        appStore.chainType === ChainType.solana_cv25519
+      "
+      :message="params.message"
+    />
     <div v-else class="flex flex-col gap-1">
       <div class="text-sm">Message</div>
-      <div v-if="request.request.method === 'mvx_signTransaction'">
-        <div
-          v-for="[key, value] in Object.entries(
-            request.request.params.transaction
-          )"
-          :key="key"
-          class="flex justify-between gap-4"
-        >
-          <span class="w-[120px] capitalize">{{ key }}</span>
-          <span :title="String(value)">
-            {{
-              key === 'sender' || key === 'receiver'
-                ? truncateMid(value as string, 8)
-                : value
-            }}
-          </span>
-        </div>
-      </div>
       <SignMessageAdvancedInfo
-        v-else
         :info="advancedInfo(request.request.method, request.request.params)"
       />
     </div>

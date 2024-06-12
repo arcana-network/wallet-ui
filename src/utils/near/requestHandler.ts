@@ -1,38 +1,35 @@
 import type { RpcConfig } from '@arcana/auth'
-import {
-  SignableMessage,
-  Transaction,
-  IPlainTransactionObject,
-  Address,
-  TokenTransfer,
-} from '@multiversx/sdk-core'
-import Decimal from 'decimal.js'
+import bs58 from 'bs58'
+import { Decimal } from 'decimal.js'
 import {
   createAsyncMiddleware,
   JsonRpcEngine,
   JsonRpcRequest,
   PendingJsonRpcResponse,
 } from 'json-rpc-engine'
+import { transactions } from 'near-api-js'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
+import { useActivitiesStore } from '@/store/activities'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
-import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
-import { toHex } from '@/utils/toHex'
+import { NEARAccountHandler } from '@/utils/near/accountHandler'
 
-class MultiversXRequestHandler {
+class NEARRequestHandler {
   private handler?: JsonRpcEngine
   private connection?: Connection<ParentConnectionApi> | null
   private connectSent = false
-  constructor(private accountHandler: MultiversXAccountHandler) {}
+  private rpcConfig: RpcConfig | null = null
+  constructor(private accountHandler: NEARAccountHandler) {}
 
   get chainType() {
-    return ChainType.multiversx_cv25519
+    return ChainType.near_cv25519
   }
 
   public async setRpcConfig(c: RpcConfig) {
-    await this.accountHandler.setRpcConfig(c)
+    this.rpcConfig = c
+    await this.accountHandler.initializeConnection(c.rpcUrls[0])
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
@@ -47,10 +44,6 @@ class MultiversXRequestHandler {
         chainId: new Decimal(chainId).toHexadecimal(),
       })
     }
-  }
-
-  public sendAddressType(addressType: string): Promise<void> {
-    return this.emitEvent('addressChanged', addressType)
   }
 
   public async emitEvent(e: string, params?: ProviderEvent) {
@@ -108,16 +101,6 @@ class MultiversXRequestHandler {
     return response
   }
 
-  private getSerializedSignatureOfTransaction(tx: Transaction) {
-    return {
-      signature: tx.getSignature().toString('hex'),
-      guardian: undefined,
-      guardianSignature: undefined,
-      options: tx.getOptions().valueOf(),
-      version: tx.getVersion().valueOf(),
-    }
-  }
-
   // 1st is the actual data and the 2nd is the address used
 
   private principalHandler = async (
@@ -131,51 +114,63 @@ class MultiversXRequestHandler {
     // }
     switch (req.method) {
       case 'getAccounts': {
-        res.result = this.accountHandler.getAccounts()
+        res.result = await this.accountHandler.getAccounts()
         break
       }
-      case 'getPublicKey': {
-        res.result = this.accountHandler.getPublicKey(
-          req.params as Array<unknown>
+      case 'near_signAndSendTransaction': {
+        const p = req.params as {
+          transaction: transactions.Transaction
+        }
+        const result = await this.accountHandler.signAndSendTransaction(
+          p.transaction
         )
+        res.result = result
+        const activitiesStore = useActivitiesStore()
+        const hash = result.transaction.hash
+        activitiesStore.saveActivity(this.rpcConfig?.chainId, {
+          txHash: hash,
+          explorerUrl: this.rpcConfig?.blockExplorerUrls?.[0]
+            ? `${this.rpcConfig?.blockExplorerUrls[0]}/txns/${hash}`
+            : undefined,
+          operation:
+            result.transaction.actions?.length > 0
+              ? 'Batched Transaction'
+              : 'Transaction',
+          status: 'Success',
+          date: new Date(),
+          address: {
+            from: result.transaction.signer_id,
+            to: result.transaction.receiver_id,
+          },
+          transaction: {
+            hash,
+            amount: result.transaction.actions.reduce((acc, action) => {
+              if (action.Transfer) {
+                return new Decimal(action.Transfer.deposit).add(acc).toString()
+              }
+              if (action.Stake) {
+                return new Decimal(action.Stake.stake).add(acc).toString()
+              }
+              if (action.FunctionCall) {
+                return new Decimal(action.FunctionCall.deposit)
+                  .add(acc)
+                  .toString()
+              }
+              return acc
+            }, '0'),
+            nonce: result.transaction.nonce,
+            totalActions: result.transaction.actions.length,
+          },
+        })
         break
       }
-      case 'mvx_signTransaction': {
+      case 'near_signMessage': {
         const p = req.params as {
-          transaction: IPlainTransactionObject
+          message: string // bs58 encoded
         }
-        const sigs = this.accountHandler.signTransactions([
-          Transaction.fromPlainObject(p.transaction),
-        ])
-        res.result = this.getSerializedSignatureOfTransaction(sigs[0])
-        break
-      }
-      case 'mvx_signTransactions': {
-        const p = req.params as {
-          transactions: IPlainTransactionObject[]
-        }
+        const sig = this.accountHandler.signMessage(bs58.decode(p.message))
         res.result = {
-          signatures: this.accountHandler
-            .signTransactions(
-              p.transactions.map((tx) => Transaction.fromPlainObject(tx))
-            )
-            .map((tx) => this.getSerializedSignatureOfTransaction(tx)),
-        }
-        break
-      }
-      case 'mvx_signMessage': {
-        const p = req.params as {
-          message: string
-          address: string
-        }
-        const sig = this.accountHandler.signMessage(
-          new SignableMessage({
-            message: Buffer.from(p.message, 'utf-8'),
-            address: new Address(this.accountHandler.addrStr),
-          })
-        )
-        res.result = {
-          signature: sig.hex(),
+          signature: bs58.encode(sig),
         }
         break
       }
@@ -192,4 +187,4 @@ class MultiversXRequestHandler {
   }
 }
 
-export { MultiversXRequestHandler }
+export { NEARRequestHandler }

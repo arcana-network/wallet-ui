@@ -116,12 +116,13 @@ export const useAppStore = defineStore('app', {
       this.id = id
     },
     setChainType(chainType: string): void {
+      this.curve = CURVE.ED25519
       if (chainType.toLowerCase() === 'multiversx') {
         this.chainType = ChainType.multiversx_cv25519
-        this.curve = CURVE.ED25519
       } else if (chainType?.toLowerCase() === 'solana') {
         this.chainType = ChainType.solana_cv25519
-        this.curve = CURVE.ED25519
+      } else if (chainType?.toLowerCase() === 'near') {
+        this.chainType = ChainType.near_cv25519
       } else {
         this.chainType = ChainType.evm_secp256k1
         this.curve = CURVE.SECP256K1
