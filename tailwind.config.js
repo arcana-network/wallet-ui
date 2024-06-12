@@ -61,6 +61,7 @@ module.exports = {
           'bermuda-grey': '#74919C',
           zinc: '#C8D5D9',
           'zinc-40': '#C8D5D966',
+          spanish: '#989898',
         },
       },
       width: {
