@@ -757,7 +757,9 @@ watch(
                 Max
               </button>
             </div>
-            <div class="text-gray-100 text-xs font-normal">
+            <div
+              class="text-gray-bermuda-grey dark:text-gray-spanish text-xs font-normal"
+            >
               Total Balance:
               <span>{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span>
             </div>

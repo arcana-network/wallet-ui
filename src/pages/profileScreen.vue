@@ -209,19 +209,25 @@ watch(
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
-        <span class="text-sm text-gray-100">Name</span>
+        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+          >Name</span
+        >
         <span class="text-base font-medium">
           {{ name }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-100">Email ID</span>
+        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+          >Email ID</span
+        >
         <span class="text-base font-medium">
           {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-100">Wallet Address</span>
+        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+          >Wallet Address</span
+        >
         <div class="flex gap-2">
           <span class="text-base font-medium">
             {{ walletAddressShrinked }}
@@ -246,7 +252,9 @@ watch(
           'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
         }"
       >
-        <span class="text-sm text-gray-100">Private Key</span>
+        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+          >Private Key</span
+        >
         <button
           class="flex gap-2 items-cente disabled:opacity-100"
           title="Click to export private key"
@@ -260,7 +268,9 @@ watch(
         </button>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
-        <span class="text-sm text-gray-100">Enhance Wallet Security</span>
+        <span class="text-sm text-gray-bermuda-grey dark:text-gray-spanish"
+          >Enhance Wallet Security</span
+        >
         <div>
           <button
             v-if="!user.hasMfa"

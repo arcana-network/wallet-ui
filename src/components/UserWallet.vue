@@ -341,7 +341,8 @@ async function copyToClipboard(value: string) {
         </div>
       </div>
       <div class="mt-4 flex flex-col">
-        <span class="font-normal text-sm text-gray-bermuda-grey"
+        <span
+          class="font-normal text-sm text-gray-bermuda-grey dark:text-gray-spanish"
           >Total Balance:</span
         >
         <div class="flex items-center gap-4">
