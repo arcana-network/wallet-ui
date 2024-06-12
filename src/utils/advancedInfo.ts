@@ -64,12 +64,13 @@ export const advancedInfo = (
     }
   } else if (
     method === 'signTransaction' ||
-    method === 'signAndSendTransaction'
+    method === 'signAndSendTransaction' ||
+    method === 'mvx_signMessage'
   ) {
     data = params.message
   } else if (method === 'signAllTransactions') {
     data = params.message
-  } else if (method === 'signMessage') {
+  } else if (['signMessage', 'near_signMessage'].includes(method)) {
     const bs58decoded = new TextDecoder().decode(
       base58.decode(params.message as unknown as string)
     )

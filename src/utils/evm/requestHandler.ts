@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
   createFetchMiddleware,
@@ -45,7 +46,7 @@ class EVMRequestHandler {
       this.connectSent = true
       const chainId = await this.accountHandler.getChainId()
       this.emitEvent('connect', {
-        chainId: toHex(Number(chainId).toString(16)),
+        chainId: new Decimal(chainId).toHexadecimal(),
       })
     }
   }

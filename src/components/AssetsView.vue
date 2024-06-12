@@ -50,6 +50,8 @@ function getChainType(chainType: ChainType) {
       return 'solana'
     case ChainType.multiversx_cv25519:
       return 'multiversx'
+    case ChainType.near_cv25519:
+      return 'near'
   }
 }
 
@@ -98,12 +100,21 @@ function fetchNativeAsset() {
 }
 
 async function getAssetsBalance() {
-  if (appStore.chainType === ChainType.multiversx_cv25519) {
-    await getMultiversxBalance()
-  } else if (appStore.chainType === ChainType.solana_cv25519) {
-    await getSolanaBalance()
-  } else if (appStore.chainType === ChainType.evm_secp256k1) {
-    await getEVMAssetBalance()
+  switch (appStore.chainType) {
+    case ChainType.multiversx_cv25519:
+      await getMultiversxBalance()
+      break
+    case ChainType.solana_cv25519:
+      await getSolanaBalance()
+      break
+    case ChainType.near_cv25519:
+      await getNEARBalance()
+      break
+    case ChainType.evm_secp256k1:
+      await getEVMAssetBalance()
+      break
+    default:
+      break
   }
 }
 
@@ -123,6 +134,10 @@ async function getMultiversxBalance() {
       logo: 'fallback-token.png',
     } as Asset
   })
+}
+
+async function getNEARBalance() {
+  assets.value = [fetchNativeAsset()]
 }
 
 async function getSolanaBalance() {
@@ -245,15 +260,15 @@ function handleFallbackLogo(event) {
       <div v-else class="flex flex-col flex-grow py-5 gap-5">
         <span class="m-auto font-normal text-base">No tokens added</span>
       </div>
-      <button
-        v-if="appStore.chainType === ChainType.evm_secp256k1"
-        class="flex py-1 gap-2 items-center justify-center flex-grow btn-quaternery border-r-0 border-l-0 border-b-0 border-t-1 dark:bg-black-300 bg-[#EFEFEF]"
-        @click.stop="handleAddToken"
-      >
-        <img :src="getImage('plus.svg')" class="h-3 w-3" />
-        <span class="text-base font-medium">New Asset</span>
-      </button>
     </div>
+    <button
+      v-if="appStore.chainType === ChainType.evm_secp256k1"
+      class="flex items-center justify-center flex-grow btn-quaternery border-none dark:bg-black-300 bg-[#EFEFEF]"
+      @click.stop="handleAddToken"
+    >
+      <img :src="getImage('plus.svg')" class="h-3 w-3" />
+      <span class="text-base font-medium">New Asset</span>
+    </button>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddTokenScreen v-if="showModal" />
     </Teleport>

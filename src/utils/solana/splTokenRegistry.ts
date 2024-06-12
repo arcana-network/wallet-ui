@@ -9,11 +9,11 @@ class SPLTokenRegistry {
 
   static async create() {
     const tokens = await new TokenListProvider().resolve()
-    const mappedTokens = tokens.getList().reduce((map, item) => {
+    const map = new Map<string, TokenInfo>()
+    tokens.getList().forEach((item) => {
       map.set(item.address, item)
-      return map
-    }, new Map<string, TokenInfo>())
-    return new SPLTokenRegistry(mappedTokens)
+    })
+    return new SPLTokenRegistry(map)
   }
 
   get(address: string) {

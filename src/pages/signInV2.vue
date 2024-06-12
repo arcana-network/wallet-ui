@@ -493,7 +493,7 @@ async function handleCustomLoginRequest(params: {
     },
     token: '',
   }
-  await storeUserInfoAndRedirect(userInfo, true)
+  storeUserInfoAndRedirect(userInfo, true)
 }
 
 async function handleBearerLoginRequest(

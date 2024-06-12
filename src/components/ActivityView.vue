@@ -38,6 +38,14 @@ const activitiesStore = useActivitiesStore()
 const rpcStore = useRpcStore()
 const chainId = computed(() => rpcStore.selectedRpcConfig?.chainId)
 
+const InteractionActivity = new Set([
+  'Contract Deployment',
+  'Contract Interaction',
+  'Meta Transaction',
+  'Update Rule',
+])
+const NearTransactionActivity = new Set(['Transaction', 'Batched Transaction'])
+
 type ActivityView = Activity & {
   isExpanded?: boolean
 }
@@ -64,18 +72,12 @@ const activities: ComputedRef<ActivityView[]> = computed(() => {
 })
 
 function getTransactionIcon(operation: TransactionOps | FileOps | TransakOps) {
-  const interaction = [
-    'Contract Deployment',
-    'Contract Interaction',
-    'Meta Transaction',
-    'Update Rule',
-  ]
-  if (interaction.includes(operation)) {
+  if (InteractionActivity.has(operation)) {
     return getIconAsset('activities/tx-interact.svg')
   }
 
-  if (operation === 'Transfer Ownership') {
-    return getIconAsset('activities/tx-transfer-ownership.svg')
+  if (NearTransactionActivity.has(operation)) {
+    return getIconAsset('activities/tx-send.svg')
   }
 
   return getIconAsset(`activities/tx-${operation.toLowerCase()}.svg`)
@@ -112,7 +114,7 @@ function calculateTotal(activity: Activity) {
   return 0n
 }
 
-function getAmount(amount: bigint, isGas = false) {
+function getAmount(amount: bigint | string, isGas = false) {
   if (isGas) {
     if (app.chainType === ChainType.multiversx_cv25519) {
       return TokenTransfer.egldFromBigInteger(
@@ -145,10 +147,10 @@ function canShowDropdown(activity: Activity) {
 
 function getDisplayAmount(activity: any) {
   const decimals = getRequestHandler().getAccountHandler().decimals
-  const gasDecimals = getRequestHandler().getAccountHandler().gasDecimals
+  const displayDecimals = decimals / 2
   return `${new Decimal(activity.transaction.amount.toString())
     .div(Decimal.pow(10, decimals))
-    .toDecimalPlaces(gasDecimals)
+    .toDecimalPlaces(displayDecimals)
     .toString()} ${rpcStore.currency}`
 }
 
@@ -530,7 +532,7 @@ async function stopTransaction(activity) {
                     {{ activity.customToken.symbol }}
                   </span>
                   <span
-                    v-else-if="app.chainType === ChainType.evm_secp256k1"
+                    v-else
                     class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
@@ -585,6 +587,13 @@ async function stopTransaction(activity) {
                     >{{ getAmount(activity.transaction?.fee) }}
                     {{ rpcStore.nativeCurrency?.symbol }}</span
                   >
+                </div>
+                <div
+                  v-if="activity.transaction.totalActions"
+                  class="flex justify-between"
+                >
+                  <span>Total Actions Executed</span>
+                  <span>{{ activity.transaction.totalActions }}</span>
                 </div>
               </div>
               <div
