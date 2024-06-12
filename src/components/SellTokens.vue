@@ -86,7 +86,7 @@ function handleDone() {
       <form class="flex flex-col mt-5 space-y-4" @submit.prevent="handleBuy">
         <div class="flex flex-col gap-2">
           <div
-            class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+            class="bg-gray-zinc flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
             :class="{
               'opacity-60 cursor-not-allowed': !props.transakNetwork,
               'hover:border-gray-100 cursor-pointer': props.transakNetwork,

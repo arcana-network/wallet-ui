@@ -235,7 +235,7 @@ watch(
             <img
               :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-md h-md dark:invert-0 invert"
+              class="w-4 h-4"
             />
           </button>
         </div>
@@ -256,10 +256,7 @@ watch(
           <span class="text-base font-medium dark:text-white-100">
             Export Key
           </span>
-          <img
-            :src="getImage('external-link.svg')"
-            class="w-md h-md dark:invert-0 invert"
-          />
+          <img :src="getImage('external-link.svg')" class="w-4 h-4" />
         </button>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
@@ -275,10 +272,7 @@ watch(
             <span v-else class="dark:text-white-100"
               >Update Security Questions</span
             >
-            <img
-              :src="getImage('external-link.svg')"
-              class="w-md h-md dark:invert-0 invert"
-            />
+            <img :src="getImage('external-link.svg')" class="w-4 h-4" />
           </button>
           <span v-else class="text-base font-medium">In use</span>
         </div>
