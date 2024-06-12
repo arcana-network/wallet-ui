@@ -272,17 +272,17 @@ async function stopTransaction(activity) {
           </div>
           <span
             v-if="activity.transaction && activity.address.to"
-            class="text-sm text-gray-100"
+            class="text-sm text-gray-spanish"
             :title="activity.address.to"
             >To: {{ truncateMid(activity.address.to) }}</span
           >
           <span
             v-if="activity.file"
-            class="text-sm text-gray-100"
+            class="text-sm text-gray-spanish"
             :title="activity.file.did"
             >File DID: {{ truncateMid(activity.file.did) }}</span
           >
-          <div class="flex text-sm text-gray-100 gap-1 items-center">
+          <div class="flex text-sm text-gray-spanish gap-1 items-center">
             <span class="whitespace-nowrap">{{
               dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
@@ -386,7 +386,7 @@ async function stopTransaction(activity) {
           <div class="flex flex-col gap-4">
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">From</span>
+                <span class="text-sm text-gray-spanish">From</span>
                 <span
                   class="text-base text-medium"
                   :title="activity.address.from"
@@ -402,7 +402,7 @@ async function stopTransaction(activity) {
                 }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">To</span>
+                <span class="text-sm text-gray-spanish">To</span>
                 <span
                   class="text-base text-medium"
                   :title="activity.address.to"
@@ -412,7 +412,7 @@ async function stopTransaction(activity) {
               </div>
             </div>
             <div class="flex flex-col gap-2">
-              <span class="text-sm text-gray-100">Transaction Details</span>
+              <span class="text-sm text-gray-spanish">Transaction Details</span>
               <div class="flex flex-col gap-2 text-base">
                 <div
                   v-if="activity.sellDetails.provider"
@@ -480,7 +480,7 @@ async function stopTransaction(activity) {
             </div>
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">From</span>
+                <span class="text-sm text-gray-spanish">From</span>
                 <span
                   class="text-base text-medium"
                   :title="activity.address.from"
@@ -496,7 +496,7 @@ async function stopTransaction(activity) {
                 }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">To</span>
+                <span class="text-sm text-gray-spanish">To</span>
                 <span
                   class="text-base text-medium"
                   :title="activity.address.to"
@@ -506,7 +506,7 @@ async function stopTransaction(activity) {
               </div>
             </div>
             <div v-if="!activity.nft" class="flex flex-col gap-2">
-              <span class="text-sm text-gray-100">Transaction Details</span>
+              <span class="text-sm text-gray-spanish">Transaction Details</span>
               <div class="flex flex-col gap-2 text-base">
                 <div class="flex justify-between">
                   <span v-if="app.chainType === ChainType.solana_cv25519"
@@ -672,7 +672,7 @@ async function stopTransaction(activity) {
       </div>
     </li>
   </ul>
-  <div v-else class="flex justify-center text-center text-sm text-gray-100">
+  <div v-else class="flex justify-center text-center text-sm text-gray-spanish">
     You have no transactions
   </div>
 </template>
