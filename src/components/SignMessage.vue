@@ -10,6 +10,7 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { ChainType } from '@/utils/chainType'
+import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
 
 const WalletAddEthereumChain = defineAsyncComponent(
@@ -68,12 +69,16 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  shrinkMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 
-const emits = defineEmits(['reject', 'approve', 'proceed'])
+const emits = defineEmits(['reject', 'approve', 'proceed', 'expand'])
 const userStore = useUserStore()
 
 function isSiweMessage(message: string) {
@@ -176,6 +181,28 @@ function isDeprecatedMethod() {
     @approve="emits('approve')"
     @reject="emits('reject')"
   />
+  <div
+    v-else-if="shrinkMode"
+    class="flex flex-col justify-between p-3 space-y-2"
+  >
+    <div class="flex justify-between" @click="emits('expand')">
+      <div class="flex">
+        <span class="text-lg font-medium">{{
+          methodAndAction[request.request.method]
+        }}</span>
+        <img :src="getImage('arrow-down.svg')" alt="" />
+      </div>
+      <div>
+        <span class="text-[#FF9167] text-xs">Pending</span>
+      </div>
+    </div>
+    <div>
+      <p class="text-xs text-gray-100">
+        {{ appStore.name }} requests your permission for
+        {{ getPermissionText() }}
+      </p>
+    </div>
+  </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
       <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
@@ -254,7 +281,7 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -262,13 +289,13 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          class="btn-primary p-2 uppercase w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -281,7 +308,7 @@ function isDeprecatedMethod() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

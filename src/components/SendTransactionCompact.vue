@@ -13,7 +13,6 @@ import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -30,7 +29,7 @@ const loader = ref({
   message: '',
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
@@ -38,8 +37,12 @@ onBeforeMount(async () => {
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
     const accountHandler =
       requestHandler.getAccountHandler() as EVMAccountHandler
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })
@@ -126,7 +129,7 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col h-full gap-4 justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-center">
-        <h1 class="m-0 font-bold text-lg capitalize">Send Transaction</h1>
+        <h1 class="m-0 font-medium text-lg capitalize">Send Transaction</h1>
       </div>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
@@ -154,7 +157,7 @@ async function onViewDetails() {
               v-else-if="!loader.show && transactionMode.length === 0"
               class="flex-col text-center items-baseline"
             >
-              <span class="text-lg font-bold"
+              <span class="text-lg font-medium"
                 >{{ gasFee.slice(0, 9) }}&nbsp;</span
               ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
                 rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
@@ -170,7 +173,7 @@ async function onViewDetails() {
         </div>
       </div>
       <button
-        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-bold"
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-medium"
         @click.stop="onViewDetails"
       >
         View Details
@@ -178,7 +181,7 @@ async function onViewDetails() {
       </button>
     </div>
     <div class="flex flex-col gap-4">
-      <div class="flex gap-2 text-sm font-bold">
+      <div class="flex gap-2 text-sm font-medium">
         <button
           class="uppercase w-full btn-secondary p-2"
           @click="emits('reject')"
@@ -199,7 +202,7 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

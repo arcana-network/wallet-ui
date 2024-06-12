@@ -40,7 +40,10 @@ function getIcon(icon: string, pathName: string) {
         title="Assets"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{ 'bg-blue-dark dark:bg-white-100': isCurrentRoute('home') }"
+        >
           <img
             :src="getIcon('tokens-icon', 'home')"
             alt="home"
@@ -58,12 +61,14 @@ function getIcon(icon: string, pathName: string) {
         >
       </router-link>
       <router-link
-        v-if="appStore.chainType !== ChainType.near_cv25519"
         :to="{ name: 'Nfts' }"
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{ 'bg-blue-dark dark:bg-white-100': isCurrentRoute('Nfts') }"
+        >
           <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
         </div>
         <span
@@ -81,7 +86,12 @@ function getIcon(icon: string, pathName: string) {
         title="Profile"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{
+            'bg-blue-dark dark:bg-white-100': isCurrentRoute('profile'),
+          }"
+        >
           <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
         </div>
         <span
@@ -99,7 +109,12 @@ function getIcon(icon: string, pathName: string) {
         title="Activities"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          class="w-xxxl h-xxl rounded-md flex items-center justify-center"
+          :class="{
+            'bg-blue-dark dark:bg-white-100': isCurrentRoute('activities'),
+          }"
+        >
           <img
             v-if="requestStore.skippedRequestsForApproval.length > 0"
             :src="getIcon('notifications-icon', 'activities')"

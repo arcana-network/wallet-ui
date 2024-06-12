@@ -310,7 +310,7 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h2 class="font-bold text-lg uppercase">
+        <h2 class="font-medium text-lg uppercase">
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="text-sm max-w-[26rem]"
@@ -321,7 +321,7 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
-          class="btn-primary p-2 text-sm font-bold uppercase w-40"
+          class="btn-primary p-2 text-sm font-medium uppercase w-40"
           @click.stop="handleDone"
         >
           Done
@@ -339,7 +339,7 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-bold text-lg uppercase m-4">RECOVERY METHOD 2: PIN</h2>
+    <h2 class="font-medium text-lg uppercase m-4">RECOVERY METHOD 2: PIN</h2>
     <hr />
     <div class="m-4 text-sm text-gray-100">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
@@ -384,14 +384,14 @@ function handlePinBack() {
       <div class="flex justify-end gap-4">
         <button
           type="reset"
-          class="btn-secondary uppercase text-sm font-bold p-2 w-[8rem]"
+          class="btn-secondary uppercase text-sm font-medium p-2 w-[8rem]"
           @click.stop="handlePinBack"
         >
           Back
         </button>
         <button
           type="submit"
-          class="btn-primary uppercase text-sm font-bold p-2 w-[8rem]"
+          class="btn-primary uppercase text-sm font-medium p-2 w-[8rem]"
         >
           Proceed
         </button>
@@ -400,7 +400,7 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-bold text-base uppercase m-4">
+      <h2 class="font-medium text-base uppercase m-4">
         RECOVERY METHOD 1: Security Questions
       </h2>
       <hr />
@@ -437,14 +437,14 @@ function handlePinBack() {
         <div class="flex justify-end gap-4">
           <button
             type="reset"
-            class="btn-secondary text-sm font-bold uppercase p-2 w-32"
+            class="btn-secondary text-sm font-medium uppercase p-2 w-32"
             @click.stop="handleCancel"
           >
             Cancel
           </button>
           <button
             type="submit"
-            class="btn-primary text-sm font-bold uppercase p-2 w-32"
+            class="btn-primary text-sm font-medium uppercase p-2 w-32"
           >
             Proceed
           </button>

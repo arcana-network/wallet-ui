@@ -19,6 +19,7 @@ import { createParentConnection } from '@/utils/createParentConnection'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
+import { getUserDIDToken } from '@/utils/loginToken'
 import {
   getPasswordlessState,
   PasswordlessLoginHandler,
@@ -222,6 +223,7 @@ async function storeUserInfoAndRedirect(
   userInfo: GetInfoOutput & {
     hasMfa?: boolean
     pk: string
+    userDIDToken?: string
   },
   addMFA = false
 ) {
@@ -272,6 +274,13 @@ async function storeUserInfoAndRedirect(
       }
     }
   }
+
+  userInfo.userDIDToken = await getUserDIDToken({
+    privateKey: userInfo.privateKey,
+    curve: app.curve,
+    userID: userInfo.userInfo.id,
+    appID: appId as string,
+  })
   storage.session.setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
@@ -442,7 +451,7 @@ async function init() {
       } = await parentConnectionInstance.getAppConfig()
       app.setTheme(theme)
       const htmlEl = document.getElementsByTagName('html')[0]
-      if (theme === 'dark') htmlEl.classList.add(theme)
+      if (theme === 'dark') htmlEl.classList.add('dark')
       app.setName(appName)
     }
   } finally {

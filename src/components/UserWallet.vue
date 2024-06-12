@@ -272,11 +272,12 @@ async function copyToClipboard(value: string) {
 
 <template>
   <div>
-    <div class="card p-4 flex flex-col">
+    <div
+      class="card p-3 flex flex-col dark:bg-[#313131] bg-[#FFFFFF] rounded-xl"
+    >
       <div class="flex flex-col justify-between space-y-1">
-        <span class="text-[#8D8D8D] text-sm">Wallet</span>
         <div
-          class="dark:bg-[#313131] bg-[#FFFFFF] flex flex-col justify-between p-2 rounded-md relative"
+          class="flex justify-between rounded-md relative"
           :class="{
             'z-[999] startertips_highlighted':
               starterTipsStore.showWalletAddress,
@@ -350,9 +351,10 @@ async function copyToClipboard(value: string) {
                       class="w-xl h-xl rounded-full"
                     />
                     <div class="flex flex-col items-start">
-                      <span class="text-base">{{
-                        truncateMid(address.address, 6)
-                      }}</span>
+                      <span
+                        class="text-base dark:text-[#FFFFFF] text-[#000000]"
+                        >{{ truncateMid(address.address, 6) }}</span
+                      >
                       <span class="text-left text-xs text-[#8d8d8d]">{{
                         address.label
                       }}</span>
@@ -362,36 +364,6 @@ async function copyToClipboard(value: string) {
               </ListboxOptions>
             </div>
           </Listbox>
-        </div>
-      </div>
-      <div class="mt-4 flex flex-col">
-        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
-        <div class="flex items-center gap-4">
-          <div
-            class="transition-all duration-200"
-            :class="{ 'blur-sm': props.refreshIconAnimating }"
-          >
-            <span class="font-bold text-xxl">{{
-              walletBalance?.split('.')[0]
-            }}</span>
-            <span
-              v-if="hasWalletBalanceAfterDecimals()"
-              class="font-bold text-xxl"
-              >.</span
-            >
-            <span
-              v-if="hasWalletBalanceAfterDecimals()"
-              class="font-bold text-base"
-              >{{ walletBalance?.split('.')[1] }}</span
-            >
-            <span v-if="currency" class="font-bold text-base ml-1">
-              {{ currency }}</span
-            >
-            <span v-if="walletBalanceInCurrency" class="ml-2 text-sm"
-              >({{ walletBalanceInCurrency }})</span
-            >
-          </div>
-
           <button
             class="w-lg h-lg rounded-full"
             :class="{ 'animate-spin': refreshIconAnimating }"
@@ -402,16 +374,45 @@ async function copyToClipboard(value: string) {
           </button>
         </div>
       </div>
+      <div class="mt-4 flex flex-col">
+        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
+        <div class="flex items-center gap-4">
+          <div
+            class="transition-all duration-200"
+            :class="{ 'blur-sm': props.refreshIconAnimating }"
+          >
+            <span class="font-normal text-3xl">{{
+              walletBalance?.split('.')[0]
+            }}</span>
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-normal text-3xl"
+              >.</span
+            >
+            <span
+              v-if="hasWalletBalanceAfterDecimals()"
+              class="font-medium text-base"
+              >{{ walletBalance?.split('.')[1] }}</span
+            >
+            <span v-if="currency" class="font-medium text-base ml-1">
+              {{ currency }}</span
+            >
+            <span v-if="walletBalanceInCurrency" class="ml-2 text-sm"
+              >({{ walletBalanceInCurrency }})</span
+            >
+          </div>
+        </div>
+      </div>
       <div class="mt-6 flex gap-3">
         <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           @click.stop="goToSendTokens()"
         >
           <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-          Send
+          <span>Send</span>
         </button>
         <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           :disabled="!transakNetwork && onRampMoney === false"
           :class="{
             'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
@@ -422,7 +423,7 @@ async function copyToClipboard(value: string) {
           <span>Buy</span>
         </button>
         <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
+          class="bg-[#DFECEE] rounded-full flex gap-1 justify-center p-2 items-center font-medium text-base uppercase w-full"
           :disabled="!transakSellNetwork"
           :class="{
             'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,

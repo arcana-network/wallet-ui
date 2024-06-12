@@ -15,9 +15,9 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
-import { scwInstance } from '@/utils/scw'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
@@ -25,21 +25,35 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  shrinkMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
   const requestHandler = getRequestHandler()
   const accountHandler = requestHandler.getAccountHandler() as EVMAccountHandler
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
+const emits = defineEmits([
+  'gasPriceInput',
+  'reject',
+  'approve',
+  'proceed',
+  'expand',
+])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -168,10 +182,10 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+  return new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 0)
     .mul(params.gasLimit || params.gas || 21000)
-    .toHexadecimal()}`
+    .toHexadecimal()
 }
 
 function calculateValue(value) {
@@ -210,6 +224,24 @@ function calculateCurrencyValue(value) {
   <div v-if="loader.show" class="flex justify-center items-center flex-1 p-4">
     <AppLoader :message="loader.message" />
   </div>
+  <div v-else-if="shrinkMode" class="flex justify-between p-3">
+    <div>
+      <div class="flex" @click="emits('expand')">
+        <span class="text-lg font-medium">Send</span>
+        <img :src="getImage('arrow-down.svg')" alt="" />
+      </div>
+      <span class="text-[#989898] text-sm font-normal">{{
+        truncateMid(request.request.params[0].to, 6)
+      }}</span>
+    </div>
+    <div class="flex flex-col items-end">
+      <span>{{ calculateValue(request.request.params[0].value) }}</span>
+      <span class="text-[#989898] text-sm font-normal">{{
+        calculateCurrencyValue(request.request.params[0].value)
+      }}</span>
+      <span class="text-[#FF9167] text-xs">Pending</span>
+    </div>
+  </div>
   <SendTransactionCompact
     v-else-if="appStore.compactMode"
     :request="request"
@@ -224,7 +256,7 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="flex flex-col space-y-2"
     >
-      <p class="text-lg text-center font-bold flex-grow">Send Transaction</p>
+      <p class="text-lg text-center font-medium flex-grow">Send Transaction</p>
       <p class="text-xs text-gray-100 text-center">
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
@@ -362,7 +394,7 @@ function calculateCurrencyValue(value) {
     >
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -370,13 +402,13 @@ function calculateCurrencyValue(value) {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          class="btn-primary p-2 uppercase w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -389,7 +421,7 @@ function calculateCurrencyValue(value) {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

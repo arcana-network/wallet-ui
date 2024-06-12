@@ -6,40 +6,40 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 300;
-  src: url('@/assets/fonts/OnestLight1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Regular.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 400;
-  src: url('@/assets/fonts/OnestRegular1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Regular.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 500;
-  src: url('@/assets/fonts/OnestMedium1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Medium.woff2') format('woff');
 }
 
 @font-face {
-  font-family: Onest;
+  font-family: Nohemi;
   font-style: normal;
   font-weight: 700;
-  src: url('@/assets/fonts/OnestBold1602-hint.woff') format('woff');
+  src: url('@/assets/fonts/nohemi/Nohemi-Bold.woff2') format('woff');
 }
 
 @layer base {
   body {
-    @apply font-onest text-black-500 dark:text-white-100 leading-normal;
+    @apply font-Nohemi text-black-500 dark:text-white-100 leading-normal;
   }
 
   pre {
-    @apply font-onest;
+    @apply font-Nohemi;
   }
 
   button {
@@ -47,6 +47,10 @@
           cursor-pointer disabled:cursor-not-allowed
           transition-all duration-200 ease-in-out
           disabled:opacity-60 select-none;
+  }
+
+  button {
+    @apply text-blue-dark;
   }
 
   input,
@@ -57,14 +61,14 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-black-500 dark:bg-white-100 dark:active:bg-gray-400 text-white-100 dark:text-black-200 hover:shadow-sm
-    focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-sm;
+    @apply bg-blue-dark dark:bg-[#354B55] dark:active:bg-gray-400 text-white-100 dark:text-white-100 hover:shadow-sm
+    focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full;
   }
 
   .btn-secondary {
-    @apply active:bg-gray-700 dark:active:bg-gray-500 text-black-500
-           dark:text-white-200 hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
-           focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 border-default rounded-sm;
+    @apply bg-[#DFECEE] dark:bg-[#DFECEE] text-blue-dark
+           dark:text-blue-dark hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100
+           focus-visible:shadow-dark-100 box-border border-black-500 dark:border-white-200 rounded-full;
   }
 
   .btn-tertiary {
@@ -72,17 +76,17 @@
   }
 
   .btn-quaternery {
-    @apply bg-white-300 dark:bg-black-100 text-black-100 dark:text-white-100 dark:active:text-gray-400
+    @apply bg-blue-dark dark:bg-[#292929] text-blue-dark dark:text-white-100 dark:active:text-gray-400
            hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100
            box-border border-gray-800 dark:border-gray-200 border-default;
   }
 
   .card {
-    @apply bg-white-400 dark:bg-black-200 border-gray-800 dark:border-gray-200 border rounded-md;
+    @apply bg-[#FFFFFF] dark:bg-[#292929]  dark:border-gray-200  rounded-md;
   }
 
   .input-field {
-    @apply bg-white-400 dark:bg-gray-300 rounded-sm flex items-center;
+    @apply bg-[#FFFFFF] text-blue-dark dark:bg-white-100 dark:text-blue-dark rounded-2xl flex items-center h-14;
   }
 
   .input-active {
@@ -116,8 +120,8 @@
     text-shadow: 0 0 6px rgb(236 236 236 / 45%);
   }
 
-  .font-onest {
-    font-family: Onest, sans-serif;
+  .font-Nohemi {
+    font-family: Nohemi, sans-serif;
   }
 
   .glass-effect {

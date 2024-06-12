@@ -25,7 +25,6 @@ import { content, errors } from '@/utils/content'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 type SendNftProps = {
@@ -127,7 +126,7 @@ onMounted(async () => {
   }
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
@@ -135,8 +134,12 @@ onBeforeMount(async () => {
     const requestHandler = getRequestHandler()
     const accountHandler =
       requestHandler.getAccountHandler() as EVMAccountHandler
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
 })
 
@@ -455,7 +458,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="text-lg font-bold">Send Token</span>
+        <span class="text-lg font-medium">Send Token</span>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -538,7 +541,7 @@ watch(
         </div>
         <div class="flex">
           <button
-            class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
+            class="btn-primary uppercase p-[10px] font-medium text-base flex-grow text-center"
           >
             Preview
           </button>

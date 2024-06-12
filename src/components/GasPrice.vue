@@ -101,7 +101,7 @@ function handleCustomGasPriceInput() {
 <template>
   <div class="flex flex-col gap-1">
     <div class="flex justify-between items-baseline">
-      <span class="text-sm font-normal text-[#8D8D8D]">Gas Fees</span>
+      <span class="text-sm font-light">Gas Fees</span>
       <div v-if="false" class="text-xs font-normal">
         <span class="text-gray-100">Transaction Time:</span>
         <span class="text-black-500 dark:text-white-100">
@@ -109,35 +109,35 @@ function handleCustomGasPriceInput() {
         </span>
       </div>
     </div>
-    <div class="card flex p-1">
+    <div class="card dark:bg-[#EFEFEF] flex p-1">
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'normal',
-          'text-gray-100': selectedGasMethod !== 'normal',
+          'text-[#989898]': selectedGasMethod !== 'normal',
         }"
         @click.stop="selectedGasMethod = 'normal'"
       >
         Normal
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'fast',
-          'text-gray-100': selectedGasMethod !== 'fast',
+          'text-[#989898]': selectedGasMethod !== 'fast',
         }"
         @click.stop="selectedGasMethod = 'fast'"
       >
         Fast
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer rounded-sm hover:bg-black-500 dark:hover:bg-black-300 focus-visible:bg-black-500 dark:focus-visible:bg-black-300 select-none"
+        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'bg-black-500 dark:bg-black-300 text-white-100':
+          'border-b-2 border-blue-dark text-[#4C818E]':
             selectedGasMethod === 'custom',
-          'text-gray-100': selectedGasMethod !== 'custom',
+          'text-[#989898]': selectedGasMethod !== 'custom',
         }"
         @click.stop="selectedGasMethod = 'custom'"
       >

@@ -332,20 +332,18 @@ async function switchAccountType(request, keeper) {
   })
 }
 
+const manuallyHandledFunctionMap = new Map([
+  ['wallet_switchEthereumChain', switchChain],
+  ['wallet_addEthereumChain', addNetwork],
+  ['wallet_watchAsset', addToken],
+  ['_arcana_switchAccountType', switchAccountType],
+])
+
 async function processRequest({ request, isPermissionGranted }, keeper) {
   if (isPermissionGranted) {
-    if (
-      request.method === 'wallet_switchEthereumChain' ||
-      request.method === 'wallet_addEthereumChain' ||
-      request.method === 'wallet_watchAsset' ||
-      request.method === '_arcana_switchAccountType'
-    ) {
-      const { method } = request
-      if (method === 'wallet_switchEthereumChain') switchChain(request, keeper)
-      if (method === 'wallet_addEthereumChain') addNetwork(request, keeper)
-      if (method === 'wallet_watchAsset') addToken(request, keeper)
-      if (method === '_arcana_switchAccountType')
-        switchAccountType(request, keeper)
+    const manuallyHandledFn = manuallyHandledFunctionMap.get(request.method)
+    if (manuallyHandledFn != null) {
+      await manuallyHandledFn(request, keeper)
     } else {
       const sanitizedRequest =
         appStore.chainType === ChainType.solana_cv25519

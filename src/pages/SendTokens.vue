@@ -22,7 +22,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
-import { makeRequest } from '@/services/request.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import type { EIP1559GasFee } from '@/store/request'
@@ -41,7 +40,6 @@ import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 const showPreview = ref(false)
@@ -88,7 +86,7 @@ const walletBalance = computed(() => {
     .toString()
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
 const transactionMode = ref('')
 
 onBeforeMount(async () => {
@@ -98,8 +96,12 @@ onBeforeMount(async () => {
     const accountHandler =
       requestHandler.getAccountHandler() as EVMAccountHandler
 
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
-    transactionMode.value = await accountHandler.getTransactionMode()
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
   loader.value.show = false
 })
@@ -733,7 +735,7 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="text-lg font-bold">Send Token</span>
+      <span class="text-lg font-medium">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
@@ -741,7 +743,7 @@ watch(
     >
       <div class="flex flex-col gap-7">
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-medium" for="recipientWalletAddress">
+          <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address
           </label>
           <input
@@ -757,8 +759,8 @@ watch(
           />
         </div>
         <div class="flex gap-2">
-          <div class="flex flex-col gap-1">
-            <label for="amount" class="text-sm font-medium">Amount</label>
+          <div class="flex flex-col gap-1 w-3/4">
+            <label for="amount" class="text-sm font-light">Amount</label>
             <div
               class="input-field flex"
               :class="{ 'input-active': isAmountFocused }"
@@ -766,6 +768,7 @@ watch(
               <input
                 id="amount"
                 v-model="amount"
+                class="w-3/4"
                 autocomplete="off"
                 required
                 type="text"
@@ -774,7 +777,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="btn-primary uppercase m-1 px-3 py-2 font-medium text-xs"
+                class="dark:bg-[#354B55] dark:text-white-100 text-[#354B55] uppercase m-1 px-3 py-1 h-6 rounded-md font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
@@ -789,7 +792,7 @@ watch(
             </div>
           </div>
           <div class="flex flex-col gap-1 flex-grow">
-            <label for="tokens" class="text-sm font-medium">Token</label>
+            <label for="tokens" class="text-sm font-light">Token</label>
             <div v-if="tokenList.length" class="input-field pt-[1px]">
               <select
                 :model-value="selectedToken.symbol"
@@ -844,9 +847,9 @@ watch(
           transaction.
         </span>
       </div>
-      <div class="flex">
+      <div class="flex mt-2">
         <button
-          class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
+          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-1/2 mx-auto rounded-full"
         >
           Preview
         </button>
