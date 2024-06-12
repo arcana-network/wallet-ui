@@ -114,9 +114,9 @@ function handleDone() {
             />
           </div>
         </div>
-        <div class="flex space-x-3 bg-[#313131] p-3 rounded-sm">
+        <div class="flex space-x-3 bg-blue-dark-sky p-3 rounded-sm">
           <img class="w-4 h-4 mt-1" :src="getImage('info-icon')" />
-          <p class="text-xs text-[#8D8D8D]">
+          <p class="text-xs text-white-200">
             Your wallet address will be auto-filled, please verify. The time
             taken for funds to reflect in the wallet varies based on payment
             method.
