@@ -8,7 +8,6 @@ import {
 } from 'near-api-js'
 
 import { ChainType } from '@/utils/chainType'
-import { devLogger } from '@/utils/devLogger'
 
 export class NEARAccountHandler {
   private keystore = new keyStores.InMemoryKeyStore()
@@ -69,9 +68,31 @@ export class NEARAccountHandler {
   }
 
   async getBalance() {
-    const bObj = await this.assertAccount().getAccountBalance()
-    devLogger.log({ bObj })
-    return BigInt(bObj.available) // ???
+    try {
+      const bObj = await this.assertAccount().getAccountBalance()
+      return BigInt(bObj.available) < 0n ? 0n : BigInt(bObj.available)
+    } catch (e) {
+      return 0n
+    }
+  }
+
+  async getBalanceBreakdown() {
+    try {
+      const bObj = await this.assertAccount().getAccountBalance()
+      return {
+        total: BigInt(bObj.total) < 0n ? 0n : BigInt(bObj.total),
+        available: BigInt(bObj.available) < 0n ? 0n : BigInt(bObj.available),
+        locked: BigInt(bObj.stateStaked),
+        staked: BigInt(bObj.staked),
+      }
+    } catch (e) {
+      return {
+        total: 0n,
+        available: 0n,
+        locked: 0n,
+        staked: 0n,
+      }
+    }
   }
 
   getChainId() {

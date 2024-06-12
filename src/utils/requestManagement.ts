@@ -471,6 +471,17 @@ async function handleRequest(request, requestStore, appStore, keeper) {
     }
   } else if (request.method === '_arcana_switchAccountType') {
     const accountType = request.params.type?.toLowerCase()
+    if (
+      !rpcStore.selectedChainId ||
+      !rpcStore.gaslessEnabledStatus[Number(rpcStore.selectedChainId)]
+    ) {
+      return await keeper.reply(request.method, {
+        jsonrpc: '2.0',
+        error: 'Gasless not enabled',
+        result: null,
+        id: request.id,
+      })
+    }
     if (!['eoa', 'scw'].includes(accountType)) {
       return await keeper.reply(request.method, {
         jsonrpc: '2.0',

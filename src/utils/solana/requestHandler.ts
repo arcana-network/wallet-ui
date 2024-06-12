@@ -28,8 +28,8 @@ class SolanaRequestHandler {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
     // Emit `chainChanged` event
-    const chainId = await this.accountHandler.getChainId()
-    this.emitEvent('chainChanged', { chainId })
+    // const chainId = await this.accountHandler.getChainId()
+    // this.emitEvent('chainChanged', { chainId })
   }
 
   public async sendConnect() {
@@ -108,8 +108,8 @@ class SolanaRequestHandler {
     res: PendingJsonRpcResponse<unknown>,
     next: () => void
   ) => {
-    if (req.params == null) {
-      throw new Error('???')
+    if (req.params == null && req.method !== 'getAccounts') {
+      throw new Error('params is required')
     }
     switch (req.method) {
       case 'getAccounts': {

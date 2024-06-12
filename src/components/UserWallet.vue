@@ -147,7 +147,9 @@ const transakNetwork = computed(() => {
         value: 'multiversx',
       }
     case ChainType.near_cv25519:
-      return false
+      return {
+        value: 'near',
+      }
     default:
       return false
   }
@@ -292,12 +294,18 @@ async function copyToClipboard(value: string) {
                 />
                 <div class="flex flex-col">
                   <div class="flex">
-                    <span
-                      class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
-                      >{{ truncateMid(selectedAddressType.address, 6) }}</span
-                    >
+                    <div class="flex flex-col items-start">
+                      <span
+                        class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
+                        >{{ truncateMid(selectedAddressType.address, 6) }}</span
+                      >
+                      <span class="text-left text-xs text-[#8d8d8d]">{{
+                        selectedAddressType.label
+                      }}</span>
+                    </div>
                     <button
                       title="Click to copy wallet address"
+                      class="self-start"
                       @click.stop="copyToClipboard(selectedAddressType.address)"
                     >
                       <img :src="getImage('copy.svg')" class="w-xl h-xl" />
