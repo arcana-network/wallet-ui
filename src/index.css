@@ -124,12 +124,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm
-    focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full;
+    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full font-semibold text-base;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-2 border-blue-dark dark:border-white-200 rounded-full;
+    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-2 border-blue-dark dark:border-white-200 rounded-full font-semibold text-base;
   }
 
   .btn-tertiary {
@@ -153,7 +152,7 @@
   }
 
   .radio {
-    @apply grid p-0 place-content-center w-xs h-xs bg-gray-800 dark:bg-gray-600 rounded-full appearance-none border-black-100 dark:border-white-200 border-2 dark:before:bg-white-100;
+    @apply grid p-0 place-content-center w-[10px] h-[10px] bg-transparent rounded-full appearance-none outline-[1.5px] outline-blue-dark dark:outline-white-200;
   }
 
   .radio:checked {
@@ -167,10 +166,7 @@
     border-radius: 50%;
     transition: 120ms transform ease-in-out;
     transform: scale(0);
-  }
-
-  .radio:checked::before {
-    transform: scale(1);
+    border: 1px solid red;
   }
 }
 

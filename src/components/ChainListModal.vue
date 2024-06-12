@@ -89,7 +89,7 @@ function getChainType(chainType: ChainType) {
       </div>
       <button
         v-if="appStore.chainType === ChainType.evm_secp256k1"
-        class="btn-primary uppercase font-medium text-base py-2 mt-4"
+        class="btn-primary uppercase py-2 mt-4"
         @click.stop="showAddNetworkModal = true"
       >
         Add network

@@ -664,20 +664,6 @@ async function stopTransaction(activity) {
             />
           </a>
         </div>
-        <!-- <div
-          v-if="activity.status === 'Pending'"
-          class="flex justify-between space-x-2 mt-4"
-        >
-          <button
-            class="btn-secondary flex-1 text-sm font-medium py-2 uppercase"
-            @click.stop="stopTransaction(activity)"
-          >
-            Stop
-          </button>
-          <button class="btn-primary flex-1 text-sm font-medium py-2 uppercase">
-            Speed Up
-          </button>
-        </div> -->
       </div>
     </li>
   </ul>
