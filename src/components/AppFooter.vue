@@ -49,7 +49,7 @@ function getIcon(icon: string, pathName: string) {
           :class="
             isCurrentRoute('home')
               ? 'text-blue-dark dark:text-white-200'
-              : 'text-gray-bermuda-grey'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Tokens</span
         >
@@ -67,7 +67,7 @@ function getIcon(icon: string, pathName: string) {
           :class="
             isCurrentRoute('Nfts')
               ? 'text-blue-dark dark:text-white-200'
-              : 'text-gray-bermuda-grey'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >NFT</span
         >
@@ -85,7 +85,7 @@ function getIcon(icon: string, pathName: string) {
           :class="
             isCurrentRoute('profile')
               ? 'text-blue-dark dark:text-white-200'
-              : 'text-gray-bermuda-grey'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Profile</span
         >
@@ -112,7 +112,7 @@ function getIcon(icon: string, pathName: string) {
           :class="
             isCurrentRoute('activities')
               ? 'text-blue-dark dark:text-white-200'
-              : 'text-gray-bermuda-grey'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Activity</span
         >
