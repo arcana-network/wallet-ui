@@ -532,7 +532,7 @@ async function stopTransaction(activity) {
                     {{ activity.customToken.symbol }}
                   </span>
                   <span
-                    v-else-if="app.chainType === ChainType.evm_secp256k1"
+                    v-else
                     class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
