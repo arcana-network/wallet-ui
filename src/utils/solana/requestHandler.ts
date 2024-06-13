@@ -24,6 +24,10 @@ class SolanaRequestHandler {
     return ChainType.solana_cv25519
   }
 
+  onDisconnect() {
+    this.connectSent = false
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()

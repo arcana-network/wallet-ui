@@ -49,6 +49,10 @@ class MultiversXRequestHandler {
     }
   }
 
+  onDisconnect() {
+    this.connectSent = false
+  }
+
   public sendAddressType(addressType: string): Promise<void> {
     return this.emitEvent('addressChanged', addressType)
   }
