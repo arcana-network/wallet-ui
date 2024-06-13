@@ -222,9 +222,9 @@ function handleFallbackLogo(event) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-3">
     <span
-      class="uppercase text-lg font-semibold leading-none text-gray-bermuda-grey dark:text-gray-spanish"
+      class="uppercase text-lg font-medium leading-none text-gray-bermuda-grey dark:text-gray-spanish"
       >Assets</span
     >
     <div class="card flex flex-col overflow-hidden">

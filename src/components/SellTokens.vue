@@ -77,7 +77,9 @@ function handleDone() {
     </div>
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
-        <p class="font-medium text-center text-xl">Select Provider</p>
+        <p class="font-Nohemi font-medium text-center text-xl">
+          Select Provider
+        </p>
         <p class="text-xs text-zinc-400">
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
@@ -90,8 +92,6 @@ function handleDone() {
             :class="{
               'opacity-60 cursor-not-allowed': !props.transakNetwork,
               'hover:border-gray-100 cursor-pointer': props.transakNetwork,
-              'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
-                selectedProvider === 'transak',
               'border-gray-800 dark:border-gray-200':
                 selectedProvider !== 'transak',
             }"
