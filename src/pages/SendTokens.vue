@@ -741,7 +741,7 @@ watch(
       class="flex flex-col flex-grow justify-between mt-8"
       @submit.prevent="handleShowPreview"
     >
-      <div class="flex flex-col gap-7">
+      <div class="flex flex-col gap-5">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address

@@ -95,7 +95,7 @@ async function handleSubmit() {
       </button>
       <span class="font-Nohemi text-[20px] font-semibold">Add Network</span>
     </div>
-    <form class="flex flex-col gap-2" @submit.prevent="handleSubmit">
+    <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="recipientWalletAddress">
           Network Name

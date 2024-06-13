@@ -154,7 +154,7 @@ function handleCustomGasPriceInput() {
       </div>
     </div>
   </div>
-  <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-4 mt-4">
+  <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-5 mt-3">
     <div class="flex flex-col gap-1">
       <label class="text-sm font-medium text-left" for="gasLimit">
         Gas Limit
