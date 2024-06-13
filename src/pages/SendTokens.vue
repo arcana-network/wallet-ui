@@ -793,7 +793,7 @@ watch(
           </div>
           <div class="flex flex-col gap-1 flex-grow">
             <label for="tokens" class="text-sm font-light">Token</label>
-            <div v-if="tokenList.length" class="input-field pt-[1px]">
+            <div v-if="tokenList.length" class="input-field">
               <select
                 :model-value="selectedToken.symbol"
                 name="tokens"

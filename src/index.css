@@ -118,7 +118,7 @@
 
   input,
   select {
-    @apply bg-transparent outline-none shadow-none placeholder:text-gray-100 font-normal text-base p-[10px];
+    @apply bg-transparent outline-none shadow-none placeholder:text-gray-100 font-normal text-base;
   }
 }
 
