@@ -335,14 +335,14 @@ async function stopTransaction(activity) {
           <span
             class="text-sm"
             :class="{
-              'text-green-100': activity.status === 'Success',
-              'text-yellow-100': [
+              'text-green-system': activity.status === 'Success',
+              'text-red-pink-orange': [
                 'Pending',
                 'Unapproved',
                 'Processing',
                 'Approved',
               ].includes(activity.status),
-              'text-red-100': [
+              'text-red-system': [
                 'Rejected',
                 'Failed',
                 'Refunded',

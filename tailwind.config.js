@@ -19,7 +19,7 @@ module.exports = {
         bold: 700,
       },
       colors: {
-        red: { 100: '#ff4264', 'pink-orange': '#FF9167' },
+        red: { 100: '#ff4264', 'pink-orange': '#FF9167', system: '#F61D1D' },
         yellow: { 100: '#eeb113' },
         blue: {
           100: '#3e9aff',
@@ -27,7 +27,7 @@ module.exports = {
           columbia: 'C8D5D9',
           'dark-sky': '#487DE3',
         },
-        green: { 100: '#05c168' },
+        green: { 100: '#05c168', system: '#24CC2B' },
         rose: { briliant: '#ff4e9f' },
         black: {
           100: '#000000',
