@@ -226,7 +226,7 @@ function calculateCurrencyValue(value) {
   </div>
   <div v-else-if="shrinkMode" class="flex justify-between p-3">
     <div>
-      <div class="flex" @click="emits('expand')">
+      <div class="flex cursor-pointer" @click="emits('expand')">
         <span class="font-Nohemi text-lg font-medium">Send</span>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>

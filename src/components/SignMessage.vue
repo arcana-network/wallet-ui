@@ -186,7 +186,7 @@ function isDeprecatedMethod() {
     class="flex flex-col justify-between p-3 space-y-2"
   >
     <div class="flex justify-between" @click="emits('expand')">
-      <div class="flex">
+      <div class="flex cursor-pointer">
         <span class="font-Nohemi text-lg font-medium">{{
           methodAndAction[request.request.method]
         }}</span>
