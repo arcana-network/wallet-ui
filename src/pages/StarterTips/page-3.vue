@@ -12,7 +12,9 @@ const dots = [1, 2, 3, 4, 5, 6]
     <div
       class="text-black-100 dark:text-white-100 bg-gray-900 dark:bg-black-100 flex flex-col h-3/4 px-4"
     >
-      <h1 class="text-xl uppercase font-black">Access Multiple Networks</h1>
+      <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+        Access Multiple Networks
+      </h1>
       <p class="text-sm">
         Gain access to a variety of blockchain networks, including popular ones
         such as Ethereum, Arbitrum, Polygon, etc. as well as custom chains

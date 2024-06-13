@@ -331,7 +331,7 @@ onUnmounted(() => {
           New Device/Browser Detected: Verify Login
         </div>
       </div>
-      <div class="flex text-sm text-gray-100">
+      <div class="flex text-sm text-gray-spanish-light">
         Enter your previously setup MFA PIN or answer the security questions to
         verify your login to this new device/browser.
       </div>

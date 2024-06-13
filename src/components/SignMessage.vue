@@ -186,18 +186,18 @@ function isDeprecatedMethod() {
     class="flex flex-col justify-between p-3 space-y-2"
   >
     <div class="flex justify-between" @click="emits('expand')">
-      <div class="flex">
-        <span class="text-lg font-medium">{{
+      <div class="flex cursor-pointer">
+        <span class="font-Nohemi text-lg font-medium">{{
           methodAndAction[request.request.method]
         }}</span>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
       <div>
-        <span class="text-[#FF9167] text-xs">Pending</span>
+        <span class="text-red-pink-orange text-xs">Pending</span>
       </div>
     </div>
     <div>
-      <p class="text-xs text-gray-100">
+      <p class="text-xs text-gray-spanish-light">
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
@@ -205,10 +205,12 @@ function isDeprecatedMethod() {
   </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
-      <h1 class="flex-1 m-0 font-bold text-lg text-center capitalize">
+      <h1
+        class="font-Nohemi flex-1 m-0 text-[20px] font-semibold text-center capitalize"
+      >
         {{ methodAndAction[method] }}
       </h1>
-      <p class="text-xs text-gray-100 text-center">
+      <p class="text-xs text-gray-spanish-light text-center">
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
@@ -281,7 +283,7 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -289,13 +291,13 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-medium"
+          class="btn-primary p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve

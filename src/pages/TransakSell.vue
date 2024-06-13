@@ -638,15 +638,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       </div>
       <div class="flex gap-4 mt-4">
         <button
-          class="btn-secondary h-10 p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary h-10 p-2 w-full"
           @click.stop="handleReject"
         >
           Reject
         </button>
-        <button
-          class="btn-primary h-10 p-2 uppercase w-full text-sm font-medium"
-          @click.stop="handleApprove"
-        >
+        <button class="btn-primary h-10 p-2 w-full" @click.stop="handleApprove">
           Approve
         </button>
       </div>

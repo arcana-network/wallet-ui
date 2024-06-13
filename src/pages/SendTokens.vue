@@ -735,13 +735,13 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="text-lg font-medium">Send Token</span>
+      <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
       @submit.prevent="handleShowPreview"
     >
-      <div class="flex flex-col gap-7">
+      <div class="flex flex-col gap-5">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address
@@ -759,10 +759,10 @@ watch(
           />
         </div>
         <div class="flex gap-2">
-          <div class="flex flex-col gap-1 w-3/4">
+          <div class="flex flex-col gap-1 w-4/6">
             <label for="amount" class="text-sm font-light">Amount</label>
             <div
-              class="input-field flex"
+              class="input-field flex divide-x-1 divide-gray-zinc dark:divide-black-arsenic"
               :class="{ 'input-active': isAmountFocused }"
             >
               <input
@@ -777,23 +777,23 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="dark:bg-[#354B55] dark:text-white-100 text-[#354B55] uppercase m-1 px-3 py-1 h-6 rounded-md font-light text-base"
+                class="text-rose-briliant uppercase w-1/4 h-6 font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
                 Max
               </button>
             </div>
-            <div class="text-gray-100 text-xs font-normal">
+            <div
+              class="text-gray-bermuda-grey dark:text-gray-spanish text-xs font-normal uppercase"
+            >
               Total Balance:
-              <span class="text-black-500 dark:text-white-100"
-                >{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span
-              >
+              <span>{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span>
             </div>
           </div>
           <div class="flex flex-col gap-1 flex-grow">
             <label for="tokens" class="text-sm font-light">Token</label>
-            <div v-if="tokenList.length" class="input-field pt-[1px]">
+            <div v-if="tokenList.length" class="input-field">
               <select
                 :model-value="selectedToken.symbol"
                 name="tokens"
@@ -848,9 +848,7 @@ watch(
         </span>
       </div>
       <div class="flex mt-2">
-        <button
-          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-1/2 mx-auto rounded-full"
-        >
+        <button class="btn-primary py-[10px] text-center w-full">
           Preview
         </button>
       </div>

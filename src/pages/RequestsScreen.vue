@@ -94,7 +94,7 @@ watch(areRequestsPendingForApproval, () => {
               <button>
                 <img
                   class="sign__message-info-icon"
-                  :src="getImage('info-icon')"
+                  :src="getImage('info-circle', undefined, 'svg')"
                 />
               </button>
               <template #content>

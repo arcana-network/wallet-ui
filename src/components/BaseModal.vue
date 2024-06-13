@@ -21,7 +21,7 @@ function handleCollapse() {
     class="fixed flex justify-center items-center inset-0 z-50 p-3 overlay isolate"
   >
     <div
-      class="card bg-[#F7F7F7] dark:bg-[#292929] max-h-[90%] absolute flex flex-col pt-2 w-full rounded-b-none z-20"
+      class="card bg-white-200 dark:bg-black-eerie max-h-[90%] absolute flex flex-col pt-2 w-full rounded-b-none z-20"
       :class="{ collapse: canModalCollapse }"
     >
       <div class="flex justify-center">
