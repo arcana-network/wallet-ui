@@ -51,6 +51,10 @@ class EVMRequestHandler {
     }
   }
 
+  onDisconnect() {
+    this.connectSent = false
+  }
+
   public sendAddressType(addressType: string) {
     this.emitEvent('addressChanged', addressType)
   }
