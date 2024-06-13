@@ -322,13 +322,17 @@ watch(
         class="flex flex-col gap-2"
       >
         <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-100">Total Balance</span>
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Total Balance</span
+          >
           <span class="text-base font-semibold">
             {{ balanceBreakdown.total }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Available Balance</span
           >
           <span class="text-base font-semibold">
@@ -336,7 +340,8 @@ watch(
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Balance Reserved for Storage</span
           >
           <span class="text-base font-semibold">
@@ -344,7 +349,10 @@ watch(
           </span>
         </div>
         <div class="flex flex-col">
-          <span class="text-sm font-medium text-gray-100">Balance Staked</span>
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Balance Staked</span
+          >
           <span class="text-base font-semibold">
             {{ balanceBreakdown.staked }} NEAR
           </span>
