@@ -109,6 +109,7 @@ async function handleLogout() {
   appStore.showWallet = false
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
+  getRequestHandler().onDisconnect()
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
 }

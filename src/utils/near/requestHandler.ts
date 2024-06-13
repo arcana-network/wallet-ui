@@ -36,6 +36,10 @@ class NEARRequestHandler {
     // this.emitEvent('chainChanged', { chainId })
   }
 
+  onDisconnect() {
+    this.connectSent = false
+  }
+
   public async sendConnect() {
     if (!this.connectSent) {
       this.connectSent = true
