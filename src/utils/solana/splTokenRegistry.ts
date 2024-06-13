@@ -24,10 +24,10 @@ async function fetchTokens() {
     if (tokens?.data?.tokens?.length === 0) {
       throw new Error('Token list is empty')
     }
-    return tokens.data.tokens
+    return tokens.data.tokens as TokenInfo[]
   } catch (e) {
     console.error('Could not fetch token list', e)
-    return []
+    return [] as TokenInfo[]
   }
 }
 class SPLTokenRegistry {
@@ -40,7 +40,7 @@ class SPLTokenRegistry {
   static async create() {
     const tokens = await fetchTokens()
     const map = new Map<string, TokenInfo>()
-    tokens.getList().forEach((item) => {
+    tokens.forEach((item) => {
       map.set(item.address, item)
     })
     return new SPLTokenRegistry(map)
