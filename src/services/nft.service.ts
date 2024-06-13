@@ -122,7 +122,8 @@ class NFTDB {
             })
           }
           npToken =
-            resp.data.result?.nextPageToken == ''
+            !resp.data.result?.nextPageToken ||
+            resp.data.result?.nextPageToken === ''
               ? false
               : resp.data.result.nextPageToken
         }
