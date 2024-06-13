@@ -2,6 +2,9 @@
 import { Decimal } from 'decimal.js'
 import { type Ref, ref, watch, computed } from 'vue'
 
+const pathname = window.location.pathname
+const isSendTransaction =
+  pathname.includes('request') || pathname.includes('activities')
 const emits = defineEmits(['gasPriceInput'])
 
 type GasPriceProps = {
@@ -109,35 +112,41 @@ function handleCustomGasPriceInput() {
         </span>
       </div>
     </div>
-    <div class="card bg-gray-zinc-40 dark:bg-crayola flex">
+    <div
+      class="card bg-gray-zinc-40 dark:bg-crayola flex h-12"
+      :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
+    >
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
+        class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-blue-dark text-blue-dark':
+          'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'normal',
-          'text-gray-myst': selectedGasMethod !== 'normal',
+          'text-gray-myst dark:text-gray-spanish-light':
+            selectedGasMethod !== 'normal',
         }"
         @click.stop="selectedGasMethod = 'normal'"
       >
         Normal
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
+        class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-blue-dark text-blue-dark':
+          'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'fast',
-          'text-gray-myst': selectedGasMethod !== 'fast',
+          'text-gray-myst dark:text-gray-spanish-light':
+            selectedGasMethod !== 'fast',
         }"
         @click.stop="selectedGasMethod = 'fast'"
       >
         Fast
       </div>
       <div
-        class="p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
+        class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
-          'border-b-2 border-blue-dark text-blue-dark':
+          'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'custom',
-          'text-gray-myst': selectedGasMethod !== 'custom',
+          'text-gray-myst dark:text-gray-spanish-light':
+            selectedGasMethod !== 'custom',
         }"
         @click.stop="selectedGasMethod = 'custom'"
       >
@@ -156,6 +165,7 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
+        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
         placeholder="Enter total gas to be used"
         @input="handleCustomGasPriceInput()"
       />
@@ -170,6 +180,7 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
+        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
         placeholder="Enter Max priority fee per gas"
         @input="handleCustomGasPriceInput()"
       />
@@ -184,6 +195,7 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
+        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
         placeholder="Enter Max fee per gas"
         @input="handleCustomGasPriceInput()"
       />

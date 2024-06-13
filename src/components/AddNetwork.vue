@@ -157,9 +157,7 @@ async function handleSubmit() {
         />
       </div>
       <div class="flex mt-5">
-        <button class="btn-primary w-full p-2 uppercase font-medium text-sm">
-          Save
-        </button>
+        <button class="btn-primary w-full p-2">Save</button>
       </div>
     </form>
   </div>

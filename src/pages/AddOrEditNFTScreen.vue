@@ -299,12 +299,7 @@ watch(
               autocomplete="off"
             />
           </div>
-          <button
-            type="submit"
-            class="btn-primary mt-8 text-base font-medium py-2 uppercase"
-          >
-            Save
-          </button>
+          <button type="submit" class="btn-primary mt-8 py-2">Save</button>
         </div>
       </form>
     </div>

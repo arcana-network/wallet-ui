@@ -83,7 +83,7 @@ function handleDone() {
         <div class="text-base font-medium text-center">
           {{ statusText.title }}
         </div>
-        <div class="text-sm text-gray-100 text-center">
+        <div class="text-sm text-gray-spanish-light text-center">
           {{ statusText.message }}
         </div>
       </div>
@@ -140,7 +140,7 @@ function handleDone() {
         </div>
         <div class="flex mt-8">
           <button
-            class="flex-1 btn-primary py-[10px] uppercase text-base font-medium"
+            class="flex-1 btn-primary py-[10px]"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed

@@ -59,10 +59,7 @@ function handleProceed() {
         </div>
       </div>
       <div class="flex flex-col mt-1 justify-center items-center gap-4">
-        <button
-          class="mt-1 text-sm btn-primary p-2 uppercase w-48"
-          type="submit"
-        >
+        <button class="mt-1 text-sm btn-primary p-2 w-48" type="submit">
           Proceed
         </button>
         <button

@@ -374,7 +374,7 @@ watch(
     </div>
     <div class="flex">
       <button
-        class="flex justify-center btn-secondary items-center w-full p-2 font-medium text-sm uppercase"
+        class="flex justify-center btn-secondary items-center w-full p-2"
         @click="handleLogout"
       >
         Logout

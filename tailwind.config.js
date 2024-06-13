@@ -64,6 +64,7 @@ module.exports = {
           'zinc-40': '#C8D5D966',
           spanish: '#989898',
           myst: '#555F64',
+          'spanish-light': '#8E9498',
         },
       },
       width: {

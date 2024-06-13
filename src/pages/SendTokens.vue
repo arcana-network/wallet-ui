@@ -777,7 +777,7 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="text-rose-briliant uppercase w-1/4 pl-2 h-6 font-light text-base"
+                class="text-rose-briliant uppercase w-1/4 h-6 font-light text-base"
                 type="button"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
@@ -848,9 +848,7 @@ watch(
         </span>
       </div>
       <div class="flex mt-2">
-        <button
-          class="btn-primary uppercase py-[10px] font-medium text-base text-center w-full"
-        >
+        <button class="btn-primary py-[10px] text-center w-full">
           Preview
         </button>
       </div>

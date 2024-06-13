@@ -257,10 +257,7 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <button
-            type="submit"
-            class="btn-primary uppercase font-medium text-base p-2 mt-5 w-full"
-          >
+          <button type="submit" class="btn-primary p-2 mt-5 w-full">
             Save
           </button>
         </div>

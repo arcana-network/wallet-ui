@@ -310,10 +310,10 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h2 class="font-Nohemi text-[20px] font-semibold uppercase">
+        <h2 class="font-Nohemi text-[20px] font-semibold">
           ENHANCED WALLET SECURITY ENABLED
         </h2>
-        <span class="text-sm max-w-[26rem]"
+        <span class="text-sm max-w-[26rem] text-gray-spanish-light"
           >You're all set with Multi-factor Authentication. If you change
           browsers or devices in the future, you may be asked to either answer
           the security questions or enter the pin created in the last step.
@@ -321,7 +321,7 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
-          class="btn-primary p-2 text-sm font-medium uppercase w-40"
+          class="btn-primary p-2 text-sm font-medium w-40"
           @click.stop="handleDone"
         >
           Done
@@ -343,7 +343,7 @@ function handlePinBack() {
       RECOVERY METHOD 2: PIN
     </h2>
     <hr />
-    <div class="m-4 text-sm text-gray-100">
+    <div class="m-4 text-sm text-gray-spanish-light">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
       if you move to a new device or browser.
     </div>
@@ -386,14 +386,14 @@ function handlePinBack() {
       <div class="flex justify-end gap-4">
         <button
           type="reset"
-          class="btn-secondary uppercase text-sm font-medium p-2 w-[8rem]"
+          class="btn-secondary text-sm font-medium p-2 w-[8rem]"
           @click.stop="handlePinBack"
         >
           Back
         </button>
         <button
           type="submit"
-          class="btn-primary uppercase text-sm font-medium p-2 w-[8rem]"
+          class="btn-primary text-sm font-medium p-2 w-[8rem]"
         >
           Proceed
         </button>
@@ -439,15 +439,12 @@ function handlePinBack() {
         <div class="flex justify-end gap-4">
           <button
             type="reset"
-            class="btn-secondary text-sm font-medium uppercase p-2 w-32"
+            class="btn-secondary text-sm p-2 w-32"
             @click.stop="handleCancel"
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            class="btn-primary text-sm font-medium uppercase p-2 w-32"
-          >
+          <button type="submit" class="btn-primary text-sm p-2 w-32">
             Proceed
           </button>
         </div>

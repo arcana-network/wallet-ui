@@ -124,11 +124,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full font-semibold text-base;
+    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full border-[1.5px] font-semibold text-base;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-2 border-blue-dark dark:border-white-200 rounded-full font-semibold text-base;
+    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-[1.5px] border-blue-dark dark:border-white-200 rounded-full font-semibold text-base;
   }
 
   .btn-tertiary {
@@ -136,7 +136,7 @@
   }
 
   .btn-quaternery {
-    @apply bg-transparent rounded-full h-9 box-border border-2 border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200 font-semibold;
+    @apply bg-transparent rounded-full h-9 box-border border-[1.5px] border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200 font-semibold text-base;
   }
 
   .card {
@@ -144,7 +144,7 @@
   }
 
   .input-field {
-    @apply bg-gray-zinc-40 text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14;
+    @apply bg-gray-zinc-40 text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
   }
 
   .input-active {

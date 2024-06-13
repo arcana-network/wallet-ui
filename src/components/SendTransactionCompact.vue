@@ -133,7 +133,7 @@ async function onViewDetails() {
           Send Transaction
         </h1>
       </div>
-      <p class="text-xs text-gray-100 text-center">
+      <p class="text-xs text-gray-spanish-light text-center">
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
@@ -175,7 +175,7 @@ async function onViewDetails() {
         </div>
       </div>
       <button
-        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto uppercase font-medium"
+        class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto font-medium dark:text-white-200"
         @click.stop="onViewDetails"
       >
         View Details
@@ -184,16 +184,10 @@ async function onViewDetails() {
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 text-sm font-medium">
-        <button
-          class="uppercase w-full btn-secondary p-2"
-          @click="emits('reject')"
-        >
+        <button class="w-full btn-secondary p-2" @click="emits('reject')">
           Reject
         </button>
-        <button
-          class="uppercase w-full btn-primary p-2"
-          @click="emits('approve')"
-        >
+        <button class="w-full btn-primary p-2" @click="emits('approve')">
           Approve
         </button>
       </div>

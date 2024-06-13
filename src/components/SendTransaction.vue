@@ -227,7 +227,7 @@ function calculateCurrencyValue(value) {
   <div v-else-if="shrinkMode" class="flex justify-between p-3">
     <div>
       <div class="flex" @click="emits('expand')">
-        <span class="font-Nohemi text-[20px] font-semibold">Send</span>
+        <span class="font-Nohemi text-lg font-medium">Send</span>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
       <span class="text-[#989898] text-sm font-normal">{{
@@ -259,7 +259,7 @@ function calculateCurrencyValue(value) {
       <p class="font-Nohemi text-[20px] font-semibold text-center flex-grow">
         Send Transaction
       </p>
-      <p class="text-xs text-gray-100 text-center">
+      <p class="text-xs text-gray-spanish-light text-center">
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
@@ -274,23 +274,25 @@ function calculateCurrencyValue(value) {
             v-if="request.request?.params[0]?.from"
             class="flex flex-col gap-1"
           >
-            <span class="uppercase text-xs font-medium text-gray-myst"
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
               >From</span
             >
             <span
               :title="request.request.params[0].from"
-              class="text-base font-semibold"
+              class="text-base font-medium"
             >
               {{ truncateMid(request.request.params[0].from, 6) }}
             </span>
           </div>
           <div v-else class="flex flex-col gap-1">
-            <span class="uppercase text-xs font-medium text-gray-myst"
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
               >From</span
             >
             <span
               :title="userStore.walletAddress"
-              class="text-base font-semibold"
+              class="text-base font-medium"
             >
               {{ truncateMid(userStore.walletAddress, 6) }}
             </span>
@@ -303,23 +305,30 @@ function calculateCurrencyValue(value) {
           v-if="request.request?.params[0]?.to"
           class="flex flex-1 flex-col gap-1"
         >
-          <span class="uppercase text-xs font-medium text-gray-myst">To</span>
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+            >To</span
+          >
           <span
             :title="request.request.params[0].to"
-            class="text-base font-semibold"
+            class="text-base font-medium"
             >{{ truncateMid(request.request.params[0].to, 6) }}</span
           >
         </div>
       </div>
       <div class="space-y-1">
-        <div class="text-sm font-semibold uppercase text-black-arsenic">
+        <div
+          class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+        >
           Transaction Details
         </div>
         <div
           v-if="request.request?.params[0]?.value"
           class="flex justify-between gap-4"
         >
-          <span class="text-gray-myst">Value</span>
+          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+            >Value</span
+          >
           <span class="text-right">
             <span :title="calculateValue(request.request.params[0].value)">{{
               calculateValue(request.request.params[0].value)
@@ -333,7 +342,9 @@ function calculateCurrencyValue(value) {
           </span>
         </div>
         <div class="flex justify-between gap-4">
-          <span class="text-gray-myst">Transaction Fee</span>
+          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+            >Transaction Fee</span
+          >
           <span class="text-right">
             <span
               v-if="!rpcStore.useGasless || transactionMode === ''"
@@ -366,7 +377,9 @@ function calculateCurrencyValue(value) {
         v-if="request.request.params[0].data"
         class="flex flex-col gap-1 h-40"
       >
-        <span class="text-gray-myst">Message</span>
+        <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+          >Message</span
+        >
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
@@ -419,7 +432,7 @@ function calculateCurrencyValue(value) {
     >
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -427,13 +440,13 @@ function calculateCurrencyValue(value) {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-medium"
+          class="btn-primary p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve

@@ -56,16 +56,10 @@ async function onViewDetails() {
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex justify-end gap-4 text-sm font-medium">
-        <button
-          class="uppercase btn-secondary w-full p-2"
-          @click="emits('reject')"
-        >
+        <button class="btn-secondary w-full p-2" @click="emits('reject')">
           Reject
         </button>
-        <button
-          class="uppercase btn-primary w-full p-2"
-          @click="emits('approve')"
-        >
+        <button class="btn-primary w-full p-2" @click="emits('approve')">
           Approve
         </button>
       </div>

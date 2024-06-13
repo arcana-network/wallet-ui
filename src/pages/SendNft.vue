@@ -540,9 +540,7 @@ watch(
           </span>
         </div>
         <div class="flex">
-          <button
-            class="btn-primary uppercase p-[10px] font-medium text-base flex-grow text-center"
-          >
+          <button class="btn-primary p-[10px] flex-grow text-center">
             Preview
           </button>
         </div>

@@ -197,7 +197,7 @@ function isDeprecatedMethod() {
       </div>
     </div>
     <div>
-      <p class="text-xs text-gray-100">
+      <p class="text-xs text-gray-spanish-light">
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
@@ -210,7 +210,7 @@ function isDeprecatedMethod() {
       >
         {{ methodAndAction[method] }}
       </h1>
-      <p class="text-xs text-gray-100 text-center">
+      <p class="text-xs text-gray-spanish-light text-center">
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
@@ -283,7 +283,7 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -291,13 +291,13 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-medium"
+          class="btn-primary p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve

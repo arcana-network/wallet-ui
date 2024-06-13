@@ -19,12 +19,8 @@ function reject() {
       gas fee?
     </p>
     <div class="flex gap-2 text-sm font-medium">
-      <button class="uppercase w-full btn-secondary p-2" @click="reject">
-        Reject
-      </button>
-      <button class="uppercase w-full btn-primary p-2" @click="approve">
-        Approve
-      </button>
+      <button class="w-full btn-secondary p-2" @click="reject">Reject</button>
+      <button class="w-full btn-primary p-2" @click="approve">Approve</button>
     </div>
   </div>
 </template>
