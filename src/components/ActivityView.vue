@@ -274,17 +274,17 @@ async function stopTransaction(activity) {
           </div>
           <span
             v-if="activity.transaction && activity.address.to"
-            class="text-sm text-gray-100"
+            class="text-sm text-gray-spanish"
             :title="activity.address.to"
             >To: {{ truncateMid(activity.address.to) }}</span
           >
           <span
             v-if="activity.file"
-            class="text-sm text-gray-100"
+            class="text-sm text-gray-spanish"
             :title="activity.file.did"
             >File DID: {{ truncateMid(activity.file.did) }}</span
           >
-          <div class="flex text-sm text-gray-100 gap-1 items-center">
+          <div class="flex text-sm text-gray-spanish gap-1 items-center">
             <span class="whitespace-nowrap">{{
               dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
@@ -335,14 +335,14 @@ async function stopTransaction(activity) {
           <span
             class="text-sm"
             :class="{
-              'text-green-100': activity.status === 'Success',
-              'text-yellow-100': [
+              'text-green-system': activity.status === 'Success',
+              'text-red-pink-orange': [
                 'Pending',
                 'Unapproved',
                 'Processing',
                 'Approved',
               ].includes(activity.status),
-              'text-red-100': [
+              'text-red-system': [
                 'Rejected',
                 'Failed',
                 'Refunded',
@@ -360,7 +360,8 @@ async function stopTransaction(activity) {
       >
         <div v-if="activity.file?.recipient">
           <div class="flex flex-col gap-[5px]">
-            <span class="font-montserrat color-secondary text-xs font-semibold"
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
               >To</span
             >
             <span
@@ -373,7 +374,8 @@ async function stopTransaction(activity) {
         </div>
         <div v-if="activity.file?.ruleHash">
           <div class="flex flex-col gap-[5px]">
-            <span class="font-montserrat color-secondary text-xs font-semibold"
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
               >Rule Hash</span
             >
             <span
@@ -388,7 +390,10 @@ async function stopTransaction(activity) {
           <div class="flex flex-col gap-4">
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">From</span>
+                <span
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  >From</span
+                >
                 <span
                   class="text-base text-medium"
                   :title="activity.address.from"
@@ -404,7 +409,10 @@ async function stopTransaction(activity) {
                 }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">To</span>
+                <span
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  >To</span
+                >
                 <span
                   class="text-base text-medium"
                   :title="activity.address.to"
@@ -414,7 +422,10 @@ async function stopTransaction(activity) {
               </div>
             </div>
             <div class="flex flex-col gap-2">
-              <span class="text-sm text-gray-100">Transaction Details</span>
+              <span
+                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+                >Transaction Details</span
+              >
               <div class="flex flex-col gap-2 text-base">
                 <div
                   v-if="activity.sellDetails.provider"
@@ -482,7 +493,10 @@ async function stopTransaction(activity) {
             </div>
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">From</span>
+                <span
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  >From</span
+                >
                 <span
                   class="text-base text-medium"
                   :title="activity.address.from"
@@ -498,7 +512,10 @@ async function stopTransaction(activity) {
                 }"
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
-                <span class="text-sm text-gray-100">To</span>
+                <span
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  >To</span
+                >
                 <span
                   class="text-base text-medium"
                   :title="activity.address.to"
@@ -508,17 +525,29 @@ async function stopTransaction(activity) {
               </div>
             </div>
             <div v-if="!activity.nft" class="flex flex-col gap-2">
-              <span class="text-sm text-gray-100">Transaction Details</span>
+              <span
+                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+                >Transaction Details</span
+              >
               <div class="flex flex-col gap-2 text-base">
                 <div class="flex justify-between">
-                  <span v-if="app.chainType === ChainType.solana_cv25519"
+                  <span
+                    v-if="app.chainType === ChainType.solana_cv25519"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
                     >Slot</span
                   >
-                  <span v-else>Nonce</span>
+                  <span
+                    v-else
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Nonce</span
+                  >
                   <span>{{ activity.transaction.nonce }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span>Amount</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Amount</span
+                  >
                   <span
                     v-if="activity.customToken"
                     class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
@@ -543,21 +572,30 @@ async function stopTransaction(activity) {
                   v-if="activity.transaction.gasLimit"
                   class="flex justify-between"
                 >
-                  <span>Gas Limits (Units)</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Gas Limits (Units)</span
+                  >
                   <span>{{ activity.transaction.gasLimit }}</span>
                 </div>
                 <div
                   v-if="activity.transaction?.gasUsed"
                   class="flex justify-between"
                 >
-                  <span>Gas Used (Units)</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Gas Used (Units)</span
+                  >
                   <span>{{ activity.transaction?.gasUsed || 0 }}</span>
                 </div>
                 <div
                   v-if="activity.transaction.gasPrice"
                   class="flex justify-between"
                 >
-                  <span>Gas Price</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Gas Price</span
+                  >
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${getAmount(activity.transaction.gasPrice, true)}`"
@@ -573,7 +611,10 @@ async function stopTransaction(activity) {
                   v-if="activity.transaction?.computeUnitsConsumed"
                   class="flex justify-between"
                 >
-                  <span>Compute Units Consumed</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Compute Units Consumed</span
+                  >
                   <span>{{
                     activity.transaction?.computeUnitsConsumed || 0
                   }}</span>
@@ -582,7 +623,10 @@ async function stopTransaction(activity) {
                   v-if="activity.transaction?.fee"
                   class="flex justify-between"
                 >
-                  <span>Fee</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Fee</span
+                  >
                   <span
                     >{{ getAmount(activity.transaction?.fee) }}
                     {{ rpcStore.nativeCurrency?.symbol }}</span
@@ -592,13 +636,16 @@ async function stopTransaction(activity) {
                   v-if="activity.transaction.totalActions"
                   class="flex justify-between"
                 >
-                  <span>Total Actions Executed</span>
+                  <span
+                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    >Total Actions Executed</span
+                  >
                   <span>{{ activity.transaction.totalActions }}</span>
                 </div>
               </div>
               <div
                 v-if="app.chainType === ChainType.evm_secp256k1"
-                class="flex justify-between mt-4 font-medium text-lg"
+                class="flex justify-between font-medium text-lg"
               >
                 <span>Total:</span>
                 <span
@@ -664,24 +711,10 @@ async function stopTransaction(activity) {
             />
           </a>
         </div>
-        <!-- <div
-          v-if="activity.status === 'Pending'"
-          class="flex justify-between space-x-2 mt-4"
-        >
-          <button
-            class="btn-secondary flex-1 text-sm font-medium py-2 uppercase"
-            @click.stop="stopTransaction(activity)"
-          >
-            Stop
-          </button>
-          <button class="btn-primary flex-1 text-sm font-medium py-2 uppercase">
-            Speed Up
-          </button>
-        </div> -->
       </div>
     </li>
   </ul>
-  <div v-else class="flex justify-center text-center text-sm text-gray-100">
+  <div v-else class="flex justify-center text-center text-sm text-gray-spanish">
     You have no transactions
   </div>
 </template>

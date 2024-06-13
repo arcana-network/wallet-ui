@@ -8,10 +8,10 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
+const appStore = useAppStore()
 const userStore = useUserStore()
 const route = useRoute()
 const requestStore = useRequestStore()
-const appStore = useAppStore()
 
 const currentRoute = computed(() => {
   return route.name
@@ -32,7 +32,7 @@ function getIcon(icon: string, pathName: string) {
 
 <template>
   <footer
-    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 border-t-1 dark:bg-black-400 dark:border-0 select-none"
+    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 dark:bg-black-eerie select-none"
   >
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link
@@ -51,8 +51,8 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('home')
-              ? 'text-blue-dark dark:text-white-100'
-              : 'text-gray-100'
+              ? 'text-blue-dark dark:text-white-200'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Tokens</span
         >
@@ -70,8 +70,8 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('Nfts')
-              ? 'text-blue-dark dark:text-white-100'
-              : 'text-gray-100'
+              ? 'text-blue-dark dark:text-white-200'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >NFT</span
         >
@@ -88,8 +88,8 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('profile')
-              ? 'text-blue-dark dark:text-white-100'
-              : 'text-gray-100'
+              ? 'text-blue-dark dark:text-white-200'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Profile</span
         >
@@ -115,8 +115,8 @@ function getIcon(icon: string, pathName: string) {
           class="text-xs font-normal"
           :class="
             isCurrentRoute('activities')
-              ? 'text-blue-dark dark:text-white-100'
-              : 'text-gray-100'
+              ? 'text-blue-dark dark:text-white-200'
+              : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Activity</span
         >

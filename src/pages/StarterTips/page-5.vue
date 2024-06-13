@@ -5,7 +5,9 @@ const dots = [1, 2, 3, 4, 5, 6]
 <template>
   <div class="h-full w-full flex flex-col">
     <div class="h-2/5 p-6 bg-gray-900 dark:bg-black-100">
-      <h1 class="text-xl uppercase font-black">Freedom Above All Else</h1>
+      <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+        Freedom Above All Else
+      </h1>
       <p class="text-sm">
         Should you ever need to switch to a different Web3 wallet, you can
         easily export your private keys from the Pop-Up Wallet and import them

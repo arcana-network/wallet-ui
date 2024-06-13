@@ -458,7 +458,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="text-lg font-medium">Send Token</span>
+        <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -540,9 +540,7 @@ watch(
           </span>
         </div>
         <div class="flex">
-          <button
-            class="btn-primary uppercase p-[10px] font-medium text-base flex-grow text-center"
-          >
+          <button class="btn-primary p-[10px] flex-grow text-center">
             Preview
           </button>
         </div>

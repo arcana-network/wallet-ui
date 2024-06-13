@@ -12,7 +12,9 @@ const dots = [1, 2, 3, 4, 5, 6]
     <div
       class="text-black-100 dark:text-white-100 bg-gray-900 dark:bg-black-100 p-6 flex flex-col justify-end"
     >
-      <h1 class="text-xl uppercase font-black">Your Account</h1>
+      <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+        Your Account
+      </h1>
       <p class="text-sm">
         This is also known as your wallet address, public key or public address.
         You will need to share this with others who want to send you crypto or

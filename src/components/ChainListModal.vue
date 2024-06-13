@@ -59,7 +59,7 @@ function getChainType(chainType: ChainType) {
   <AddNetwork v-if="showAddNetworkModal" @close="showAddNetworkModal = false" />
   <div v-else class="flex flex-col gap-5">
     <div class="flex items-center justify-center">
-      <p class="text-xl font-medium">Choose Network</p>
+      <p class="font-Nohemi text-[20px] font-semibold">Choose Network</p>
     </div>
     <div class="flex flex-col gap-4">
       <div
@@ -89,7 +89,7 @@ function getChainType(chainType: ChainType) {
       </div>
       <button
         v-if="appStore.chainType === ChainType.evm_secp256k1"
-        class="btn-primary uppercase font-medium text-base py-2 mt-4"
+        class="btn-primary py-2 mt-4"
         @click.stop="showAddNetworkModal = true"
       >
         Add network

@@ -93,9 +93,7 @@ watch(
 
 <template>
   <div class="relative card flex flex-col gap-2">
-    <div
-      class="card max-h-[400px] z-30 relative shadow dark:shadow-md shadow-black-600"
-    >
+    <div class="card max-h-[400px] z-30 relative">
       <SendTransaction
         v-if="isSendTransactionRequest(currentRequest?.request.id)"
         :request="currentRequest"
@@ -118,11 +116,11 @@ watch(
     </div>
     <div
       v-if="requestStore.skippedRequestsForApproval.length > 1"
-      class="border-gray-800 dark:border-gray-300 dark:shadow-md bg-white-300 dark:bg-[#292929] border rounded-md absolute w-[90%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20 shadow shadow-black-600"
+      class="border-gray-800 dark:border-gray-300 bg-gray-link-water dark:bg-black-crayola border rounded-md absolute w-[90%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20"
     ></div>
     <div
       v-if="requestStore.skippedRequestsForApproval.length > 2"
-      class="border-gray-800 dark:border-gray-300 dark:shadow-md bg-white-300 dark:bg-[#292929] border rounded-md absolute w-[82%] h-full -bottom-4 left-1/2 transform -translate-x-1/2 z-10 shadow shadow-black-600"
+      class="border-gray-800 dark:border-gray-300 bg-gray-link-water dark:bg-black-crayola border rounded-md absolute w-[82%] h-full -bottom-4 left-1/2 transform -translate-x-1/2 z-10"
     ></div>
   </div>
 </template>

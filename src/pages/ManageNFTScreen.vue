@@ -105,7 +105,7 @@ function truncateNFTTokenId(tokenId: string) {
           >
             <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
           </button>
-          <span class="text-lg font-medium">Manage NFTs</span>
+          <span class="font-Nohemi text-[20px] font-semibold">Manage NFTs</span>
         </div>
         <div
           class="card flex flex-col w-full h-full max-h-max text-left flex-grow overflow-hidden"
@@ -137,15 +137,13 @@ function truncateNFTTokenId(tokenId: string) {
             >
           </div>
         </div>
-        <div class="flex justify-center">
-          <button
-            class="btn-quaternery dark:bg-black-300 bg-[#EFEFEF] flex gap-1 items-center cursor-pointer flex-grow justify-center border-none"
-            @click.stop="handleAddToken"
-          >
-            <img :src="getImage('plus.svg')" />
-            <span class="text-base font-medium">New</span>
-          </button>
-        </div>
+        <button
+          class="btn-quaternery flex w-full space-x-1 items-center cursor-pointer justify-center"
+          @click.stop="handleAddToken"
+        >
+          <img :src="getImage('plus.svg')" />
+          <span class="text-base font-medium">New</span>
+        </button>
       </div>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

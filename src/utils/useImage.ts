@@ -13,6 +13,7 @@ const THEME_NEUTRAL_IMAGES = [
   'polygon-icon',
   'arcana-icon',
   'blockchain-icon',
+  'info-circle',
 ]
 
 function useImage() {

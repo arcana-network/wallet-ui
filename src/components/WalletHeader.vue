@@ -95,7 +95,7 @@ function getLogo() {
         />
         <div class="flex flex-col items-start">
           <span
-            class="font-medium text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            class="font-Nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
             >{{ appStore.name }}</span
           >
