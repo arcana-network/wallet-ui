@@ -6,7 +6,11 @@ const props = defineProps<{ message: string }>()
 
 <template>
   <div class="flex flex-col gap-2 text-sm">
-    <div class="text-sm font-medium">Transaction Details</div>
+    <div
+      class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+    >
+      Transaction Details
+    </div>
     <SolanaTransactionDetails :message="props.message" />
   </div>
 </template>
