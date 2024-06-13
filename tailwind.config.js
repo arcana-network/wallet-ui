@@ -65,6 +65,7 @@ module.exports = {
           spanish: '#989898',
           myst: '#555F64',
           'spanish-light': '#8E9498',
+          'link-water': '#CCD8DC',
         },
       },
       width: {
