@@ -482,7 +482,9 @@ function handleGasPriceInput(value, request) {
           'text-center': isArcanaPrivateKeyRequest(request?.method),
         }"
       >
-        <h1>{{ methodAndAction[request.method] }}</h1>
+        <h1 class="font-Nohemi text-[20px] font-semibold">
+          {{ methodAndAction[request.method] }}
+        </h1>
         <p class="text-xs text-[#8D8D8D]">
           {{ truncateMid(request.params[0]?.from, 6) }}
         </p>
@@ -540,15 +542,15 @@ function handleGasPriceInput(value, request) {
       <div class="h-1/6">
         <div v-if="isArcanaPrivateKeyRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            class="btn-primary h-10 p-2 w-full text-sm font-medium"
             @click="closeWindow()"
           >
-            close tab
+            Close tab
           </button>
         </div>
         <div v-else-if="isSendTokenRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            class="btn-primary h-10 p-2 w-full text-sm font-medium"
             @click="handleSendToken(request.params)"
           >
             Send
@@ -556,13 +558,13 @@ function handleGasPriceInput(value, request) {
         </div>
         <div v-else class="flex gap-2">
           <button
-            class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
+            class="btn-secondary h-10 p-2 w-full text-sm font-medium"
             @click="onReject(request)"
           >
             Reject
           </button>
           <button
-            class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
+            class="btn-primary h-10 p-2 w-full text-sm font-medium"
             @click="onApprove(request)"
           >
             Approve

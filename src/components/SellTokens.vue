@@ -67,7 +67,7 @@ function handleDone() {
     >
       <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
       <div class="flex flex-col gap-2">
-        <div class="text-base font-bold text-center">
+        <div class="text-base font-medium text-center">
           {{ statusText.title }}
         </div>
         <div class="text-sm text-gray-100 text-center">
@@ -77,7 +77,9 @@ function handleDone() {
     </div>
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
-        <p class="font-bold text-center text-xl">Select Provider</p>
+        <p class="font-Nohemi font-medium text-center text-xl">
+          Select Provider
+        </p>
         <p class="text-xs text-zinc-400">
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
@@ -86,12 +88,10 @@ function handleDone() {
       <form class="flex flex-col mt-5 space-y-4" @submit.prevent="handleBuy">
         <div class="flex flex-col gap-2">
           <div
-            class="flex gap-3 p-4 items-center justify-between border border-1 rounded-sm transition-all duration-300 ease-in-out"
+            class="bg-gray-zinc dark:bg-black-arsenic flex gap-3 p-4 items-center justify-between border-1 rounded-sm transition-all duration-300 ease-in-out"
             :class="{
               'opacity-60 cursor-not-allowed': !props.transakNetwork,
               'hover:border-gray-100 cursor-pointer': props.transakNetwork,
-              'border-black-500 dark:border-gray-100 bg-white-300 dark:bg-black-300':
-                selectedProvider === 'transak',
               'border-gray-800 dark:border-gray-200':
                 selectedProvider !== 'transak',
             }"
@@ -114,9 +114,12 @@ function handleDone() {
             />
           </div>
         </div>
-        <div class="flex space-x-3 bg-[#313131] p-3 rounded-sm">
-          <img class="w-4 h-4 mt-1" :src="getImage('info-icon')" />
-          <p class="text-xs text-[#8D8D8D]">
+        <div class="flex space-x-3 bg-blue-dark-sky p-3 rounded-sm">
+          <img
+            class="w-4 h-4 mt-1"
+            :src="getImage('info-circle', undefined, 'svg')"
+          />
+          <p class="text-xs text-white-200">
             Your wallet address will be auto-filled, please verify. The time
             taken for funds to reflect in the wallet varies based on payment
             method.
@@ -124,7 +127,7 @@ function handleDone() {
         </div>
         <div class="flex mt-8">
           <button
-            class="flex-1 btn-primary py-[10px] uppercase text-base font-bold"
+            class="flex-1 btn-primary py-[10px] text-base font-medium"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed

@@ -26,15 +26,22 @@ const mvxMethodAndAction = {
   mvx_signMessage: 'Sign Message',
 }
 
+const nearMethodAndAction = {
+  near_signMessage: 'Sign Message',
+  near_signAndSendTransaction: 'Sign and Send Transaction',
+}
+
 const methodAndAction = {
   ...evmMethodAndAction,
   ...solanaMethodAndAction,
   ...mvxMethodAndAction,
+  ...nearMethodAndAction,
 }
 
 export {
   evmMethodAndAction,
   methodAndAction,
   solanaMethodAndAction,
+  nearMethodAndAction,
   mvxMethodAndAction,
 }

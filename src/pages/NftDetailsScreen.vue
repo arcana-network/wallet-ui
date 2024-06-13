@@ -102,7 +102,7 @@ watch(
           <div class="px-4 my-5">
             <div class="flex justify-between gap-3">
               <div
-                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-semibold text-xl font-bold"
+                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-semibold text-xl font-medium"
                 :title="props.name"
               >
                 {{ props.name }}
@@ -117,7 +117,7 @@ watch(
               </div>
             </div>
             <div class="mt-5 flex flex-col gap-1">
-              <div class="font-bold text-sm">Description</div>
+              <div class="font-medium text-sm">Description</div>
               <div
                 v-if="props.description"
                 class="text-xs text-gray-100 font-normal"
@@ -129,7 +129,7 @@ watch(
               </span>
             </div>
             <div class="mt-5 flex flex-col gap-1">
-              <div class="font-bold text-sm">Attributes</div>
+              <div class="font-medium text-sm">Attributes</div>
               <div v-if="props.attributes?.length" class="flex gap-2 flex-wrap">
                 <div
                   v-for="attribute in nftAttributes"

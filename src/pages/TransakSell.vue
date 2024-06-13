@@ -479,7 +479,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
   </div>
   <div v-else class="flex flex-col gap-5 items-center justify-center">
     <div
-      class="border border-solid border-[#363636] bg-[#1f1f1f] font-bold text-[16px] rounded-md px-4 py-5 max-w-[360px] w-full flex items-center justify-center"
+      class="border border-solid border-[#363636] bg-[#1f1f1f] font-medium text-[16px] rounded-md px-4 py-5 max-w-[360px] w-full flex items-center justify-center"
     >
       Sell Crypto
     </div>
@@ -492,7 +492,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       >
         <img src="@/assets/images/success.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
-          <span class="font-bold">Transaction Approved</span>
+          <span class="font-medium">Transaction Approved</span>
           <span class="text-[#8d8d8d] text-[12px] mx-5"
             >The transaction was completed. Please click below to view the
             transaction on the explorer.</span
@@ -525,12 +525,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       >
         <img src="@/assets/images/failed.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
-          <span class="font-bold">Transaction Failed</span>
+          <span class="font-medium">Transaction Failed</span>
           <span class="text-[#8d8d8d] text-[12px] mx-5"
             >The transaction was failed. Retry again.</span
           >
           <!-- <span class="text-[12px]"
-            ><span class="font-bold">Reason: </span
+            ><span class="font-medium">Reason: </span
             ><span class="text-[#8d8d8d]">{{
               txStatus.failureReason
             }}</span></span
@@ -638,15 +638,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       </div>
       <div class="flex gap-4 mt-4">
         <button
-          class="btn-secondary h-10 p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary h-10 p-2 w-full"
           @click.stop="handleReject"
         >
           Reject
         </button>
-        <button
-          class="btn-primary h-10 p-2 uppercase w-full text-sm font-bold"
-          @click.stop="handleApprove"
-        >
+        <button class="btn-primary h-10 p-2 w-full" @click.stop="handleApprove">
           Approve
         </button>
       </div>

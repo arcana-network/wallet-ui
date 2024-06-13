@@ -100,7 +100,7 @@ const walletBalanceInCurrency = computed(() => {
     }
     const currencySymbol = currencyStore.getCurrencySymbol
     return `${currencySymbol}${new Decimal(rpcStore.walletBalance)
-      .div(Decimal.pow(10, 18))
+      .div(Decimal.pow(10, getRequestHandler().getAccountHandler().decimals))
       .mul(Decimal.div(1, perTokenPrice))
       .toDecimalPlaces(2)
       .toString()}`
@@ -130,11 +130,29 @@ const selectedAddressType = ref(
 // TODO: move these to something else scoped to onramps
 
 const transakNetwork = computed(() => {
-  if (!isRampDataFetched.value) return []
-  const selectedChainId = Number(rpcStore.selectedChainId)
-  return getTransakSupportedNetworks().find(
-    (network) => network.chainId === selectedChainId
-  )
+  if (!isRampDataFetched.value) return false
+  switch (appStore.chainType) {
+    case ChainType.evm_secp256k1: {
+      const selectedChainId = Number(rpcStore.selectedChainId)
+      return getTransakSupportedNetworks().find(
+        (network) => network.chainId === selectedChainId
+      )
+    }
+    case ChainType.solana_cv25519:
+      return {
+        value: 'solana',
+      }
+    case ChainType.multiversx_cv25519:
+      return {
+        value: 'multiversx',
+      }
+    case ChainType.near_cv25519:
+      return {
+        value: 'near',
+      }
+    default:
+      return false
+  }
 })
 
 const transakSellNetwork = computed(() => {
@@ -253,12 +271,11 @@ async function copyToClipboard(value: string) {
 </script>
 
 <template>
-  <div>
-    <div class="card p-4 flex flex-col">
+  <div class="gap-3">
+    <div class="card p-3 flex flex-col rounded-xl">
       <div class="flex flex-col justify-between space-y-1">
-        <span class="text-[#8D8D8D] text-sm">Wallet</span>
         <div
-          class="dark:bg-[#313131] bg-[#FFFFFF] flex flex-col justify-between p-2 rounded-md relative"
+          class="flex justify-between rounded-md relative"
           :class="{
             'z-[999] startertips_highlighted':
               starterTipsStore.showWalletAddress,
@@ -272,26 +289,33 @@ async function copyToClipboard(value: string) {
               >
                 <img
                   src="@/assets/images/fallback-logo-dark-mode.png"
-                  class="w-xl h-xl rounded-full"
+                  class="w-xxl h-xxl rounded-full"
                 />
-                <div class="flex flex-col">
+                <div class="flex flex-col0">
                   <div class="flex">
-                    <span
-                      class="font-bold text-lg dark:text-[#FFFFFF] text-[#000000]"
-                      >{{ truncateMid(selectedAddressType.address, 6) }}</span
-                    >
-                    <button
-                      title="Click to copy wallet address"
-                      @click.stop="copyToClipboard(selectedAddressType.address)"
-                    >
-                      <img :src="getImage('copy.svg')" class="w-xl h-xl" />
-                    </button>
+                    <div class="flex flex-col items-start">
+                      <div class="flex items-center">
+                        <span
+                          class="text-sm font-semibold dark:text-white-100 text-black-100"
+                          >{{
+                            truncateMid(selectedAddressType.address, 6)
+                          }}</span
+                        >
+                        <button
+                          title="Click to copy wallet address"
+                          class="self-start"
+                          @click.stop="
+                            copyToClipboard(selectedAddressType.address)
+                          "
+                        >
+                          <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+                        </button>
+                      </div>
+                      <span class="text-left text-xs text-gray-100">{{
+                        selectedAddressType.label
+                      }}</span>
+                    </div>
                   </div>
-                  <span
-                    v-if="appStore.chainType === ChainType.evm_secp256k1"
-                    class="text-left text-xs text-[#8d8d8d]"
-                    >{{ selectedAddressType.label }}</span
-                  >
                 </div>
               </button>
               <img
@@ -306,7 +330,7 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 dark:divide-[#8d8d8d] divide-[#eff1f3] mt-2 p-2 rounded-md absolute top-12 dark:bg-[#313131] bg-[#FFFFFF] w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-12 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
               >
                 <ListboxOption
                   v-for="address in addresses"
@@ -317,7 +341,7 @@ async function copyToClipboard(value: string) {
                   <button
                     class="flex items-center space-x-2 py-2"
                     :class="{
-                      'text-[#8d8d8d]':
+                      'text-gray-100':
                         address.address === selectedAddressType.address,
                     }"
                   >
@@ -326,9 +350,10 @@ async function copyToClipboard(value: string) {
                       class="w-xl h-xl rounded-full"
                     />
                     <div class="flex flex-col items-start">
-                      <span class="text-base">{{
-                        truncateMid(address.address, 6)
-                      }}</span>
+                      <span
+                        class="text-base dark:text-[#FFFFFF] text-[#000000]"
+                        >{{ truncateMid(address.address, 6) }}</span
+                      >
                       <span class="text-left text-xs text-[#8d8d8d]">{{
                         address.label
                       }}</span>
@@ -341,33 +366,41 @@ async function copyToClipboard(value: string) {
         </div>
       </div>
       <div class="mt-4 flex flex-col">
-        <span class="font-normal text-sm text-gray-100">Total Balance:</span>
-        <div class="flex items-center gap-4">
+        <span
+          v-if="appStore.chainType === ChainType.near_cv25519"
+          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          >Available Balance:</span
+        >
+        <span
+          v-else
+          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          >Total Balance:</span
+        >
+        <div class="flex items-center gap-4 text-base font-semibold">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"
           >
-            <span class="font-bold text-xxl">{{
+            <span class="font-normal text-3xl">{{
               walletBalance?.split('.')[0]
             }}</span>
             <span
               v-if="hasWalletBalanceAfterDecimals()"
-              class="font-bold text-xxl"
+              class="font-normal text-3xl"
               >.</span
             >
             <span
               v-if="hasWalletBalanceAfterDecimals()"
-              class="font-bold text-base"
+              class="font-medium text-base"
               >{{ walletBalance?.split('.')[1] }}</span
             >
-            <span v-if="currency" class="font-bold text-base ml-1">
+            <span v-if="currency" class="font-medium text-base ml-1">
               {{ currency }}</span
             >
             <span v-if="walletBalanceInCurrency" class="ml-2 text-sm"
               >({{ walletBalanceInCurrency }})</span
             >
           </div>
-
           <button
             class="w-lg h-lg rounded-full"
             :class="{ 'animate-spin': refreshIconAnimating }"
@@ -378,37 +411,37 @@ async function copyToClipboard(value: string) {
           </button>
         </div>
       </div>
-      <div class="mt-6 flex gap-3">
-        <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          @click.stop="goToSendTokens()"
-        >
-          <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-          Send
-        </button>
-        <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          :disabled="!transakNetwork && onRampMoney === false"
-          :class="{
-            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-          }"
-          @click.stop="handleBuy(true)"
-        >
-          <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-          <span>Buy</span>
-        </button>
-        <button
-          class="btn-secondary flex gap-1 justify-center p-2 items-center font-bold text-sm uppercase w-full"
-          :disabled="!transakSellNetwork"
-          :class="{
-            'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-          }"
-          @click.stop="handleSell(true)"
-        >
-          <img :src="getImage('sell.svg')" class="w-md h-md" />
-          <span>Sell</span>
-        </button>
-      </div>
+    </div>
+    <div class="mt-4 flex gap-3">
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        @click.stop="goToSendTokens()"
+      >
+        <img :src="getImage('send-icon.svg')" class="w-md h-md" />
+        <span>Send</span>
+      </button>
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        :disabled="!transakNetwork && onRampMoney === false"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+        }"
+        @click.stop="handleBuy(true)"
+      >
+        <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
+        <span>Buy</span>
+      </button>
+      <button
+        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
+        }"
+        :disabled="!transakSellNetwork"
+        @click.stop="handleSell(true)"
+      >
+        <img :src="getImage('sell.svg')" class="w-md h-md" />
+        <span>Sell</span>
+      </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddNetwork

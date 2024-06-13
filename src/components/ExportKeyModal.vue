@@ -5,6 +5,9 @@ import { AUTH_URL } from '@/utils/constants'
 import { errors } from '@/utils/content'
 import { downloadFile } from '@/utils/downloadFile'
 import { getImage } from '@/utils/getImage'
+import { useImage } from '@/utils/useImage'
+
+const getIconImage = useImage()
 
 const toast = useToast()
 
@@ -56,7 +59,9 @@ async function copyToClipboard(value: string, message: string) {
       <div class="flex items-center justify-between">
         <label class="text-sm font-semibold text-[#8D8D8D]">Private Key</label>
       </div>
-      <div class="bg-black-400 rounded-md p-4 break-words font-normal text-lg">
+      <div
+        class="bg-black-400 rounded-md p-4 break-words font-normal text-lg blur"
+      >
         {{ props.privateKey }}
       </div>
     </div>
@@ -78,9 +83,12 @@ async function copyToClipboard(value: string, message: string) {
         <span>Download</span>
       </button>
     </div>
-    <div class="flex space-x-3 bg-[#313131] p-2 rounded-sm">
-      <img class="w-5 h-5" src="@/assets/images/info-circle.svg" />
-      <span class="text-xs">
+    <div class="flex space-x-3 bg-blue-dark-sky p-2 rounded-sm">
+      <img
+        class="w-5 h-5"
+        :src="getIconImage('info-circle', undefined, 'svg')"
+      />
+      <span class="text-xs text-white-200">
         Please close this tab immediately after you back up your private key!
       </span>
     </div>

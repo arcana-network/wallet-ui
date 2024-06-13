@@ -225,7 +225,7 @@ onMounted(() => {
   <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
-      class="flex flex-col h-full bg-white-300 dark:bg-black-300 overflow-hidden"
+      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
@@ -344,7 +344,7 @@ body {
   min-height: unset !important;
   max-height: 120px !important;
   padding: 1rem !important;
-  font-family: Onest, sans-serif !important;
+  font-family: Inter, sans-serif !important;
   text-overflow: ellipsis !important;
 }
 
@@ -360,6 +360,14 @@ body {
 
 .Vue-Toastification__progress-bar {
   height: 2px !important;
+}
+
+.Vue-Toastification__toast--success {
+  background-color: #24cc2b !important;
+}
+
+.Vue-Toastification__toast--error {
+  background-color: #f61d1d !important;
 }
 
 .notification-animation {

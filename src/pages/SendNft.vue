@@ -25,7 +25,6 @@ import { content, errors } from '@/utils/content'
 import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { scwInstance } from '@/utils/scw'
 import { getStorage } from '@/utils/storageWrapper'
 
 type SendNftProps = {
@@ -127,10 +126,20 @@ onMounted(async () => {
   }
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('0')
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    const requestHandler = getRequestHandler()
+    const accountHandler =
+      requestHandler.getAccountHandler() as EVMAccountHandler
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
 })
 
@@ -158,7 +167,7 @@ function setHexPrefix(value: string) {
 
 async function handleSendToken() {
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
+    toast.error(content.NFT.NO_NFT_QUANTITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
@@ -333,7 +342,7 @@ async function handleShowPreview() {
     }
   }
   if (props.type === 'erc1155' && quantity.value > (props.balance as number)) {
-    toast.error(content.NFT.NO_NFT_QUATITY(quantity.value, props.balance))
+    toast.error(content.NFT.NO_NFT_QUANTITY(quantity.value, props.balance))
     return
   }
   if (!recipientWalletAddress.value) {
@@ -449,7 +458,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="text-lg font-bold">Send Token</span>
+        <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -496,8 +505,7 @@ watch(
           <GasPrice
             v-if="
               appStore.chainType === ChainType.evm_secp256k1 &&
-              (!rpcStore.useGasless ||
-                (rpcStore.useGasless && paymasterBalance < 0.1))
+              (!rpcStore.useGasless || transactionMode.length === 0)
             "
             :gas-prices="gasPrices"
             :base-fee="baseFee"
@@ -513,15 +521,26 @@ watch(
             @gas-limit-input="onGasLimitChangeMVX"
           />
           <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+            v-else-if="
+              transactionMode === 'SCW' || transactionMode === 'ARCANA'
+            "
             class="text-xs text-green-100 font-medium text-center w-full"
             >This is a Gasless Transaction. Click Below to Approve.
           </span>
+          <span
+            v-else-if="
+              !loader.show &&
+              transactionMode.length === 0 &&
+              rpcStore.useGasless
+            "
+            class="text-xs text-center"
+          >
+            Limit exceeded for gasless transactions. You will be charged for
+            this transaction.
+          </span>
         </div>
         <div class="flex">
-          <button
-            class="btn-primary uppercase p-[10px] font-bold text-base flex-grow text-center"
-          >
+          <button class="btn-primary p-[10px] flex-grow text-center">
             Preview
           </button>
         </div>

@@ -1,6 +1,20 @@
+import {
+  signAsync as ed25519Sign,
+  etc,
+  getPublicKeyAsync,
+} from '@noble/ed25519'
+import { Keypair } from '@solana/web3.js'
 import axios from 'axios'
+import base58 from 'bs58'
+import dayjs from 'dayjs'
+import { personalSign } from 'eth-sig-util'
+import {
+  addHexPrefix,
+  fromUtf8,
+  privateToPublic,
+  stripHexPrefix,
+} from 'ethereumjs-util'
 import { ethers } from 'ethers'
-
 // eslint-disable-next-line no-undef
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
 
@@ -39,4 +53,76 @@ const getNonce = async (address: string) => {
   return res.data.nonce
 }
 
-export { getLoginToken }
+type GetDIDInput = {
+  privateKey: string
+  curve: 'secp256k1' | 'ed25519'
+  userID: string
+  appID: string
+}
+
+const getUserDIDToken = async (input: GetDIDInput) => {
+  const now = dayjs()
+  const claims = JSON.stringify({
+    iss: await privateToPublicKey(input.privateKey, input.curve), // hex encoded for evm, b58 for solana
+    iat: now.unix(),
+    nbf: now.unix(),
+    exp: now.add(60, 'minutes').unix(),
+    aud: input.appID, // appID
+    sub: input.userID,
+    nonce: getRandomUUID(),
+  })
+  const proof = await sign(input.curve)(input.privateKey, claims)
+  const token = window.btoa(JSON.stringify([proof, claims]))
+  return token
+}
+
+const getRandomUUID = () => {
+  // try {
+  //   if (self.crypto?.randomUUID) {
+  //     return self.crypto.randomUUID()
+  //   }
+  //   throw 'insecure context'
+  // } catch (e) {
+  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
+    (
+      +c ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (+c / 4)))
+    ).toString(16)
+  )
+  // }
+}
+
+const sign = (curve: 'secp256k1' | 'ed25519') => {
+  return async (privateKey: string, data: string) => {
+    if (curve === 'secp256k1') {
+      const msgToSign = addHexPrefix(Buffer.from(data).toString('hex'))
+      return personalSign(Buffer.from(stripHexPrefix(privateKey), 'hex'), {
+        data: msgToSign,
+      })
+    } else {
+      const kp = Keypair.fromSeed(etc.hexToBytes(privateKey))
+      const sig = await ed25519Sign(
+        stripHexPrefix(fromUtf8(data)),
+        kp.secretKey.slice(0, 32)
+      )
+      return etc.bytesToHex(sig)
+    }
+  }
+}
+
+const privateToPublicKey = async (
+  privateKey: string,
+  curve: 'secp256k1' | 'ed25519'
+) => {
+  if (curve === 'secp256k1') {
+    const publicKey = privateToPublic(
+      Buffer.from(stripHexPrefix(privateKey), 'hex')
+    )
+    return publicKey.toString('hex')
+  } else {
+    const pkBytes = etc.hexToBytes(privateKey)
+    const publicKey = await getPublicKeyAsync(pkBytes)
+    return base58.encode(publicKey)
+  }
+}
+export { getLoginToken, getUserDIDToken }

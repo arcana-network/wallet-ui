@@ -69,7 +69,7 @@ function displayValue() {
       >
         <img :src="getImage('search.svg')" class="w-sm h-sm select-none" />
         <ComboboxInput
-          class="flex-1 border-none px-2 text-base bg-transparent text-left justify-between truncate"
+          class="flex-1 border-none px-2 text-base bg-transparent text-left justify-between truncate w-3/4"
           placeholder="Enter Token Name or Symbol"
           :display-value="displayValue()"
           @change="query = $event.target.value"
@@ -102,9 +102,9 @@ function displayValue() {
               :value="token.symbol"
             >
               <li
-                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-white-300 dark:hover:bg-black-300 text-black dark:text-white"
+                class="relative cursor-pointer select-none p-4 rounded-[10px] flex justify-between hover:bg-white-300 hover:text-black-100 text-white-100"
                 :class="{
-                  'bg-white-100 dark:bg-black-100': active,
+                  'bg-white-100 text-black-100': active,
                 }"
               >
                 <span

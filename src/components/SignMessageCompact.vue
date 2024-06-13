@@ -38,13 +38,13 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col gap-8">
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-center">
-        <h1 class="m-0 font-bold text-lg capitalize">
+        <h1 class="font-Nohemi m-0 text-[20px] font-semibold capitalize">
           {{ props.title }}
         </h1>
       </div>
       <p class="text-sm text-center">
         {{ appStore.name }} requests your permission for {{ props.permission }}.
-        <button class="font-bold" @click.stop="onViewDetails">
+        <button class="font-medium" @click.stop="onViewDetails">
           Learn More
         </button>
       </p>
@@ -55,17 +55,11 @@ async function onViewDetails() {
       >
     </div>
     <div class="flex flex-col gap-4">
-      <div class="flex justify-end gap-4 text-sm font-bold">
-        <button
-          class="uppercase btn-secondary w-full p-2"
-          @click="emits('reject')"
-        >
+      <div class="flex justify-end gap-4 text-sm font-medium">
+        <button class="btn-secondary w-full p-2" @click="emits('reject')">
           Reject
         </button>
-        <button
-          class="uppercase btn-primary w-full p-2"
-          @click="emits('approve')"
-        >
+        <button class="btn-primary w-full p-2" @click="emits('approve')">
           Approve
         </button>
       </div>
@@ -76,7 +70,7 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(props.request.request.id)"
         >
           Do this later

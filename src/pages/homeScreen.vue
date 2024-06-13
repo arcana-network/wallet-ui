@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
+import { getImage } from '@/utils/getImage'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
@@ -82,14 +83,18 @@ rpcStore.$subscribe(() => {
   <div v-if="loader.show" class="flex justify-center items-center flex-1">
     <AppLoader :message="loader.message" />
   </div>
-  <div v-else>
+  <div v-else class="flex flex-col justify-between">
     <UserWallet
       page="home"
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div class="my-6">
+    <div class="my-5">
       <AssetsView :refresh="refreshIconAnimating" />
+    </div>
+    <div class="flex space-x-1 justify-center items-center">
+      <span class="text-sm">Powered by</span>
+      <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />
     </div>
   </div>
 </template>

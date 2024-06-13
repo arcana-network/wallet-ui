@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ethers } from 'ethers'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
+import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['close'])
@@ -44,10 +44,9 @@ async function handleSubmit() {
     if (isExistingRpcUrl(rpcUrl)) {
       return toast.error(content.RPC.INPUT_EXISTS(rpcUrl))
     } else {
-      const provider = new ethers.providers.StaticJsonRpcProvider(
-        rpcConfig.value.rpcUrl
-      )
+      const provider = produceProviderFromURLString(rpcConfig.value.rpcUrl)
       const chainId = await provider.getNetwork()
+      await provider.destroy()
       if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
         return toast(errors.RPC.ERROR)
       }
@@ -94,9 +93,9 @@ async function handleSubmit() {
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="text-lg font-bold">Add Network</span>
+      <span class="font-Nohemi text-[20px] font-semibold">Add Network</span>
     </div>
-    <form class="flex flex-col gap-2" @submit.prevent="handleSubmit">
+    <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="recipientWalletAddress">
           Network Name
@@ -158,9 +157,7 @@ async function handleSubmit() {
         />
       </div>
       <div class="flex mt-5">
-        <button class="btn-primary w-full p-2 uppercase font-bold text-sm">
-          Save
-        </button>
+        <button class="btn-primary w-full p-2">Save</button>
       </div>
     </form>
   </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import Decimal from 'decimal.js'
 import type { Connection } from 'penpal'
-import { ref, toRefs, watch } from 'vue'
+import { computed, onBeforeMount, ref, reactive, toRefs, watch } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -16,11 +17,14 @@ import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_URL } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
+import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
+import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
@@ -38,6 +42,41 @@ const loader = ref({
   message: '',
 })
 const starterTipsStore = useStarterTipsStore()
+const balanceBreakdown = reactive({
+  total: '',
+  available: '',
+  staked: '',
+  locked: '',
+})
+
+onBeforeMount(async () => {
+  if (appStore.chainType === ChainType.near_cv25519) {
+    loader.value = {
+      show: true,
+      message: 'Fetching balance...',
+    }
+    const accountHandler =
+      getRequestHandler().getAccountHandler() as NEARAccountHandler
+    const breakdown = await accountHandler.getBalanceBreakdown()
+    balanceBreakdown.total = new Decimal(breakdown.total.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.available = new Decimal(breakdown.available.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.staked = new Decimal(breakdown.staked.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    balanceBreakdown.locked = new Decimal(breakdown.locked.toString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toDecimalPlaces(12)
+      .toString()
+    hideLoader()
+  }
+})
 
 const {
   info: { email, name },
@@ -46,6 +85,13 @@ const { walletAddressShrinked, walletAddress } = toRefs(user)
 const { id: appId } = appStore
 const parentConnection: Connection<ParentConnectionApi> | null =
   parentConnectionStore.parentConnection
+
+const privateKey = computed(() => {
+  if (appStore.chainType === ChainType.near_cv25519) {
+    return `ed25519:${user.privateKey}`
+  }
+  return user.privateKey
+})
 
 let mfaWindow: Window | null
 let cleanExit = false
@@ -205,25 +251,34 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="text-lg font-bold">Profile</span>
+      <span class="font-Nohemi text-[20px] font-semibold">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
-        <span class="text-sm text-gray-100">Name</span>
-        <span class="text-lg font-bold">
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Name</span
+        >
+        <span class="text-base font-semibold">
           {{ name }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-100">Email ID</span>
-        <span class="text-lg font-bold">
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Email ID</span
+        >
+        <span class="text-base font-semibold">
           {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
-        <span class="text-sm text-gray-100">Wallet Address</span>
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Wallet Address</span
+        >
         <div class="flex gap-2">
-          <span class="text-lg font-bold">
+          <span class="text-base font-semibold">
             {{ walletAddressShrinked }}
           </span>
           <button
@@ -235,7 +290,7 @@ watch(
             <img
               :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-md h-md dark:invert-0 invert"
+              class="w-4 h-4"
             />
           </button>
         </div>
@@ -246,47 +301,92 @@ watch(
           'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
         }"
       >
-        <span class="text-sm text-gray-100">Private Key</span>
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Private Key</span
+        >
         <button
           class="flex gap-2 items-cente disabled:opacity-100"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-bold"> Export Key </span>
-          <img
-            :src="getImage('external-link.svg')"
-            class="w-md h-md dark:invert-0 invert"
-          />
+          <span class="text-base font-semibold dark:text-white-100">
+            Export Key
+          </span>
+          <img :src="getImage('external-link.svg')" class="w-4 h-4" />
         </button>
       </div>
+      <div
+        v-if="appStore.chainType === ChainType.near_cv25519"
+        class="flex flex-col gap-2"
+      >
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Total Balance</span
+          >
+          <span class="text-base font-semibold">
+            {{ balanceBreakdown.total }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Available Balance</span
+          >
+          <span class="text-base font-semibold">
+            {{ balanceBreakdown.available }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Balance Reserved for Storage</span
+          >
+          <span class="text-base font-semibold">
+            {{ balanceBreakdown.locked }} NEAR
+          </span>
+        </div>
+        <div class="flex flex-col">
+          <span
+            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            >Balance Staked</span
+          >
+          <span class="text-base font-semibold">
+            {{ balanceBreakdown.staked }} NEAR
+          </span>
+        </div>
+      </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
-        <span class="text-sm text-gray-100">Enhance Wallet Security</span>
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Enhance Wallet Security</span
+        >
         <div>
           <button
             v-if="!user.hasMfa"
-            class="text-lg font-bold flex gap-2 items-center"
+            class="text-base font-semibold flex gap-2 items-center"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
-            <span v-if="true">Setup Now</span>
-            <span v-else>Update Security Questions</span>
-            <img
-              :src="getImage('external-link.svg')"
-              class="w-md h-md dark:invert-0 invert"
-            />
+            <span v-if="true" class="dark:text-white-100">Setup Now</span>
+            <span v-else class="dark:text-white-100"
+              >Update Security Questions</span
+            >
+            <img :src="getImage('external-link.svg')" class="w-4 h-4" />
           </button>
-          <span v-else class="text-lg font-bold">In use</span>
+          <span v-else class="text-base font-semibold">In use</span>
         </div>
       </div>
-      <div class="flex">
-        <button
-          class="flex flex-grow justify-center items-center btn-secondary p-2 font-bold text-sm uppercase"
-          @click="handleLogout"
-        >
-          Logout
-        </button>
-      </div>
+    </div>
+    <div class="flex">
+      <button
+        class="flex justify-center btn-secondary items-center w-full p-2"
+        @click="handleLogout"
+      >
+        Logout
+      </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <PrivateKeyCautionModal
@@ -296,7 +396,7 @@ watch(
       />
       <ExportKeyModal
         v-if="showExportKeyModal"
-        :private-key="user.privateKey"
+        :private-key="privateKey"
         :wallet-address="user.walletAddress"
       />
       <MFAProceedModal

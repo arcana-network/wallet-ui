@@ -1,0 +1,69 @@
+
+name: Manual workflow with inputs
+on:
+  workflow_dispatch:
+    inputs:
+      server:
+        type: choice
+        required: true
+        description: Environment
+        options:
+        - dev
+        - testnet
+        - mainnet
+
+jobs:
+  deployment-dev:
+    runs-on: ubuntu-latest
+    name: Deployment on dev servers
+    if:  ${{ github.event.inputs.server == 'dev' }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Run Ansible playbook  on dev servers
+        uses: dawidd6/action-ansible-playbook@v2.5.0
+        with:
+          playbook: deployments/ansible/deploy.yml
+          directory: ./
+          key: ${{ secrets.DEPLOY_SSH_PRV_KEY }}
+          inventory: ${{ secrets.ansible_inventory_dev }}
+          options: |
+            --extra-vars branch=${{github.ref_name}}
+
+  deployment-testnet:
+    runs-on: ubuntu-latest
+    name: Deployment on prod servers
+    if:  ${{ github.event.inputs.server == 'testnet' }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Run Ansible playbook  on testnet servers
+        uses: dawidd6/action-ansible-playbook@v2.5.0
+        with:
+          playbook: deployments/ansible/deploy.yml
+          directory: ./
+          key: ${{ secrets.DEPLOY_SSH_PRV_KEY }}
+          inventory: ${{ secrets.ansible_inventory_testnet }}
+          options: |
+            --extra-vars branch=${{github.ref_name}}
+
+
+  deployment-mainnet:
+    runs-on: ubuntu-latest
+    name: Deployment on mainnet servers
+    if:  ${{ github.event.inputs.server == 'mainnet' }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Run Ansible playbook  on mainnet servers
+        uses: dawidd6/action-ansible-playbook@v2.5.0
+        with:
+          playbook: deployments/ansible/deploy.yml
+          directory: ./
+          key: ${{ secrets.DEPLOY_SSH_PRV_KEY }}
+          inventory: ${{ secrets.ansible_inventory_mainnet }}
+          options: |
+            --extra-vars branch=${{github.ref_name}}

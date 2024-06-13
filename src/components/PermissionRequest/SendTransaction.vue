@@ -32,11 +32,11 @@ const showGasFeeLoader = ref(false)
 const showDetails = ref(false)
 
 function calculateValue(value) {
-  return `${new Decimal(value).div(Decimal.pow(10, 18)).toString()}`
+  return new Decimal(value).div(Decimal.pow(10, 18)).toString()
 }
 
 function getGasValue(gasPrice) {
-  return `${new Decimal(gasPrice).add(1.5).mul(21000).toHexadecimal()}`
+  return new Decimal(gasPrice).add(1.5).mul(21000).toHexadecimal()
 }
 
 function calculateGasPrice(gasPrice) {
@@ -162,7 +162,7 @@ onMounted(async () => {
       :class="{ 'h-2/4': showDetails }"
     >
       <button
-        class="flex justify-center items-center text-sm font-bold"
+        class="flex justify-center items-center text-sm font-medium"
         @click="showDetails = !showDetails"
       >
         <span>View Details </span>

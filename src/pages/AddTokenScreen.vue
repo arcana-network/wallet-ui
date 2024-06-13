@@ -174,7 +174,9 @@ watch(
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex flex-col gap-4">
-      <h2 class="text-xl font-bold text-center">Add a Token</h2>
+      <h2 class="font-Nohemi text-[20px] font-semibold text-center">
+        Add a Token
+      </h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
@@ -192,7 +194,9 @@ watch(
               type="button"
               @click.stop="expandSection = !expandSection"
             >
-              <span class="text-sm font-normal">Add Custom Token</span>
+              <span class="text-sm font-normal dark:text-white-100"
+                >Add Custom Token</span
+              >
               <img
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-all will-change-transform duration-200"
@@ -253,10 +257,7 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <button
-            type="submit"
-            class="btn-primary uppercase font-bold text-base p-2 mt-5"
-          >
+          <button type="submit" class="btn-primary p-2 mt-5 w-full">
             Save
           </button>
         </div>

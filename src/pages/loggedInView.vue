@@ -41,6 +41,7 @@ import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
+import { NEARRequestHandler } from '@/utils/near/requestHandler'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -239,10 +240,13 @@ async function initAccountHandler() {
   try {
     if (parentConnection) {
       const parentConnectionInstance = await parentConnection.promise
-
       const account = getRequestHandler().getAccountHandler().getAccount()
       userStore.setWalletAddress(account.address)
-
+      if (appStore.chainType === ChainType.near_cv25519) {
+        await (getRequestHandler() as NEARRequestHandler).setRpcConfig(
+          rpcStore.selectedRpcConfig || enabledChainList.value[0]
+        )
+      }
       if (typeof appStore.validAppMode !== 'number') {
         let walletMode = storage.local.getWalletMode()
         if (walletMode == null) {
@@ -336,7 +340,7 @@ async function setTheme() {
     appStore.setName(appName)
     storage.local.storeThemePreference(theme)
     const htmlEl = document.getElementsByTagName('html')[0]
-    if (theme === 'dark') htmlEl.classList.add(theme)
+    if (theme === 'dark') htmlEl.classList.add('dark')
   }
 }
 
@@ -345,6 +349,7 @@ function getUserInfo() {
   return {
     loginType: userStore.loginType,
     loginToken: userStore.token,
+    userDIDToken: userStore.userDIDToken,
     ...userStore.info,
     ...accountDetails,
   }
@@ -378,12 +383,16 @@ async function setRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
-      if (appStore.chainType === ChainType.multiversx_cv25519) {
-        return chain.compatibility?.toLowerCase() === 'multiversx'
-      } else if (appStore.chainType === ChainType.solana_cv25519) {
-        return chain.compatibility?.toLowerCase() === 'solana'
-      } else {
-        return chain.compatibility?.toLowerCase() === 'evm'
+      const network = chain.compatibility?.toLowerCase()
+      switch (appStore.chainType) {
+        case ChainType.multiversx_cv25519:
+          return network === 'multiversx'
+        case ChainType.solana_cv25519:
+          return network === 'solana'
+        case ChainType.near_cv25519:
+          return network === 'near'
+        default:
+          return network === 'evm'
       }
     })
     .map((chain) => ({

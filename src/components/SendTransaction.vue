@@ -15,9 +15,9 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
+import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
-import { scwInstance } from '@/utils/scw'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps({
@@ -25,16 +25,35 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  shrinkMode: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const paymasterBalance = ref(0)
+const paymasterBalance = ref('')
+const transactionMode = ref('')
+
 onBeforeMount(async () => {
+  const requestHandler = getRequestHandler()
+  const accountHandler = requestHandler.getAccountHandler() as EVMAccountHandler
   if (appStore.chainType === ChainType.evm_secp256k1 && rpcStore.useGasless) {
-    paymasterBalance.value = (await scwInstance.getPaymasterBalance()) / 1e18
+    const result =
+      await accountHandler.determineTransactionModeAndPaymasterBalance()
+    paymasterBalance.value = new Decimal(result.paymasterBalance.toHexString())
+      .div(Decimal.pow(10, accountHandler.decimals))
+      .toString()
+    transactionMode.value = result.transactionMode
   }
 })
 
-const emits = defineEmits(['gasPriceInput', 'reject', 'approve', 'proceed'])
+const emits = defineEmits([
+  'gasPriceInput',
+  'reject',
+  'approve',
+  'proceed',
+  'expand',
+])
 const customGasPrice = ref({} as any)
 
 const rpcStore = useRpcStore()
@@ -163,10 +182,10 @@ function calculateGasPrice(params) {
 }
 
 function getGasValue(params) {
-  return `${new Decimal(params.maxFeePerGas || params.gasPrice)
+  return new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 0)
     .mul(params.gasLimit || params.gas || 21000)
-    .toHexadecimal()}`
+    .toHexadecimal()
 }
 
 function calculateValue(value) {
@@ -205,6 +224,24 @@ function calculateCurrencyValue(value) {
   <div v-if="loader.show" class="flex justify-center items-center flex-1 p-4">
     <AppLoader :message="loader.message" />
   </div>
+  <div v-else-if="shrinkMode" class="flex justify-between p-3">
+    <div>
+      <div class="flex cursor-pointer" @click="emits('expand')">
+        <span class="font-Nohemi text-lg font-medium">Send</span>
+        <img :src="getImage('arrow-down.svg')" alt="" />
+      </div>
+      <span class="text-[#989898] text-sm font-normal">{{
+        truncateMid(request.request.params[0].to, 6)
+      }}</span>
+    </div>
+    <div class="flex flex-col items-end">
+      <span>{{ calculateValue(request.request.params[0].value) }}</span>
+      <span class="text-[#989898] text-sm font-normal">{{
+        calculateCurrencyValue(request.request.params[0].value)
+      }}</span>
+      <span class="text-red-pink-orange text-xs">Pending</span>
+    </div>
+  </div>
   <SendTransactionCompact
     v-else-if="appStore.compactMode"
     :request="request"
@@ -219,95 +256,130 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="flex flex-col space-y-2"
     >
-      <p class="text-lg text-center font-bold flex-grow">Send Transaction</p>
-      <p class="text-xs text-gray-100 text-center">
+      <p class="font-Nohemi text-[20px] font-semibold text-center flex-grow">
+        Send Transaction
+      </p>
+      <p class="text-xs text-gray-spanish-light text-center">
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
     </div>
     <div
       v-if="appStore.chainType === ChainType.evm_secp256k1"
-      class="flex flex-col gap-2 text-sm"
+      class="flex flex-col gap-2 text-sm bg-gray-zinc-85 dark:bg-black-arsenic p-2 rounded-xl space-y-2"
     >
-      <div class="text-sm font-medium">Transaction Details</div>
-      <div
-        v-if="request.request?.params[0]?.from"
-        class="flex justify-between gap-4"
-      >
-        <span class="w-[120px]">From</span>
-        <span :title="request.request.params[0].from">
-          {{ truncateMid(request.request.params[0].from, 6) }}
-        </span>
+      <div class="flex justify-between items-center space-x-2">
+        <div class="flex-1">
+          <div
+            v-if="request.request?.params[0]?.from"
+            class="flex flex-col gap-1"
+          >
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              >From</span
+            >
+            <span
+              :title="request.request.params[0].from"
+              class="text-base font-medium"
+            >
+              {{ truncateMid(request.request.params[0].from, 6) }}
+            </span>
+          </div>
+          <div v-else class="flex flex-col gap-1">
+            <span
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              >From</span
+            >
+            <span
+              :title="userStore.walletAddress"
+              class="text-base font-medium"
+            >
+              {{ truncateMid(userStore.walletAddress, 6) }}
+            </span>
+          </div>
+        </div>
+        <div class="flex-1 flex justify-center">
+          <img :src="getImage('arrow-to.svg')" alt="to" />
+        </div>
+        <div
+          v-if="request.request?.params[0]?.to"
+          class="flex flex-1 flex-col gap-1"
+        >
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+            >To</span
+          >
+          <span
+            :title="request.request.params[0].to"
+            class="text-base font-medium"
+            >{{ truncateMid(request.request.params[0].to, 6) }}</span
+          >
+        </div>
       </div>
-      <div v-else class="flex justify-between gap-4">
-        <span class="w-[120px]">From</span>
-        <span :title="userStore.walletAddress">
-          {{ truncateMid(userStore.walletAddress, 6) }}
-        </span>
-      </div>
-      <div
-        v-if="request.request?.params[0]?.to"
-        class="flex justify-between gap-4"
-      >
-        <span class="w-[120px]">To</span>
-        <span :title="request.request.params[0].to">{{
-          truncateMid(request.request.params[0].to, 6)
-        }}</span>
-      </div>
-      <div
-        v-if="request.request?.params[0]?.value"
-        class="flex justify-between gap-4"
-      >
-        <span>Value</span>
-        <span class="text-right">
-          <span :title="calculateValue(request.request.params[0].value)">{{
-            calculateValue(request.request.params[0].value)
-          }}</span>
-          <span
-            v-if="calculateCurrencyValue(request.request.params[0].value)"
-            class="ml-1"
+      <div class="space-y-1">
+        <div
+          class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+        >
+          Transaction Details
+        </div>
+        <div
+          v-if="request.request?.params[0]?.value"
+          class="flex justify-between gap-4"
+        >
+          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+            >Value</span
           >
-            ({{ calculateCurrencyValue(request.request.params[0].value) }})
+          <span class="text-right">
+            <span :title="calculateValue(request.request.params[0].value)">{{
+              calculateValue(request.request.params[0].value)
+            }}</span>
+            <span
+              v-if="calculateCurrencyValue(request.request.params[0].value)"
+              class="ml-1"
+            >
+              ({{ calculateCurrencyValue(request.request.params[0].value) }})
+            </span>
           </span>
-        </span>
-      </div>
-      <div class="flex justify-between gap-4">
-        <span>Transaction Fee</span>
-        <span class="text-right">
-          <span
-            v-if="!rpcStore.useGasless"
-            :title="calculateGasPrice(request.request.params[0])"
-            >{{ calculateGasPrice(request.request.params[0]) }}</span
+        </div>
+        <div class="flex justify-between gap-4">
+          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+            >Transaction Fee</span
           >
-          <span
-            v-else-if="rpcStore.useGasless && paymasterBalance >= 0.1"
-            class="text-right text-green-100"
-          >
-            Sponsored
+          <span class="text-right">
+            <span
+              v-if="!rpcStore.useGasless || transactionMode === ''"
+              :title="calculateGasPrice(request.request.params[0])"
+              >{{ calculateGasPrice(request.request.params[0]) }}</span
+            >
+            <span
+              v-else-if="
+                !loader.show &&
+                (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+              "
+              class="text-right text-green-100"
+            >
+              Sponsored
+            </span>
+            <span
+              v-if="
+                calculateCurrencyValue(getGasValue(request.request.params[0]))
+              "
+              class="ml-1"
+            >
+              ({{
+                calculateCurrencyValue(getGasValue(request.request.params[0]))
+              }})
+            </span>
           </span>
-          <span
-            v-else-if="rpcStore.useGasless && paymasterBalance < 0.1"
-            class="text-right"
-          >
-            {{ calculateGasPrice(request.request.params[0]) }}
-          </span>
-          <span
-            v-if="
-              calculateCurrencyValue(getGasValue(request.request.params[0]))
-            "
-            class="ml-1"
-          >
-            ({{
-              calculateCurrencyValue(getGasValue(request.request.params[0]))
-            }})
-          </span>
-        </span>
+        </div>
       </div>
       <div
         v-if="request.request.params[0].data"
         class="flex flex-col gap-1 h-40"
       >
-        <span>Message</span>
+        <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+          >Message</span
+        >
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
@@ -315,7 +387,11 @@ function calculateCurrencyValue(value) {
       v-else-if="appStore.chainType === ChainType.solana_cv25519"
       class="flex flex-col gap-2 text-sm"
     >
-      <div class="text-sm font-medium">Transaction Details</div>
+      <div
+        class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+      >
+        Transaction Details
+      </div>
       <div class="flex flex-col gap-1">
         <span>Data</span>
         <SignMessageAdvancedInfo :info="request.request.params.message" />
@@ -328,7 +404,7 @@ function calculateCurrencyValue(value) {
       <GasPrice
         v-if="
           !rpcStore.useGasless ||
-          (rpcStore.useGasless && paymasterBalance < 0.1)
+          (rpcStore.useGasless && transactionMode === '')
         "
         :base-fee="baseFee"
         :gas-limit="gasLimit"
@@ -337,9 +413,21 @@ function calculateCurrencyValue(value) {
         @gas-price-input="handleSetGasPrice"
       />
       <span
-        v-if="rpcStore.useGasless && paymasterBalance >= 0.1"
+        v-if="
+          !loader.show &&
+          (transactionMode === 'SCW' || transactionMode === 'ARCANA')
+        "
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
+      </span>
+      <span
+        v-else-if="
+          !loader.show && transactionMode.length === 0 && rpcStore.useGasless
+        "
+        class="text-xs text-center"
+      >
+        Limit exceeded for gasless transactions. You will be charged for this
+        transaction.
       </span>
     </div>
     <div
@@ -348,7 +436,7 @@ function calculateCurrencyValue(value) {
     >
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -356,13 +444,13 @@ function calculateCurrencyValue(value) {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 uppercase w-full text-sm font-bold"
+          class="btn-secondary p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 uppercase w-full text-sm font-bold"
+          class="btn-primary p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -375,7 +463,7 @@ function calculateCurrencyValue(value) {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-bold"
+          class="btn-tertiary text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later
