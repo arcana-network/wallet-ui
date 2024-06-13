@@ -362,6 +362,14 @@ body {
   height: 2px !important;
 }
 
+.Vue-Toastification__toast--success {
+  background-color: #24cc2b !important;
+}
+
+.Vue-Toastification__toast--error {
+  background-color: #f61d1d !important;
+}
+
 .notification-animation {
   animation: notification 2s infinite;
 }
