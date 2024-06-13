@@ -29,6 +29,13 @@
 @font-face {
   font-family: Nohemi;
   font-style: normal;
+  font-weight: 600;
+  src: url('@/assets/fonts/nohemi/Nohemi-SemiBold.woff2') format('woff');
+}
+
+@font-face {
+  font-family: Nohemi;
+  font-style: normal;
   font-weight: 700;
   src: url('@/assets/fonts/nohemi/Nohemi-Bold.woff2') format('woff');
 }
