@@ -69,13 +69,13 @@ function displayValue() {
   <Combobox v-slot="{ open }" v-model="selectedQuestion" nullable>
     <div class="relative">
       <div
-        class="relative w-full cursor-default overflow-hidden flex flex-nowrap input-field p-1 pr-3 focus:input-active"
+        class="dark:bg-black-arsenic bg-gray-zinc-85 relative w-full cursor-default overflow-hidden flex flex-nowrap input-field p-1 pr-3 focus:input-active"
         :class="{
           'input-active': isFocused,
         }"
       >
         <ComboboxInput
-          class="flex-1 border-none text-sm bg-transparent text-left justify-between py-1 px-3 truncate"
+          class="flex-1 border-none text-sm text-left justify-between py-1 px-3 truncate"
           placeholder="Enter or select the question"
           :display-value="displayValue()"
           @change="handleChange"

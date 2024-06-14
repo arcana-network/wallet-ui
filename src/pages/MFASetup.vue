@@ -429,7 +429,7 @@ function handlePinBack() {
           <div class="flex flex-col gap-1">
             <label class="text-sm">Answer {{ i }}</label>
             <input
-              class="text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
+              class="dark:bg-black-arsenic bg-gray-zinc-85 text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
               :placeholder="customPlaceholders[i - 1]"
               :value="getAnswer(i)"
               @input="addAnswer(i, $event.target?.value)"
