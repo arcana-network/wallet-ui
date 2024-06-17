@@ -268,6 +268,12 @@ async function copyToClipboard(value: string) {
     toast.error(errors.WALLET.COPY)
   }
 }
+
+function getUnSelectedAddressType() {
+  return addresses.value.filter(
+    (address) => address.address !== selectedAddressType.value.address
+  )
+}
 </script>
 
 <template>
@@ -330,16 +336,16 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-12 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-5 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
               >
                 <ListboxOption
-                  v-for="address in addresses"
+                  v-for="address in getUnSelectedAddressType()"
                   :key="address.type"
                   :value="address"
                   :disabled="address.address === selectedAddressType.address"
                 >
                   <button
-                    class="flex items-center space-x-2 py-2"
+                    class="flex items-center space-x-2"
                     :class="{
                       'text-gray-100':
                         address.address === selectedAddressType.address,
