@@ -237,10 +237,10 @@ async function returnToParent(key: string) {
     const loginToken = await getLoginToken({
       provider: info.loginType,
       token: info.token,
-      signerAddress: ethers.utils.computeAddress(addHexPrefix(info.privateKey)),
       userID: info.userInfo.id,
       appID: appId,
       privateKey: info.privateKey,
+      curve: app.curve,
     })
 
     info.token = loginToken
