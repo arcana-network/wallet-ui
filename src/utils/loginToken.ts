@@ -40,7 +40,7 @@ async function getLoginToken({
     signerAddress: address,
     userID,
     appID,
-    c,
+    curve: c,
   })
   if (res.status !== 200) {
     throw new Error('Could not get login token')
