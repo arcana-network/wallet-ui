@@ -95,12 +95,10 @@ onMounted(async () => {
       const loginToken = await getLoginToken({
         provider: info.loginType,
         token: info.token,
-        signerAddress: ethers.utils.computeAddress(
-          addHexPrefix(userInfo.privateKey)
-        ),
         userID: userInfo.userInfo.id,
         appID: appId,
         privateKey: userInfo.privateKey,
+        curve: app.curve,
       })
 
       userInfo.token = loginToken
