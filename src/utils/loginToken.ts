@@ -21,24 +21,26 @@ const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
 async function getLoginToken({
   provider,
   token,
-  signerAddress,
   userID,
   appID,
   privateKey,
+  curve,
 }) {
-  const wallet = new ethers.Wallet(privateKey)
-  const nonce = await getNonce(wallet.address)
-  const msg = [provider, token, nonce, signerAddress, userID, appID].join(':')
-  const signature = await wallet.signMessage(msg)
+  const address = await getAddress(privateKey, curve)
+  const nonce = await getNonce(address)
+  const c = curve == 'secp256k1' ? 'secp256k1' : 'ed25519'
+  const msg = [provider, token, nonce, address, userID, appID, c].join(':')
+  const signature = await sign(curve)(privateKey, msg)
   const url = new URL('/api/v2/loginToken', OAUTH_URL)
 
   const res = await axios.post<{ token: string }>(url.toString(), {
     provider,
     token,
     signature,
-    signerAddress,
+    signerAddress: address,
     userID,
     appID,
+    curve: c,
   })
   if (res.status !== 200) {
     throw new Error('Could not get login token')
@@ -107,6 +109,18 @@ const sign = (curve: 'secp256k1' | 'ed25519') => {
       )
       return etc.bytesToHex(sig)
     }
+  }
+}
+
+const getAddress = async (
+  privateKey: string,
+  curve: 'secp256k1' | 'ed25519'
+) => {
+  if (curve == 'secp256k1') {
+    const wallet = new ethers.Wallet(privateKey)
+    return wallet.address
+  } else {
+    return await privateToPublicKey(privateKey, 'ed25519')
   }
 }
 
