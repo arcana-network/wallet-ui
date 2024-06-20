@@ -237,7 +237,7 @@ async function handleSendToken() {
           gas.value.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
-        gasFees = maxFeeInWei.toHexadecimal()
+        gasFees = maxFeeInWei.floor().toHexadecimal()
       }
 
       const txHash = await accountHandler.sendNft(

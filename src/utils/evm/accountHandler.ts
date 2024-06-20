@@ -255,7 +255,7 @@ class EVMAccountHandler {
     }
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
-      const hexAmount = new Decimal(amount).toHexadecimal()
+      const hexAmount = new Decimal(amount).floor().toHexadecimal()
       const tx = await contract.safeTransferFrom(
         from,
         to,
@@ -283,7 +283,7 @@ class EVMAccountHandler {
     const signer = this.wallet.connect(this.provider)
     if (ercStandard === 'erc1155') {
       const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
-      const hexAmount = new Decimal(amount).toHexadecimal()
+      const hexAmount = new Decimal(amount).floor().toHexadecimal()
       const gasLimit = await contract.estimateGas.safeTransferFrom(
         from,
         to,
