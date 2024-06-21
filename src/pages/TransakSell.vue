@@ -320,6 +320,7 @@ async function calculateGas() {
             query.value.walletAddress as string,
             new Decimal(query.value.cryptoAmount as string)
               .mul(Decimal.pow(10, selectedCryptoDecimals.value))
+              .floor()
               .toHexadecimal()
           )
         ).toString()
@@ -374,13 +375,16 @@ async function handleApprove() {
       to: setHexPrefix(query.value.walletAddress as string),
       value: new Decimal(query.value.cryptoAmount as string)
         .mul(Decimal.pow(10, 18))
+        .floor()
         .toHexadecimal(),
       from: setHexPrefix(query.value.partnerCustomerId as string),
       maxFeePerGas: new Decimal(gas.maxFee)
         .mul(Decimal.pow(10, 9))
+        .floor()
         .toHexadecimal(),
       maxPriorityFeePerGas: new Decimal(gas.maxPriorityFee)
         .mul(Decimal.pow(10, 9))
+        .floor()
         .toHexadecimal(),
       gasLimit: gas.gasLimit,
     }
@@ -416,13 +420,14 @@ async function handleApprove() {
   } else {
     const amount = new Decimal(query.value.cryptoAmount as string)
       .mul(Decimal.pow(10, selectedCryptoDecimals.value))
+      .floor()
       .toHexadecimal()
     try {
       const txHash = await accountHandler.sendCustomToken(
         contractAddress.value,
         query.value.walletAddress as string,
         amount,
-        new Decimal(gas.maxFee).mul(Decimal.pow(10, 9)).toHexadecimal(),
+        new Decimal(gas.maxFee).mul(Decimal.pow(10, 9)).floor().toHexadecimal(),
         gas.gasLimit
       )
       devLogger.log({ txHash, explorerUrl: explorerUrl.value })
