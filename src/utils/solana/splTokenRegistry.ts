@@ -17,17 +17,22 @@ type TokenInfo = {
 }
 
 async function fetchTokens() {
-  const cdnRegistryFetch = axios.get(TOKEN_REGISTRY_URL)
-  const fallbackRegistryFetch = axios.get(TOKEN_REGISTRY_URL_FALLBACK)
   try {
-    const tokens = await Promise.race([cdnRegistryFetch, fallbackRegistryFetch])
+    const tokens = await axios.get(TOKEN_REGISTRY_URL)
     if (tokens?.data?.tokens?.length === 0) {
       throw new Error('Token list is empty')
     }
     return tokens.data.tokens as TokenInfo[]
   } catch (e) {
-    console.error('Could not fetch token list', e)
-    return [] as TokenInfo[]
+    try {
+      const tokens = await axios.get(TOKEN_REGISTRY_URL_FALLBACK)
+      if (tokens?.data?.tokens?.length === 0) {
+        return []
+      }
+      return tokens.data.tokens as TokenInfo[]
+    } catch (e) {
+      throw new Error('Failed to fetch token list')
+    }
   }
 }
 class SPLTokenRegistry {
