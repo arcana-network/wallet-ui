@@ -100,7 +100,7 @@ onMounted(async () => {
         })
       ).toString()
     } catch (e) {
-      gasLimit.value = '21000' // default gas limit
+      gasLimit.value = '45000' // max gas limit
     }
     try {
       const baseGasPrice = (
@@ -156,11 +156,13 @@ function handleSetGasPrice(value) {
       maxFeePerGas: value.maxFeePerGas
         ? new Decimal(computeMaxFee(value))
             .mul(Decimal.pow(10, 9))
+            .floor()
             .toHexadecimal()
         : null,
       maxPriorityFeePerGas: value.maxPriorityFeePerGas
         ? new Decimal(value.maxPriorityFeePerGas)
             .mul(Decimal.pow(10, 9))
+            .floor()
             .toHexadecimal()
         : null,
       gasLimit: value.gasLimit ? value.gasLimit : null,
@@ -184,7 +186,8 @@ function calculateGasPrice(params) {
 function getGasValue(params) {
   return new Decimal(params.maxFeePerGas || params.gasPrice)
     .add(params.maxPriorityFeePerGas || 0)
-    .mul(params.gasLimit || params.gas || 21000)
+    .mul(params.gasLimit || params.gas || 45000)
+    .floor()
     .toHexadecimal()
 }
 
