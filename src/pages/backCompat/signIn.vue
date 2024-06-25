@@ -94,6 +94,7 @@ const initPasswordlessLogin = async (email: string) => {
         picture: '',
         name: '',
       },
+      token: '',
       privateKey,
       pk,
       hasMfa,
@@ -142,7 +143,11 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
 }
 
 async function storeUserInfoAndRedirect(
-  userInfo: GetInfoOutput & { hasMfa?: boolean; pk?: string }
+  userInfo: GetInfoOutput & {
+    hasMfa?: boolean
+    pk?: string
+    userDIDToken?: string
+  }
 ) {
   const storage = getStorage()
   storage.session.setUserInfo(userInfo)
