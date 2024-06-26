@@ -1,5 +1,6 @@
 import { UserSecretKey, UserPublicKey } from '@multiversx/sdk-wallet'
-import hkdf from 'futoin-hkdf'
+import { hkdf } from '@noble/hashes/hkdf'
+import { sha3_512 } from '@noble/hashes/sha3'
 
 const maskN = Math.ceil(Math.log2(3))
 const maskHigh = (1 << maskN) - 1
@@ -37,13 +38,15 @@ export function grindToShard(key: Buffer, requiredShardID: number): Buffer {
   let counter = 0n
   for (;;) {
     const cStr = counter.toString(16)
-    const currentIteration = hkdf(key, key.length, {
-      salt,
-      info: Buffer.from(
-        cStr.padStart(Math.ceil(cStr.length / 2) * 2, '0'),
-        'hex'
-      ),
-    })
+    const currentIteration = Buffer.from(
+      hkdf(
+        sha3_512,
+        key,
+        salt,
+        Buffer.from(cStr.padStart(Math.ceil(cStr.length / 2) * 2, '0'), 'hex'),
+        key.length
+      )
+    )
     const shardID = computeShardID(currentIteration)
     if (shardID !== requiredShardID) {
       counter += 1n
