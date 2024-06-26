@@ -45,12 +45,6 @@ export function grindToShard(key: Buffer, requiredShardID: number): Buffer {
       ),
     })
     const shardID = computeShardID(currentIteration)
-    console.log('grindToShard iteration:', {
-      counter,
-      shardID,
-      currentIteration,
-      cStr,
-    })
     if (shardID !== requiredShardID) {
       counter += 1n
     } else {
