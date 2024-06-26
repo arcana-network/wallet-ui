@@ -98,7 +98,7 @@ onBeforeMount(async () => {
   populateFields(chain)
   initStorage(appId)
   updateTheme()
-  initAccountHandler(chain?.rpcUrls[0])
+  await initAccountHandler(chain?.rpcUrls[0])
   explorerUrl.value = chain?.blockExplorerUrls ? chain.blockExplorerUrls[0] : ''
   await handleGasless(
     chain?.chainId as string,
@@ -227,10 +227,10 @@ async function getAppDetails(appId: string) {
   return data
 }
 
-function initAccountHandler(rpcUrl) {
+async function initAccountHandler(rpcUrl) {
   const { privateKey } = getStorage().local.getUserInfo()
   if (!requestHandlerExists()) {
-    const accountHandler = CreateAccountHandler(privateKey, rpcUrl)
+    const accountHandler = await CreateAccountHandler(privateKey, rpcUrl)
     setRequestHandler(accountHandler)
   }
 }

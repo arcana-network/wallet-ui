@@ -225,9 +225,9 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-function initKeeper(rpcUrl) {
+async function initKeeper(rpcUrl) {
   if (!requestHandlerExists()) {
-    const accountHandler = CreateAccountHandler(
+    const accountHandler = await CreateAccountHandler(
       userStore.privateKey,
       rpcUrl,
       appStore.chainType
@@ -417,7 +417,7 @@ async function getRpcConfig() {
   let rpcConfig =
     enabledChainList.value.find((chain) => chain.defaultChain) ||
     enabledChainList.value[0] // some time, chain list don't have default chain
-  initKeeper(rpcConfig.rpcUrls[0])
+  await initKeeper(rpcConfig.rpcUrls[0])
   rpcStore.setSelectedRPCConfig(rpcConfig)
   rpcStore.setRpcConfig(rpcConfig)
 }

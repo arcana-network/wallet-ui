@@ -101,10 +101,10 @@ async function getAppDetails(appId: string) {
   return data
 }
 
-function initAccountHandler(rpcUrl) {
+async function initAccountHandler(rpcUrl) {
   const { privateKey } = getStorage().local.getUserInfo()
   if (!requestHandlerExists()) {
-    const accountHandler = CreateAccountHandler(privateKey, rpcUrl)
+    const accountHandler = await CreateAccountHandler(privateKey, rpcUrl)
     setRequestHandler(accountHandler)
   }
 }
@@ -213,7 +213,7 @@ async function initFromChainId(chainId: string) {
       isCustom: false,
     }
     rpcStore.setSelectedRPCConfig(rpcConfig)
-    initAccountHandler(chainDetails.rpc_url)
+    await initAccountHandler(chainDetails.rpc_url)
     setRPCConfigInRequestHandler(chainDetails)
   }
 }
