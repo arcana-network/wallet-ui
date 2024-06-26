@@ -61,6 +61,7 @@
     "pusher-js": "^8.4.0-rc2",
     "qrious": "^4.0.2",
     "uuid": "^9.0.1",
+    "validator": "^13.12.0",
     "vue": "^3.4.27",
     "vue-class-component": "^8.0.0-rc.1",
     "vue-gtag": "^2.0.1",
@@ -69,8 +70,7 @@
     "vue-router": "^4.3.2",
     "vue-slider-component": "^4.1.0-beta.7",
     "vue-toastification": "^2.0.0-rc.5",
-    "vue3-popper": "^1.5.0",
-    "yup": "^0.32.11"
+    "vue3-popper": "^1.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.6",
