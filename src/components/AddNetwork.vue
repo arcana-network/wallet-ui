@@ -70,9 +70,6 @@ async function handleSubmit() {
           isCustom: true,
         }
         rpcStore.addNetwork(payload)
-        rpcStore.setRpcConfig({
-          ...payload,
-        })
         rpcStore.setSelectedChainId(payload.chainId)
       }
       emit('close')
