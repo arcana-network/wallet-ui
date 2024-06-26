@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import AddNetwork from '@/components/AddNetwork.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
@@ -19,11 +19,27 @@ const selectedRPCConfig = ref(rpcStore.selectedRPCConfig)
 const showAddNetworkModal = ref(false)
 const appStore = useAppStore()
 
-const alphabeticalSort = (field) => (a, b) => a[field].localeCompare(b[field])
+const alphabeticalSort = (field) => (a, b) => {
+  if (a[field] && b[field]) {
+    return a[field].localeCompare(b[field])
+  }
+  return 0
+}
 
-const sortedRpcConfigs = rpcStore.rpcConfigList
-  ?.sort(alphabeticalSort('chainName'))
-  .sort(alphabeticalSort('chainType'))
+const booleanSort = (field) => (a, b) => {
+  return !!a[field] > !!b[field] ? -1 : 1
+}
+
+const sortedRpcConfigs = computed(() => {
+  const configs = rpcStore.rpcConfigList
+  if (configs) {
+    return configs
+      .sort(alphabeticalSort('chainName'))
+      .sort(alphabeticalSort('chainType'))
+      .sort(booleanSort('isCustom'))
+  }
+  return []
+})
 
 watch(
   () => selectedRPCConfig.value,
@@ -34,6 +50,13 @@ watch(
       requestHandler.setRpcConfig(selectedRPCConfig.value)
     }
     emit('close')
+  }
+)
+
+watch(
+  () => rpcStore.selectedRPCConfig,
+  () => {
+    selectedRPCConfig.value = rpcStore.selectedRPCConfig
   }
 )
 
@@ -82,7 +105,8 @@ function getChainType(chainType: ChainType) {
             @error="handleFallbackLogo"
           />
           <span class="text-base">{{ chain.chainName }}</span>
-          <span v-if="chain.chainType === 'testnet'" class="testnet-tag">
+          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
+          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
             Testnet
           </span>
         </label>
