@@ -4,7 +4,6 @@ import {
   Transaction,
   IPlainTransactionObject,
   Address,
-  TokenTransfer,
 } from '@multiversx/sdk-core'
 import Decimal from 'decimal.js'
 import {
@@ -19,7 +18,6 @@ import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
-import { toHex } from '@/utils/toHex'
 
 class MultiversXRequestHandler {
   private handler?: JsonRpcEngine

@@ -10,12 +10,8 @@ import type { InitParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
-import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import {
-  catchupSigninPage,
-  fetchPasswordlessResponseFromSignIn,
-} from '@/utils/redirectUtils'
+import { catchupSigninPage } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()

@@ -16,7 +16,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import AppLoader from '@/components/AppLoader.vue'
 import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
-import { RpcConfigWallet } from '@/models/RpcConfigList'
+import type { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
@@ -33,7 +33,10 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
-import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import {
+  CreateAccountHandler,
+  type EVMAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
@@ -232,7 +235,7 @@ async function initKeeper(rpcUrl) {
       rpcUrl,
       appStore.chainType
     )
-    setRequestHandler(accountHandler)
+    await setRequestHandler(accountHandler)
   }
 }
 

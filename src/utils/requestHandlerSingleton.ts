@@ -7,9 +7,9 @@ const requestHandlerExists = () => {
   return requestHandler != null
 }
 
-const setRequestHandler = (accountHandler: AccountHandler) => {
+const setRequestHandler = async (accountHandler: AccountHandler) => {
   if (!requestHandler) {
-    requestHandler = createRequestHandler(accountHandler)
+    requestHandler = await createRequestHandler(accountHandler)
     return
   }
   throw new Error('RequestHandler already initialized.')

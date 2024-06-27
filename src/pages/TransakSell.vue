@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { AddressZero } from '@ethersproject/constants'
 import { Decimal } from 'decimal.js'
-import { ethers } from 'ethers'
 import { computed, onBeforeMount, ref, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -17,7 +17,10 @@ import {
 } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
-import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
+import {
+  CreateAccountHandler,
+  type EVMAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
@@ -106,7 +109,7 @@ onBeforeMount(async () => {
     query.value.partnerCustomerId as string
   )
   await fetchNativeBalance()
-  if (contractAddress.value !== ethers.constants.AddressZero) {
+  if (contractAddress.value !== AddressZero) {
     await fetchERC20Balance()
   } else {
     balance.value = nativeBalance.value
@@ -121,7 +124,7 @@ onBeforeMount(async () => {
       provider: 'transak',
       chainId: selectedNetworkChainId.value,
       contractAddress:
-        contractAddress.value === ethers.constants.AddressZero
+        contractAddress.value === AddressZero
           ? 'NATIVE'
           : contractAddress.value,
       tokenDecimals: selectedCryptoDecimals.value,
@@ -170,7 +173,7 @@ function populateFields(chain) {
       crypto.symbol === query.value.cryptoCurrency
   )
   devLogger.log(currency)
-  contractAddress.value = currency.address || ethers.constants.AddressZero
+  contractAddress.value = currency.address || AddressZero
   selectedCryptoLogo.value = currency.image.large || ''
   selectedCryptoDecimals.value = currency.decimals || 18
 }
@@ -231,7 +234,7 @@ async function initAccountHandler(rpcUrl) {
   const { privateKey } = getStorage().local.getUserInfo()
   if (!requestHandlerExists()) {
     const accountHandler = await CreateAccountHandler(privateKey, rpcUrl)
-    setRequestHandler(accountHandler)
+    await setRequestHandler(accountHandler)
   }
 }
 
@@ -300,7 +303,7 @@ async function calculateGas() {
   const accountHandler = getRequestHandler().getAccountHandler()
   if (appStore.chainType === ChainType.evm_secp256k1) {
     await calculateBaseFee()
-    if (contractAddress.value === ethers.constants.AddressZero) {
+    if (contractAddress.value === AddressZero) {
       try {
         gas.gasLimit = (
           await (accountHandler as EVMAccountHandler).provider.estimateGas({
@@ -334,7 +337,7 @@ async function calculateGas() {
 
 async function handleApprove() {
   if (
-    contractAddress.value === ethers.constants.AddressZero &&
+    contractAddress.value === AddressZero &&
     new Decimal(balance.value).lessThan(
       Decimal.sub(query.value.cryptoAmount as string, displayGasFees.value)
     )
@@ -370,7 +373,7 @@ async function handleApprove() {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
 
-  if (contractAddress.value === ethers.constants.AddressZero) {
+  if (contractAddress.value === AddressZero) {
     const payload: any = {
       to: setHexPrefix(query.value.walletAddress as string),
       value: new Decimal(query.value.cryptoAmount as string)
@@ -617,7 +620,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           >
         </div>
         <div
-          v-if="contractAddress !== ethers.constants.AddressZero"
+          v-if="contractAddress !== AddressZero"
           class="flex items-center justify-between"
         >
           <span class="text-[12px]">Gas Balance:</span>

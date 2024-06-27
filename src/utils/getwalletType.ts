@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 
 import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 
@@ -11,7 +11,7 @@ export const getWalletType = async (
     return null
   }
   const provider = produceProviderFromURLString(rpcUrl)
-  const contract = new ethers.Contract(
+  const contract = new Contract(
     appAddress,
     ['function walletType() view returns (uint)'],
     provider

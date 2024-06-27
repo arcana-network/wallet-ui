@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import { RpcConfigWallet } from '@/models/RpcConfigList'
+import type { RpcConfigWallet } from '@/models/RpcConfigList'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 const BALANCE_POLLING_INTERVAL = 10 * 1000

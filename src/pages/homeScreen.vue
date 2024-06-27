@@ -4,15 +4,12 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import AppLoader from '@/components/AppLoader.vue'
 import AssetsView from '@/components/AssetsView.vue'
 import UserWallet from '@/components/UserWallet.vue'
-import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
-import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { sleep } from '@/utils/sleep'
 
 const rpcStore = useRpcStore()
-const appStore = useAppStore()
 const refreshIconAnimating = ref(false)
 const loader = ref({
   show: false,

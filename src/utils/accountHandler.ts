@@ -46,6 +46,7 @@ export {
   type EVMAccountHandler,
   type SolanaAccountHandler,
   type MultiversXAccountHandler,
+  type NEARAccountHandler,
   type AccountHandler,
   type ChainType as SupportedChainType,
 }

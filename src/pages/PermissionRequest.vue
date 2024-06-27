@@ -31,8 +31,8 @@ import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import {
   CreateAccountHandler,
-  EVMAccountHandler,
-  SolanaAccountHandler,
+  type EVMAccountHandler,
+  type SolanaAccountHandler,
 } from '@/utils/accountHandler'
 import { advancedInfo } from '@/utils/advancedInfo'
 import { ChainType } from '@/utils/chainType'
@@ -105,7 +105,7 @@ async function initAccountHandler(rpcUrl) {
   const { privateKey } = getStorage().local.getUserInfo()
   if (!requestHandlerExists()) {
     const accountHandler = await CreateAccountHandler(privateKey, rpcUrl)
-    setRequestHandler(accountHandler)
+    await setRequestHandler(accountHandler)
   }
 }
 

@@ -2,9 +2,6 @@
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import NFTIcon from '@/assets/images/starter-tips/nft-icon.png'
-import ProfileIcon from '@/assets/images/starter-tips/profile-icon.png'
-import TokensIcon from '@/assets/images/starter-tips/tokens-icon.png'
 import Page1 from '@/pages/StarterTips/page-1.vue'
 import Page2 from '@/pages/StarterTips/page-2.vue'
 import Page3 from '@/pages/StarterTips/page-3.vue'
@@ -104,7 +101,7 @@ watch(
       class="h-16 flex justify-around items-center dark:bg-black-100 bg-gray-900"
     >
       <img
-        :src="TokensIcon"
+        src="@/assets/images/starter-tips/tokens-icon.png"
         alt="token"
         class="h-12 w-8 dark:invert-0 invert"
         :class="
@@ -114,18 +111,22 @@ watch(
         "
       />
       <img
-        :src="NFTIcon"
+        src="@/assets/images/starter-tips/nft-icon.png"
         alt="nft"
         class="h-12 w-8 dark:invert-0 invert"
         :class="currentPage === 4 ? 'opacity-100' : 'opacity-0'"
       />
       <img
-        :src="ProfileIcon"
+        src="@/assets/images/starter-tips/profile-icon.png"
         alt="profile"
         class="h-12 w-8 dark:invert-0 invert"
         :class="currentPage === 5 ? 'opacity-100' : 'opacity-0'"
       />
-      <img :src="ProfileIcon" alt="profile" class="h-12 w-8 opacity-0" />
+      <img
+        src="@/assets/images/starter-tips/profile-icon.png"
+        alt="profile"
+        class="h-12 w-8 opacity-0"
+      />
     </div>
   </div>
 </template>

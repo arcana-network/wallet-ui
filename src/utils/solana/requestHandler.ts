@@ -12,7 +12,6 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
-import { toHex } from '@/utils/toHex'
 
 class SolanaRequestHandler {
   private handler?: JsonRpcEngine

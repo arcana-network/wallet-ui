@@ -1,13 +1,17 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
-import { ParsedInstruction } from '@solana/web3.js'
-import { ethers, BigNumber, EventFilter } from 'ethers'
+import { Interface } from '@ethersproject/abi'
+import type { Result } from '@ethersproject/abi'
+import type { TransactionResponse } from '@ethersproject/abstract-provider'
+import { BigNumber } from '@ethersproject/bignumber'
+import { hexZeroPad } from '@ethersproject/bytes'
+import type { EventFilter } from '@ethersproject/contracts'
+import type { ParsedInstruction } from '@solana/web3.js'
 import { defineStore } from 'pinia'
 import { useToast } from 'vue-toastification'
 
-import { NFT } from '@/models/NFT'
+import type { NFT } from '@/models/NFT'
 import { store } from '@/store'
 import { useUserStore } from '@/store/user'
-import {
+import type {
   EVMAccountHandler,
   MultiversXAccountHandler,
   SolanaAccountHandler,
@@ -200,19 +204,17 @@ async function getRemoteTransaction(
   })
 }
 
-function decodeLogDataHandleOps(
-  transaction: ethers.providers.TransactionResponse
-): ethers.utils.Result {
+function decodeLogDataHandleOps(transaction: TransactionResponse): Result {
   const abi = [
     'function handleOps((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes)[],address)',
   ]
-  const iface = new ethers.utils.Interface(abi)
+  const iface = new Interface(abi)
   return iface.decodeFunctionData('handleOps', transaction.data)
 }
 
 function getAmountUsingCallData(data: string): BigNumber {
   const abi = ['function execute_ncC(address,uint256,bytes)']
-  const iface = new ethers.utils.Interface(abi)
+  const iface = new Interface(abi)
   const decodedData = iface.decodeFunctionData('execute_ncC', data)
   return decodedData[1]
 }
@@ -625,9 +627,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         address: forwarderAddress,
         topics: [
           CONTRACT_EVENT_CODE,
-          ethers.utils.hexZeroPad(fileTransaction.tx.from, 32),
-          ethers.utils.hexZeroPad(fileTransaction.tx.to, 32),
-          ethers.utils.hexZeroPad(
+          hexZeroPad(fileTransaction.tx.from, 32),
+          hexZeroPad(fileTransaction.tx.to, 32),
+          hexZeroPad(
             BigNumber.from(fileTransaction.tx.nonce).toHexString(),
             32
           ),

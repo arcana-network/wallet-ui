@@ -1,4 +1,9 @@
+import { Interface } from '@ethersproject/abi'
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
+import { BigNumber, BigNumberish } from '@ethersproject/bignumber'
+import { hexlify } from '@ethersproject/bytes'
+import { Contract } from '@ethersproject/contracts'
+import { Wallet } from '@ethersproject/wallet'
 import { Decimal } from 'decimal.js'
 import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
@@ -13,7 +18,6 @@ import {
   setLengthLeft,
   stripHexPrefix,
 } from 'ethereumjs-util'
-import { ethers } from 'ethers'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc20abi from '@/abis/erc20.abi.json'
@@ -21,7 +25,6 @@ import erc721abi from '@/abis/erc721.abi.json'
 import { NFTContractType } from '@/models/NFT'
 import { useAppStore } from '@/store/app'
 import { useGaslessStore } from '@/store/gasless'
-import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
@@ -40,17 +43,16 @@ import { scwInstance } from '@/utils/scw'
 
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
-const modalStore = useModalStore()
 const appStore = useAppStore()
 const gaslessStore = useGaslessStore()
 const SENDIT_APP_ID = process.env.VUE_APP_SENDIT_APP_ID
 
 class EVMAccountHandler {
-  wallet: ethers.Wallet
+  wallet: Wallet
   provider: JsonRpcProviderPlusDestroy
 
   constructor(privateKey: string, rpcUrl: string) {
-    this.wallet = new ethers.Wallet(privateKey)
+    this.wallet = new Wallet(privateKey)
     this.provider = produceProviderFromURLString(rpcUrl)
   }
 
@@ -99,14 +101,14 @@ class EVMAccountHandler {
   }
 
   public async determineTransactionModeAndPaymasterBalance(): Promise<{
-    paymasterBalance: ethers.BigNumber
+    paymasterBalance: BigNumber
     transactionMode: string
   }> {
     const [nonce, paymasterBalance] = await Promise.all([
       this.getNonceForArcanaSponsorship(userStore.walletAddress),
-      scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
+      scwInstance.getPaymasterBalance() as Promise<BigNumber>,
     ])
-    const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
+    const thresholdPaymasterBalance = BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
     let mode = ''
     if (paymasterBalance.gt(thresholdPaymasterBalance)) {
@@ -127,10 +129,8 @@ class EVMAccountHandler {
       .transactionMode
   }
 
-  async getNonceForArcanaSponsorship(
-    address: string
-  ): Promise<ethers.BigNumber> {
-    const c = new ethers.Contract(
+  async getNonceForArcanaSponsorship(address: string): Promise<BigNumber> {
+    const c = new Contract(
       '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
       [
         {
@@ -185,7 +185,7 @@ class EVMAccountHandler {
     ]
 
     if (rpcStore.useGasless) {
-      const Erc20Interface = new ethers.utils.Interface(abi)
+      const Erc20Interface = new Interface(abi)
       const encodedData = Erc20Interface.encodeFunctionData('transfer', [
         recipientAddress,
         amount,
@@ -205,7 +205,7 @@ class EVMAccountHandler {
       return txDetails.receipt.transactionHash
     } else {
       const signer = this.wallet.connect(this.provider)
-      const contract = new ethers.Contract(contractAddress, abi, signer)
+      const contract = new Contract(contractAddress, abi, signer)
       const payload = {} as any
       if (gasPrice) payload.gasPrice = gasPrice
       if (gasLimit) payload.gasLimit = gasLimit
@@ -227,7 +227,7 @@ class EVMAccountHandler {
       'function transfer(address recipient, uint256 amount) returns (bool)',
     ]
     const signer = this.wallet.connect(this.provider)
-    const contract = new ethers.Contract(contractAddress, abi, signer)
+    const contract = new Contract(contractAddress, abi, signer)
     const gasLimit = await contract.estimateGas.transfer(
       recipientAddress,
       amount
@@ -254,7 +254,7 @@ class EVMAccountHandler {
       payload.gasLimit = gasLimit
     }
     if (ercStandard === 'erc1155') {
-      const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
+      const contract = new Contract(contractAddress, erc1155abi, signer)
       const hexAmount = new Decimal(amount).floor().toHexadecimal()
       const tx = await contract.safeTransferFrom(
         from,
@@ -266,7 +266,7 @@ class EVMAccountHandler {
       )
       return tx.hash
     } else {
-      const contract = new ethers.Contract(contractAddress, erc721abi, signer)
+      const contract = new Contract(contractAddress, erc721abi, signer)
       const tx = await contract.transferFrom(from, to, tokenId, payload)
       return tx.hash
     }
@@ -282,7 +282,7 @@ class EVMAccountHandler {
   ) => {
     const signer = this.wallet.connect(this.provider)
     if (ercStandard === 'erc1155') {
-      const contract = new ethers.Contract(contractAddress, erc1155abi, signer)
+      const contract = new Contract(contractAddress, erc1155abi, signer)
       const hexAmount = new Decimal(amount).floor().toHexadecimal()
       const gasLimit = await contract.estimateGas.safeTransferFrom(
         from,
@@ -293,7 +293,7 @@ class EVMAccountHandler {
       )
       return Number(gasLimit) * 2
     } else {
-      const contract = new ethers.Contract(contractAddress, erc721abi, signer)
+      const contract = new Contract(contractAddress, erc721abi, signer)
       const gasLimit = await contract.estimateGas.transferFrom(
         from,
         to,
@@ -356,7 +356,7 @@ class EVMAccountHandler {
     return rpcStore.useGasless ? 'scw' : 'eoa'
   }
 
-  private getWallet(address: string): ethers.Wallet | undefined {
+  private getWallet(address: string): Wallet | undefined {
     address = rpcStore.useGasless ? this.wallet.address : address
     if (this.wallet.address.toUpperCase() === address.toUpperCase()) {
       return this.wallet
@@ -484,7 +484,7 @@ class EVMAccountHandler {
   private coerceAmbiguousToString(x: string | Uint8Array) {
     let y: string
     if (x instanceof Uint8Array) {
-      y = ethers.utils.hexlify(x)
+      y = hexlify(x)
     } else {
       // noinspection JSSuspiciousNameCombination
       y = x
@@ -495,36 +495,24 @@ class EVMAccountHandler {
   getTokenBalance(
     _contractAddr: string | Uint8Array,
     walletAddress: string | Uint8Array
-  ): Promise<ethers.BigNumberish> {
+  ): Promise<BigNumberish> {
     const contractAddr = this.coerceAmbiguousToString(_contractAddr)
 
-    const ethersContract = new ethers.Contract(
-      contractAddr,
-      erc20abi,
-      this.provider
-    )
+    const ethersContract = new Contract(contractAddr, erc20abi, this.provider)
 
     return ethersContract.balanceOf(walletAddress)
   }
 
   getTokenDecimals(_contractAddress: string | Uint8Array): Promise<number> {
     const contractAddr = this.coerceAmbiguousToString(_contractAddress)
-    const ethersContract = new ethers.Contract(
-      contractAddr,
-      erc20abi,
-      this.provider
-    )
+    const ethersContract = new Contract(contractAddr, erc20abi, this.provider)
 
     return ethersContract.decimals()
   }
 
   getTokenSymbol(_contractAddress: string | Uint8Array): Promise<string> {
     const contractAddr = this.coerceAmbiguousToString(_contractAddress)
-    const ethersContract = new ethers.Contract(
-      contractAddr,
-      erc20abi,
-      this.provider
-    )
+    const ethersContract = new Contract(contractAddr, erc20abi, this.provider)
 
     return ethersContract.symbol()
   }

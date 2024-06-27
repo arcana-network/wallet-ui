@@ -1,13 +1,17 @@
-import { providers } from 'ethers'
+import {
+  JsonRpcProvider,
+  StaticJsonRpcProvider,
+  WebSocketProvider,
+} from '@ethersproject/providers'
 
 // Since there is no destroy method in StaticJsonRpcProvider, we had to implement this
-class StaticJsonRpcProviderPlusDestroy extends providers.StaticJsonRpcProvider {
+class StaticJsonRpcProviderPlusDestroy extends StaticJsonRpcProvider {
   async destroy() {
     return
   }
 }
 
-interface JsonRpcProviderPlusDestroy extends providers.JsonRpcProvider {
+interface JsonRpcProviderPlusDestroy extends JsonRpcProvider {
   destroy(): Promise<void>
 }
 
@@ -24,7 +28,7 @@ function produceProviderFromURLString(rpcURL: string) {
     case 'ws:':
     case 'wss':
     case 'wss:': {
-      return new providers.WebSocketProvider(rpcURL)
+      return new WebSocketProvider(rpcURL)
     }
     default: {
       throw new Error('unsupported protocol scheme')
