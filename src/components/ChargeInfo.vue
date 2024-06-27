@@ -2,8 +2,8 @@
   <div class="info__container">
     <p class="info__content">
       What you are about to do is simply sign a transaction and send it to the
-      network from where it will be submitted to the public Arcana blockchain.
-      You will never pay a fee to sign transactions.
+      network from where it will be submitted to the public blockchain. You will
+      never pay a fee to sign transactions.
     </p>
   </div>
 </template>
