@@ -15,7 +15,7 @@ import {
   catchupSigninPage,
   fetchPasswordlessResponseFromSignIn,
 } from '@/utils/redirectUtils'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import { initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
 const user = useUserStore()

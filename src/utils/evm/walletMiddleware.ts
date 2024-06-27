@@ -1,6 +1,6 @@
 import { AppMode } from '@arcana/auth'
 import { ethErrors } from 'eth-rpc-errors'
-import sigUtil from 'eth-sig-util'
+import { recoverPersonalSignature, type SignedMsgParams } from 'eth-sig-util'
 import {
   createAsyncMiddleware,
   createScaffoldMiddleware,
@@ -345,12 +345,12 @@ function createWalletMiddleware({
     const signature: string = (req.params as string)[1]
     const extraParams: Record<string, unknown> =
       (req.params as Record<string, unknown>[])[2] || {}
-    const msgParams: sigUtil.SignedMsgParams<string> = {
+    const msgParams: SignedMsgParams<string> = {
       ...extraParams,
       sig: signature,
       data: message,
     }
-    const signerAddress: string = sigUtil.recoverPersonalSignature(msgParams)
+    const signerAddress: string = recoverPersonalSignature(msgParams)
 
     res.result = signerAddress
   }

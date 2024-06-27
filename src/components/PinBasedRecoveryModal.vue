@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
