@@ -13,7 +13,10 @@ import useCurrencyStore from '@/store/currencies'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler, SolanaAccountHandler } from '@/utils/accountHandler'
+import type {
+  EVMAccountHandler,
+  SolanaAccountHandler,
+} from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'

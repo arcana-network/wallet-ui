@@ -8,8 +8,6 @@ import {
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
-import { addHexPrefix } from 'ethereumjs-util'
-import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'

@@ -1,15 +1,15 @@
-import {
+import type {
   AccountHandler,
   EVMAccountHandler,
   SolanaAccountHandler,
   MultiversXAccountHandler,
+  NEARAccountHandler,
 } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { EVMRequestHandler } from '@/utils/evm/requestHandler'
-import { MultiversXRequestHandler } from '@/utils/multiversx/requestHandler'
-import { NEARAccountHandler } from '@/utils/near/accountHandler'
-import { NEARRequestHandler } from '@/utils/near/requestHandler'
-import { SolanaRequestHandler } from '@/utils/solana/requestHandler'
+import { type EVMRequestHandler } from '@/utils/evm/requestHandler'
+import { type MultiversXRequestHandler } from '@/utils/multiversx/requestHandler'
+import { type NEARRequestHandler } from '@/utils/near/requestHandler'
+import { type SolanaRequestHandler } from '@/utils/solana/requestHandler'
 
 type RequestHandler =
   | EVMRequestHandler
@@ -17,18 +17,30 @@ type RequestHandler =
   | MultiversXRequestHandler
   | NEARRequestHandler
 
-function createRequestHandler(accountHandler: AccountHandler) {
+async function createRequestHandler(accountHandler: AccountHandler) {
   switch (accountHandler.chainType) {
-    case ChainType.multiversx_cv25519:
+    case ChainType.multiversx_cv25519: {
+      const { MultiversXRequestHandler } = await import(
+        '@/utils/multiversx/requestHandler'
+      )
       return new MultiversXRequestHandler(
         accountHandler as MultiversXAccountHandler
       )
-    case ChainType.near_cv25519:
+    }
+    case ChainType.near_cv25519: {
+      const { NEARRequestHandler } = await import('@/utils/near/requestHandler')
       return new NEARRequestHandler(accountHandler as NEARAccountHandler)
-    case ChainType.solana_cv25519:
+    }
+    case ChainType.solana_cv25519: {
+      const { SolanaRequestHandler } = await import(
+        '@/utils/solana/requestHandler'
+      )
       return new SolanaRequestHandler(accountHandler as SolanaAccountHandler)
-    default:
+    }
+    default: {
+      const { EVMRequestHandler } = await import('@/utils/evm/requestHandler')
       return new EVMRequestHandler(accountHandler as EVMAccountHandler)
+    }
   }
 }
 

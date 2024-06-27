@@ -1,3 +1,4 @@
+import { Wallet } from '@ethersproject/wallet'
 import {
   signAsync as ed25519Sign,
   etc,
@@ -14,7 +15,7 @@ import {
   privateToPublic,
   stripHexPrefix,
 } from 'ethereumjs-util'
-import { ethers } from 'ethers'
+
 // eslint-disable-next-line no-undef
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
 
@@ -117,7 +118,7 @@ const getAddress = async (
   curve: 'secp256k1' | 'ed25519'
 ) => {
   if (curve == 'secp256k1') {
-    const wallet = new ethers.Wallet(privateKey)
+    const wallet = new Wallet(privateKey)
     return wallet.address
   } else {
     return await privateToPublicKey(privateKey, 'ed25519')

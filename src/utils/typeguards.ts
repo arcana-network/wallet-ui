@@ -1,6 +1,6 @@
-import { ethers } from 'ethers'
+import { TransactionRequest } from '@ethersproject/providers'
 
-interface TransactionData extends ethers.providers.TransactionRequest {
+interface TransactionData extends TransactionRequest {
   from: string
 }
 

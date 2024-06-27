@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AuthProvider, SocialLoginType } from '@arcana/auth-core'
 import type { Connection } from 'penpal'
+import isEmail from 'validator/es/lib/isEmail'
 import { toRefs, onMounted, ref, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute } from 'vue-router'
@@ -9,13 +10,8 @@ import type { InitParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
 import { useUserStore } from '@/store/user'
 import { createInitParentConnection } from '@/utils/createParentConnection'
-import { devLogger } from '@/utils/devLogger'
-import emailScheme from '@/utils/emailScheme'
 import { getAuthProvider } from '@/utils/getAuthProvider'
-import {
-  catchupSigninPage,
-  fetchPasswordlessResponseFromSignIn,
-} from '@/utils/redirectUtils'
+import { catchupSigninPage } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
 
 const route = useRoute()
@@ -82,7 +78,7 @@ async function handleSocialLoginRequest(
 }
 
 async function handlePasswordlessLoginRequest(email: string) {
-  const isEmailValid = await emailScheme.isValid(email)
+  const isEmailValid = isEmail(email)
   if (isEmailValid) {
     if (authProvider) {
       const result = await authProvider.loginWithPasswordlessV2Start({

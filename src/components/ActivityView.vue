@@ -15,7 +15,7 @@ import type {
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
-import { EVMAccountHandler } from '@/utils/accountHandler'
+import type { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'

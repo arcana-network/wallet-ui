@@ -4,7 +4,6 @@ import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
-import JsonViewer from 'vue-json-viewer'
 import Toast from 'vue-toastification'
 
 import App from '@/App.vue'
@@ -51,7 +50,7 @@ if (
   })
 }
 
-walletApp.use(JsonViewer).use(router).use(Toast, toastOptions).use(store)
+walletApp.use(router).use(Toast, toastOptions).use(store)
 
 if (process.env.NODE_ENV === 'production') {
   walletApp.use(VueGtag, {

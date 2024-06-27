@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 
 import erc1155abi from '@/abis/erc1155.abi.json'
 import erc721abi from '@/abis/erc721.abi.json'
@@ -6,7 +6,7 @@ import type { NFT, NFTContractType } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
 import { useUserStore } from '@/store/user'
-import { EVMAccountHandler } from '@/utils/accountHandler'
+import type { EVMAccountHandler } from '@/utils/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
 type ContractParams = {
@@ -44,7 +44,7 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
   const ERC1155InterfaceId = '0xd9b67a26'
   const ERC721InterfaceId = '0x80ac58cd'
 
-  const contract = new ethers.Contract(address, ERC165Abi, provider)
+  const contract = new Contract(address, ERC165Abi, provider)
 
   if (await contract.supportsInterface(ERC721InterfaceId)) return 'erc721'
   else if (await contract.supportsInterface(ERC1155InterfaceId))
@@ -55,21 +55,13 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
 function get721Contract(contractAddress: string) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
-  return new ethers.Contract(
-    contractAddress,
-    erc721abi,
-    accountHandler.provider
-  )
+  return new Contract(contractAddress, erc721abi, accountHandler.provider)
 }
 
 function get1155Contract(contractAddress: string) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
-  return new ethers.Contract(
-    contractAddress,
-    erc1155abi,
-    accountHandler.provider
-  )
+  return new Contract(contractAddress, erc1155abi, accountHandler.provider)
 }
 
 async function get721Uri(data: ContractParams): Promise<string> {

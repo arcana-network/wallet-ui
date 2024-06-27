@@ -11,7 +11,7 @@ import { router } from '@/routes'
 import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { useImage } from '@/utils/useImage'
 
 const getImage = useImage()

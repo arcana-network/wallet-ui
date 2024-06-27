@@ -15,7 +15,7 @@ import { useAppStore } from '@/store/app'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
+import type {
   EVMAccountHandler,
   MultiversXAccountHandler,
   SolanaAccountHandler,

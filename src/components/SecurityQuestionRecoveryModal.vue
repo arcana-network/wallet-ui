@@ -3,7 +3,7 @@ import { computed, ref, onBeforeMount, type Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import SelectQuestion from '@/components/SelectQuestion.vue'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 const props = defineProps<{

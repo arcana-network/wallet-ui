@@ -1,7 +1,6 @@
 import Decimal from 'decimal.js'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
-  createFetchMiddleware,
   providerFromMiddleware,
   createBlockRefMiddleware,
   createRetryOnEmptyMiddleware,
@@ -22,7 +21,6 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { type EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { toHex } from '@/utils/toHex'
 
 interface RpcConfig {
   rpcUrls: string[]

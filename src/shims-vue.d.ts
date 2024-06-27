@@ -31,5 +31,3 @@ declare namespace NodeJS {
     VUE_APP_DKG_CONTRACT_ADDRESS: string
   }
 }
-
-declare module 'vue-json-viewer'

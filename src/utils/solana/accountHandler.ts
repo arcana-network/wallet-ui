@@ -1,4 +1,5 @@
 import type { RpcConfig } from '@arcana/auth'
+import { BigNumber } from '@ethersproject/bignumber'
 import {
   mplTokenMetadata,
   fetchAllDigitalAssetByOwner,
@@ -27,7 +28,6 @@ import {
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import Decimal from 'decimal.js'
-import { ethers } from 'ethers'
 
 import { Asset } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
@@ -91,9 +91,9 @@ export class SolanaAccountHandler {
     return 1
   }
 
-  async getBalance(): Promise<ethers.BigNumber> {
+  async getBalance(): Promise<BigNumber> {
     const lamports = await this.conn.getBalance(this.kp.publicKey)
-    return ethers.BigNumber.from(lamports)
+    return BigNumber.from(lamports)
   }
 
   async setProvider(str): Promise<void> {
