@@ -8,7 +8,7 @@ import { NFTDB } from '@/services/nft.service'
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
+import type {
   MultiversXAccountHandler,
   SolanaAccountHandler,
 } from '@/utils/accountHandler'

@@ -9,7 +9,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import {
+import type {
   MultiversXAccountHandler,
   SolanaAccountHandler,
 } from '@/utils/accountHandler'
