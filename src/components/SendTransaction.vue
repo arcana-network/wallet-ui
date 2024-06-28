@@ -278,7 +278,7 @@ function calculateCurrencyValue(value) {
             class="flex flex-col gap-1"
           >
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
               >From</span
             >
             <span
@@ -290,7 +290,7 @@ function calculateCurrencyValue(value) {
           </div>
           <div v-else class="flex flex-col gap-1">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
               >From</span
             >
             <span
@@ -309,7 +309,7 @@ function calculateCurrencyValue(value) {
           class="flex flex-1 flex-col gap-1"
         >
           <span
-            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
             >To</span
           >
           <span
@@ -329,9 +329,7 @@ function calculateCurrencyValue(value) {
           v-if="request.request?.params[0]?.value"
           class="flex justify-between gap-4"
         >
-          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
-            >Value</span
-          >
+          <span class="text-gray-myst dark:text-gray-spanish-light">Value</span>
           <span class="text-right">
             <span :title="calculateValue(request.request.params[0].value)">{{
               calculateValue(request.request.params[0].value)
@@ -345,7 +343,7 @@ function calculateCurrencyValue(value) {
           </span>
         </div>
         <div class="flex justify-between gap-4">
-          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+          <span class="text-gray-myst dark:text-gray-spanish-light"
             >Transaction Fee</span
           >
           <span class="text-right">
@@ -380,9 +378,7 @@ function calculateCurrencyValue(value) {
         v-if="request.request.params[0].data"
         class="flex flex-col gap-1 h-40"
       >
-        <span class="text-gray-myst dark:text-gray-gray-spanish-light"
-          >Message</span
-        >
+        <span class="text-gray-myst dark:text-gray-spanish-light">Message</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
