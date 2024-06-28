@@ -48,20 +48,31 @@ class SensitiveStorage {
     window.onbeforeunload = () => {
       this.stash()
     }
-    // If tab is changed and user closes without focusing on it, or closing the whole browser
-    // Also helpful for mobile devices
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        this.stash()
-      } else {
-        this.hydrate()
-      }
-    })
+    // If tab is changed and user closes without focusing on it,
+    // or closing the whole browser like for mobile devices
+    if (this.type === 'local') {
+      document.addEventListener('visibilitychange', this.visibilityChangeHook)
+    }
+  }
+
+  visibilityChangeHook = () => {
+    if (document.hidden) {
+      this.stash()
+    } else {
+      this.hydrate()
+    }
   }
 
   setUserInfo(userInfo: UserInfo) {
     const expiry = dayjs().add(this.expiryInMinutes, 'minutes')
     this.userInfo = { ...userInfo, expiry: expiry.unix() }
+  }
+
+  removeUserInfo() {
+    this.userInfo = null
+    this.storage.delete(this.key)
+    window.onbeforeunload = null
+    document.removeEventListener('visibilitychange', this.visibilityChangeHook)
   }
 
   getUserInfo() {
@@ -70,6 +81,7 @@ class SensitiveStorage {
         this.userInfo = null
       }
     }
+    this.hydrate()
     return this.userInfo
   }
 

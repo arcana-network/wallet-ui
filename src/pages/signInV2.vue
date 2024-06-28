@@ -54,13 +54,14 @@ const {
 let config
 
 onBeforeMount(async () => {
-  config = await useConfigStore(appId as string)
+  devLogger.log('signinv2::onBeforeMount')
 })
 
 onMounted(async () => {
+  devLogger.log('signinv2::onMounted')
   isLoading.value = true
-  devLogger.log('doing-init')
 
+  config = await useConfigStore(appId as string)
   try {
     initSensitiveStorage(
       config.session_persisted,
@@ -88,7 +89,7 @@ onMounted(async () => {
         //Ignore error
       }
     }
-    if (userInfo) {
+    if (userInfo?.userInfo) {
       const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
       user.hasMfa = hasMfa
       if (!hasMfa && userInfo.pk) {
@@ -263,6 +264,7 @@ const requestLoginFromOtherTab = async (appID: string) => {
   )
   bc.postMessage({ method: 'LOGIN_HELP' })
   const data = await responsePromise
+  bc.close()
   return data
 }
 

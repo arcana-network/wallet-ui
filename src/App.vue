@@ -250,9 +250,9 @@ onMounted(() => {
       </div>
       <WalletHeader v-if="showHeader" />
       <div class="flex-grow wallet__container m-1 p-3">
-        <Suspense>
-          <RouterView class="flex-grow" />
-        </Suspense>
+        <!-- <Suspense> -->
+        <RouterView class="flex-grow" />
+        <!-- </Suspense> -->
         <img
           v-if="route.name === 'requests'"
           :src="getImage('secured-by-arcana.svg')"
