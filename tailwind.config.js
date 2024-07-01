@@ -5,67 +5,168 @@ module.exports = {
   theme: {
     extend: {
       fontSize: {
-        xs: '10px',
-        sm: '12px',
-        base: '14px',
-        lg: '16px',
-        xl: '18px',
-        xxl: '28px',
+        'display-1': ['3.5rem', '4rem'],
+        'display-2': ['2.75rem', '3.25rem'],
+        'display-3': ['2.25rem', '2.75rem'],
+        'headline-1': ['2rem', '2.5rem'],
+        'headline-2': ['1.75rem', '2.25rem'],
+        'headline-3': [
+          '1.5rem',
+          {
+            lineHeight: '2rem',
+            fontWeight: 600,
+          },
+        ],
+        'headline-4': ['1.5rem', '2rem'],
+        'headline-5': [
+          '1.25rem',
+          {
+            lineHeight: '1.5rem',
+            fontWeight: 600,
+          },
+        ],
+        'headline-6': ['1rem', '1.5rem'],
+        'title-1': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            fontWeight: 600,
+          },
+        ],
+        'title-2': [
+          '0.75rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 700,
+          },
+        ],
+        'title-3': [
+          '0.75rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 600,
+          },
+        ],
+        'title-4': [
+          '0.625rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 600,
+          },
+        ],
+        'label-1': [
+          '0.875rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 600,
+          },
+        ],
+        'label-2': ['0.875rem', '1.25rem'],
+        'label-3': [
+          '0.75rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 500,
+          },
+        ],
+        'label-4': ['0.75rem', '1rem'],
+        'label-5': [
+          '0.625rem',
+          {
+            fontWeight: 600,
+          },
+        ],
+        'label-6': '0.625rem',
+        'label-7': '0.5rem',
+        'body-1': [
+          '1.75rem',
+          {
+            lineHeight: '2.25rem',
+            fontWeight: 600,
+          },
+        ],
+        'body-2': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            fontWeight: 600,
+          },
+        ],
+        'body-3': [
+          '1rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 500,
+          },
+        ],
+        'body-4': [
+          '0.875rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 600,
+          },
+        ],
+        'body-5': [
+          '0.875rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 500,
+          },
+        ],
+        'body-6': [
+          '0.75rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 600,
+          },
+        ],
+        'body-7': ['0.75rem', '1rem'],
+        'body-8': [
+          '0.625rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 700,
+          },
+        ],
+        'body-9': [
+          '0.625rem',
+          {
+            lineHeight: '1rem',
+            fontWeight: 500,
+          },
+        ],
+        'body-10': ['0.625rem', '1rem'],
+        'body-11': [
+          '0.5rem',
+          {
+            lineHeight: '1.25rem',
+            fontWeight: 500,
+          },
+        ],
       },
-      fontWeight: {
-        light: 300,
-        normal: 400,
-        medium: 500,
-        bold: 700,
+      fontFamily: {
+        nohemi: '"Nohemi", sans-serif',
+        inter: '"Inter", sans-serif',
       },
       colors: {
-        red: { 100: '#ff4264', 'pink-orange': '#FF9167', system: '#F61D1D' },
-        yellow: { 100: '#eeb113' },
-        blue: {
-          100: '#3e9aff',
-          dark: '#1D2A31',
-          columbia: 'C8D5D9',
-          'dark-sky': '#487DE3',
+        'brilliant-rose': '#ff4e9f',
+        'white-mist': '#f7f7f7',
+        firefly: '#1d2a31',
+        'black-haze': '#13171a',
+        nuetral: {
+          100: '#e2e4e5',
+          200: '#d4d7d8',
+          300: '#8e9498',
+          400: '#555f64',
+          500: '#39444a',
+          600: '#2d363b',
         },
-        green: { 100: '#05c168', system: '#24CC2B' },
-        rose: { briliant: '#ff4e9f' },
-        black: {
-          100: '#000000',
-          200: '#1f1f1f',
-          300: '#141414',
-          400: '#050505',
-          500: '#333333',
-          600: '#252525',
-          eerie: '#13171A',
-          chromaphobic: '#292929',
-          crayola: '#2D363B',
-          arsenic: '#39444A',
-        },
-        white: {
-          100: '#ffffff',
-          200: '#f7f7f7',
-          300: '#fcfcfc',
-          400: '#eff1f3',
-        },
-        gray: {
-          100: '#8d8d8d',
-          200: '#363636',
-          300: '#313131',
-          400: '#dcdcdc',
-          500: '#2c2c2c',
-          600: '#3b3b3b',
-          700: '#eeeeee',
-          800: '#dbdbdb',
-          900: '#f5f5f5',
-          bright: '#E4E9EB',
-          'bermuda-grey': '#74919C',
-          zinc: '#C8D5D9',
-          'zinc-85': '#C8D5D9D9',
-          'zinc-40': '#C8D5D966',
-          spanish: '#989898',
-          myst: '#555F64',
-          'spanish-light': '#8E9498',
-          'link-water': '#CCD8DC',
+        system: {
+          yellow: '#f6d319',
+          orange: '#fa7a49',
+          blue: '#487de3',
+          green: '#24ad29',
+          red: '#e73232',
         },
       },
       width: {
