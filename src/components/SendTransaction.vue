@@ -53,6 +53,7 @@ const emits = defineEmits([
   'approve',
   'proceed',
   'expand',
+  'shrink',
 ])
 const customGasPrice = ref({} as any)
 
@@ -259,7 +260,18 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="flex flex-col space-y-2"
     >
-      <p class="font-Nohemi text-[20px] font-semibold text-center flex-grow">
+      <div
+        v-if="route.name === 'activities'"
+        class="flex justify-center items-center cursor-pointer"
+        @click="emits('shrink')"
+      >
+        <span class="font-Nohemi text-lg font-medium">Send Transaction</span>
+        <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
+      </div>
+      <p
+        v-else
+        class="font-Nohemi text-[20px] font-semibold text-center flex-grow"
+      >
         Send Transaction
       </p>
       <p class="text-xs text-gray-spanish-light text-center">
