@@ -291,7 +291,7 @@ async function copyToClipboard(value: string) {
                   src="@/assets/images/fallback-logo-dark-mode.png"
                   class="w-xxl h-xxl rounded-full"
                 />
-                <div class="flex flex-col0">
+                <div class="flex flex-col">
                   <div class="flex">
                     <div class="flex flex-col items-start">
                       <div class="flex items-center">
@@ -330,7 +330,7 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-12 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-gray-100 divide-white-400 p-2 rounded-md absolute top-10 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
               >
                 <ListboxOption
                   v-for="address in addresses"
