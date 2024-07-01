@@ -344,13 +344,14 @@ async function handleSendToken(params) {
           gas.maxPriorityFeePerGas || 0
         )
         const maxFeeInWei = maxFee.mul(Decimal.pow(10, 9))
-        gasFees = maxFeeInWei.toHexadecimal()
+        gasFees = maxFeeInWei.floor().toHexadecimal()
       }
       if (params.selectedToken === chainConfig.value.currency) {
         const payload: any = {
           to: setHexPrefix(params.recipientWalletAddress),
           value: new Decimal(params.amount)
             .mul(Decimal.pow(10, 18))
+            .floor()
             .toHexadecimal(),
           from: params.senderWalletAddress,
         }
@@ -372,8 +373,9 @@ async function handleSendToken(params) {
         const sendAmount = tokenInfo?.decimals
           ? new Decimal(params.amount)
               .mul(Decimal.pow(10, tokenInfo.decimals))
+              .floor()
               .toHexadecimal()
-          : new Decimal(params.amount).toHexadecimal()
+          : new Decimal(params.amount).floor().toHexadecimal()
         const transactionHash = await accountHandler.sendCustomToken(
           tokenInfo?.address,
           setHexPrefix(params.recipientWalletAddress),

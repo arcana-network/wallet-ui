@@ -181,7 +181,7 @@ onMounted(async () => {
               recipientWalletAddress.value
                 ? setHexPrefix(recipientWalletAddress.value)
                 : userStore.walletAddress,
-              new Decimal(Decimal.pow(10, 18)).toHexadecimal()
+              new Decimal(Decimal.pow(10, 18)).floor().toHexadecimal()
             )
           ).toString()
         }
@@ -462,7 +462,7 @@ async function handleEVMSendToken() {
           .mul(Decimal.pow(10, tokenInfo.decimals))
           .floor()
           .toHexadecimal()
-      : new Decimal(amount.value).toHexadecimal()
+      : new Decimal(amount.value).floor().toHexadecimal()
     const transactionHash = await accountHandler.sendCustomToken(
       tokenInfo?.address,
       setHexPrefix(recipientWalletAddress.value),
@@ -611,6 +611,7 @@ async function handleShowPreview() {
               to: setHexPrefix(recipientWalletAddress.value),
               value: new Decimal(amount.value)
                 .mul(Decimal.pow(10, 18))
+                .floor()
                 .toHexadecimal(),
               from: userStore.walletAddress,
             })
@@ -629,7 +630,7 @@ async function handleShowPreview() {
               await accountHandler.estimateCustomTokenGas(
                 tokenInfo?.address,
                 setHexPrefix(recipientWalletAddress.value),
-                new Decimal(sendAmount).toHexadecimal()
+                new Decimal(sendAmount).floor().toHexadecimal()
               )
             ).toString()
           }
