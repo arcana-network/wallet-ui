@@ -370,6 +370,16 @@ body {
   background-color: #f61d1d !important;
 }
 
+@media (prefers-color-scheme: dark) {
+  .Vue-Toastification__toast--success {
+    background-color: #24ad29 !important;
+  }
+
+  .Vue-Toastification__toast--error {
+    background-color: #e73232 !important;
+  }
+}
+
 .notification-animation {
   animation: notification 2s infinite;
 }
