@@ -89,9 +89,7 @@ rpcStore.$subscribe(() => {
       :refresh-icon-animating="refreshIconAnimating"
       @refresh="handleRefresh"
     />
-    <div class="my-5">
-      <AssetsView :refresh="refreshIconAnimating" />
-    </div>
+    <AssetsView :refresh="refreshIconAnimating" />
     <div class="flex space-x-1 justify-center items-center">
       <span class="text-sm">Powered by</span>
       <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />

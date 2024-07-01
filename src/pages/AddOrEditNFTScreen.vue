@@ -252,7 +252,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed dark:bg-black-arsenic"
               required
               disabled
               autocomplete="off"
@@ -263,7 +263,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active dark:bg-black-arsenic"
               required
               autocomplete="off"
               @focus="showAddressOutline = true"
@@ -279,7 +279,7 @@ watch(
               v-model="nftContract.name"
               type="text"
               placeholder="Provide the name"
-              class="input-field focus:input-active cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed dark:bg-black-arsenic"
               required
               autocomplete="off"
               disabled
@@ -292,7 +292,7 @@ watch(
               v-model="nftContract.tokenId"
               type="text"
               placeholder="Provide an ID"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active dark:bg-black-arsenic"
               min="0"
               step="1"
               required
