@@ -118,11 +118,7 @@ watch(
     </div>
     <div
       v-if="requestStore.skippedRequestsForApproval.length > 1"
-      class="border-gray-800 dark:border-gray-300 bg-gray-link-water dark:bg-black-crayola border rounded-md absolute w-[90%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20"
-    ></div>
-    <div
-      v-if="requestStore.skippedRequestsForApproval.length > 2"
-      class="border-gray-800 dark:border-gray-300 bg-gray-link-water dark:bg-black-crayola border rounded-md absolute w-[82%] h-full -bottom-4 left-1/2 transform -translate-x-1/2 z-10"
+      class="border-gray-800 dark:border-gray-300 bg-gray-link-water dark:bg-black-crayola-50 border rounded-md absolute w-[94%] h-full -bottom-2 left-1/2 transform -translate-x-1/2 z-20"
     ></div>
   </div>
 </template>
