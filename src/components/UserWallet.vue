@@ -19,7 +19,6 @@ import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
-import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { content, errors } from '@/utils/content'
@@ -53,7 +52,6 @@ const props = defineProps<UserWalletProps>()
 const emit = defineEmits(['show-loader', 'hide-loader', 'refresh'])
 const router = useRouter()
 const toast = useToast()
-const starterTipsStore = useStarterTipsStore()
 
 type ModalState =
   | 'send'
@@ -274,13 +272,7 @@ async function copyToClipboard(value: string) {
   <div class="gap-3">
     <div class="card p-3 flex flex-col rounded-xl">
       <div class="flex flex-col justify-between space-y-1">
-        <div
-          class="flex justify-between rounded-md relative"
-          :class="{
-            'z-[999] startertips_highlighted':
-              starterTipsStore.showWalletAddress,
-          }"
-        >
+        <div class="flex justify-between rounded-md relative">
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
             <ListboxButton class="flex justify-between items-center">
               <button
@@ -319,10 +311,7 @@ async function copyToClipboard(value: string) {
                 </div>
               </button>
               <img
-                v-if="
-                  rpcStore.isGaslessConfigured &&
-                  !starterTipsStore.showWalletAddress
-                "
+                v-if="rpcStore.isGaslessConfigured"
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-transform"
                 :class="{ 'rotate-180': open }"
@@ -423,9 +412,6 @@ async function copyToClipboard(value: string) {
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
         :disabled="!transakNetwork && onRampMoney === false"
-        :class="{
-          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-        }"
         @click.stop="handleBuy(true)"
       >
         <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
@@ -433,9 +419,6 @@ async function copyToClipboard(value: string) {
       </button>
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
-        :class="{
-          'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
-        }"
         :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >

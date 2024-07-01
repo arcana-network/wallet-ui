@@ -10,7 +10,6 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
-import { useStarterTipsStore } from '@/store/starterTips'
 import { AUTH_NETWORK } from '@/utils/constants'
 import { getImage } from '@/utils/getImage'
 import {
@@ -35,7 +34,6 @@ const app = useAppStore()
 const modal = useModalStore()
 const requestStore = useRequestStore()
 const parentConnectionStore = useParentConnectionStore()
-const starterTipsStore = useStarterTipsStore()
 const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
@@ -77,13 +75,11 @@ watch(showWallet, async (newValue) => {
 watch(expandWallet, setIframeStyle)
 
 watch(compactMode, (val) => {
-  if (val) starterTipsStore.setHideStarterTips()
   setIframeStyle()
 })
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {
-    starterTipsStore.setHideStarterTips()
     modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
@@ -258,7 +254,7 @@ onMounted(() => {
         />
         <BaseModal v-if="modal.show" />
       </div>
-      <WalletFooter v-if="showFooter && !starterTipsStore.show" />
+      <WalletFooter v-if="showFooter" />
     </div>
     <div
       v-if="sdkVersion === 'v3'"

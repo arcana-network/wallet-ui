@@ -81,11 +81,6 @@ const routes: RouteRecordRaw[] = [
         component: HomeScreen,
       },
       {
-        name: 'StarterTips',
-        path: '/starterTips',
-        component: () => import('@/pages/StarterTips/index-page.vue'),
-      },
-      {
         name: 'Nfts',
         path: '/nfts',
         component: () => import('@/pages/NFTScreen.vue'),

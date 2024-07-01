@@ -17,7 +17,6 @@ import AppLoader from '@/components/AppLoader.vue'
 import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
-import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
 import {
   getAppConfig,
@@ -31,7 +30,6 @@ import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
-import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { CreateAccountHandler, EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
@@ -62,7 +60,6 @@ const rpcStore = useRpcStore()
 const gaslessStore = useGaslessStore()
 const modalStore = useModalStore()
 const activitiesStore = useActivitiesStore()
-const starterTipsStore = useStarterTipsStore()
 const showMfaBanner = ref(false)
 const parentConnectionStore = useParentConnectionStore()
 const requestStore = useRequestStore()
@@ -100,16 +97,6 @@ function startCurrencyInterval() {
 
 function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
-}
-
-function setShowStarterTips() {
-  const userId = userStore.info.id
-  const loginCount = storage.local.getLoginCount(userId)
-  const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-  if (Number(loginCount) <= 2 && !hasStarterTipShown) {
-    starterTipsStore.setShowStarterTips()
-    return
-  }
 }
 
 onMounted(async () => {
@@ -159,7 +146,6 @@ onMounted(async () => {
     console.log(e)
   } finally {
     loader.value.show = false
-    // setShowStarterTips()
   }
 })
 
@@ -567,10 +553,6 @@ watch(
         <component :is="Component" />
       </Transition>
     </RouterView>
-    <StarterTips
-      v-if="starterTipsStore.show"
-      @close="starterTipsStore.setHideStarterTips()"
-    />
     <Teleport v-if="modalStore.show" to="#modal-container">
       <UseWalletBalanceGasless
         v-if="gaslessStore.showUseWalletBalancePermission"

@@ -10,12 +10,10 @@ import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
-import { makeRequest } from '@/services/request.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
-import { useStarterTipsStore } from '@/store/starterTips'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { AUTH_URL } from '@/utils/constants'
@@ -41,7 +39,6 @@ const loader = ref({
   show: false,
   message: '',
 })
-const starterTipsStore = useStarterTipsStore()
 const balanceBreakdown = reactive({
   total: '',
   available: '',
@@ -252,7 +249,7 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="font-Nohemi text-[20px] font-semibold">Profile</span>
+      <span class="font-nohemi text-[20px] font-semibold">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
@@ -296,12 +293,7 @@ watch(
           </button>
         </div>
       </div>
-      <div
-        class="flex flex-col"
-        :class="{
-          'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
-        }"
-      >
+      <div class="flex flex-col">
         <span
           class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Private Key</span
@@ -309,7 +301,6 @@ watch(
         <button
           class="flex gap-2 items-cente disabled:opacity-100"
           title="Click to export private key"
-          :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
           <span class="text-base font-semibold dark:text-white-100">

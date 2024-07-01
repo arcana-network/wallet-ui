@@ -7,7 +7,6 @@ import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
-import { useStarterTipsStore } from '@/store/starterTips'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 
@@ -19,7 +18,6 @@ const modalStore = useModalStore()
 const isChainListExpanded = ref(false)
 const rpcStore = useRpcStore()
 const hasChainUpdated = ref(true)
-const starterTipsStore = useStarterTipsStore()
 
 function openReceiveTokens(open) {
   modalStore.setShowModal(open)
@@ -95,18 +93,14 @@ function getLogo() {
         />
         <div class="flex flex-col items-start">
           <span
-            class="font-Nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            class="font-nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
             >{{ appStore.name }}</span
           >
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <button
-          class="flex items-center startertips_highlighted"
-          :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
-          @click.stop="openChainList()"
-        >
+        <button class="flex items-center" @click.stop="openChainList()">
           <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
             <img
               :src="
