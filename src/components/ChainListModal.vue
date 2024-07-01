@@ -88,8 +88,23 @@ function getChainType(chainType: ChainType) {
       <div
         v-for="chain in sortedRpcConfigs"
         :key="chain.chainId"
-        class="flex items-center gap-2"
+        class="flex justify-between items-center gap-2"
       >
+        <label
+          class="flex items-center gap-2 text-lg font-medium"
+          :for="String(chain.chainId)"
+        >
+          <img
+            :src="getChainLogoUrl(chain, getChainType(appStore.chainType))"
+            class="w-xl h-xl"
+            @error="handleFallbackLogo"
+          />
+          <span>{{ chain.chainName }}</span>
+          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
+          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
+            Testnet
+          </span>
+        </label>
         <input
           :id="String(chain.chainId)"
           v-model="selectedRPCConfig"
@@ -98,18 +113,6 @@ function getChainType(chainType: ChainType) {
           name="chain"
           class="radio"
         />
-        <label class="flex items-center gap-2" :for="String(chain.chainId)">
-          <img
-            :src="getChainLogoUrl(chain, getChainType(appStore.chainType))"
-            class="w-xl h-xl"
-            @error="handleFallbackLogo"
-          />
-          <span class="text-base">{{ chain.chainName }}</span>
-          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
-          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
-            Testnet
-          </span>
-        </label>
       </div>
       <button
         v-if="appStore.chainType === ChainType.evm_secp256k1"
