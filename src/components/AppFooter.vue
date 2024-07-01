@@ -31,9 +31,7 @@ function getIcon(icon: string, pathName: string) {
 </script>
 
 <template>
-  <footer
-    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 dark:bg-black-eerie select-none"
-  >
+  <footer class="flex items-center px-12 py-2 select-none">
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link
         :to="{ name: 'home' }"
