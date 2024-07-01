@@ -65,19 +65,21 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
 
 onBeforeMount(async () => {
-  const loginInfo = getSensitiveStorage().getUserInfo()
-  if (loginInfo) {
+  if (inAppLogin) {
+    const loginInfo = getSensitiveStorage().getUserInfo()
+    if (!loginInfo) {
+      return
+    }
     dkgShare = {
       pk: loginInfo.pk,
       id: loginInfo.userInfo.id,
     }
   } else {
-    dkgShare = storage.local.getPK()
-  }
-  if (!inAppLogin) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
+    dkgShare = storage.local.getPK()
   }
+
   devLogger.log('[MFASetup] before core (onBeforeMount)', {
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
