@@ -152,11 +152,6 @@ function handleShowMFAProceedModal(show: boolean) {
 }
 
 async function handleMFASetupClick() {
-  const info = getStorage().session.getUserInfo()
-  if (!info) {
-    return
-  }
-
   if (getStorage().session.getInAppLogin()) {
     modalStore.setShowModal(false)
     router.push({

@@ -17,7 +17,11 @@ import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import {
+  getSensitiveStorage,
+  getStorage,
+  initStorage,
+} from '@/utils/storageWrapper'
 
 type CustomObject = {
   [key: string]: string
@@ -61,7 +65,7 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
 
 onBeforeMount(async () => {
-  const loginInfo = storage.session.getUserInfo()
+  const loginInfo = getSensitiveStorage().getUserInfo()
   if (loginInfo) {
     dkgShare = {
       pk: loginInfo.pk,
