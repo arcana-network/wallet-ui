@@ -1,16 +1,6 @@
-/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind base;
-/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind components;
-/* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind utilities;
-
-@font-face {
-  font-family: Nohemi;
-  font-style: normal;
-  font-weight: 300;
-  src: url('@/assets/fonts/nohemi/Nohemi-Regular.woff2') format('woff');
-}
 
 @font-face {
   font-family: Nohemi;
@@ -33,83 +23,13 @@
   src: url('@/assets/fonts/nohemi/Nohemi-SemiBold.woff2') format('woff');
 }
 
-@font-face {
-  font-family: Nohemi;
-  font-style: normal;
-  font-weight: 700;
-  src: url('@/assets/fonts/nohemi/Nohemi-Bold.woff2') format('woff');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 100;
-  src: url('@/assets/fonts/inter/Inter-Thin.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 200;
-  src: url('@/assets/fonts/inter/Inter-ExtraLight.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 300;
-  src: url('@/assets/fonts/inter/Inter-Light.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 400;
-  src: url('@/assets/fonts/inter/Inter-Regular.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 500;
-  src: url('@/assets/fonts/inter/Inter-Medium.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 600;
-  src: url('@/assets/fonts/inter/Inter-SemiBold.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 700;
-  src: url('@/assets/fonts/inter/Inter-Bold.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 800;
-  src: url('@/assets/fonts/inter/Inter-ExtraBold.ttf') format('ttf');
-}
-
-@font-face {
-  font-family: Inter;
-  font-style: normal;
-  font-weight: 900;
-  src: url('@/assets/fonts/inter/Inter-Black.ttf') format('ttf');
-}
-
 @layer base {
   body {
-    @apply font-Inter text-black-500 dark:text-white-100 leading-normal;
+    @apply font-inter leading-normal;
   }
 
   pre {
-    @apply font-Inter;
+    @apply font-inter;
   }
 
   button {
@@ -119,9 +39,9 @@
           disabled:opacity-60 select-none;
   }
 
-  button {
+  /* button {
     @apply text-blue-dark;
-  }
+  } */
 
   input,
   select {
@@ -131,42 +51,42 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full border-[1.5px] font-semibold text-base;
+    @apply hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full border-[1.5px] font-semibold text-base;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-[1.5px] border-blue-dark dark:border-white-200 rounded-full font-semibold text-base;
+    @apply bg-transparent box-border border-[1.5px] rounded-full font-semibold text-base;
   }
 
   .btn-tertiary {
-    @apply text-black-500 dark:text-white-100 hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100;
+    @apply hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100;
   }
 
   .btn-quaternery {
-    @apply bg-transparent rounded-full h-9 box-border border-[1.5px] border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200 font-semibold text-base;
+    @apply bg-transparent rounded-full h-9 box-border border-[1.5px] font-semibold text-base;
   }
 
   .card {
-    @apply bg-gray-bright dark:bg-black-crayola  dark:border-gray-200  rounded-md;
+    @apply dark:border-gray-200  rounded-md;
   }
 
   .input-field {
-    @apply bg-gray-zinc-40 text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
+    @apply rounded-[8px] flex items-center h-14 p-4;
   }
 
   .input-active {
-    @apply outline-1 outline-black-500 dark:outline-white-200 outline;
+    @apply outline-1 outline;
   }
 
   .radio {
-    @apply grid p-0 place-content-center w-[10px] h-[10px] bg-transparent rounded-full appearance-none outline-[1.5px] outline-blue-dark dark:outline-white-200;
+    @apply grid p-0 place-content-center w-[10px] h-[10px] bg-transparent rounded-full appearance-none outline-[1.5px];
   }
 
-  .radio:checked {
+  /* .radio:checked {
     @apply bg-blue-dark dark:bg-white-200;
-  }
+  } */
 
-  .radio::before {
+  /* .radio::before {
     width: 10px;
     height: 10px;
     content: '';
@@ -174,7 +94,7 @@
     transition: 120ms transform ease-in-out;
     transform: scale(0);
     border: 1px solid red;
-  }
+  } */
 }
 
 @layer utilities {
@@ -184,14 +104,6 @@
 
   .text-shadow-100 {
     text-shadow: 0 0 6px rgb(236 236 236 / 45%);
-  }
-
-  .font-Nohemi {
-    font-family: Nohemi, sans-serif;
-  }
-
-  .font-Inter {
-    font-family: Inter, sans-serif;
   }
 
   .glass-effect {
@@ -204,14 +116,123 @@
     background: rgb(49 49 49 / 62%);
     backdrop-filter: blur(3.5px);
   }
+}
 
-  .startertips {
-    @apply cursor-pointer relative;
+*::-webkit-scrollbar {
+  width: 0.15rem;
+  height: 0.15rem;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #36363600;
+  border-radius: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: #363636ff;
+}
+
+body {
+  height: 100vh;
+}
+
+#app {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.wallet__container {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  color: var(--fg-color);
+  background: var(--container-bg-color);
+}
+
+.flow-container > *:not(:first-child) {
+  margin-top: var(--flow-space-container);
+}
+
+.flow-element > *:not(:first-child) {
+  margin-top: var(--flow-space-element);
+}
+
+.v-popper--theme-tooltip {
+  background-color: #101010;
+}
+
+.v-popper__inner {
+  width: 230px;
+  height: 110px;
+  font-size: var(--fs-300);
+  font-weight: 400;
+  color: #f9f9f9;
+  background-color: #101010;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.Vue-Toastification__toast {
+  min-height: unset !important;
+  @apply font-inter text-ellipsis p-4 max-h-32 !important;
+}
+
+.Vue-Toastification__icon {
+  @apply mr-2 w-4 !important;
+}
+
+.Vue-Toastification__toast-body {
+  @apply text-label-2 !important;
+}
+
+.Vue-Toastification__progress-bar {
+  height: 2px !important;
+}
+
+.__xar-toast-container .Vue-Toastification__toast--success {
+  @apply bg-system-green text-white-mist;
+}
+
+.__xar-toast-container .Vue-Toastification__toast--error {
+  @apply bg-system-red text-white-mist;
+}
+
+.notification-animation {
+  animation: notification 2s infinite;
+}
+
+@keyframes notification {
+  0% {
+    height: 50vh;
+    margin-top: 50vh;
   }
 
-  @media (max-height: 560px) {
-    .startertips_highlighted {
-      z-index: 0;
-    }
+  20% {
+    height: 85vh;
+    margin-top: 15vh;
+  }
+
+  30% {
+    height: 50vh;
+    margin-top: 50vh;
+  }
+
+  40% {
+    height: 100vh;
+    margin-top: 0;
+  }
+
+  100% {
+    height: 50vh;
+    margin-top: 50vh;
   }
 }

@@ -12,8 +12,10 @@ import { router } from '@/routes'
 import { store } from '@/store'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 
-import '@fontsource/montserrat/variable.css'
-import '@fontsource/sora/variable.css'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
 import 'vue-toastification/dist/index.css'
 
 const toastOptions = {
@@ -27,6 +29,7 @@ const toastOptions = {
   closeButton: false,
   icon: true,
   rtl: false,
+  containerClassName: '__xar-toast-container',
 }
 
 window.Buffer = Buffer

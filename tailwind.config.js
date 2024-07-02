@@ -25,7 +25,13 @@ module.exports = {
             fontWeight: 600,
           },
         ],
-        'headline-6': ['1rem', '1.5rem'],
+        'headline-6': [
+          '1rem',
+          {
+            lineHeight: '1.5rem',
+            fontWeight: 500,
+          },
+        ],
         'title-1': [
           '1rem',
           {

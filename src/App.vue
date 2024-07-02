@@ -218,17 +218,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full text-black-haze dark:text-white-mist">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
+      class="flex flex-col h-full bg-white-mist dark:bg-black-haze overflow-hidden"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
-        class="p-1 text-center"
-        style="background: #ff682620"
+        class="p-1 text-center bg-system-orange bg-opacity-20"
       >
-        <span class="text-xs" style="color: #ff6826"
+        <span class="text-label-4 text-system-orange"
           >This wallet is on Arcana
           <span class="capitalize">{{ AUTH_NETWORK }}</span> and is meant for
           testing only</span
@@ -259,7 +258,7 @@ onMounted(() => {
     <div
       v-if="sdkVersion === 'v3'"
       v-show="showWalletButton"
-      class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300 transition-all duration-500 hover:h-[100vh] hover:mt-0"
+      class="relative h-[50vh] mt-[50vh] bg-white-mist rounded-t-sm dark:bg-black-haze transition-all duration-500 hover:h-[100vh] hover:mt-0"
       style="z-index: 999"
       :class="{
         'notification-animation':
@@ -271,129 +270,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style>
-*::-webkit-scrollbar {
-  width: 0.15rem;
-  height: 0.15rem;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: #36363600;
-  border-radius: 10px;
-  transition: all 0.3s ease-in-out;
-}
-
-:hover::-webkit-scrollbar-thumb {
-  background-color: #363636ff;
-}
-
-body {
-  height: 100vh;
-}
-
-#app {
-  height: 100%;
-  overflow-x: hidden;
-}
-
-.wallet__container {
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  color: var(--fg-color);
-  background: var(--container-bg-color);
-}
-
-.flow-container > *:not(:first-child) {
-  margin-top: var(--flow-space-container);
-}
-
-.flow-element > *:not(:first-child) {
-  margin-top: var(--flow-space-element);
-}
-
-.v-popper--theme-tooltip {
-  background-color: #101010;
-}
-
-.v-popper__inner {
-  width: 230px;
-  height: 110px;
-  font-size: var(--fs-300);
-  font-weight: 400;
-  color: #f9f9f9;
-  background-color: #101010;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.15s;
-}
-
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.Vue-Toastification__toast {
-  min-height: unset !important;
-  max-height: 120px !important;
-  padding: 1rem !important;
-  font-family: Inter, sans-serif !important;
-  text-overflow: ellipsis !important;
-}
-
-.Vue-Toastification__icon {
-  width: 14px !important;
-  margin-right: 8px !important;
-}
-
-.Vue-Toastification__toast-body {
-  font-size: 14px !important;
-  line-height: 1.5 !important;
-}
-
-.Vue-Toastification__progress-bar {
-  height: 2px !important;
-}
-
-.Vue-Toastification__toast--success {
-  background-color: #24cc2b !important;
-}
-
-.Vue-Toastification__toast--error {
-  background-color: #f61d1d !important;
-}
-
-.notification-animation {
-  animation: notification 2s infinite;
-}
-
-@keyframes notification {
-  0% {
-    height: 50vh;
-    margin-top: 50vh;
-  }
-
-  20% {
-    height: 85vh;
-    margin-top: 15vh;
-  }
-
-  30% {
-    height: 50vh;
-    margin-top: 50vh;
-  }
-
-  40% {
-    height: 100vh;
-    margin-top: 0;
-  }
-
-  100% {
-    height: 50vh;
-    margin-top: 50vh;
-  }
-}
-</style>
