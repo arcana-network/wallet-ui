@@ -19,6 +19,9 @@ import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
+import { useImage } from '@/utils/useImage'
+
+const getIcon = useImage()
 
 const props = defineProps({
   request: {
@@ -433,15 +436,21 @@ function calculateCurrencyValue(value) {
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
-      <span
+      <div
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="text-xs text-center"
+        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
       >
-        Limit exceeded for gasless transactions. You will be charged for this
-        transaction.
-      </span>
+        <img
+          class="w-4 h-4 mt-1"
+          :src="getIcon('info-circle', undefined, 'svg')"
+        />
+        <p class="text-xs text-left text-white-200">
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
+        </p>
+      </div>
     </div>
     <div
       v-if="route.name !== 'PermissionRequest'"
