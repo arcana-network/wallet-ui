@@ -36,10 +36,10 @@ function handleChange(question: string[]) {
 <template>
   <Listbox v-model="selectedQuestionRef" @update:model-value="handleChange">
     <div
-      class="relative w-full cursor-default flex flex-nowrap rounded-sm input-field py-2 px-4 outline-none"
+      class="dark:bg-black-arsenic bg-gray-zinc-85 relative w-full cursor-default flex flex-nowrap rounded-sm input-field py-2 px-4 outline-none"
     >
       <ListboxButton
-        class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto"
+        class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto dark:text-white-100 text-black-100"
       >
         {{ selectedQuestionRef?.[1] }}
         <img
@@ -48,7 +48,7 @@ function handleChange(question: string[]) {
         />
       </ListboxButton>
       <ListboxOptions
-        class="absolute top-full left-0 max-h-60 w-full py-2 px-1 card text-sm focus:outline-black-100 dark:focus:outline-white-100 overflow-auto rounded-t-none z-10"
+        class="dark:bg-black-arsenic bg-gray-zinc-85 absolute top-full left-0 max-h-60 w-full py-2 px-1 card text-sm focus:outline-black-100 dark:focus:outline-white-100 overflow-auto rounded-t-none z-10"
       >
         <ListboxOption
           v-for="question in questions"
