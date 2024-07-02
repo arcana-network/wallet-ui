@@ -37,7 +37,7 @@ async function copyToClipboard(value: string) {
       class="w-full h-full"
     />
   </div>
-  <div class="flex items-center justify-center gap-1 mt-6 mb-2">
+  <div class="flex items-center justify-center gap-1 mt-4">
     <p class="text-lg font-medium">{{ userStore.walletAddressShrinked }}</p>
     <button
       class="w-lg h-lg"
