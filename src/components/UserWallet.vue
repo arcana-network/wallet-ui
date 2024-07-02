@@ -376,7 +376,7 @@ async function copyToClipboard(value: string) {
           class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
-        <div class="flex items-center gap-4 text-base font-medium">
+        <div class="flex items-center gap-3 text-base font-medium">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"
@@ -402,7 +402,7 @@ async function copyToClipboard(value: string) {
             >
           </div>
           <button
-            class="w-lg h-lg rounded-full"
+            class="w-lg h-lg mt-[6px] rounded-full"
             :class="{ 'animate-spin': refreshIconAnimating }"
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
