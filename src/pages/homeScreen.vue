@@ -84,12 +84,14 @@ rpcStore.$subscribe(() => {
     <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex flex-col justify-between">
-    <UserWallet
-      page="home"
-      :refresh-icon-animating="refreshIconAnimating"
-      @refresh="handleRefresh"
-    />
-    <AssetsView :refresh="refreshIconAnimating" />
+    <div class="flex flex-col gap-10">
+      <UserWallet
+        page="home"
+        :refresh-icon-animating="refreshIconAnimating"
+        @refresh="handleRefresh"
+      />
+      <AssetsView :refresh="refreshIconAnimating" />
+    </div>
     <div class="flex space-x-1 justify-center items-center">
       <span class="text-sm">Powered by</span>
       <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />

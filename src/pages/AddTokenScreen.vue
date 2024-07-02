@@ -207,7 +207,7 @@ watch(
         </div>
         <div
           v-if="expandSection || !rpcStore.isEthereumMainnet"
-          class="flex flex-col gap-4"
+          class="flex flex-col gap-6"
         >
           <div class="flex flex-col gap-1">
             <label for="token-contract-address" class="text-sm font-medium"
@@ -257,9 +257,7 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <button type="submit" class="btn-primary p-2 mt-5 w-full">
-            Save
-          </button>
+          <button type="submit" class="btn-primary p-2 w-full">Save</button>
         </div>
       </form>
     </div>

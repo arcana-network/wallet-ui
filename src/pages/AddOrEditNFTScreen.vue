@@ -239,7 +239,7 @@ watch(
         <span v-else class="font-Nohemi text-[20px] font-medium">Add NFT</span>
       </div>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
-        <div class="flex flex-col gap-5 flex-grow">
+        <div class="flex flex-col gap-6 flex-grow">
           <div class="flex flex-col gap-1">
             <label for="token-contract-address" class="text-sm font-medium"
               >Collection Contract Address</label
