@@ -1,14 +1,21 @@
 <script setup lang="ts">
-import { ref, type Ref, watch } from 'vue'
+import { ref, type Ref, watch, defineAsyncComponent } from 'vue'
 
-import ChainListModal from '@/components/ChainListModal.vue'
-import ReceiveTokens from '@/components/ReceiveTokens.vue'
+import ArrowDownIcon from '@/components/SVGIcons/ArrowDown.vue'
+import QRCodeIcon from '@/components/SVGIcons/QRCode.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
 import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+
+const ChainListModal = defineAsyncComponent(
+  () => import('@/components/ChainListModal.vue')
+)
+const ReceiveTokens = defineAsyncComponent(
+  () => import('@/components/ReceiveTokens.vue')
+)
 
 type ModalState = 'receive' | 'chain-list' | false
 
@@ -52,7 +59,7 @@ watch(
     hasChainUpdated.value = false
     setTimeout(() => {
       hasChainUpdated.value = true
-    }, 25)
+    })
   }
 )
 
@@ -72,13 +79,6 @@ function getChainType(chainType: ChainType) {
       return 'near'
   }
 }
-
-function getLogo() {
-  return (
-    appStore.appLogo?.vertical ||
-    getImage('fallback-logo-dark-mode.png', 'light')
-  )
-}
 </script>
 
 <template>
@@ -86,14 +86,14 @@ function getLogo() {
     <header class="flex justify-between px-4 py-2">
       <div class="flex gap-2">
         <img
-          :src="getLogo()"
-          alt="App Logo"
+          v-if="appStore.appLogo?.vertical"
+          :src="appStore.appLogo?.vertical"
+          :alt="appStore.name"
           class="w-xl h-xl object-contain"
-          onerror="this.style.display='none'"
         />
         <div class="flex flex-col items-start">
           <span
-            class="font-nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            class="font-nohemi text-headline-6 max-w-52 overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
             >{{ appStore.name }}</span
           >
@@ -101,7 +101,17 @@ function getLogo() {
       </div>
       <div class="flex items-center gap-3">
         <button class="flex items-center" @click.stop="openChainList()">
-          <div v-if="hasChainUpdated" class="w-xl h-xl rounded-full">
+          <div
+            v-if="hasChainUpdated"
+            class="w-xl h-xl rounded-full border border-solid"
+            :class="{
+              'border-system-orange':
+                rpcStore.selectedRPCConfig?.chainType === 'testnet',
+              'border-transparent':
+                rpcStore.selectedRPCConfig?.chainType === 'mainnet',
+              'border-system-yellow': rpcStore.selectedRPCConfig?.isCustom,
+            }"
+          >
             <img
               :src="
                 getChainLogoUrl(
@@ -111,12 +121,11 @@ function getLogo() {
               "
               :alt="rpcStore.selectedRpcConfig?.chainName"
               :title="rpcStore.selectedRpcConfig?.chainName"
-              class="w-xl h-xl rounded-full"
+              class="w-full h-full rounded-full object-contain"
               @error="handleFallbackLogo"
             />
           </div>
-          <img
-            :src="getImage('arrow-down.svg')"
+          <ArrowDownIcon
             class="transition-all duration-200 ease-in-out"
             :class="{ '-rotate-180': isChainListExpanded }"
             title="Click to expand"
@@ -127,7 +136,7 @@ function getLogo() {
           title="Click to show the QR Code"
           @click.stop="openReceiveTokens(true)"
         >
-          <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
+          <QRCodeIcon />
         </button>
       </div>
     </header>
