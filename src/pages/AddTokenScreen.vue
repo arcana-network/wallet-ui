@@ -218,7 +218,7 @@ watch(
               v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
-              class="input-field focus:input-active dark:bg-black-arsenic"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
             />
@@ -232,7 +232,7 @@ watch(
               v-model="tokenContract.symbol"
               type="text"
               placeholder="Eg. XAR"
-              class="input-field focus:input-active dark:bg-black-arsenic"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
@@ -248,7 +248,7 @@ watch(
               v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
-              class="input-field focus:input-active dark:bg-black-arsenic"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"

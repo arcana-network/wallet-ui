@@ -250,7 +250,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active cursor-not-allowed dark:bg-black-arsenic"
+              class="input-field focus:input-active cursor-not-allowed bg-gray-zinc dark:bg-black-arsenic"
               required
               disabled
               autocomplete="off"
@@ -261,7 +261,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active dark:bg-black-arsenic"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
               @focus="showAddressOutline = true"
@@ -277,7 +277,7 @@ watch(
               v-model="nftContract.name"
               type="text"
               placeholder="Provide the name"
-              class="input-field focus:input-active cursor-not-allowed dark:bg-black-arsenic"
+              class="input-field focus:input-active cursor-not-allowed bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
               disabled
@@ -290,14 +290,14 @@ watch(
               v-model="nftContract.tokenId"
               type="text"
               placeholder="Provide an ID"
-              class="input-field focus:input-active dark:bg-black-arsenic"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               min="0"
               step="1"
               required
               autocomplete="off"
             />
           </div>
-          <button type="submit" class="btn-primary mt-8 py-2">Save</button>
+          <button type="submit" class="btn-primary mt-4 py-2">Save</button>
         </div>
       </form>
     </div>

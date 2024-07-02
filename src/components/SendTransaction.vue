@@ -312,7 +312,11 @@ function calculateCurrencyValue(value) {
           </span>
         </div>
         <div class="flex-1 flex justify-center mb-[2px]">
-          <img :src="getImage('arrow-to.svg')" alt="to" />
+          <img
+            :src="getImage('arrow-to.svg')"
+            alt="to"
+            class="w-[14px] h-[14px]"
+          />
         </div>
         <div
           v-if="request.request?.params[0]?.to"
