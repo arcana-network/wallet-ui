@@ -37,7 +37,7 @@ function handleProceed() {
           <input
             v-model.trim="password"
             :type="passwordType"
-            class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active"
+            class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin"
           />
           <img

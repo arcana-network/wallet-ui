@@ -110,7 +110,7 @@ function handleProceed() {
           <input
             v-model.trim="answers[n - 1].answer"
             :placeholder="customPlaceholders[n - 1]"
-            class="text-sm p-2 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
+            class="text-sm p-2 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           />
         </div>
       </div>

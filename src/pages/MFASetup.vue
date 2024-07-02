@@ -357,7 +357,7 @@ function handlePinBack() {
           <input
             v-model.trim="pinToEncryptMFAShare"
             :type="passwordType"
-            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
           />
           <img
