@@ -338,7 +338,7 @@ function calculateCurrencyValue(value) {
       </div>
       <div class="space-y-1">
         <div
-          class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
+          class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
         >
           Transaction Details
         </div>
@@ -404,7 +404,7 @@ function calculateCurrencyValue(value) {
       class="flex flex-col gap-2 text-sm"
     >
       <div
-        class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
+        class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
       >
         Transaction Details
       </div>

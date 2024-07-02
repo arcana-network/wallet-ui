@@ -423,7 +423,7 @@ async function stopTransaction(activity) {
             </div>
             <div class="flex flex-col gap-2">
               <span
-                class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
+                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
                 >Transaction Details</span
               >
               <div class="flex flex-col gap-2 text-base">
@@ -526,7 +526,7 @@ async function stopTransaction(activity) {
             </div>
             <div v-if="!activity.nft" class="flex flex-col gap-2">
               <span
-                class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
+                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
                 >Transaction Details</span
               >
               <div class="flex flex-col gap-2 text-base">
