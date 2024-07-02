@@ -130,7 +130,13 @@ const canShowCollapseButton = computed(
 
 const showHeader = computed(() => {
   const routeName = route.name
-  const routes = ['requests', 'PermissionRequest', 'TransakSell']
+  const routes = [
+    'requests',
+    'PermissionRequest',
+    'TransakSell',
+    'MFASetup',
+    'MFARestore',
+  ]
   return !routes.includes(routeName as string)
 })
 
