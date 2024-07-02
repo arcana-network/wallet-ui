@@ -18,6 +18,13 @@ const SESSION_EXPIRY_MS = 30 * 60 * 1000
 const PREDEFINED_ERC20_TOKENS = {
   1: [
     {
+      address: '0x5027fc44a7ba114b8f494b1e4970900c6652fedf',
+      name: 'Arcana Network',
+      symbol: 'XAR',
+      decimals: 18,
+      logo: 'xar.png',
+    },
+    {
       address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
       name: 'Tether USD',
       symbol: 'USDT',

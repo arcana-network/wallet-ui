@@ -60,6 +60,7 @@ function fetchStoredAssetContracts(): AssetContract[] {
     userStore.walletAddress,
     Number(rpcStore.selectedRPCConfig?.chainId)
   )
+  const newAssetContracts: AssetContract[] = []
   const predefinedTokens =
     PREDEFINED_ERC20_TOKENS[Number(rpcStore.selectedRPCConfig?.chainId)]
   if (predefinedTokens) {
@@ -68,15 +69,18 @@ function fetchStoredAssetContracts(): AssetContract[] {
       if (
         !assetContracts.find((contract) => contract.address === token.address)
       ) {
-        assetContracts.push(token)
+        newAssetContracts.push(token)
         shouldSync = true
       }
     })
     if (shouldSync) {
+      newAssetContracts.forEach((contract) => {
+        assetContracts.push(contract)
+      })
       storage.local.setAssetContractList(
         userStore.walletAddress,
         Number(rpcStore.selectedRPCConfig?.chainId),
-        assetContracts
+        newAssetContracts
       )
     }
   }
@@ -244,7 +248,7 @@ function handleFallbackLogo(event) {
               @error="handleFallbackLogo"
             />
             <span
-              class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[12ch]"
+              class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[16ch]"
               :title="asset.name"
               >{{ asset.name }}</span
             >
