@@ -296,7 +296,7 @@ async function copyToClipboard(value: string) {
                     <div class="flex flex-col items-start">
                       <div class="flex items-center">
                         <span
-                          class="text-sm font-semibold dark:text-white-100 text-black-100"
+                          class="text-sm font-medium dark:text-white-100 text-black-100"
                           >{{
                             truncateMid(selectedAddressType.address, 6)
                           }}</span
@@ -368,15 +368,15 @@ async function copyToClipboard(value: string) {
       <div class="mt-4 flex flex-col">
         <span
           v-if="appStore.chainType === ChainType.near_cv25519"
-          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Available Balance:</span
         >
         <span
           v-else
-          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
-        <div class="flex items-center gap-4 text-base font-semibold">
+        <div class="flex items-center gap-4 text-base font-medium">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"

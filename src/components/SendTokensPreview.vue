@@ -95,7 +95,7 @@ function truncateAddress(address: string) {
         </button>
         <span class="text-lg font-medium">Confirm Transfer</span>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-end">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-medium text-gray-100"
             >Sender’s Address</span

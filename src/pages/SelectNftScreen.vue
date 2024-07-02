@@ -76,11 +76,11 @@ rpcStore.$subscribe(getNFTAssets)
               class="cursor-pointer invert dark:invert-0"
               @click.stop="router.back()"
             />
-            <div class="font-semibold flex-grow">Select Artwork</div>
+            <div class="font-medium flex-grow">Select Artwork</div>
           </div>
           <div v-if="nfts.length" class="space-y-1 px-4">
             <label
-              class="text-xs text-zinc-400 font-semibold"
+              class="text-xs text-zinc-400 font-medium"
               for="recipientWalletAddress"
             >
               Search Artwork
@@ -125,12 +125,12 @@ rpcStore.$subscribe(getNFTAssets)
             <div v-else class="flex justify-between p-5">
               <span
                 v-if="nfts.length"
-                class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+                class="color-secondary m-auto font-medium text-sm sm:text-xs px-4"
                 >No NFTs found</span
               >
               <span
                 v-else
-                class="color-secondary m-auto font-semibold text-sm sm:text-xs px-4"
+                class="color-secondary m-auto font-medium text-sm sm:text-xs px-4"
                 >No NFTs added</span
               >
             </div>

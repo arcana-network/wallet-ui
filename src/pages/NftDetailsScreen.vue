@@ -71,7 +71,7 @@ watch(
             @click.stop="router.back()"
           />
           <div
-            class="font-semibold flex-grow text-center text-ellipsis overflow-hidden whitespace-nowrap"
+            class="font-medium flex-grow text-center text-ellipsis overflow-hidden whitespace-nowrap"
           >
             {{ props.collectionName }}
           </div>
@@ -102,7 +102,7 @@ watch(
           <div class="px-4 my-5">
             <div class="flex justify-between gap-3">
               <div
-                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-semibold text-xl font-medium"
+                class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-medium text-xl"
                 :title="props.name"
               >
                 {{ props.name }}

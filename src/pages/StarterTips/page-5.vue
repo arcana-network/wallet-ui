@@ -5,7 +5,7 @@ const dots = [1, 2, 3, 4, 5, 6]
 <template>
   <div class="h-full w-full flex flex-col">
     <div class="h-2/5 p-6 bg-gray-900 dark:bg-black-100">
-      <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+      <h1 class="font-Nohemi text-[20px] font-medium uppercase">
         Freedom Above All Else
       </h1>
       <p class="text-sm">

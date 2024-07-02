@@ -736,7 +736,7 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
+      <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"

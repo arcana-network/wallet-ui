@@ -270,7 +270,7 @@ function calculateCurrencyValue(value) {
       </div>
       <p
         v-else
-        class="font-Nohemi text-[20px] font-semibold text-center flex-grow"
+        class="font-Nohemi text-[20px] font-medium text-center flex-grow"
       >
         Send Transaction
       </p>
@@ -283,37 +283,35 @@ function calculateCurrencyValue(value) {
       v-if="appStore.chainType === ChainType.evm_secp256k1"
       class="flex flex-col gap-2 text-sm bg-gray-zinc-85 dark:bg-black-arsenic p-2 rounded-xl space-y-2"
     >
-      <div class="flex justify-between items-center space-x-2">
-        <div class="flex-1">
-          <div
-            v-if="request.request?.params[0]?.from"
-            class="flex flex-col gap-1"
+      <div class="flex items-end space-x-2">
+        <div
+          v-if="request.request?.params[0]?.from"
+          class="flex flex-1 flex-col gap-1"
+        >
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            >From</span
           >
-            <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
-              >From</span
-            >
-            <span
-              :title="request.request.params[0].from"
-              class="text-base font-medium"
-            >
-              {{ truncateMid(request.request.params[0].from, 6) }}
-            </span>
-          </div>
-          <div v-else class="flex flex-col gap-1">
-            <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
-              >From</span
-            >
-            <span
-              :title="userStore.walletAddress"
-              class="text-base font-medium"
-            >
-              {{ truncateMid(userStore.walletAddress, 6) }}
-            </span>
-          </div>
+          <span
+            :title="request.request.params[0].from"
+            class="text-base font-medium leading-4"
+          >
+            {{ truncateMid(request.request.params[0].from, 6) }}
+          </span>
         </div>
-        <div class="flex-1 flex justify-center">
+        <div v-else class="flex flex-1 flex-col gap-1">
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            >From</span
+          >
+          <span
+            :title="userStore.walletAddress"
+            class="text-base font-medium leading-4"
+          >
+            {{ truncateMid(userStore.walletAddress, 6) }}
+          </span>
+        </div>
+        <div class="flex-1 flex justify-center mb-[2px]">
           <img :src="getImage('arrow-to.svg')" alt="to" />
         </div>
         <div
@@ -321,19 +319,19 @@ function calculateCurrencyValue(value) {
           class="flex flex-1 flex-col gap-1"
         >
           <span
-            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
             >To</span
           >
           <span
             :title="request.request.params[0].to"
-            class="text-base font-medium"
+            class="text-base font-medium leading-4"
             >{{ truncateMid(request.request.params[0].to, 6) }}</span
           >
         </div>
       </div>
       <div class="space-y-1">
         <div
-          class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+          class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
         >
           Transaction Details
         </div>
@@ -341,9 +339,7 @@ function calculateCurrencyValue(value) {
           v-if="request.request?.params[0]?.value"
           class="flex justify-between gap-4"
         >
-          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
-            >Value</span
-          >
+          <span class="text-gray-myst dark:text-gray-spanish-light">Value</span>
           <span class="text-right">
             <span :title="calculateValue(request.request.params[0].value)">{{
               calculateValue(request.request.params[0].value)
@@ -357,7 +353,7 @@ function calculateCurrencyValue(value) {
           </span>
         </div>
         <div class="flex justify-between gap-4">
-          <span class="text-gray-myst dark:text-gray-gray-spanish-light"
+          <span class="text-gray-myst dark:text-gray-spanish-light"
             >Transaction Fee</span
           >
           <span class="text-right">
@@ -392,9 +388,7 @@ function calculateCurrencyValue(value) {
         v-if="request.request.params[0].data"
         class="flex flex-col gap-1 h-40"
       >
-        <span class="text-gray-myst dark:text-gray-gray-spanish-light"
-          >Message</span
-        >
+        <span class="text-gray-myst dark:text-gray-spanish-light">Message</span>
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
@@ -403,7 +397,7 @@ function calculateCurrencyValue(value) {
       class="flex flex-col gap-2 text-sm"
     >
       <div
-        class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+        class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
       >
         Transaction Details
       </div>

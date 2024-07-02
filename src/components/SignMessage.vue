@@ -211,7 +211,7 @@ function isDeprecatedMethod() {
         @click="emits('shrink')"
       >
         <h1
-          class="font-Nohemi m-0 text-[20px] font-semibold text-center capitalize"
+          class="font-Nohemi m-0 text-[20px] font-medium text-center capitalize"
         >
           {{ methodAndAction[method] }}
         </h1>
@@ -219,7 +219,7 @@ function isDeprecatedMethod() {
       </div>
       <h1
         v-else
-        class="font-Nohemi flex-1 m-0 text-[20px] font-semibold text-center capitalize"
+        class="font-Nohemi flex-1 m-0 text-[20px] font-medium text-center capitalize"
       >
         {{ methodAndAction[method] }}
       </h1>

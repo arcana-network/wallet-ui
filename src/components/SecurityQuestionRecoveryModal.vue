@@ -89,7 +89,7 @@ function handleProceed() {
           class="-rotate-90 invert dark:invert-0"
         />
       </button>
-      <div class="modal-title font-semibold">Security Questions</div>
+      <div class="modal-title font-medium">Security Questions</div>
     </div>
     <form class="flex flex-col gap-6" @submit.prevent="handleProceed">
       <div
@@ -119,7 +119,7 @@ function handleProceed() {
           Proceed
         </button>
         <button
-          class="font-semibold capitalize text-sm btn-tertiary"
+          class="font-medium capitalize text-sm btn-tertiary"
           @click.stop="emit('switch-alternate')"
         >
           Enter security PIN Instead

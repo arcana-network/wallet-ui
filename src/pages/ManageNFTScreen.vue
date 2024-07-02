@@ -105,7 +105,7 @@ function truncateNFTTokenId(tokenId: string) {
           >
             <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
           </button>
-          <span class="font-Nohemi text-[20px] font-semibold">Manage NFTs</span>
+          <span class="font-Nohemi text-[20px] font-medium">Manage NFTs</span>
         </div>
         <div
           class="card flex flex-col w-full h-full max-h-max text-left flex-grow overflow-hidden"
@@ -131,8 +131,7 @@ function truncateNFTTokenId(tokenId: string) {
             </div>
           </div>
           <div v-else class="flex flex-col flex-grow">
-            <span
-              class="color-secondary m-auto font-semibold text-sm sm:text-xs"
+            <span class="color-secondary m-auto font-medium text-sm sm:text-xs"
               >No NFTs added</span
             >
           </div>

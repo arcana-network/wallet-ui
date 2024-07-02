@@ -22,7 +22,7 @@ async function copyToClipboard(value: string) {
 <template>
   <div class="flex flex-col">
     <div class="flex items-center justify-center">
-      <p class="font-Nohemi text-[20px] font-semibold">Receive Tokens</p>
+      <p class="font-Nohemi text-[20px] font-medium">Receive Tokens</p>
     </div>
     <p class="text-xs text-gray-spanish-light text-center">
       Scan QR code to copy your address in order to send tokens to this address.

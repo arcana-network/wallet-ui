@@ -7,7 +7,7 @@ const props = defineProps<{ message: string }>()
 <template>
   <div class="flex flex-col gap-2 text-sm">
     <div
-      class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+      class="text-sm font-medium uppercase text-black-arsenic dark:text-white-400"
     >
       Transaction Details
     </div>
