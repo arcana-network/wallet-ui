@@ -11,25 +11,22 @@ module.exports = defineConfig({
         maxSize: 500 * 1024,
       },
     },
-    resolve: {
-      fallback: {
-        buffer: require.resolve('buffer/'),
-        crypto: require.resolve('crypto-browserify'),
-        stream: require.resolve('stream-browserify'),
-        zlib: false,
-        https: false,
-        http: false,
-        path: false,
-        fs: false,
-      },
-    },
+    // resolve: {
+    //   fallback: {
+    //     buffer: require.resolve('buffer/'),
+    //     crypto: require.resolve('crypto-browserify'),
+    //     stream: require.resolve('stream-browserify'),
+    //     zlib: false,
+    //     https: false,
+    //     http: false,
+    //     path: false,
+    //     fs: false,
+    //   },
+    // },
     devtool: process.env.VUE_APP_SOURCEMAPS ? 'source-map' : false,
     plugins: [
       new NodePolyfillPlugin({
         additionalAliases: ['process'],
-      }),
-      new webpack.optimize.MinChunkSizePlugin({
-        minChunkSize: 1000 * 1024,
       }),
       new webpack.optimize.MinChunkSizePlugin({
         minChunkSize: 1000 * 1024,
