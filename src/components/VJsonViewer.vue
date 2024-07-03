@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 type ViewerProps = {
-  value: string | JSON
+  value: string | JSON | Record<string, unknown>
 }
 
 const props = defineProps<ViewerProps>()

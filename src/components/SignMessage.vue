@@ -56,6 +56,9 @@ const SolanaSignAllTransactions = defineAsyncComponent(
   () =>
     import('@/components/CustomRequestScreen/Solana/SignAllTransactions.vue')
 )
+const EthSignTypedDataV4 = defineAsyncComponent(
+  () => import('@/components/CustomRequestScreen/Evm/EthSignTypedDataV4.vue')
+)
 
 const appStore = useAppStore()
 const requestStore = useRequestStore()
@@ -256,6 +259,10 @@ function isDeprecatedMethod() {
       v-else-if="method === 'wallet_watchAsset'"
       :params="props.request.request.token"
       class="flex flex-col gap-1"
+    />
+    <EthSignTypedDataV4
+      v-else-if="method === 'eth_signTypedData_v4'"
+      :request-params="params"
     />
     <ArcanaSwitchAccountType
       v-else-if="method === '_arcana_switchAccountType'"
