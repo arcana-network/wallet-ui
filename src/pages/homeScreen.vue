@@ -84,12 +84,12 @@ rpcStore.$subscribe(() => {
     <AppLoader :message="loader.message" />
   </div>
   <div v-else class="flex flex-col justify-between">
-    <UserWallet
-      page="home"
-      :refresh-icon-animating="refreshIconAnimating"
-      @refresh="handleRefresh"
-    />
-    <div class="my-5">
+    <div class="flex flex-col gap-10">
+      <UserWallet
+        page="home"
+        :refresh-icon-animating="refreshIconAnimating"
+        @refresh="handleRefresh"
+      />
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
     <div class="flex space-x-1 justify-center items-center">

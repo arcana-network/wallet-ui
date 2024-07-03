@@ -110,7 +110,7 @@ function deleteNetwork() {
 <template>
   <div class="space-y-3">
     <div class="flex justify-between">
-      <p class="text-xl sm:text-sm font-semibold">Edit Network</p>
+      <p class="text-xl sm:text-sm font-medium">Edit Network</p>
       <button
         v-if="rpcConfigForEdit?.isCustom"
         class="h-auto"

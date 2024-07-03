@@ -2,7 +2,7 @@
   <div
     class="no-requests__container flex-1 flex flex-col content-center justify-center h-full"
   >
-    <p class="no-requests__text font-semibold text-center"></p>
+    <p class="no-requests__text font-medium text-center"></p>
   </div>
 </template>
 

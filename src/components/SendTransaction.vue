@@ -19,6 +19,9 @@ import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
+import { useImage } from '@/utils/useImage'
+
+const getIcon = useImage()
 
 const props = defineProps({
   request: {
@@ -53,6 +56,7 @@ const emits = defineEmits([
   'approve',
   'proceed',
   'expand',
+  'shrink',
 ])
 const customGasPrice = ref({} as any)
 
@@ -259,7 +263,18 @@ function calculateCurrencyValue(value) {
       v-if="route.name !== 'PermissionRequest'"
       class="flex flex-col space-y-2"
     >
-      <p class="font-Nohemi text-[20px] font-semibold text-center flex-grow">
+      <div
+        v-if="route.name === 'activities'"
+        class="flex justify-center items-center cursor-pointer"
+        @click="emits('shrink')"
+      >
+        <span class="font-Nohemi text-lg font-medium">Send Transaction</span>
+        <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
+      </div>
+      <p
+        v-else
+        class="font-Nohemi text-[20px] font-medium text-center flex-grow"
+      >
         Send Transaction
       </p>
       <p class="text-xs text-gray-spanish-light text-center">
@@ -271,38 +286,40 @@ function calculateCurrencyValue(value) {
       v-if="appStore.chainType === ChainType.evm_secp256k1"
       class="flex flex-col gap-2 text-sm bg-gray-zinc-85 dark:bg-black-arsenic p-2 rounded-xl space-y-2"
     >
-      <div class="flex justify-between items-center space-x-2">
-        <div class="flex-1">
-          <div
-            v-if="request.request?.params[0]?.from"
-            class="flex flex-col gap-1"
+      <div class="flex items-end space-x-2">
+        <div
+          v-if="request.request?.params[0]?.from"
+          class="flex flex-1 flex-col gap-1"
+        >
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            >From</span
           >
-            <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
-              >From</span
-            >
-            <span
-              :title="request.request.params[0].from"
-              class="text-base font-medium"
-            >
-              {{ truncateMid(request.request.params[0].from, 6) }}
-            </span>
-          </div>
-          <div v-else class="flex flex-col gap-1">
-            <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
-              >From</span
-            >
-            <span
-              :title="userStore.walletAddress"
-              class="text-base font-medium"
-            >
-              {{ truncateMid(userStore.walletAddress, 6) }}
-            </span>
-          </div>
+          <span
+            :title="request.request.params[0].from"
+            class="text-base font-medium leading-4"
+          >
+            {{ truncateMid(request.request.params[0].from, 6) }}
+          </span>
         </div>
-        <div class="flex-1 flex justify-center">
-          <img :src="getImage('arrow-to.svg')" alt="to" />
+        <div v-else class="flex flex-1 flex-col gap-1">
+          <span
+            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            >From</span
+          >
+          <span
+            :title="userStore.walletAddress"
+            class="text-base font-medium leading-4"
+          >
+            {{ truncateMid(userStore.walletAddress, 6) }}
+          </span>
+        </div>
+        <div class="flex-1 flex justify-center mb-[2px]">
+          <img
+            :src="getImage('arrow-to.svg')"
+            alt="to"
+            class="w-[14px] h-[14px]"
+          />
         </div>
         <div
           v-if="request.request?.params[0]?.to"
@@ -314,7 +331,7 @@ function calculateCurrencyValue(value) {
           >
           <span
             :title="request.request.params[0].to"
-            class="text-base font-medium"
+            class="text-base font-medium leading-4"
             >{{ truncateMid(request.request.params[0].to, 6) }}</span
           >
         </div>
@@ -419,15 +436,21 @@ function calculateCurrencyValue(value) {
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
-      <span
+      <div
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="text-xs text-center"
+        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
       >
-        Limit exceeded for gasless transactions. You will be charged for this
-        transaction.
-      </span>
+        <img
+          class="w-4 h-4 mt-1"
+          :src="getIcon('info-circle', undefined, 'svg')"
+        />
+        <p class="text-xs text-left text-white-200">
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
+        </p>
+      </div>
     </div>
     <div
       v-if="route.name !== 'PermissionRequest'"

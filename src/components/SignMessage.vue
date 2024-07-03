@@ -81,7 +81,7 @@ const props = defineProps({
 const method = computed(() => props.request.request.method)
 const params = computed(() => props.request.request.params)
 
-const emits = defineEmits(['reject', 'approve', 'proceed', 'expand'])
+const emits = defineEmits(['reject', 'approve', 'proceed', 'expand', 'shrink'])
 const userStore = useUserStore()
 
 function isSiweMessage(message: string) {
@@ -208,8 +208,21 @@ function isDeprecatedMethod() {
   </div>
   <div v-else class="card flex flex-1 flex-col gap-4 p-4">
     <div class="flex flex-col">
+      <div
+        v-if="route.name === 'activities'"
+        class="flex justify-center items-center cursor-pointer"
+        @click="emits('shrink')"
+      >
+        <h1
+          class="font-Nohemi m-0 text-[20px] font-medium text-center capitalize"
+        >
+          {{ methodAndAction[method] }}
+        </h1>
+        <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
+      </div>
       <h1
-        class="font-Nohemi flex-1 m-0 text-[20px] font-semibold text-center capitalize"
+        v-else
+        class="font-Nohemi flex-1 m-0 text-[20px] font-medium text-center capitalize"
       >
         {{ methodAndAction[method] }}
       </h1>

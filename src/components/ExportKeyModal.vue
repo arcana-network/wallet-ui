@@ -57,7 +57,7 @@ async function copyToClipboard(value: string, message: string) {
   <div class="flex flex-col space-y-5">
     <div class="flex flex-col gap-1">
       <div class="flex items-center justify-between">
-        <label class="text-sm font-semibold text-[#8D8D8D]">Private Key</label>
+        <label class="text-sm font-medium text-[#8D8D8D]">Private Key</label>
       </div>
       <div
         class="bg-black-400 rounded-md p-4 break-words font-normal text-lg blur"

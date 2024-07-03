@@ -550,7 +550,7 @@ watch(
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-white-100 text-sm"
+          <span class="font-medium text-white-100 text-sm"
             >Enhance your wallet security</span
           >
           <img src="@/assets/images/export.svg" class="w-5" />

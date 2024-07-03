@@ -174,7 +174,7 @@ watch(
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex flex-col gap-4">
-      <h2 class="font-Nohemi text-[20px] font-semibold text-center">
+      <h2 class="font-Nohemi text-[20px] font-medium text-center">
         Add a Token
       </h2>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
@@ -207,7 +207,7 @@ watch(
         </div>
         <div
           v-if="expandSection || !rpcStore.isEthereumMainnet"
-          class="flex flex-col gap-4"
+          class="flex flex-col gap-6"
         >
           <div class="flex flex-col gap-1">
             <label for="token-contract-address" class="text-sm font-medium"
@@ -218,7 +218,7 @@ watch(
               v-model.trim="tokenContract.address"
               type="text"
               placeholder="Eg. 0x000000000000"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
             />
@@ -232,7 +232,7 @@ watch(
               v-model="tokenContract.symbol"
               type="text"
               placeholder="Eg. XAR"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
@@ -248,7 +248,7 @@ watch(
               v-model="tokenContract.decimals"
               type="number"
               placeholder="0"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"
@@ -257,9 +257,7 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <button type="submit" class="btn-primary p-2 mt-5 w-full">
-            Save
-          </button>
+          <button type="submit" class="btn-primary p-2 w-full">Save</button>
         </div>
       </form>
     </div>

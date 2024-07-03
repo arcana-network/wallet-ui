@@ -82,14 +82,29 @@ function getChainType(chainType: ChainType) {
   <AddNetwork v-if="showAddNetworkModal" @close="showAddNetworkModal = false" />
   <div v-else class="flex flex-col gap-5">
     <div class="flex items-center justify-center">
-      <p class="font-Nohemi text-[20px] font-semibold">Choose Network</p>
+      <p class="font-Nohemi text-[20px] font-medium">Choose Network</p>
     </div>
     <div class="flex flex-col gap-4">
       <div
         v-for="chain in sortedRpcConfigs"
         :key="chain.chainId"
-        class="flex items-center gap-2"
+        class="flex justify-between items-center gap-2"
       >
+        <label
+          class="flex items-center gap-2 text-lg font-medium"
+          :for="String(chain.chainId)"
+        >
+          <img
+            :src="getChainLogoUrl(chain, getChainType(appStore.chainType))"
+            class="w-lg h-lg"
+            @error="handleFallbackLogo"
+          />
+          <span>{{ chain.chainName }}</span>
+          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
+          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
+            Testnet
+          </span>
+        </label>
         <input
           :id="String(chain.chainId)"
           v-model="selectedRPCConfig"
@@ -98,18 +113,6 @@ function getChainType(chainType: ChainType) {
           name="chain"
           class="radio"
         />
-        <label class="flex items-center gap-2" :for="String(chain.chainId)">
-          <img
-            :src="getChainLogoUrl(chain, getChainType(appStore.chainType))"
-            class="w-xl h-xl"
-            @error="handleFallbackLogo"
-          />
-          <span class="text-base">{{ chain.chainName }}</span>
-          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
-          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
-            Testnet
-          </span>
-        </label>
       </div>
       <button
         v-if="appStore.chainType === ChainType.evm_secp256k1"

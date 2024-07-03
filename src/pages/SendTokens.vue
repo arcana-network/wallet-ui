@@ -41,6 +41,7 @@ import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
+import { useImage } from '@/utils/useImage'
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -78,6 +79,7 @@ const gasParamsMVX = ref({
   gasLimit: 0,
   minGasLimit: 0,
 })
+const getIcon = useImage()
 
 const walletBalance = computed(() => {
   const decimals = getRequestHandler().getAccountHandler().decimals
@@ -736,13 +738,13 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
+      <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
       @submit.prevent="handleShowPreview"
     >
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address
@@ -838,15 +840,21 @@ watch(
           class="text-xs text-green-100 font-medium text-center w-full"
           >This is a Gasless Transaction. Click Below to Approve.
         </span>
-        <span
+        <div
           v-else-if="
             !loader.show && transactionMode.length === 0 && rpcStore.useGasless
           "
-          class="text-xs text-center"
+          class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
         >
-          Limit exceeded for gasless transactions. You will be charged for this
-          transaction.
-        </span>
+          <img
+            class="w-4 h-4 mt-1"
+            :src="getIcon('info-circle', undefined, 'svg')"
+          />
+          <p class="text-xs text-left text-white-200">
+            Limit exceeded for gasless transactions. You will be charged for
+            this transaction.
+          </p>
+        </div>
       </div>
       <div class="flex mt-2">
         <button class="btn-primary py-[10px] text-center w-full">
