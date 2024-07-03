@@ -36,7 +36,7 @@ function handleChange(question: string[]) {
 <template>
   <Listbox v-model="selectedQuestionRef" @update:model-value="handleChange">
     <div
-      class="dark:bg-black-arsenic bg-gray-zinc-85 relative w-full cursor-default flex flex-nowrap rounded-sm input-field py-2 px-4 outline-none"
+      class="dark:bg-black-arsenic bg-gray-zinc-85 relative w-full cursor-default flex flex-nowrap rounded-sm input-field p-2 outline-none"
     >
       <ListboxButton
         class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto dark:text-white-100 text-black-100"
