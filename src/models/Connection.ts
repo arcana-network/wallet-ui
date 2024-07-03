@@ -1,6 +1,6 @@
 import { AppConfig, AppMode, Position, RpcConfig } from '@arcana/auth'
 import type { SocialLoginType } from '@arcana/auth-core'
-import { JsonRpcRequest, PendingJsonRpcResponse } from 'json-rpc-engine'
+import type { JsonRpcRequest, PendingJsonRpcResponse } from '@metamask/utils'
 
 type SDKVersion = 'v2' | 'v3'
 

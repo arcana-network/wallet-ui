@@ -1,3 +1,4 @@
+import { personalSign } from '@metamask/eth-sig-util'
 import {
   signAsync as ed25519Sign,
   etc,
@@ -7,7 +8,6 @@ import { Keypair } from '@solana/web3.js'
 import axios from 'axios'
 import base58 from 'bs58'
 import dayjs from 'dayjs'
-import { personalSign } from 'eth-sig-util'
 import {
   addHexPrefix,
   fromUtf8,
@@ -98,7 +98,8 @@ const sign = (curve: 'secp256k1' | 'ed25519') => {
   return async (privateKey: string, data: string) => {
     if (curve === 'secp256k1') {
       const msgToSign = addHexPrefix(Buffer.from(data).toString('hex'))
-      return personalSign(Buffer.from(stripHexPrefix(privateKey), 'hex'), {
+      return personalSign({
+        privateKey: Buffer.from(stripHexPrefix(privateKey), 'hex'),
         data: msgToSign,
       })
     } else {

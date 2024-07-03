@@ -1,28 +1,30 @@
-import Decimal from 'decimal.js'
-import { PollingBlockTracker, Provider } from 'eth-block-tracker'
+import { PollingBlockTracker } from '@metamask/eth-block-tracker'
 import {
-  createFetchMiddleware,
-  providerFromMiddleware,
   createBlockRefMiddleware,
   createRetryOnEmptyMiddleware,
   createInflightCacheMiddleware,
   createBlockCacheMiddleware,
   createBlockTrackerInspectorMiddleware,
-} from 'eth-json-rpc-middleware'
+} from '@metamask/eth-json-rpc-middleware'
+import { providerFromMiddleware } from '@metamask/eth-json-rpc-provider'
 import {
   JsonRpcEngine,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
   createScaffoldMiddleware,
   JsonRpcMiddleware,
   createAsyncMiddleware,
-} from 'json-rpc-engine'
+} from '@metamask/json-rpc-engine'
+import type {
+  Json,
+  JsonRpcParams,
+  JsonRpcRequest,
+  PendingJsonRpcResponse,
+} from '@metamask/utils'
+import Decimal from 'decimal.js'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { type EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { toHex } from '@/utils/toHex'
 
 interface RpcConfig {
   rpcUrls: string[]
@@ -143,7 +145,7 @@ class EVMRequestHandler {
 
     const blockProvider = providerFromMiddleware(fetchMiddleware)
     const blockTracker = new PollingBlockTracker({
-      provider: blockProvider as Provider,
+      provider: blockProvider,
       pollingInterval: 1000,
     })
 
@@ -177,7 +179,7 @@ class EVMRequestHandler {
     return createScaffoldMiddleware({
       eth_chainId: hexChainId,
       net_version: chainId,
-    }) as JsonRpcMiddleware<string, unknown>
+    }) as JsonRpcMiddleware<JsonRpcParams, Json>
   }
 
   get chainType() {

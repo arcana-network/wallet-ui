@@ -14,7 +14,7 @@
 2. Check if the session ID is expired, if it's expired, delete the private keys and return an error
 3. Get the info from Local Storage & call contactParentPage
 */
-import { getUniqueId } from 'json-rpc-engine'
+import { getUniqueId } from '@metamask/json-rpc-engine'
 import { connectToParent } from 'penpal'
 import type { AsyncMethodReturns } from 'penpal'
 import { onMounted } from 'vue'

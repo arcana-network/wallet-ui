@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getUniqueId } from 'json-rpc-engine'
+import { getUniqueId } from '@metamask/json-rpc-engine'
 import { onMounted, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 

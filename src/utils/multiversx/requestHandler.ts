@@ -1,25 +1,19 @@
 import type { RpcConfig } from '@arcana/auth'
+import { createAsyncMiddleware, JsonRpcEngine } from '@metamask/json-rpc-engine'
+import { JsonRpcRequest, PendingJsonRpcResponse } from '@metamask/utils'
 import {
   SignableMessage,
   Transaction,
   IPlainTransactionObject,
   Address,
-  TokenTransfer,
 } from '@multiversx/sdk-core'
 import Decimal from 'decimal.js'
-import {
-  createAsyncMiddleware,
-  JsonRpcEngine,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
-import { toHex } from '@/utils/toHex'
 
 class MultiversXRequestHandler {
   private handler?: JsonRpcEngine

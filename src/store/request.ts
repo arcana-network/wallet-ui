@@ -1,4 +1,4 @@
-import { JsonRpcRequest } from 'json-rpc-engine'
+import type { JsonRpcRequest } from '@metamask/utils'
 import { defineStore } from 'pinia'
 
 type RequestOrigin = 'wallet-ui' | 'auth-verify'

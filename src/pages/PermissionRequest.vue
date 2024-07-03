@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type RpcConfig } from '@arcana/auth'
-import { Dialog } from '@headlessui/vue'
+import type { JsonRpcRequest } from '@metamask/utils'
 import {
   PublicKey,
   SystemProgram,
@@ -8,7 +8,6 @@ import {
   VersionedTransaction,
 } from '@solana/web3.js'
 import { Decimal } from 'decimal.js'
-import { type JsonRpcRequest } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'

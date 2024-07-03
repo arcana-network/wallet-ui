@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { StateInfo, decodeJSON } from '@arcana/auth-core'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
+import { getUniqueId } from '@metamask/json-rpc-engine'
 import dayjs from 'dayjs'
-import { addHexPrefix } from 'ethereumjs-util'
-import { ethers } from 'ethers'
-import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
 import { ref, onBeforeMount, onUnmounted, type Ref } from 'vue'

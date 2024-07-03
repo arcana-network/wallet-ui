@@ -1,11 +1,12 @@
 import type { TransactionResponse } from '@ethersproject/abstract-provider'
-import { Decimal } from 'decimal.js'
-import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   concatSig,
   personalSign,
-  signTypedData_v4 as signTypedDataV4,
-} from 'eth-sig-util'
+  signTypedData,
+  SignTypedDataVersion,
+} from '@metamask/eth-sig-util'
+import { Decimal } from 'decimal.js'
+import { cipher, decryptWithPrivateKey } from 'eth-crypto'
 import {
   addHexPrefix,
   ecsign,
@@ -402,10 +403,10 @@ class EVMAccountHandler {
       : addHexPrefix(Buffer.from(msg).toString('hex'))
     const wallet = this.getWallet(address)
     if (wallet) {
-      const signature = personalSign(
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-        { data: msgToSign }
-      )
+      const signature = personalSign({
+        privateKey: Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        data: msgToSign,
+      })
       return signature
     } else {
       throw new Error(errors.WALLET.NOT_FOUND)
@@ -467,10 +468,11 @@ class EVMAccountHandler {
     const wallet = this.getWallet(address)
     if (wallet) {
       const parsedData = JSON.parse(data)
-      const signature = signTypedDataV4(
-        Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
-        { data: parsedData }
-      )
+      const signature = signTypedData({
+        privateKey: Buffer.from(stripHexPrefix(wallet.privateKey), 'hex'),
+        data: parsedData,
+        version: SignTypedDataVersion.V4,
+      })
       return signature
     } else {
       throw new Error('No Wallet found for the provided address')

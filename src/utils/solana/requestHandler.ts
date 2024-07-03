@@ -1,18 +1,13 @@
 import type { RpcConfig } from '@arcana/auth'
+import { JsonRpcEngine, createAsyncMiddleware } from '@metamask/json-rpc-engine'
+import type { JsonRpcRequest, PendingJsonRpcResponse } from '@metamask/utils'
 import bs58 from 'bs58'
 import Decimal from 'decimal.js'
-import {
-  JsonRpcEngine,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-  createAsyncMiddleware,
-} from 'json-rpc-engine'
 import type { Connection } from 'penpal'
 
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
-import { toHex } from '@/utils/toHex'
 
 class SolanaRequestHandler {
   private handler?: JsonRpcEngine

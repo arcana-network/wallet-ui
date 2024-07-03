@@ -1,13 +1,17 @@
 import { AppMode } from '@arcana/auth'
-import { ethErrors } from 'eth-rpc-errors'
-import sigUtil from 'eth-sig-util'
+import sigUtil from '@metamask/eth-sig-util'
 import {
   createAsyncMiddleware,
   createScaffoldMiddleware,
   JsonRpcMiddleware,
+} from '@metamask/json-rpc-engine'
+import type {
+  Json,
+  JsonRpcParams,
   JsonRpcRequest,
   PendingJsonRpcResponse,
-} from 'json-rpc-engine'
+} from '@metamask/utils'
+import { ethErrors } from 'eth-rpc-errors'
 
 import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
@@ -82,7 +86,7 @@ function createWalletMiddleware({
   processTypedMessage,
   processTypedMessageV3,
   processTypedMessageV4,
-}: WalletMiddlewareOptions): JsonRpcMiddleware<string, unknown> {
+}: WalletMiddlewareOptions): JsonRpcMiddleware<JsonRpcParams, Json> {
   if (!getAccounts) {
     throw new Error('opts.getAccounts is required')
   }
@@ -345,9 +349,9 @@ function createWalletMiddleware({
     const signature: string = (req.params as string)[1]
     const extraParams: Record<string, unknown> =
       (req.params as Record<string, unknown>[])[2] || {}
-    const msgParams: sigUtil.SignedMsgParams<string> = {
+    const msgParams = {
       ...extraParams,
-      sig: signature,
+      signature: signature,
       data: message,
     }
     const signerAddress: string = sigUtil.recoverPersonalSignature(msgParams)

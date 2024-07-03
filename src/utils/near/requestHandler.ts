@@ -1,12 +1,8 @@
 import type { RpcConfig } from '@arcana/auth'
+import { createAsyncMiddleware, JsonRpcEngine } from '@metamask/json-rpc-engine'
+import type { JsonRpcRequest, PendingJsonRpcResponse } from '@metamask/utils'
 import bs58 from 'bs58'
 import { Decimal } from 'decimal.js'
-import {
-  createAsyncMiddleware,
-  JsonRpcEngine,
-  JsonRpcRequest,
-  PendingJsonRpcResponse,
-} from 'json-rpc-engine'
 import { transactions } from 'near-api-js'
 import type { Connection } from 'penpal'
 
