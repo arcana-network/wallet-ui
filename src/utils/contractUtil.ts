@@ -24,13 +24,6 @@ async function getTokenBalance(data: ContractParams): Promise<string> {
     address: getAddress(data.contractAddress),
     args: [getAddress(data.walletAddress)],
   })
-  // const ethersContract = new ethers.Contract(
-  //   data.contractAddress,
-  //   ABI,
-  //   accountHandler.provider
-  // )
-
-  // const balance = await ethersContract.balanceOf(data.walletAddress)
 
   return Number(balance as bigint).toString()
 }

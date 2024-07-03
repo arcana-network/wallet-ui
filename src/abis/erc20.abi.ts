@@ -44,6 +44,6 @@ const ERC20 = [
     stateMutability: 'view',
     type: 'function',
   },
-]
+] as const
 
 export { ERC20 }

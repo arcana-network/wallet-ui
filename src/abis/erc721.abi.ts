@@ -444,6 +444,6 @@ const ERC721 = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const
 
 export { ERC721 }

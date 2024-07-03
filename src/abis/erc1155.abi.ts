@@ -322,6 +322,6 @@ const ERC1155 = [
     stateMutability: 'view',
     type: 'function',
   },
-]
+] as const
 
 export { ERC1155 }
