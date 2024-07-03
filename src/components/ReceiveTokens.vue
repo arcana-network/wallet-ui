@@ -22,9 +22,9 @@ async function copyToClipboard(value: string) {
 <template>
   <div class="flex flex-col">
     <div class="flex items-center justify-center">
-      <p class="text-xl font-medium">Receive Tokens</p>
+      <p class="font-Nohemi text-[20px] font-medium">Receive Tokens</p>
     </div>
-    <p class="text-xs text-gray-spanish-light mt-5">
+    <p class="text-xs text-gray-spanish-light text-center">
       Scan QR code to copy your address in order to send tokens to this address.
     </p>
   </div>
@@ -37,10 +37,10 @@ async function copyToClipboard(value: string) {
       class="w-full h-full"
     />
   </div>
-  <div class="flex items-center justify-center gap-1 mt-6 mb-2">
-    <p class="text-sm font-medium">{{ userStore.walletAddressShrinked }}</p>
+  <div class="flex items-center justify-center gap-1 mt-4">
+    <p class="text-lg font-medium">{{ userStore.walletAddressShrinked }}</p>
     <button
-      class="h-sm w-sm"
+      class="w-lg h-lg"
       title="Click to copy wallet address"
       @click="copyToClipboard(userStore.walletAddress)"
     >

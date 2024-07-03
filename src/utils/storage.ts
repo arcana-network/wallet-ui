@@ -377,9 +377,12 @@ class UserSessionStorage extends BaseStorage {
     this.delete(StorageKey.IsLoggedIn)
   }
 }
+
 export {
   are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,
+  BaseStorage,
+  UserInfo,
 }

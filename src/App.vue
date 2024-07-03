@@ -130,7 +130,13 @@ const canShowCollapseButton = computed(
 
 const showHeader = computed(() => {
   const routeName = route.name
-  const routes = ['requests', 'PermissionRequest', 'TransakSell']
+  const routes = [
+    'requests',
+    'PermissionRequest',
+    'TransakSell',
+    'MFASetup',
+    'MFARestore',
+  ]
   return !routes.includes(routeName as string)
 })
 
@@ -250,7 +256,9 @@ onMounted(() => {
       </div>
       <WalletHeader v-if="showHeader" />
       <div class="flex-grow wallet__container m-1 p-3">
+        <!-- <Suspense> -->
         <RouterView class="flex-grow" />
+        <!-- </Suspense> -->
         <img
           v-if="route.name === 'requests'"
           :src="getImage('secured-by-arcana.svg')"
@@ -368,6 +376,16 @@ body {
 
 .Vue-Toastification__toast--error {
   background-color: #f61d1d !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .Vue-Toastification__toast--success {
+    background-color: #24ad29 !important;
+  }
+
+  .Vue-Toastification__toast--error {
+    background-color: #e73232 !important;
+  }
 }
 
 .notification-animation {

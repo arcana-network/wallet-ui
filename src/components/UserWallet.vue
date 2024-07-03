@@ -271,7 +271,7 @@ async function copyToClipboard(value: string) {
 </script>
 
 <template>
-  <div class="gap-3">
+  <div class="flex flex-col gap-3">
     <div class="card p-3 flex flex-col rounded-xl">
       <div class="flex flex-col justify-between space-y-1">
         <div
@@ -291,12 +291,12 @@ async function copyToClipboard(value: string) {
                   src="@/assets/images/fallback-logo-dark-mode.png"
                   class="w-xxl h-xxl rounded-full"
                 />
-                <div class="flex flex-col0">
+                <div class="flex flex-col">
                   <div class="flex">
                     <div class="flex flex-col items-start">
                       <div class="flex items-center">
                         <span
-                          class="text-sm font-semibold dark:text-white-100 text-black-100"
+                          class="text-sm font-medium dark:text-white-100 text-black-100"
                           >{{
                             truncateMid(selectedAddressType.address, 6)
                           }}</span
@@ -330,7 +330,7 @@ async function copyToClipboard(value: string) {
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
               <ListboxOptions
-                class="divide-y-2 dark:divide-gray-100 divide-white-400 mt-2 p-2 rounded-md absolute top-12 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
+                class="divide-y-2 dark:divide-gray-100 divide-white-400 p-2 rounded-md absolute top-10 dark:bg-gray-300 bg-white-100 w-full left-0 z-[999]"
               >
                 <ListboxOption
                   v-for="address in addresses"
@@ -368,15 +368,15 @@ async function copyToClipboard(value: string) {
       <div class="mt-4 flex flex-col">
         <span
           v-if="appStore.chainType === ChainType.near_cv25519"
-          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Available Balance:</span
         >
         <span
           v-else
-          class="text-[10px] font-semibold text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
-        <div class="flex items-center gap-4 text-base font-semibold">
+        <div class="flex items-center gap-3 text-base font-medium">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"
@@ -402,7 +402,7 @@ async function copyToClipboard(value: string) {
             >
           </div>
           <button
-            class="w-lg h-lg rounded-full"
+            class="w-lg h-lg mt-[6px] rounded-full"
             :class="{ 'animate-spin': refreshIconAnimating }"
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
@@ -412,7 +412,7 @@ async function copyToClipboard(value: string) {
         </div>
       </div>
     </div>
-    <div class="mt-4 flex gap-3">
+    <div class="flex gap-3">
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
         @click.stop="goToSendTokens()"

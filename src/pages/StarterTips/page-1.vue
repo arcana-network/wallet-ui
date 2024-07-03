@@ -4,7 +4,7 @@ const dots = [1, 2, 3, 4, 5, 6]
 
 <template>
   <div class="space-y-4 h-full p-6 pt-2 text-black-100 dark:text-white-100">
-    <h1 class="font-Nohemi text-[20px] font-semibold uppercase">
+    <h1 class="font-Nohemi text-[20px] font-medium uppercase">
       New user orientation
     </h1>
     <p class="text-sm">

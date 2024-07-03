@@ -234,14 +234,12 @@ watch(
     <div class="h-full flex flex-col gap-5">
       <div class="flex items-center justify-center">
         <div v-if="props.edit" class="flex justify-between items-start">
-          <span class="font-Nohemi text-[20px] font-semibold">Edit NFT</span>
+          <span class="font-Nohemi text-[20px] font-medium">Edit NFT</span>
         </div>
-        <span v-else class="font-Nohemi text-[20px] font-semibold"
-          >Add NFT</span
-        >
+        <span v-else class="font-Nohemi text-[20px] font-medium">Add NFT</span>
       </div>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
-        <div class="flex flex-col gap-5 flex-grow">
+        <div class="flex flex-col gap-6 flex-grow">
           <div class="flex flex-col gap-1">
             <label for="token-contract-address" class="text-sm font-medium"
               >Collection Contract Address</label
@@ -252,7 +250,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed bg-gray-zinc dark:bg-black-arsenic"
               required
               disabled
               autocomplete="off"
@@ -263,7 +261,7 @@ watch(
               v-model.trim="nftContract.address"
               type="text"
               placeholder="Paste the hexadecimal address"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
               @focus="showAddressOutline = true"
@@ -279,7 +277,7 @@ watch(
               v-model="nftContract.name"
               type="text"
               placeholder="Provide the name"
-              class="input-field focus:input-active cursor-not-allowed"
+              class="input-field focus:input-active cursor-not-allowed bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
               disabled
@@ -292,14 +290,14 @@ watch(
               v-model="nftContract.tokenId"
               type="text"
               placeholder="Provide an ID"
-              class="input-field focus:input-active"
+              class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               min="0"
               step="1"
               required
               autocomplete="off"
             />
           </div>
-          <button type="submit" class="btn-primary mt-8 py-2">Save</button>
+          <button type="submit" class="btn-primary mt-4 py-2">Save</button>
         </div>
       </form>
     </div>

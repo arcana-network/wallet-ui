@@ -40,6 +40,7 @@ module.exports = {
           chromaphobic: '#292929',
           crayola: '#2D363B',
           arsenic: '#39444A',
+          'crayola-50': '#2D363B80',
         },
         white: {
           100: '#ffffff',

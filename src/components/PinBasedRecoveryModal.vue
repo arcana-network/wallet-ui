@@ -28,7 +28,7 @@ function handleProceed() {
           class="-rotate-90 invert dark:invert-0"
         />
       </button>
-      <div class="modal-title font-semibold">Recovery PIN</div>
+      <div class="modal-title font-medium">Recovery PIN</div>
     </div>
     <form class="flex flex-col gap-4" @submit.prevent="handleProceed">
       <div class="flex flex-col gap-1">
@@ -37,7 +37,7 @@ function handleProceed() {
           <input
             v-model.trim="password"
             :type="passwordType"
-            class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active"
+            class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin"
           />
           <img
@@ -63,7 +63,7 @@ function handleProceed() {
           Proceed
         </button>
         <button
-          class="font-semibold capitalize text-sm btn-tertiary"
+          class="font-medium capitalize text-sm btn-tertiary"
           @click.stop="emit('switch-alternate')"
         >
           Answer Security Questions Instead

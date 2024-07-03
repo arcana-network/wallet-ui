@@ -26,6 +26,7 @@ import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
+import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
   type: NFTContractType
@@ -73,6 +74,7 @@ const gasParamsMVX = ref({
   gasLimit: 0,
   minGasLimit: 0,
 })
+const getIcon = useImage()
 
 const props: SendNftProps = router.currentRoute.value
   .query as unknown as SendNftProps
@@ -458,7 +460,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
+        <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -527,17 +529,23 @@ watch(
             class="text-xs text-green-100 font-medium text-center w-full"
             >This is a Gasless Transaction. Click Below to Approve.
           </span>
-          <span
+          <div
             v-else-if="
               !loader.show &&
               transactionMode.length === 0 &&
               rpcStore.useGasless
             "
-            class="text-xs text-center"
+            class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
           >
-            Limit exceeded for gasless transactions. You will be charged for
-            this transaction.
-          </span>
+            <img
+              class="w-4 h-4 mt-1"
+              :src="getIcon('info-circle', undefined, 'svg')"
+            />
+            <p class="text-xs text-left text-white-200">
+              Limit exceeded for gasless transactions. You will be charged for
+              this transaction.
+            </p>
+          </div>
         </div>
         <div class="flex">
           <button class="btn-primary p-[10px] flex-grow text-center">
