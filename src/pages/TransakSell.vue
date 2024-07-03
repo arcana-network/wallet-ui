@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { ethers } from 'ethers'
 import { computed, onBeforeMount, ref, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -36,6 +35,7 @@ import {
   type TransakNetwork,
 } from '@/utils/transak'
 
+const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
 const rpcStore = useRpcStore()
 const DEFAULT_THEME = 'dark'
 const showLoader = ref(true)
@@ -106,7 +106,7 @@ onBeforeMount(async () => {
     query.value.partnerCustomerId as string
   )
   await fetchNativeBalance()
-  if (contractAddress.value !== ethers.constants.AddressZero) {
+  if (contractAddress.value !== ADDRESS_ZERO) {
     await fetchERC20Balance()
   } else {
     balance.value = nativeBalance.value
@@ -121,7 +121,7 @@ onBeforeMount(async () => {
       provider: 'transak',
       chainId: selectedNetworkChainId.value,
       contractAddress:
-        contractAddress.value === ethers.constants.AddressZero
+        contractAddress.value === ADDRESS_ZERO
           ? 'NATIVE'
           : contractAddress.value,
       tokenDecimals: selectedCryptoDecimals.value,
@@ -170,7 +170,7 @@ function populateFields(chain) {
       crypto.symbol === query.value.cryptoCurrency
   )
   devLogger.log(currency)
-  contractAddress.value = currency.address || ethers.constants.AddressZero
+  contractAddress.value = currency.address || ADDRESS_ZERO
   selectedCryptoLogo.value = currency.image.large || ''
   selectedCryptoDecimals.value = currency.decimals || 18
 }
@@ -300,7 +300,7 @@ async function calculateGas() {
   const accountHandler = getRequestHandler().getAccountHandler()
   if (appStore.chainType === ChainType.evm_secp256k1) {
     await calculateBaseFee()
-    if (contractAddress.value === ethers.constants.AddressZero) {
+    if (contractAddress.value === ADDRESS_ZERO) {
       try {
         gas.gasLimit = (
           await (accountHandler as EVMAccountHandler).provider.estimateGas({
@@ -334,7 +334,7 @@ async function calculateGas() {
 
 async function handleApprove() {
   if (
-    contractAddress.value === ethers.constants.AddressZero &&
+    contractAddress.value === ADDRESS_ZERO &&
     new Decimal(balance.value).lessThan(
       Decimal.sub(query.value.cryptoAmount as string, displayGasFees.value)
     )
@@ -370,7 +370,7 @@ async function handleApprove() {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
 
-  if (contractAddress.value === ethers.constants.AddressZero) {
+  if (contractAddress.value === ADDRESS_ZERO) {
     const payload: any = {
       to: setHexPrefix(query.value.walletAddress as string),
       value: new Decimal(query.value.cryptoAmount as string)
@@ -530,7 +530,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       >
         <img src="@/assets/images/failed.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
-          <span class="font-medium">Transaction Failed</span>
+          <span class="font-bold">Transaction Failed</span>
           <span class="text-[#8d8d8d] text-[12px] mx-5"
             >The transaction was failed. Retry again.</span
           >
@@ -617,7 +617,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           >
         </div>
         <div
-          v-if="contractAddress !== ethers.constants.AddressZero"
+          v-if="contractAddress !== ADDRESS_ZERO"
           class="flex items-center justify-between"
         >
           <span class="text-[12px]">Gas Balance:</span>

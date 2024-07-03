@@ -56,6 +56,10 @@ const customPlaceholders: Ref<string[]> = ref(
 initStorage(String(route.params.appId))
 
 const storage = getStorage()
+const sensitiveStorage = getSensitiveStorage(
+  'local',
+  route.params.appId as string
+)
 
 app.curve = storage.local.getCurve()
 
@@ -65,11 +69,8 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
 
 onBeforeMount(async () => {
-  if (inAppLogin) {
-    const loginInfo = getSensitiveStorage().getUserInfo()
-    if (!loginInfo) {
-      return
-    }
+  const loginInfo = sensitiveStorage.getUserInfo()
+  if (loginInfo) {
     dkgShare = {
       pk: loginInfo.pk,
       id: loginInfo.userInfo.id,

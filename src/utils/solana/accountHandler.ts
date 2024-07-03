@@ -27,7 +27,6 @@ import {
 } from '@solana/web3.js'
 import bs58 from 'bs58'
 import Decimal from 'decimal.js'
-import { ethers } from 'ethers'
 
 import { Asset } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
@@ -91,9 +90,9 @@ export class SolanaAccountHandler {
     return 1
   }
 
-  async getBalance(): Promise<ethers.BigNumber> {
+  async getBalance(): Promise<bigint> {
     const lamports = await this.conn.getBalance(this.kp.publicKey)
-    return ethers.BigNumber.from(lamports)
+    return BigInt(lamports)
   }
 
   async setProvider(str): Promise<void> {

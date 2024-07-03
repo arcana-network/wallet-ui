@@ -1,6 +1,4 @@
-import { ethers } from 'ethers'
-
-import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
+import { createPublicClient, http, parseAbi } from 'viem'
 
 export const getWalletType = async (
   appId,
@@ -10,18 +8,18 @@ export const getWalletType = async (
   if (!appAddress) {
     return null
   }
-  const provider = produceProviderFromURLString(rpcUrl)
-  const contract = new ethers.Contract(
-    appAddress,
-    ['function walletType() view returns (uint)'],
-    provider
-  )
+  const client = createPublicClient({
+    transport: http(rpcUrl),
+  })
+
   try {
-    const res = await contract.functions.walletType()
-    return res[0].toNumber()
+    const walletType = await client.readContract({
+      address: appAddress,
+      abi: parseAbi(['function walletType() view returns (uint)']),
+      functionName: 'walletType',
+    })
+    return Number(walletType)
   } catch (e) {
     return null
-  } finally {
-    await provider.destroy()
   }
 }

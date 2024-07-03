@@ -1,6 +1,6 @@
-import { ethers } from 'ethers'
+import { getAddress, createPublicClient, http } from 'viem'
 
-import ABI from '@/abis/erc20.abi.json'
+import { ERC20 } from '@/abis/erc20.abi'
 import { EVMAccountHandler } from '@/utils/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 
@@ -17,15 +17,22 @@ type SymbolDecimalResponse = {
 async function getTokenBalance(data: ContractParams): Promise<string> {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
-  const ethersContract = new ethers.Contract(
-    data.contractAddress,
-    ABI,
-    accountHandler.provider
-  )
+  const client = accountHandler.client
+  const balance = await client.readContract({
+    abi: ERC20,
+    functionName: 'balanceOf',
+    address: getAddress(data.contractAddress),
+    args: [getAddress(data.walletAddress)],
+  })
+  // const ethersContract = new ethers.Contract(
+  //   data.contractAddress,
+  //   ABI,
+  //   accountHandler.provider
+  // )
 
-  const balance = await ethersContract.balanceOf(data.walletAddress)
+  // const balance = await ethersContract.balanceOf(data.walletAddress)
 
-  return balance.toString()
+  return Number(balance as bigint).toString()
 }
 
 async function getTokenSymbolAndDecimals(
@@ -33,14 +40,19 @@ async function getTokenSymbolAndDecimals(
 ): Promise<SymbolDecimalResponse> {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
-  const ethersContract = new ethers.Contract(
-    data.contractAddress,
-    ABI,
-    accountHandler.provider
-  )
+  const client = accountHandler.client
 
-  const symbolPromise: Promise<string> = ethersContract.symbol()
-  const decimalsPromise: Promise<number> = ethersContract.decimals()
+  const symbolPromise = client.readContract({
+    address: getAddress(data.contractAddress),
+    abi: ERC20,
+    functionName: 'symbol',
+  })
+
+  const decimalsPromise = client.readContract({
+    address: getAddress(data.contractAddress),
+    abi: ERC20,
+    functionName: 'decimals',
+  })
 
   const [symbol, decimals] = await Promise.all([symbolPromise, decimalsPromise])
 

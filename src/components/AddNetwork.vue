@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { createPublicClient, http } from 'viem'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
-import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getImage } from '@/utils/getImage'
 
 const emit = defineEmits(['close'])
@@ -44,9 +44,10 @@ async function handleSubmit() {
     if (isExistingRpcUrl(rpcUrl)) {
       return toast.error(content.RPC.INPUT_EXISTS(rpcUrl))
     } else {
-      const provider = produceProviderFromURLString(rpcConfig.value.rpcUrl)
-      const chainId = await provider.getNetwork()
-      await provider.destroy()
+      const provider = createPublicClient({
+        transport: http(rpcUrl),
+      })
+      const chainId = await provider.getChainId()
       if (Number(chainId.chainId) !== Number(rpcConfig.value.chainId)) {
         return toast(errors.RPC.ERROR)
       }

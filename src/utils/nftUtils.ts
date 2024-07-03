@@ -1,7 +1,7 @@
-import { ethers } from 'ethers'
+import { PublicClient, getAddress, getContract } from 'viem'
 
-import erc1155abi from '@/abis/erc1155.abi.json'
-import erc721abi from '@/abis/erc721.abi.json'
+import { ERC1155 } from '@/abis/erc1155.abi'
+import { ERC721 } from '@/abis/erc721.abi'
 import type { NFT, NFTContractType } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
@@ -17,7 +17,7 @@ type ContractParams = {
 async function getERCStandard(address): Promise<NFTContractType | undefined> {
   const accountHandler =
     getRequestHandler().getAccountHandler() as EVMAccountHandler
-  const provider = accountHandler.provider
+  const client = accountHandler.client
 
   const ERC165Abi = [
     {
@@ -44,42 +44,53 @@ async function getERCStandard(address): Promise<NFTContractType | undefined> {
   const ERC1155InterfaceId = '0xd9b67a26'
   const ERC721InterfaceId = '0x80ac58cd'
 
-  const contract = new ethers.Contract(address, ERC165Abi, provider)
-
-  if (await contract.supportsInterface(ERC721InterfaceId)) return 'erc721'
-  else if (await contract.supportsInterface(ERC1155InterfaceId))
+  // const contract = new ethers.Contract(address, ERC165Abi, provider)
+  const contract = getContract({
+    address,
+    abi: ERC165Abi,
+    client,
+  })
+  //TODO: Check if it should be an array
+  if (await contract.read.supportsInterface([ERC721InterfaceId]))
+    return 'erc721'
+  else if (await contract.read.supportsInterface([ERC1155InterfaceId]))
     return 'erc1155'
   return undefined
 }
 
-function get721Contract(contractAddress: string) {
-  const accountHandler =
-    getRequestHandler().getAccountHandler() as EVMAccountHandler
-  return new ethers.Contract(
-    contractAddress,
-    erc721abi,
-    accountHandler.provider
-  )
-}
-
-function get1155Contract(contractAddress: string) {
-  const accountHandler =
-    getRequestHandler().getAccountHandler() as EVMAccountHandler
-  return new ethers.Contract(
-    contractAddress,
-    erc1155abi,
-    accountHandler.provider
-  )
-}
-
 async function get721Uri(data: ContractParams): Promise<string> {
-  const erc721Contract = get721Contract(data.contractAddress)
-  return await erc721Contract.tokenURI(data.tokenId)
+  const handler = getRequestHandler().getAccountHandler() as EVMAccountHandler
+  const contract = getERC721Contract(
+    getAddress(data.contractAddress),
+    handler.client
+  )
+  return contract.read.tokenURI([data.tokenId])
+}
+
+function getERC1155Contract(address: `0x${string}`, client: PublicClient) {
+  const contract = getContract({
+    address,
+    abi: ERC1155,
+    client,
+  })
+  return contract
+}
+function getERC721Contract(address: `0x${string}`, client: PublicClient) {
+  const contract = getContract({
+    address,
+    abi: ERC721,
+    client,
+  })
+  return contract
 }
 
 async function get1155Uri(data: ContractParams): Promise<string> {
-  const erc1155Contract = get1155Contract(data.contractAddress)
-  return await erc1155Contract.uri(data.tokenId)
+  const handler = getRequestHandler().getAccountHandler() as EVMAccountHandler
+  const contract = getERC1155Contract(
+    getAddress(data.contractAddress),
+    handler.client
+  )
+  return contract.read.uri([data.tokenId])
 }
 
 async function getTokenUri(ercStandard: NFTContractType, data: ContractParams) {
@@ -92,13 +103,21 @@ async function getTokenUri(ercStandard: NFTContractType, data: ContractParams) {
 }
 
 async function getCollectionName(contractAddress: string) {
-  const erc721Contract = get721Contract(contractAddress)
-  return await erc721Contract.name()
+  const handler = getRequestHandler().getAccountHandler() as EVMAccountHandler
+  const contract = getERC721Contract(
+    getAddress(contractAddress),
+    handler.client
+  )
+  return contract.read.name()
 }
 
 async function check721Ownership(data: ContractParams, walletAddress: string) {
-  const erc721Contract = get721Contract(data.contractAddress)
-  const ownerOfToken = await erc721Contract.ownerOf(data.tokenId)
+  const handler = getRequestHandler().getAccountHandler() as EVMAccountHandler
+  const contract = getERC721Contract(
+    getAddress(data.contractAddress),
+    handler.client
+  )
+  const ownerOfToken = await contract.read.ownerOf([data.tokenId])
   if (ownerOfToken === walletAddress) {
     return {
       owner: true,
@@ -112,10 +131,15 @@ async function check721Ownership(data: ContractParams, walletAddress: string) {
 }
 
 async function check1155Ownership(data: ContractParams, walletAddress: string) {
-  const erc1155Contract = get1155Contract(data.contractAddress)
-  const balance = (
-    await erc1155Contract.balanceOf(walletAddress, data.tokenId)
-  ).toNumber()
+  const handler = getRequestHandler().getAccountHandler() as EVMAccountHandler
+  const contract = getERC1155Contract(
+    getAddress(data.contractAddress),
+    handler.client
+  )
+  const balance = Number(
+    contract.read.balanceOf([getAddress(walletAddress), data.tokenId])
+  )
+
   if (balance > 0) {
     return {
       owner: true,

@@ -1,7 +1,14 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ParsedInstruction } from '@solana/web3.js'
-import { ethers, BigNumber, EventFilter } from 'ethers'
 import { defineStore } from 'pinia'
+import {
+  decodeFunctionData,
+  getAddress,
+  pad,
+  isHex,
+  parseAbi,
+  toHex,
+} from 'viem'
 import { useToast } from 'vue-toastification'
 
 import { NFT } from '@/models/NFT'
@@ -189,9 +196,9 @@ async function getRemoteTransaction(
 ): Promise<TransactionResponse> {
   return new Promise((resolve) => {
     const txInterval = setInterval(async () => {
-      const remoteTransaction = await accountHandler.provider.getTransaction(
-        txHash
-      )
+      const remoteTransaction = await accountHandler.client.getTransaction({
+        hash: isHex(txHash) ? txHash : `0x${txHash}`,
+      })
       if (remoteTransaction) {
         clearInterval(txInterval)
         return resolve(remoteTransaction)
@@ -206,15 +213,22 @@ function decodeLogDataHandleOps(
   const abi = [
     'function handleOps((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes)[],address)',
   ]
-  const iface = new ethers.utils.Interface(abi)
-  return iface.decodeFunctionData('handleOps', transaction.data)
+  const { args } = decodeFunctionData({
+    abi: parseAbi(abi),
+    data: transaction.data,
+  })
 }
 
-function getAmountUsingCallData(data: string): BigNumber {
+function getAmountUsingCallData(data: string): bigint {
   const abi = ['function execute_ncC(address,uint256,bytes)']
-  const iface = new ethers.utils.Interface(abi)
-  const decodedData = iface.decodeFunctionData('execute_ncC', data)
-  return decodedData[1]
+  const { args } = decodeFunctionData({
+    abi: parseAbi(abi),
+    data: isHex(data) ? data : `0x${data}`,
+  })
+  if (args) {
+    return args[1] as bigint
+  }
+  return BigInt(0)
 }
 
 function isGaslessTransaction(
@@ -625,12 +639,9 @@ export const useActivitiesStore = defineStore('activitiesStore', {
         address: forwarderAddress,
         topics: [
           CONTRACT_EVENT_CODE,
-          ethers.utils.hexZeroPad(fileTransaction.tx.from, 32),
-          ethers.utils.hexZeroPad(fileTransaction.tx.to, 32),
-          ethers.utils.hexZeroPad(
-            BigNumber.from(fileTransaction.tx.nonce).toHexString(),
-            32
-          ),
+          pad(getAddress(fileTransaction.tx.from), { size: 32 }),
+          pad(getAddress(fileTransaction.tx.to), { size: 32 }),
+          pad(toHex(fileTransaction.tx.nonce), { size: 32 }),
         ],
       }
 

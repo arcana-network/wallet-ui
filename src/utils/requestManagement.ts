@@ -1,6 +1,6 @@
 import { AppMode } from '@arcana/auth'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
-import { ethers } from 'ethers'
+import { createPublicClient, http } from 'viem'
 import { watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -20,7 +20,6 @@ import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { TOAST_TIME_OUT } from '@/utils/constants'
 import { errors } from '@/utils/content'
-import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { getStorage } from '@/utils/storageWrapper'
@@ -168,9 +167,10 @@ async function validateRPCandChainID(rpcURL, chainId) {
     error: null,
   }
   try {
-    const provider = produceProviderFromURLString(rpcURL)
-    const { chainId: fetchedChainId } = await provider.getNetwork()
-    await provider.destroy()
+    const provider = createPublicClient({
+      transport: http(rpcURL),
+    })
+    const fetchedChainId = await provider.getChainId()
     const isValidChainId = Number(fetchedChainId) === Number(chainId)
     result.isValid = isValidChainId
     result.error = isValidChainId ? '' : errors.RPC.ERROR

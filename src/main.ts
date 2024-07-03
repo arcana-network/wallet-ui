@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer'
 
-import { BrowserTracing } from '@sentry/tracing'
-import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
+import { init as SentryInit, browserTracingIntegration } from '@sentry/vue'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
@@ -40,12 +39,7 @@ if (
   SentryInit({
     app: walletApp,
     dsn: process.env.VUE_APP_SENTRY_DSN,
-    integrations: [
-      new BrowserTracing({
-        routingInstrumentation: vueRouterInstrumentation(router),
-        tracingOrigins: process.env.VUE_APP_SENTRY_TRACING_ORIGINS?.split(','),
-      }),
-    ],
+    integrations: [browserTracingIntegration({ router })],
     tracesSampleRate: 1.0,
     logErrors: false,
   })
