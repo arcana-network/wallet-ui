@@ -25,6 +25,7 @@ import {
 } from '@/services/gateway.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import { useConfigStore } from '@/store/config'
 import useCurrencyStore from '@/store/currencies'
 import { useGaslessStore } from '@/store/gasless'
 import { useModalStore } from '@/store/modal'
@@ -54,7 +55,7 @@ import {
 } from '@/utils/requestManagement'
 import { initSCW, scwInstance } from '@/utils/scw'
 import { getPrivateKey } from '@/utils/solana/getPrivateKey'
-import { getStorage } from '@/utils/storageWrapper'
+import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -76,19 +77,11 @@ const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
 const currencyStore = useCurrencyStore()
-const keyspaceType: Ref<'local' | 'global'> = ref('local')
-
+let config
+let bc: BroadcastChannel | null = null
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
-
-async function getKeySpaceType() {
-  const { data } = await getAppConfig(appStore.id)
-  const global = data.global
-  appStore.setIsGlobalKeyspace(global)
-  if (global) keyspaceType.value = 'global'
-  else keyspaceType.value = 'local'
-}
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -112,8 +105,36 @@ function setShowStarterTips() {
   }
 }
 
+const startLoginChannel = () => {
+  const sensitiveStorage = getSensitiveStorage()
+  bc = new BroadcastChannel(`${appStore.id}_login_helper`)
+  bc.onmessage = (e) => {
+    const info = sensitiveStorage.getUserInfo()
+    devLogger.log('Got request from a tab', { e, info })
+    if (e.data.method === 'LOGIN_HELP') {
+      bc?.postMessage({
+        method: 'LOGIN_HELP_RESPONSE',
+        response_data: info,
+      })
+    }
+    if (e.data.method === 'LOGOUT') {
+      sensitiveStorage.removeUserInfo()
+      logout()
+    }
+  }
+}
+
+const sendLogoutMessage = () => {
+  getSensitiveStorage().removeUserInfo()
+  bc?.postMessage({
+    method: 'LOGOUT',
+  })
+}
+
 onMounted(async () => {
   try {
+    config = await useConfigStore(appStore.id)
+    startLoginChannel()
     loader.value.show = true
     devLogger.log('[loggedInView]', { curve: appStore.curve })
     devLogger.log('[loggedInView] before keygen', userStore.privateKey)
@@ -122,12 +143,10 @@ onMounted(async () => {
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
 
-    await Promise.all([
-      setRpcConfigs().then(() => getRpcConfig()),
-      getKeySpaceType(),
-    ])
+    await setRpcConfigs().then(() => getRpcConfig())
+
     await connectToParent()
-    await getRpcConfigFromParent()
+    // await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
     await getAccountDetails()
@@ -161,6 +180,10 @@ onMounted(async () => {
     loader.value.show = false
     // setShowStarterTips()
   }
+})
+
+onBeforeUnmount(() => {
+  bc?.close()
 })
 
 async function initScwSdk() {
@@ -225,7 +248,7 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-function initKeeper(rpcUrl) {
+function initKeeper(rpcUrl: string) {
   if (!requestHandlerExists()) {
     const accountHandler = CreateAccountHandler(
       userStore.privateKey,
@@ -303,7 +326,7 @@ async function connectToParent() {
         getRequestHandler()
       ),
       addToActivity,
-      getKeySpaceConfigType: () => keyspaceType.value,
+      getKeySpaceConfigType: () => (config.global ? 'global' : 'local'),
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
       logout,
@@ -365,6 +388,7 @@ async function logout() {
   appStore.showWallet = false
   const authProvider = await getAuthProvider(appStore.id as string)
   await userStore.handleLogout(authProvider)
+  sendLogoutMessage()
   getRequestHandler().onDisconnect()
   router.push(`/${appStore.id}/v2/login?logout=1`)
 }
@@ -373,6 +397,7 @@ async function handleLogout() {
   if (parentConnectionStore.parentConnection) {
     const parentConnectionInstance = await parentConnectionStore
       .parentConnection.promise
+    sendLogoutMessage()
     getRequestHandler().onDisconnect()
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)

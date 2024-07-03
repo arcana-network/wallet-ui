@@ -10,8 +10,17 @@ function getGaslessEnabledStatus(appId, chainId) {
   })
 }
 
-function getAppConfig(appId) {
-  return gatewayInstance.get(`/api/v1/get-app-config/?id=${appId}`)
+type AppConfig = {
+  name: string
+  chain_type: 'evm' | 'solana'
+  global: boolean
+  theme: 'dark' | 'light'
+  session_persisted: boolean
+  session_max_age: number
 }
 
-export { getGaslessEnabledStatus, getAppConfig }
+function getAppConfig(appId: string) {
+  return gatewayInstance.get<AppConfig>(`/api/v1/get-app-config/?id=${appId}`)
+}
+
+export { getGaslessEnabledStatus, getAppConfig, AppConfig }

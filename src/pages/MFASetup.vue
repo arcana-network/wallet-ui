@@ -17,7 +17,11 @@ import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import {
+  getSensitiveStorage,
+  getStorage,
+  initStorage,
+} from '@/utils/storageWrapper'
 
 type CustomObject = {
   [key: string]: string
@@ -61,19 +65,21 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
 
 onBeforeMount(async () => {
-  const loginInfo = storage.session.getUserInfo()
-  if (loginInfo) {
+  if (inAppLogin) {
+    const loginInfo = getSensitiveStorage().getUserInfo()
+    if (!loginInfo) {
+      return
+    }
     dkgShare = {
       pk: loginInfo.pk,
       id: loginInfo.userInfo.id,
     }
   } else {
-    dkgShare = storage.local.getPK()
-  }
-  if (!inAppLogin) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
+    dkgShare = storage.local.getPK()
   }
+
   devLogger.log('[MFASetup] before core (onBeforeMount)', {
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
