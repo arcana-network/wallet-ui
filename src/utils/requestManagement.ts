@@ -98,6 +98,7 @@ async function watchRequestQueue(keeper) {
         }
       }
       if (!pendingRequestCount) {
+        console.log('No pending Request', !pendingRequestCount)
         appStore.compactMode = false
         if (appStore.expandedByRequest) {
           appStore.expandedByRequest = false
