@@ -42,6 +42,7 @@ const route = useRoute()
 const activitiesStore = useActivitiesStore()
 
 if (app.sdkVersion !== 'v3') {
+  console.log('SDK version', app.sdkVersion, app.expandWallet)
   app.expandWallet = true
 }
 
@@ -65,27 +66,18 @@ async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
-    console.log('Setting Iframe style', app.iframeStyle())
     await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
   }
 }
 
 watch(showWallet, async (newValue) => {
-  console.log('Show Wallet new Value', newValue)
-  if (!newValue && sdkVersion.value === 'v3') app.expandWallet = false
-  console.log('Setting iframe style showWallet', newValue, app.iframeStyle())
+  if (newValue && sdkVersion.value === 'v3') app.expandWallet = false
   await setIframeStyle()
 })
 
-watch(expandWallet, (newValue) => {
-  console.log('Setting iframe style expandWallet', newValue, app.iframeStyle())
-  setIframeStyle()
-})
+watch(expandWallet, setIframeStyle)
 
-watch(compactMode, (val) => {
-  console.log('Setting iframe style compactMode', val, app.iframeStyle())
-  setIframeStyle()
-})
+watch(compactMode, setIframeStyle)
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {
@@ -94,11 +86,6 @@ watch(showRequestPage, (newValue) => {
 })
 
 watch(requestStore.pendingRequests, async () => {
-  console.log(
-    'Setting iframe style reqStore.pendingRequests',
-    requestStore.pendingRequests,
-    app.iframeStyle()
-  )
   await setIframeStyle()
 })
 
@@ -120,10 +107,8 @@ const showFooter = computed(() => {
 async function onClickOfHeader() {
   const c = await parentConnectionStore.parentConnection?.promise
   if (app.compactMode) {
-    console.log('OnClickOfHeader compactMode', app.compactMode)
     app.compactMode = false
   } else {
-    console.log('OnClickOfHeader compactMode, standaloneMode', app.compactMode)
     app.standaloneMode == 1 || app.standaloneMode == 2
       ? c?.uiEvent('wallet_close', null)
       : (app.expandWallet = false)

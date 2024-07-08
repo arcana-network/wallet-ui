@@ -65,6 +65,11 @@ async function watchRequestQueue(keeper) {
     () => reqStore,
     async () => {
       const { processQueue, pendingRequests } = reqStore
+      console.log(
+        processQueue,
+        pendingRequests,
+        Object.values(pendingRequests).length
+      )
       const pendingRequestCount = Object.values(pendingRequests).length
       const connectionInstance = await keeper.connection.promise
       const appMode = await connectionInstance.getAppMode()
@@ -82,13 +87,8 @@ async function watchRequestQueue(keeper) {
         } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
           if (appStore.standaloneMode == 1) {
             appStore.expandWallet = true
-            console.log(
-              'compactmode, requestManagement, standalone',
-              appStore.compactMode
-            )
             appStore.compactMode = false
           } else {
-            console.log('compactmode, requestManagement', appStore.compactMode)
             appStore.compactMode = false
             if (appStore.expandedByRequest) {
               appStore.expandedByRequest = false
@@ -98,7 +98,7 @@ async function watchRequestQueue(keeper) {
         }
       }
       if (!pendingRequestCount) {
-        console.log('No pending Request', !pendingRequestCount)
+        console.log('No pending Request', pendingRequestCount)
         appStore.compactMode = false
         if (appStore.expandedByRequest) {
           appStore.expandedByRequest = false

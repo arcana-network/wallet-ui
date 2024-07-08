@@ -25,13 +25,8 @@ const parentConnectionStore = useParentConnectionStore()
 async function onViewDetails() {
   const c = await parentConnectionStore.parentConnection?.promise
   if (appStore.compactMode) {
-    console.log('onViewDetails -> appStore.compactMode', appStore.compactMode)
     appStore.compactMode = false
   } else {
-    console.log(
-      'onViewDetails -> appStore.compactMode, standaloneMode',
-      appStore.compactMode
-    )
     appStore.standaloneMode == 1 || appStore.standaloneMode == 2
       ? c?.uiEvent('wallet_close', null)
       : (appStore.expandWallet = false)
