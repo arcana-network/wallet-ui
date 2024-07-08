@@ -573,6 +573,11 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         appStore.expandedByRequest = true
       }
       appStore.expandWallet = true
+      console.log(
+        'compactmode, requestManagement, isPermissionRequired',
+        appStore.compactMode,
+        isPermissionRequired
+      )
       appStore.compactMode = isPermissionRequired
     } else {
       const connectionInstance = await keeper.connection.promise
