@@ -71,6 +71,7 @@ async function setIframeStyle() {
 }
 
 watch(showWallet, async (newValue) => {
+  console.log('Show Wallet new Value', newValue)
   if (!newValue && sdkVersion.value === 'v3') app.expandWallet = false
   console.log('Setting iframe style showWallet', newValue, app.iframeStyle())
   await setIframeStyle()
@@ -119,8 +120,10 @@ const showFooter = computed(() => {
 async function onClickOfHeader() {
   const c = await parentConnectionStore.parentConnection?.promise
   if (app.compactMode) {
+    console.log('OnClickOfHeader compactMode', app.compactMode)
     app.compactMode = false
   } else {
+    console.log('OnClickOfHeader compactMode, standaloneMode', app.compactMode)
     app.standaloneMode == 1 || app.standaloneMode == 2
       ? c?.uiEvent('wallet_close', null)
       : (app.expandWallet = false)

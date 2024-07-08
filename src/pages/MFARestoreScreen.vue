@@ -182,6 +182,10 @@ async function handleLocalRecovery(key: string) {
     storage.local.setHasMFA(user.info.id)
   }
   storage.local.incrementLoginCount(userInfo.userInfo.id)
+  console.log(
+    'MFA restore screen: handleLocalRecovery -> compactMode',
+    app.compactMode
+  )
   app.expandWallet = true
   app.compactMode = false
   app.expandRestoreScreen = false

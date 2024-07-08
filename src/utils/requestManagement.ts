@@ -82,8 +82,13 @@ async function watchRequestQueue(keeper) {
         } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
           if (appStore.standaloneMode == 1) {
             appStore.expandWallet = true
+            console.log(
+              'compactmode, requestManagement, standalone',
+              appStore.compactMode
+            )
             appStore.compactMode = false
           } else {
+            console.log('compactmode, requestManagement', appStore.compactMode)
             appStore.compactMode = false
             if (appStore.expandedByRequest) {
               appStore.expandedByRequest = false
