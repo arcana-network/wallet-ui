@@ -71,6 +71,7 @@ async function watchRequestQueue(keeper) {
         Object.values(pendingRequests).length
       )
       const pendingRequestCount = Object.values(pendingRequests).length
+      console.log({ pendingRequestCount })
       const connectionInstance = await keeper.connection.promise
       const appMode = await connectionInstance.getAppMode()
       if (processQueue.length > 0) {
@@ -97,6 +98,11 @@ async function watchRequestQueue(keeper) {
           }
         }
       }
+      console.log(
+        'Pending request count',
+        pendingRequestCount,
+        reqStore.pendingRequests
+      )
       if (!pendingRequestCount) {
         console.log('No pending Request', pendingRequestCount)
         appStore.compactMode = false
