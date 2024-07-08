@@ -53,6 +53,7 @@
     "pinia": "^2.1.7",
     "pusher-js": "^8.4.0-rc2",
     "qrious": "^4.0.2",
+    "typescript": "^5.5.3",
     "uuid": "^9.0.1",
     "vue": "^3.4.27",
     "vue-class-component": "^8.0.0-rc.1",
@@ -93,8 +94,7 @@
     "stylelint-config-recess-order": "^3.1.0",
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-config-standard-vue": "^1.0.0",
-    "tailwindcss": "^3.4.3",
-    "typescript": "~4.9.5"
+    "tailwindcss": "^3.4.3"
   },
   "browserslist": [
     "> 1%",
