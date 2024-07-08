@@ -65,6 +65,7 @@ async function setIframeStyle() {
   const parentConnectionInstance = await parentConnectionStore.parentConnection
     ?.promise
   if (parentConnectionInstance && parentConnectionInstance['setIframeStyle']) {
+    console.log('Setting Iframe style', app.iframeStyle())
     await parentConnectionInstance?.setIframeStyle(app.iframeStyle())
   }
 }
@@ -77,14 +78,11 @@ watch(showWallet, async (newValue) => {
 watch(expandWallet, setIframeStyle)
 
 watch(compactMode, (val) => {
-  if (val) starterTipsStore.setHideStarterTips()
   setIframeStyle()
 })
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {
-    starterTipsStore.setHideStarterTips()
-    modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
