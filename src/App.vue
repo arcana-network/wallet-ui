@@ -72,12 +72,17 @@ async function setIframeStyle() {
 
 watch(showWallet, async (newValue) => {
   if (newValue && sdkVersion.value === 'v3') app.expandWallet = false
+  console.log('Setting iframe style showWallet', newValue, app.iframeStyle())
   await setIframeStyle()
 })
 
-watch(expandWallet, setIframeStyle)
+watch(expandWallet, (newValue) => {
+  console.log('Setting iframe style expandWallet', newValue, app.iframeStyle())
+  setIframeStyle()
+})
 
 watch(compactMode, (val) => {
+  console.log('Setting iframe style compactMode', val, app.iframeStyle())
   setIframeStyle()
 })
 
@@ -88,6 +93,11 @@ watch(showRequestPage, (newValue) => {
 })
 
 watch(requestStore.pendingRequests, async () => {
+  console.log(
+    'Setting iframe style reqStore.pendingRequests',
+    requestStore.pendingRequests,
+    app.iframeStyle()
+  )
   await setIframeStyle()
 })
 
