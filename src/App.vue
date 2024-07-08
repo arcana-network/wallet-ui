@@ -71,7 +71,7 @@ async function setIframeStyle() {
 }
 
 watch(showWallet, async (newValue) => {
-  if (newValue && sdkVersion.value === 'v3') app.expandWallet = false
+  if (!newValue && sdkVersion.value === 'v3') app.expandWallet = false
   console.log('Setting iframe style showWallet', newValue, app.iframeStyle())
   await setIframeStyle()
 })
