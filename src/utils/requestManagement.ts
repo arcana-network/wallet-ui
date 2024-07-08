@@ -65,13 +65,6 @@ async function watchRequestQueue(keeper) {
     () => reqStore,
     async () => {
       const { processQueue, pendingRequests } = reqStore
-      console.log(
-        processQueue,
-        pendingRequests,
-        Object.values(pendingRequests).length
-      )
-      const pendingRequestCount = Object.values(pendingRequests).length
-      console.log({ pendingRequestCount })
       const connectionInstance = await keeper.connection.promise
       const appMode = await connectionInstance.getAppMode()
       if (processQueue.length > 0) {
@@ -80,12 +73,16 @@ async function watchRequestQueue(keeper) {
         const method = request?.request.method
         if (
           (appMode === AppMode.Widget || appStore.expandedByRequest) &&
-          !pendingRequestCount &&
+          !Object.values(pendingRequests).length &&
           appStore.sdkVersion !== 'v3'
         ) {
           appStore.expandedByRequest = false
           connectionInstance.closePopup()
-        } else if (!pendingRequestCount && method && PERMISSIONS[method]) {
+        } else if (
+          !Object.values(pendingRequests).length &&
+          method &&
+          PERMISSIONS[method]
+        ) {
           if (appStore.standaloneMode == 1) {
             appStore.expandWallet = true
             appStore.compactMode = false
@@ -99,12 +96,11 @@ async function watchRequestQueue(keeper) {
         }
       }
       console.log(
-        'Pending request count',
-        pendingRequestCount,
-        reqStore.pendingRequests
+        'Pending Request Count',
+        Object.values(pendingRequests).length
       )
-      if (!pendingRequestCount) {
-        console.log('No pending Request', pendingRequestCount)
+      if (!Object.values(pendingRequests).length) {
+        console.log('No pending Request', Object.values(pendingRequests).length)
         appStore.compactMode = false
         if (appStore.expandedByRequest) {
           appStore.expandedByRequest = false
