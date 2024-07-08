@@ -95,12 +95,7 @@ async function watchRequestQueue(keeper) {
           }
         }
       }
-      console.log(
-        'Pending Request Count',
-        Object.values(pendingRequests).length
-      )
       if (!Object.values(pendingRequests).length) {
-        console.log('No pending Request', Object.values(pendingRequests).length)
         appStore.compactMode = false
         if (appStore.expandedByRequest) {
           appStore.expandedByRequest = false
@@ -576,11 +571,6 @@ async function handleRequest(request, requestStore, appStore, keeper) {
         appStore.expandedByRequest = true
       }
       appStore.expandWallet = true
-      console.log(
-        'compactmode, requestManagement, isPermissionRequired',
-        appStore.compactMode,
-        isPermissionRequired
-      )
       appStore.compactMode = isPermissionRequired
     } else {
       const connectionInstance = await keeper.connection.promise

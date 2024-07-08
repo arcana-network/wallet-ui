@@ -42,7 +42,6 @@ const route = useRoute()
 const activitiesStore = useActivitiesStore()
 
 if (app.sdkVersion !== 'v3') {
-  console.log('SDK version', app.sdkVersion, app.expandWallet)
   app.expandWallet = true
 }
 
