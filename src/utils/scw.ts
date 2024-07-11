@@ -1,4 +1,4 @@
-import SCW from '@arcana/scw'
+import { SCW } from '@arcana/scw'
 
 import { errors } from '@/utils/content'
 
