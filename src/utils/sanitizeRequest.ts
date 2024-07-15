@@ -12,7 +12,7 @@ function sanitizeSendTransactionRequest(request) {
     from: params.from,
     value: params.value,
     data: params.data,
-    gasLimit: params.gas,
+    gasLimit: Number(params.gas),
   }
   if (!params.type && params.gasPrice) {
     sanitizedParams.gasPrice = params.gasPrice
