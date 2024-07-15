@@ -24,6 +24,7 @@ import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -52,6 +53,7 @@ const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -211,7 +213,6 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const tokenInfo = tokenList.value.find(
     (item) => item.symbol === rpcStore.nativeCurrency?.symbol
   ) as any
-
   const txObject = await getMVXTransactionObject()
 
   gasParamsMVX.value.gasPrice = formatTokenDecimals(
@@ -226,8 +227,11 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   gasParamsMVX.value.gasLimit =
     gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
 
-  gasParamsMVX.value.gasFee =
-    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+  const gasFee =
+    (gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice) /
+    currencyStore.currencies['EGLD']
+
+  gasParamsMVX.value.gasFee = parseFloat(gasFee.toFixed(5))
 }
 
 async function fetchBaseFee() {
@@ -827,7 +831,6 @@ watch(
         <GasPriceMVX
           v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
           :gas-fee="gasParamsMVX.gasFee"
-          :gas-price="gasParamsMVX.gasPrice"
           :gas-limit="gasParamsMVX.gasLimit"
           :min-gas-limit="gasParamsMVX.minGasLimit"
           @gas-limit-input="onGasLimitChangeMVX"
