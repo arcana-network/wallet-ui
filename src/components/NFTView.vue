@@ -39,16 +39,35 @@ const loader = reactive({
   message: 'Loading saved NFTs...',
 })
 
+async function fetchAllNFTs(rpc, address: string) {
+  let allNfts: any[] = []
+  let hasNextPage = true
+  let from = 0
+  const size = 250
+
+  while (hasNextPage) {
+    const nftUrl = `${rpc}/accounts/${address}/nfts?from=${from}&size=${size}`
+    const nftList = await getMVXNfts(nftUrl)
+    allNfts.push(...nftList)
+    if (nftList.length < size) {
+      hasNextPage = false
+    } else {
+      from += size
+    }
+  }
+  return allNfts
+}
+
 async function getNFTAssets() {
   loader.show = true
+  nfts.value = []
   if (appStore.chainType === ChainType.multiversx_cv25519) {
     const accountHandler =
       getRequestHandler().getAccountHandler() as MultiversXAccountHandler
     const address = accountHandler.addrStr
     const rpc = rpcStore.selectedRPCConfig?.rpcUrls[0]
-    const nftUrl = `${rpc}/accounts/${address}/nfts`
-    const nftList = await getMVXNfts(nftUrl)
-    nfts.value = nftList.map((nft) => {
+    const allNfts = await fetchAllNFTs(rpc, address)
+    nfts.value = allNfts.map((nft) => {
       return {
         type: nft.type,
         address: '',
