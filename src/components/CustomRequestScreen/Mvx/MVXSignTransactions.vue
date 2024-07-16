@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import useCurrencyStore from '@/store/currencies'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps<{ transactions: any }>()
+const currencyStore = useCurrencyStore()
 </script>
 
 <template>
@@ -27,6 +29,41 @@ const props = defineProps<{ transactions: any }>()
                 : value
             }}
           </span>
+        </div>
+        <div class="flex justify-between gap-4">
+          <span class="w-[120px] capitalize">Gas Fees</span>
+          <span
+            >{{
+              (
+                (transaction.gasLimit *
+                  transaction.gasPrice *
+                  Math.pow(10, -18)) /
+                currencyStore.currencies['EGLD']
+              ).toFixed(5)
+            }}
+            USD</span
+          >
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between gap-4">
+          <span class="w-[120px] capitalize">Total Gas Fees</span>
+          <span
+            >{{
+              props.transactions
+                .reduce(
+                  (acc, transaction) =>
+                    acc +
+                    (transaction.gasLimit *
+                      transaction.gasPrice *
+                      Math.pow(10, -18)) /
+                      currencyStore.currencies['EGLD'],
+                  0
+                )
+                .toFixed(5)
+            }}
+            USD</span
+          >
         </div>
       </div>
     </div>

@@ -25,5 +25,14 @@ const props = defineProps<{ transaction: any }>()
         }}
       </span>
     </div>
+    <div class="flex justify-between gap-4 text-base">
+      <span class="w-[120px] capitalize">Gas Fees</span>
+      <span
+        >{{
+          transaction.gasLimit * transaction.gasPrice * Math.pow(10, -18)
+        }}
+        USD</span
+      >
+    </div>
   </div>
 </template>
