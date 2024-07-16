@@ -10,6 +10,7 @@ import { errors } from '@/utils/content'
 enum StorageKey {
   UserInfo = 'userInfo',
   IsLoggedIn = 'isLoggedIn',
+  Mnemonic = 'mnemonic',
   WalletMode = 'wallet-mode',
   Session = 'session',
   HasMFA = 'has-mfa',
@@ -375,6 +376,18 @@ class UserSessionStorage extends BaseStorage {
   }
   clearIsLoggedIn() {
     this.delete(StorageKey.IsLoggedIn)
+  }
+
+  getMnemonic() {
+    return this.get<string>(StorageKey.Mnemonic) ?? ''
+  }
+
+  setMnemonic(val: string) {
+    this.set(StorageKey.Mnemonic, val)
+  }
+
+  clearMnemonic() {
+    this.delete(StorageKey.Mnemonic)
   }
 }
 

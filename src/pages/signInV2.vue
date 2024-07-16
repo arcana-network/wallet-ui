@@ -404,6 +404,7 @@ const windowEventHandler = (
     sessionID: string
     sessionExpiry: number
     state?: string
+    mnemonic?: string
   }>
 ) => {
   const storage = getStorage()
@@ -417,6 +418,10 @@ const windowEventHandler = (
         { status: 'LOGIN_INFO_ACK', messageId: ev.data.messageId },
         { targetOrigin: ev.origin }
       )
+      devLogger.log({ LOGININFO: ev.data })
+      if (ev.data.mnemonic) {
+        storage.session.setMnemonic(ev.data.mnemonic)
+      }
       storeUserInfoAndRedirect(ev.data.info)
       if (ev.data.info.hasMfa) {
         user.hasMfa = true
