@@ -11,7 +11,7 @@ const gasFeesUSD = new Decimal(props.transaction.gasLimit)
   .mul(new Decimal(props.transaction.gasPrice))
   .mul(new Decimal(10).pow(-18))
   .div(currencyStore.currencies['EGLD'])
-  .toFixed(5)
+  .toDecimalPlaces(5)
 </script>
 
 <template>
