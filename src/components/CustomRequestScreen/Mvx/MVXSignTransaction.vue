@@ -1,7 +1,17 @@
 <script setup lang="ts">
+import Decimal from 'decimal.js'
+
+import useCurrencyStore from '@/store/currencies'
 import { truncateMid } from '@/utils/stringUtils'
 
+const currencyStore = useCurrencyStore()
 const props = defineProps<{ transaction: any }>()
+
+const gasFeesUSD = new Decimal(props.transaction.gasLimit)
+  .mul(new Decimal(props.transaction.gasPrice))
+  .mul(new Decimal(10).pow(-18))
+  .div(currencyStore.currencies['EGLD'])
+  .toFixed(5)
 </script>
 
 <template>
@@ -27,12 +37,7 @@ const props = defineProps<{ transaction: any }>()
     </div>
     <div class="flex justify-between gap-4 text-base">
       <span class="w-[120px] capitalize">Gas Fees</span>
-      <span
-        >{{
-          transaction.gasLimit * transaction.gasPrice * Math.pow(10, -18)
-        }}
-        USD</span
-      >
+      <span>{{ gasFeesUSD }} USD</span>
     </div>
   </div>
 </template>

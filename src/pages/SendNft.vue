@@ -320,20 +320,26 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
     rpcStore.selectedChainId
   )
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    Number(txObject.getGasPrice()),
-    rpcStore.nativeCurrency?.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(
+      Number(txObject.getGasPrice()),
+      rpcStore.nativeCurrency?.decimals
+    )
   )
+  gasParamsMVX.value.gasPrice = Number(gasPriceDecimal)
 
-  const minGasLimit = Number(txObject.getGasLimit())
+  const minGasLimitDecimal = new Decimal(Number(txObject.getGasLimit()))
+  gasParamsMVX.value.minGasLimit = Number(minGasLimitDecimal)
 
-  gasParamsMVX.value.minGasLimit = minGasLimit
-  gasParamsMVX.value.gasLimit = Number(gasLimitInput) || minGasLimit
-  const gasFee =
-    (gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice) /
-    currencyStore.currencies['EGLD']
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || minGasLimitDecimal
+  )
+  gasParamsMVX.value.gasLimit = Number(gasLimitDecimal)
 
-  gasParamsMVX.value.gasFee = parseFloat(gasFee.toFixed(5))
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
+  gasParamsMVX.value.gasFee = Number(new Decimal(gasFeeDecimal.toFixed(5)))
 }
 
 function onGasLimitChangeMVX(val) {

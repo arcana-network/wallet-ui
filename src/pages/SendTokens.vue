@@ -206,32 +206,37 @@ onUnmounted(() => {
 async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
   const networkConfig = await accountHandler
     .getNetworkProvider()
     .getNetworkConfig()
-
   const tokenInfo = tokenList.value.find(
     (item) => item.symbol === rpcStore.nativeCurrency?.symbol
   ) as any
   const txObject = await getMVXTransactionObject()
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    networkConfig.MinGasPrice,
-    tokenInfo.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(networkConfig.MinGasPrice, tokenInfo.decimals)
   )
+  gasParamsMVX.value.gasPrice = gasPriceDecimal.toNumber()
 
   gasParamsMVX.value.minGasLimit = networkConfig.MinGasLimit
 
-  const gasLimit = Number(gasLimitInput) || networkConfig.MinGasLimit
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || networkConfig.MinGasLimit
+  ).plus(
+    new Decimal(networkConfig.GasPerDataByte).times(txObject.getData().length())
+  )
 
-  gasParamsMVX.value.gasLimit =
-    gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
+  gasParamsMVX.value.gasLimit = gasLimitDecimal.toNumber()
 
-  const gasFee =
-    (gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice) /
-    currencyStore.currencies['EGLD']
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
 
-  gasParamsMVX.value.gasFee = parseFloat(gasFee.toFixed(5))
+  gasParamsMVX.value.gasFee = parseFloat(
+    new Decimal(gasFeeDecimal.toFixed(5)).toString()
+  )
 }
 
 async function fetchBaseFee() {

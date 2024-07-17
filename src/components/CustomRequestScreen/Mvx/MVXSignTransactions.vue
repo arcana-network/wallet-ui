@@ -1,9 +1,29 @@
 <script setup lang="ts">
+import Decimal from 'decimal.js'
+
 import useCurrencyStore from '@/store/currencies'
 import { truncateMid } from '@/utils/stringUtils'
 
 const props = defineProps<{ transactions: any }>()
 const currencyStore = useCurrencyStore()
+
+const calculateGasFeeUSD = (transaction: any, currencyRate: number) => {
+  return new Decimal(transaction.gasLimit)
+    .mul(new Decimal(transaction.gasPrice))
+    .mul(new Decimal(10).pow(-18))
+    .div(currencyRate)
+    .toFixed(5)
+}
+
+const totalGasFeesUSD = props.transactions
+  .reduce((acc: Decimal, transaction: any) => {
+    const gasFeeUSD = new Decimal(transaction.gasLimit)
+      .mul(new Decimal(transaction.gasPrice))
+      .mul(new Decimal(10).pow(-18))
+      .div(currencyStore.currencies['EGLD'])
+    return acc.add(gasFeeUSD)
+  }, new Decimal(0))
+  .toFixed(5)
 </script>
 
 <template>
@@ -34,12 +54,7 @@ const currencyStore = useCurrencyStore()
           <span class="w-[120px] capitalize">Gas Fees</span>
           <span
             >{{
-              (
-                (transaction.gasLimit *
-                  transaction.gasPrice *
-                  Math.pow(10, -18)) /
-                currencyStore.currencies['EGLD']
-              ).toFixed(5)
+              calculateGasFeeUSD(transaction, currencyStore.currencies['EGLD'])
             }}
             USD</span
           >
@@ -48,22 +63,7 @@ const currencyStore = useCurrencyStore()
       <div>
         <div class="flex justify-between gap-4">
           <span class="w-[120px] capitalize">Total Gas Fees</span>
-          <span
-            >{{
-              props.transactions
-                .reduce(
-                  (acc, transaction) =>
-                    acc +
-                    (transaction.gasLimit *
-                      transaction.gasPrice *
-                      Math.pow(10, -18)) /
-                      currencyStore.currencies['EGLD'],
-                  0
-                )
-                .toFixed(5)
-            }}
-            USD</span
-          >
+          <span>{{ totalGasFeesUSD }} USD</span>
         </div>
       </div>
     </div>
