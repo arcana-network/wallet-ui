@@ -107,17 +107,15 @@ async function init() {
           const shardID = parseInt(
             authProvider.appConfig.chain_settings?.shards
           )
-          if (!isNaN(shardID)) {
-            devLogger.log({
-              shardFromAPI: shardID,
-              config: authProvider.appConfig,
-            })
-            const mn = getMnemonicInShard(shardID)
-            const key = mn.deriveKey().hex()
-            await core.importKey(key)
-            userInfo.privateKey = key
-            mnemonic = mn.toString()
-          }
+          devLogger.log({
+            shardFromAPI: shardID,
+            config: authProvider.appConfig,
+          })
+          const mn = getMnemonicInShard(shardID)
+          const key = mn.deriveKey().hex()
+          await core.importKey(key)
+          userInfo.privateKey = key
+          mnemonic = mn.toString()
         } else {
           userInfo.privateKey = await core.getKey()
         }

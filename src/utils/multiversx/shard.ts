@@ -30,7 +30,7 @@ function getMnemonicInShard(expectedShardID: number | undefined) {
   for (;;) {
     const mnemonic = Mnemonic.generate()
     const key = mnemonic.deriveKey()
-    if (expectedShardID == undefined) {
+    if (expectedShardID == undefined || Number.isNaN(expectedShardID)) {
       return mnemonic
     }
     const shardID = computeShardID(key)
