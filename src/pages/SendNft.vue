@@ -339,7 +339,7 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const gasFeeDecimal = gasLimitDecimal
     .times(gasPriceDecimal)
     .div(new Decimal(currencyStore.currencies['EGLD']))
-  gasParamsMVX.value.gasFee = Number(new Decimal(gasFeeDecimal.toFixed(5)))
+  gasParamsMVX.value.gasFee = gasFeeDecimal.toDecimalPlaces(5).toNumber()
 }
 
 function onGasLimitChangeMVX(val) {

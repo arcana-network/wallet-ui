@@ -234,9 +234,9 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
     .times(gasPriceDecimal)
     .div(new Decimal(currencyStore.currencies['EGLD']))
 
-  gasParamsMVX.value.gasFee = parseFloat(
-    new Decimal(gasFeeDecimal.toFixed(5)).toString()
-  )
+  gasParamsMVX.value.gasFee = new Decimal(
+    gasFeeDecimal.toDecimalPlaces(5)
+  ).toNumber()
 }
 
 async function fetchBaseFee() {
