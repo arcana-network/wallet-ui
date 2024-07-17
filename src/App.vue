@@ -76,15 +76,10 @@ watch(showWallet, async (newValue) => {
 
 watch(expandWallet, setIframeStyle)
 
-watch(compactMode, (val) => {
-  if (val) starterTipsStore.setHideStarterTips()
-  setIframeStyle()
-})
+watch(compactMode, setIframeStyle)
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {
-    starterTipsStore.setHideStarterTips()
-    modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
