@@ -57,7 +57,10 @@ type NftPreviewProps = {
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps<NftPreviewProps>()
 
-const nativeCurrency = rpcStore.nativeCurrency?.symbol
+const nativeCurrency =
+  appStore.chainType !== ChainType.multiversx_cv25519
+    ? rpcStore.nativeCurrency?.symbol
+    : 'USD'
 
 onMounted(() => {
   if (appStore.chainType === ChainType.evm_secp256k1) {

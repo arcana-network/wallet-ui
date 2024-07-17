@@ -55,7 +55,10 @@ onBeforeMount(async () => {
   loader.value.show = false
 })
 
-const nativeCurrency = rpcStore.nativeCurrency?.symbol
+const nativeCurrency =
+  appStore.chainType !== ChainType.multiversx_cv25519
+    ? rpcStore.nativeCurrency?.symbol
+    : 'USD'
 
 onMounted(async () => {
   switch (appStore.chainType) {

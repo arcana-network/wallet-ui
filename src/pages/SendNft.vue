@@ -12,6 +12,7 @@ import { type NFTContractType, type NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -55,6 +56,7 @@ const isWalletAddressFocused = ref(false)
 const router = useRouter()
 const storage = getStorage()
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 
 const recipientWalletAddress = ref('')
 const gas: Ref<EIP1559GasFee | null> = ref(null)
@@ -318,17 +320,26 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
     rpcStore.selectedChainId
   )
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    Number(txObject.getGasPrice()),
-    rpcStore.nativeCurrency?.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(
+      Number(txObject.getGasPrice()),
+      rpcStore.nativeCurrency?.decimals
+    )
   )
+  gasParamsMVX.value.gasPrice = Number(gasPriceDecimal)
 
-  const minGasLimit = Number(txObject.getGasLimit())
+  const minGasLimitDecimal = new Decimal(Number(txObject.getGasLimit()))
+  gasParamsMVX.value.minGasLimit = Number(minGasLimitDecimal)
 
-  gasParamsMVX.value.minGasLimit = minGasLimit
-  gasParamsMVX.value.gasLimit = Number(gasLimitInput) || minGasLimit
-  gasParamsMVX.value.gasFee =
-    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || minGasLimitDecimal
+  )
+  gasParamsMVX.value.gasLimit = Number(gasLimitDecimal)
+
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
+  gasParamsMVX.value.gasFee = gasFeeDecimal.toDecimalPlaces(5).toNumber()
 }
 
 function onGasLimitChangeMVX(val) {
@@ -517,7 +528,6 @@ watch(
           <GasPriceMVX
             v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
             :gas-fee="gasParamsMVX.gasFee"
-            :gas-price="gasParamsMVX.gasPrice"
             :gas-limit="gasParamsMVX.gasLimit"
             :min-gas-limit="gasParamsMVX.minGasLimit"
             @gas-limit-input="onGasLimitChangeMVX"
