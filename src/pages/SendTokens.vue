@@ -24,6 +24,7 @@ import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -52,6 +53,7 @@ const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -204,30 +206,35 @@ onUnmounted(() => {
 async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
   const networkConfig = await accountHandler
     .getNetworkProvider()
     .getNetworkConfig()
-
   const tokenInfo = tokenList.value.find(
     (item) => item.symbol === rpcStore.nativeCurrency?.symbol
   ) as any
-
   const txObject = await getMVXTransactionObject()
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    networkConfig.MinGasPrice,
-    tokenInfo.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(networkConfig.MinGasPrice, tokenInfo.decimals)
   )
+  gasParamsMVX.value.gasPrice = gasPriceDecimal.toNumber()
 
   gasParamsMVX.value.minGasLimit = networkConfig.MinGasLimit
 
-  const gasLimit = Number(gasLimitInput) || networkConfig.MinGasLimit
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || networkConfig.MinGasLimit
+  ).plus(
+    new Decimal(networkConfig.GasPerDataByte).times(txObject.getData().length())
+  )
 
-  gasParamsMVX.value.gasLimit =
-    gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
+  gasParamsMVX.value.gasLimit = gasLimitDecimal.toNumber()
 
-  gasParamsMVX.value.gasFee =
-    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
+
+  gasParamsMVX.value.gasFee = gasFeeDecimal.toDecimalPlaces(5).toNumber()
 }
 
 async function fetchBaseFee() {
@@ -827,7 +834,6 @@ watch(
         <GasPriceMVX
           v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
           :gas-fee="gasParamsMVX.gasFee"
-          :gas-price="gasParamsMVX.gasPrice"
           :gas-limit="gasParamsMVX.gasLimit"
           :min-gas-limit="gasParamsMVX.minGasLimit"
           @gas-limit-input="onGasLimitChangeMVX"
