@@ -262,7 +262,7 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
     return
   }
 
-  if (down && elapsedTime > 500) {
+  if (down && elapsedTime > 300) {
     app.expandWallet = false
   }
 }
