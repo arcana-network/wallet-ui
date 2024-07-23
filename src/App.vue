@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { useMotions } from '@vueuse/motion'
 import { computed, toRefs, watch, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,6 +41,7 @@ const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
+const motions = useMotions()
 
 if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
@@ -220,10 +222,19 @@ onMounted(() => {
     }
   })
 })
+
+const handler = ({ previous, values }) => {
+  const [x_prev, y_prev] = previous
+  const [x_val, y_val] = values
+  console.log(y_val, y_prev, y_val - y_prev)
+  if (y_val - y_prev > 5 && y_val - y_prev < 10) {
+    app.expandWallet = false
+  }
+}
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div v-drag="handler" v-motion="'demo'" class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
       class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
