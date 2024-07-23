@@ -223,11 +223,10 @@ onMounted(() => {
   })
 })
 
-const handler = ({ previous, values }) => {
+const handler = ({ previous, values, elapsedTime }) => {
   const [x_prev, y_prev] = previous
   const [x_val, y_val] = values
-  console.log(y_val, y_prev, y_val - y_prev)
-  if (y_val - y_prev > 5 && y_val - y_prev < 10) {
+  if (y_val - y_prev > 0 && elapsedTime > 250) {
     app.expandWallet = false
   }
 }
