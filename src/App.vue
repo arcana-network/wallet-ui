@@ -223,17 +223,57 @@ onMounted(() => {
   })
 })
 
-const handler = ({ previous, values, elapsedTime }) => {
-  const [x_prev, y_prev] = previous
-  const [x_val, y_val] = values
-  if (y_val - y_prev > 0 && elapsedTime > 250) {
+const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
+  function preventDefault(e) {
+    e.preventDefault()
+  }
+
+  let supportsPassive = false
+
+  try {
+    window.addEventListener(
+      'test',
+      () => '',
+      Object.defineProperty({}, 'passive', {
+        get: function () {
+          supportsPassive = true
+          return supportsPassive
+        },
+      })
+    )
+  } catch (e) {
+    console.log(e)
+  }
+
+  const wheelOpt = supportsPassive ? { passive: false } : false
+
+  window.addEventListener('touchmove', preventDefault, wheelOpt) // mobile
+
+  motions.dragTarget.apply({
+    x: 0,
+    y,
+  })
+
+  if (!dragging) {
+    motions.dragTarget.apply({
+      x: 0,
+      y: 0,
+    })
+    return
+  }
+
+  if (down && elapsedTime > 500) {
     app.expandWallet = false
   }
 }
 </script>
 
 <template>
-  <div v-drag="handler" v-motion="'demo'" class="flex flex-col h-full">
+  <div
+    v-motion="'dragTarget'"
+    v-drag="dragHandler"
+    class="flex flex-col h-full"
+  >
     <div
       v-show="expandWallet || app.expandRestoreScreen"
       class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
