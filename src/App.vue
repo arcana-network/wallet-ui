@@ -249,12 +249,10 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
 
   window.addEventListener('touchmove', preventDefault, wheelOpt) // mobile
 
-  if (down) {
-    motions.dragTarget.apply({
-      x: 0,
-      y,
-    })
-  }
+  motions.dragTarget.apply({
+    x: 0,
+    y,
+  })
 
   if (!dragging) {
     motions.dragTarget.apply({
