@@ -324,6 +324,8 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
     <div
       v-if="sdkVersion === 'v3'"
       v-show="showWalletButton"
+      v-motion="'dragTarget'"
+      v-drag="dragHandler"
       class="relative h-[50vh] mt-[50vh] bg-white-300 rounded-t-sm dark:bg-black-300 transition-all duration-500 hover:h-[100vh] hover:mt-0"
       style="z-index: 999"
       :class="{
