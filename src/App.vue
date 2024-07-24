@@ -257,7 +257,7 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
     return
   }
 
-  if (dragging && down && elapsedTime < 300) {
+  if (dragging && down && elapsedTime <= 300) {
     motions.dragTarget.apply({
       x: 0,
       y,
@@ -268,7 +268,8 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
       x: 0,
       y: 0,
     })
-  } else if (!down) {
+  } else if (dragging && !down) {
+    console.log(x, y, dragging, down, elapsedTime)
     app.expandWallet = true
   }
 }
