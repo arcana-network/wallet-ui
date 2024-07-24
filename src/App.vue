@@ -249,10 +249,12 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
 
   window.addEventListener('touchmove', preventDefault, wheelOpt) // mobile
 
-  motions.dragTarget.apply({
-    x: 0,
-    y,
-  })
+  if (down) {
+    motions.dragTarget.apply({
+      x: 0,
+      y,
+    })
+  }
 
   if (!dragging) {
     motions.dragTarget.apply({
@@ -264,6 +266,12 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
 
   if (down && elapsedTime > 300) {
     app.expandWallet = false
+    motions.dragTarget.apply({
+      x: 0,
+      y: 0,
+    })
+  } else if (!down) {
+    app.expandWallet = true
   }
 }
 </script>
