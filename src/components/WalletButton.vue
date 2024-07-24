@@ -21,18 +21,10 @@ function onClickOfButton() {
     router.push({ name: 'activities' })
   }
 }
-
-const requestCount = computed(() => {
-  return requestStore.pendingRequestsForApproval.length
-})
-
-const showRequestCountBadge = computed(() => {
-  return requestStore.areRequestsPendingForApproval
-})
 </script>
 
 <template>
-  <div class="h-full relative">
+  <div v-drag="onClickOfButton" class="h-full relative">
     <button
       class="flex items-start justify-center flex-grow h-full w-full pt-[6px]"
       @click="onClickOfButton"

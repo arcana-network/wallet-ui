@@ -223,7 +223,7 @@ onMounted(() => {
   })
 })
 
-const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
+const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
   function preventDefault(e) {
     e.preventDefault()
   }
@@ -262,8 +262,9 @@ const dragHandler = ({ movement: [x, y], down, elapsedTime, dragging }) => {
     return
   }
 
-  if (dragging && down && elapsedTime > 300) {
+  if (dragging && elapsedTime > 300) {
     app.expandWallet = false
+    cancel()
   }
 }
 </script>
