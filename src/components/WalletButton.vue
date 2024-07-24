@@ -11,23 +11,25 @@ const requestStore = useRequestStore()
 const route = useRoute()
 const router = useRouter()
 
-function onClickOfButton() {
-  appStore.expandWallet = true
-  if (
-    (requestStore.areRequestsPendingForApproval ||
-      requestStore.skippedRequestsPendingForApprovalLength > 0) &&
-    route.name !== 'requests'
-  ) {
-    router.push({ name: 'activities' })
+function onDragToExpand({ elapsedTime }) {
+  if (elapsedTime > 100) {
+    appStore.expandWallet = true
+    if (
+      (requestStore.areRequestsPendingForApproval ||
+        requestStore.skippedRequestsPendingForApprovalLength > 0) &&
+      route.name !== 'requests'
+    ) {
+      router.push({ name: 'activities' })
+    }
   }
 }
 </script>
 
 <template>
-  <div v-drag="onClickOfButton" class="h-full relative">
+  <div class="h-full relative">
     <button
+      v-drag="onDragToExpand"
       class="flex items-start justify-center flex-grow h-full w-full pt-[6px]"
-      @click="onClickOfButton"
     >
       <img :src="getImage('expand-arrow.svg')" />
     </button>
