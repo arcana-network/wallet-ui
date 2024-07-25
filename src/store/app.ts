@@ -100,12 +100,12 @@ export const useAppStore = defineStore('app', {
         style.position = 'fixed'
         style.overflow = 'hidden'
         style.borderRadius = '0'
-        if (!compactMode && !expandWallet && !expandRestoreScreen) {
-          style.borderBottomLeftRadius = '0'
-          style.borderBottomRightRadius = '0'
-          style.borderTopRightRadius = '5px'
-          style.borderTopLeftRadius = '5px'
-        }
+        // if (!compactMode && !expandWallet && !expandRestoreScreen) {
+        //   style.borderBottomLeftRadius = '0'
+        //   style.borderBottomRightRadius = '0'
+        //   style.borderTopRightRadius = '5px'
+        //   style.borderTopLeftRadius = '5px'
+        // }
         style.colorScheme = 'normal'
         return style
       }
