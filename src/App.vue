@@ -226,7 +226,7 @@ onMounted(() => {
   <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
+      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
