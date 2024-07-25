@@ -99,7 +99,7 @@ export const useAppStore = defineStore('app', {
         style.transition = 'all 300ms ease-in-out'
         style.position = 'fixed'
         style.overflow = 'hidden'
-        style.borderRadius = mobileViewport ? '0' : '10px'
+        style.borderRadius = '0'
         if (!compactMode && !expandWallet && !expandRestoreScreen) {
           style.borderBottomLeftRadius = '0'
           style.borderBottomRightRadius = '0'
