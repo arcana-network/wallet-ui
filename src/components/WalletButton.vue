@@ -11,10 +11,9 @@ const requestStore = useRequestStore()
 const route = useRoute()
 const router = useRouter()
 
-function onDragToExpand({ elapsedTime, cancel }) {
-  if (elapsedTime > 50) {
+function onDragToExpand({ elapsedTime }) {
+  if (elapsedTime > 100) {
     appStore.expandWallet = true
-    cancel()
     if (
       (requestStore.areRequestsPendingForApproval ||
         requestStore.skippedRequestsPendingForApprovalLength > 0) &&
