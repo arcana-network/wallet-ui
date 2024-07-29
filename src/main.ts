@@ -2,6 +2,8 @@ import { Buffer } from 'buffer'
 
 import { BrowserTracing } from '@sentry/tracing'
 import { init as SentryInit, vueRouterInstrumentation } from '@sentry/vue'
+import { GesturePlugin } from '@vueuse/gesture'
+import { MotionPlugin } from '@vueuse/motion'
 import { createApp } from 'vue'
 import VueGtag from 'vue-gtag'
 import JsonViewer from 'vue-json-viewer'
@@ -51,7 +53,13 @@ if (
   })
 }
 
-walletApp.use(JsonViewer).use(router).use(Toast, toastOptions).use(store)
+walletApp
+  .use(JsonViewer)
+  .use(router)
+  .use(Toast, toastOptions)
+  .use(store)
+  .use(MotionPlugin)
+  .use(GesturePlugin)
 
 if (process.env.NODE_ENV === 'production') {
   walletApp.use(VueGtag, {
