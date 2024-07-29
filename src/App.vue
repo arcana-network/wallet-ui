@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { useMotions } from '@vueuse/motion'
 import { computed, toRefs, watch, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,6 +41,7 @@ const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
+const motions = useMotions()
 
 if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
@@ -220,13 +222,53 @@ onMounted(() => {
     }
   })
 })
+
+const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
+  function preventDefault(e) {
+    e.preventDefault()
+  }
+  let supportsPassive = false
+  try {
+    window.addEventListener(
+      'test',
+      () => '',
+      Object.defineProperty({}, 'passive', {
+        get: function () {
+          supportsPassive = true
+          return supportsPassive
+        },
+      })
+    )
+  } catch (e) {
+    console.log(e)
+  }
+  const wheelOpt = supportsPassive ? { passive: false } : false
+  window.addEventListener('touchmove', preventDefault, wheelOpt)
+  motions.dragTarget.apply({
+    x: 0,
+    y,
+  })
+  if (!dragging) {
+    motions.dragTarget.apply({
+      x: 0,
+      y: 0,
+    })
+    return
+  }
+  if (dragging && elapsedTime > 300) {
+    app.expandWallet = false
+    cancel()
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
+      v-motion="'dragTarget'"
+      v-drag="dragHandler"
+      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
