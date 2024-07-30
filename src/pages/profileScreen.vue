@@ -25,7 +25,7 @@ import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { getStorage } from '@/utils/storageWrapper'
+import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const router = useRouter()
@@ -105,10 +105,20 @@ async function copyToClipboard(value: string, message: string) {
   }
 }
 
+const sendLogoutMessage = () => {
+  getSensitiveStorage().removeUserInfo()
+  const bc = new BroadcastChannel(`${appStore.id}_login_helper`)
+  bc.postMessage({
+    method: 'LOGOUT',
+  })
+  bc.close()
+}
+
 async function handleLogout() {
   appStore.showWallet = false
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
+  sendLogoutMessage()
   getRequestHandler().onDisconnect()
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
