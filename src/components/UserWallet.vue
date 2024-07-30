@@ -12,7 +12,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AddNetwork from '@/components/AddNetwork.vue'
-import BuyTokens from '@/components/BuyTokens.vue'
+import BuyTokens from '@/components/CustomRequestScreen/Mnemonic/SeedPhraseHome.vue'
 import EditNetwork from '@/components/EditNetwork.vue'
 import SellTokens from '@/components/SellTokens.vue'
 import { useAppStore } from '@/store/app'
