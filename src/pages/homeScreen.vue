@@ -10,7 +10,6 @@ import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { sleep } from '@/utils/sleep'
-import { getStorage } from '@/utils/storageWrapper'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -32,11 +31,6 @@ function hideLoader() {
 
 onMounted(() => {
   try {
-    const storage = getStorage()
-    const mnemonic = storage.session.getMnemonic()
-    if (mnemonic) {
-      // TODO: Go through mnemonic flow
-    }
     if (
       Number(rpcStore.walletBalanceChainId) !== Number(rpcStore.selectedChainId)
     ) {
