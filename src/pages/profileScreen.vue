@@ -6,6 +6,10 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 import AppLoader from '@/components/AppLoader.vue'
+import PhraseSuccess from '@/components/CustomRequestScreen/Mnemonic/PhraseSuccess.vue'
+import SeedPhrase from '@/components/CustomRequestScreen/Mnemonic/SeedPhrase.vue'
+import SeedPhraseHome from '@/components/CustomRequestScreen/Mnemonic/SeedPhraseHome.vue'
+import VerifyPhrase from '@/components/CustomRequestScreen/Mnemonic/VerifyPhrase.vue'
 import ExportKeyModal from '@/components/ExportKeyModal.vue'
 import MFAProceedModal from '@/components/MFAProceedModal.vue'
 import PrivateKeyCautionModal from '@/components/PrivateKeyCautionModal.vue'
@@ -37,6 +41,10 @@ const parentConnectionStore = useParentConnectionStore()
 const showPrivateKeyCautionModal = ref(false)
 const showMFAProceedModal = ref(false)
 const showExportKeyModal = ref(false)
+const showSeedPhraseModal = ref(false)
+const showSeedPhraseHomeModal = ref(false)
+const showSeedPhraseVerifyModal = ref(false)
+const showSeedPhraseSuccessModal = ref(false)
 const loader = ref({
   show: false,
   message: '',
@@ -134,6 +142,37 @@ function getRequestObject() {
 async function handleProceed() {
   showPrivateKeyCautionModal.value = false
   showExportKeyModal.value = true
+}
+
+async function handleSeedPhrase() {
+  showSeedPhraseHomeModal.value = false
+  showSeedPhraseModal.value = true
+}
+
+async function handleSeedPhraseVerify() {
+  showSeedPhraseModal.value = false
+  showSeedPhraseVerifyModal.value = true
+}
+
+async function handleSeedPhraseSuccess() {
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseSuccessModal.value = true
+}
+
+function handleShowSeedPhraseHomeModal() {
+  modalStore.setShowModal(true)
+  showSeedPhraseHomeModal.value = true
+}
+
+function handleHideSeedPhraseHomeModal() {
+  modalStore.setShowModal(false)
+  showSeedPhraseHomeModal.value = false
+}
+
+function handleBacktoSeed() {
+  modalStore.setShowModal(true)
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseModal.value = true
 }
 
 function handleShowPrivateKeyCautionModal() {
@@ -236,6 +275,10 @@ watch(
       showPrivateKeyCautionModal.value = false
       showExportKeyModal.value = false
       showMFAProceedModal.value = false
+      showSeedPhraseHomeModal.value = false
+      showSeedPhraseModal.value = false
+      showSeedPhraseVerifyModal.value = false
+      showSeedPhraseSuccessModal.value = false
     }
   }
 )
@@ -309,6 +352,29 @@ watch(
         >
           <span class="text-lg font-normal dark:text-white-100">
             Export Key
+          </span>
+          <img :src="getImage('external-link.svg')" class="w-4 h-4" />
+        </button>
+      </div>
+      <div
+        v-if="appStore.chainType === ChainType.multiversx_cv25519"
+        class="flex flex-col"
+        :class="{
+          'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
+        }"
+      >
+        <span
+          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          >Seed Phrase</span
+        >
+        <button
+          class="flex gap-2 items-center disabled:opacity-100"
+          title="Click to export seed phrase"
+          :disabled="starterTipsStore.showExportkey"
+          @click.stop="handleShowSeedPhraseHomeModal"
+        >
+          <span class="text-lg font-normal dark:text-white-100">
+            Export Seed Phrase
           </span>
           <img :src="getImage('external-link.svg')" class="w-4 h-4" />
         </button>
@@ -399,6 +465,25 @@ watch(
         v-if="showMFAProceedModal"
         @proceed="handleMFASetupClick"
         @close="handleShowMFAProceedModal(false)"
+      />
+      <SeedPhraseHome
+        v-if="showSeedPhraseHomeModal"
+        @proceed="handleSeedPhrase"
+        @close="handleHideSeedPhraseHomeModal"
+      />
+      <SeedPhrase
+        v-if="showSeedPhraseModal"
+        @close="handleHideSeedPhraseHomeModal"
+        @verify="handleSeedPhraseVerify"
+      />
+      <VerifyPhrase
+        v-if="showSeedPhraseVerifyModal"
+        @success="handleSeedPhraseSuccess"
+        @close="handleBacktoSeed"
+      />
+      <PhraseSuccess
+        v-if="showSeedPhraseSuccessModal"
+        @close="handleHideSeedPhraseHomeModal"
       />
     </Teleport>
   </div>

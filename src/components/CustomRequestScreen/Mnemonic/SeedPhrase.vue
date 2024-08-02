@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { ref, Ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted } from 'vue'
+import { useToast } from 'vue-toastification'
 
-import VerifyPhrase from '@/components/CustomRequestScreen/Mnemonic/VerifyPhrase.vue'
 import { useModalStore } from '@/store/modal'
+import { errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
+import { getStorage } from '@/utils/storageWrapper'
 
-type ModalState = true | false
+const emit = defineEmits(['verify', 'close'])
 
-const showModal: Ref<ModalState> = ref(false)
-const router = useRouter()
 const modalStore = useModalStore()
+const toast = useToast()
 
-const loader = ref({
-  show: false,
-  message: '',
-})
+const storage = getStorage()
+const mnemonic = storage.session.getMnemonic()
 
 const keyArray: string[] = [
   'Plug',
@@ -44,26 +42,20 @@ const keyArray: string[] = [
   'Spin',
 ]
 
-function showLoader(message: string) {
-  loader.value.show = true
-  loader.value.message = `${message}...`
-}
+const seedPhrase = keyArray.join(' ')
 
-function hideLoader() {
-  loader.value.show = false
-  loader.value.message = ''
-}
-
-function openVerify(open: boolean) {
+async function copyToClipboard(value: string, message: string) {
   try {
-    console.log('Open verify modal:', open)
-    modalStore.setShowModal(open)
-    showModal.value = open
-    console.log('Modal store show:', modalStore.show)
-    console.log('Local showModal value:', showModal.value)
-  } catch (error) {
-    console.error('Error in openVerify:', error)
+    await navigator.clipboard.writeText(value)
+    console.log('Seed Phrase :', mnemonic)
+    toast.success(message)
+  } catch (err) {
+    toast.error(errors.COPY)
   }
+}
+
+function printPage() {
+  window.print()
 }
 
 onMounted(() => {
@@ -77,7 +69,10 @@ onMounted(() => {
       <span class="font-Nohemi text-[20px] font-medium">Seed Phrase</span>
     </div>
 
-    <form class="flex flex-col flex-grow justify-between mt-5">
+    <form
+      class="flex flex-col flex-grow justify-between mt-5"
+      @submit.prevent="emit('verify')"
+    >
       <div class="flex flex-col gap-6">
         <span class="text-sm font-lighter text-center">
           Please record the seed phrase shown below exactly in the order that it
@@ -96,7 +91,7 @@ onMounted(() => {
           <input
             type="text"
             :value="index + 1 + '.' + ' ' + word"
-            class="input-secondary border w-full h-10"
+            class="input-secondary w-full h-10"
             readonly
           />
         </div>
@@ -105,6 +100,8 @@ onMounted(() => {
       <div class="grid grid-cols-2 gap-1 mt-4">
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          type="button"
+          @click.stop="copyToClipboard(seedPhrase, 'Seed Phrase copied')"
         >
           <img :src="getImage('copy.svg')" alt="Copy wallet address" />
           Copy
@@ -112,23 +109,27 @@ onMounted(() => {
 
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          type="button"
+          @click="printPage"
         >
-          <!-- <img :src="getImage('print.svg')" alt="Print wallet address" /> -->
+          <img
+            :src="getImage('print.svg')"
+            alt="Print wallet address"
+            class="h-4"
+          />
           Print
         </button>
       </div>
 
       <div class="flex mt-2">
-        <button
-          class="btn-primary py-[10px] text-center w-full"
-          @click.stop="openVerify(true)"
-        >
+        <button class="btn-primary py-[10px] text-center w-full" type="submit">
           Verify
         </button>
       </div>
     </form>
-    <Teleport v-if="modalStore.show" to="#modal-container">
-      <VerifyPhrase v-if="showModal === true" @close="openVerify(false)" />
-    </Teleport>
+    <div class="flex space-x-1 justify-center items-center pt-6">
+      <span class="text-sm">Powered by</span>
+      <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />
+    </div>
   </div>
 </template>
