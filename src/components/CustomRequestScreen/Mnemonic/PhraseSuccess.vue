@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
@@ -11,7 +11,7 @@ const isLoading = ref(false)
 
 function handleProceed() {
   router.push({ name: 'home' })
-  return emit('close')
+  emit('close')
 }
 </script>
 

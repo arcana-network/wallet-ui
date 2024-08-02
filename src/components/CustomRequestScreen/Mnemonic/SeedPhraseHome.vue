@@ -7,14 +7,13 @@ import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
 
 const storage = getStorage()
-
 const emit = defineEmits(['proceed', 'close'])
 const isLoading = ref(false)
 const userStore = useUserStore()
 
 function handleProceed() {
   storage.local.setHasSeedPhraseShown(userStore.info.id, true)
-  return emit('proceed')
+  emit('proceed')
 }
 </script>
 
@@ -36,7 +35,7 @@ function handleProceed() {
       <form class="flex flex-col mt-5 space-y-2">
         <button
           class="flex-1 btn-primary py-[10px]"
-          @click.stop="handleProceed()"
+          @click.stop="handleProceed"
         >
           Display Seed Phrase
         </button>

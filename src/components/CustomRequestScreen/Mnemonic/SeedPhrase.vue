@@ -1,76 +1,38 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
 
-import { useModalStore } from '@/store/modal'
 import { errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
 
 const emit = defineEmits(['verify', 'close'])
-
-const modalStore = useModalStore()
 const toast = useToast()
-
 const storage = getStorage()
 const mnemonic = storage.session.getMnemonic()
-
-const keyArray: string[] = [
-  'Plug',
-  'Risk',
-  'Opera',
-  'Liar',
-  'Sudden',
-  'Receive',
-  'Stuff',
-  'Mask',
-  'Donate',
-  'Mammal',
-  'Night',
-  'Stable',
-  'Direct',
-  'Antique',
-  'Grocery',
-  'Believe',
-  'Town',
-  'Peasant',
-  'Hole',
-  'Put',
-  'Satoshi',
-  'Flavor',
-  'Oxygen',
-  'Spin',
-]
-
+const keyArray: string[] = mnemonic.split(' ')
 const seedPhrase = keyArray.join(' ')
 
 async function copyToClipboard(value: string, message: string) {
   try {
     await navigator.clipboard.writeText(value)
-    console.log('Seed Phrase :', mnemonic)
     toast.success(message)
   } catch (err) {
     toast.error(errors.COPY)
   }
 }
 
-function printPage() {
+async function printKey() {
   window.print()
 }
-
-onMounted(() => {
-  console.log('Modal Store:', modalStore)
-})
 </script>
 
 <template>
   <div class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
-      <span class="font-Nohemi text-[20px] font-medium">Seed Phrase</span>
+      <span class="font-Nohemi text-xl font-semibold">Seed Phrase</span>
     </div>
-
     <form
-      class="flex flex-col flex-grow justify-between mt-5"
+      class="flex flex-col flex-grow justify-between mt-2"
       @submit.prevent="emit('verify')"
     >
       <div class="flex flex-col gap-6">
@@ -80,8 +42,6 @@ onMounted(() => {
           safety.
         </span>
       </div>
-
-      <!-- 3x8 Grid of Input Boxes -->
       <div class="grid grid-cols-3 gap-3 my-4">
         <div
           v-for="(word, index) in keyArray"
@@ -96,7 +56,6 @@ onMounted(() => {
           />
         </div>
       </div>
-
       <div class="grid grid-cols-2 gap-1 mt-4">
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
@@ -106,11 +65,10 @@ onMounted(() => {
           <img :src="getImage('copy.svg')" alt="Copy wallet address" />
           Copy
         </button>
-
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
           type="button"
-          @click="printPage"
+          @click="printKey"
         >
           <img
             :src="getImage('print.svg')"
@@ -120,7 +78,6 @@ onMounted(() => {
           Print
         </button>
       </div>
-
       <div class="flex mt-2">
         <button class="btn-primary py-[10px] text-center w-full" type="submit">
           Verify

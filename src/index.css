@@ -163,12 +163,13 @@
   }
 
   .input-secondary {
-    @apply bg-white-100 text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
+    @apply bg-white-100 text-blue-dark dark:bg-black-eerie dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
   }
 
   .input-tertiary {
     @apply bg-white-200 text-blue-dark dark:bg-black-eerie dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
   }
+
   .input-active {
     @apply outline-1 outline-black-500 dark:outline-white-200 outline;
   }
