@@ -114,11 +114,13 @@ function setShowStarterTips() {
 }
 
 function setShowSeedPhrase() {
-  const userId = userStore.info.id
-  const loginCount = storage.local.getLoginCount(userId)
-  const hasSeedPhraseShown = storage.local.getHasSeedPhraseShown(userId)
-  if (Number(loginCount) <= 2 && !hasSeedPhraseShown) {
-    handleShowSeedPhraseHomeModal()
+  if (appStore.chainType === ChainType.multiversx_cv25519) {
+    const userId = userStore.info.id
+    const loginCount = storage.local.getLoginCount(userId)
+    const hasSeedPhraseShown = storage.local.getHasSeedPhraseShown(userId)
+    if (Number(loginCount) <= 2 && !hasSeedPhraseShown) {
+      handleShowSeedPhraseHomeModal()
+    }
     return
   }
 }

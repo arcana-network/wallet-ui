@@ -65,13 +65,18 @@ function selectOption(option: string) {
     }
   } else {
     isError.value = true
+    isCorrect.value = false
     correctAnswersCount.value = 0
-    resetToFirstPage()
+    setTimeout(() => {
+      isError.value = false
+      resetToFirstPage()
+    }, 2000)
   }
 }
 
 function resetToFirstPage() {
   currentPage.value = 1
+  updatePageContent()
 }
 
 watch(
@@ -163,7 +168,11 @@ updatePageContent()
         class="flex flex-col mt-5 space-y-4"
         @submit.prevent="emit('close')"
       >
-        <button class="btn-primary py-[10px]" type="submit">
+        <button
+          class="btn-primary py-[10px]"
+          type="submit"
+          :disabled="isError || isCorrect"
+        >
           Back to Seed Phrase
         </button>
       </form>

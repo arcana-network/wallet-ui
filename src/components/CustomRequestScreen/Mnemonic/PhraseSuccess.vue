@@ -4,14 +4,17 @@ import { useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
 import { getImage } from '@/utils/getImage'
+import { getStorage } from '@/utils/storageWrapper'
 
 const emit = defineEmits(['close'])
 const router = useRouter()
+const storage = getStorage()
 const isLoading = ref(false)
 
 function handleProceed() {
   router.push({ name: 'home' })
   emit('close')
+  storage.session.clearMnemonic()
 }
 </script>
 

@@ -48,19 +48,27 @@ async function printKey() {
           :key="index"
           class="flex justify-center"
         >
-          <input
-            type="text"
-            :value="index + 1 + '.' + ' ' + word"
-            class="input-secondary w-full h-10"
-            readonly
-          />
+          <div class="relative w-full">
+            <input
+              type="text"
+              :value="word"
+              class="input-secondary w-full h-10 pl-6"
+              readonly
+            />
+            <span
+              class="absolute left-2 top-[21px] transform -translate-y-1/2 text-xs"
+              >{{ index + 1 }}.</span
+            >
+          </div>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-1 mt-4">
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
           type="button"
-          @click.stop="copyToClipboard(seedPhrase, 'Seed Phrase copied')"
+          @click.stop="
+            copyToClipboard(seedPhrase, 'Seed phrase copied to memory')
+          "
         >
           <img :src="getImage('copy.svg')" alt="Copy wallet address" />
           Copy
