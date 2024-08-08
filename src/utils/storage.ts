@@ -24,7 +24,6 @@ enum StorageKey {
   AssetContract = 'asset-contracts',
   PK = 'pk',
   hasStarterTipShown = 'has-starter-tip-shown',
-  hasSeedPhraseShown = 'has-seed-phrase-shown',
   PreferredAddressType = 'preferred-address-type',
   Theme = 'theme',
   Curve = 'curve',
@@ -214,14 +213,6 @@ class UserLocalStorage extends BaseStorage {
 
   getHasStarterTipShown(userId: string) {
     return this.get<boolean>(`${userId}-${StorageKey.hasStarterTipShown}`)
-  }
-
-  setHasSeedPhraseShown(userId: string, val: boolean) {
-    this.set(`${userId}-${StorageKey.hasSeedPhraseShown}`, val)
-  }
-
-  getHasSeedPhraseShown(userId: string) {
-    return this.get<boolean>(`${userId}-${StorageKey.hasSeedPhraseShown}`)
   }
 
   setPK(val: { pk: string; id: string; exp: dayjs.Dayjs | undefined }) {

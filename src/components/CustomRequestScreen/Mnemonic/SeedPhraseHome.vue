@@ -2,17 +2,12 @@
 import { ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
-import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
-import { getStorage } from '@/utils/storageWrapper'
 
-const storage = getStorage()
 const emit = defineEmits(['proceed', 'close'])
 const isLoading = ref(false)
-const userStore = useUserStore()
 
 function handleProceed() {
-  storage.local.setHasSeedPhraseShown(userStore.info.id, true)
   emit('proceed')
 }
 </script>

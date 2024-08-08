@@ -114,14 +114,10 @@ function setShowStarterTips() {
 }
 
 function setShowSeedPhrase() {
-  if (appStore.chainType === ChainType.multiversx_cv25519) {
-    const userId = userStore.info.id
-    const loginCount = storage.local.getLoginCount(userId)
-    const hasSeedPhraseShown = storage.local.getHasSeedPhraseShown(userId)
-    if (Number(loginCount) <= 2 && !hasSeedPhraseShown) {
-      handleShowSeedPhraseHomeModal()
-    }
-    return
+  const mnemonic = storage.session.getMnemonic()
+  const shouldBeShown = !!mnemonic
+  if (shouldBeShown) {
+    handleShowSeedPhraseHomeModal()
   }
 }
 
