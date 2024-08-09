@@ -14,6 +14,10 @@ import {
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
+import PhraseSuccess from '@/components/CustomRequestScreen/Mnemonic/PhraseSuccess.vue'
+import SeedPhrase from '@/components/CustomRequestScreen/Mnemonic/SeedPhrase.vue'
+import SeedPhraseHome from '@/components/CustomRequestScreen/Mnemonic/SeedPhraseHome.vue'
+import VerifyPhrase from '@/components/CustomRequestScreen/Mnemonic/VerifyPhrase.vue'
 import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
@@ -76,6 +80,10 @@ let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
+const showSeedPhraseModal = ref(false)
+const showSeedPhraseHomeModal = ref(false)
+const showSeedPhraseVerifyModal = ref(false)
+const showSeedPhraseSuccessModal = ref(false)
 const currencyStore = useCurrencyStore()
 let config
 let bc: BroadcastChannel | null = null
@@ -105,6 +113,14 @@ function setShowStarterTips() {
   }
 }
 
+function setShowSeedPhrase() {
+  const mnemonic = storage.session.getMnemonic()
+  const shouldBeShown = !!mnemonic
+  if (shouldBeShown) {
+    handleShowSeedPhraseHomeModal()
+  }
+}
+
 const startLoginChannel = () => {
   const sensitiveStorage = getSensitiveStorage()
   bc = new BroadcastChannel(`${appStore.id}_login_helper`)
@@ -122,6 +138,37 @@ const startLoginChannel = () => {
       logout()
     }
   }
+}
+
+async function handleSeedPhrase() {
+  showSeedPhraseHomeModal.value = false
+  showSeedPhraseModal.value = true
+}
+
+async function handleSeedPhraseVerify() {
+  showSeedPhraseModal.value = false
+  showSeedPhraseVerifyModal.value = true
+}
+
+async function handleSeedPhraseSuccess() {
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseSuccessModal.value = true
+}
+
+function handleShowSeedPhraseHomeModal() {
+  modalStore.setShowModal(true)
+  showSeedPhraseHomeModal.value = true
+}
+
+function handleHideSeedPhraseHomeModal() {
+  modalStore.setShowModal(false)
+  showSeedPhraseHomeModal.value = false
+}
+
+function handleBacktoSeed() {
+  modalStore.setShowModal(true)
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseModal.value = true
 }
 
 const sendLogoutMessage = () => {
@@ -171,13 +218,13 @@ onMounted(async () => {
       ) {
         await initScwSdk()
       }
-
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
     console.log(e)
   } finally {
     loader.value.show = false
+    setShowSeedPhrase()
     // setShowStarterTips()
   }
 })
@@ -561,6 +608,18 @@ watch(
     }
   }
 )
+
+watch(
+  () => modalStore.show,
+  () => {
+    if (!modalStore.show) {
+      showSeedPhraseHomeModal.value = false
+      showSeedPhraseModal.value = false
+      showSeedPhraseVerifyModal.value = false
+      showSeedPhraseSuccessModal.value = false
+    }
+  }
+)
 </script>
 
 <template>
@@ -599,6 +658,25 @@ watch(
     <Teleport v-if="modalStore.show" to="#modal-container">
       <UseWalletBalanceGasless
         v-if="gaslessStore.showUseWalletBalancePermission"
+      />
+      <SeedPhraseHome
+        v-if="showSeedPhraseHomeModal"
+        @proceed="handleSeedPhrase"
+        @close="handleHideSeedPhraseHomeModal"
+      />
+      <SeedPhrase
+        v-if="showSeedPhraseModal"
+        @close="handleHideSeedPhraseHomeModal"
+        @verify="handleSeedPhraseVerify"
+      />
+      <VerifyPhrase
+        v-if="showSeedPhraseVerifyModal"
+        @success="handleSeedPhraseSuccess"
+        @close="handleBacktoSeed"
+      />
+      <PhraseSuccess
+        v-if="showSeedPhraseSuccessModal"
+        @close="handleHideSeedPhraseHomeModal"
       />
     </Teleport>
   </div>

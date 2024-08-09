@@ -143,6 +143,7 @@ const contactParentPage = async (
       sessionExpiry: params.sessionExpiry,
       messageId: params.messageId,
       info: params.userInfo,
+      mnemonic: params.mnemonic,
     },
     expectedResponseStatus: ACK,
   })
@@ -205,6 +206,7 @@ type HandleLoginParams = {
   sessionExpiry: number
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
   messageId: number
+  mnemonic?: string
 }
 
 const handleLogin = async (params: HandleLoginParams) => {
