@@ -13,12 +13,14 @@ import { useAppStore } from '@/store/app'
 import { useConfigStore } from '@/store/config'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK, AUTH_URL, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
 import { getUserDIDToken } from '@/utils/loginToken'
+import { getMnemonicInShard } from '@/utils/multiversx/shard'
 import {
   getPasswordlessState,
   PasswordlessLoginHandler,
@@ -340,7 +342,22 @@ async function storeUserInfoAndRedirect(
         debug: AUTH_NETWORK === 'dev',
         curve: app.curve,
       })
-      await core.init()
+      const isNewUser = await core.init()
+      if (isNewUser && app.chainType === ChainType.multiversx_cv25519) {
+        const shardID = parseInt(authProvider?.appConfig.chain_settings?.shards)
+        devLogger.log({
+          shardFromAPI: shardID,
+          config: authProvider?.appConfig,
+        })
+        const mn = getMnemonicInShard(shardID)
+        const key = mn.deriveKey().hex()
+        await core.importKey(key)
+        userInfo.privateKey = key
+        const mnemonic = mn.toString()
+        storage.session.setMnemonic(mnemonic)
+      } else {
+        userInfo.privateKey = await core.getKey()
+      }
       const key = await core.getKey()
       userInfo.privateKey = key
     } catch (e) {
