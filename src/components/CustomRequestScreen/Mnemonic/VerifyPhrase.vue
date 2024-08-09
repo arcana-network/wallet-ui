@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
 import { getImage } from '@/utils/getImage'
@@ -18,20 +18,34 @@ const storage = getStorage()
 const mnemonic = storage.session.getMnemonic()
 const keyArray: string[] = mnemonic.split(' ')
 
+const usedIndexes = ref<number[]>([])
+
 const selectedIndex = ref<number>(-1)
 const correctOption = ref<string>('')
 const options = ref<string[]>([])
 
 function generateOptions(correctOption: string): string[] {
   const randomOptions = keyArray.filter((item) => item !== correctOption)
-  randomOptions.sort(() => 0.5 - Math.random())
-  return [correctOption, ...randomOptions.slice(0, 4)].sort(
-    () => 0.5 - Math.random()
-  )
+  return [
+    correctOption,
+    ...randomOptions.sort(() => 0.5 - Math.random()).slice(0, 4),
+  ].sort(() => 0.5 - Math.random())
+}
+
+function getUniqueIndex(): number {
+  if (usedIndexes.value.length >= keyArray.length) {
+    usedIndexes.value = []
+  }
+  let newIndex: number
+  do {
+    newIndex = Math.floor(Math.random() * keyArray.length)
+  } while (usedIndexes.value.includes(newIndex))
+  usedIndexes.value.push(newIndex)
+  return newIndex
 }
 
 function updatePageContent() {
-  selectedIndex.value = Math.floor(Math.random() * keyArray.length)
+  selectedIndex.value = getUniqueIndex()
   correctOption.value = keyArray[selectedIndex.value]
   options.value = generateOptions(correctOption.value)
   selectedAnswer.value = ''
@@ -42,6 +56,7 @@ const Hint = computed(
     `${selectedIndex.value + 1}.   ${selectedAnswer.value}` ||
     `${selectedIndex.value + 1}.`
 )
+
 function goToNextPage() {
   if (currentPage.value < 3) {
     currentPage.value += 1
@@ -76,13 +91,14 @@ function selectOption(option: string) {
 
 function resetToFirstPage() {
   currentPage.value = 1
+  usedIndexes.value = []
   updatePageContent()
 }
 
 watch(
   currentPage,
   (newPage) => {
-    if (newPage === 1 || newPage === 2 || newPage === 3) {
+    if ([1, 2, 3].includes(newPage)) {
       updatePageContent()
     }
   },
