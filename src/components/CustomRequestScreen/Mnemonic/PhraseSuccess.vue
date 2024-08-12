@@ -24,15 +24,17 @@ function handleProceed() {
     <div v-else class="card-secondary flex flex-col py-6 px-3">
       <div class="flex flex-col gap-3">
         <img
-          src="@/assets/images/success.svg"
+          src="@/assets/images/success-new.svg"
           alt="success"
-          class="h-20 w-20 mx-auto"
+          class="h-12 w-12 mx-auto"
         />
-        <p class="font-Nohemi font-medium text-center text-xl">Done</p>
-        <p class="text-sm text-center text-zinc-400">
-          Great! You can now use this seed phrase to import your account into
-          another wallet app anytime you like.
-        </p>
+        <div class="flex flex-col">
+          <p class="font-Nohemi font-medium text-center text-xl">Done</p>
+          <p class="text-sm text-center text-zinc-400">
+            Great! You can now use this seed phrase to import your account into
+            another wallet app anytime you like.
+          </p>
+        </div>
       </div>
       <form class="flex flex-col mt-5 space-y-4">
         <button
