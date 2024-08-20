@@ -190,9 +190,9 @@ function isDeprecatedMethod() {
   >
     <div class="flex justify-between" @click="emits('expand')">
       <div class="flex cursor-pointer">
-        <span class="font-Nohemi text-lg font-medium">{{
-          methodAndAction[request.request.method]
-        }}</span>
+        <h1 class="font-Nohemi text-lg font-medium">
+          {{ methodAndAction[request.request.method] }}
+        </h1>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
       <div>

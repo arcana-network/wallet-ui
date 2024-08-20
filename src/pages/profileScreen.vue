@@ -257,7 +257,7 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="font-Nohemi text-[20px] font-medium">Profile</span>
+      <h1 class="font-Nohemi text-[20px] font-medium">Profile</h1>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">

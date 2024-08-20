@@ -17,9 +17,9 @@ function handleProceed() {
     <AppLoader v-if="isLoading" message="Processing..." />
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
-        <p class="font-Nohemi font-medium text-center text-xl tracking-wide">
+        <h1 class="font-Nohemi font-medium text-center text-xl tracking-wide">
           Display Seed Phrase?
-        </p>
+        </h1>
         <p class="text-sm text-center text-zinc-400">
           Would you like to view the seed phrase and record it now? You will
           <span class="font-bold">not be able to view</span>

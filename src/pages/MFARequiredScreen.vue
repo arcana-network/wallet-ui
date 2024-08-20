@@ -122,9 +122,9 @@ function goToHome() {
         <AppLoader :message="loader.message" />
       </div>
       <div class="flex justify-center">
-        <div class="font-Nohemi text-[20px] font-medium">
+        <h1 class="font-Nohemi text-[20px] font-medium">
           Enhance Wallet Security
-        </div>
+        </h1>
       </div>
       <div
         class="mt-2 mb-6 flex flex-col gap-4 text-sm text-gray-spanish-light"

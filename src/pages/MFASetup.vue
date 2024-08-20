@@ -316,9 +316,9 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h2 class="font-Nohemi text-[20px] font-medium">
+        <h1 class="font-Nohemi text-[20px] font-medium">
           ENHANCED WALLET SECURITY ENABLED
-        </h2>
+        </h1>
         <span class="text-sm max-w-[26rem] text-gray-spanish-light"
           >You're all set with Multi-factor Authentication. If you change
           browsers or devices in the future, you may be asked to either answer
@@ -345,9 +345,9 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-Nohemi text-[20px] font-medium uppercase m-4">
+    <h1 class="font-Nohemi text-[20px] font-medium uppercase m-4">
       RECOVERY METHOD 2: PIN
-    </h2>
+    </h1>
     <hr />
     <div class="m-4 text-sm text-gray-spanish-light">
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
@@ -408,9 +408,9 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-Nohemi text-[20px] font-medium uppercase m-4">
+      <h1 class="font-Nohemi text-[20px] font-medium uppercase m-4">
         RECOVERY METHOD 1: Security Questions
-      </h2>
+      </h1>
       <hr />
       <form class="flex flex-col p-4 gap-6" @submit.prevent="handleSubmit">
         <div

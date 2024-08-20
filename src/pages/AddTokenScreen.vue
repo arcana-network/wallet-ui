@@ -174,9 +174,9 @@ watch(
       <AppLoader :message="loader.message" />
     </div>
     <div class="flex flex-col gap-4">
-      <h2 class="font-Nohemi text-[20px] font-medium text-center">
+      <h1 class="font-Nohemi text-[20px] font-medium text-center">
         Add a Token
-      </h2>
+      </h1>
       <form class="flex flex-col" @submit.prevent="addTokenContract">
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">

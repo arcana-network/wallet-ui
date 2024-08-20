@@ -29,7 +29,7 @@ async function printKey() {
 <template>
   <div class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
-      <span class="font-Nohemi text-xl font-semibold">Seed Phrase</span>
+      <h1 class="font-Nohemi text-xl font-semibold">Seed Phrase</h1>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-2"

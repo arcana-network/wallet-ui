@@ -29,7 +29,7 @@ function handleProceed() {
           class="h-12 w-12 mx-auto"
         />
         <div class="flex flex-col">
-          <p class="font-Nohemi font-medium text-center text-xl">Done</p>
+          <h1 class="font-Nohemi font-medium text-center text-xl">Done</h1>
           <p class="text-sm text-center text-zinc-400">
             Great! You can now use this seed phrase to import your account into
             another wallet app anytime you like.

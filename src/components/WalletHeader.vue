@@ -94,11 +94,12 @@ function getLogo() {
           onerror="this.style.display='none'"
         />
         <div class="flex flex-col items-start">
-          <span
+          <h1
             class="font-Nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
-            >{{ appStore.name }}</span
           >
+            {{ appStore.name }}
+          </h1>
         </div>
       </div>
       <div class="flex items-center gap-3">

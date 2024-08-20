@@ -471,7 +471,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
+        <h1 class="font-Nohemi text-[20px] font-medium">Send Token</h1>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />

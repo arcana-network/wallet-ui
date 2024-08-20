@@ -42,7 +42,7 @@ function hideLoader() {
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-medium">Seed Phrase</span>
+      <h1 class="font-Nohemi text-[20px] font-medium">Seed Phrase</h1>
     </div>
 
     <form class="flex flex-col flex-grow justify-between mt-5">

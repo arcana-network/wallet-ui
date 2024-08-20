@@ -90,7 +90,7 @@ async function handleSubmit() {
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-medium">Add Network</span>
+      <h1 class="font-Nohemi text-[20px] font-medium">Add Network</h1>
     </div>
     <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-1">
