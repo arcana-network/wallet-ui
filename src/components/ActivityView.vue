@@ -118,10 +118,12 @@ function calculateTotal(activity: Activity) {
 
 function calculateMvxGas(activity: Activity) {
   if (activity.transaction) {
-    const gasLimit =
-      new Decimal(activity.transaction?.gasLimit.toString()) || 0n
-    const gasPrice =
-      new Decimal(activity.transaction?.gasPrice.toString()) || 0n
+    const gasLimit = new Decimal(
+      activity.transaction?.gasLimit?.toString() || '0'
+    )
+    const gasPrice = new Decimal(
+      activity.transaction?.gasPrice?.toString() || '0'
+    )
 
     const total = gasLimit
       .mul(gasPrice)
@@ -131,7 +133,7 @@ function calculateMvxGas(activity: Activity) {
       .toNumber()
     return total
   }
-  return 0n
+  return 0
 }
 
 function getAmount(amount: bigint | string, isGas = false) {
