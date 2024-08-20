@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Onest:wght@100..900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Syne:wght@400..800&display=swap');
+
 /* stylelint-disable-next-line scss/at-rule-no-unknown */
 @tailwind base;
 /* stylelint-disable-next-line scss/at-rule-no-unknown */
@@ -101,6 +103,222 @@
   font-style: normal;
   font-weight: 900;
   src: url('@/assets/fonts/inter/Inter-Black.ttf') format('ttf');
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: PT Sans;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: Nunito Sans;
+  font-style: normal;
+  font-weight: 900;
 }
 
 @layer base {
