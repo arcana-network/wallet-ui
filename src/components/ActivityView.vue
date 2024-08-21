@@ -13,6 +13,7 @@ import type {
   TransakOps,
 } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { EVMAccountHandler } from '@/utils/accountHandler'
@@ -25,6 +26,7 @@ type ActivityViewProps = {
   currencyExchangeRate: number | string | null
   filterOperations: string[]
 }
+const currencyStore = useCurrencyStore()
 
 const OffRampProviders = {
   transak: 'Transak',
@@ -112,6 +114,26 @@ function calculateTotal(activity: Activity) {
     return activity.transaction.amount + gasUsed * gasPrice
   }
   return 0n
+}
+
+function calculateMvxGas(activity: Activity) {
+  if (activity.transaction) {
+    const gasLimit = new Decimal(
+      activity.transaction?.gasLimit?.toString() || '0'
+    )
+    const gasPrice = new Decimal(
+      activity.transaction?.gasPrice?.toString() || '0'
+    )
+
+    const total = gasLimit
+      .mul(gasPrice)
+      .div(new Decimal(10).pow(18))
+      .div(new Decimal(currencyStore.currencies['EGLD']))
+      .toDecimalPlaces(5)
+      .toNumber()
+    return total
+  }
+  return 0
 }
 
 function getAmount(amount: bigint | string, isGas = false) {
@@ -598,11 +620,11 @@ async function stopTransaction(activity) {
                   >
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${getAmount(activity.transaction.gasPrice, true)}`"
-                    >{{ getAmount(activity.transaction.gasPrice, true) }}
+                    :title="`${calculateMvxGas(activity)}`"
+                    >{{ calculateMvxGas(activity) }}
                     {{
                       app.chainType === ChainType.multiversx_cv25519
-                        ? ''
+                        ? 'USD'
                         : 'Gwei'
                     }}</span
                   >
