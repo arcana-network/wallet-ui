@@ -116,8 +116,14 @@ function setShowStarterTips() {
 function setShowSeedPhrase() {
   const mnemonic = storage.session.getMnemonic()
   const shouldBeShown = !!mnemonic
-  if (shouldBeShown) {
-    handleShowSeedPhraseHomeModal()
+  const userId = userStore.info.id
+  const loginCount = storage.local.getLoginCount(userId)
+  const hasMVXSeedShown = storage.local.gethasMVXSeedShown(userId)
+  if (Number(loginCount) <= 2 && !hasMVXSeedShown) {
+    if (shouldBeShown) {
+      handleShowSeedPhraseHomeModal()
+      return
+    }
   }
 }
 
