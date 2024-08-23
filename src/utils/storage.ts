@@ -24,6 +24,7 @@ enum StorageKey {
   AssetContract = 'asset-contracts',
   PK = 'pk',
   hasStarterTipShown = 'has-starter-tip-shown',
+  hasMVXSeedShown = 'has-mvx-seed-shown',
   PreferredAddressType = 'preferred-address-type',
   Theme = 'theme',
   Curve = 'curve',
@@ -205,6 +206,14 @@ class UserLocalStorage extends BaseStorage {
         `${address}/${chainId}/${StorageKey.AssetContract}`
       ) ?? []
     )
+  }
+
+  sethasMVXSeedShown(userId: string, val: boolean) {
+    this.set(`${userId}-${StorageKey.hasMVXSeedShown}`, val)
+  }
+
+  gethasMVXSeedShown(userId: string) {
+    return this.get<boolean>(`${userId}-${StorageKey.hasMVXSeedShown}`)
   }
 
   setHasStarterTipShown(userId: string, val: boolean) {
