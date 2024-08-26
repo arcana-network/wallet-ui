@@ -9,7 +9,6 @@ import { onBeforeMount, onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
-import { AppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
 import { useConfigStore } from '@/store/config'
 import { useParentConnectionStore } from '@/store/parentConnection'
@@ -65,7 +64,6 @@ onMounted(async () => {
   isLoading.value = true
 
   config = await useConfigStore(appId as string)
-  setThemeSettings(config.themeSettings)
   try {
     initSensitiveStorage(
       config.session_persisted,
@@ -137,38 +135,6 @@ onUnmounted(() => {
   parentConnection?.destroy()
   window.removeEventListener('message', windowEventHandler)
 })
-
-const getRadius = (radius: string) => {
-  switch (radius) {
-    case 'S':
-      return '4px'
-    case 'M':
-      return '8px'
-    case 'L':
-      return '12px'
-    case 'XL':
-      return '16px'
-    default:
-      return '0px'
-  }
-}
-
-function setThemeSettings(theme: AppConfig['theme_settings']) {
-  const { font_pairing, radius } = theme
-  const font = font_pairing.split('+').map((f) => f.trim())
-  const primaryFont = font[0].split(' ').join('-')
-  const secondaryFont = font[1].split(' ').join('-')
-
-  const body = document.getElementsByTagName('body')[0]
-  body.classList.add(`font-${secondaryFont}`)
-
-  const h1 = document.getElementsByTagName('h1')[0]
-  h1.classList.add(`font-${primaryFont}`)
-
-  const radiusValue = getRadius(radius)
-  const appEl = document.getElementById('appEl')
-  if (appEl && app.expandWallet) appEl.style.borderRadius = radiusValue
-}
 
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
