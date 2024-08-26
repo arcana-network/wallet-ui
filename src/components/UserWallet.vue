@@ -308,7 +308,10 @@ async function copyToClipboard(value: string) {
                             copyToClipboard(selectedAddressType.address)
                           "
                         >
-                          <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+                          <img
+                            :src="getImage('copy.svg')"
+                            class="w-lg h-lg svg-icon-accent"
+                          />
                         </button>
                       </div>
                       <span class="text-left text-xs text-gray-100">{{
@@ -324,7 +327,7 @@ async function copyToClipboard(value: string) {
                   !starterTipsStore.showWalletAddress
                 "
                 :src="getImage('arrow-down.svg')"
-                class="w-xl h-xl transition-transform"
+                class="w-xl h-xl transition-transform svg-icon-accent"
                 :class="{ 'rotate-180': open }"
               />
             </ListboxButton>
@@ -368,12 +371,12 @@ async function copyToClipboard(value: string) {
       <div class="mt-4 flex flex-col">
         <span
           v-if="appStore.chainType === ChainType.near_cv25519"
-          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-xs font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Available Balance:</span
         >
         <span
           v-else
-          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-xs font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
         <div class="flex items-center gap-3 text-base font-medium">
@@ -407,40 +410,47 @@ async function copyToClipboard(value: string) {
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
           >
-            <img :src="getImage('refresh.svg')" />
+            <img :src="getImage('refresh.svg')" class="svg-icon-accent" />
           </button>
         </div>
       </div>
     </div>
     <div class="flex gap-3">
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         @click.stop="goToSendTokens()"
       >
-        <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-        <span>Send</span>
+        <img
+          id="awesome"
+          :src="getImage('send-icon.svg')"
+          class="w-md h-md svg-icon-accent"
+        />
+        <span class="accent-color">Send</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         :disabled="!transakNetwork && onRampMoney === false"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         @click.stop="handleBuy(true)"
       >
-        <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-        <span>Buy</span>
+        <img
+          :src="getImage('buy-icon.svg')"
+          class="w-md h-md svg-icon-accent"
+        />
+        <span class="accent-color">Buy</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >
-        <img :src="getImage('sell.svg')" class="w-md h-md" />
-        <span>Sell</span>
+        <img :src="getImage('sell.svg')" class="w-md h-md svg-icon-accent" />
+        <span class="accent-color">Sell</span>
       </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

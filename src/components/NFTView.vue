@@ -207,11 +207,11 @@ function handleFallbackNft(event) {
       class="flex justify-center"
     >
       <button
-        class="btn-quaternery flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
+        class="btn-quaternery accent-color flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
         @click.stop="handleManageNFT"
       >
-        <img :src="getImage('settings.svg')" />
-        <span class="text-base font-medium">Manage</span>
+        <img :src="getImage('settings.svg')" class="svg-icon-accent" />
+        <span class="text-base font-medium accent-color">Manage</span>
       </button>
     </div>
   </div>

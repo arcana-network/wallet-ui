@@ -124,7 +124,7 @@ function getLogo() {
           </div>
           <img
             :src="getImage('arrow-down.svg')"
-            class="transition-all duration-200 ease-in-out"
+            class="transition-all duration-200 ease-in-out svg-icon-accent"
             :class="{ '-rotate-180': isChainListExpanded }"
             title="Click to expand"
           />
@@ -134,7 +134,11 @@ function getLogo() {
           title="Click to show the QR Code"
           @click.stop="openReceiveTokens(true)"
         >
-          <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
+          <img
+            :src="getImage('qr-code.svg')"
+            alt="Wallet Icon"
+            class="svg-icon-accent"
+          />
         </button>
       </div>
     </header>

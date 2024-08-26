@@ -271,10 +271,7 @@ function calculateCurrencyValue(value) {
         <h1 class="font-Nohemi text-lg font-medium">Send Transaction</h1>
         <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
       </div>
-      <p
-        v-else
-        class="font-Nohemi text-[20px] font-medium text-center flex-grow"
-      >
+      <p v-else class="font-Nohemi text-2xl font-medium text-center flex-grow">
         Send Transaction
       </p>
       <p class="text-xs text-gray-spanish-light text-center">

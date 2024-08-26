@@ -316,7 +316,7 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h1 class="font-Nohemi text-[20px] font-medium">
+        <h1 class="font-Nohemi text-2xl font-medium">
           ENHANCED WALLET SECURITY ENABLED
         </h1>
         <span class="text-sm max-w-[26rem] text-gray-spanish-light"
@@ -345,7 +345,7 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h1 class="font-Nohemi text-[20px] font-medium uppercase m-4">
+    <h1 class="font-Nohemi text-xl font-medium uppercase m-4">
       RECOVERY METHOD 2: PIN
     </h1>
     <hr />
@@ -408,7 +408,7 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h1 class="font-Nohemi text-[20px] font-medium uppercase m-4">
+      <h1 class="font-Nohemi text-xl font-medium uppercase m-4">
         RECOVERY METHOD 1: Security Questions
       </h1>
       <hr />

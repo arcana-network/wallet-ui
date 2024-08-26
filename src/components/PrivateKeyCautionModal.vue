@@ -6,7 +6,7 @@ const emit = defineEmits(['proceed', 'close'])
 
 <template>
   <div class="p-3 flex flex-col gap-4">
-    <h1 class="font-Nohemi text-center text-[20px] font-medium">
+    <h1 class="font-Nohemi text-center text-2xl font-medium">
       Export Private Key
     </h1>
     <div class="text-sm text-gray-spanish-light flex flex-col gap-2">

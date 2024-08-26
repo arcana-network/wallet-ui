@@ -10,7 +10,8 @@ module.exports = {
         base: '14px',
         lg: '16px',
         xl: '18px',
-        xxl: '28px',
+        '2xl': '20px',
+        '3xl': '24px',
       },
       fontWeight: {
         light: 300,

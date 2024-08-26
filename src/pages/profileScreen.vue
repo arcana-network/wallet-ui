@@ -257,7 +257,7 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <h1 class="font-Nohemi text-[20px] font-medium">Profile</h1>
+      <h1 class="font-Nohemi text-2xl font-medium">Profile</h1>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
@@ -296,7 +296,7 @@ watch(
             <img
               :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-4 h-4"
+              class="w-4 h-4 svg-icon-accent"
             />
           </button>
         </div>
@@ -320,7 +320,10 @@ watch(
           <span class="text-lg font-normal dark:text-white-100">
             Export Key
           </span>
-          <img :src="getImage('external-link.svg')" class="w-4 h-4" />
+          <img
+            :src="getImage('external-link.svg')"
+            class="w-4 h-4 svg-icon-accent"
+          />
         </button>
       </div>
       <div
@@ -380,7 +383,10 @@ watch(
             <span v-else class="dark:text-white-100"
               >Update Security Questions</span
             >
-            <img :src="getImage('external-link.svg')" class="w-4 h-4" />
+            <img
+              :src="getImage('external-link.svg')"
+              class="w-4 h-4 svg-icon-accent"
+            />
           </button>
           <span v-else class="text-lg font-normal">In use</span>
         </div>
@@ -388,7 +394,7 @@ watch(
     </div>
     <div class="flex">
       <button
-        class="flex justify-center btn-secondary items-center w-full p-2"
+        class="flex justify-center btn-secondary accent-color items-center w-full p-2"
         @click="handleLogout"
       >
         Logout

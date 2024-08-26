@@ -213,16 +213,14 @@ function isDeprecatedMethod() {
         class="flex justify-center items-center cursor-pointer"
         @click="emits('shrink')"
       >
-        <h1
-          class="font-Nohemi m-0 text-[20px] font-medium text-center capitalize"
-        >
+        <h1 class="font-Nohemi m-0 text-2xl font-medium text-center capitalize">
           {{ methodAndAction[method] }}
         </h1>
         <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
       </div>
       <h1
         v-else
-        class="font-Nohemi flex-1 m-0 text-[20px] font-medium text-center capitalize"
+        class="font-Nohemi flex-1 m-0 text-2xl font-medium text-center capitalize"
       >
         {{ methodAndAction[method] }}
       </h1>
