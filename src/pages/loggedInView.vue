@@ -26,6 +26,7 @@ import { getEnabledChainList } from '@/services/chainlist.service'
 import {
   getAppConfig,
   getGaslessEnabledStatus,
+  AppConfig,
 } from '@/services/gateway.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
@@ -178,9 +179,44 @@ const sendLogoutMessage = () => {
   })
 }
 
+const getRadius = (radius: string) => {
+  switch (radius) {
+    case 'S':
+      return '4px'
+    case 'M':
+      return '8px'
+    case 'L':
+      return '12px'
+    case 'XL':
+      return '16px'
+    default:
+      return '0px'
+  }
+}
+
+function setThemeSettings(theme: AppConfig['theme_settings']) {
+  const { font_pairing, radius } = theme
+  const font = font_pairing.split('+').map((f) => f.trim())
+  const primaryFont = font[0].split(' ').join('-')
+  const secondaryFont = font[1].split(' ').join('-')
+
+  const body = document.getElementsByTagName('body')[0]
+  body.classList.add(`font-${secondaryFont}`)
+
+  const h1 = document.getElementsByTagName('h1')[0]
+  h1.classList.add(`font-${primaryFont}`)
+
+  const radiusValue = getRadius(radius)
+  const appEl = document.getElementById('appEl')
+  if (appEl && appStore.expandWallet) appEl.style.borderRadius = radiusValue
+}
+
 onMounted(async () => {
   try {
     config = await useConfigStore(appStore.id)
+    setTimeout(() => {
+      setThemeSettings(config.themeSettings)
+    }, 1000)
     startLoginChannel()
     loader.value.show = true
     devLogger.log('[loggedInView]', { curve: appStore.curve })
