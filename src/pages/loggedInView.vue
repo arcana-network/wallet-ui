@@ -195,13 +195,14 @@ const getRadius = (radius: string) => {
 }
 
 function setThemeSettings(theme: AppConfig['theme_settings']) {
-  const { font_pairing, radius } = theme
+  const { font_pairing, radius, accent_color, font_color } = theme
   const font = font_pairing.split('+').map((f) => f.trim())
   const primaryFont = font[0].split(' ').join('-')
   const secondaryFont = font[1].split(' ').join('-')
 
   const body = document.getElementsByTagName('body')[0]
   body.classList.add(`font-${secondaryFont}`)
+  body.style.color = font_color
 
   const h1 = document.getElementsByTagName('h1')[0]
   h1.classList.add(`font-${primaryFont}`)
@@ -209,6 +210,16 @@ function setThemeSettings(theme: AppConfig['theme_settings']) {
   const radiusValue = getRadius(radius)
   const appEl = document.getElementById('appEl')
   if (appEl && appStore.expandWallet) appEl.style.borderRadius = radiusValue
+
+  const stylesheet = document.styleSheets[0] as CSSStyleSheet
+  stylesheet.insertRule(
+    `.accent-color { color: ${accent_color} !important }`,
+    0
+  )
+  stylesheet.insertRule(
+    `.accent-color { border-color: ${accent_color} !important }`,
+    1
+  )
 }
 
 onMounted(async () => {
