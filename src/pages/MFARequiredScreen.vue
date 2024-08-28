@@ -143,7 +143,7 @@ function goToHome() {
       </div>
       <div class="flex flex-col mt-4 gap-2">
         <button
-          class="text-sm btn-primary font-medium p-2 cursor-pointer"
+          class="text-sm btn-primary accent-color font-medium p-2 cursor-pointer"
           type="submit"
           @click.stop="handleProceed"
         >
@@ -151,14 +151,14 @@ function goToHome() {
         </button>
         <div class="flex justify-center gap-6">
           <button
-            class="text-xs btn-tertiary font-medium p-2 cursor-pointer"
+            class="text-xs btn-tertiary accent-color font-medium p-2 cursor-pointer"
             type="submit"
             @click.stop="handleSkip"
           >
             Skip for now
           </button>
           <button
-            class="btn-tertiary font-medium text-sm p-2 cursor-pointer"
+            class="btn-tertiary accent-color font-medium text-sm p-2 cursor-pointer"
             type="submit"
             @click.stop="handleAskNever"
           >

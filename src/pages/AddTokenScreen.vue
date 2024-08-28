@@ -188,7 +188,7 @@ watch(
           </div>
           <div class="flex justify-center items-center my-4">
             <button
-              class="flex justify-center items-center"
+              class="flex justify-center items-center accent-color"
               type="button"
               @click.stop="expandSection = !expandSection"
             >
@@ -199,6 +199,7 @@ watch(
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-all will-change-transform duration-200"
                 :class="{ '-rotate-180': expandSection }"
+                onload="SVGInject(this)"
               />
             </button>
           </div>
@@ -255,7 +256,9 @@ watch(
               :disabled="isDisabled.decimals"
             />
           </div>
-          <button type="submit" class="btn-primary p-2 w-full">Save</button>
+          <button type="submit" class="btn-primary accent-color p-2 w-full">
+            Save
+          </button>
         </div>
       </form>
     </div>

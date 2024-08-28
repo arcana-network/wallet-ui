@@ -127,7 +127,7 @@ function handleDone() {
         </div>
         <div class="flex mt-8">
           <button
-            class="flex-1 btn-primary py-[10px] text-base font-medium"
+            class="flex-1 btn-primary accent-color py-[10px] text-base font-medium"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed

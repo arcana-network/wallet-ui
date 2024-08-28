@@ -67,19 +67,27 @@ async function copyToClipboard(value: string, message: string) {
     </div>
     <div class="flex gap-8 justify-center">
       <button
-        class="flex gap-1 items-center justify-center btn-tertiary text-sm font-medium p-2"
+        class="flex gap-1 items-center justify-center btn-tertiary accent-color text-sm font-medium p-2"
         @click.stop="copyToClipboard(props.privateKey, 'Private Key Copied')"
       >
-        <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+        <img
+          :src="getImage('copy.svg')"
+          class="w-lg h-lg"
+          onload="SVGInject(this)"
+        />
         <span>Copy</span>
       </button>
       <button
-        class="flex gap-1 items-center justify-center btn-tertiary text-sm font-medium p-2"
+        class="flex gap-1 items-center justify-center btn-tertiary accent-color text-sm font-medium p-2"
         @click.stop="
           handlePrivateKeyDownload(props.privateKey, props.walletAddress)
         "
       >
-        <img :src="getImage('download.svg')" class="w-lg h-lg" />
+        <img
+          :src="getImage('download.svg')"
+          class="w-lg h-lg"
+          onload="SVGInject(this)"
+        />
         <span>Download</span>
       </button>
     </div>

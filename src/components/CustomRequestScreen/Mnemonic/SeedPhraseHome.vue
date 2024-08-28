@@ -29,12 +29,15 @@ function handleProceed() {
       </div>
       <form class="flex flex-col mt-5 space-y-2">
         <button
-          class="flex-1 btn-primary py-[10px]"
+          class="flex-1 btn-primary accent-color py-[10px]"
           @click.stop="handleProceed"
         >
           Display Seed Phrase
         </button>
-        <button class="flex-1 btn-tertiary" @click.stop="emit('close')">
+        <button
+          class="flex-1 btn-tertiary accent-color"
+          @click.stop="emit('close')"
+        >
           Skip and Proceed
         </button>
       </form>

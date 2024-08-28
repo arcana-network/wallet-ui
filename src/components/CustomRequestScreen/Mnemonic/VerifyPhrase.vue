@@ -185,7 +185,7 @@ updatePageContent()
         @submit.prevent="emit('close')"
       >
         <button
-          class="btn-primary py-[10px]"
+          class="btn-primary accent-color py-[10px]"
           type="submit"
           :disabled="isError || isCorrect"
         >

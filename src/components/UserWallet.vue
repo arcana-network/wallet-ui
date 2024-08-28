@@ -282,7 +282,9 @@ async function copyToClipboard(value: string) {
           }"
         >
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
-            <ListboxButton class="flex justify-between items-center">
+            <ListboxButton
+              class="flex justify-between items-center accent-color"
+            >
               <button
                 class="flex items-center space-x-2"
                 @click.stop="showAddressListDropDown = true"
@@ -302,15 +304,16 @@ async function copyToClipboard(value: string) {
                           }}</span
                         >
                         <button
-                          title="Click to copy wallet address"
-                          class="self-start"
+                          title="Click to copy wallet address accent-color"
+                          class="self-start accent-color"
                           @click.stop="
                             copyToClipboard(selectedAddressType.address)
                           "
                         >
                           <img
                             :src="getImage('copy.svg')"
-                            class="w-lg h-lg svg-icon-accent"
+                            class="w-lg h-lg"
+                            onload="SVGInject(this)"
                           />
                         </button>
                       </div>
@@ -329,6 +332,7 @@ async function copyToClipboard(value: string) {
                 :src="getImage('arrow-down.svg')"
                 class="w-xl h-xl transition-transform svg-icon-accent"
                 :class="{ 'rotate-180': open }"
+                onload="SVGInject(this)"
               />
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
@@ -405,30 +409,30 @@ async function copyToClipboard(value: string) {
             >
           </div>
           <button
-            class="w-lg h-lg mt-[6px] rounded-full"
+            class="w-lg h-lg mt-[6px] rounded-full accent-color"
             :class="{ 'animate-spin': refreshIconAnimating }"
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
           >
-            <img :src="getImage('refresh.svg')" class="svg-icon-accent" />
+            <img :src="getImage('refresh.svg')" onload="SVGInject(this)" />
           </button>
         </div>
       </div>
     </div>
     <div class="flex gap-3">
       <button
-        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
+        class="accent-color btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         @click.stop="goToSendTokens()"
       >
         <img
-          id="awesome"
           :src="getImage('send-icon.svg')"
-          class="w-md h-md svg-icon-accent"
+          class="w-md h-md"
+          onload="SVGInject(this)"
         />
         <span class="accent-color">Send</span>
       </button>
       <button
-        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
+        class="accent-color btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         :disabled="!transakNetwork && onRampMoney === false"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
@@ -438,6 +442,7 @@ async function copyToClipboard(value: string) {
         <img
           :src="getImage('buy-icon.svg')"
           class="w-md h-md svg-icon-accent"
+          onload="SVGInject(this)"
         />
         <span class="accent-color">Buy</span>
       </button>
@@ -449,7 +454,11 @@ async function copyToClipboard(value: string) {
         :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >
-        <img :src="getImage('sell.svg')" class="w-md h-md svg-icon-accent" />
+        <img
+          :src="getImage('sell.svg')"
+          class="w-md h-md"
+          onload="SVGInject(this)"
+        />
         <span class="accent-color">Sell</span>
       </button>
     </div>

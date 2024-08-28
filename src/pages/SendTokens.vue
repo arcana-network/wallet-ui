@@ -739,11 +739,15 @@ watch(
   <div v-else class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
       <button
-        class="absolute left-0"
+        class="absolute left-0 accent-color"
         title="Click to go back"
         @click.stop="router.push({ name: 'home' })"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <img
+          :src="getImage('back-arrow.svg')"
+          class="w-6 h-6"
+          onload="SVGInject(this)"
+        />
       </button>
       <h1 class="font-Nohemi text-2xl font-medium">Send Token</h1>
     </div>
@@ -863,7 +867,7 @@ watch(
         </div>
       </div>
       <div class="flex mt-2">
-        <button class="btn-primary py-[10px] text-center w-full">
+        <button class="btn-primary accent-color py-[10px] text-center w-full">
           Preview
         </button>
       </div>

@@ -544,7 +544,7 @@ function handleGasPriceInput(value, request) {
       <div class="h-1/6">
         <div v-if="isArcanaPrivateKeyRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary accent-color h-10 p-2 w-full text-sm font-medium"
             @click="closeWindow()"
           >
             Close tab
@@ -552,7 +552,7 @@ function handleGasPriceInput(value, request) {
         </div>
         <div v-else-if="isSendTokenRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary accent-color h-10 p-2 w-full text-sm font-medium"
             @click="handleSendToken(request.params)"
           >
             Send
@@ -560,13 +560,13 @@ function handleGasPriceInput(value, request) {
         </div>
         <div v-else class="flex gap-2">
           <button
-            class="btn-secondary h-10 p-2 w-full text-sm font-medium"
+            class="btn-secondary accent-color h-10 p-2 w-full text-sm font-medium"
             @click="onReject(request)"
           >
             Reject
           </button>
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary accent-color h-10 p-2 w-full text-sm font-medium"
             @click="onApprove(request)"
           >
             Approve

@@ -288,6 +288,7 @@ watch(
             {{ walletAddressShrinked }}
           </span>
           <button
+            class="accent-color"
             title="Click to copy"
             @click.stop="
               copyToClipboard(walletAddress, 'Wallet address copied')
@@ -296,7 +297,8 @@ watch(
             <img
               :src="getImage('copy-big.svg')"
               alt="Click to copy"
-              class="w-4 h-4 svg-icon-accent"
+              class="w-4 h-4"
+              onload="SVGInject(this)"
             />
           </button>
         </div>
@@ -312,7 +314,7 @@ watch(
           >Private Key</span
         >
         <button
-          class="flex gap-2 items-center disabled:opacity-100"
+          class="flex gap-2 items-center disabled:opacity-100 accent-color"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
@@ -322,7 +324,8 @@ watch(
           </span>
           <img
             :src="getImage('external-link.svg')"
-            class="w-4 h-4 svg-icon-accent"
+            class="w-4 h-4"
+            onload="SVGInject(this)"
           />
         </button>
       </div>
@@ -375,7 +378,7 @@ watch(
         <div>
           <button
             v-if="!user.hasMfa"
-            class="text-lg font-normal flex gap-2 items-center"
+            class="text-lg font-normal flex gap-2 items-center accent-color"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
@@ -385,7 +388,8 @@ watch(
             >
             <img
               :src="getImage('external-link.svg')"
-              class="w-4 h-4 svg-icon-accent"
+              class="w-4 h-4"
+              onload="SVGInject(this)"
             />
           </button>
           <span v-else class="text-lg font-normal">In use</span>

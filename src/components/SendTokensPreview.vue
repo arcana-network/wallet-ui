@@ -92,15 +92,19 @@ function truncateAddress(address: string) {
         class="relative flex justify-center items-center"
       >
         <button
-          class="absolute left-0"
+          class="absolute left-0 accent-color"
           title="Click to go back"
           @click.stop="emits('close')"
         >
-          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          <img
+            :src="getImage('back-arrow.svg')"
+            class="w-6 h-6"
+            onload="SVGInject(this)"
+          />
         </button>
         <span class="text-lg font-medium">Confirm Transfer</span>
       </div>
-      <div class="flex justify-between items-end">
+      <div class="flex justify-between items-end accent-color">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-medium text-gray-100"
             >Sender’s Address</span
@@ -109,7 +113,11 @@ function truncateAddress(address: string) {
             {{ truncateAddress(props.previewData.senderWalletAddress) }}
           </span>
         </div>
-        <img :src="getImage('forward-arrow.svg')" class="w-6 h-6" />
+        <img
+          :src="getImage('forward-arrow.svg')"
+          class="w-6 h-6"
+          onload="SVGInject(this)"
+        />
         <div class="flex flex-col gap-1">
           <span class="text-sm font-medium text-gray-100"
             >Recipient’s Address</span

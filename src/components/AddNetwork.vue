@@ -88,7 +88,11 @@ async function handleSubmit() {
         title="Click to go back"
         @click.stop="emit('close')"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <img
+          :src="getImage('back-arrow.svg')"
+          class="w-6 h-6"
+          onload="SVGInject(this)"
+        />
       </button>
       <h1 class="font-Nohemi text-xl font-medium">Add Network</h1>
     </div>
@@ -154,7 +158,7 @@ async function handleSubmit() {
         />
       </div>
       <div class="flex">
-        <button class="btn-primary w-full p-2">Save</button>
+        <button class="btn-primary accent-color w-full p-2">Save</button>
       </div>
     </form>
   </div>

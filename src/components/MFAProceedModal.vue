@@ -24,7 +24,7 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div>
       <button
-        class="p-2 btn-primary flex justify-center items-center w-full"
+        class="p-2 btn-primary accent-color flex justify-center items-center w-full"
         @click.stop="emit('proceed')"
       >
         Proceed

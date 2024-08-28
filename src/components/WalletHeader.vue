@@ -104,7 +104,7 @@ function getLogo() {
       </div>
       <div class="flex items-center gap-3">
         <button
-          class="flex items-center startertips_highlighted"
+          class="flex items-center accent_color startertips_highlighted"
           :class="{ 'z-[999]': starterTipsStore.showSwitchNetwork }"
           @click.stop="openChainList()"
         >
@@ -122,15 +122,18 @@ function getLogo() {
               @error="handleFallbackLogo"
             />
           </div>
-          <img
-            :src="getImage('arrow-down.svg')"
-            class="transition-all duration-200 ease-in-out svg-icon-accent"
-            :class="{ '-rotate-180': isChainListExpanded }"
-            title="Click to expand"
-          />
+          <div class="accent-color">
+            <img
+              :src="getImage('arrow-down.svg')"
+              class="transition-all duration-200 ease-in-out svg-icon-accent"
+              :class="{ '-rotate-180': isChainListExpanded }"
+              title="Click to expand"
+              onload="SVGInject(this)"
+            />
+          </div>
         </button>
         <button
-          class="w-xl h-xl"
+          class="w-xl h-xl accent-color"
           title="Click to show the QR Code"
           @click.stop="openReceiveTokens(true)"
         >
@@ -138,6 +141,7 @@ function getLogo() {
             :src="getImage('qr-code.svg')"
             alt="Wallet Icon"
             class="svg-icon-accent"
+            onload="SVGInject(this)"
           />
         </button>
       </div>

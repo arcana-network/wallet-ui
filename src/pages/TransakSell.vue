@@ -511,9 +511,12 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             target="_blank"
             rel="noopener"
             :href="generateExplorerURL(explorerUrl, txStatus.hash)"
-            class="text-base flex items-center gap-1"
+            class="text-base flex items-center gap-1 accent-color"
             >View Transaction on Explorer
-            <img :src="getImage('external-link.svg')" class="h-4 w-4"
+            <img
+              :src="getImage('external-link.svg')"
+              class="h-4 w-4"
+              onload="SVGInject(this)"
           /></a>
         </div>
         <button class="text-sm" @click.stop="closeWindow">Close Window</button>
@@ -641,12 +644,15 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       </div>
       <div class="flex gap-4 mt-4">
         <button
-          class="btn-secondary h-10 p-2 w-full"
+          class="btn-secondary accent-color h-10 p-2 w-full"
           @click.stop="handleReject"
         >
           Reject
         </button>
-        <button class="btn-primary h-10 p-2 w-full" @click.stop="handleApprove">
+        <button
+          class="btn-primary accent-color h-10 p-2 w-full"
+          @click.stop="handleApprove"
+        >
           Approve
         </button>
       </div>

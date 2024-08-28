@@ -301,7 +301,7 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary accent-color p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -309,13 +309,13 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary accent-color p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 w-full text-sm font-medium"
+          class="btn-primary accent-color p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -328,7 +328,7 @@ function isDeprecatedMethod() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary accent-color text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

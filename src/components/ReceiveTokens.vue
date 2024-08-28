@@ -40,11 +40,15 @@ async function copyToClipboard(value: string) {
   <div class="flex items-center justify-center gap-1 mt-4">
     <p class="text-lg font-medium">{{ userStore.walletAddressShrinked }}</p>
     <button
-      class="w-lg h-lg"
+      class="w-lg h-lg accent-color"
       title="Click to copy wallet address"
       @click="copyToClipboard(userStore.walletAddress)"
     >
-      <img :src="getImage('copy.svg')" alt="Copy wallet address" />
+      <img
+        :src="getImage('copy.svg')"
+        alt="Copy wallet address"
+        onload="SVGInject(this)"
+      />
     </button>
   </div>
 </template>

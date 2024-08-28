@@ -327,7 +327,7 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
-          class="btn-primary p-2 text-sm font-medium w-40"
+          class="btn-primary accent-color p-2 text-sm font-medium w-40"
           @click.stop="handleDone"
         >
           Done
@@ -369,17 +369,19 @@ function handlePinBack() {
           <img
             v-if="passwordType === 'password'"
             :src="getImage('eye.svg')"
-            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            class="accent-color absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
             style="transform: translateY(-50%)"
             title="Show password"
+            onload="SVGInject(this)"
             @click.stop="passwordType = 'text'"
           />
           <img
             v-else
             :src="getImage('eye-off.svg')"
-            class="absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
+            class="accent-color absolute top-[50%] right-4 w-lg h-lg cursor-pointer"
             style="transform: translateY(-50%)"
             title="Hide password"
+            onload="SVGInject(this)"
             @click.stop="passwordType = 'password'"
           />
         </div>
@@ -392,14 +394,14 @@ function handlePinBack() {
       <div class="flex justify-end gap-4">
         <button
           type="reset"
-          class="btn-secondary text-sm font-medium p-2 w-[8rem]"
+          class="btn-secondary accent-color text-sm font-medium p-2 w-[8rem]"
           @click.stop="handlePinBack"
         >
           Back
         </button>
         <button
           type="submit"
-          class="btn-primary text-sm font-medium p-2 w-[8rem]"
+          class="btn-primary accent-color text-sm font-medium p-2 w-[8rem]"
         >
           Proceed
         </button>
@@ -445,12 +447,15 @@ function handlePinBack() {
         <div class="flex justify-end gap-4">
           <button
             type="reset"
-            class="btn-secondary text-sm p-2 w-32"
+            class="btn-secondary accent-color text-sm p-2 w-32"
             @click.stop="handleCancel"
           >
             Cancel
           </button>
-          <button type="submit" class="btn-primary text-sm p-2 w-32">
+          <button
+            type="submit"
+            class="btn-primary accent-color text-sm p-2 w-32"
+          >
             Proceed
           </button>
         </div>

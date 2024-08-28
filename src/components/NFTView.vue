@@ -141,7 +141,11 @@ function handleFallbackNft(event) {
     <div v-if="!loader.show && nfts.length" class="flex flex-col space-y-1">
       <label for="search-nft" class="text-sm">Search NFT</label>
       <div class="card flex px-3 space-x-2">
-        <img :src="getImage('search.svg')" alt="search" />
+        <img
+          :src="getImage('search.svg')"
+          alt="search"
+          onload="SVGInject(this)"
+        />
         <input
           id="search-nft"
           v-model="searchTerm"
@@ -207,10 +211,10 @@ function handleFallbackNft(event) {
       class="flex justify-center"
     >
       <button
-        class="btn-quaternery accent-color flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
+        class="accent-color btn-quaternery accent-color flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
         @click.stop="handleManageNFT"
       >
-        <img :src="getImage('settings.svg')" class="svg-icon-accent" />
+        <img :src="getImage('settings.svg')" onload="SVGInject(this)" />
         <span class="text-base font-medium accent-color">Manage</span>
       </button>
     </div>

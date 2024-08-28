@@ -56,10 +56,16 @@ async function onViewDetails() {
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex justify-end gap-4 text-sm font-medium">
-        <button class="btn-secondary w-full p-2" @click="emits('reject')">
+        <button
+          class="btn-secondary accent-color w-full p-2"
+          @click="emits('reject')"
+        >
           Reject
         </button>
-        <button class="btn-primary w-full p-2" @click="emits('approve')">
+        <button
+          class="btn-primary accent-color w-full p-2"
+          @click="emits('approve')"
+        >
           Approve
         </button>
       </div>
@@ -70,7 +76,7 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary accent-color text-sm font-medium"
           @click.stop="requestStore.skipRequest(props.request.request.id)"
         >
           Do this later

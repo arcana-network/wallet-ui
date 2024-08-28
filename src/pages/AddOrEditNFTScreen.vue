@@ -297,7 +297,9 @@ watch(
               autocomplete="off"
             />
           </div>
-          <button type="submit" class="btn-primary mt-4 py-2">Save</button>
+          <button type="submit" class="btn-primary accent-color mt-4 py-2">
+            Save
+          </button>
         </div>
       </form>
     </div>
