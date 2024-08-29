@@ -32,10 +32,22 @@
     - name: Change the permissions of folders
       shell: 'sudo chown deploy:deploy -R /tmp/wallet-ui'
 
-    - name: Source .profile and check NPM_TOKEN
+    - name: Install npm dependencies
       shell: |
         source /home/deploy/.profile
-        echo "NPM_TOKEN=$NPM_TOKEN" > /tmp/npm_token_test.txt
+        cd /home/deploy/wallet-ui/ && npm install
+      args:
+        executable: /bin/bash
+
+    - name: Build the project
+      shell: |
+        cd /home/deploy/wallet-ui/ && npm run build
+      args:
+        executable: /bin/bash
+
+    - name: Rsync build files to the production folder
+      shell: |
+        rsync -av --delete /home/deploy/wallet-ui/ /home/deploy/wallet-ui-files/
       args:
         executable: /bin/bash
 
