@@ -32,14 +32,14 @@
     - name: Change the permissions of folders
       shell: 'sudo chown deploy:deploy -R /tmp/wallet-ui'
 
+    - name: Source .profile and check NPM_TOKEN
+      shell: |
+        source /home/deploy/.profile
+        echo "NPM_TOKEN=$NPM_TOKEN" > /tmp/npm_token_test.txt
+      args:
+        executable: /bin/bash
+
     - name: Remove the tmp cloned repo
       file:
         path: '{{ temp_repo_path }}'
         state: absent
-
-    - name: Check if NPM_TOKEN is available and write to a file
-      shell: |
-        source /home/deploy/.bashrc
-        echo "NPM_TOKEN=$NPM_TOKEN" > /tmp/npm_token_test.txt
-      args:
-        executable: /bin/bash
