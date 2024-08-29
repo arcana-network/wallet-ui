@@ -304,6 +304,7 @@ watch(
         </div>
       </div>
       <div
+        v-if="appStore.chainType !== ChainType.multiversx_cv25519"
         class="flex flex-col"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
