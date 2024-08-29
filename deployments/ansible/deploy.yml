@@ -50,11 +50,7 @@
 
     - name: Build the project
       become: yes
-      shell: |
-        source /home/deploy/.bashrc
-        cd /home/deploy/wallet-ui/ && npm run build
-      args:
-        executable: /bin/bash
+      shell: 'cd /home/deploy/wallet-ui/ && npm run build'
 
     - name: Rsync build files to the production folder
       become: yes
