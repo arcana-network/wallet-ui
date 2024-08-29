@@ -15,7 +15,6 @@
       register: code_upload
 
     - name: Change the permissions of folders
-      become: yes
       shell: 'sudo chown deploy:tesla -R /tmp/wallet-ui/'
 
     - name: Rsync the code to our running repo
@@ -31,27 +30,16 @@
       when: code_upload.changed
 
     - name: Change the permissions of folders
-      become: yes
       shell: 'sudo chown deploy:deploy -R /tmp/wallet-ui'
 
     - name: Remove the tmp cloned repo
-      become: yes
       file:
         path: '{{ temp_repo_path }}'
         state: absent
 
-    - name: Install npm dependencies
-      become: yes
+    - name: Check if NPM_TOKEN is available and write to a file
       shell: |
         source /home/deploy/.bashrc
-        cd /home/deploy/wallet-ui/ && npm install
+        echo "NPM_TOKEN=$NPM_TOKEN" > /tmp/npm_token_test.txt
       args:
         executable: /bin/bash
-
-    - name: Build the project
-      become: yes
-      shell: 'cd /home/deploy/wallet-ui/ && npm run build'
-
-    - name: Rsync build files to the production folder
-      become: yes
-      shell: rsync -av --delete /home/deploy/wallet-ui/ /home/deploy/wallet-ui-files/
