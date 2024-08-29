@@ -2,12 +2,21 @@
 import { ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
+import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
+import { getStorage } from '@/utils/storageWrapper'
 
 const emit = defineEmits(['proceed', 'close'])
 const isLoading = ref(false)
+const storage = getStorage()
+const userStore = useUserStore()
 
+function handleDismiss() {
+  storage.local.sethasMVXSeedShown(userStore.info.id, true)
+  emit('close')
+}
 function handleProceed() {
+  storage.local.sethasMVXSeedShown(userStore.info.id, true)
   emit('proceed')
 }
 </script>
@@ -34,10 +43,7 @@ function handleProceed() {
         >
           Display Seed Phrase
         </button>
-        <button
-          class="flex-1 btn-tertiary accent-color"
-          @click.stop="emit('close')"
-        >
+        <button class="flex-1 btn-tertiary" @click.stop="handleDismiss">
           Skip and Proceed
         </button>
       </form>
