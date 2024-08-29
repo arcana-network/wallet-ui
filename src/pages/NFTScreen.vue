@@ -44,7 +44,7 @@ onBeforeRouteLeave((to) => {
   </div>
   <div v-else class="h-full">
     <div class="pb-5 flex flex-col gap-3">
-      <span class="font-lg text-[20px] font-medium">NFTs</span>
+      <h1 class="font-lg text-2xl font-medium">NFTs</h1>
       <div class="flex flex-col overflow-hidden">
         <NFTView
           :refresh-state="refreshState"

@@ -7,9 +7,7 @@ const emit = defineEmits(['proceed', 'close'])
 <template>
   <div class="p-2 flex flex-col gap-3">
     <div class="flex justify-center">
-      <div class="font-Nohemi text-[20px] font-medium">
-        Enhance Wallet Security
-      </div>
+      <h1 class="font-Nohemi text-2xl font-medium">Enhance Wallet Security</h1>
     </div>
     <div class="text-sm text-gray-spanish-light flex flex-col gap-2">
       <p>
@@ -26,7 +24,7 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div>
       <button
-        class="p-2 btn-primary flex justify-center items-center w-full"
+        class="p-2 btn-primary accent-color flex justify-center items-center w-full"
         @click.stop="emit('proceed')"
       >
         Proceed

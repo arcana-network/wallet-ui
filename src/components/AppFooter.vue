@@ -32,7 +32,7 @@ function getIcon(icon: string, pathName: string) {
 
 <template>
   <footer
-    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 dark:bg-black-eerie select-none"
+    class="accent-color flex items-center px-12 py-2 bg-gray-900 border-gray-800 dark:bg-black-eerie select-none"
   >
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link
@@ -40,18 +40,33 @@ function getIcon(icon: string, pathName: string) {
         title="Assets"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
+        <div
+          v-if="isCurrentRoute('home')"
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
           <img
-            :src="getIcon('tokens-icon', 'home')"
+            :src="getImage('tokens-icon-selected.svg')"
             alt="home"
             class="w-xl h-xl"
+            onload="SVGInject(this)"
+          />
+        </div>
+        <div
+          v-else
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
+          <img
+            :src="getImage('tokens-icon.svg')"
+            alt="home"
+            class="w-xl h-xl"
+            onload="SVGInject(this)"
           />
         </div>
         <span
-          class="text-xs font-normal"
+          class="text-xs accent-color font-normal"
           :class="
             isCurrentRoute('home')
-              ? 'text-blue-dark dark:text-white-200'
+              ? 'text-blue-dark dark:text-white-200 accent-color'
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Tokens</span
@@ -63,14 +78,31 @@ function getIcon(icon: string, pathName: string) {
         title="NFTs"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
+        <div
+          v-if="isCurrentRoute('Nfts')"
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
+          <img
+            :src="getImage('nfts-icon-selected.svg')"
+            alt="nfts"
+            onload="SVGInject(this)"
+          />
+        </div>
+        <div
+          v-else
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
+          <img
+            :src="getImage('nfts-icon.svg')"
+            alt="nfts"
+            onload="SVGInject(this)"
+          />
         </div>
         <span
-          class="text-xs font-normal"
+          class="text-xs accent-color font-normal"
           :class="
             isCurrentRoute('Nfts')
-              ? 'text-blue-dark dark:text-white-200'
+              ? 'text-blue-dark dark:text-white-200 accent-color'
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >NFT</span
@@ -81,14 +113,31 @@ function getIcon(icon: string, pathName: string) {
         title="Profile"
         class="flex flex-col justify-center items-center gap-1"
       >
-        <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
+        <div
+          v-if="isCurrentRoute('profile')"
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
+          <img
+            :src="getImage('profile-icon-selected.svg')"
+            alt="profile"
+            onload="SVGInject(this)"
+          />
+        </div>
+        <div
+          v-else
+          class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+        >
+          <img
+            :src="getImage('profile-icon.svg')"
+            alt="profile"
+            onload="SVGInject(this)"
+          />
         </div>
         <span
-          class="text-xs font-normal"
+          class="text-xs accent-color font-normal"
           :class="
             isCurrentRoute('profile')
-              ? 'text-blue-dark dark:text-white-200'
+              ? 'text-blue-dark dark:text-white-200 accent-color'
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Profile</span
@@ -100,22 +149,56 @@ function getIcon(icon: string, pathName: string) {
         class="flex flex-col justify-center items-center gap-1"
       >
         <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img
-            v-if="requestStore.skippedRequestsForApproval.length > 0"
-            :src="getIcon('notifications-icon', 'activities')"
-            alt="activities"
-          />
-          <img
-            v-else
-            :src="getIcon('no-notifications-icon', 'activities')"
-            alt="activities"
-          />
+          <div v-if="requestStore.skippedRequestsForApproval.length === 0">
+            <div
+              v-if="isCurrentRoute('activities')"
+              class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+            >
+              <img
+                :src="getImage('notifications-icon-selected.svg')"
+                alt="notifications"
+                onload="SVGInject(this)"
+              />
+            </div>
+            <div
+              v-else
+              class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+            >
+              <img
+                :src="getImage('notifications-icon.svg')"
+                alt="notifications"
+                onload="SVGInject(this)"
+              />
+            </div>
+          </div>
+          <div v-else>
+            <div
+              v-if="isCurrentRoute('activities')"
+              class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+            >
+              <img
+                :src="getImage('no-notifications-icon-selected.svg')"
+                alt="activities"
+                onload="SVGInject(this)"
+              />
+            </div>
+            <div
+              v-else
+              class="accent-color w-xxxl h-xxl rounded-md flex items-center justify-center"
+            >
+              <img
+                :src="getImage('no-notifications-icon.svg')"
+                alt="activities"
+                onload="SVGInject(this)"
+              />
+            </div>
+          </div>
         </div>
         <span
-          class="text-xs font-normal"
+          class="text-xs accent-color font-normal"
           :class="
             isCurrentRoute('activities')
-              ? 'text-blue-dark dark:text-white-200'
+              ? 'text-blue-dark dark:text-white-200 accent-color'
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Activity</span

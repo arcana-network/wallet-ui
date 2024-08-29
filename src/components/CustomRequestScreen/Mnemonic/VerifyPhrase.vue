@@ -113,9 +113,9 @@ updatePageContent()
     <AppLoader v-if="isLoading" message="Processing..." />
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-2">
-        <p class="font-Nohemi font-semibold text-center text-xl">
+        <h1 class="font-Nohemi font-semibold text-center text-xl">
           Verify Recording
-        </p>
+        </h1>
         <p class="text-sm text-center text-zinc-400">
           Now make sure that you have recorded the seed phrase correctly by
           selecting the correct option below.
@@ -185,7 +185,7 @@ updatePageContent()
         @submit.prevent="emit('close')"
       >
         <button
-          class="btn-primary py-[10px]"
+          class="btn-primary accent-color py-[10px]"
           type="submit"
           :disabled="isError || isCorrect"
         >

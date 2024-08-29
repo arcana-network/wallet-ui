@@ -26,7 +26,7 @@ function handleCollapse() {
     >
       <div class="flex justify-center">
         <button @click="handleCollapse">
-          <img :src="getImage('collapse-arrow.svg')" />
+          <img :src="getImage('collapse-arrow.svg')" onload="SVGInject(this)" />
         </button>
       </div>
       <div

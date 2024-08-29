@@ -234,7 +234,7 @@ function calculateCurrencyValue(value) {
   <div v-else-if="shrinkMode" class="flex justify-between p-3">
     <div>
       <div class="flex cursor-pointer" @click="emits('expand')">
-        <span class="font-Nohemi text-lg font-medium">Send</span>
+        <h1 class="font-Nohemi text-lg font-medium">Send</h1>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
       <span class="text-[#989898] text-sm font-normal">{{
@@ -268,13 +268,10 @@ function calculateCurrencyValue(value) {
         class="flex justify-center items-center cursor-pointer"
         @click="emits('shrink')"
       >
-        <span class="font-Nohemi text-lg font-medium">Send Transaction</span>
+        <h1 class="font-Nohemi text-lg font-medium">Send Transaction</h1>
         <img :src="getImage('arrow-down.svg')" alt="" class="rotate-180" />
       </div>
-      <p
-        v-else
-        class="font-Nohemi text-[20px] font-medium text-center flex-grow"
-      >
+      <p v-else class="font-Nohemi text-2xl font-medium text-center flex-grow">
         Send Transaction
       </p>
       <p class="text-xs text-gray-spanish-light text-center">
@@ -458,7 +455,7 @@ function calculateCurrencyValue(value) {
     >
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary accent-color p-2 w-full text-sm font-medium"
           @click="emits('proceed')"
         >
           Proceed
@@ -466,13 +463,13 @@ function calculateCurrencyValue(value) {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary accent-color p-2 w-full text-sm font-medium"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 w-full text-sm font-medium"
+          class="btn-primary accent-color p-2 w-full text-sm font-medium"
           @click="emits('approve')"
         >
           Approve
@@ -485,7 +482,7 @@ function calculateCurrencyValue(value) {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary accent-color text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

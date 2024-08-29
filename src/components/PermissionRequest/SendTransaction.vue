@@ -162,7 +162,7 @@ onMounted(async () => {
       :class="{ 'h-2/4': showDetails }"
     >
       <button
-        class="flex justify-center items-center text-sm font-medium"
+        class="flex justify-center items-center text-sm font-medium accent-color"
         @click="showDetails = !showDetails"
       >
         <span>View Details </span>
@@ -171,6 +171,7 @@ onMounted(async () => {
           class="transition-all duration-500 ease-in-out"
           :class="{ '-rotate-180': showDetails }"
           title="Click to expand"
+          onload="SVGInject(this)"
         />
       </button>
       <SignMessageAdvancedInfo

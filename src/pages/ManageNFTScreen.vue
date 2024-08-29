@@ -99,13 +99,17 @@ function truncateNFTTokenId(tokenId: string) {
       <div class="flex flex-col items-center min-h-full flex-grow gap-5">
         <div class="relative flex justify-center items-center w-full">
           <button
-            class="absolute left-0"
+            class="absolute left-0 accent-color"
             title="Click to go back"
             @click.stop="router.go(-1)"
           >
-            <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+            <img
+              :src="getImage('back-arrow.svg')"
+              class="w-6 h-6"
+              onload="SVGInject(this)"
+            />
           </button>
-          <span class="font-Nohemi text-[20px] font-medium">Manage NFTs</span>
+          <h1 class="font-Nohemi text-2xl font-medium">Manage NFTs</h1>
         </div>
         <div
           class="card flex flex-col w-full h-full max-h-max text-left flex-grow overflow-hidden"
@@ -118,7 +122,7 @@ function truncateNFTTokenId(tokenId: string) {
               v-for="nft in nfts"
               :key="`nft-${nft.address}-${nft.tokenId}`"
               :title="`${nft.collectionName} (${nft.tokenId}) - ${nft.name}`"
-              class="select-none flex justify-between text-base px-4 py-2 nft-container"
+              class="accent-color select-none flex justify-between text-base px-4 py-2 nft-container"
               :class="{
                 'cursor-pointer': !nft.autodetected,
               }"
@@ -127,7 +131,11 @@ function truncateNFTTokenId(tokenId: string) {
               <span class="overflow-hidden whitespace-nowrap">
                 {{ nft.collectionName }} ({{ truncateNFTTokenId(nft.tokenId) }})
               </span>
-              <img :src="getImage('edit.svg')" class="opacity-0" />
+              <img
+                :src="getImage('edit.svg')"
+                class="opacity-0"
+                onload="SVGInject(this)"
+              />
             </div>
           </div>
           <div v-else class="flex flex-col flex-grow">
@@ -137,10 +145,10 @@ function truncateNFTTokenId(tokenId: string) {
           </div>
         </div>
         <button
-          class="btn-quaternery flex w-full space-x-1 items-center cursor-pointer justify-center"
+          class="btn-quaternery accent-color flex w-full space-x-1 items-center cursor-pointer justify-center"
           @click.stop="handleAddToken"
         >
-          <img :src="getImage('plus.svg')" />
+          <img :src="getImage('plus.svg')" onload="SVGInject(this)" />
           <span class="text-base font-medium">New</span>
         </button>
       </div>

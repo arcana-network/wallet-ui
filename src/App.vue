@@ -266,6 +266,7 @@ const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
   <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
+      id="appEl"
       v-motion="'dragTarget'"
       v-drag="dragHandler"
       class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"

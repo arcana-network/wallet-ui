@@ -234,9 +234,9 @@ watch(
     <div class="h-full flex flex-col gap-5">
       <div class="flex items-center justify-center">
         <div v-if="props.edit" class="flex justify-between items-start">
-          <span class="font-Nohemi text-[20px] font-medium">Edit NFT</span>
+          <h1 class="font-Nohemi text-2xl font-medium">Edit NFT</h1>
         </div>
-        <span v-else class="font-Nohemi text-[20px] font-medium">Add NFT</span>
+        <h1 v-else class="font-Nohemi text-2xl font-medium">Add NFT</h1>
       </div>
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-6 flex-grow">
@@ -297,7 +297,9 @@ watch(
               autocomplete="off"
             />
           </div>
-          <button type="submit" class="btn-primary mt-4 py-2">Save</button>
+          <button type="submit" class="btn-primary accent-color mt-4 py-2">
+            Save
+          </button>
         </div>
       </form>
     </div>

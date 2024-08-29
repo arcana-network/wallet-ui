@@ -35,7 +35,7 @@ watch(selectedChain, async () => {
 <template>
   <Listbox v-slot="{ open }" v-model="selectedChain">
     <ListboxButton
-      class="flex justify-between items-center text-base sm:text-[12px] text-left rounded-lg p-3 sm:p-1 debossed-card w-full h-14 sm:h-8 outline-none border-none"
+      class="flex justify-between items-center text-base sm:text-sm text-left rounded-lg p-3 sm:p-1 debossed-card w-full h-14 sm:h-8 outline-none border-none"
       :class="{
         'outline-black dark:outline-white outline-1 outline': open,
       }"
@@ -63,7 +63,7 @@ watch(selectedChain, async () => {
       class="debossed-card p-3 sm:p-1 h-48 rounded-[10px] mt-1 divide-y-[1px] divide-gray-600 flex flex-col z-10 relative"
     >
       <ListboxOptions
-        class="text-base sm:text-[12px] space-y-3 sm:space-y-2 rounded-b-lg py-2 flex-1 overflow-auto"
+        class="text-base sm:text-sm space-y-3 sm:space-y-2 rounded-b-lg py-2 flex-1 overflow-auto"
       >
         <ListboxOption
           v-for="chain in rpcStore.rpcConfigList"

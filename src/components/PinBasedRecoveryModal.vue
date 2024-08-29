@@ -33,7 +33,7 @@ function handleProceed() {
     <form class="flex flex-col gap-4" @submit.prevent="handleProceed">
       <div class="flex flex-col gap-1">
         <label>Type in the PIN used during setup</label>
-        <div class="relative">
+        <div class="relative accent-color">
           <input
             v-model.trim="password"
             :type="passwordType"
@@ -46,6 +46,7 @@ function handleProceed() {
             class="absolute top-[50%] right-3 w-4 cursor-pointer"
             style="transform: translateY(-50%)"
             title="Show password"
+            onload="SVGInject(this)"
             @click.stop="passwordType = 'text'"
           />
           <img
@@ -54,16 +55,20 @@ function handleProceed() {
             class="absolute top-[50%] right-3 w-4 cursor-pointer"
             style="transform: translateY(-50%)"
             title="Hide password"
+            onload="SVGInject(this)"
             @click.stop="passwordType = 'password'"
           />
         </div>
       </div>
       <div class="flex flex-col mt-1 justify-center items-center gap-4">
-        <button class="mt-1 text-sm btn-primary p-2 w-48" type="submit">
+        <button
+          class="mt-1 text-sm btn-primary accent-color p-2 w-48"
+          type="submit"
+        >
           Proceed
         </button>
         <button
-          class="font-medium capitalize text-sm btn-tertiary"
+          class="font-medium capitalize text-sm btn-tertiary accent-color"
           @click.stop="emit('switch-alternate')"
         >
           Answer Security Questions Instead

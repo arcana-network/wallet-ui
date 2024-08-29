@@ -270,10 +270,14 @@ function handleFallbackLogo(event) {
     </div>
     <button
       v-if="appStore.chainType === ChainType.evm_secp256k1"
-      class="flex items-center justify-center flex-grow btn-quaternery space-x-2"
+      class="flex items-center justify-center flex-grow btn-quaternery accent-color space-x-2"
       @click.stop="handleAddToken"
     >
-      <img :src="getImage('plus.svg')" class="h-3 w-3" />
+      <img
+        :src="getImage('plus.svg')"
+        class="h-3 w-3 svg-icon-accent"
+        onload="SVGInject(this)"
+      />
       <span class="text-base">New Asset</span>
     </button>
     <Teleport v-if="modalStore.show" to="#modal-container">

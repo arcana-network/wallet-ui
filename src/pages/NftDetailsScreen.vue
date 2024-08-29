@@ -110,9 +110,10 @@ watch(
               <div class="flex gap-1">
                 <button
                   title="Click to transfer this NFT"
+                  class="accent-color"
                   @click.stop="openNftModal"
                 >
-                  <img :src="getImage('send.svg')" />
+                  <img :src="getImage('send.svg')" onload="SVGInject(this)" />
                 </button>
               </div>
             </div>

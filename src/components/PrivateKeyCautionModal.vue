@@ -6,9 +6,9 @@ const emit = defineEmits(['proceed', 'close'])
 
 <template>
   <div class="p-3 flex flex-col gap-4">
-    <div class="font-Nohemi text-center text-[20px] font-medium">
+    <h1 class="font-Nohemi text-center text-2xl font-medium">
       Export Private Key
-    </div>
+    </h1>
     <div class="text-sm text-gray-spanish-light flex flex-col gap-2">
       <p>
         Use this utility to export your private keys to create a backup or to
@@ -27,7 +27,7 @@ const emit = defineEmits(['proceed', 'close'])
     </div>
     <div>
       <button
-        class="p-2 btn-primary flex justify-center items-center w-full"
+        class="p-2 btn-primary accent-color flex justify-center items-center w-full"
         @click.stop="emit('proceed')"
       >
         Proceed

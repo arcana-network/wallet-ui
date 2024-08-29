@@ -282,7 +282,9 @@ async function copyToClipboard(value: string) {
           }"
         >
           <Listbox v-slot="{ open }" v-model="selectedAddressType">
-            <ListboxButton class="flex justify-between items-center">
+            <ListboxButton
+              class="flex justify-between items-center accent-color"
+            >
               <button
                 class="flex items-center space-x-2"
                 @click.stop="showAddressListDropDown = true"
@@ -302,13 +304,17 @@ async function copyToClipboard(value: string) {
                           }}</span
                         >
                         <button
-                          title="Click to copy wallet address"
-                          class="self-start"
+                          title="Click to copy wallet address accent-color"
+                          class="self-start accent-color"
                           @click.stop="
                             copyToClipboard(selectedAddressType.address)
                           "
                         >
-                          <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+                          <img
+                            :src="getImage('copy.svg')"
+                            class="w-lg h-lg"
+                            onload="SVGInject(this)"
+                          />
                         </button>
                       </div>
                       <span class="text-left text-xs text-gray-100">{{
@@ -324,8 +330,9 @@ async function copyToClipboard(value: string) {
                   !starterTipsStore.showWalletAddress
                 "
                 :src="getImage('arrow-down.svg')"
-                class="w-xl h-xl transition-transform"
+                class="w-xl h-xl transition-transform svg-icon-accent"
                 :class="{ 'rotate-180': open }"
+                onload="SVGInject(this)"
               />
             </ListboxButton>
             <div v-if="open && rpcStore.isGaslessConfigured">
@@ -368,12 +375,12 @@ async function copyToClipboard(value: string) {
       <div class="mt-4 flex flex-col">
         <span
           v-if="appStore.chainType === ChainType.near_cv25519"
-          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-xs font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Available Balance:</span
         >
         <span
           v-else
-          class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
+          class="text-xs font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
         <div class="flex items-center gap-3 text-base font-medium">
@@ -402,45 +409,57 @@ async function copyToClipboard(value: string) {
             >
           </div>
           <button
-            class="w-lg h-lg mt-[6px] rounded-full"
+            class="w-lg h-lg mt-[6px] rounded-full accent-color"
             :class="{ 'animate-spin': refreshIconAnimating }"
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
           >
-            <img :src="getImage('refresh.svg')" />
+            <img :src="getImage('refresh.svg')" onload="SVGInject(this)" />
           </button>
         </div>
       </div>
     </div>
     <div class="flex gap-3">
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="accent-color btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         @click.stop="goToSendTokens()"
       >
-        <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-        <span>Send</span>
+        <img
+          :src="getImage('send-icon.svg')"
+          class="w-md h-md"
+          onload="SVGInject(this)"
+        />
+        <span class="accent-color">Send</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="accent-color btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         :disabled="!transakNetwork && onRampMoney === false"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         @click.stop="handleBuy(true)"
       >
-        <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-        <span>Buy</span>
+        <img
+          :src="getImage('buy-icon.svg')"
+          class="w-md h-md svg-icon-accent"
+          onload="SVGInject(this)"
+        />
+        <span class="accent-color">Buy</span>
       </button>
       <button
-        class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        class="btn-quaternery accent-color flex gap-1 justify-center p-2 items-center w-full"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >
-        <img :src="getImage('sell.svg')" class="w-md h-md" />
-        <span>Sell</span>
+        <img
+          :src="getImage('sell.svg')"
+          class="w-md h-md"
+          onload="SVGInject(this)"
+        />
+        <span class="accent-color">Sell</span>
       </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

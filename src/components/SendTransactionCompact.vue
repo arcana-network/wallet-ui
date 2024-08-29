@@ -129,7 +129,7 @@ async function onViewDetails() {
   <div class="card p-4 flex flex-col h-full gap-4 justify-between">
     <div class="flex flex-col gap-2">
       <div class="flex items-center justify-center">
-        <h1 class="font-Nohemi m-0 text-[20px] font-medium capitalize">
+        <h1 class="font-Nohemi m-0 text-2xl font-medium capitalize">
           Send Transaction
         </h1>
       </div>
@@ -184,10 +184,16 @@ async function onViewDetails() {
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 text-sm font-medium">
-        <button class="w-full btn-secondary p-2" @click="emits('reject')">
+        <button
+          class="w-full btn-secondary accent-color p-2"
+          @click="emits('reject')"
+        >
           Reject
         </button>
-        <button class="w-full btn-primary p-2" @click="emits('approve')">
+        <button
+          class="w-full btn-primary accent-color p-2"
+          @click="emits('approve')"
+        >
           Approve
         </button>
       </div>
@@ -198,7 +204,7 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary accent-color text-sm font-medium"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

@@ -29,7 +29,7 @@ async function printKey() {
 <template>
   <div class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
-      <span class="font-Nohemi text-xl font-semibold">Seed Phrase</span>
+      <h1 class="font-Nohemi text-xl font-semibold">Seed Phrase</h1>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-2"
@@ -64,17 +64,21 @@ async function printKey() {
       </div>
       <div class="grid grid-cols-2 gap-1 mt-4">
         <button
-          class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          class="btn-tertiary accent-color flex items-center justify-center gap-2 py-2"
           type="button"
           @click.stop="
             copyToClipboard(seedPhrase, 'Seed phrase copied to memory')
           "
         >
-          <img :src="getImage('copy.svg')" alt="Copy wallet address" />
+          <img
+            :src="getImage('copy.svg')"
+            alt="Copy wallet address"
+            onload="SVGInject(this)"
+          />
           Copy
         </button>
         <button
-          class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          class="btn-tertiary accent-color flex items-center justify-center gap-2 py-2"
           type="button"
           @click="printKey"
         >
@@ -82,12 +86,16 @@ async function printKey() {
             :src="getImage('print.svg')"
             alt="Print wallet address"
             class="h-4"
+            onload="SVGInject(this)"
           />
           Print
         </button>
       </div>
       <div class="flex mt-2">
-        <button class="btn-primary py-[10px] text-center w-full" type="submit">
+        <button
+          class="btn-primary accent-color py-[10px] text-center w-full"
+          type="submit"
+        >
           Verify
         </button>
       </div>

@@ -76,7 +76,7 @@ function handleDragStart(e) {
       </div>
       <div
         ref="swiperEl"
-        class="absolute btn-primary inset-0 z-10 cursor-pointer transition-all duration-300 ease-in-out flex justify-end"
+        class="absolute btn-primary accent-color  inset-0 z-10 cursor-pointer transition-all duration-300 ease-in-out flex justify-end"
         :style="{ transform: `translateX(${translateUntil})` }"
       >
         <div class="flex items-center justify-center w-[20%] select-none">
@@ -98,13 +98,13 @@ function handleDragStart(e) {
   </div> -->
   <div class="flex gap-2 items-center">
     <button
-      class="btn-secondary w-full p-2 text-sm font-medium rounded-full"
+      class="btn-secondary accent-color w-full p-2 text-sm font-medium rounded-full"
       @click="emit('reject')"
     >
       Reject
     </button>
     <button
-      class="btn-primary w-full p-2 text-sm font-medium rounded-full"
+      class="btn-primary accent-color w-full p-2 text-sm font-medium rounded-full"
       @click="emit('approve')"
     >
       Approve

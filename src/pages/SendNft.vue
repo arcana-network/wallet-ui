@@ -465,13 +465,17 @@ watch(
     <div v-else class="flex flex-col flex-grow justify-between gap-5">
       <div class="relative flex justify-center items-center">
         <button
-          class="absolute left-0"
+          class="absolute left-0 accent-color"
           title="Click to go back"
           @click.stop="router.go(-1)"
         >
-          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          <img
+            :src="getImage('back-arrow.svg')"
+            class="w-6 h-6"
+            onload="SVGInject(this)"
+          />
         </button>
-        <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
+        <h1 class="font-Nohemi text-2xl font-medium">Send Token</h1>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -558,7 +562,9 @@ watch(
           </div>
         </div>
         <div class="flex">
-          <button class="btn-primary p-[10px] flex-grow text-center">
+          <button
+            class="btn-primary accent-color p-[10px] flex-grow text-center"
+          >
             Preview
           </button>
         </div>

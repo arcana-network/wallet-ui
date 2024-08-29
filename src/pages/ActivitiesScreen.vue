@@ -68,7 +68,7 @@ async function getCurrencyExchangeRate() {
 <template>
   <div class="flex flex-col gap-5" @click="showFilter = false">
     <div class="flex justify-between relative items-center">
-      <h1 class="font-Nohemi text-[20px] font-medium text-center flex-grow">
+      <h1 class="font-Nohemi text-2xl font-medium text-center flex-grow">
         Activities
       </h1>
     </div>

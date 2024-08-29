@@ -36,13 +36,17 @@ function hideLoader() {
   <div class="flex flex-col justify-between">
     <div class="relative flex justify-center items-center">
       <button
-        class="absolute left-0"
+        class="absolute left-0 accent-color"
         title="Click to go back"
         @click.stop="router.push({ name: 'home' })"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <img
+          :src="getImage('back-arrow.svg')"
+          class="w-6 h-6"
+          onload="SVGInject(this)"
+        />
       </button>
-      <span class="font-Nohemi text-[20px] font-medium">Seed Phrase</span>
+      <h1 class="font-Nohemi text-2xl font-medium">Seed Phrase</h1>
     </div>
 
     <form class="flex flex-col flex-grow justify-between mt-5">
@@ -68,14 +72,18 @@ function hideLoader() {
 
       <div class="grid grid-cols-2 gap-1 mt-4">
         <button
-          class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          class="btn-tertiary accent-color flex items-center justify-center gap-2 py-2"
         >
-          <img :src="getImage('copy.svg')" alt="Copy wallet address" />
+          <img
+            :src="getImage('copy.svg')"
+            alt="Copy wallet address"
+            onload="SVGInject(this)"
+          />
           Copy
         </button>
 
         <button
-          class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          class="btn-tertiary accent-color flex items-center justify-center gap-2 py-2"
         >
           <!-- <img :src="getImage('print.svg')" alt="Print wallet address" /> -->
           Print
@@ -83,7 +91,9 @@ function hideLoader() {
       </div>
 
       <div class="flex mt-2">
-        <button class="btn-primary py-[10px] text-center w-full">Verify</button>
+        <button class="btn-primary accent-color py-[10px] text-center w-full">
+          Verify
+        </button>
       </div>
     </form>
   </div>

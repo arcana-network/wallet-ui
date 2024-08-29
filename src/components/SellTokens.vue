@@ -77,9 +77,9 @@ function handleDone() {
     </div>
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-3">
-        <p class="font-Nohemi font-medium text-center text-xl">
+        <h1 class="font-Nohemi font-medium text-center text-xl">
           Select Provider
-        </p>
+        </h1>
         <p class="text-xs text-zinc-400">
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
@@ -127,7 +127,7 @@ function handleDone() {
         </div>
         <div class="flex mt-8">
           <button
-            class="flex-1 btn-primary py-[10px] text-base font-medium"
+            class="flex-1 btn-primary accent-color py-[10px] text-base font-medium"
             :disabled="!selectedProvider?.trim().length"
           >
             Proceed

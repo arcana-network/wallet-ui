@@ -484,7 +484,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
   </div>
   <div v-else class="flex flex-col gap-5 items-center justify-center">
     <div
-      class="border border-solid border-[#363636] bg-[#1f1f1f] font-medium text-[16px] rounded-md px-4 py-5 max-w-[360px] w-full flex items-center justify-center"
+      class="border border-solid border-[#363636] bg-[#1f1f1f] font-medium text-lg rounded-md px-4 py-5 max-w-[360px] w-full flex items-center justify-center"
     >
       Sell Crypto
     </div>
@@ -498,7 +498,7 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
         <img src="@/assets/images/success.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
           <span class="font-medium">Transaction Approved</span>
-          <span class="text-[#8d8d8d] text-[12px] mx-5"
+          <span class="text-[#8d8d8d] text-sm mx-5"
             >The transaction was completed. Please click below to view the
             transaction on the explorer.</span
           >
@@ -511,14 +511,15 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             target="_blank"
             rel="noopener"
             :href="generateExplorerURL(explorerUrl, txStatus.hash)"
-            class="text-[14px] flex items-center gap-1"
+            class="text-base flex items-center gap-1 accent-color"
             >View Transaction on Explorer
-            <img :src="getImage('external-link.svg')" class="h-4 w-4"
+            <img
+              :src="getImage('external-link.svg')"
+              class="h-4 w-4"
+              onload="SVGInject(this)"
           /></a>
         </div>
-        <button class="text-[12px]" @click.stop="closeWindow">
-          Close Window
-        </button>
+        <button class="text-sm" @click.stop="closeWindow">Close Window</button>
       </div>
     </div>
     <div
@@ -531,10 +532,10 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
         <img src="@/assets/images/failed.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
           <span class="font-medium">Transaction Failed</span>
-          <span class="text-[#8d8d8d] text-[12px] mx-5"
+          <span class="text-[#8d8d8d] text-xs mx-5"
             >The transaction was failed. Retry again.</span
           >
-          <!-- <span class="text-[12px]"
+          <!-- <span class="text-xs"
             ><span class="font-medium">Reason: </span
             ><span class="text-[#8d8d8d]">{{
               txStatus.failureReason
@@ -542,8 +543,8 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           > -->
         </div>
         <div class="flex gap-5 justify-between flex-wrap items-center">
-          <button class="text-[12px]" @click.stop="tryAgain">Try Again</button>
-          <button class="text-[12px]" @click.stop="closeWindow">
+          <button class="text-sm" @click.stop="tryAgain">Try Again</button>
+          <button class="text-sm" @click.stop="closeWindow">
             Close Window
           </button>
         </div>
@@ -560,23 +561,23 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             class="h-5 w-5"
             @error="handleFallbackLogo"
           />
-          <p class="text-[20px]">{{ query.cryptoCurrency }}</p>
+          <p class="text-2xl">{{ query.cryptoCurrency }}</p>
         </div>
         <p>
           <span class="text-[40px]">{{ splitCryptoAmount.integer }}</span
-          ><span v-if="splitCryptoAmount.decimal" class="text-[20px]"
+          ><span v-if="splitCryptoAmount.decimal" class="text-xl"
             >.{{ splitCryptoAmount.decimal }}</span
           >
         </p>
       </div>
       <div class="bg-[#141414] rounded-sm p-4 flex flex-col gap-4">
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Wallet:</span>
+          <span class="text-sm">Wallet:</span>
           <span
-            class="text-[15px] font[500]"
+            class="text-base font[500]"
             :title="(route.query.partnerCustomerId as string)"
             >{{ truncateMid(route.query.partnerCustomerId as string, 5) }}
-            <span class="text-[10px]">{{
+            <span class="text-sm">{{
               rpcStore.preferredAddressType === 'scw'
                 ? '(Smart Wallet)'
                 : '(User Wallet)'
@@ -584,19 +585,19 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Fiat Amount:</span>
-          <span class="text-[15px] font[500]"
+          <span class="text-sm">Fiat Amount:</span>
+          <span class="text-base font[500]"
             >{{ query.fiatAmount }} {{ query.fiatCurrency }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Transak Fees:</span>
-          <span class="text-[15px] font[500]"
+          <span class="text-sm">Transak Fees:</span>
+          <span class="text-base font[500]"
             >{{ query.totalFeeInFiat }} {{ query.fiatCurrency }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Network:</span>
+          <span class="text-sm">Network:</span>
           <div class="flex items-center gap-2">
             <img
               v-if="selectedNetworkLogo"
@@ -605,14 +606,14 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               :alt="selectedNetworkName"
               @error="handleFallbackLogo"
             />
-            <span class="text-[15px] font[500]">{{
+            <span class="text-base font[500]">{{
               selectedNetworkName || query.network
             }}</span>
           </div>
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Token Balance:</span>
-          <span class="text-[15px] font[500]"
+          <span class="text-sm">Token Balance:</span>
+          <span class="text-base font[500]"
             >{{ balance }} {{ route.query.cryptoCurrency }}</span
           >
         </div>
@@ -620,14 +621,14 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           v-if="contractAddress !== ethers.constants.AddressZero"
           class="flex items-center justify-between"
         >
-          <span class="text-[12px]">Gas Balance:</span>
-          <span class="text-[15px] font[500]"
+          <span class="text-sm">Gas Balance:</span>
+          <span class="text-base font[500]"
             >{{ nativeBalance }} {{ selectedNetworkSymbol }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Transaction Fees:</span>
-          <span class="text-[15px] font[500]"
+          <span class="text-sm">Transaction Fees:</span>
+          <span class="text-base font[500]"
             >{{ displayGasFees }} {{ selectedNetworkSymbol }}</span
           >
         </div>
@@ -643,12 +644,15 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       </div>
       <div class="flex gap-4 mt-4">
         <button
-          class="btn-secondary h-10 p-2 w-full"
+          class="btn-secondary accent-color h-10 p-2 w-full"
           @click.stop="handleReject"
         >
           Reject
         </button>
-        <button class="btn-primary h-10 p-2 w-full" @click.stop="handleApprove">
+        <button
+          class="btn-primary accent-color h-10 p-2 w-full"
+          @click.stop="handleApprove"
+        >
           Approve
         </button>
       </div>

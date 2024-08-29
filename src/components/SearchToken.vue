@@ -62,12 +62,16 @@ function displayValue() {
   <Combobox v-slot="{ open }" v-model="selectedToken" nullable>
     <div class="relative z-10">
       <div
-        class="relative w-full cursor-default overflow-hidden flex flex-nowrap input-field focus:input-active px-2"
+        class="relative w-full accent-color cursor-default overflow-hidden flex flex-nowrap input-field focus:input-active px-2"
         :class="{
           'outline-black dark:outline-white outline-1 outline': isFocused,
         }"
       >
-        <img :src="getImage('search.svg')" class="w-sm h-sm select-none" />
+        <img
+          :src="getImage('search.svg')"
+          class="w-sm h-sm select-none"
+          onload="SVGInject(this)"
+        />
         <ComboboxInput
           class="flex-1 border-none px-2 text-base bg-transparent text-left justify-between truncate w-3/4"
           placeholder="Enter Token Name or Symbol"
@@ -81,6 +85,7 @@ function displayValue() {
             :src="getImage('arrow-down.svg')"
             class="w-xl h-xl transition-all will-change-transform duration-200"
             :class="{ '-rotate-180': open }"
+            onload="SVGInject(this)"
           />
         </ComboboxButton>
       </div>
