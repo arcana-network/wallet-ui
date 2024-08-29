@@ -14,7 +14,7 @@
         version: '{{branch}}'
       register: code_upload
 
-    - name: change the permissions of folders
+    - name: Change the permissions of folders
       become: yes
       shell: 'sudo chown deploy:tesla -R /tmp/wallet-ui/'
 
@@ -30,7 +30,7 @@
         recursive: yes
       when: code_upload.changed
 
-    - name: change the permissions of folders
+    - name: Change the permissions of folders
       become: yes
       shell: 'sudo chown deploy:deploy -R /tmp/wallet-ui'
 
@@ -40,9 +40,13 @@
         path: '{{ temp_repo_path }}'
         state: absent
 
-    - name: Install npm  dependencies
+    - name: Install npm dependencies
       become: yes
-      shell: 'cd /home/deploy/wallet-ui/ && npm install'
+      shell: |
+        source /home/deploy/.bashrc
+        cd /home/deploy/wallet-ui/ && npm install
+      args:
+        executable: /bin/bash
 
     - name: Build the project
       become: yes
