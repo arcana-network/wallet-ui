@@ -15,6 +15,7 @@ import { useActivitiesStore } from '@/store/activities'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
+import { getStorage } from '@/utils/storageWrapper'
 
 class NEARRequestHandler {
   private handler?: JsonRpcEngine
@@ -27,10 +28,16 @@ class NEARRequestHandler {
     return ChainType.near_cv25519
   }
 
+  public storeRPCConfig(c: RpcConfig) {
+    const storage = getStorage()
+    storage.local.setLastRPCConfig(c)
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     this.rpcConfig = c
     await this.accountHandler.initializeConnection(c.rpcUrls[0])
     this.handler = this.initRpcEngine()
+    this.storeRPCConfig(c)
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
     // this.emitEvent('chainChanged', { chainId })

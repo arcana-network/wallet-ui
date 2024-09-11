@@ -1,3 +1,4 @@
+import { RpcConfig } from '@arcana/auth'
 import { GetInfoOutput } from '@arcana/auth-core'
 import { CURVE } from '@arcana/key-helper'
 import dayjs from 'dayjs'
@@ -12,6 +13,7 @@ enum StorageKey {
   IsLoggedIn = 'isLoggedIn',
   Mnemonic = 'mnemonic',
   WalletMode = 'wallet-mode',
+  LastRPCConfig = 'last-rpc-config',
   Session = 'session',
   HasMFA = 'has-mfa',
   SkipMFAUntil = 'mfa-skip-until',
@@ -98,6 +100,14 @@ class UserLocalStorage extends BaseStorage {
 
   getWalletMode() {
     return this.get(StorageKey.WalletMode)
+  }
+
+  setLastRPCConfig(c: unknown) {
+    this.set(StorageKey.LastRPCConfig, c)
+  }
+
+  getLastRPCConfig() {
+    return this.get<RpcConfig | null>(StorageKey.LastRPCConfig)
   }
 
   setUserInfo(val: UserInfo) {

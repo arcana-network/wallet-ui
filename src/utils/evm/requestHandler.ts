@@ -1,3 +1,4 @@
+import { RpcConfig } from '@arcana/auth'
 import Decimal from 'decimal.js'
 import { PollingBlockTracker, Provider } from 'eth-block-tracker'
 import {
@@ -22,18 +23,7 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { type EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
-import { toHex } from '@/utils/toHex'
-
-interface RpcConfig {
-  rpcUrls: string[]
-  chainId: number
-  chainName?: string
-  blockExplorerUrls?: string[]
-  nativeCurrency?: {
-    symbol: string
-    decimals: number
-  }
-}
+import { getStorage } from '@/utils/storageWrapper'
 
 class EVMRequestHandler {
   private handler?: JsonRpcEngine
@@ -59,6 +49,11 @@ class EVMRequestHandler {
     this.emitEvent('addressChanged', addressType)
   }
 
+  public storeRPCConfig(c: RpcConfig) {
+    const storage = getStorage()
+    storage.local.setLastRPCConfig(c)
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     try {
       this.handler = this.initRpcEngine(c)
@@ -66,6 +61,7 @@ class EVMRequestHandler {
       // Emit `chainChanged` event
       const chainId = await this.accountHandler.getChainId()
       await this.emitEvent('chainChanged', { chainId })
+      this.storeRPCConfig(c)
     } catch (e) {
       console.log({ e })
     }
