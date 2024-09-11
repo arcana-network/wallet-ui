@@ -102,12 +102,12 @@ class UserLocalStorage extends BaseStorage {
     return this.get(StorageKey.WalletMode)
   }
 
-  setLastRPCConfig(c: unknown) {
-    this.set(StorageKey.LastRPCConfig, c)
+  setLastRPCConfig(user: string, c: unknown) {
+    this.set(`${user}-${StorageKey.LastRPCConfig}`, c)
   }
 
-  getLastRPCConfig() {
-    return this.get<RpcConfig | null>(StorageKey.LastRPCConfig)
+  getLastRPCConfig(user: string) {
+    return this.get<RpcConfig | null>(`${user}-${StorageKey.LastRPCConfig}`)
   }
 
   setUserInfo(val: UserInfo) {
