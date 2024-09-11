@@ -189,10 +189,7 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-    const c = storage.local.getLastRPCConfig()
-
-    await fetchRpcConfigs().then(() => setRpcConfig(c))
-
+    await fetchRpcConfigs().then(() => setRpcConfig())
     await connectToParent()
     sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
@@ -202,11 +199,15 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
+      const c = storage.local.getLastRPCConfig(
+        requestHandler.getAccountHandler().getAccount().address
+      )
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
       if (c) {
+        setRpcConfig(c)
         devLogger.log('last rpc config', c)
         requestHandler
           .setRpcConfig(c as RpcConfigWallet)
