@@ -51,7 +51,7 @@ class EVMRequestHandler {
 
   public storeRPCConfig(c: RpcConfig) {
     const storage = getStorage()
-    storage.local.setLastRPCConfig(c)
+    storage.local.setLastRPCConfig(this.accountHandler.getAccount().address, c)
   }
 
   public async setRpcConfig(c: RpcConfig) {
