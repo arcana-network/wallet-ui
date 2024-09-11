@@ -19,7 +19,7 @@ import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { devLogger } from '@/utils/devLogger'
 import { MultiversXAccountHandler } from '@/utils/multiversx/accountHandler'
-import { toHex } from '@/utils/toHex'
+import { getStorage } from '@/utils/storageWrapper'
 
 class MultiversXRequestHandler {
   private handler?: JsonRpcEngine
@@ -31,9 +31,15 @@ class MultiversXRequestHandler {
     return ChainType.multiversx_cv25519
   }
 
+  public storeRPCConfig(c: RpcConfig) {
+    const storage = getStorage()
+    storage.local.setLastRPCConfig(c)
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
+    this.storeRPCConfig(c)
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
     // this.emitEvent('chainChanged', { chainId })

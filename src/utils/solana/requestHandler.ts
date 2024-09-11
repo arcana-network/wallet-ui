@@ -12,7 +12,7 @@ import type { Connection } from 'penpal'
 import { ParentConnectionApi, ProviderEvent } from '@/models/Connection'
 import { ChainType } from '@/utils/chainType'
 import { SolanaAccountHandler } from '@/utils/solana/accountHandler'
-import { toHex } from '@/utils/toHex'
+import { getStorage } from '@/utils/storageWrapper'
 
 class SolanaRequestHandler {
   private handler?: JsonRpcEngine
@@ -28,9 +28,15 @@ class SolanaRequestHandler {
     this.connectSent = false
   }
 
+  public storeRPCConfig(c: RpcConfig) {
+    const storage = getStorage()
+    storage.local.setLastRPCConfig(c)
+  }
+
   public async setRpcConfig(c: RpcConfig) {
     await this.accountHandler.setRpcConfig(c)
     this.handler = this.initRpcEngine()
+    this.setRpcConfig(c)
     // Emit `chainChanged` event
     // const chainId = await this.accountHandler.getChainId()
     // this.emitEvent('chainChanged', { chainId })
