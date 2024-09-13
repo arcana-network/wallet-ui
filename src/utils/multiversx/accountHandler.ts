@@ -19,16 +19,20 @@ import { Signature } from '@multiversx/sdk-wallet/out/signature'
 
 import { ChainType } from '@/utils/chainType'
 import MVXChainIdMap from '@/utils/multiversx/chainIdMap'
+import { grindToShard } from '@/utils/multiversx/grind-to-shard'
+
+const requiredShardID = 2
 
 export class MultiversXAccountHandler {
   private privateKey: UserSecretKey
-  private publicKey: UserPublicKey
+  private readonly publicKey: UserPublicKey
   private conn: ApiNetworkProvider
   private rpcConfig!: RpcConfig
   public readonly addrStr: string
 
-  constructor(privateKey: Uint8Array | Buffer, rpcURL: string) {
-    this.privateKey = new UserSecretKey(privateKey.subarray(0, -32))
+  constructor(privateKey: Buffer, rpcURL: string) {
+    const realPK = grindToShard(privateKey, requiredShardID)
+    this.privateKey = new UserSecretKey(realPK.subarray(0, -32))
     this.publicKey = this.privateKey.generatePublicKey()
     this.addrStr = this.publicKey.toAddress().toString()
     this.conn = new ApiNetworkProvider(rpcURL)

@@ -19,7 +19,7 @@ function CreateAccountHandler(
 ): AccountHandler {
   switch (chainType) {
     case ChainType.multiversx_cv25519:
-      return new MultiversXAccountHandler(base58.decode(privateKey), rpcUrl)
+      return new MultiversXAccountHandler(Buffer.from(base58.decode(privateKey)), rpcUrl)
     case ChainType.solana_cv25519:
       return new SolanaAccountHandler(base58.decode(privateKey), rpcUrl)
     case ChainType.near_cv25519:
