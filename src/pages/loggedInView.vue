@@ -23,14 +23,7 @@ import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
-<<<<<<< HEAD
-import {
-  getAppConfig,
-  getGaslessEnabledStatus,
-} from '@/services/gateway.service'
-=======
 import { getGaslessEnabledStatus, AppConfig } from '@/services/gateway.service'
->>>>>>> c9728a8 (Added storing last used rpc config)
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useConfigStore } from '@/store/config'
