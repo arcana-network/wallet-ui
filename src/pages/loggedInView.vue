@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
+import { AppMode, RpcConfig } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, CURVE, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
@@ -23,10 +23,7 @@ import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import {
-  getAppConfig,
-  getGaslessEnabledStatus,
-} from '@/services/gateway.service'
+import { getGaslessEnabledStatus, AppConfig } from '@/services/gateway.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
 import { useConfigStore } from '@/store/config'
@@ -101,16 +98,6 @@ function startCurrencyInterval() {
 
 function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
-}
-
-function setShowStarterTips() {
-  const userId = userStore.info.id
-  const loginCount = storage.local.getLoginCount(userId)
-  const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-  if (Number(loginCount) <= 2 && !hasStarterTipShown) {
-    starterTipsStore.setShowStarterTips()
-    return
-  }
 }
 
 function setShowSeedPhrase() {
@@ -195,11 +182,8 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-
-    await setRpcConfigs().then(() => getRpcConfig())
-
+    await fetchRpcConfigs().then(() => setRpcConfig())
     await connectToParent()
-    // await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
     await getAccountDetails()
@@ -208,16 +192,27 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
+      const c = storage.local.getLastRPCConfig(
+        requestHandler.getAccountHandler().getAccount().address
+      )
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
-      requestHandler
-        .setRpcConfig({
-          chainId: selectedChainId,
-          ...rpcConfig,
-        })
-        .then(() => requestHandler.sendConnect())
+      if (c) {
+        setRpcConfig(c)
+        devLogger.log('last rpc config', c)
+        requestHandler
+          .setRpcConfig(c as RpcConfigWallet)
+          .then(() => requestHandler.sendConnect())
+      } else {
+        requestHandler
+          .setRpcConfig({
+            chainId: selectedChainId,
+            ...rpcConfig,
+          })
+          .then(() => requestHandler.sendConnect())
+      }
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
@@ -459,7 +454,7 @@ async function handleLogout() {
   }
 }
 
-async function setRpcConfigs() {
+async function fetchRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
@@ -491,32 +486,14 @@ async function setRpcConfigs() {
   if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 
-async function getRpcConfig() {
+async function setRpcConfig(c?: RpcConfig | null) {
   let rpcConfig =
+    c ||
     enabledChainList.value.find((chain) => chain.defaultChain) ||
     enabledChainList.value[0] // some time, chain list don't have default chain
   initKeeper(rpcConfig.rpcUrls[0])
   rpcStore.setSelectedRPCConfig(rpcConfig)
   rpcStore.setRpcConfig(rpcConfig)
-}
-
-async function getRpcConfigFromParent() {
-  try {
-    const parentConnectionInstance = await parentConnection.promise
-    const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    if (rpcConfig) {
-      const chainId = Number(rpcConfig.chainId)
-      const chainToBeSet = enabledChainList.value.find(
-        (chain) => chain.chainId === chainId
-      )
-      if (chainToBeSet) {
-        rpcStore.setSelectedRPCConfig(chainToBeSet)
-        rpcStore.setRpcConfig(chainToBeSet)
-      }
-    }
-  } catch (err) {
-    console.log({ err })
-  }
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {

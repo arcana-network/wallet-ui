@@ -71,8 +71,6 @@ class SensitiveStorage {
   removeUserInfo() {
     this.userInfo = null
     this.storage.delete(this.key)
-    window.onbeforeunload = null
-    document.removeEventListener('visibilitychange', this.visibilityChangeHook)
   }
 
   getUserInfo() {
