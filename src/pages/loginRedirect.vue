@@ -191,12 +191,13 @@ async function init() {
       return
     }
   } catch (e) {
-    captureException(e)
-    captureMessage(`Login failed on ${appId}`)
-    if (e instanceof Error) {
-      await reportError(e.message)
-    }
-    await reportError(e as string)
+    devLogger.log(e)
+    // captureException(e)
+    // captureMessage(`Login failed on ${appId}`)
+    // if (e instanceof Error) {
+    //   await reportError(e.message)
+    // }
+    // await reportError(e as string)
   }
 }
 
