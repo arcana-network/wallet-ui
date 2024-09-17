@@ -26,6 +26,7 @@ import { getMnemonicInShard } from '@/utils/multiversx/shard'
 import {
   getStateFromUrl,
   handleLogin,
+  isTelegram,
   verifyOpenerPage,
 } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -49,20 +50,28 @@ async function init() {
     loginSrc === 'unity' ||
     loginSrc === 'unity-ws'
   try {
-    const state = getStateFromUrl(route.fullPath)
-    storage.session.setState(state)
-    const stateInfo = decodeJSON<StateInfo>(state)
+    let stateInfo = {} as StateInfo
+    if (!isTelegram(route.fullPath)) {
+      const state = getStateFromUrl(route.fullPath)
+      storage.session.setState(state)
+      stateInfo = decodeJSON<StateInfo>(state)
 
+      if (!isStandalone && stateInfo.t !== SocialLoginType.passwordless) {
+        await verifyOpenerPage(state)
+      }
+    } else {
+      stateInfo = {
+        i: '',
+        t: SocialLoginType.telegram,
+      }
+    }
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
-
-    if (!isStandalone && stateInfo.t !== SocialLoginType.passwordless) {
-      await verifyOpenerPage(state)
-    }
 
     const authProvider = await getAuthProvider(`${appId}`, false)
     devLogger.log('[loginRedirect] app curve', app.curve)
     storage.local.setCurve(app.curve)
+
     const postLoginCleanup = await authProvider.handleRedirect()
     if (authProvider.isLoggedIn()) {
       const info = authProvider.getUserInfo()

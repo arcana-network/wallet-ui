@@ -195,6 +195,12 @@ const getStateFromUrl = (u: string) => {
   return val
 }
 
+const isTelegram = (u: string) => {
+  const url = new URL(decodeURIComponent(u), process.env.VUE_APP_WALLET_DOMAIN)
+  const p = new URLSearchParams(url.hash.substring(1))
+  return p.has('tgAuthResult')
+}
+
 type HandleLoginParams = {
   isStandalone: boolean
   userInfo: GetInfoOutput & {
@@ -248,4 +254,5 @@ export {
   MFA_SETUP_ACK,
   LOGIN_INFO_ACK,
   handleGlobalLogin,
+  isTelegram,
 }
