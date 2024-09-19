@@ -25,6 +25,7 @@ import {
   getPasswordlessState,
   PasswordlessLoginHandler,
 } from '@/utils/PasswordlessLoginHandler'
+import { getJWTFromTokenTelegram } from '@/utils/redirectUtils'
 import {
   getStorage,
   initStorage,
@@ -44,6 +45,7 @@ initStorage()
 
 enum BearerAuthentication {
   firebase = 'firebase',
+  telegram = 'telegram',
 }
 
 const {
@@ -315,7 +317,7 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return (await authProvider.getAvailableLogins()).filter(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    (item) => item !== 'firebase'
+    (item) => item !== 'firebase' && item !== 'telegram'
   )
 }
 
@@ -563,6 +565,30 @@ async function handleBearerLoginRequest(
         userInfo: {
           id: data.uid,
         },
+        token: '',
+      }
+      await storeUserInfoAndRedirect(userInfo, true)
+
+      return true
+    }
+    case BearerAuthentication.telegram: {
+      const data = _data as {
+        token: string
+      }
+
+      const { token, user } = await getJWTFromTokenTelegram(data.token, app.id)
+      const info = await kr.getPrivateKey({
+        verifier: BearerAuthentication.telegram,
+        id: user.id,
+        idToken: token,
+      })
+
+      const userInfo = {
+        loginType: 'telegram' as LoginType,
+        hasMfa: false,
+        privateKey: info.privateKey as string,
+        pk: info.privateKey as string,
+        userInfo: user,
         token: '',
       }
       await storeUserInfoAndRedirect(userInfo, true)

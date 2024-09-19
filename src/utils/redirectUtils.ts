@@ -1,4 +1,5 @@
 import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
+import axios from 'axios'
 import { AsyncMethodReturns } from 'penpal'
 
 import {
@@ -32,6 +33,7 @@ const MFA_SETUP = 'MFA_SETUP'
 const MFA_SETUP_ACK = 'MFA_SETUP_ACK'
 
 const ACK = [LOGIN_INFO_ACK, MFA_SETUP_ACK]
+const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
 
 interface InteractMessage {
   status: string
@@ -235,6 +237,17 @@ const handleGlobalLogin = async (
   }
 }
 
+const getJWTFromTokenTelegram = async (token: string, appID: string) => {
+  const u = new URL(`/auth/telegram/${appID}`, OAUTH_URL)
+  const res = await axios.post<{
+    id_token: string
+    user: { id: string; name: string }
+  }>(u.toString(), {
+    tgAuthResult: token,
+  })
+  return { token: res.data.id_token, user: res.data.user }
+}
+
 export {
   interactWithIframe,
   catchupSigninPage,
@@ -248,4 +261,5 @@ export {
   MFA_SETUP_ACK,
   LOGIN_INFO_ACK,
   handleGlobalLogin,
+  getJWTFromTokenTelegram,
 }
