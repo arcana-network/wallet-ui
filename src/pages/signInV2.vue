@@ -317,7 +317,7 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return (await authProvider.getAvailableLogins()).filter(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    (item) => item !== 'firebase'
+    (item) => item !== 'firebase' && item !== 'telegram'
   )
 }
 
