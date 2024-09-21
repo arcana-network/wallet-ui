@@ -30,11 +30,21 @@ enum StorageKey {
   PreferredAddressType = 'preferred-address-type',
   Theme = 'theme',
   Curve = 'curve',
+  MLoginData = 'm-login-data',
 }
 
 type UserInfo = GetInfoOutput & {
   hasMfa?: boolean | undefined
   pk?: string | undefined
+}
+
+type MLoginData = {
+  appID: string
+  loginType: string
+  publicKey: string
+  setToken: string
+  timeout: number
+  redirectURL: string
 }
 
 type PreferredAddressType = 'eoa' | 'scw'
@@ -100,6 +110,18 @@ class UserLocalStorage extends BaseStorage {
 
   getWalletMode() {
     return this.get(StorageKey.WalletMode)
+  }
+
+  setLoginData(data: MLoginData) {
+    this.set(StorageKey.MLoginData, data)
+  }
+
+  getLoginData() {
+    return this.get<MLoginData | null>(StorageKey.MLoginData)
+  }
+
+  deleteLoginData() {
+    this.delete(StorageKey.MLoginData)
   }
 
   setLastRPCConfig(user: string, c: unknown) {
@@ -417,4 +439,5 @@ export {
   StorageType,
   BaseStorage,
   UserInfo,
+  MLoginData,
 }

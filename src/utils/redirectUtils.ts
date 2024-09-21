@@ -1,5 +1,6 @@
 import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
 import axios from 'axios'
+import { encrypt as eencrypt } from 'eccrypto'
 import { AsyncMethodReturns } from 'penpal'
 
 import {
@@ -7,12 +8,13 @@ import {
   RedirectParentConnectionApi,
 } from '@/models/Connection'
 import { errors } from '@/utils/content'
-import { encrypt } from '@/utils/crypto'
+import { encrypt, sign } from '@/utils/crypto'
 import {
   getCredentialKey,
   getPasswordlessState,
   setCredential,
 } from '@/utils/PasswordlessLoginHandler'
+import { MLoginData } from '@/utils/storage'
 
 const SOCIAL_TIMEOUT = 5000 // 5s timeout
 const PASSWORDLESS_TIMEOUT = 1500 // 1.5s timeout
@@ -223,6 +225,32 @@ const handleLogin = async (params: HandleLoginParams) => {
   }
 }
 
+const handleNewStandalone = async (val: {
+  data: MLoginData
+  userInfo: GetInfoOutput & {
+    hasMfa?: boolean
+    pk?: string
+  }
+  connection: AsyncMethodReturns<RedirectParentConnectionApi>
+}) => {
+  // encrypt data
+  const data = JSON.stringify(val.userInfo)
+  const cipher = await encrypt(data, val.data.publicKey)
+  const u = new URL('/api/v1/mLogin', OAUTH_URL)
+  const res = await axios.put(u.toString(), {
+    sig: val.data.setToken,
+    data: cipher,
+    publicKey: val.data.publicKey,
+  })
+  if (res.status !== 200) {
+    console.log(errors.REDIRECT.LOGIN_FAILED, res.data)
+    // await val.connection.setError(errors.REDIRECT.LOGIN_FAILED)
+    return
+  }
+  // redirect to redirectURL
+  val.connection.redirect(val.data.redirectURL)
+}
+
 const handleGlobalLogin = async (
   params: Omit<HandleLoginParams, 'connection'> & {
     connection: AsyncMethodReturns<GlobalRedirectMethods>
@@ -249,6 +277,7 @@ const getJWTFromTokenTelegram = async (token: string, appID: string) => {
 }
 
 export {
+  handleNewStandalone,
   interactWithIframe,
   catchupSigninPage,
   fetchPasswordlessResponseFromSignIn,

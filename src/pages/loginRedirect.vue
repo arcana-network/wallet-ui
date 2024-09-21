@@ -26,6 +26,7 @@ import { getMnemonicInShard } from '@/utils/multiversx/shard'
 import {
   getStateFromUrl,
   handleLogin,
+  handleNewStandalone,
   verifyOpenerPage,
 } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
@@ -48,6 +49,7 @@ async function init() {
     loginSrc === 'flutter' ||
     loginSrc === 'unity' ||
     loginSrc === 'unity-ws'
+  const loginData = storage.local.getLoginData()
   try {
     const state = getStateFromUrl(route.fullPath)
     storage.session.setState(state)
@@ -56,7 +58,11 @@ async function init() {
     const connectionToParent =
       await connectToParent<RedirectParentConnectionApi>({}).promise
 
-    if (!isStandalone && stateInfo.t !== SocialLoginType.passwordless) {
+    if (
+      !isStandalone &&
+      stateInfo.t !== SocialLoginType.passwordless &&
+      !(loginData !== null)
+    ) {
       await verifyOpenerPage(state)
     }
 
@@ -164,16 +170,25 @@ async function init() {
       })
 
       const messageId = getUniqueId()
-      await handleLogin({
-        connection: connectionToParent,
-        userInfo,
-        mnemonic,
-        state: stateInfo.i,
-        sessionID: uuid,
-        sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
-        messageId,
-        isStandalone,
-      })
+      if (loginData !== null) {
+        storage.local.deleteLoginData()
+        await handleNewStandalone({
+          data: loginData,
+          connection: connectionToParent,
+          userInfo,
+        })
+      } else {
+        await handleLogin({
+          connection: connectionToParent,
+          userInfo,
+          mnemonic,
+          state: stateInfo.i,
+          sessionID: uuid,
+          sessionExpiry: Date.now() + SESSION_EXPIRY_MS,
+          messageId,
+          isStandalone,
+        })
+      }
       storage.local.clearLoginSrc()
       storage.session.clearState()
     } else {
