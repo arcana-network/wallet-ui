@@ -20,6 +20,10 @@ const encrypt = async (message: string, publicKey: string) => {
   const ciphertext = EthCrypto.cipher.stringify(cipherObj)
   return ciphertext
 }
+const encryptWithoutCompress = async (message: string, publicKey: string) => {
+  const cipherObj = await EthCrypto.encryptWithPublicKey(publicKey, message)
+  return cipherObj
+}
 
 const decrypt = async (ciphertext: string, privateKey: string) => {
   const cipherObj = EthCrypto.cipher.parse(ciphertext)
@@ -27,4 +31,4 @@ const decrypt = async (ciphertext: string, privateKey: string) => {
   return plaintext
 }
 
-export { getRandomPrivateKey, encrypt, decrypt, sign }
+export { encryptWithoutCompress, getRandomPrivateKey, encrypt, decrypt, sign }
