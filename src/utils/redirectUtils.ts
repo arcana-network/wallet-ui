@@ -7,7 +7,12 @@ import {
   RedirectParentConnectionApi,
 } from '@/models/Connection'
 import { errors } from '@/utils/content'
-import { encrypt, getRandomPrivateKey, sign } from '@/utils/crypto'
+import {
+  encrypt,
+  encryptWithoutCompress,
+  getRandomPrivateKey,
+  sign,
+} from '@/utils/crypto'
 import {
   getCredentialKey,
   getPasswordlessState,
@@ -238,9 +243,12 @@ const handleNewStandalone = async ({
 }) => {
   // encrypt data
   const { privateKey, publicKey } = getRandomPrivateKey()
-  const cipher = await encrypt(JSON.stringify(userInfo), publicKey)
+  const cipher = await encryptWithoutCompress(
+    JSON.stringify(userInfo),
+    publicKey
+  )
 
-  const sig = sign(cipher, privateKey)
+  const sig = sign(JSON.stringify(cipher), privateKey)
 
   const u = new URL('/api/v1/mLogin', OAUTH_URL)
   const res = await axios.post(u.toString(), {
