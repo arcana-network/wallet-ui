@@ -41,8 +41,6 @@ type UserInfo = GetInfoOutput & {
 type MLoginData = {
   appID: string
   loginType: string
-  publicKey: string
-  setToken: string
   timeout: number
   redirectURL: string
 }

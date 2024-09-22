@@ -11,7 +11,7 @@ import SignInV2 from '@/pages/signInV2.vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/:appId/startLogin',
-    component: () => import('@/pages/StartLogin.vue'),
+    component: () => import('@/pages/startLogin.vue'),
   },
   {
     path: '/:appId/login',

@@ -1,6 +1,5 @@
 import { GetInfoOutput, SocialLoginType } from '@arcana/auth-core'
 import axios from 'axios'
-import { encrypt as eencrypt } from 'eccrypto'
 import { AsyncMethodReturns } from 'penpal'
 
 import {
@@ -8,7 +7,7 @@ import {
   RedirectParentConnectionApi,
 } from '@/models/Connection'
 import { errors } from '@/utils/content'
-import { encrypt, sign } from '@/utils/crypto'
+import { encrypt, getRandomPrivateKey, sign } from '@/utils/crypto'
 import {
   getCredentialKey,
   getPasswordlessState,
@@ -225,7 +224,11 @@ const handleLogin = async (params: HandleLoginParams) => {
   }
 }
 
-const handleNewStandalone = async (val: {
+const handleNewStandalone = async ({
+  data,
+  userInfo,
+  connection,
+}: {
   data: MLoginData
   userInfo: GetInfoOutput & {
     hasMfa?: boolean
@@ -234,21 +237,29 @@ const handleNewStandalone = async (val: {
   connection: AsyncMethodReturns<RedirectParentConnectionApi>
 }) => {
   // encrypt data
-  const data = JSON.stringify(val.userInfo)
-  const cipher = await encrypt(data, val.data.publicKey)
+  const { privateKey, publicKey } = getRandomPrivateKey()
+  const cipher = await encrypt(JSON.stringify(userInfo), publicKey)
+
+  const sig = sign(cipher, privateKey)
+
   const u = new URL('/api/v1/mLogin', OAUTH_URL)
-  const res = await axios.put(u.toString(), {
-    sig: val.data.setToken,
+  const res = await axios.post(u.toString(), {
+    sig,
     data: cipher,
-    publicKey: val.data.publicKey,
+    publicKey,
+    timeout: data.timeout,
   })
   if (res.status !== 200) {
     console.log(errors.REDIRECT.LOGIN_FAILED, res.data)
     // await val.connection.setError(errors.REDIRECT.LOGIN_FAILED)
     return
   }
+  const redirectURL = new URL(data.redirectURL)
+  const sp = new URLSearchParams()
+  sp.append('epk', privateKey)
+  redirectURL.hash = sp.toString()
   // redirect to redirectURL
-  val.connection.redirect(val.data.redirectURL)
+  connection.redirect(redirectURL.toString())
 }
 
 const handleGlobalLogin = async (
