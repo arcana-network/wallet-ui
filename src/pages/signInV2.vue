@@ -309,7 +309,7 @@ const penpalMethods = {
       appId as string
     )
     devLogger.log({ token, userID })
-    // await handleCustomLoginRequest({ token, userID, provider: 'passkey' })
+    await handleCustomLoginRequest({ token, userID, provider: 'passkey' })
   },
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
