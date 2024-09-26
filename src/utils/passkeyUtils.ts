@@ -48,7 +48,7 @@ class PasskeyLoginHandler {
     }
   }
 
-  async startAddPasskey() {
+  async startLinkPasskey() {
     const isPasskeyEnabled = await this.isPasskeyEnabled()
     console.log({ isPasskeyEnabled, userInfo: this.userInfo })
     const param = {
@@ -86,7 +86,7 @@ class PasskeyLoginHandler {
     )
     const sig2 = sign(`0x${this.userInfo.pk}`, h)
     const startRegisterResponse = await axios.post(
-      new URL(`/api/v1/passkey/register/start`, OAUTH_URL).toString(),
+      new URL(`/api/v1/passkey/link/start`, OAUTH_URL).toString(),
       {
         userID: this.userInfo.userInfo.id,
         appID: this.appID,
@@ -98,10 +98,10 @@ class PasskeyLoginHandler {
     return startRegisterResponse.data
   }
 
-  async finishAddPasskey(params: any) {
+  async finishLinkPasskey(params: any) {
     try {
       const res = await axios.post<{ success: boolean }>(
-        new URL(`/api/v1/passkey/register/verify`, OAUTH_URL).toString(),
+        new URL(`/api/v1/passkey/link/verify`, OAUTH_URL).toString(),
         params,
         { withCredentials: true }
       )

@@ -379,12 +379,12 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
-      startPasskeyRegistration: async () => {
-        const data = await passkeyHandler.startAddPasskey()
+      startPasskeyLink: async () => {
+        const data = await passkeyHandler.startLinkPasskey()
         return data
       },
-      finishPasskeyRegistration: async (params: any) => {
-        const success = await passkeyHandler.finishAddPasskey(params)
+      finishPasskeyLink: async (params: any) => {
+        const success = await passkeyHandler.finishLinkPasskey(params)
         return success
       },
       addToActivity,
