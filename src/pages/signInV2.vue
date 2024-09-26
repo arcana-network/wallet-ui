@@ -21,6 +21,7 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
 import { getUserDIDToken } from '@/utils/loginToken'
 import { getMnemonicInShard } from '@/utils/multiversx/shard'
+import { PasskeyLoginHandler } from '@/utils/passkeyUtils'
 import {
   getPasswordlessState,
   PasswordlessLoginHandler,
@@ -300,6 +301,15 @@ const penpalMethods = {
   getPublicKey: async (id: string, verifier: LoginType) => {
     const authProvider = await getAuthProvider(app.id)
     return await authProvider.getPublicKey({ id, verifier })
+  },
+  startPasskeyLogin: () => PasskeyLoginHandler.startLogin(appId as string),
+  finishPasskeyLogin: async (params) => {
+    const { token, userID } = await PasskeyLoginHandler.finishLogin(
+      params,
+      appId as string
+    )
+    devLogger.log({ token, userID })
+    // await handleCustomLoginRequest({ token, userID, provider: 'passkey' })
   },
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
