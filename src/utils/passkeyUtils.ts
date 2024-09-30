@@ -2,6 +2,8 @@ import { GetInfoOutput } from '@arcana/auth-core'
 import axios from 'axios'
 import { sign, hash } from 'eth-crypto'
 
+import { devLogger } from '@/utils/devLogger'
+
 const OAUTH_URL = process.env.VUE_APP_OAUTH_SERVER_URL
 
 type UInfo = GetInfoOutput & {
@@ -9,20 +11,31 @@ type UInfo = GetInfoOutput & {
   pk?: string | undefined
 }
 
+type PasskeyCred = {
+  id: string
+  authenticatorName: string
+  browser: string
+  os: string
+  createdAt: string
+}
+
 class PasskeyLoginHandler {
+  private token?: string
+  private tokenExpiry?: number
   static async startLogin(appID: string) {
-    const res = await axios.get(
-      new URL(`/api/v1/passkey/login/start/${appID}`, OAUTH_URL).toString(),
-      { withCredentials: true }
+    const res = await axios.get<{ sid: string; loginParams: any }>(
+      new URL(`/api/v2/passkey/login/start/${appID}`, OAUTH_URL).toString()
     )
-    return res.data
+    return { sid: res.data.sid, loginParams: res.data.loginParams }
   }
 
-  static async finishLogin(params: any, appID: string) {
+  static async finishLogin(sid: string, params: any, appID: string) {
     const res = await axios.post<{ token: string; userID: string }>(
-      new URL(`/api/v1/passkey/login/verify/${appID}`, OAUTH_URL).toString(),
-      params,
-      { withCredentials: true }
+      new URL(
+        `/api/v2/passkey/login/verify/${appID}/${sid}`,
+        OAUTH_URL
+      ).toString(),
+      params
     )
     return res.data
   }
@@ -33,10 +46,32 @@ class PasskeyLoginHandler {
     this.appID = appID
   }
 
+  async getMyPasskeys() {
+    const token = await this.getJWTToken()
+    const res = await axios.get<{ creds: PasskeyCred[] }>(
+      new URL(`/api/v2/passkey`, OAUTH_URL).toString(),
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return res.data.creds
+  }
+
+  async unlinkPasskey(id: string) {
+    const token = await this.getJWTToken()
+    await axios.delete(new URL(`/api/v2/passkey/${id}`, OAUTH_URL).toString(), {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+
   async isPasskeyEnabled() {
     try {
       const res = await axios.post<{ enabled: boolean }>(
-        new URL(`/api/v1/passkey/enabled`, OAUTH_URL).toString(),
+        new URL(`/api/v2/passkey/enabled`, OAUTH_URL).toString(),
         {
           userID: this.userInfo.userInfo.id,
           appID: this.appID,
@@ -48,9 +83,42 @@ class PasskeyLoginHandler {
     }
   }
 
+  async getJWTToken() {
+    if (!this.token || (this.tokenExpiry && Date.now() > this.tokenExpiry)) {
+      const param = {
+        userID: this.userInfo.userInfo.id,
+        appID: this.appID,
+      }
+      const nonceResponse = await axios.post<{ nonce: number }>(
+        new URL(`/api/v2/passkey/nonce`, OAUTH_URL).toString(),
+        {
+          userID: this.userInfo.userInfo.id,
+          appID: this.appID,
+          provider: this.userInfo.loginType,
+        }
+      )
+      const h = hash.keccak256(
+        `${param.userID},${param.appID},${nonceResponse.data.nonce}`
+      )
+      const sig = sign(`0x${this.userInfo.pk}`, h)
+      const res = await axios.post<{ token: string; expiry: number }>(
+        new URL(`/api/v2/passkey/token`, OAUTH_URL).toString(),
+        {
+          userID: this.userInfo.userInfo.id,
+          appID: this.appID,
+          provider: this.userInfo.loginType,
+          sig,
+        }
+      )
+      this.token = res.data.token
+      this.tokenExpiry = res.data.expiry
+    }
+    return this.token
+  }
+
   async startLinkPasskey() {
     const isPasskeyEnabled = await this.isPasskeyEnabled()
-    console.log({ isPasskeyEnabled, userInfo: this.userInfo })
+    devLogger.log({ isPasskeyEnabled, userInfo: this.userInfo })
     const param = {
       userID: this.userInfo.userInfo.id,
       appID: this.appID,
@@ -58,9 +126,8 @@ class PasskeyLoginHandler {
     if (!isPasskeyEnabled) {
       const h = hash.keccak256(`${param.userID},${param.appID},0`)
       const sig = sign(`0x${this.userInfo.pk}`, h)
-
       const res = await axios.post<{ userID: string }>(
-        new URL('/api/v1/passkey/enable', OAUTH_URL).toString(),
+        new URL('/api/v2/passkey/enable', OAUTH_URL).toString(),
         {
           userID: this.userInfo.userInfo.id,
           appID: this.appID,
@@ -72,38 +139,31 @@ class PasskeyLoginHandler {
         throw Error('could not enable passkey')
       }
     }
-
-    const nonceResponse = await axios.post<{ nonce: number }>(
-      new URL(`/api/v1/passkey/nonce`, OAUTH_URL).toString(),
+    const token = await this.getJWTToken()
+    const startRegisterResponse = await axios.get(
+      new URL(`/api/v2/passkey/link/start`, OAUTH_URL).toString(),
       {
-        userID: this.userInfo.userInfo.id,
-        appID: this.appID,
-        provider: this.userInfo.loginType,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
     )
-    const h = hash.keccak256(
-      `${param.userID},${param.appID},${nonceResponse.data.nonce}`
-    )
-    const sig2 = sign(`0x${this.userInfo.pk}`, h)
-    const startRegisterResponse = await axios.post(
-      new URL(`/api/v1/passkey/link/start`, OAUTH_URL).toString(),
-      {
-        userID: this.userInfo.userInfo.id,
-        appID: this.appID,
-        provider: this.userInfo.loginType,
-        sig: sig2,
-      },
-      { withCredentials: true }
-    )
-    return startRegisterResponse.data
+    return {
+      sid: startRegisterResponse.data.sid,
+      linkParams: startRegisterResponse.data.registrationParams,
+    }
   }
 
-  async finishLinkPasskey(params: any) {
+  async finishLinkPasskey(sid: string, params: any) {
     try {
       const res = await axios.post<{ success: boolean }>(
-        new URL(`/api/v1/passkey/link/verify`, OAUTH_URL).toString(),
+        new URL(`/api/v2/passkey/link/verify/${sid}`, OAUTH_URL).toString(),
         params,
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${await this.getJWTToken()}`,
+          },
+        }
       )
       return res.data.success == true
     } catch (e) {

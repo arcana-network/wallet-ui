@@ -383,10 +383,12 @@ async function connectToParent() {
         const data = await passkeyHandler.startLinkPasskey()
         return data
       },
-      finishPasskeyLink: async (params: any) => {
-        const success = await passkeyHandler.finishLinkPasskey(params)
+      finishPasskeyLink: async (sid: string, params: any) => {
+        const success = await passkeyHandler.finishLinkPasskey(sid, params)
         return success
       },
+      getMyPasskeys: () => passkeyHandler.getMyPasskeys(),
+      unlinkPasskey: (id: string) => passkeyHandler.unlinkPasskey(id),
       addToActivity,
       getKeySpaceConfigType: () => (config.global ? 'global' : 'local'),
       getPublicKey: handleGetPublicKey,
