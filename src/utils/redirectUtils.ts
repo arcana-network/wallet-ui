@@ -253,7 +253,7 @@ const handleNewStandalone = async ({
   const u = new URL('/api/v2/mLogin', OAUTH_URL)
   const res = await axios.post(u.toString(), {
     sig,
-    data: cipher,
+    data: JSON.stringify(cipher),
     publicKey,
     timeout: data.timeout,
   })
