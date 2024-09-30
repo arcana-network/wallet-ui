@@ -250,7 +250,7 @@ const handleNewStandalone = async ({
 
   const sig = sign(JSON.stringify(cipher), privateKey)
 
-  const u = new URL('/api/v1/mLogin', OAUTH_URL)
+  const u = new URL('/api/v2/mLogin', OAUTH_URL)
   const res = await axios.post(u.toString(), {
     sig,
     data: cipher,
