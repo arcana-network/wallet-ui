@@ -49,6 +49,7 @@ import {
   getRequestHandler,
   requestHandlerExists,
   setRequestHandler,
+  deleteRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import {
   getSendRequestFn,
@@ -454,6 +455,7 @@ async function logout() {
   await userStore.handleLogout(authProvider)
   sendLogoutMessage()
   getRequestHandler().onDisconnect()
+  deleteRequestHandler()
   router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
@@ -463,6 +465,7 @@ async function handleLogout() {
       .parentConnection.promise
     sendLogoutMessage()
     getRequestHandler().onDisconnect()
+    deleteRequestHandler()
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
