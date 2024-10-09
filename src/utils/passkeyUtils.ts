@@ -39,6 +39,28 @@ class PasskeyLoginHandler {
     )
     return res.data
   }
+
+  static async startRegistration(appID: string, displayName: string) {
+    const u = new URL(`/api/v2/passkey/register/${appID}`, OAUTH_URL)
+    if (displayName) {
+      u.searchParams.append('displayName', displayName)
+    }
+    const res = await axios.get<{ sid: string; registrationParams: any }>(
+      u.toString()
+    )
+    return {
+      sid: res.data.sid,
+      registrationParams: res.data.registrationParams,
+    }
+  }
+
+  static async finishRegistration(sid: string, params: any) {
+    const res = await axios.post<{ token: string; userID: string }>(
+      new URL(`/api/v2/passkey/register/verify/${sid}`, OAUTH_URL).toString(),
+      params
+    )
+    return res.data
+  }
   private userInfo: UInfo
   private appID: string
   constructor(info: UInfo, appID: string) {

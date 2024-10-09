@@ -302,6 +302,10 @@ const penpalMethods = {
     const authProvider = await getAuthProvider(app.id)
     return await authProvider.getPublicKey({ id, verifier })
   },
+  startPasskeyRegistration: (displayName: string) =>
+    PasskeyLoginHandler.startRegistration(appId as string, displayName),
+  finishPasskeyRegistration: (sid: string, params) =>
+    PasskeyLoginHandler.finishRegistration(sid, params),
   startPasskeyLogin: () => PasskeyLoginHandler.startLogin(appId as string),
   finishPasskeyLogin: async (sid: string, params) => {
     const { token, userID } = await PasskeyLoginHandler.finishLogin(
