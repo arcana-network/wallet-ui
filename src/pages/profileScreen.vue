@@ -24,7 +24,10 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import {
+  deleteRequestHandler,
+  getRequestHandler,
+} from '@/utils/requestHandlerSingleton'
 import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
@@ -120,6 +123,7 @@ async function handleLogout() {
   const authProvider = await getAuthProvider(appId)
   sendLogoutMessage()
   getRequestHandler().onDisconnect()
+  deleteRequestHandler()
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
 }
