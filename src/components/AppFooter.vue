@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
@@ -7,6 +7,8 @@ import { useRequestStore } from '@/store/request'
 import { useUserStore } from '@/store/user'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -28,6 +30,22 @@ function getIcon(icon: string, pathName: string) {
     return getImage(`${icon}.svg`)
   }
 }
+
+const tokenContainer = ref<HTMLElement | null>(null)
+const nftContainer = ref<HTMLElement | null>(null)
+const profileContainer = ref<HTMLElement | null>(null)
+const activityContainerN = ref<HTMLElement | null>(null)
+const activityContainerNotN = ref<HTMLElement | null>(null)
+
+const svgRefs = [
+  tokenContainer,
+  nftContainer,
+  profileContainer,
+  activityContainerN,
+  activityContainerNotN,
+]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs, false, true)
 </script>
 
 <template>
@@ -41,17 +59,24 @@ function getIcon(icon: string, pathName: string) {
         class="flex flex-col justify-center items-center gap-1"
       >
         <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img
-            :src="getIcon('tokens-icon', 'home')"
-            alt="home"
-            class="w-xl h-xl"
-          />
+          <div ref="tokenContainer">
+            <img
+              :src="getIcon('tokens-icon', 'home')"
+              alt="home"
+              class="w-xl h-xl"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </div>
         <span
-          class="text-xs font-normal"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
           :class="
             isCurrentRoute('home')
-              ? 'text-blue-dark dark:text-white-200'
+              ? getFontSizeStyle(Number(appStore.theme_settings.font_size))
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Tokens</span
@@ -64,13 +89,23 @@ function getIcon(icon: string, pathName: string) {
         class="flex flex-col justify-center items-center gap-1"
       >
         <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img :src="getIcon('nfts-icon', 'Nfts')" alt="nfts" />
+          <div ref="nftContainer">
+            <img
+              :src="getIcon('nfts-icon', 'Nfts')"
+              alt="nfts"
+              @load="(event) => fetchAndInjectSVG(event, 1)"
+            />
+          </div>
         </div>
         <span
-          class="text-xs font-normal"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
           :class="
             isCurrentRoute('Nfts')
-              ? 'text-blue-dark dark:text-white-200'
+              ? getFontSizeStyle(Number(appStore.theme_settings.font_size))
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >NFT</span
@@ -82,13 +117,23 @@ function getIcon(icon: string, pathName: string) {
         class="flex flex-col justify-center items-center gap-1"
       >
         <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img :src="getIcon('profile-icon', 'profile')" alt="profile" />
+          <div ref="profileContainer">
+            <img
+              :src="getIcon('profile-icon', 'profile')"
+              alt="profile"
+              @load="(event) => fetchAndInjectSVG(event, 2)"
+            />
+          </div>
         </div>
         <span
-          class="text-xs font-normal"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
           :class="
             isCurrentRoute('profile')
-              ? 'text-blue-dark dark:text-white-200'
+              ? getFontSizeStyle(Number(appStore.theme_settings.font_size))
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Profile</span
@@ -100,22 +145,33 @@ function getIcon(icon: string, pathName: string) {
         class="flex flex-col justify-center items-center gap-1"
       >
         <div class="w-xxxl h-xxl rounded-md flex items-center justify-center">
-          <img
+          <div
             v-if="requestStore.skippedRequestsForApproval.length > 0"
-            :src="getIcon('notifications-icon', 'activities')"
-            alt="activities"
-          />
-          <img
-            v-else
-            :src="getIcon('no-notifications-icon', 'activities')"
-            alt="activities"
-          />
+            ref="activityContainerN"
+          >
+            <img
+              :src="getIcon('notifications-icon', 'activities')"
+              alt="activities"
+              @load="(event) => fetchAndInjectSVG(event, 3)"
+            />
+          </div>
+          <div v-else ref="activityContainerNotN">
+            <img
+              :src="getIcon('no-notifications-icon', 'activities')"
+              alt="activities"
+              @load="(event) => fetchAndInjectSVG(event, 4)"
+            />
+          </div>
         </div>
         <span
-          class="text-xs font-normal"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
           :class="
             isCurrentRoute('activities')
-              ? 'text-blue-dark dark:text-white-200'
+              ? getFontSizeStyle(Number(appStore.theme_settings.font_size))
               : 'text-gray-bermuda-grey dark:text-gray-spanish'
           "
           >Activity</span

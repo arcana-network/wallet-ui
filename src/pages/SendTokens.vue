@@ -43,6 +43,8 @@ import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -717,6 +719,12 @@ watch(
     router.replace({ name: 'home' })
   }
 )
+
+const backContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -743,7 +751,14 @@ watch(
         title="Click to go back"
         @click.stop="router.push({ name: 'home' })"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <div ref="backContainer">
+          <img
+            :src="getImage('back-arrow.svg')"
+            class="w-6 h-6"
+            alt="Back Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
       <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
     </div>
@@ -753,7 +768,15 @@ watch(
     >
       <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-1">
-          <label class="text-sm font-light" for="recipientWalletAddress">
+          <label
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            for="recipientWalletAddress"
+          >
             Recipient’s Wallet Address
           </label>
           <input
@@ -770,7 +793,18 @@ watch(
         </div>
         <div class="flex gap-2">
           <div class="flex flex-col gap-1 w-4/6">
-            <label for="amount" class="text-sm font-light">Amount</label>
+            <label
+              for="amount"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >Amount</label
+            >
             <div
               class="input-field flex divide-x-1 divide-gray-zinc dark:divide-black-arsenic"
               :class="{ 'input-active': isAmountFocused }"
@@ -787,22 +821,63 @@ watch(
                 @blur="isAmountFocused = false"
               />
               <button
-                class="text-rose-briliant uppercase w-1/4 h-6 font-light text-base"
+                class="uppercase w-1/4 h-6"
                 type="button"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                  borderColor: appStore.theme_settings.accent_color,
+                  backgroundColor: appStore.theme_settings.accent_color,
+                }"
                 @click.stop="amount = getMaxTransferValue().toString()"
               >
                 Max
               </button>
             </div>
             <div
-              class="text-gray-bermuda-grey dark:text-gray-spanish text-xs font-normal uppercase"
+              class="uppercase"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               Total Balance:
-              <span>{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span>
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+                >{{ selectedTokenBalance }} {{ selectedToken.symbol }}</span
+              >
             </div>
           </div>
           <div class="flex flex-col gap-1 flex-grow">
-            <label for="tokens" class="text-sm font-light">Token</label>
+            <label
+              for="tokens"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >Token</label
+            >
             <div v-if="tokenList.length" class="input-field">
               <select
                 :model-value="selectedToken.symbol"
@@ -843,7 +918,12 @@ watch(
             !loader.show &&
             (transactionMode === 'SCW' || transactionMode === 'ARCANA')
           "
-          class="text-xs text-green-100 font-medium text-center w-full"
+          class="text-green-100 font-medium text-center w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+          }"
           >This is a Gasless Transaction. Click Below to Approve.
         </span>
         <div
@@ -856,14 +936,32 @@ watch(
             class="w-4 h-4 mt-1"
             :src="getIcon('info-circle', undefined, 'svg')"
           />
-          <p class="text-xs text-left text-white-200">
+          <p
+            class="text-left"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             Limit exceeded for gasless transactions. You will be charged for
             this transaction.
           </p>
         </div>
       </div>
       <div class="flex mt-2">
-        <button class="btn-primary py-[10px] text-center w-full">
+        <button
+          class="btn-primary py-[10px] text-center w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+        >
           Preview
         </button>
       </div>

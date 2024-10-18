@@ -20,6 +20,7 @@ import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { truncateMid } from '@/utils/stringUtils'
 import { useImage } from '@/utils/useImage'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const getIcon = useImage()
 
@@ -237,15 +238,35 @@ function calculateCurrencyValue(value) {
         <span class="font-Nohemi text-lg font-medium">Send</span>
         <img :src="getImage('arrow-down.svg')" alt="" />
       </div>
-      <span class="text-[#989898] text-sm font-normal">{{
-        truncateMid(request.request.params[0].to, 6)
-      }}</span>
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ truncateMid(request.request.params[0].to, 6) }}</span
+      >
     </div>
     <div class="flex flex-col items-end">
-      <span>{{ calculateValue(request.request.params[0].value) }}</span>
-      <span class="text-[#989898] text-sm font-normal">{{
-        calculateCurrencyValue(request.request.params[0].value)
-      }}</span>
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ calculateValue(request.request.params[0].value) }}</span
+      >
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ calculateCurrencyValue(request.request.params[0].value) }}</span
+      >
       <span class="text-red-pink-orange text-xs">Pending</span>
     </div>
   </div>
@@ -277,7 +298,15 @@ function calculateCurrencyValue(value) {
       >
         Send Transaction
       </p>
-      <p class="text-xs text-gray-spanish-light text-center">
+      <p
+        class="text-center"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
@@ -292,24 +321,48 @@ function calculateCurrencyValue(value) {
           class="flex flex-1 flex-col gap-1"
         >
           <span
-            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            class="uppercase"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >From</span
           >
           <span
             :title="request.request.params[0].from"
-            class="text-base font-medium leading-4"
+            class="leading-4"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           >
             {{ truncateMid(request.request.params[0].from, 6) }}
           </span>
         </div>
         <div v-else class="flex flex-1 flex-col gap-1">
           <span
-            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            class="uppercase"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >From</span
           >
           <span
             :title="userStore.walletAddress"
-            class="text-base font-medium leading-4"
+            class="leading-4"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           >
             {{ truncateMid(userStore.walletAddress, 6) }}
           </span>
@@ -326,19 +379,37 @@ function calculateCurrencyValue(value) {
           class="flex flex-1 flex-col gap-1"
         >
           <span
-            class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+            class="uppercase"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >To</span
           >
           <span
             :title="request.request.params[0].to"
-            class="text-base font-medium leading-4"
+            class="leading-4"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ truncateMid(request.request.params[0].to, 6) }}</span
           >
         </div>
       </div>
       <div class="space-y-1">
         <div
-          class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+          class="uppercase"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         >
           Transaction Details
         </div>
@@ -346,27 +417,66 @@ function calculateCurrencyValue(value) {
           v-if="request.request?.params[0]?.value"
           class="flex justify-between gap-4"
         >
-          <span class="text-gray-myst dark:text-gray-spanish-light">Value</span>
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Value</span
+          >
           <span class="text-right">
-            <span :title="calculateValue(request.request.params[0].value)">{{
-              calculateValue(request.request.params[0].value)
-            }}</span>
+            <span
+              :title="calculateValue(request.request.params[0].value)"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >{{ calculateValue(request.request.params[0].value) }}</span
+            >
             <span
               v-if="calculateCurrencyValue(request.request.params[0].value)"
               class="ml-1"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               ({{ calculateCurrencyValue(request.request.params[0].value) }})
             </span>
           </span>
         </div>
         <div class="flex justify-between gap-4">
-          <span class="text-gray-myst dark:text-gray-spanish-light"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Transaction Fee</span
           >
           <span class="text-right">
             <span
               v-if="!rpcStore.useGasless || transactionMode === ''"
               :title="calculateGasPrice(request.request.params[0])"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >{{ calculateGasPrice(request.request.params[0]) }}</span
             >
             <span
@@ -375,6 +485,13 @@ function calculateCurrencyValue(value) {
                 (transactionMode === 'SCW' || transactionMode === 'ARCANA')
               "
               class="text-right text-green-100"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+              }"
             >
               Sponsored
             </span>
@@ -383,6 +500,14 @@ function calculateCurrencyValue(value) {
                 calculateCurrencyValue(getGasValue(request.request.params[0]))
               "
               class="ml-1"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               ({{
                 calculateCurrencyValue(getGasValue(request.request.params[0]))
@@ -395,7 +520,15 @@ function calculateCurrencyValue(value) {
         v-if="request.request.params[0].data"
         class="flex flex-col gap-1 h-40"
       >
-        <span class="text-gray-myst dark:text-gray-spanish-light">Message</span>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >Message</span
+        >
         <SignMessageAdvancedInfo :info="request.request.params[0].data" />
       </div>
     </div>
@@ -404,7 +537,13 @@ function calculateCurrencyValue(value) {
       class="flex flex-col gap-2 text-sm"
     >
       <div
-        class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+        class="uppercase"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
       >
         Transaction Details
       </div>
@@ -433,7 +572,12 @@ function calculateCurrencyValue(value) {
           !loader.show &&
           (transactionMode === 'SCW' || transactionMode === 'ARCANA')
         "
-        class="text-xs text-green-100 font-medium text-center w-full"
+        class="text-green-100 text-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+        }"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
       <div
@@ -446,7 +590,15 @@ function calculateCurrencyValue(value) {
           class="w-4 h-4 mt-1"
           :src="getIcon('info-circle', undefined, 'svg')"
         />
-        <p class="text-xs text-left text-white-200">
+        <p
+          class="text-left"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Limit exceeded for gasless transactions. You will be charged for this
           transaction.
         </p>
@@ -459,6 +611,14 @@ function calculateCurrencyValue(value) {
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
           class="btn-secondary p-2 w-full text-sm font-medium"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('proceed')"
         >
           Proceed
@@ -466,13 +626,29 @@ function calculateCurrencyValue(value) {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 w-full text-sm font-medium"
+          class="btn-primary p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('approve')"
         >
           Approve
@@ -485,7 +661,15 @@ function calculateCurrencyValue(value) {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

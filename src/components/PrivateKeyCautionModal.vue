@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAppStore } from '@/store/app'
 import { DOCS_URL } from '@/utils/constants'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
+const appStore = useAppStore()
 
 const emit = defineEmits(['proceed', 'close'])
 </script>
@@ -9,7 +13,15 @@ const emit = defineEmits(['proceed', 'close'])
     <div class="font-Nohemi text-center text-[20px] font-medium">
       Export Private Key
     </div>
-    <div class="text-sm text-gray-spanish-light flex flex-col gap-2">
+    <div
+      class="flex flex-col gap-2"
+      :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: appStore.theme_settings.font_color,
+      }"
+    >
       <p>
         Use this utility to export your private keys to create a backup or to
         use your address with other wallet providers.
@@ -28,6 +40,14 @@ const emit = defineEmits(['proceed', 'close'])
     <div>
       <button
         class="p-2 btn-primary flex justify-center items-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+          borderColor: appStore.theme_settings.accent_color,
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
         @click.stop="emit('proceed')"
       >
         Proceed

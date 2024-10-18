@@ -35,6 +35,7 @@ import {
   getTransakSellableCryptos,
   type TransakNetwork,
 } from '@/utils/transak'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const rpcStore = useRpcStore()
 const DEFAULT_THEME = 'dark'
@@ -497,8 +498,23 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       >
         <img src="@/assets/images/success.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
-          <span class="font-medium">Transaction Approved</span>
-          <span class="text-[#8d8d8d] text-[12px] mx-5"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Transaction Approved</span
+          >
+          <span
+            class="mx-5"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >The transaction was completed. Please click below to view the
             transaction on the explorer.</span
           >
@@ -516,7 +532,18 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
             <img :src="getImage('external-link.svg')" class="h-4 w-4"
           /></a>
         </div>
-        <button class="text-[12px]" @click.stop="closeWindow">
+        <button
+          class="text-[12px]"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click.stop="closeWindow"
+        >
           Close Window
         </button>
       </div>
@@ -530,8 +557,23 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       >
         <img src="@/assets/images/failed.svg" class="h-[60px] w-[60px]" />
         <div class="flex flex-col gap-3 items-center text-center">
-          <span class="font-medium">Transaction Failed</span>
-          <span class="text-[#8d8d8d] text-[12px] mx-5"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Transaction Failed</span
+          >
+          <span
+            class="mx-5"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >The transaction was failed. Retry again.</span
           >
           <!-- <span class="text-[12px]"
@@ -542,8 +584,32 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           > -->
         </div>
         <div class="flex gap-5 justify-between flex-wrap items-center">
-          <button class="text-[12px]" @click.stop="tryAgain">Try Again</button>
-          <button class="text-[12px]" @click.stop="closeWindow">
+          <button
+            class="text-[12px]"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
+            @click.stop="tryAgain"
+          >
+            Try Again
+          </button>
+          <button
+            class="text-[12px]"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
+            @click.stop="closeWindow"
+          >
             Close Window
           </button>
         </div>
@@ -573,30 +639,81 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
         <div class="flex items-center justify-between">
           <span class="text-[12px]">Wallet:</span>
           <span
-            class="text-[15px] font[500]"
             :title="(route.query.partnerCustomerId as string)"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ truncateMid(route.query.partnerCustomerId as string, 5) }}
-            <span class="text-[10px]">{{
-              rpcStore.preferredAddressType === 'scw'
-                ? '(Smart Wallet)'
-                : '(User Wallet)'
-            }}</span></span
+            <span
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >{{
+                rpcStore.preferredAddressType === 'scw'
+                  ? '(Smart Wallet)'
+                  : '(User Wallet)'
+              }}</span
+            ></span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Fiat Amount:</span>
-          <span class="text-[15px] font[500]"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Fiat Amount:</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ query.fiatAmount }} {{ query.fiatCurrency }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Transak Fees:</span>
-          <span class="text-[15px] font[500]"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Transak Fees:</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ query.totalFeeInFiat }} {{ query.fiatCurrency }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Network:</span>
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Network:</span
+          >
           <div class="flex items-center gap-2">
             <img
               v-if="selectedNetworkLogo"
@@ -605,14 +722,36 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
               :alt="selectedNetworkName"
               @error="handleFallbackLogo"
             />
-            <span class="text-[15px] font[500]">{{
-              selectedNetworkName || query.network
-            }}</span>
+            <span
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >{{ selectedNetworkName || query.network }}</span
+            >
           </div>
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Token Balance:</span>
-          <span class="text-[15px] font[500]"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Token Balance:</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ balance }} {{ route.query.cryptoCurrency }}</span
           >
         </div>
@@ -620,14 +759,42 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
           v-if="contractAddress !== ethers.constants.AddressZero"
           class="flex items-center justify-between"
         >
-          <span class="text-[12px]">Gas Balance:</span>
-          <span class="text-[15px] font[500]"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Gas Balance:</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ nativeBalance }} {{ selectedNetworkSymbol }}</span
           >
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-[12px]">Transaction Fees:</span>
-          <span class="text-[15px] font[500]"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Transaction Fees:</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ displayGasFees }} {{ selectedNetworkSymbol }}</span
           >
         </div>
@@ -644,11 +811,30 @@ function generateExplorerURL(explorerUrl: string, txHash: string) {
       <div class="flex gap-4 mt-4">
         <button
           class="btn-secondary h-10 p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="handleReject"
         >
           Reject
         </button>
-        <button class="btn-primary h-10 p-2 w-full" @click.stop="handleApprove">
+        <button
+          class="btn-primary h-10 p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click.stop="handleApprove"
+        >
           Approve
         </button>
       </div>
