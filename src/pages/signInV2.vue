@@ -3,28 +3,35 @@ import type { AuthProvider, GetInfoOutput } from '@arcana/auth-core'
 import { SocialLoginType } from '@arcana/auth-core'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
-import dayjs from 'dayjs'
 import type { Connection } from 'penpal'
 import type { Ref } from 'vue'
-import { onMounted, onUnmounted, ref, toRefs } from 'vue'
+import { onBeforeMount, onMounted, onUnmounted, ref, toRefs } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import type { ParentConnectionApi } from '@/models/Connection'
-import { getAppConfig } from '@/services/gateway.service'
 import { useAppStore } from '@/store/app'
+import { useConfigStore } from '@/store/config'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useUserStore } from '@/store/user'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK, AUTH_URL, GATEWAY_URL } from '@/utils/constants'
 import { createParentConnection } from '@/utils/createParentConnection'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { decodeJSON } from '@/utils/hash'
 import { getUserDIDToken } from '@/utils/loginToken'
+import { getMnemonicInShard } from '@/utils/multiversx/shard'
 import {
   getPasswordlessState,
   PasswordlessLoginHandler,
 } from '@/utils/PasswordlessLoginHandler'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import { getJWTFromTokenTelegram } from '@/utils/redirectUtils'
+import {
+  getStorage,
+  initStorage,
+  initSensitiveStorage,
+  getSensitiveStorage,
+} from '@/utils/storageWrapper'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,6 +45,7 @@ initStorage()
 
 enum BearerAuthentication {
   firebase = 'firebase',
+  telegram = 'telegram',
 }
 
 const {
@@ -47,12 +55,89 @@ const {
   hash,
 } = toRefs(route)
 
-let keyspaceType: 'global' | 'local' | null = null
+let config
 
-const getKeySpaceType = async () => {
-  const { data } = await getAppConfig(appId)
-  return data.global ? 'global' : 'local'
-}
+onBeforeMount(async () => {
+  devLogger.log('signinv2::onBeforeMount')
+})
+
+onMounted(async () => {
+  devLogger.log('signinv2::onMounted')
+  isLoading.value = true
+
+  config = await useConfigStore(appId as string)
+  try {
+    initSensitiveStorage(
+      config.session_persisted,
+      config.session_max_age,
+      appId as string
+    )
+    const storage = getStorage()
+    const sensitiveStorage = getSensitiveStorage()
+    parseHashAndSetSettings()
+
+    // window listener
+    window.addEventListener('message', windowEventHandler)
+    app.setAppId(`${appId}`)
+
+    authProvider = await getAuthProvider(`${appId}`)
+    let userInfo = sensitiveStorage.getUserInfo()
+    devLogger.log('signinv2', { userInfo })
+
+    if (!userInfo) {
+      try {
+        const data = await requestLoginFromOtherTab(appId as string)
+        sensitiveStorage.setUserInfo(data)
+        userInfo = sensitiveStorage.getUserInfo()
+      } catch (e) {
+        //Ignore error
+      }
+    }
+    if (userInfo?.userInfo) {
+      const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
+      user.hasMfa = hasMfa
+      if (!hasMfa && userInfo.pk) {
+        const core = new Core({
+          dkgKey: userInfo.pk,
+          userId: userInfo.userInfo.id,
+          appId: `${appId}`,
+          gatewayUrl: GATEWAY_URL,
+          debug: AUTH_NETWORK === 'dev',
+          curve: app.curve,
+        })
+        const securityQuestionModule = new SecurityQuestionModule(3)
+        securityQuestionModule.init(core)
+        const isEnabled = await securityQuestionModule.isEnabled()
+        user.hasMfa = isEnabled
+      }
+      user.setUserInfo(userInfo)
+      user.setLoginStatus(true)
+      await router.push({ name: 'home' })
+    } else {
+      availableLogins.value = await fetchAvailableLogins(authProvider)
+      const parentConnectionInstance = await initializeParentConnection()
+      if (route.query.logout && route.query.logout == '1') {
+        await parentConnectionInstance.onEvent('disconnect')
+      }
+      const {
+        themeConfig: { theme },
+        name: appName,
+      } = await parentConnectionInstance.getAppConfig()
+      app.setTheme(theme)
+      const htmlEl = document.getElementsByTagName('html')[0]
+      if (theme === 'dark') htmlEl.classList.add('dark')
+      app.setName(appName)
+    }
+  } finally {
+    isLoading.value = false
+  }
+})
+
+onUnmounted(() => {
+  parentConnection?.destroy()
+  window.removeEventListener('message', windowEventHandler)
+})
+
 type SocialLogins = Exclude<SocialLoginType, SocialLoginType.passwordless>
 let passwordlessLoginHandler: PasswordlessLoginHandler | null
 
@@ -168,9 +253,32 @@ const initPasswordlessLogin = async (email: string) => {
   return params
 }
 
-getKeySpaceType().then((type) => {
-  keyspaceType = type
-})
+const requestLoginFromOtherTab = async (appID: string) => {
+  const bc = new BroadcastChannel(`${appID}_login_helper`)
+  const responsePromise = promiseWithTimeout(
+    new Promise((resolve) => {
+      bc.onmessage = (e) => {
+        if (e.data.method === 'LOGIN_HELP_RESPONSE') {
+          const response = e.data.response_data
+          return resolve(response)
+        }
+      }
+    }),
+    1000
+  )
+  bc.postMessage({ method: 'LOGIN_HELP' })
+  const data = await responsePromise
+  bc.close()
+  return data
+}
+
+const promiseWithTimeout = (prom, time) => {
+  let timer
+  return Promise.race([
+    prom,
+    new Promise((_r, rej) => (timer = setTimeout(rej, time))),
+  ]).finally(() => clearTimeout(timer))
+}
 
 const initSocialLogin = async (type: SocialLogins): Promise<string> => {
   const val = await authProvider?.loginWithSocial(type)
@@ -189,7 +297,10 @@ const penpalMethods = {
   initSocialLogin: (type: SocialLogins) => initSocialLogin(type),
   isLoginAvailable: (kind: SocialLoginType) =>
     availableLogins.value.includes(kind),
-  getPublicKey: handleGetPublicKey,
+  getPublicKey: async (id: string, verifier: LoginType) => {
+    const authProvider = await getAuthProvider(app.id)
+    return await authProvider.getPublicKey({ id, verifier })
+  },
   getAvailableLogins: () => [...availableLogins.value],
   triggerBearerLogin: handleBearerLoginRequest,
   triggerCustomLogin: handleCustomLoginRequest,
@@ -197,17 +308,8 @@ const penpalMethods = {
     const reconURL = new URL(`/v1/reconnect/${app.id}`, AUTH_URL)
     return reconURL.toString()
   },
-  getKeySpaceConfigType: () => keyspaceType,
+  getKeySpaceConfigType: () => (config.global ? 'global' : 'local'),
 }
-
-const cleanup = () => {
-  parentConnection?.destroy()
-  window.removeEventListener('message', windowEventHandler)
-}
-
-onMounted(init)
-
-onUnmounted(cleanup)
 
 let authProvider: AuthProvider | null = null
 
@@ -215,7 +317,7 @@ async function fetchAvailableLogins(authProvider: AuthProvider) {
   return (await authProvider.getAvailableLogins()).filter(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    (item) => item !== 'firebase'
+    (item) => item !== 'firebase' && item !== 'telegram'
   )
 }
 
@@ -234,17 +336,6 @@ async function storeUserInfoAndRedirect(
   }
   if (addMFA && app.isMfaEnabled) {
     try {
-      devLogger.log(
-        '[signInV2] before core (storeUserInfoAndRedirect, firebase)',
-        {
-          dkgKey: userInfo.pk as string,
-          userId: userInfo.userInfo.id,
-          appId: `${appId}`,
-          gatewayUrl: GATEWAY_URL,
-          debug: AUTH_NETWORK === 'dev',
-          curve: app.curve,
-        }
-      )
       const core = new Core({
         dkgKey: userInfo.pk as string,
         userId: userInfo.userInfo.id,
@@ -253,7 +344,22 @@ async function storeUserInfoAndRedirect(
         debug: AUTH_NETWORK === 'dev',
         curve: app.curve,
       })
-      await core.init()
+      const isNewUser = await core.init()
+      if (isNewUser && app.chainType === ChainType.multiversx_cv25519) {
+        const shardID = parseInt(authProvider?.appConfig.chain_settings?.shards)
+        devLogger.log({
+          shardFromAPI: shardID,
+          config: authProvider?.appConfig,
+        })
+        const mn = getMnemonicInShard(shardID)
+        const key = mn.deriveKey().hex()
+        await core.importKey(key)
+        userInfo.privateKey = key
+        const mnemonic = mn.toString()
+        storage.session.setMnemonic(mnemonic)
+      } else {
+        userInfo.privateKey = await core.getKey()
+      }
       const key = await core.getKey()
       userInfo.privateKey = key
     } catch (e) {
@@ -281,19 +387,13 @@ async function storeUserInfoAndRedirect(
     userID: userInfo.userInfo.id,
     appID: appId as string,
   })
-  storage.session.setUserInfo(userInfo)
+
+  // storage.session.setUserInfo(userInfo)
+  getSensitiveStorage().setUserInfo(userInfo)
   storage.session.setIsLoggedIn()
   user.setUserInfo(userInfo)
   user.setLoginStatus(true)
   if (!userInfo.hasMfa && userInfo.pk) {
-    devLogger.log('[signInV2] before core (storeUserInfoAndRedirect)', {
-      dkgKey: userInfo.pk,
-      userId: userInfo.userInfo.id,
-      appId: `${appId}`,
-      gatewayUrl: GATEWAY_URL,
-      debug: AUTH_NETWORK === 'dev',
-      curve: app.curve,
-    })
     const core = new Core({
       dkgKey: userInfo.pk,
       userId: userInfo.userInfo.id,
@@ -319,10 +419,11 @@ const windowEventHandler = (
   ev: MessageEvent<{
     status: string
     messageId: number
-    info: GetInfoOutput & { hasMfa?: boolean }
+    info: GetInfoOutput & { hasMfa?: boolean; pk: string }
     sessionID: string
     sessionExpiry: number
     state?: string
+    mnemonic?: string
   }>
 ) => {
   const storage = getStorage()
@@ -336,6 +437,10 @@ const windowEventHandler = (
         { status: 'LOGIN_INFO_ACK', messageId: ev.data.messageId },
         { targetOrigin: ev.origin }
       )
+      devLogger.log({ LOGININFO: ev.data })
+      if (ev.data.mnemonic) {
+        storage.session.setMnemonic(ev.data.mnemonic)
+      }
       storeUserInfoAndRedirect(ev.data.info)
       if (ev.data.info.hasMfa) {
         user.hasMfa = true
@@ -396,74 +501,6 @@ async function initializeParentConnection() {
   return parentConnection.promise
 }
 
-async function init() {
-  isLoading.value = true
-  try {
-    const storage = getStorage()
-
-    parseHashAndSetSettings()
-
-    // window listener
-    window.addEventListener('message', windowEventHandler)
-    app.setAppId(`${appId}`)
-
-    authProvider = await getAuthProvider(`${appId}`)
-    const userInfo = storage.session.getUserInfo()
-    const isLoggedIn = storage.session.getIsLoggedIn()
-
-    if (isLoggedIn && userInfo) {
-      const hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
-      user.hasMfa = hasMfa
-      if (!hasMfa && userInfo.pk) {
-        devLogger.log('[signInV2] before core (init)', {
-          dkgKey: userInfo.pk,
-          userId: userInfo.userInfo.id,
-          appId: `${appId}`,
-          gatewayUrl: GATEWAY_URL,
-          debug: AUTH_NETWORK === 'dev',
-          curve: app.curve,
-        })
-        const core = new Core({
-          dkgKey: userInfo.pk,
-          userId: userInfo.userInfo.id,
-          appId: `${appId}`,
-          gatewayUrl: GATEWAY_URL,
-          debug: AUTH_NETWORK === 'dev',
-          curve: app.curve,
-        })
-        const securityQuestionModule = new SecurityQuestionModule(3)
-        securityQuestionModule.init(core)
-        const isEnabled = await securityQuestionModule.isEnabled()
-        user.hasMfa = isEnabled
-      }
-      user.setUserInfo(userInfo)
-      user.setLoginStatus(true)
-      await router.push({ name: 'home' })
-    } else {
-      availableLogins.value = await fetchAvailableLogins(authProvider)
-      const parentConnectionInstance = await initializeParentConnection()
-      if (route.query.logout && route.query.logout == '1') {
-        await parentConnectionInstance.onEvent('disconnect')
-      }
-      const {
-        themeConfig: { theme },
-        name: appName,
-      } = await parentConnectionInstance.getAppConfig()
-      app.setTheme(theme)
-      const htmlEl = document.getElementsByTagName('html')[0]
-      if (theme === 'dark') htmlEl.classList.add('dark')
-      app.setName(appName)
-    }
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function handleGetPublicKey(id: string, verifier: LoginType) {
-  const authProvider = await getAuthProvider(app.id)
-  return await authProvider.getPublicKey({ id, verifier })
-}
-
 async function handleCustomLoginRequest(params: {
   token: string
   userID: string
@@ -473,9 +510,7 @@ async function handleCustomLoginRequest(params: {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await ap.initKeyReconstructor()
-  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ap.keyReconstructor
+  const kr = ap.keyReconstructor
 
   const info = await kr.getPrivateKey({
     verifier: params.provider,
@@ -506,9 +541,7 @@ async function handleBearerLoginRequest(
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   await ap.initKeyReconstructor()
-  const kr = // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ap.keyReconstructor
+  const kr = ap.keyReconstructor
 
   switch (type) {
     case BearerAuthentication.firebase: {
@@ -532,6 +565,30 @@ async function handleBearerLoginRequest(
         userInfo: {
           id: data.uid,
         },
+        token: '',
+      }
+      await storeUserInfoAndRedirect(userInfo, true)
+
+      return true
+    }
+    case BearerAuthentication.telegram: {
+      const data = _data as {
+        token: string
+      }
+
+      const { token, user } = await getJWTFromTokenTelegram(data.token, app.id)
+      const info = await kr.getPrivateKey({
+        verifier: BearerAuthentication.telegram,
+        id: user.id,
+        idToken: token,
+      })
+
+      const userInfo = {
+        loginType: 'telegram' as LoginType,
+        hasMfa: false,
+        privateKey: info.privateKey as string,
+        pk: info.privateKey as string,
+        userInfo: user,
         token: '',
       }
       await storeUserInfoAndRedirect(userInfo, true)

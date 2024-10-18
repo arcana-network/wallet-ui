@@ -8,8 +8,6 @@ import {
 import { Core, SecurityQuestionModule } from '@arcana/key-helper'
 import { captureException, captureMessage } from '@sentry/vue'
 import dayjs from 'dayjs'
-import { addHexPrefix } from 'ethereumjs-util'
-import { ethers } from 'ethers'
 import { getUniqueId } from 'json-rpc-engine'
 import { connectToParent } from 'penpal'
 import { v4 as genUUID } from 'uuid'
@@ -18,11 +16,13 @@ import { useRoute } from 'vue-router'
 
 import type { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
+import { ChainType } from '@/utils/chainType'
 import { AUTH_NETWORK, GATEWAY_URL, SESSION_EXPIRY_MS } from '@/utils/constants'
 import { errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getLoginToken } from '@/utils/loginToken'
+import { getMnemonicInShard } from '@/utils/multiversx/shard'
 import {
   getStateFromUrl,
   handleLogin,
@@ -81,6 +81,8 @@ async function init() {
         id: userInfo.userInfo.id,
       })
       devLogger.log('[loginRedirect] isMfaEnabled', app.isMfaEnabled)
+      let mnemonic: undefined | string = undefined
+
       if (app.isMfaEnabled) {
         devLogger.log('[loginRedirect] before core', {
           dkgKey: info.privateKey,
@@ -98,8 +100,26 @@ async function init() {
           debug: AUTH_NETWORK === 'dev',
           curve: app.curve,
         })
-        await core.init()
-        userInfo.privateKey = await core.getKey()
+
+        const isNewUser = await core.init()
+        devLogger.log({ isNewUser })
+        if (isNewUser && app.chainType === ChainType.multiversx_cv25519) {
+          const shardID = parseInt(
+            authProvider.appConfig.chain_settings?.shards
+          )
+          devLogger.log({
+            shardFromAPI: shardID,
+            config: authProvider.appConfig,
+          })
+          const mn = getMnemonicInShard(shardID)
+          const key = mn.deriveKey().hex()
+          await core.importKey(key)
+          userInfo.privateKey = key
+          mnemonic = mn.toString()
+        } else {
+          userInfo.privateKey = await core.getKey()
+        }
+
         userInfo.hasMfa = storage.local.getHasMFA(userInfo.userInfo.id)
         userInfo.pk = info.privateKey
         if (!userInfo.hasMfa) {
@@ -147,6 +167,7 @@ async function init() {
       await handleLogin({
         connection: connectionToParent,
         userInfo,
+        mnemonic,
         state: stateInfo.i,
         sessionID: uuid,
         sessionExpiry: Date.now() + SESSION_EXPIRY_MS,

@@ -24,8 +24,11 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
-import { getRequestHandler } from '@/utils/requestHandlerSingleton'
-import { getStorage } from '@/utils/storageWrapper'
+import {
+  deleteRequestHandler,
+  getRequestHandler,
+} from '@/utils/requestHandlerSingleton'
+import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
 const user = useUserStore()
 const router = useRouter()
@@ -105,11 +108,22 @@ async function copyToClipboard(value: string, message: string) {
   }
 }
 
+const sendLogoutMessage = () => {
+  getSensitiveStorage().removeUserInfo()
+  const bc = new BroadcastChannel(`${appStore.id}_login_helper`)
+  bc.postMessage({
+    method: 'LOGOUT',
+  })
+  bc.close()
+}
+
 async function handleLogout() {
   appStore.showWallet = false
   const parentConnectionInstance = await parentConnection?.promise
   const authProvider = await getAuthProvider(appId)
+  sendLogoutMessage()
   getRequestHandler().onDisconnect()
+  deleteRequestHandler()
   await user.handleLogout(authProvider)
   parentConnectionInstance?.onEvent('disconnect')
 }
@@ -152,11 +166,6 @@ function handleShowMFAProceedModal(show: boolean) {
 }
 
 async function handleMFASetupClick() {
-  const info = getStorage().session.getUserInfo()
-  if (!info) {
-    return
-  }
-
   if (getStorage().session.getInAppLogin()) {
     modalStore.setShowModal(false)
     router.push({
@@ -252,7 +261,7 @@ watch(
   </div>
   <div v-else class="flex-grow flex flex-col gap-5 mb-5">
     <div class="flex justify-center align-center">
-      <span class="font-Nohemi text-[20px] font-semibold">Profile</span>
+      <span class="font-Nohemi text-[20px] font-medium">Profile</span>
     </div>
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
@@ -260,7 +269,7 @@ watch(
           class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Name</span
         >
-        <span class="text-base font-semibold">
+        <span class="text-lg font-normal">
           {{ name }}
         </span>
       </div>
@@ -269,7 +278,7 @@ watch(
           class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
           >Email ID</span
         >
-        <span class="text-base font-semibold">
+        <span class="text-lg font-normal">
           {{ email || 'Not available' }}
         </span>
       </div>
@@ -279,7 +288,7 @@ watch(
           >Wallet Address</span
         >
         <div class="flex gap-2">
-          <span class="text-base font-semibold">
+          <span class="text-lg font-normal">
             {{ walletAddressShrinked }}
           </span>
           <button
@@ -297,6 +306,7 @@ watch(
         </div>
       </div>
       <div
+        v-if="appStore.chainType !== ChainType.multiversx_cv25519"
         class="flex flex-col"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showExportkey,
@@ -307,12 +317,12 @@ watch(
           >Private Key</span
         >
         <button
-          class="flex gap-2 items-cente disabled:opacity-100"
+          class="flex gap-2 items-center disabled:opacity-100"
           title="Click to export private key"
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-base font-semibold dark:text-white-100">
+          <span class="text-lg font-normal dark:text-white-100">
             Export Key
           </span>
           <img :src="getImage('external-link.svg')" class="w-4 h-4" />
@@ -327,7 +337,7 @@ watch(
             class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Total Balance</span
           >
-          <span class="text-base font-semibold">
+          <span class="text-lg font-normal">
             {{ balanceBreakdown.total }} NEAR
           </span>
         </div>
@@ -336,7 +346,7 @@ watch(
             class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Available Balance</span
           >
-          <span class="text-base font-semibold">
+          <span class="text-lg font-normal">
             {{ balanceBreakdown.available }} NEAR
           </span>
         </div>
@@ -345,7 +355,7 @@ watch(
             class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Balance Reserved for Storage</span
           >
-          <span class="text-base font-semibold">
+          <span class="text-lg font-normal">
             {{ balanceBreakdown.locked }} NEAR
           </span>
         </div>
@@ -354,7 +364,7 @@ watch(
             class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Balance Staked</span
           >
-          <span class="text-base font-semibold">
+          <span class="text-lg font-normal">
             {{ balanceBreakdown.staked }} NEAR
           </span>
         </div>
@@ -367,7 +377,7 @@ watch(
         <div>
           <button
             v-if="!user.hasMfa"
-            class="text-base font-semibold flex gap-2 items-center"
+            class="text-lg font-normal flex gap-2 items-center"
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
@@ -377,7 +387,7 @@ watch(
             >
             <img :src="getImage('external-link.svg')" class="w-4 h-4" />
           </button>
-          <span v-else class="text-base font-semibold">In use</span>
+          <span v-else class="text-lg font-normal">In use</span>
         </div>
       </div>
     </div>

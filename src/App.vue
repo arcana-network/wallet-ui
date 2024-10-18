@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
+import { useMotions } from '@vueuse/motion'
 import { computed, toRefs, watch, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,6 +41,7 @@ const router = useRouter()
 const { theme, expandWallet, showWallet, compactMode, sdkVersion } = toRefs(app)
 const route = useRoute()
 const activitiesStore = useActivitiesStore()
+const motions = useMotions()
 
 if (app.sdkVersion !== 'v3') {
   app.expandWallet = true
@@ -76,15 +78,10 @@ watch(showWallet, async (newValue) => {
 
 watch(expandWallet, setIframeStyle)
 
-watch(compactMode, (val) => {
-  if (val) starterTipsStore.setHideStarterTips()
-  setIframeStyle()
-})
+watch(compactMode, setIframeStyle)
 
 watch(showRequestPage, (newValue) => {
   if (newValue) {
-    starterTipsStore.setHideStarterTips()
-    modal.show = false
     router.push({ name: 'requests', params: { appId: app.id } })
   }
 })
@@ -130,7 +127,13 @@ const canShowCollapseButton = computed(
 
 const showHeader = computed(() => {
   const routeName = route.name
-  const routes = ['requests', 'PermissionRequest', 'TransakSell']
+  const routes = [
+    'requests',
+    'PermissionRequest',
+    'TransakSell',
+    'MFASetup',
+    'MFARestore',
+  ]
   return !routes.includes(routeName as string)
 })
 
@@ -219,13 +222,53 @@ onMounted(() => {
     }
   })
 })
+
+const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
+  function preventDefault(e) {
+    e.preventDefault()
+  }
+  let supportsPassive = false
+  try {
+    window.addEventListener(
+      'test',
+      () => '',
+      Object.defineProperty({}, 'passive', {
+        get: function () {
+          supportsPassive = true
+          return supportsPassive
+        },
+      })
+    )
+  } catch (e) {
+    console.log(e)
+  }
+  const wheelOpt = supportsPassive ? { passive: false } : false
+  window.addEventListener('touchmove', preventDefault, wheelOpt)
+  motions.dragTarget.apply({
+    x: 0,
+    y,
+  })
+  if (!dragging) {
+    motions.dragTarget.apply({
+      x: 0,
+      y: 0,
+    })
+    return
+  }
+  if (dragging && elapsedTime > 300) {
+    app.expandWallet = false
+    cancel()
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col h-full">
     <div
       v-show="expandWallet || app.expandRestoreScreen"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden"
+      v-motion="'dragTarget'"
+      v-drag="dragHandler"
+      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
@@ -250,7 +293,9 @@ onMounted(() => {
       </div>
       <WalletHeader v-if="showHeader" />
       <div class="flex-grow wallet__container m-1 p-3">
+        <!-- <Suspense> -->
         <RouterView class="flex-grow" />
+        <!-- </Suspense> -->
         <img
           v-if="route.name === 'requests'"
           :src="getImage('secured-by-arcana.svg')"
@@ -368,6 +413,16 @@ body {
 
 .Vue-Toastification__toast--error {
   background-color: #f61d1d !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .Vue-Toastification__toast--success {
+    background-color: #24ad29 !important;
+  }
+
+  .Vue-Toastification__toast--error {
+    background-color: #e73232 !important;
+  }
 }
 
 .notification-animation {

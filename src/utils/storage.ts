@@ -1,3 +1,4 @@
+import { RpcConfig } from '@arcana/auth'
 import { GetInfoOutput } from '@arcana/auth-core'
 import { CURVE } from '@arcana/key-helper'
 import dayjs from 'dayjs'
@@ -10,7 +11,9 @@ import { errors } from '@/utils/content'
 enum StorageKey {
   UserInfo = 'userInfo',
   IsLoggedIn = 'isLoggedIn',
+  Mnemonic = 'mnemonic',
   WalletMode = 'wallet-mode',
+  LastRPCConfig = 'last-rpc-config',
   Session = 'session',
   HasMFA = 'has-mfa',
   SkipMFAUntil = 'mfa-skip-until',
@@ -23,6 +26,7 @@ enum StorageKey {
   AssetContract = 'asset-contracts',
   PK = 'pk',
   hasStarterTipShown = 'has-starter-tip-shown',
+  hasMVXSeedShown = 'has-mvx-seed-shown',
   PreferredAddressType = 'preferred-address-type',
   Theme = 'theme',
   Curve = 'curve',
@@ -96,6 +100,14 @@ class UserLocalStorage extends BaseStorage {
 
   getWalletMode() {
     return this.get(StorageKey.WalletMode)
+  }
+
+  setLastRPCConfig(user: string, c: unknown) {
+    this.set(`${user}-${StorageKey.LastRPCConfig}`, c)
+  }
+
+  getLastRPCConfig(user: string) {
+    return this.get<RpcConfig | null>(`${user}-${StorageKey.LastRPCConfig}`)
   }
 
   setUserInfo(val: UserInfo) {
@@ -204,6 +216,14 @@ class UserLocalStorage extends BaseStorage {
         `${address}/${chainId}/${StorageKey.AssetContract}`
       ) ?? []
     )
+  }
+
+  sethasMVXSeedShown(userId: string, val: boolean) {
+    this.set(`${userId}-${StorageKey.hasMVXSeedShown}`, val)
+  }
+
+  gethasMVXSeedShown(userId: string) {
+    return this.get<boolean>(`${userId}-${StorageKey.hasMVXSeedShown}`)
   }
 
   setHasStarterTipShown(userId: string, val: boolean) {
@@ -376,10 +396,25 @@ class UserSessionStorage extends BaseStorage {
   clearIsLoggedIn() {
     this.delete(StorageKey.IsLoggedIn)
   }
+
+  getMnemonic() {
+    return this.get<string>(StorageKey.Mnemonic) ?? ''
+  }
+
+  setMnemonic(val: string) {
+    this.set(StorageKey.Mnemonic, val)
+  }
+
+  clearMnemonic() {
+    this.delete(StorageKey.Mnemonic)
+  }
 }
+
 export {
   are3PCEnabled,
   UserLocalStorage as LocalStorage,
   UserSessionStorage as SessionStorage,
   StorageType,
+  BaseStorage,
+  UserInfo,
 }

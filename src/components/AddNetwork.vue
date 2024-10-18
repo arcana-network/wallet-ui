@@ -90,9 +90,9 @@ async function handleSubmit() {
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-semibold">Add Network</span>
+      <span class="font-Nohemi text-[20px] font-medium">Add Network</span>
     </div>
-    <form class="flex flex-col gap-5" @submit.prevent="handleSubmit">
+    <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium" for="recipientWalletAddress">
           Network Name
@@ -102,7 +102,7 @@ async function handleSubmit() {
           v-model="rpcConfig.networkName"
           required
           type="text"
-          class="input-field focus:input-active"
+          class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. Ethereum"
         />
       </div>
@@ -113,7 +113,7 @@ async function handleSubmit() {
           v-model="rpcConfig.rpcUrl"
           required
           type="text"
-          class="input-field focus:input-active"
+          class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://rpc.ankr.com/eth"
         />
       </div>
@@ -126,7 +126,7 @@ async function handleSubmit() {
           v-model="rpcConfig.currencySymbol"
           required
           type="text"
-          class="input-field focus:input-active"
+          class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. ETH"
         />
       </div>
@@ -137,7 +137,7 @@ async function handleSubmit() {
           v-model="rpcConfig.chainId"
           required
           type="text"
-          class="input-field focus:input-active"
+          class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. 0x1"
         />
       </div>
@@ -149,11 +149,11 @@ async function handleSubmit() {
           id="explorerUrl"
           v-model="rpcConfig.explorerUrl"
           type="text"
-          class="input-field focus:input-active"
+          class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://etherscan.io"
         />
       </div>
-      <div class="flex mt-5">
+      <div class="flex">
         <button class="btn-primary w-full p-2">Save</button>
       </div>
     </form>

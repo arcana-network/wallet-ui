@@ -10,6 +10,7 @@ import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { useImage } from '@/utils/useImage'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -17,6 +18,7 @@ const route = useRoute()
 const isPermissionRequestPage = route.name === 'PermissionRequest'
 const txFees = ref<string | null>('0')
 const requestHandler = getRequestHandler()
+const getIcon = useImage()
 
 type PreviewData = {
   senderWalletAddress: string
@@ -53,7 +55,10 @@ onBeforeMount(async () => {
   loader.value.show = false
 })
 
-const nativeCurrency = rpcStore.nativeCurrency?.symbol
+const nativeCurrency =
+  appStore.chainType !== ChainType.multiversx_cv25519
+    ? rpcStore.nativeCurrency?.symbol
+    : 'USD'
 
 onMounted(async () => {
   switch (appStore.chainType) {
@@ -95,7 +100,7 @@ function truncateAddress(address: string) {
         </button>
         <span class="text-lg font-medium">Confirm Transfer</span>
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-end">
         <div class="flex flex-col gap-1">
           <span class="text-sm font-medium text-gray-100"
             >Sender’s Address</span
@@ -154,15 +159,21 @@ function truncateAddress(address: string) {
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
-      <span
+      <div
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="text-xs text-center"
+        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
       >
-        Limit exceeded for gasless transactions. You will be charged for this
-        transaction.
-      </span>
+        <img
+          class="w-4 h-4 mt-1"
+          :src="getIcon('info-circle', undefined, 'svg')"
+        />
+        <p class="text-xs text-left text-white-200">
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
+        </p>
+      </div>
     </div>
     <SwipeToAction
       v-if="!isPermissionRequestPage"

@@ -17,7 +17,11 @@ import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
-import { getStorage, initStorage } from '@/utils/storageWrapper'
+import {
+  getSensitiveStorage,
+  getStorage,
+  initStorage,
+} from '@/utils/storageWrapper'
 
 type CustomObject = {
   [key: string]: string
@@ -61,19 +65,21 @@ let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
 
 onBeforeMount(async () => {
-  const loginInfo = storage.session.getUserInfo()
-  if (loginInfo) {
+  if (inAppLogin) {
+    const loginInfo = getSensitiveStorage().getUserInfo()
+    if (!loginInfo) {
+      return
+    }
     dkgShare = {
       pk: loginInfo.pk,
       id: loginInfo.userInfo.id,
     }
   } else {
-    dkgShare = storage.local.getPK()
-  }
-  if (!inAppLogin) {
     connectionToParent = await connectToParent<RedirectParentConnectionApi>({})
       .promise
+    dkgShare = storage.local.getPK()
   }
+
   devLogger.log('[MFASetup] before core (onBeforeMount)', {
     dkgKey: dkgShare.pk,
     userId: dkgShare.id,
@@ -310,7 +316,7 @@ function handlePinBack() {
         <img src="@/assets/images/success.svg" class="w-20 h-20" />
       </div>
       <div class="flex flex-col gap-5 text-center items-center mt-10">
-        <h2 class="font-Nohemi text-[20px] font-semibold">
+        <h2 class="font-Nohemi text-[20px] font-medium">
           ENHANCED WALLET SECURITY ENABLED
         </h2>
         <span class="text-sm max-w-[26rem] text-gray-spanish-light"
@@ -339,7 +345,7 @@ function handlePinBack() {
     >
       <AppLoader :message="loader.message" />
     </div>
-    <h2 class="font-Nohemi text-[20px] font-semibold uppercase m-4">
+    <h2 class="font-Nohemi text-[20px] font-medium uppercase m-4">
       RECOVERY METHOD 2: PIN
     </h2>
     <hr />
@@ -357,7 +363,7 @@ function handlePinBack() {
           <input
             v-model.trim="pinToEncryptMFAShare"
             :type="passwordType"
-            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full"
+            class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
           />
           <img
@@ -402,7 +408,7 @@ function handlePinBack() {
   </div>
   <div v-else class="card w-full max-w-[40rem] mx-auto h-max min-h-max">
     <div class="overflow-y-auto">
-      <h2 class="font-Nohemi text-[20px] font-semibold uppercase m-4">
+      <h2 class="font-Nohemi text-[20px] font-medium uppercase m-4">
         RECOVERY METHOD 1: Security Questions
       </h2>
       <hr />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppMode } from '@arcana/auth'
+import { AppMode, RpcConfig } from '@arcana/auth'
 import { LoginType } from '@arcana/auth-core/types/types'
 import { Core, CURVE, SecurityQuestionModule } from '@arcana/key-helper'
 import type { Connection } from 'penpal'
@@ -14,17 +14,19 @@ import {
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import AppLoader from '@/components/AppLoader.vue'
+import PhraseSuccess from '@/components/CustomRequestScreen/Mnemonic/PhraseSuccess.vue'
+import SeedPhrase from '@/components/CustomRequestScreen/Mnemonic/SeedPhrase.vue'
+import SeedPhraseHome from '@/components/CustomRequestScreen/Mnemonic/SeedPhraseHome.vue'
+import VerifyPhrase from '@/components/CustomRequestScreen/Mnemonic/VerifyPhrase.vue'
 import UseWalletBalanceGasless from '@/components/UseWalletBalanceGasless.vue'
 import type { ParentConnectionApi } from '@/models/Connection'
 import { RpcConfigWallet } from '@/models/RpcConfigList'
 import StarterTips from '@/pages/StarterTips/index-page.vue'
 import { getEnabledChainList } from '@/services/chainlist.service'
-import {
-  getAppConfig,
-  getGaslessEnabledStatus,
-} from '@/services/gateway.service'
+import { getGaslessEnabledStatus, AppConfig } from '@/services/gateway.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import { useConfigStore } from '@/store/config'
 import useCurrencyStore from '@/store/currencies'
 import { useGaslessStore } from '@/store/gasless'
 import { useModalStore } from '@/store/modal'
@@ -46,6 +48,7 @@ import {
   getRequestHandler,
   requestHandlerExists,
   setRequestHandler,
+  deleteRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import {
   getSendRequestFn,
@@ -54,7 +57,7 @@ import {
 } from '@/utils/requestManagement'
 import { initSCW, scwInstance } from '@/utils/scw'
 import { getPrivateKey } from '@/utils/solana/getPrivateKey'
-import { getStorage } from '@/utils/storageWrapper'
+import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -75,20 +78,16 @@ let parentConnection: Connection<ParentConnectionApi>
 const storage = getStorage()
 const enabledChainList: Ref<any[]> = ref([])
 const currencyInterval = ref(null as any)
+const showSeedPhraseModal = ref(false)
+const showSeedPhraseHomeModal = ref(false)
+const showSeedPhraseVerifyModal = ref(false)
+const showSeedPhraseSuccessModal = ref(false)
 const currencyStore = useCurrencyStore()
-const keyspaceType: Ref<'local' | 'global'> = ref('local')
-
+let config
+let bc: BroadcastChannel | null = null
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
-
-async function getKeySpaceType() {
-  const { data } = await getAppConfig(appStore.id)
-  const global = data.global
-  appStore.setIsGlobalKeyspace(global)
-  if (global) keyspaceType.value = 'global'
-  else keyspaceType.value = 'local'
-}
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -102,18 +101,81 @@ function stopCurrencyInterval() {
   if (currencyInterval.value) clearInterval(currencyInterval.value)
 }
 
-function setShowStarterTips() {
+function setShowSeedPhrase() {
+  const mnemonic = storage.session.getMnemonic()
+  const shouldBeShown = !!mnemonic
   const userId = userStore.info.id
   const loginCount = storage.local.getLoginCount(userId)
-  const hasStarterTipShown = storage.local.getHasStarterTipShown(userId)
-  if (Number(loginCount) <= 2 && !hasStarterTipShown) {
-    starterTipsStore.setShowStarterTips()
-    return
+  const hasMVXSeedShown = storage.local.gethasMVXSeedShown(userId)
+  if (Number(loginCount) <= 2 && !hasMVXSeedShown) {
+    if (shouldBeShown) {
+      handleShowSeedPhraseHomeModal()
+      return
+    }
   }
+}
+
+const startLoginChannel = () => {
+  const sensitiveStorage = getSensitiveStorage()
+  bc = new BroadcastChannel(`${appStore.id}_login_helper`)
+  bc.onmessage = (e) => {
+    const info = sensitiveStorage.getUserInfo()
+    devLogger.log('Got request from a tab', { e, info })
+    if (e.data.method === 'LOGIN_HELP') {
+      bc?.postMessage({
+        method: 'LOGIN_HELP_RESPONSE',
+        response_data: info,
+      })
+    }
+    if (e.data.method === 'LOGOUT') {
+      sensitiveStorage.removeUserInfo()
+      logout()
+    }
+  }
+}
+
+async function handleSeedPhrase() {
+  showSeedPhraseHomeModal.value = false
+  showSeedPhraseModal.value = true
+}
+
+async function handleSeedPhraseVerify() {
+  showSeedPhraseModal.value = false
+  showSeedPhraseVerifyModal.value = true
+}
+
+async function handleSeedPhraseSuccess() {
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseSuccessModal.value = true
+}
+
+function handleShowSeedPhraseHomeModal() {
+  modalStore.setShowModal(true)
+  showSeedPhraseHomeModal.value = true
+}
+
+function handleHideSeedPhraseHomeModal() {
+  modalStore.setShowModal(false)
+  showSeedPhraseHomeModal.value = false
+}
+
+function handleBacktoSeed() {
+  modalStore.setShowModal(true)
+  showSeedPhraseVerifyModal.value = false
+  showSeedPhraseModal.value = true
+}
+
+const sendLogoutMessage = () => {
+  getSensitiveStorage().removeUserInfo()
+  bc?.postMessage({
+    method: 'LOGOUT',
+  })
 }
 
 onMounted(async () => {
   try {
+    config = await useConfigStore(appStore.id)
+    startLoginChannel()
     loader.value.show = true
     devLogger.log('[loggedInView]', { curve: appStore.curve })
     devLogger.log('[loggedInView] before keygen', userStore.privateKey)
@@ -121,13 +183,8 @@ onMounted(async () => {
       userStore.privateKey = await getPrivateKey(userStore.privateKey)
     }
     devLogger.log('[loggedInView] after keygen', userStore.privateKey)
-
-    await Promise.all([
-      setRpcConfigs().then(() => getRpcConfig()),
-      getKeySpaceType(),
-    ])
+    await fetchRpcConfigs().then(() => setRpcConfig())
     await connectToParent()
-    await getRpcConfigFromParent()
     sendAddressType(rpcStore.preferredAddressType)
     await setTheme()
     await getAccountDetails()
@@ -136,31 +193,46 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
+      const c = storage.local.getLastRPCConfig(
+        requestHandler.getAccountHandler().getAccount().address
+      )
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
       const selectedChainId = Number(chainId)
-      requestHandler
-        .setRpcConfig({
-          chainId: selectedChainId,
-          ...rpcConfig,
-        })
-        .then(() => requestHandler.sendConnect())
+      if (c) {
+        setRpcConfig(c)
+        devLogger.log('last rpc config', c)
+        requestHandler
+          .setRpcConfig(c as RpcConfigWallet)
+          .then(() => requestHandler.sendConnect())
+      } else {
+        requestHandler
+          .setRpcConfig({
+            chainId: selectedChainId,
+            ...rpcConfig,
+          })
+          .then(() => requestHandler.sendConnect())
+      }
       if (
         rpcStore.isGaslessConfigured &&
         appStore.chainType === ChainType.evm_secp256k1
       ) {
         await initScwSdk()
       }
-
       watchRequestQueue(requestHandler)
     }
   } catch (e) {
     console.log(e)
   } finally {
     loader.value.show = false
+    setShowSeedPhrase()
     // setShowStarterTips()
   }
+})
+
+onBeforeUnmount(() => {
+  bc?.close()
 })
 
 async function initScwSdk() {
@@ -225,7 +297,7 @@ async function getAccountDetails() {
   await initAccountHandler()
 }
 
-function initKeeper(rpcUrl) {
+function initKeeper(rpcUrl: string) {
   if (!requestHandlerExists()) {
     const accountHandler = CreateAccountHandler(
       userStore.privateKey,
@@ -303,7 +375,7 @@ async function connectToParent() {
         getRequestHandler()
       ),
       addToActivity,
-      getKeySpaceConfigType: () => keyspaceType.value,
+      getKeySpaceConfigType: () => (config.global ? 'global' : 'local'),
       getPublicKey: handleGetPublicKey,
       triggerLogout: handleLogout,
       logout,
@@ -365,7 +437,9 @@ async function logout() {
   appStore.showWallet = false
   const authProvider = await getAuthProvider(appStore.id as string)
   await userStore.handleLogout(authProvider)
+  sendLogoutMessage()
   getRequestHandler().onDisconnect()
+  deleteRequestHandler()
   router.push(`/${appStore.id}/v2/login?logout=1`)
 }
 
@@ -373,7 +447,9 @@ async function handleLogout() {
   if (parentConnectionStore.parentConnection) {
     const parentConnectionInstance = await parentConnectionStore
       .parentConnection.promise
+    sendLogoutMessage()
     getRequestHandler().onDisconnect()
+    deleteRequestHandler()
     const authProvider = await getAuthProvider(appStore.id as string)
     await userStore.handleLogout(authProvider)
     parentConnectionInstance?.onEvent('disconnect')
@@ -381,7 +457,7 @@ async function handleLogout() {
   }
 }
 
-async function setRpcConfigs() {
+async function fetchRpcConfigs() {
   const { chains } = await getEnabledChainList(appStore.id)
   enabledChainList.value = chains
     .filter((chain) => {
@@ -413,32 +489,14 @@ async function setRpcConfigs() {
   if (!rpcStore.rpcConfigs) rpcStore.setRpcConfigs(enabledChainList.value)
 }
 
-async function getRpcConfig() {
+async function setRpcConfig(c?: RpcConfig | null) {
   let rpcConfig =
+    c ||
     enabledChainList.value.find((chain) => chain.defaultChain) ||
     enabledChainList.value[0] // some time, chain list don't have default chain
   initKeeper(rpcConfig.rpcUrls[0])
   rpcStore.setSelectedRPCConfig(rpcConfig)
   rpcStore.setRpcConfig(rpcConfig)
-}
-
-async function getRpcConfigFromParent() {
-  try {
-    const parentConnectionInstance = await parentConnection.promise
-    const rpcConfig = await parentConnectionInstance.getRpcConfig()
-    if (rpcConfig) {
-      const chainId = Number(rpcConfig.chainId)
-      const chainToBeSet = enabledChainList.value.find(
-        (chain) => chain.chainId === chainId
-      )
-      if (chainToBeSet) {
-        rpcStore.setSelectedRPCConfig(chainToBeSet)
-        rpcStore.setRpcConfig(chainToBeSet)
-      }
-    }
-  } catch (err) {
-    console.log({ err })
-  }
 }
 
 async function handleGetPublicKey(id: string, verifier: LoginType) {
@@ -536,6 +594,18 @@ watch(
     }
   }
 )
+
+watch(
+  () => modalStore.show,
+  () => {
+    if (!modalStore.show) {
+      showSeedPhraseHomeModal.value = false
+      showSeedPhraseModal.value = false
+      showSeedPhraseVerifyModal.value = false
+      showSeedPhraseSuccessModal.value = false
+    }
+  }
+)
 </script>
 
 <template>
@@ -550,7 +620,7 @@ watch(
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">
-          <span class="font-semibold text-white-100 text-sm"
+          <span class="font-medium text-white-100 text-sm"
             >Enhance your wallet security</span
           >
           <img src="@/assets/images/export.svg" class="w-5" />
@@ -574,6 +644,25 @@ watch(
     <Teleport v-if="modalStore.show" to="#modal-container">
       <UseWalletBalanceGasless
         v-if="gaslessStore.showUseWalletBalancePermission"
+      />
+      <SeedPhraseHome
+        v-if="showSeedPhraseHomeModal"
+        @proceed="handleSeedPhrase"
+        @close="handleHideSeedPhraseHomeModal"
+      />
+      <SeedPhrase
+        v-if="showSeedPhraseModal"
+        @close="handleHideSeedPhraseHomeModal"
+        @verify="handleSeedPhraseVerify"
+      />
+      <VerifyPhrase
+        v-if="showSeedPhraseVerifyModal"
+        @success="handleSeedPhraseSuccess"
+        @close="handleBacktoSeed"
+      />
+      <PhraseSuccess
+        v-if="showSeedPhraseSuccessModal"
+        @close="handleHideSeedPhraseHomeModal"
       />
     </Teleport>
   </div>

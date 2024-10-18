@@ -24,6 +24,7 @@ import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendTokensPreview from '@/components/SendTokensPreview.vue'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import type { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -41,6 +42,7 @@ import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
+import { useImage } from '@/utils/useImage'
 
 const showPreview = ref(false)
 const rpcStore = useRpcStore()
@@ -51,6 +53,7 @@ const toast = useToast()
 const isWalletAddressFocused = ref(false)
 const isAmountFocused = ref(false)
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 
 const recipientWalletAddress = ref('')
 const amount = ref('')
@@ -78,6 +81,7 @@ const gasParamsMVX = ref({
   gasLimit: 0,
   minGasLimit: 0,
 })
+const getIcon = useImage()
 
 const walletBalance = computed(() => {
   const decimals = getRequestHandler().getAccountHandler().decimals
@@ -202,30 +206,35 @@ onUnmounted(() => {
 async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
   const accountHandler =
     getRequestHandler().getAccountHandler() as MultiversXAccountHandler
+
   const networkConfig = await accountHandler
     .getNetworkProvider()
     .getNetworkConfig()
-
   const tokenInfo = tokenList.value.find(
     (item) => item.symbol === rpcStore.nativeCurrency?.symbol
   ) as any
-
   const txObject = await getMVXTransactionObject()
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    networkConfig.MinGasPrice,
-    tokenInfo.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(networkConfig.MinGasPrice, tokenInfo.decimals)
   )
+  gasParamsMVX.value.gasPrice = gasPriceDecimal.toNumber()
 
   gasParamsMVX.value.minGasLimit = networkConfig.MinGasLimit
 
-  const gasLimit = Number(gasLimitInput) || networkConfig.MinGasLimit
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || networkConfig.MinGasLimit
+  ).plus(
+    new Decimal(networkConfig.GasPerDataByte).times(txObject.getData().length())
+  )
 
-  gasParamsMVX.value.gasLimit =
-    gasLimit + networkConfig.GasPerDataByte * txObject.getData().length()
+  gasParamsMVX.value.gasLimit = gasLimitDecimal.toNumber()
 
-  gasParamsMVX.value.gasFee =
-    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
+
+  gasParamsMVX.value.gasFee = gasFeeDecimal.toDecimalPlaces(5).toNumber()
 }
 
 async function fetchBaseFee() {
@@ -736,13 +745,13 @@ watch(
       >
         <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
       </button>
-      <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
+      <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
     </div>
     <form
       class="flex flex-col flex-grow justify-between mt-8"
       @submit.prevent="handleShowPreview"
     >
-      <div class="flex flex-col gap-5">
+      <div class="flex flex-col gap-6">
         <div class="flex flex-col gap-1">
           <label class="text-sm font-light" for="recipientWalletAddress">
             Recipient’s Wallet Address
@@ -825,7 +834,6 @@ watch(
         <GasPriceMVX
           v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
           :gas-fee="gasParamsMVX.gasFee"
-          :gas-price="gasParamsMVX.gasPrice"
           :gas-limit="gasParamsMVX.gasLimit"
           :min-gas-limit="gasParamsMVX.minGasLimit"
           @gas-limit-input="onGasLimitChangeMVX"
@@ -838,15 +846,21 @@ watch(
           class="text-xs text-green-100 font-medium text-center w-full"
           >This is a Gasless Transaction. Click Below to Approve.
         </span>
-        <span
+        <div
           v-else-if="
             !loader.show && transactionMode.length === 0 && rpcStore.useGasless
           "
-          class="text-xs text-center"
+          class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
         >
-          Limit exceeded for gasless transactions. You will be charged for this
-          transaction.
-        </span>
+          <img
+            class="w-4 h-4 mt-1"
+            :src="getIcon('info-circle', undefined, 'svg')"
+          />
+          <p class="text-xs text-left text-white-200">
+            Limit exceeded for gasless transactions. You will be charged for
+            this transaction.
+          </p>
+        </div>
       </div>
       <div class="flex mt-2">
         <button class="btn-primary py-[10px] text-center w-full">

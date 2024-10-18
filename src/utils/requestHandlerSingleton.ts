@@ -23,10 +23,9 @@ const getRequestHandler = () => {
 }
 
 const deleteRequestHandler = () => {
-  if (!requestHandler) {
-    throw new Error('RequestHandler not initialized yet.')
+  if (requestHandler) {
+    requestHandler = null
   }
-  requestHandler = null
 }
 
 export {

@@ -131,27 +131,43 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full border-[1.5px] font-semibold text-base;
+    @apply bg-blue-dark dark:bg-white-200 text-white-200 dark:text-black-eerie hover:shadow-sm focus-visible:shadow-sm hover:shadow-dark-100 focus-visible:shadow-dark-100 rounded-full border-[1.5px] font-normal text-base;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-[1.5px] border-blue-dark dark:border-white-200 rounded-full font-semibold text-base;
+    @apply bg-transparent text-blue-dark dark:text-white-200 box-border border-[1.5px] border-blue-dark dark:border-white-200 rounded-full font-normal text-base;
   }
 
   .btn-tertiary {
-    @apply text-black-500 dark:text-white-100 hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100;
+    @apply text-black-500 dark:text-white-100 hover:dark-text-shadow-100 focus-visible:dark-text-shadow-100 font-normal text-base;
   }
 
   .btn-quaternery {
-    @apply bg-transparent rounded-full h-9 box-border border-[1.5px] border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200 font-semibold text-base;
+    @apply bg-transparent rounded-full h-9 box-border border-[1.5px] border-blue-dark text-black-arsenic dark:border-white-200 dark:text-white-200 font-normal text-base;
+  }
+
+  .btn-form {
+    @apply bg-white-200 dark:bg-black-eerie rounded-[8px] h-9 text-black-arsenic dark:border-white-200 dark:text-white-200 font-normal text-base;
   }
 
   .card {
     @apply bg-gray-bright dark:bg-black-crayola  dark:border-gray-200  rounded-md;
   }
 
+  .card-secondary {
+    @apply bg-white-200 dark:bg-black-eerie  dark:border-gray-200  rounded-md;
+  }
+
   .input-field {
-    @apply bg-gray-zinc-40 text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
+    @apply bg-gray-bright text-blue-dark dark:bg-black-crayola dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
+  }
+
+  .input-secondary {
+    @apply bg-white-100 text-blue-dark dark:bg-black-eerie dark:text-white-200 rounded-[8px] flex items-start h-14 p-1;
+  }
+
+  .input-tertiary {
+    @apply bg-white-200 text-blue-dark dark:bg-black-eerie dark:text-white-200 rounded-[8px] flex items-center h-14 p-4;
   }
 
   .input-active {

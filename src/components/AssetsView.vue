@@ -274,7 +274,7 @@ function handleFallbackLogo(event) {
       @click.stop="handleAddToken"
     >
       <img :src="getImage('plus.svg')" class="h-3 w-3" />
-      <span class="font-semibold text-base">New Asset</span>
+      <span class="text-base">New Asset</span>
     </button>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddTokenScreen v-if="showModal" />

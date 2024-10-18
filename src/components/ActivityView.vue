@@ -13,6 +13,7 @@ import type {
   TransakOps,
 } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRpcStore } from '@/store/rpc'
 import { EVMAccountHandler } from '@/utils/accountHandler'
@@ -25,6 +26,7 @@ type ActivityViewProps = {
   currencyExchangeRate: number | string | null
   filterOperations: string[]
 }
+const currencyStore = useCurrencyStore()
 
 const OffRampProviders = {
   transak: 'Transak',
@@ -112,6 +114,26 @@ function calculateTotal(activity: Activity) {
     return activity.transaction.amount + gasUsed * gasPrice
   }
   return 0n
+}
+
+function calculateMvxGas(activity: Activity) {
+  if (activity.transaction) {
+    const gasLimit = new Decimal(
+      activity.transaction?.gasLimit?.toString() || '0'
+    )
+    const gasPrice = new Decimal(
+      activity.transaction?.gasPrice?.toString() || '0'
+    )
+
+    const total = gasLimit
+      .mul(gasPrice)
+      .div(new Decimal(10).pow(18))
+      .div(new Decimal(currencyStore.currencies['EGLD']))
+      .toDecimalPlaces(5)
+      .toNumber()
+    return total
+  }
+  return 0
 }
 
 function getAmount(amount: bigint | string, isGas = false) {
@@ -361,7 +383,7 @@ async function stopTransaction(activity) {
         <div v-if="activity.file?.recipient">
           <div class="flex flex-col gap-[5px]">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
               >To</span
             >
             <span
@@ -375,7 +397,7 @@ async function stopTransaction(activity) {
         <div v-if="activity.file?.ruleHash">
           <div class="flex flex-col gap-[5px]">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
               >Rule Hash</span
             >
             <span
@@ -391,7 +413,7 @@ async function stopTransaction(activity) {
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
                   >From</span
                 >
                 <span
@@ -410,7 +432,7 @@ async function stopTransaction(activity) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
                   >To</span
                 >
                 <span
@@ -494,7 +516,7 @@ async function stopTransaction(activity) {
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
                   >From</span
                 >
                 <span
@@ -513,7 +535,7 @@ async function stopTransaction(activity) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-gray-spanish-light"
+                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
                   >To</span
                 >
                 <span
@@ -533,19 +555,19 @@ async function stopTransaction(activity) {
                 <div class="flex justify-between">
                   <span
                     v-if="app.chainType === ChainType.solana_cv25519"
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Slot</span
                   >
                   <span
                     v-else
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Nonce</span
                   >
                   <span>{{ activity.transaction.nonce }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Amount</span
                   >
                   <span
@@ -573,7 +595,7 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Gas Limits (Units)</span
                   >
                   <span>{{ activity.transaction.gasLimit }}</span>
@@ -583,7 +605,7 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Gas Used (Units)</span
                   >
                   <span>{{ activity.transaction?.gasUsed || 0 }}</span>
@@ -593,16 +615,16 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Gas Price</span
                   >
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
-                    :title="`${getAmount(activity.transaction.gasPrice, true)}`"
-                    >{{ getAmount(activity.transaction.gasPrice, true) }}
+                    :title="`${calculateMvxGas(activity)}`"
+                    >{{ calculateMvxGas(activity) }}
                     {{
                       app.chainType === ChainType.multiversx_cv25519
-                        ? ''
+                        ? 'USD'
                         : 'Gwei'
                     }}</span
                   >
@@ -612,7 +634,7 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Compute Units Consumed</span
                   >
                   <span>{{
@@ -624,7 +646,7 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Fee</span
                   >
                   <span
@@ -637,7 +659,7 @@ async function stopTransaction(activity) {
                   class="flex justify-between"
                 >
                   <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-gray-spanish-light"
+                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
                     >Total Actions Executed</span
                   >
                   <span>{{ activity.transaction.totalActions }}</span>

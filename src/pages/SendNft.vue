@@ -12,6 +12,7 @@ import { type NFTContractType, type NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
+import useCurrencyStore from '@/store/currencies'
 import { EIP1559GasFee } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -26,6 +27,7 @@ import { formatTokenDecimals } from '@/utils/formatTokens'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
+import { useImage } from '@/utils/useImage'
 
 type SendNftProps = {
   type: NFTContractType
@@ -54,6 +56,7 @@ const isWalletAddressFocused = ref(false)
 const router = useRouter()
 const storage = getStorage()
 const appStore = useAppStore()
+const currencyStore = useCurrencyStore()
 
 const recipientWalletAddress = ref('')
 const gas: Ref<EIP1559GasFee | null> = ref(null)
@@ -73,6 +76,7 @@ const gasParamsMVX = ref({
   gasLimit: 0,
   minGasLimit: 0,
 })
+const getIcon = useImage()
 
 const props: SendNftProps = router.currentRoute.value
   .query as unknown as SendNftProps
@@ -316,17 +320,26 @@ async function determineGasParamsMVX(gasLimitInput: string | number = 0) {
     rpcStore.selectedChainId
   )
 
-  gasParamsMVX.value.gasPrice = formatTokenDecimals(
-    Number(txObject.getGasPrice()),
-    rpcStore.nativeCurrency?.decimals
+  const gasPriceDecimal = new Decimal(
+    formatTokenDecimals(
+      Number(txObject.getGasPrice()),
+      rpcStore.nativeCurrency?.decimals
+    )
   )
+  gasParamsMVX.value.gasPrice = Number(gasPriceDecimal)
 
-  const minGasLimit = Number(txObject.getGasLimit())
+  const minGasLimitDecimal = new Decimal(Number(txObject.getGasLimit()))
+  gasParamsMVX.value.minGasLimit = Number(minGasLimitDecimal)
 
-  gasParamsMVX.value.minGasLimit = minGasLimit
-  gasParamsMVX.value.gasLimit = Number(gasLimitInput) || minGasLimit
-  gasParamsMVX.value.gasFee =
-    gasParamsMVX.value.gasLimit * gasParamsMVX.value.gasPrice
+  const gasLimitDecimal = new Decimal(
+    Number(gasLimitInput) || minGasLimitDecimal
+  )
+  gasParamsMVX.value.gasLimit = Number(gasLimitDecimal)
+
+  const gasFeeDecimal = gasLimitDecimal
+    .times(gasPriceDecimal)
+    .div(new Decimal(currencyStore.currencies['EGLD']))
+  gasParamsMVX.value.gasFee = gasFeeDecimal.toDecimalPlaces(5).toNumber()
 }
 
 function onGasLimitChangeMVX(val) {
@@ -458,7 +471,7 @@ watch(
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="font-Nohemi text-[20px] font-semibold">Send Token</span>
+        <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
       </div>
       <div class="flex justify-center">
         <img :src="props.imageUrl" class="rounded-[10px] w-24 h-24" />
@@ -515,7 +528,6 @@ watch(
           <GasPriceMVX
             v-else-if="appStore.chainType === ChainType.multiversx_cv25519"
             :gas-fee="gasParamsMVX.gasFee"
-            :gas-price="gasParamsMVX.gasPrice"
             :gas-limit="gasParamsMVX.gasLimit"
             :min-gas-limit="gasParamsMVX.minGasLimit"
             @gas-limit-input="onGasLimitChangeMVX"
@@ -527,17 +539,23 @@ watch(
             class="text-xs text-green-100 font-medium text-center w-full"
             >This is a Gasless Transaction. Click Below to Approve.
           </span>
-          <span
+          <div
             v-else-if="
               !loader.show &&
               transactionMode.length === 0 &&
               rpcStore.useGasless
             "
-            class="text-xs text-center"
+            class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
           >
-            Limit exceeded for gasless transactions. You will be charged for
-            this transaction.
-          </span>
+            <img
+              class="w-4 h-4 mt-1"
+              :src="getIcon('info-circle', undefined, 'svg')"
+            />
+            <p class="text-xs text-left text-white-200">
+              Limit exceeded for gasless transactions. You will be charged for
+              this transaction.
+            </p>
+          </div>
         </div>
         <div class="flex">
           <button class="btn-primary p-[10px] flex-grow text-center">

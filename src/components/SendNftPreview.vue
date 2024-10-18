@@ -9,6 +9,9 @@ import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { useImage } from '@/utils/useImage'
+
+const getIcon = useImage()
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -54,7 +57,10 @@ type NftPreviewProps = {
 const emits = defineEmits(['close', 'submit'])
 const props = defineProps<NftPreviewProps>()
 
-const nativeCurrency = rpcStore.nativeCurrency?.symbol
+const nativeCurrency =
+  appStore.chainType !== ChainType.multiversx_cv25519
+    ? rpcStore.nativeCurrency?.symbol
+    : 'USD'
 
 onMounted(() => {
   if (appStore.chainType === ChainType.evm_secp256k1) {
@@ -82,7 +88,7 @@ function truncateAddress(address: string) {
         >
           <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
         </button>
-        <span class="font-Nohemi text-[20px] font-semibold"
+        <span class="font-Nohemi text-[20px] font-medium"
           >Confirm Transfer</span
         >
       </div>
@@ -140,15 +146,21 @@ function truncateAddress(address: string) {
         class="text-xs text-green-100 font-medium text-center w-full"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
-      <span
+      <div
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="text-xs text-center"
+        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
       >
-        Limit exceeded for gasless transactions. You will be charged for this
-        transaction.
-      </span>
+        <img
+          class="w-4 h-4 mt-1"
+          :src="getIcon('info-circle', undefined, 'svg')"
+        />
+        <p class="text-xs text-left text-white-200">
+          Limit exceeded for gasless transactions. You will be charged for this
+          transaction.
+        </p>
+      </div>
     </div>
     <SwipeToAction @approve="emits('submit')" @reject="emits('close')" />
   </div>

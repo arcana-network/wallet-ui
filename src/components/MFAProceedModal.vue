@@ -5,9 +5,9 @@ const emit = defineEmits(['proceed', 'close'])
 </script>
 
 <template>
-  <div class="px-1 py-2 flex flex-col gap-3">
+  <div class="p-2 flex flex-col gap-3">
     <div class="flex justify-center">
-      <div class="font-Nohemi text-[20px] font-semibold">
+      <div class="font-Nohemi text-[20px] font-medium">
         Enhance Wallet Security
       </div>
     </div>
