@@ -10,6 +10,7 @@ import { ChainType } from '@/utils/chainType'
 import { errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { sleep } from '@/utils/sleep'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -93,7 +94,15 @@ rpcStore.$subscribe(() => {
       <AssetsView :refresh="refreshIconAnimating" />
     </div>
     <div class="flex space-x-1 justify-center items-center">
-      <span class="text-sm">Powered by</span>
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >Powered by</span
+      >
       <img :src="getImage('arcana-logo.svg')" alt="arcana" class="h-3" />
     </div>
   </div>

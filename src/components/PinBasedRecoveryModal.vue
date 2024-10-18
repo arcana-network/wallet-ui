@@ -2,15 +2,17 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { useAppStore } from '@/store/app'
 import { content, errors } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emit = defineEmits(['proceed', 'back', 'switch-alternate'])
 
 const password = ref('')
 const passwordType = ref('password')
 const toast = useToast()
-
+const appStore = useAppStore()
 function handleProceed() {
   if (!password.value) return toast.error(content.PIN)
   emit('proceed', {
@@ -28,11 +30,29 @@ function handleProceed() {
           class="-rotate-90 invert dark:invert-0"
         />
       </button>
-      <div class="modal-title font-medium">Recovery PIN</div>
+      <div
+        class="modal-title"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
+        Recovery PIN
+      </div>
     </div>
     <form class="flex flex-col gap-4" @submit.prevent="handleProceed">
       <div class="flex flex-col gap-1">
-        <label>Type in the PIN used during setup</label>
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >Type in the PIN used during setup</label
+        >
         <div class="relative">
           <input
             v-model.trim="password"
@@ -59,11 +79,30 @@ function handleProceed() {
         </div>
       </div>
       <div class="flex flex-col mt-1 justify-center items-center gap-4">
-        <button class="mt-1 text-sm btn-primary p-2 w-48" type="submit">
+        <button
+          class="mt-1 text-sm btn-primary p-2 w-48"
+          type="submit"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+        >
           Proceed
         </button>
         <button
           class="font-medium capitalize text-sm btn-tertiary"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="emit('switch-alternate')"
         >
           Answer Security Questions Instead

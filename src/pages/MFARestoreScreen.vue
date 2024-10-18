@@ -27,6 +27,7 @@ import { devLogger } from '@/utils/devLogger'
 import { getLoginToken } from '@/utils/loginToken'
 import { handleGlobalLogin, handleLogin } from '@/utils/redirectUtils'
 import { getStorage, initStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const user = useUserStore()
 const toast = useToast()
@@ -331,21 +332,45 @@ onUnmounted(() => {
           New Device/Browser Detected: Verify Login
         </div>
       </div>
-      <div class="flex text-sm text-gray-spanish-light">
+      <div
+        class="flex"
+        :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: app.theme_settings.font_color,
+        }"
+      >
         Enter your previously setup MFA PIN or answer the security questions to
         verify your login to this new device/browser.
       </div>
       <div class="flex mt-4 items-end justify-end gap-8">
         <button
-          class="text-sm font-medium text-sm btn-tertiary p-2 uppercase"
+          class="btn-tertiary p-2 uppercase"
           type="submit"
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+            borderColor: app.theme_settings.accent_color,
+            backgroundColor: app.theme_settings.accent_color,
+          }"
           @click.stop="handleProceed('pin-based')"
         >
           Enter Pin
         </button>
         <button
-          class="text-sm font-medium text-sm btn-tertiary p-2 uppercase"
+          class="btn-tertiary p-2 uppercase"
           type="submit"
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+            borderColor: app.theme_settings.accent_color,
+            backgroundColor: app.theme_settings.accent_color,
+          }"
           @click.stop="handleProceed('question-based')"
         >
           Answer Questions

@@ -25,6 +25,7 @@ import {
   getAppConfig,
   getGaslessEnabledStatus,
 } from '@/services/gateway.service'
+import { useAppStore } from '@/store/app'
 import { useGaslessStore } from '@/store/gasless'
 import { useModalStore } from '@/store/modal'
 import { EIP1559GasFee, LegacyGasFee } from '@/store/request'
@@ -48,6 +49,7 @@ import { sanitizeRequest } from '@/utils/sanitizeRequest'
 import { initSCW, scwInstance } from '@/utils/scw'
 import { initStorage, getStorage } from '@/utils/storageWrapper'
 import { truncateMid } from '@/utils/stringUtils'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const rpcStore = useRpcStore()
 const ARCANA_PRIVATE_KEY_METHOD = '_arcana_privateKey'
@@ -64,6 +66,7 @@ const route = useRoute()
 const appId = route.params.appId as string
 const gaslessStore = useGaslessStore()
 const modalStore = useModalStore()
+const appStore = useAppStore()
 
 function postMessage(response) {
   const allowedDomain = walletDomain.value
@@ -487,7 +490,14 @@ function handleGasPriceInput(value, request) {
         <h1 class="font-Nohemi text-[20px] font-medium">
           {{ methodAndAction[request.method] }}
         </h1>
-        <p class="text-xs text-[#8D8D8D]">
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ truncateMid(request.params[0]?.from, 6) }}
         </p>
       </div>
@@ -544,7 +554,15 @@ function handleGasPriceInput(value, request) {
       <div class="h-1/6">
         <div v-if="isArcanaPrivateKeyRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary h-10 p-2 w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click="closeWindow()"
           >
             Close tab
@@ -552,7 +570,15 @@ function handleGasPriceInput(value, request) {
         </div>
         <div v-else-if="isSendTokenRequest(request?.method)">
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary h-10 p-2 w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click="handleSendToken(request.params)"
           >
             Send
@@ -560,13 +586,29 @@ function handleGasPriceInput(value, request) {
         </div>
         <div v-else class="flex gap-2">
           <button
-            class="btn-secondary h-10 p-2 w-full text-sm font-medium"
+            class="btn-secondary h-10 p-2 w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click="onReject(request)"
           >
             Reject
           </button>
           <button
-            class="btn-primary h-10 p-2 w-full text-sm font-medium"
+            class="btn-primary h-10 p-2 w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click="onApprove(request)"
           >
             Approve

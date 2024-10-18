@@ -17,6 +17,8 @@ import { getImage } from '@/utils/getImage'
 import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -134,12 +136,27 @@ const filteredNFTs = computed(() => {
 function handleFallbackNft(event) {
   event.target.src = getImage('blockchain-icon.png')
 }
+
+const settingContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [settingContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
   <div class="space-y-3">
     <div v-if="!loader.show && nfts.length" class="flex flex-col space-y-1">
-      <label for="search-nft" class="text-sm">Search NFT</label>
+      <label
+        for="search-nft"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >Search NFT</label
+      >
       <div class="card flex px-3 space-x-2">
         <img :src="getImage('search.svg')" alt="search" />
         <input
@@ -155,7 +172,14 @@ function handleFallbackNft(event) {
         v-if="loader.show"
         class="flex justify-center items-center flex-1 p-3 m-1"
       >
-        <p class="text-sm font-medium">
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ loader.message }}
         </p>
       </div>
@@ -183,20 +207,45 @@ function handleFallbackNft(event) {
             </div>
             <div class="flex flex-col px-2">
               <span
-                class="text-gray-100 text-sm overflow-hidden whitespace-nowrap text-ellipsis"
+                class="overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.name"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >{{ nft.name }}</span
               >
               <span
-                class="text-gray-100 text-xs overflow-hidden whitespace-nowrap text-ellipsis"
+                class="overflow-hidden whitespace-nowrap text-ellipsis"
                 :title="nft.identifier || nft.collectionName"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >{{ nft.identifier || nft.collectionName }}</span
               >
             </div>
           </div>
         </div>
         <div v-else class="flex justify-between">
-          <span class="color-secondary m-auto font-medium text-sm"
+          <span
+            class="m-auto"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >No NFTs added</span
           >
         </div>
@@ -208,10 +257,28 @@ function handleFallbackNft(event) {
     >
       <button
         class="btn-quaternery flex gap-1 text-sm items-center cursor-pointer flex-grow justify-center"
+        :style="{
+          borderColor: appStore.theme_settings.accent_color,
+        }"
         @click.stop="handleManageNFT"
       >
-        <img :src="getImage('settings.svg')" />
-        <span class="text-base font-medium">Manage</span>
+        <div ref="settingContainer">
+          <img
+            :src="getImage('settings.svg')"
+            alt="Setting Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
+
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
+          >Manage</span
+        >
       </button>
     </div>
   </div>

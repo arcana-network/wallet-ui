@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{ accountType: 'scw' | 'eoa' }>()
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
+const props = defineProps<{ accountType: 'scw' | 'eoa' }>()
+const appStore = useAppStore()
 const label = computed(() => {
   return props.accountType === 'scw'
     ? 'Smart Contract Wallet'
@@ -17,6 +20,12 @@ const label = computed(() => {
       <span
         class="w-[200px] text-right whitespace-nowrap overflow-hidden text-ellipsis"
         :title="label"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
       >
         {{ label }}
       </span>

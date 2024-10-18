@@ -3,9 +3,11 @@ import { ComputedRef, computed } from 'vue'
 
 import VJsonViewer from '@/components/VJsonViewer.vue'
 import { getChainLogoUrl } from '@/services/chainlist.service'
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
 import { truncateMid } from '@/utils/stringUtils'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const props = defineProps<{
   requestParams: string[]
@@ -30,6 +32,7 @@ const typedData = computed(() => {
 }>
 
 const rpcStore = useRpcStore()
+const appStore = useAppStore()
 
 function handleFallbackLogo(event) {
   event.target.src = getImage('blockchain-icon.png')
@@ -45,7 +48,15 @@ function handleFallbackLogo(event) {
         <div class="flex-1 flex flex-col gap-2">
           <div class="flex justify-between items-center gap-1">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Chain</span
             >
             <div class="flex items-center gap-1">
@@ -54,35 +65,85 @@ function handleFallbackLogo(event) {
                 class="h-4 w-4"
                 @error="handleFallbackLogo"
               />
-              <span class="text-base font-medium">
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+              >
                 {{ rpcStore.selectedRPCConfig?.chainName }}
               </span>
             </div>
           </div>
           <div class="flex justify-between items-center gap-1">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Interact Contract</span
             >
             <span
               :title="typedData.domain.verifyingContract"
-              class="text-base font-medium"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               {{ truncateMid(typedData.domain.verifyingContract) }}
             </span>
           </div>
           <div class="flex justify-between items-center gap-1">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Operation</span
             >
-            <span class="text-base font-medium">
+            <span
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+            >
               {{ typedData.primaryType }}
             </span>
           </div>
           <div class="flex flex-col gap-1">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Data</span
             >
             <div

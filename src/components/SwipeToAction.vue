@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
 
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
 // import { getImage } from '@/utils/getImage'
 
 type SwipeToActionProps = {
@@ -10,6 +13,7 @@ const props = defineProps<SwipeToActionProps>()
 const emit = defineEmits(['success', 'approve', 'reject'])
 const translateUntil = ref('calc(-80%)')
 const isDragging = ref(false)
+const appStore = useAppStore()
 const swiperEl: Ref<HTMLDivElement | null> = ref(null)
 
 function handleDrag(e) {
@@ -98,13 +102,29 @@ function handleDragStart(e) {
   </div> -->
   <div class="flex gap-2 items-center">
     <button
-      class="btn-secondary w-full p-2 text-sm font-medium rounded-full"
+      class="btn-secondary w-full p-2 rounded-full"
+      :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: appStore.theme_settings.font_color,
+        borderColor: appStore.theme_settings.accent_color,
+        backgroundColor: appStore.theme_settings.accent_color,
+      }"
       @click="emit('reject')"
     >
       Reject
     </button>
     <button
-      class="btn-primary w-full p-2 text-sm font-medium rounded-full"
+      class="btn-primary w-full p-2 rounded-full"
+      :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: appStore.theme_settings.font_color,
+        borderColor: appStore.theme_settings.accent_color,
+        backgroundColor: appStore.theme_settings.accent_color,
+      }"
       @click="emit('approve')"
     >
       Approve

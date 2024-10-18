@@ -57,6 +57,7 @@ import {
 import { initSCW, scwInstance } from '@/utils/scw'
 import { getPrivateKey } from '@/utils/solana/getPrivateKey'
 import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -174,6 +175,7 @@ const sendLogoutMessage = () => {
 onMounted(async () => {
   try {
     config = await useConfigStore(appStore.id)
+    appStore.setThemeSetting(config.theme_settings)
     startLoginChannel()
     loader.value.show = true
     devLogger.log('[loggedInView]', { curve: appStore.curve })
@@ -617,7 +619,13 @@ watch(
         @click.stop="handleMFACreation"
       >
         <div class="flex items-center gap-2">
-          <span class="font-medium text-white-100 text-sm"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Enhance your wallet security</span
           >
           <img src="@/assets/images/export.svg" class="w-5" />

@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import { useAppStore } from '@/store/app'
 import { useParentConnectionStore } from '@/store/parentConnection'
 import { useRequestStore } from '@/store/request'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type SignMessageCompactProps = {
   title: string
@@ -42,24 +43,70 @@ async function onViewDetails() {
           {{ props.title }}
         </h1>
       </div>
-      <p class="text-sm text-center">
+      <p
+        class="text-center"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         {{ appStore.name }} requests your permission for {{ props.permission }}.
-        <button class="font-medium" @click.stop="onViewDetails">
+        <button
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click.stop="onViewDetails"
+        >
           Learn More
         </button>
       </p>
       <span
         v-if="props.deprecated"
-        class="text-xs text-yellow-100 font-medium text-center w-full"
+        class="text-yellow-100 text-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         >WARNING: This is a deprecated method. Sign with caution.</span
       >
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex justify-end gap-4 text-sm font-medium">
-        <button class="btn-secondary w-full p-2" @click="emits('reject')">
+        <button
+          class="btn-secondary w-full p-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click="emits('reject')"
+        >
           Reject
         </button>
-        <button class="btn-primary w-full p-2" @click="emits('approve')">
+        <button
+          class="btn-primary w-full p-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click="emits('approve')"
+        >
           Approve
         </button>
       </div>
@@ -70,7 +117,15 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="requestStore.skipRequest(props.request.request.id)"
         >
           Do this later

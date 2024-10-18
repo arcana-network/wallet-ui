@@ -2,6 +2,9 @@
 import { Decimal } from 'decimal.js'
 import { type Ref, ref, watch, computed } from 'vue'
 
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
 const pathname = window.location.pathname
 const isSendTransaction =
   pathname.includes('request') || pathname.includes('activities')
@@ -13,7 +16,7 @@ type GasPriceProps = {
   maxFeePerGas?: string | number
   maxPriorityFeePerGas?: string | number
 }
-
+const appStore = useAppStore()
 const props = defineProps<GasPriceProps>()
 
 const computedProps = computed(() => {
@@ -106,8 +109,23 @@ function handleCustomGasPriceInput() {
     <div class="flex justify-between items-baseline">
       <span class="text-sm font-light">Gas Fees</span>
       <div v-if="false" class="text-xs font-normal">
-        <span class="text-gray-100">Transaction Time:</span>
-        <span class="text-black-500 dark:text-white-100">
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >Transaction Time:</span
+        >
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           ~{{ transactionTime }} mins
         </span>
       </div>
@@ -119,10 +137,16 @@ function handleCustomGasPriceInput() {
       <div
         class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
+          [getFontSizeStyle(Number(appStore.theme_settings.font_size))]: true,
           'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'normal',
           'text-gray-myst dark:text-gray-spanish-light':
             selectedGasMethod !== 'normal',
+        }"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
         }"
         @click.stop="selectedGasMethod = 'normal'"
       >
@@ -131,10 +155,16 @@ function handleCustomGasPriceInput() {
       <div
         class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
+          [getFontSizeStyle(Number(appStore.theme_settings.font_size))]: true,
           'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'fast',
           'text-gray-myst dark:text-gray-spanish-light':
             selectedGasMethod !== 'fast',
+        }"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
         }"
         @click.stop="selectedGasMethod = 'fast'"
       >
@@ -143,10 +173,16 @@ function handleCustomGasPriceInput() {
       <div
         class="flex justify-center items-center p-1 w-full text-center text-base font-normal cursor-pointer hover:border-b-1 hover:border-blue-dark focus-visible:bg-black-500 select-none"
         :class="{
+          [getFontSizeStyle(Number(appStore.theme_settings.font_size))]: true,
           'border-b-2 border-blue-dark dark:border-white-200 text-blue-dark dark:text-white-200':
             selectedGasMethod === 'custom',
           'text-gray-myst dark:text-gray-spanish-light':
             selectedGasMethod !== 'custom',
+        }"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
         }"
         @click.stop="selectedGasMethod = 'custom'"
       >
@@ -156,7 +192,16 @@ function handleCustomGasPriceInput() {
   </div>
   <div v-if="selectedGasMethod === 'custom'" class="flex flex-col gap-6 mt-2">
     <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-left" for="gasLimit">
+      <label
+        class="text-left"
+        for="gasLimit"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         Gas Limit
       </label>
       <input
@@ -171,7 +216,16 @@ function handleCustomGasPriceInput() {
       />
     </div>
     <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-left" for="maxFee">
+      <label
+        class="text-left"
+        for="maxFee"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         Max Priority Fee (Gwei)
       </label>
       <input
@@ -186,7 +240,16 @@ function handleCustomGasPriceInput() {
       />
     </div>
     <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-left" for="maxPriorityFee">
+      <label
+        class="text-left"
+        for="maxPriorityFee"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         Max Fee (Gwei)
       </label>
       <input
@@ -200,8 +263,24 @@ function handleCustomGasPriceInput() {
         @input="handleCustomGasPriceInput()"
       />
       <div class="flex justify-end gap-1">
-        <span class="text-xs text-gray-100">Base Fee:</span>
-        <span class="text-xs">{{ sanitizedBaseFee }} Gwei</span>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >Base Fee:</span
+        >
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >{{ sanitizedBaseFee }} Gwei</span
+        >
       </div>
     </div>
   </div>

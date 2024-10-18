@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref, watch } from 'vue'
+import { ref, onBeforeMount, onMounted, type Ref, watch } from 'vue'
 
 import ChainListModal from '@/components/ChainListModal.vue'
 import ReceiveTokens from '@/components/ReceiveTokens.vue'
@@ -9,7 +9,10 @@ import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useStarterTipsStore } from '@/store/starterTips'
 import { ChainType } from '@/utils/chainType'
+import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type ModalState = 'receive' | 'chain-list' | false
 
@@ -75,12 +78,20 @@ function getChainType(chainType: ChainType) {
   }
 }
 
-function getLogo() {
+const getLogo = () => {
   return (
-    appStore.appLogo?.vertical ||
+    appStore.appLogo?.horizontal ||
     getImage('fallback-logo-dark-mode.png', 'light')
   )
 }
+
+// Create refs for SVG containers
+const arrowContainer = ref<HTMLElement | null>(null)
+const svgContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [arrowContainer, svgContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -95,8 +106,14 @@ function getLogo() {
         />
         <div class="flex flex-col items-start">
           <span
-            class="font-Nohemi text-lg font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
+            class="text-lg max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap"
             :title="appStore.name"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ appStore.name }}</span
           >
         </div>
@@ -121,19 +138,29 @@ function getLogo() {
               @error="handleFallbackLogo"
             />
           </div>
-          <img
-            :src="getImage('arrow-down.svg')"
-            class="transition-all duration-200 ease-in-out"
-            :class="{ '-rotate-180': isChainListExpanded }"
-            title="Click to expand"
-          />
+          <div ref="arrowContainer">
+            <img
+              :src="getImage('arrow-down.svg')"
+              class="transition-all duration-200 ease-in-out"
+              :class="{ '-rotate-180': isChainListExpanded }"
+              title="Click to expand"
+              alt="Arrow Icon"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </button>
         <button
           class="w-xl h-xl"
           title="Click to show the QR Code"
           @click.stop="openReceiveTokens(true)"
         >
-          <img :src="getImage('qr-code.svg')" alt="Wallet Icon" />
+          <div ref="svgContainer">
+            <img
+              :src="getImage('qr-code.svg')"
+              alt="Wallet Icon"
+              @load="(event) => fetchAndInjectSVG(event, 1)"
+            />
+          </div>
         </button>
       </div>
     </header>
@@ -146,3 +173,42 @@ function getLogo() {
     </Teleport>
   </div>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Onest:wght@100..900&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Syne:wght@400..800&display=swap');
+
+.pt-sans {
+  font-family: 'PT Sans', sans-serif;
+  font-style: normal;
+}
+
+.nunito {
+  font-family: 'Nunito Sans', sans-serif;
+  font-style: normal;
+}
+
+.onest {
+  font-family: Onest, sans-serif;
+  font-style: normal;
+}
+
+.syne {
+  font-family: Syne, sans-serif;
+  font-style: normal;
+}
+
+.inter {
+  font-family: Inter, sans-serif;
+  font-style: normal;
+}
+
+.nohemi {
+  font-family: Nohemi, sans-serif;
+  font-style: normal;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+</style>

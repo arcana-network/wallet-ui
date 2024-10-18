@@ -11,6 +11,7 @@ import {
   getRequestHandler,
   requestHandlerExists,
 } from '@/utils/requestHandlerSingleton'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emit = defineEmits(['close'])
 const rpcStore = useRpcStore()
@@ -99,9 +100,37 @@ function getChainType(chainType: ChainType) {
             class="w-lg h-lg"
             @error="handleFallbackLogo"
           />
-          <span>{{ chain.chainName }}</span>
-          <span v-if="chain.isCustom" class="testnet-tag"> Custom </span>
-          <span v-else-if="chain.chainType === 'testnet'" class="testnet-tag">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >{{ chain.chainName }}</span
+          >
+          <span
+            v-if="chain.isCustom"
+            class="testnet-tag"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
+            Custom
+          </span>
+          <span
+            v-else-if="chain.chainType === 'testnet'"
+            class="testnet-tag"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             Testnet
           </span>
         </label>
@@ -117,6 +146,14 @@ function getChainType(chainType: ChainType) {
       <button
         v-if="appStore.chainType === ChainType.evm_secp256k1"
         class="btn-primary py-2 mt-4"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+          borderColor: appStore.theme_settings.accent_color,
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
         @click.stop="showAddNetworkModal = true"
       >
         Add network
