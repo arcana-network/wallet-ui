@@ -29,6 +29,8 @@ import {
   getRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const user = useUserStore()
 const router = useRouter()
@@ -253,6 +255,14 @@ watch(
     }
   }
 )
+
+const copyContainer = ref<HTMLElement | null>(null)
+const externalContainer = ref<HTMLElement | null>(null)
+const externalContainer2 = ref<HTMLElement | null>(null)
+
+const svgRefs = [copyContainer, externalContainer, externalContainer2]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -266,29 +276,65 @@ watch(
     <div class="card p-4 flex flex-col gap-5">
       <div v-if="name" class="flex flex-col">
         <span
-          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           >Name</span
         >
-        <span class="text-lg font-normal">
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ name }}
         </span>
       </div>
       <div class="flex flex-col">
         <span
-          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           >Email ID</span
         >
-        <span class="text-lg font-normal">
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ email || 'Not available' }}
         </span>
       </div>
       <div class="flex flex-col">
         <span
-          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           >Wallet Address</span
         >
         <div class="flex gap-2">
-          <span class="text-lg font-normal">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ walletAddressShrinked }}
           </span>
           <button
@@ -297,11 +343,14 @@ watch(
               copyToClipboard(walletAddress, 'Wallet address copied')
             "
           >
-            <img
-              :src="getImage('copy-big.svg')"
-              alt="Click to copy"
-              class="w-4 h-4"
-            />
+            <div ref="copyContainer">
+              <img
+                :src="getImage('copy-big.svg')"
+                class="w-4 h-4"
+                alt="Copy Icon"
+                @load="(event) => fetchAndInjectSVG(event, 0)"
+              />
+            </div>
           </button>
         </div>
       </div>
@@ -313,7 +362,12 @@ watch(
         }"
       >
         <span
-          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           >Private Key</span
         >
         <button
@@ -322,10 +376,24 @@ watch(
           :disabled="starterTipsStore.showExportkey"
           @click.stop="handleShowPrivateKeyCautionModal"
         >
-          <span class="text-lg font-normal dark:text-white-100">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             Export Key
           </span>
-          <img :src="getImage('external-link.svg')" class="w-4 h-4" />
+          <div ref="externalContainer">
+            <img
+              :src="getImage('external-link.svg')"
+              class="w-4 h-4"
+              alt="External Icon"
+              @load="(event) => fetchAndInjectSVG(event, 1)"
+            />
+          </div>
         </button>
       </div>
       <div
@@ -334,19 +402,43 @@ watch(
       >
         <div class="flex flex-col">
           <span
-            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Total Balance</span
           >
-          <span class="text-lg font-normal">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ balanceBreakdown.total }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
           <span
-            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Available Balance</span
           >
-          <span class="text-lg font-normal">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ balanceBreakdown.available }} NEAR
           </span>
         </div>
@@ -355,23 +447,47 @@ watch(
             class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
             >Balance Reserved for Storage</span
           >
-          <span class="text-lg font-normal">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ balanceBreakdown.locked }} NEAR
           </span>
         </div>
         <div class="flex flex-col">
           <span
-            class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Balance Staked</span
           >
-          <span class="text-lg font-normal">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ balanceBreakdown.staked }} NEAR
           </span>
         </div>
       </div>
       <div v-if="appStore.isMfaEnabled" class="flex flex-col">
         <span
-          class="text-sm font-medium text-gray-bermuda-grey dark:text-gray-spanish"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           >Enhance Wallet Security</span
         >
         <div>
@@ -381,19 +497,63 @@ watch(
             title="Click to setup MFA"
             @click.stop="handleShowMFAProceedModal(true)"
           >
-            <span v-if="true" class="dark:text-white-100">Setup Now</span>
-            <span v-else class="dark:text-white-100"
+            <span
+              v-if="true"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >Setup Now</span
+            >
+            <span
+              v-else
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Update Security Questions</span
             >
-            <img :src="getImage('external-link.svg')" class="w-4 h-4" />
+            <div ref="externalContainer2">
+              <img
+                :src="getImage('external-link.svg')"
+                class="w-4 h-4"
+                alt="External Icon"
+                @load="(event) => fetchAndInjectSVG(event, 2)"
+              />
+            </div>
           </button>
-          <span v-else class="text-lg font-normal">In use</span>
+          <span
+            v-else
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >In use</span
+          >
         </div>
       </div>
     </div>
     <div class="flex">
       <button
         class="flex justify-center btn-secondary items-center w-full p-2"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+          borderColor: appStore.theme_settings.accent_color,
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
         @click="handleLogout"
       >
         Logout

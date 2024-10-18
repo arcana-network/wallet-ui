@@ -2,11 +2,13 @@
 import { ref, type Ref } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
+import { useAppStore } from '@/store/app'
 import { openTransak } from '@/utils/transak'
 import { useImage } from '@/utils/useImage'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const getImage = useImage()
-
+const appStore = useAppStore()
 type SellTokenProps = {
   transakNetwork?: string
 }
@@ -67,10 +69,26 @@ function handleDone() {
     >
       <img src="@/assets/images/success.svg" class="h-16 w-16 self-center" />
       <div class="flex flex-col gap-2">
-        <div class="text-base font-medium text-center">
+        <div
+          class="text-center"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ statusText.title }}
         </div>
-        <div class="text-sm text-gray-100 text-center">
+        <div
+          class="text-center"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ statusText.message }}
         </div>
       </div>
@@ -80,7 +98,14 @@ function handleDone() {
         <p class="font-Nohemi font-medium text-center text-xl">
           Select Provider
         </p>
-        <p class="text-xs text-zinc-400">
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           You will be taken to the provider website in a different tab once you
           choose the provider and click PROCEED.
         </p>
@@ -101,7 +126,18 @@ function handleDone() {
           >
             <label for="Transak" class="flex gap-2 items-center cursor-pointer">
               <img src="@/assets/images/transak.png" class="h-xl w-xl" />
-              <span class="text-base font-normal">Transak</span>
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+                >Transak</span
+              >
             </label>
             <input
               id="Transak"
@@ -119,7 +155,14 @@ function handleDone() {
             class="w-4 h-4 mt-1"
             :src="getImage('info-circle', undefined, 'svg')"
           />
-          <p class="text-xs text-white-200">
+          <p
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             Your wallet address will be auto-filled, please verify. The time
             taken for funds to reflect in the wallet varies based on payment
             method.
@@ -129,6 +172,14 @@ function handleDone() {
           <button
             class="flex-1 btn-primary py-[10px] text-base font-medium"
             :disabled="!selectedProvider?.trim().length"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
           >
             Proceed
           </button>

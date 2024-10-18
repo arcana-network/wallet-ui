@@ -3,6 +3,7 @@ import { CURVE } from '@arcana/key-helper'
 import { defineStore } from 'pinia'
 
 import type { SDKVersion } from '@/models/Connection'
+import { StyleConfig } from '@/models/StyleConfig'
 import type { Theme } from '@/models/Theme'
 import { useRequestStore } from '@/store/request'
 import { ChainType } from '@/utils/chainType'
@@ -20,6 +21,7 @@ type AppState = {
   id: string
   name: string
   theme: Theme
+  theme_settings: StyleConfig
   standaloneMode: 0 | 1 | 2
   parentAppUrl: string | null
   validAppMode: AppMode
@@ -42,6 +44,7 @@ export const useAppStore = defineStore('app', {
     ({
       id: '',
       theme: 'dark',
+      theme_settings: {},
       parentAppUrl: null,
       showWallet: false,
       standaloneMode: 0,
@@ -130,6 +133,9 @@ export const useAppStore = defineStore('app', {
     },
     setTheme(theme: Theme): void {
       this.theme = theme
+    },
+    setThemeSetting(theme_settings: StyleConfig): void {
+      this.theme_settings = theme_settings
     },
     setName(name: string): void {
       this.name = name

@@ -32,6 +32,8 @@ import {
   fetchTransakNetworks,
   getTransakSellableNetworks,
 } from '@/utils/transak'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type UserWalletProps = {
   page: 'home' | 'nft'
@@ -268,6 +270,22 @@ async function copyToClipboard(value: string) {
     toast.error(errors.WALLET.COPY)
   }
 }
+
+const copyContainer = ref<HTMLElement | null>(null)
+const refreshContainer = ref<HTMLElement | null>(null)
+const sendContainer = ref<HTMLElement | null>(null)
+const buyContainer = ref<HTMLElement | null>(null)
+const sellContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [
+  copyContainer,
+  refreshContainer,
+  sendContainer,
+  buyContainer,
+  sellContainer,
+]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -296,7 +314,17 @@ async function copyToClipboard(value: string) {
                     <div class="flex flex-col items-start">
                       <div class="flex items-center">
                         <span
-                          class="text-sm font-medium dark:text-white-100 text-black-100"
+                          :class="
+                            getFontSizeStyle(
+                              Number(appStore.theme_settings.font_size)
+                            )
+                          "
+                          :style="{
+                            fontFamily: getFontFaimly(
+                              appStore.theme_settings.font_pairing
+                            ).primaryFontClass,
+                            color: appStore.theme_settings.font_color,
+                          }"
                           >{{
                             truncateMid(selectedAddressType.address, 6)
                           }}</span
@@ -308,12 +336,30 @@ async function copyToClipboard(value: string) {
                             copyToClipboard(selectedAddressType.address)
                           "
                         >
-                          <img :src="getImage('copy.svg')" class="w-lg h-lg" />
+                          <div ref="copyContainer">
+                            <img
+                              :src="getImage('copy.svg')"
+                              class="w-lg h-lg"
+                              alt="Copy Icon"
+                              @load="(event) => fetchAndInjectSVG(event, 0)"
+                            />
+                          </div>
                         </button>
                       </div>
-                      <span class="text-left text-xs text-gray-100">{{
-                        selectedAddressType.label
-                      }}</span>
+                      <span
+                        :class="
+                          getFontSizeStyle(
+                            Number(appStore.theme_settings.font_size)
+                          )
+                        "
+                        :style="{
+                          fontFamily: getFontFaimly(
+                            appStore.theme_settings.font_pairing
+                          ).primaryFontClass,
+                          color: appStore.theme_settings.font_color,
+                        }"
+                        >{{ selectedAddressType.label }}</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -351,12 +397,33 @@ async function copyToClipboard(value: string) {
                     />
                     <div class="flex flex-col items-start">
                       <span
-                        class="text-base dark:text-[#FFFFFF] text-[#000000]"
+                        :class="
+                          getFontSizeStyle(
+                            Number(appStore.theme_settings.font_size)
+                          )
+                        "
+                        :style="{
+                          fontFamily: getFontFaimly(
+                            appStore.theme_settings.font_pairing
+                          ).primaryFontClass,
+                          color: appStore.theme_settings.font_color,
+                        }"
                         >{{ truncateMid(address.address, 6) }}</span
                       >
-                      <span class="text-left text-xs text-[#8d8d8d]">{{
-                        address.label
-                      }}</span>
+                      <span
+                        :class="
+                          getFontSizeStyle(
+                            Number(appStore.theme_settings.font_size)
+                          )
+                        "
+                        :style="{
+                          fontFamily: getFontFaimly(
+                            appStore.theme_settings.font_pairing
+                          ).primaryFontClass,
+                          color: appStore.theme_settings.font_color,
+                        }"
+                        >{{ address.label }}</span
+                      >
                     </div>
                   </button>
                 </ListboxOption>
@@ -376,38 +443,89 @@ async function copyToClipboard(value: string) {
           class="text-[10px] font-medium text-gray-bermuda-grey dark:text-gray-spanish uppercase"
           >Total Balance:</span
         >
-        <div class="flex items-center gap-3 text-base font-medium">
+        <div class="flex items-center gap-3 text-base font-medium mt-[6px]">
           <div
             class="transition-all duration-200"
             :class="{ 'blur-sm': props.refreshIconAnimating }"
           >
-            <span class="font-normal text-3xl">{{
-              walletBalance?.split('.')[0]
-            }}</span>
+            <span
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >{{ walletBalance?.split('.')[0] }}</span
+            >
             <span
               v-if="hasWalletBalanceAfterDecimals()"
-              class="font-normal text-3xl"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >.</span
             >
             <span
               v-if="hasWalletBalanceAfterDecimals()"
-              class="font-medium text-base"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >{{ walletBalance?.split('.')[1] }}</span
             >
-            <span v-if="currency" class="font-medium text-base ml-1">
+            <span
+              v-if="currency"
+              class="ml-1"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+            >
               {{ currency }}</span
             >
-            <span v-if="walletBalanceInCurrency" class="ml-2 text-sm"
+            <span
+              v-if="walletBalanceInCurrency"
+              class="ml-2"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >({{ walletBalanceInCurrency }})</span
             >
           </div>
+
           <button
-            class="w-lg h-lg mt-[6px] rounded-full"
+            class="w-lg h-lg rounded-full text-center"
             :class="{ 'animate-spin': refreshIconAnimating }"
             title="Click to refresh the balance"
             @click.stop="handleRefresh()"
           >
-            <img :src="getImage('refresh.svg')" />
+            <div ref="refreshContainer">
+              <img
+                :src="getImage('refresh.svg')"
+                class="w-md h-md"
+                alt="Refresh Icon"
+                @load="(event) => fetchAndInjectSVG(event, 1)"
+              />
+            </div>
           </button>
         </div>
       </div>
@@ -415,32 +533,86 @@ async function copyToClipboard(value: string) {
     <div class="flex gap-3">
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        :style="{
+          borderColor: appStore.theme_settings.accent_color,
+        }"
         @click.stop="goToSendTokens()"
       >
-        <img :src="getImage('send-icon.svg')" class="w-md h-md" />
-        <span>Send</span>
+        <div ref="sendContainer">
+          <img
+            :src="getImage('send-icon.svg')"
+            class="w-md h-md"
+            alt="Send-Icon Icon"
+            @load="(event) => fetchAndInjectSVG(event, 2)"
+          />
+        </div>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
+          >Send</span
+        >
       </button>
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        :style="{
+          borderColor: appStore.theme_settings.accent_color,
+        }"
         :disabled="!transakNetwork && onRampMoney === false"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         @click.stop="handleBuy(true)"
       >
-        <img :src="getImage('buy-icon.svg')" class="w-md h-md" />
-        <span>Buy</span>
+        <div ref="buyContainer">
+          <img
+            :src="getImage('buy-icon.svg')"
+            class="w-md h-md"
+            alt="Buy Icon"
+            @load="(event) => fetchAndInjectSVG(event, 3)"
+          />
+        </div>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
+          >Buy</span
+        >
       </button>
       <button
         class="btn-quaternery flex gap-1 justify-center p-2 items-center w-full"
+        :style="{
+          borderColor: appStore.theme_settings.accent_color,
+        }"
         :class="{
           'z-[999] startertips_highlighted': starterTipsStore.showBuyButton,
         }"
         :disabled="!transakSellNetwork"
         @click.stop="handleSell(true)"
       >
-        <img :src="getImage('sell.svg')" class="w-md h-md" />
-        <span>Sell</span>
+        <div ref="sellContainer">
+          <img
+            :src="getImage('sell.svg')"
+            class="w-md h-md"
+            alt="Sell Icon"
+            @load="(event) => fetchAndInjectSVG(event, 4)"
+          />
+        </div>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.accent_color,
+          }"
+          >Sell</span
+        >
       </button>
     </div>
     <Teleport v-if="modalStore.show" to="#modal-container">

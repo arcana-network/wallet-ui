@@ -9,6 +9,7 @@ import type { EthAssetContract } from '@/models/Asset'
 import { NFT } from '@/models/NFT'
 import { getNFTDetails, modifyIpfsUrl } from '@/services/getNFTDetails.service'
 import { NFTDB } from '@/services/nft.service'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
@@ -20,6 +21,7 @@ import {
   checkOwnership,
 } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const router = useRouter()
 const toast = useToast()
@@ -27,6 +29,7 @@ const storage = getStorage()
 const rpcStore = useRpcStore()
 const userStore = useUserStore()
 const modalStore = useModalStore()
+const appStore = useAppStore()
 
 type EditNFTProps = {
   collectionName?: string
@@ -241,7 +244,16 @@ watch(
       <form class="flex flex-col flex-grow" @submit.prevent="handleSubmit">
         <div class="flex flex-col gap-6 flex-grow">
           <div class="flex flex-col gap-1">
-            <label for="token-contract-address" class="text-sm font-medium"
+            <label
+              for="token-contract-address"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Collection Contract Address</label
             >
             <input
@@ -269,7 +281,16 @@ watch(
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="collection-name" class="text-sm font-medium"
+            <label
+              for="collection-name"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Collection Name</label
             >
             <input
@@ -284,7 +305,18 @@ watch(
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-id" class="text-sm font-medium">Token ID</label>
+            <label
+              for="token-id"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              >Token ID</label
+            >
             <input
               id="token-id"
               v-model="nftContract.tokenId"
@@ -297,7 +329,20 @@ watch(
               autocomplete="off"
             />
           </div>
-          <button type="submit" class="btn-primary mt-4 py-2">Save</button>
+          <button
+            type="submit"
+            class="btn-primary mt-4 py-2"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
+          >
+            Save
+          </button>
         </div>
       </form>
     </div>

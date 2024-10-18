@@ -11,6 +11,7 @@ import { AUTH_URL, DOCS_URL } from '@/utils/constants'
 import { content, errors } from '@/utils/content'
 import { getWindowFeatures } from '@/utils/popupProps'
 import { getStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const appStore = useAppStore()
 const user = useUserStore()
@@ -127,7 +128,13 @@ function goToHome() {
         </div>
       </div>
       <div
-        class="mt-2 mb-6 flex flex-col gap-4 text-sm text-gray-spanish-light"
+        class="mt-2 mb-6 flex flex-col gap-4"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
       >
         <span>
           “{{ appStore.name }}” suggests enabling Multi-factor Authentication
@@ -143,23 +150,47 @@ function goToHome() {
       </div>
       <div class="flex flex-col mt-4 gap-2">
         <button
-          class="text-sm btn-primary font-medium p-2 cursor-pointer"
+          class="text-sm btn-primary p-2 cursor-pointer"
           type="submit"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="handleProceed"
         >
           Setup MFA
         </button>
         <div class="flex justify-center gap-6">
           <button
-            class="text-xs btn-tertiary font-medium p-2 cursor-pointer"
+            class="text-xs btn-tertiary p-2 cursor-pointer"
             type="submit"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click.stop="handleSkip"
           >
             Skip for now
           </button>
           <button
-            class="btn-tertiary font-medium text-sm p-2 cursor-pointer"
+            class="btn-tertiary p-2 cursor-pointer"
             type="submit"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click.stop="handleAskNever"
           >
             Don’t show again

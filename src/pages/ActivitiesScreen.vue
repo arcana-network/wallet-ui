@@ -5,8 +5,10 @@ import { type Ref, ref, onMounted, computed, type ComputedRef } from 'vue'
 import ActivityView from '@/components/ActivityView.vue'
 import SkippedRequestView from '@/components/SkippedRequestView.vue'
 import { useActivitiesStore, type Activity } from '@/store/activities'
+import { useAppStore } from '@/store/app'
 import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const filters = [
   {
@@ -35,7 +37,7 @@ onMounted(() => {
 
 const rpcStore = useRpcStore()
 const requestStore = useRequestStore()
-
+const appStore = useAppStore()
 const showFilter = ref(false)
 const selectedFilter = ref(filters[0].value)
 const activitiesStore = useActivitiesStore()
@@ -77,7 +79,13 @@ async function getCurrencyExchangeRate() {
       class="flex flex-col gap-2"
     >
       <span
-        class="text-xs text-gray-bermuda-grey dark:text-gray-spanish font-medium uppercase"
+        class="font-medium uppercase"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         >Pending
         <span class="text-red-pink-orange"
           >({{ requestStore.skippedRequestsPendingForApprovalLength }})</span
@@ -87,10 +95,24 @@ async function getCurrencyExchangeRate() {
     </div>
     <div class="flex-1 flex flex-col gap-2">
       <span
-        class="text-xs text-gray-bermuda-grey dark:text-gray-spanish font-medium uppercase"
+        class="uppercase"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
       >
         Confirmed
-        <span>({{ activities.length }})</span>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >({{ activities.length }})</span
+        >
       </span>
       <ActivityView
         :currency-exchange-rate="exchangeRate"

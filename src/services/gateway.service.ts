@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+import { StyleConfig } from '@/models/StyleConfig'
 import { API } from '@/utils/constants'
 
 const gatewayInstance = axios.create({ baseURL: API.gateway })
@@ -17,6 +18,7 @@ type AppConfig = {
   theme: 'dark' | 'light'
   session_persisted: boolean
   session_max_age: number
+  theme_settings: StyleConfig
 }
 
 function getAppConfig(appId: string) {

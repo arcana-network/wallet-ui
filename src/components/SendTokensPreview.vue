@@ -11,6 +11,8 @@ import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const rpcStore = useRpcStore()
 const appStore = useAppStore()
@@ -82,6 +84,12 @@ onMounted(async () => {
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
 }
+
+const backContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -96,39 +104,92 @@ function truncateAddress(address: string) {
           title="Click to go back"
           @click.stop="emits('close')"
         >
-          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          <div ref="backContainer">
+            <img
+              :src="getImage('back-arrow.svg')"
+              class="w-6 h-6"
+              alt="Back Icon"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </button>
         <span class="text-lg font-medium">Confirm Transfer</span>
       </div>
       <div class="flex justify-between items-end">
         <div class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Sender’s Address</span
           >
-          <span class="text-base">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ truncateAddress(props.previewData.senderWalletAddress) }}
           </span>
         </div>
         <img :src="getImage('forward-arrow.svg')" class="w-6 h-6" />
         <div class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Recipient’s Address</span
           >
-          <span class="text-base">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ truncateAddress(props.previewData.recipientWalletAddress) }}
           </span>
         </div>
       </div>
       <div class="flex flex-col gap-5">
         <div class="flex justify-between">
-          <span class="text-base font-normal text-gray-100">Send Amount</span>
-          <span class="text-base"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Send Amount</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ props.previewData.amount }}
             {{ props.previewData.selectedToken }}</span
           >
         </div>
         <div v-if="txFees" class="flex justify-between">
-          <span class="text-base font-normal text-gray-100"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Estimated Gas Fees</span
           >
           <span v-if="loader.show" class="text-base"> Loading... </span>
@@ -137,7 +198,12 @@ function truncateAddress(address: string) {
               !loader.show &&
               (transactionMode === 'SCW' || transactionMode === 'ARCANA')
             "
-            class="text-base text-green-100"
+            class="text-green-100"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+            }"
           >
             Sponsored
           </span>
@@ -146,7 +212,12 @@ function truncateAddress(address: string) {
               !loader.show &&
               (transactionMode.length === 0 || !rpcStore.useGasless)
             "
-            class="text-base"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ txFees }} {{ nativeCurrency }}</span
           >
         </div>
@@ -156,7 +227,13 @@ function truncateAddress(address: string) {
           !loader.show &&
           (transactionMode === 'SCW' || transactionMode === 'ARCANA')
         "
-        class="text-xs text-green-100 font-medium text-center w-full"
+        class="text-green-100 font-medium text-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
       <div
@@ -169,7 +246,15 @@ function truncateAddress(address: string) {
           class="w-4 h-4 mt-1"
           :src="getIcon('info-circle', undefined, 'svg')"
         />
-        <p class="text-xs text-left text-white-200">
+        <p
+          class="text-left"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Limit exceeded for gasless transactions. You will be charged for this
           transaction.
         </p>

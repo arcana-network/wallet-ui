@@ -7,13 +7,17 @@ import {
 } from '@headlessui/vue'
 import { ref, watch } from 'vue'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emits = defineEmits(['addNetwork', 'editNetwork'])
 const rpcStore = useRpcStore()
 const getImage = useImage()
+const appStore = useAppStore()
 
 const selectedChain = ref(rpcStore.selectedRpcConfig)
 
@@ -30,6 +34,12 @@ watch(selectedChain, async () => {
   rpcStore.setSelectedChainId(selectedChain.value.chainId)
   await setChain()
 })
+
+const editContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [editContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -46,7 +56,15 @@ watch(selectedChain, async () => {
           :alt="selectedChain.chainName"
           class="w-6 h-6"
         /> -->
-        <p class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch]">
+        <p
+          class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch]"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           {{ selectedChain.chainName }}
         </p>
       </div>
@@ -81,6 +99,15 @@ watch(selectedChain, async () => {
               /> -->
               <p
                 class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[20ch]"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
               >
                 {{ chain.chainName }}
               </p>
@@ -90,11 +117,14 @@ watch(selectedChain, async () => {
               class="h-auto"
               @click.prevent="emits('editNetwork', chain.chainId)"
             >
-              <img
-                :src="getImage('edit-icon')"
-                alt="edit network"
-                class="w-4"
-              />
+              <div ref="editContainer">
+                <img
+                  :src="getImage('edit-icon')"
+                  alt="Edit Icon"
+                  class="w-4"
+                  @load="(event) => fetchAndInjectSVG(event, 0)"
+                />
+              </div>
             </button>
           </div>
         </ListboxOption>
@@ -104,8 +134,24 @@ watch(selectedChain, async () => {
           class="flex items-center space-x-1 h-auto"
           @click="emits('addNetwork')"
         >
-          <span class="text-xl">+</span>
-          <span>New</span>
+          <span
+            class="text-xl"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >+</span
+          >
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >New</span
+          >
         </button>
       </div>
     </div>

@@ -7,6 +7,9 @@ import {
 } from '@headlessui/vue'
 import { ref, computed, onMounted } from 'vue'
 
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
 type SearchQuestionProps = {
   questions: {
     [key: number | string]: string
@@ -19,6 +22,7 @@ const props = defineProps<SearchQuestionProps>()
 const emit = defineEmits(['change'])
 
 const selectedQuestionRef = ref(['', ''])
+const appStore = useAppStore()
 
 onMounted(() => {
   selectedQuestionRef.value = props.selectedQuestion
@@ -39,7 +43,13 @@ function handleChange(question: string[]) {
       class="dark:bg-black-arsenic bg-gray-zinc-85 relative w-full cursor-default flex flex-nowrap rounded-sm input-field p-2 outline-none"
     >
       <ListboxButton
-        class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto dark:text-white-100 text-black-100"
+        class="flex flex-1 border-none text-sm bg-transparent text-left justify-between items-center truncate outline-none h-auto"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
       >
         {{ selectedQuestionRef?.[1] }}
         <img
@@ -65,8 +75,19 @@ function handleChange(question: string[]) {
           >
             <span
               class="block truncate"
-              :class="{ 'font-medium': selected, 'font-normal': !selected }"
+              :class="{
+                [getFontSizeStyle(
+                  Number(appStore.theme_settings.font_size)
+                )]: true,
+                'font-medium': selected,
+                'font-normal': !selected,
+              }"
               :title="question[1]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               {{ question[1] }}
             </span>

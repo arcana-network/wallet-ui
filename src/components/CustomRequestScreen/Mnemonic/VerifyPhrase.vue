@@ -2,8 +2,10 @@
 import { ref, computed, watch } from 'vue'
 
 import AppLoader from '@/components/AppLoader.vue'
+import { useAppStore } from '@/store/app'
 import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emit = defineEmits(['success', 'close'])
 
@@ -13,7 +15,7 @@ const correctAnswersCount = ref(0)
 const isError = ref(false)
 const isCorrect = ref(false)
 const selectedAnswer = ref('')
-
+const appStore = useAppStore()
 const storage = getStorage()
 const mnemonic = storage.session.getMnemonic()
 const keyArray: string[] = mnemonic.split(' ')
@@ -113,10 +115,26 @@ updatePageContent()
     <AppLoader v-if="isLoading" message="Processing..." />
     <div v-else class="flex flex-col p-1">
       <div class="flex flex-col gap-2">
-        <p class="font-Nohemi font-semibold text-center text-xl">
+        <p
+          class="text-center"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Verify Recording
         </p>
-        <p class="text-sm text-center text-zinc-400">
+        <p
+          class="text-center"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Now make sure that you have recorded the seed phrase correctly by
           selecting the correct option below.
         </p>
@@ -153,6 +171,14 @@ updatePageContent()
             v-for="option in options"
             :key="option"
             class="btn-form w-36"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
             @click="selectOption(option)"
           >
             {{ option }}
@@ -164,7 +190,14 @@ updatePageContent()
         class="flex flex-row gap-2 bg-red-system p-2 rounded-[8px] mt-3"
       >
         <img src="@/assets/images/incorrect.svg" class="h-8 w-8" alt="Error" />
-        <p class="text-xs text-white-100">
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           This choice is incorrect. Please select the correct word and proceed
           to verify 3 more words.
         </p>
@@ -188,6 +221,14 @@ updatePageContent()
           class="btn-primary py-[10px]"
           type="submit"
           :disabled="isError || isCorrect"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
         >
           Back to Seed Phrase
         </button>

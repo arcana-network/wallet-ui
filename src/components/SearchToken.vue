@@ -10,7 +10,9 @@ import {
 import { ref, computed } from 'vue'
 
 import type { EthAssetContract } from '@/models/Asset'
+import { useAppStore } from '@/store/app'
 import { getImage } from '@/utils/getImage'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type SearchAssetProps = {
   tokens: EthAssetContract[]
@@ -31,6 +33,7 @@ const ethTokens = [...props.tokens].sort((token1, token2) => {
 const selectedToken = ref('')
 const query = ref('')
 const isFocused = ref(false)
+const appStore = useAppStore()
 
 const filteredTokens = computed(() => {
   if (query.value === '') {
@@ -109,12 +112,36 @@ function displayValue() {
               >
                 <span
                   class="block truncate max-w-[60%]"
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :class="{
+                    [getFontSizeStyle(
+                      Number(appStore.theme_settings.font_size)
+                    )]: true,
+                    'font-medium': selected,
+                    'font-normal': !selected,
+                  }"
+                  :style="{
+                    fontFamily: getFontFaimly(
+                      appStore.theme_settings.font_pairing
+                    ).primaryFontClass,
+                    color: appStore.theme_settings.font_color,
+                  }"
                 >
                   {{ token.name }}
                 </span>
                 <span
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :class="{
+                    [getFontSizeStyle(
+                      Number(appStore.theme_settings.font_size)
+                    )]: true,
+                    'font-medium': selected,
+                    'font-normal': !selected,
+                  }"
+                  :style="{
+                    fontFamily: getFontFaimly(
+                      appStore.theme_settings.font_pairing
+                    ).primaryFontClass,
+                    color: appStore.theme_settings.font_color,
+                  }"
                 >
                   {{ token.symbol }}
                 </span>

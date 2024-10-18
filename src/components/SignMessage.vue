@@ -12,6 +12,7 @@ import { advancedInfo } from '@/utils/advancedInfo'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { methodAndAction } from '@/utils/method'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const WalletAddEthereumChain = defineAsyncComponent(
   () =>
@@ -200,7 +201,14 @@ function isDeprecatedMethod() {
       </div>
     </div>
     <div>
-      <p class="text-xs text-gray-spanish-light">
+      <p
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
@@ -226,13 +234,26 @@ function isDeprecatedMethod() {
       >
         {{ methodAndAction[method] }}
       </h1>
-      <p class="text-xs text-gray-spanish-light text-center">
+      <p
+        class="text-gray-spanish-light text-center"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         {{ appStore.name }} requests your permission for
         {{ getPermissionText() }}
       </p>
       <span
         v-if="isDeprecatedMethod()"
-        class="text-xs text-yellow-100 font-medium text-center w-full"
+        class="text-yellow-100 text-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+        }"
         >WARNING: This is a deprecated method. Sign with caution.</span
       >
     </div>
@@ -303,7 +324,15 @@ function isDeprecatedMethod() {
     <div class="mt-auto flex flex-col gap-4">
       <div v-if="request.requestOrigin === 'auth-verify'">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('proceed')"
         >
           Proceed
@@ -311,13 +340,29 @@ function isDeprecatedMethod() {
       </div>
       <div v-else class="flex gap-2">
         <button
-          class="btn-secondary p-2 w-full text-sm font-medium"
+          class="btn-secondary p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('reject')"
         >
           Reject
         </button>
         <button
-          class="btn-primary p-2 w-full text-sm font-medium"
+          class="btn-primary p-2 w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click="emits('approve')"
         >
           Approve
@@ -330,7 +375,15 @@ function isDeprecatedMethod() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

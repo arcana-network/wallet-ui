@@ -13,6 +13,8 @@ import { EVMAccountHandler } from '@/utils/accountHandler'
 import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emits = defineEmits(['reject', 'approve'])
 
@@ -123,6 +125,12 @@ async function onViewDetails() {
       : (appStore.expandWallet = false)
   }
 }
+
+const arrowContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [arrowContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -133,7 +141,15 @@ async function onViewDetails() {
           Send Transaction
         </h1>
       </div>
-      <p class="text-xs text-gray-spanish-light text-center">
+      <p
+        class="text-center"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         The application “{{ appStore.name }}” is requesting your permission to
         send this transaction to {{ rpcStore.selectedRpcConfig?.chainName }}.
       </p>
@@ -143,7 +159,16 @@ async function onViewDetails() {
         <div class="flex flex-col justify-center items-center">
           <span class="text-sm text-gray-100">Transaction Fees</span>
           <div class="flex gap-2 items-baseline justify-center">
-            <span v-if="loader.show" class="text-sm font-medium"
+            <span
+              v-if="loader.show"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Loading...</span
             >
             <span
@@ -151,7 +176,14 @@ async function onViewDetails() {
                 !loader.show &&
                 (transactionMode === 'SCW' || transactionMode === 'ARCANA')
               "
-              class="text-sm font-medium text-green-100"
+              class="text-green-100"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+              }"
             >
               Sponsored
             </span>
@@ -167,7 +199,14 @@ async function onViewDetails() {
             </div>
             <div
               v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
-              class="text-sm font-medium"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             >
               ({{ currencyStore.getCurrencySymbol }}{{ gasFeeInCurrency }})
             </div>
@@ -178,16 +217,52 @@ async function onViewDetails() {
         class="text-xs mt-2 text-center flex gap-1 items-center justify-center mx-auto font-medium dark:text-white-200"
         @click.stop="onViewDetails"
       >
-        View Details
-        <img :src="getImage('arrow-down.svg')" />
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >View Details</span
+        >
+        <div ref="arrowContainer">
+          <img
+            :src="getImage('arrow-down.svg')"
+            alt="Arrow Down Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
     </div>
     <div class="flex flex-col gap-4">
       <div class="flex gap-2 text-sm font-medium">
-        <button class="w-full btn-secondary p-2" @click="emits('reject')">
+        <button
+          class="w-full btn-secondary p-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click="emits('reject')"
+        >
           Reject
         </button>
-        <button class="w-full btn-primary p-2" @click="emits('approve')">
+        <button
+          class="w-full btn-primary p-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+          @click="emits('approve')"
+        >
           Approve
         </button>
       </div>
@@ -198,7 +273,15 @@ async function onViewDetails() {
         class="flex items-center justify-center"
       >
         <button
-          class="btn-tertiary text-sm font-medium"
+          class="btn-tertiary"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >
           Do this later

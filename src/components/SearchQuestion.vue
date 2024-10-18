@@ -9,6 +9,9 @@ import {
 } from '@headlessui/vue'
 import { ref, computed, onMounted } from 'vue'
 
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
 type SearchQuestionProps = {
   questions: {
     [key: number]: string
@@ -19,7 +22,7 @@ type SearchQuestionProps = {
 const props = defineProps<SearchQuestionProps>()
 
 const emit = defineEmits(['change'])
-
+const appStore = useAppStore()
 const selectedQuestion = ref('')
 const isFocused = ref(false)
 const query = ref('')
@@ -115,7 +118,19 @@ function displayValue() {
               >
                 <span
                   class="block truncate"
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :class="{
+                    [getFontSizeStyle(
+                      Number(appStore.theme_settings.font_size)
+                    )]: true,
+                    'font-medium': selected,
+                    'font-normal': !selected,
+                  }"
+                  :style="{
+                    fontFamily: getFontFaimly(
+                      appStore.theme_settings.font_pairing
+                    ).primaryFontClass,
+                    color: appStore.theme_settings.font_color,
+                  }"
                   :title="question[1]"
                 >
                   {{ question[1].question }}

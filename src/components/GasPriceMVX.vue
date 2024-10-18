@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
+
 const emits = defineEmits(['gasLimitInput'])
 
 const props = defineProps<{
@@ -14,20 +17,54 @@ function onGasLimitChange(event: Event) {
   const value = target.value
   emits('gasLimitInput', value)
 }
-
+const appStore = useAppStore()
 const gasLimit = computed(() => props.gasLimit)
 </script>
 
 <template>
   <div class="space-y-2">
     <div class="flex flex-row gap-1">
-      <span class="text-sm font-medium">Gas Fee :</span>
-      <span class="text-sm font-medium">{{ props.gasFee }} USD</span>
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >Gas Fee :</span
+      >
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ props.gasFee }} USD</span
+      >
     </div>
     <div class="flex flex-col gap-1">
       <div class="text-sm font-medium flex justify-between">
-        <label for="gas-limit">Gas Limit</label>
-        <p>Min Gas Limit: {{ minGasLimit }}</p>
+        <label
+          for="gas-limit"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >Gas Limit</label
+        >
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
+          Min Gas Limit: {{ minGasLimit }}
+        </p>
       </div>
       <div class="flex justify-between space-x-2">
         <input

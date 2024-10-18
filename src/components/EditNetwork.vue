@@ -2,11 +2,14 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
 import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emit = defineEmits(['close'])
 const props = defineProps<{
@@ -15,7 +18,7 @@ const props = defineProps<{
 
 const rpcStore = useRpcStore()
 const toast = useToast()
-
+const appStore = useAppStore()
 const getImage = useImage()
 const rpcConfigForEdit = rpcStore.getRpcConfig(Number(props.chainId))
 
@@ -105,6 +108,12 @@ function deleteNetwork() {
     emit('close')
   }
 }
+
+const trashContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [trashContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -116,12 +125,26 @@ function deleteNetwork() {
         class="h-auto"
         @click="deleteNetwork"
       >
-        <img :src="getImage('trash-icon')" alt="close form" />
+        <div ref="trashContainer">
+          <img
+            :src="getImage('trash-icon')"
+            alt="Trash Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
     </div>
     <form class="space-y-3 sm:space-y-2" @submit.prevent="handleSubmit">
       <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="networkName">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="networkName"
+        >
           Network Name
         </label>
         <input
@@ -134,7 +157,17 @@ function deleteNetwork() {
         />
       </div>
       <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="rpcUrl"> RPC URL </label>
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="rpcUrl"
+        >
+          RPC URL
+        </label>
         <input
           id="rpcUrl"
           v-model="rpcConfig.rpcUrl"
@@ -145,7 +178,15 @@ function deleteNetwork() {
         />
       </div>
       <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="currencySymbol">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="currencySymbol"
+        >
           Currency Symbol
         </label>
         <input
@@ -158,7 +199,17 @@ function deleteNetwork() {
         />
       </div>
       <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="chainId"> Chain ID </label>
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="chainId"
+        >
+          Chain ID
+        </label>
         <input
           id="chainId"
           v-model="rpcConfig.chainId"
@@ -169,7 +220,15 @@ function deleteNetwork() {
         />
       </div>
       <div class="space-y-1">
-        <label class="text-xs text-zinc-400" for="explorerUrl">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="explorerUrl"
+        >
           Explorer URL (Optional)
         </label>
         <input
@@ -183,12 +242,28 @@ function deleteNetwork() {
       <div class="flex justify-between">
         <button
           class="text-sm sm:text-xs rounded-xl border-2 border-black dark:border-white bg-transparent text-black dark:text-white w-36 h-9 sm:w-20 sm:h-8"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
           @click.prevent="emit('close')"
         >
           Cancel
         </button>
         <button
-          class="text-sm sm:text-xs rounded-xl text-white dark:bg-white bg-black dark:text-black w-36 h-9 sm:w-20 sm:h-8"
+          class="rounded-xl dark:bg-white bg-black w-36 h-9 sm:w-20 sm:h-8"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
         >
           Save
         </button>

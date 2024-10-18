@@ -21,6 +21,7 @@ import { ChainType } from '@/utils/chainType'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { truncateEnd, truncateMid } from '@/utils/stringUtils'
 import { getIconAsset } from '@/utils/useImage'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type ActivityViewProps = {
   currencyExchangeRate: number | string | null
@@ -261,24 +262,39 @@ async function stopTransaction(activity) {
           <div class="flex">
             <span
               v-if="activity.customToken"
-              class="font-medium text-lg"
               :title="`${activity.operation} ${activity.customToken.symbol}`"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               {{ truncateEnd(activity.operation, 12) }}
               {{ activity.customToken.symbol }}
             </span>
             <span
               v-else-if="activity.nft"
-              class="font-medium text-lg"
               :title="`${activity.operation} NFT`"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               {{ truncateEnd(activity.operation, 12) }}
               NFT
             </span>
             <span
               v-else
-              class="font-medium text-lg"
               :title="activity.operation"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               {{ truncateEnd(activity.operation, 12) }}
             </span>
@@ -296,17 +312,35 @@ async function stopTransaction(activity) {
           </div>
           <span
             v-if="activity.transaction && activity.address.to"
-            class="text-sm text-gray-spanish"
             :title="activity.address.to"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             >To: {{ truncateMid(activity.address.to) }}</span
           >
           <span
             v-if="activity.file"
-            class="text-sm text-gray-spanish"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             :title="activity.file.did"
             >File DID: {{ truncateMid(activity.file.did) }}</span
           >
-          <div class="flex text-sm text-gray-spanish gap-1 items-center">
+          <div
+            class="flex gap-1 items-center"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
+          >
             <span class="whitespace-nowrap">{{
               dayjs(activity.date).format('MMM D, YYYY H:mm')
             }}</span>
@@ -318,8 +352,14 @@ async function stopTransaction(activity) {
         >
           <span
             v-if="activity.customToken"
-            class="font-medium text-lg leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+            class="leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
             :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             >{{
               new Decimal(activity.customToken.amount)
                 .toDecimalPlaces(5)
@@ -331,7 +371,13 @@ async function stopTransaction(activity) {
             v-else-if="
               activity.transaction && app.chainType === ChainType.evm_secp256k1
             "
-            class="font-medium text-lg leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+            class="leading-5 text-right whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             :title="`${getAmountInNativeCurrency(
               activity.transaction.amount
             )} ${rpcStore.currency}`"
@@ -342,7 +388,13 @@ async function stopTransaction(activity) {
             v-if="
               !activity.customToken && !activity.nft && activity.transaction
             "
-            class="flex text-xs text-[#8d8d8d] text-right"
+            class="flex text-right"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             >{{ calculateCurrencyValue(activity.transaction.amount).amount }}
             {{
               calculateCurrencyValue(activity.transaction.amount).currency
@@ -350,12 +402,17 @@ async function stopTransaction(activity) {
           >
           <span
             v-else-if="activity.sellDetails"
-            class="flex text-xs text-[#8d8d8d] text-right"
+            class="flex text-right"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             >{{ activity.sellDetails.fiat.amount }}
             {{ activity.sellDetails.fiat.currency }}</span
           >
           <span
-            class="text-sm"
             :class="{
               'text-green-system': activity.status === 'Success',
               'text-red-pink-orange': [
@@ -370,6 +427,12 @@ async function stopTransaction(activity) {
                 'Refunded',
                 'Expired',
               ].includes(activity.status),
+              [getFontSizeStyle(Number(app.theme_settings.font_size))]: true,
+            }"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
             }"
           >
             {{ activity.status }}
@@ -383,12 +446,24 @@ async function stopTransaction(activity) {
         <div v-if="activity.file?.recipient">
           <div class="flex flex-col gap-[5px]">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
               >To</span
             >
             <span
-              class="text-base font-normal leading-5"
+              class="leading-5"
               :title="activity.file.recipient"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               {{ truncateMid(activity.file.recipient) }}
             </span>
@@ -397,12 +472,24 @@ async function stopTransaction(activity) {
         <div v-if="activity.file?.ruleHash">
           <div class="flex flex-col gap-[5px]">
             <span
-              class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+              class="uppercase"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
               >Rule Hash</span
             >
             <span
-              class="text-base font-normal leading-5"
+              class="leading-5"
               :title="activity.file.ruleHash"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               {{ truncateMid(activity.file.ruleHash) }}
             </span>
@@ -413,11 +500,26 @@ async function stopTransaction(activity) {
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+                  class="uppercase"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   >From</span
                 >
                 <span
-                  class="text-base text-medium"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   :title="activity.address.from"
                 >
                   {{ truncateMid(activity.address.from) }}
@@ -432,12 +534,27 @@ async function stopTransaction(activity) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+                  class="uppercase"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   >To</span
                 >
                 <span
-                  class="text-base text-medium"
                   :title="activity.address.to"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
                   {{ truncateMid(activity.address.to) }}
                 </span>
@@ -445,15 +562,31 @@ async function stopTransaction(activity) {
             </div>
             <div class="flex flex-col gap-2">
               <span
-                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+                class="uppercase"
+                :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+                :style="{
+                  fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                    .primaryFontClass,
+                  color: app.theme_settings.font_color,
+                }"
                 >Transaction Details</span
               >
-              <div class="flex flex-col gap-2 text-base">
+              <div class="flex flex-col gap-2">
                 <div
                   v-if="activity.sellDetails.provider"
                   class="flex justify-between"
                 >
-                  <span>Provider</span>
+                  <span
+                    :class="
+                      getFontSizeStyle(Number(app.theme_settings.font_size))
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                        .primaryFontClass,
+                      color: app.theme_settings.font_color,
+                    }"
+                    >Provider</span
+                  >
                   <span>{{
                     OffRampProviders[activity.sellDetails.provider]
                   }}</span>
@@ -462,7 +595,17 @@ async function stopTransaction(activity) {
                   v-if="activity.sellDetails.crypto.amount"
                   class="flex justify-between"
                 >
-                  <span>Crypto Amount (Sent)</span>
+                  <span
+                    :class="
+                      getFontSizeStyle(Number(app.theme_settings.font_size))
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                        .primaryFontClass,
+                      color: app.theme_settings.font_color,
+                    }"
+                    >Crypto Amount (Sent)</span
+                  >
                   <span
                     >{{ activity.sellDetails.crypto.amount }}
                     {{ activity.sellDetails.crypto.currency }}</span
@@ -472,7 +615,17 @@ async function stopTransaction(activity) {
                   v-if="activity.sellDetails.fiat.amount"
                   class="flex justify-between"
                 >
-                  <span>Fiat Amount (Received)</span>
+                  <span
+                    :class="
+                      getFontSizeStyle(Number(app.theme_settings.font_size))
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                        .primaryFontClass,
+                      color: app.theme_settings.font_color,
+                    }"
+                    >Fiat Amount (Received)</span
+                  >
                   <span
                     >{{ activity.sellDetails.fiat.amount }}
                     {{ activity.sellDetails.fiat.currency }}</span
@@ -482,7 +635,17 @@ async function stopTransaction(activity) {
                   v-if="activity.sellDetails.fiat.fee"
                   class="flex justify-between"
                 >
-                  <span>Provider Fees</span>
+                  <span
+                    :class="
+                      getFontSizeStyle(Number(app.theme_settings.font_size))
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                        .primaryFontClass,
+                      color: app.theme_settings.font_color,
+                    }"
+                    >Provider Fees</span
+                  >
                   <span
                     >{{ activity.sellDetails.fiat.fee }}
                     {{ activity.sellDetails.fiat.currency }}</span
@@ -491,6 +654,14 @@ async function stopTransaction(activity) {
                 <div
                   v-if="activity.sellDetails.orderId"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
                   <span>Order ID</span>
                   <span :title="activity.sellDetails.orderId">{{
@@ -516,11 +687,26 @@ async function stopTransaction(activity) {
             <div class="flex justify-between">
               <div class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+                  class="uppercase"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   >From</span
                 >
                 <span
-                  class="text-base text-medium"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   :title="activity.address.from"
                 >
                   {{ truncateMid(activity.address.from) }}
@@ -535,12 +721,27 @@ async function stopTransaction(activity) {
               />
               <div v-if="activity.address.to" class="flex flex-col gap-1">
                 <span
-                  class="uppercase text-xs font-medium text-gray-myst dark:text-gray-spanish-light"
+                  class="uppercase"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                   >To</span
                 >
                 <span
-                  class="text-base text-medium"
                   :title="activity.address.to"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
                   {{ truncateMid(activity.address.to) }}
                 </span>
@@ -548,31 +749,47 @@ async function stopTransaction(activity) {
             </div>
             <div v-if="!activity.nft" class="flex flex-col gap-2">
               <span
-                class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+                :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+                :style="{
+                  fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                    .primaryFontClass,
+                  color: app.theme_settings.font_color,
+                }"
                 >Transaction Details</span
               >
               <div class="flex flex-col gap-2 text-base">
-                <div class="flex justify-between">
-                  <span
-                    v-if="app.chainType === ChainType.solana_cv25519"
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
+                <div
+                  class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
+                >
+                  <span v-if="app.chainType === ChainType.solana_cv25519"
                     >Slot</span
                   >
-                  <span
-                    v-else
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Nonce</span
-                  >
+                  <span v-else>Nonce</span>
                   <span>{{ activity.transaction.nonce }}</span>
                 </div>
-                <div class="flex justify-between">
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Amount</span
-                  >
+                <div
+                  class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
+                >
+                  <span>Amount</span>
                   <span
                     v-if="activity.customToken"
-                    class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${activity.customToken.amount} ${activity.customToken.symbol}`"
                   >
                     {{
@@ -584,7 +801,7 @@ async function stopTransaction(activity) {
                   </span>
                   <span
                     v-else
-                    class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
+                    class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="getDisplayAmount(activity)"
                     >{{ getAmount(activity.transaction.amount) }}
                     {{ rpcStore.currency }}</span
@@ -593,31 +810,46 @@ async function stopTransaction(activity) {
                 <div
                   v-if="activity.transaction.gasLimit"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Gas Limits (Units)</span
-                  >
+                  <span>Gas Limits (Units)</span>
                   <span>{{ activity.transaction.gasLimit }}</span>
                 </div>
                 <div
                   v-if="activity.transaction?.gasUsed"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Gas Used (Units)</span
-                  >
+                  <span>Gas Used (Units)</span>
                   <span>{{ activity.transaction?.gasUsed || 0 }}</span>
                 </div>
                 <div
                   v-if="activity.transaction.gasPrice"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Gas Price</span
-                  >
+                  <span>Gas Price</span>
                   <span
                     class="whitespace-nowrap overflow-hidden text-ellipsis max-w-[10rem]"
                     :title="`${calculateMvxGas(activity)}`"
@@ -632,11 +864,16 @@ async function stopTransaction(activity) {
                 <div
                   v-if="activity.transaction?.computeUnitsConsumed"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Compute Units Consumed</span
-                  >
+                  <span>Compute Units Consumed</span>
                   <span>{{
                     activity.transaction?.computeUnitsConsumed || 0
                   }}</span>
@@ -644,11 +881,16 @@ async function stopTransaction(activity) {
                 <div
                   v-if="activity.transaction?.fee"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Fee</span
-                  >
+                  <span>Fee</span>
                   <span
                     >{{ getAmount(activity.transaction?.fee) }}
                     {{ rpcStore.nativeCurrency?.symbol }}</span
@@ -657,17 +899,28 @@ async function stopTransaction(activity) {
                 <div
                   v-if="activity.transaction.totalActions"
                   class="flex justify-between"
+                  :class="
+                    getFontSizeStyle(Number(app.theme_settings.font_size))
+                  "
+                  :style="{
+                    fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                      .primaryFontClass,
+                    color: app.theme_settings.font_color,
+                  }"
                 >
-                  <span
-                    class="text-sm font-normal text-gray-myst dark:text-gray-spanish-light"
-                    >Total Actions Executed</span
-                  >
+                  <span>Total Actions Executed</span>
                   <span>{{ activity.transaction.totalActions }}</span>
                 </div>
               </div>
               <div
                 v-if="app.chainType === ChainType.evm_secp256k1"
-                class="flex justify-between font-medium text-lg"
+                class="flex justify-between"
+                :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+                :style="{
+                  fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                    .primaryFontClass,
+                  color: app.theme_settings.font_color,
+                }"
               >
                 <span>Total:</span>
                 <span
@@ -681,7 +934,13 @@ async function stopTransaction(activity) {
               </div>
               <div
                 v-if="app.chainType === ChainType.solana_cv25519"
-                class="flex justify-between mt-4 font-medium text-lg"
+                class="flex justify-between mt-4"
+                :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+                :style="{
+                  fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                    .primaryFontClass,
+                  color: app.theme_settings.font_color,
+                }"
               >
                 <span>Total:</span>
                 <span
@@ -701,7 +960,13 @@ async function stopTransaction(activity) {
         <div v-if="activity.explorerUrl" class="flex justify-center mt-4">
           <a
             :href="activity.explorerUrl"
-            class="flex font-montserrat font-medium text-xs"
+            class="flex"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             target="_blank"
             @click.stop="handleExplorerClick"
           >
@@ -720,7 +985,13 @@ async function stopTransaction(activity) {
         >
           <a
             :href="generateExplorerURL(explorerUrl, activity.txHash)"
-            class="flex font-montserrat font-medium text-xs"
+            class="flex"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
             target="_blank"
             @click.stop="handleExplorerClick"
           >
@@ -736,7 +1007,16 @@ async function stopTransaction(activity) {
       </div>
     </li>
   </ul>
-  <div v-else class="flex justify-center text-center text-sm text-gray-spanish">
+  <div
+    v-else
+    class="flex justify-center text-center"
+    :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+    :style="{
+      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+        .primaryFontClass,
+      color: app.theme_settings.font_color,
+    }"
+  >
     You have no transactions
   </div>
 </template>

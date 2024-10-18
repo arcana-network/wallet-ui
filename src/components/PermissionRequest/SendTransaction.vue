@@ -4,9 +4,12 @@ import { onMounted, ref } from 'vue'
 
 import GasPrice from '@/components/GasPrice.vue'
 import SignMessageAdvancedInfo from '@/components/signMessageAdvancedInfo.vue'
+import { useAppStore } from '@/store/app'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { sanitizeRequest } from '@/utils/sanitizeRequest'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const props = defineProps({
   request: {
@@ -30,7 +33,7 @@ const gasLimit = ref('0')
 const customGasPrice = ref({} as unknown)
 const showGasFeeLoader = ref(false)
 const showDetails = ref(false)
-
+const appStore = useAppStore()
 function calculateValue(value) {
   return new Decimal(value).div(Decimal.pow(10, 18)).toString()
 }
@@ -122,37 +125,97 @@ onMounted(async () => {
     showGasFeeLoader.value = false
   }
 })
+
+const arrowContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [arrowContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
   <div
     class="flex-1 flex flex-col p-2 h-full rounded-md space-y-4 overflow-auto"
   >
-    <p class="text-sm text-[#8D8D8D] font-medium text-center">
+    <p
+      class="text-center"
+      :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: appStore.theme_settings.font_color,
+      }"
+    >
       The application
-      <span class="text-white-300">{{ appDetails?.name }}</span> is requesting a
-      payment. Do you approve the transaction?
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ appDetails?.name }}</span
+      >
+      is requesting a payment. Do you approve the transaction?
     </p>
     <div
       v-if="request.params[0]?.value"
       class="flex justify-center items-baseline space-x-5"
     >
-      <span class="text-sm">{{ props.chainConfig.currency || 'Units' }}</span>
-      <span class="text-4xl text-white-400">{{
-        calculateValue(request.params[0]?.value)
-      }}</span>
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ props.chainConfig.currency || 'Units' }}</span
+      >
+      <span
+        class="text-4xl text-white-400"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ calculateValue(request.params[0]?.value) }}</span
+      >
     </div>
     <div class="text-center">
-      <span v-if="showGasFeeLoader" class="text-sm text-[#8D8D8D] animate-pulse"
+      <span
+        v-if="showGasFeeLoader"
+        class="animate-pulse"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         >Calculating gas fee.....</span
       >
-      <span v-else class="text-sm text-[#8D8D8D]">
+      <span
+        v-else
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         Additional
-        <span class="text-white-400">{{
-          calculateGasPrice(
-            customGasPrice.maxFeePerGas || request.params[0].gasPrice
-          )
-        }}</span>
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >{{
+            calculateGasPrice(
+              customGasPrice.maxFeePerGas || request.params[0].gasPrice
+            )
+          }}</span
+        >
         for Transaction Fees
       </span>
     </div>
@@ -165,13 +228,25 @@ onMounted(async () => {
         class="flex justify-center items-center text-sm font-medium"
         @click="showDetails = !showDetails"
       >
-        <span>View Details </span>
-        <img
-          :src="getImage('arrow-down.svg')"
-          class="transition-all duration-500 ease-in-out"
-          :class="{ '-rotate-180': showDetails }"
-          title="Click to expand"
-        />
+        <span
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          >View Details
+        </span>
+        <div ref="arrowContainer">
+          <img
+            :src="getImage('arrow-down.svg')"
+            class="transition-all duration-500 ease-in-out"
+            :class="{ '-rotate-180': showDetails }"
+            title="Click to expand"
+            alt="Arrow Down Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
       <SignMessageAdvancedInfo
         v-if="showDetails"

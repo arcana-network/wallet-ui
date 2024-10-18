@@ -12,6 +12,7 @@ export const useConfigStore = async (appID: string) => {
         session_persisted: false,
         session_max_age: 0,
         theme: 'dark',
+        theme_settings: {},
       } as AppConfig & { appID: string }),
     actions: {
       async getConfig(appID: string) {
@@ -21,6 +22,9 @@ export const useConfigStore = async (appID: string) => {
         this.name = data.name
         this.chain_type = data.chain_type
         this.global = data.global
+        if (data.theme_settings) {
+          this.theme_settings = data.theme_settings
+        }
         if (data.session_persisted) {
           this.session_persisted = data.session_persisted
         }
