@@ -104,7 +104,7 @@ class EVMAccountHandler {
   }> {
     const [nonce, paymasterBalance] = await Promise.all([
       this.getNonceForArcanaSponsorship(userStore.walletAddress),
-      scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
+      scwInstance.getPaymasterBalance() as unknown as Promise<ethers.BigNumber>,
     ])
     const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
@@ -196,13 +196,18 @@ class EVMAccountHandler {
         data: encodedData,
       }
       const transactionMode = await this.determineScwMode()
-      const tx = await scwInstance.doTx(
-        txParams,
-        this.getParamsForDoTx(transactionMode)
-      )
-      const txDetails = await tx.wait()
-      gaslessStore.canUseWalletBalance = null
-      return txDetails.receipt.transactionHash
+      const tx = await scwInstance.doTx(txParams)
+      console.log(txParams, 'txParams')
+
+      if (typeof tx === 'object' && 'wait' in tx) {
+        const txDetails = await tx.wait()
+        return txDetails.userOpHash
+      } else if (typeof tx === 'string') {
+        console.log(`Transaction hash: ${tx}`)
+        return tx
+      } else {
+        throw new Error('Unexpected transaction result')
+      }
     } else {
       const signer = this.wallet.connect(this.provider)
       const contract = new ethers.Contract(contractAddress, abi, signer)
@@ -413,22 +418,31 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
+    console.log(data, address, 'txParams')
     if (rpcStore.useGasless) {
       const txParams = {
         from: address,
         to: data.to,
         value: data.value,
       }
+
       const transactionMode = await this.determineScwMode()
-      const tx = await scwInstance.doTx(
-        txParams,
-        this.getParamsForDoTx(transactionMode)
-      )
+      const tx = await scwInstance.doTx(txParams)
+
       gaslessStore.canUseWalletBalance = null
-      const txDetails = await tx.wait()
-      return txDetails.receipt.transactionHash
+
+      if (typeof tx === 'object' && 'wait' in tx) {
+        const txDetails = await tx.wait()
+        return txDetails.userOpHash
+      } else if (typeof tx === 'string') {
+        console.log(`Transaction hash: ${tx}`)
+        return tx
+      } else {
+        throw new Error('Unexpected transaction result')
+      }
     } else {
       const wallet = this.getWallet(address)
+
       if (wallet) {
         const signer = wallet.connect(this.provider)
         const tx = await signer.sendTransaction(data)
@@ -437,6 +451,9 @@ class EVMAccountHandler {
         throw new Error(errors.WALLET.NOT_FOUND)
       }
     }
+
+    // Add a default return or error handling for unexpected cases
+    throw new Error('Failed to send transaction')
   }
 
   private async decrypt(ciphertext: string, address: string) {
