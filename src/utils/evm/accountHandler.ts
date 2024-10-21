@@ -195,7 +195,7 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const transactionMode = await this.determineScwMode()
+
       const tx = await scwInstance.doTx(txParams)
       console.log(txParams, 'txParams')
 
@@ -418,7 +418,6 @@ class EVMAccountHandler {
   }
 
   public async sendTransaction(data, address: string): Promise<string> {
-    console.log(data, address, 'txParams')
     if (rpcStore.useGasless) {
       const txParams = {
         from: address,
@@ -426,7 +425,6 @@ class EVMAccountHandler {
         value: data.value,
       }
 
-      const transactionMode = await this.determineScwMode()
       const tx = await scwInstance.doTx(txParams)
 
       gaslessStore.canUseWalletBalance = null
@@ -452,7 +450,6 @@ class EVMAccountHandler {
       }
     }
 
-    // Add a default return or error handling for unexpected cases
     throw new Error('Failed to send transaction')
   }
 
