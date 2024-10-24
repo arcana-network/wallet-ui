@@ -1,15 +1,28 @@
 import { SCW } from '@arcana/scw'
 
-import { errors } from '@/utils/content'
+// eslint-disable-next-line no-restricted-imports
+import { AUTH_NETWORK } from './constants'
 
-const arcana_key = process.env.VUE_APP_ARCANA_KEY
+import { errors } from '@/utils/content'
 
 const scwInstance = new SCW()
 
-async function initSCW(private_key: string, rpc_url: string) {
+async function initSCW(
+  arcana_key: string,
+  private_key: string,
+  rpc_url: string
+) {
   try {
+    const arcana_full_key =
+      AUTH_NETWORK === 'dev'
+        ? `xar_dev_${arcana_key}`
+        : AUTH_NETWORK === 'testnet'
+        ? `xar_test_${arcana_key}`
+        : AUTH_NETWORK === 'mainnet'
+        ? `xar_live_${arcana_key}`
+        : `xar_live_${arcana_key}`
     const params = {
-      arcana_key,
+      arcana_key: arcana_full_key,
       private_key,
       rpc_url,
     }
