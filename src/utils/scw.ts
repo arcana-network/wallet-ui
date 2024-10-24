@@ -2,15 +2,20 @@ import { SCW } from '@arcana/scw'
 
 import { errors } from '@/utils/content'
 
-const gatewayUrl = process.env.VUE_APP_WALLET_GATEWAY
+const arcana_key = process.env.VUE_APP_ARCANA_KEY
 
 const scwInstance = new SCW()
 
-async function initSCW(appId: string, provider: any) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+async function initSCW(private_key: string, rpc_url: string) {
   try {
-    await scwInstance.init(appId, provider, gatewayUrl)
+    const params = {
+      arcana_key,
+      private_key,
+      rpc_url,
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    await scwInstance.init(params)
   } catch (error) {
     throw new Error(`${errors.SCW.INIT}: ${error}`)
   }

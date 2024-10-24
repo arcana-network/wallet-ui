@@ -149,7 +149,10 @@ function setWalletAddressType(address) {
 async function initScwSdk() {
   const requestHandler = getRequestHandler()
   const accountHandler = requestHandler.getAccountHandler()
-  await initSCW(appId, (accountHandler as EVMAccountHandler).getSigner())
+  await initSCW(
+    accountHandler.wallet.privateKey,
+    accountHandler.provider.connection.url
+  )
 }
 
 async function sendRequest(r: {
