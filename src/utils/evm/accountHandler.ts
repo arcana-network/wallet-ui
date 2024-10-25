@@ -203,13 +203,10 @@ class EVMAccountHandler {
       }
 
       const tx = await scwInstance.doTx(txParams)
-      console.log(txParams, 'txParams')
-
       if (typeof tx === 'object' && 'wait' in tx) {
         const txDetails = await tx.wait()
-        return txDetails.userOpHash
+        return txDetails.receipt.transactionHash
       } else if (typeof tx === 'string') {
-        console.log(`Transaction hash: ${tx}`)
         return tx
       } else {
         throw new Error('Unexpected transaction result')
@@ -437,9 +434,8 @@ class EVMAccountHandler {
 
       if (typeof tx === 'object' && 'wait' in tx) {
         const txDetails = await tx.wait()
-        return txDetails.userOpHash
+        return txDetails.receipt.transactionHash
       } else if (typeof tx === 'string') {
-        console.log(`Transaction hash: ${tx}`)
         return tx
       } else {
         throw new Error('Unexpected transaction result')
