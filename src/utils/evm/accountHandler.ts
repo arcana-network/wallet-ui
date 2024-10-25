@@ -104,12 +104,18 @@ class EVMAccountHandler {
   }> {
     const [nonce, paymasterBalance] = await Promise.all([
       this.getNonceForArcanaSponsorship(userStore.walletAddress),
-      scwInstance.getPaymasterBalance() as unknown as Promise<ethers.BigNumber>,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
     ])
     const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
+    const paymasterBalanceBN = ethers.BigNumber.from(
+      paymasterBalance.toString()
+    )
+
     let mode = ''
-    if (paymasterBalance.gt(thresholdPaymasterBalance)) {
+    if (paymasterBalanceBN.gt(thresholdPaymasterBalance)) {
       if (isSendIt) {
         mode = nonce.lt(15) ? 'ARCANA' : ''
       } else {
@@ -117,7 +123,7 @@ class EVMAccountHandler {
       }
     }
     return {
-      paymasterBalance,
+      paymasterBalance: paymasterBalanceBN,
       transactionMode: mode,
     }
   }

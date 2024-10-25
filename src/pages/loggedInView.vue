@@ -245,7 +245,7 @@ async function initScwSdk() {
     )
     userStore.scwAddress = scwInstance.scwAddress
   } catch (e) {
-    console.log(e, 'sjsjsjsjsj')
+    console.log(e)
   }
 }
 
