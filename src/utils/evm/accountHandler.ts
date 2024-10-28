@@ -104,12 +104,18 @@ class EVMAccountHandler {
   }> {
     const [nonce, paymasterBalance] = await Promise.all([
       this.getNonceForArcanaSponsorship(userStore.walletAddress),
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       scwInstance.getPaymasterBalance() as Promise<ethers.BigNumber>,
     ])
     const thresholdPaymasterBalance = ethers.BigNumber.from(10n ** 17n) // 0.1 × 10¹⁸
     const isSendIt = this.isSendItApp()
+    const paymasterBalanceBN = ethers.BigNumber.from(
+      paymasterBalance.toString()
+    )
+
     let mode = ''
-    if (paymasterBalance.gt(thresholdPaymasterBalance)) {
+    if (paymasterBalanceBN.gt(thresholdPaymasterBalance)) {
       if (isSendIt) {
         mode = nonce.lt(15) ? 'ARCANA' : ''
       } else {
@@ -117,7 +123,7 @@ class EVMAccountHandler {
       }
     }
     return {
-      paymasterBalance,
+      paymasterBalance: paymasterBalanceBN,
       transactionMode: mode,
     }
   }
@@ -195,14 +201,16 @@ class EVMAccountHandler {
         to: contractAddress,
         data: encodedData,
       }
-      const transactionMode = await this.determineScwMode()
-      const tx = await scwInstance.doTx(
-        txParams,
-        this.getParamsForDoTx(transactionMode)
-      )
-      const txDetails = await tx.wait()
-      gaslessStore.canUseWalletBalance = null
-      return txDetails.receipt.transactionHash
+
+      const tx = await scwInstance.doTx(txParams)
+      if (typeof tx === 'object' && 'wait' in tx) {
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
+      } else if (typeof tx === 'string') {
+        return tx
+      } else {
+        throw new Error('Unexpected transaction result')
+      }
     } else {
       const signer = this.wallet.connect(this.provider)
       const contract = new ethers.Contract(contractAddress, abi, signer)
@@ -419,16 +427,22 @@ class EVMAccountHandler {
         to: data.to,
         value: data.value,
       }
-      const transactionMode = await this.determineScwMode()
-      const tx = await scwInstance.doTx(
-        txParams,
-        this.getParamsForDoTx(transactionMode)
-      )
+
+      const tx = await scwInstance.doTx(txParams)
+
       gaslessStore.canUseWalletBalance = null
-      const txDetails = await tx.wait()
-      return txDetails.receipt.transactionHash
+
+      if (typeof tx === 'object' && 'wait' in tx) {
+        const txDetails = await tx.wait()
+        return txDetails.receipt.transactionHash
+      } else if (typeof tx === 'string') {
+        return tx
+      } else {
+        throw new Error('Unexpected transaction result')
+      }
     } else {
       const wallet = this.getWallet(address)
+
       if (wallet) {
         const signer = wallet.connect(this.provider)
         const tx = await signer.sendTransaction(data)
@@ -437,6 +451,8 @@ class EVMAccountHandler {
         throw new Error(errors.WALLET.NOT_FOUND)
       }
     }
+
+    throw new Error('Failed to send transaction')
   }
 
   private async decrypt(ciphertext: string, address: string) {
