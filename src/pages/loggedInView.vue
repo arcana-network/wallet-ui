@@ -240,7 +240,8 @@ async function initScwSdk() {
     const accountHandler = requestHandler.getAccountHandler()
     await initSCW(
       appStore.id,
-      (accountHandler as EVMAccountHandler).getSigner()
+      accountHandler.wallet.privateKey,
+      accountHandler.provider.connection.url
     )
     userStore.scwAddress = scwInstance.scwAddress
   } catch (e) {
