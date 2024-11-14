@@ -2,12 +2,12 @@
 import { AppMode } from '@arcana/auth'
 import { useMotions } from '@vueuse/motion'
 import {
-  ref,
   computed,
-  toRefs,
-  watch,
   defineAsyncComponent,
   onMounted,
+  ref,
+  toRefs,
+  watch,
 } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -301,7 +301,15 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs, true)
       v-show="expandWallet || app.expandRestoreScreen"
       v-motion="'dragTarget'"
       v-drag="dragHandler"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"
+      class="flex flex-col h-full overflow-hidden rounded-md"
+      :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+      :style="{
+        backgroundColor: app.theme === 'dark' ? '#13171A' : '#F7F7F7',
+        color: app.theme_settings.font_color,
+        borderRadius: `${getRadius(app.theme_settings.radius)}`,
+        fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+          .secondaryFontClass,
+      }"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
@@ -401,8 +409,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  color: var(--fg-color);
-  background: var(--container-bg-color);
+  /* color: var(--fg-color);
+  background: var(--container-bg-color); */
 }
 
 .flow-container > *:not(:first-child) {
@@ -422,8 +430,8 @@ body {
   height: 110px;
   font-size: var(--fs-300);
   font-weight: 400;
-  color: #f9f9f9;
-  background-color: #101010;
+  /* color: #f9f9f9;
+  background-color: #101010; */
 }
 
 .fade-enter-active,

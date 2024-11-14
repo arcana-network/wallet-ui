@@ -140,7 +140,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
         >
       </button>
     </div>
-    <div class="flex space-x-3 bg-blue-dark-sky p-2 rounded-sm">
+    <div
+      class="flex space-x-3 p-2 rounded-sm"
+      :style="{
+        backgroundColor: appStore.theme_settings.accent_color,
+      }"
+    >
       <img
         class="w-5 h-5"
         :src="getIconImage('info-circle', undefined, 'svg')"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
@@ -50,7 +50,15 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs, false, true)
 
 <template>
   <footer
-    class="flex items-center px-12 py-2 bg-gray-900 border-gray-800 dark:bg-black-eerie select-none"
+    class="flex items-center px-12 py-2 select-none"
+    :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+    :style="{
+      backgroundColor: appStore.theme === 'dark' ? '#13171A' : '#F7F7F7',
+      color: appStore.theme_settings.font_color,
+
+      fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+        .secondaryFontClass,
+    }"
   >
     <nav v-if="userStore.isLoggedIn" class="flex flex-grow justify-between">
       <router-link

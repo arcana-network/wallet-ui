@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import {
   Combobox,
-  ComboboxInput,
   ComboboxButton,
-  ComboboxOptions,
+  ComboboxInput,
   ComboboxOption,
+  ComboboxOptions,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import { useAppStore } from '@/store/app'
 import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
@@ -101,6 +101,11 @@ function displayValue() {
         <div v-show="open && filteredQuestions.length">
           <ComboboxOptions
             class="absolute max-h-48 w-full py-2 px-1 card text-sm overflow-auto rounded-t-none z-10"
+            :class="{
+              [appStore.theme === 'dark'
+                ? 'border border-[#13171A] rounded-md'
+                : 'border border-[#F7F7F7] rounded-md']: true,
+            }"
             static
           >
             <ComboboxOption
@@ -111,9 +116,23 @@ function displayValue() {
               :value="question"
             >
               <li
-                class="relative cursor-pointer select-none p-3 rounded-sm flex justify-between hover:bg-gray-200"
+                class="relative cursor-pointer select-none p-3 rounded-sm flex justify-between"
                 :class="{
-                  'bg-gray-200': active,
+                  [getFontSizeStyle(
+                    Number(appStore.theme_settings.font_size)
+                  )]: true,
+
+                  [appStore.theme === 'dark' ? 'bg-[#13171A]' : 'bg-[#F7F7F7]']:
+                    active,
+                  [appStore.theme === 'dark'
+                    ? 'hover:bg-[#13171A]'
+                    : 'hover:bg-[#F7F7F7]']: active,
+                }"
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
                 }"
               >
                 <span

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
   Core,
-  SecurityQuestionModule,
   utils as KeyHelperUtils,
+  SecurityQuestionModule,
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
-import { ref, onBeforeMount, type Ref } from 'vue'
+import { onBeforeMount, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -13,8 +13,8 @@ import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
-import { content, errors } from '@/utils/content'
+import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
+import { content } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import {
@@ -60,7 +60,7 @@ const storage = getStorage()
 
 app.curve = storage.local.getCurve()
 
-document.documentElement.classList.add('dark')
+// document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
