@@ -44,6 +44,7 @@ import { getAuthProvider } from '@/utils/getAuthProvider'
 import getValidAppMode from '@/utils/getValidAppMode'
 import { getWalletType } from '@/utils/getwalletType'
 import { NEARRequestHandler } from '@/utils/near/requestHandler'
+import { PasskeyLoginHandler } from '@/utils/passkeyUtils'
 import {
   getRequestHandler,
   requestHandlerExists,
@@ -88,6 +89,11 @@ let bc: BroadcastChannel | null = null
 onBeforeMount(() => {
   userStore.hasMfa = getStorage().local.getHasMFA(userStore.info.id)
 })
+
+const passkeyHandler = new PasskeyLoginHandler(
+  getSensitiveStorage().getUserInfo()!,
+  appStore.id
+)
 
 function startCurrencyInterval() {
   currencyStore.setLocalCurrencyCode()
@@ -375,6 +381,16 @@ async function connectToParent() {
         appStore,
         getRequestHandler()
       ),
+      startPasskeyLink: async () => {
+        const data = await passkeyHandler.startLinkPasskey()
+        return data
+      },
+      finishPasskeyLink: async (sid: string, params: any) => {
+        const success = await passkeyHandler.finishLinkPasskey(sid, params)
+        return success
+      },
+      getMyPasskeys: () => passkeyHandler.getMyPasskeys(),
+      unlinkPasskey: (id: string) => passkeyHandler.unlinkPasskey(id),
       addToActivity,
       getKeySpaceConfigType: () => (config.global ? 'global' : 'local'),
       getPublicKey: handleGetPublicKey,
