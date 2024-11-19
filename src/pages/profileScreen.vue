@@ -25,8 +25,8 @@ import { getImage } from '@/utils/getImage'
 import { NEARAccountHandler } from '@/utils/near/accountHandler'
 import { getWindowFeatures } from '@/utils/popupProps'
 import {
-  getRequestHandler,
   deleteRequestHandler,
+  getRequestHandler,
 } from '@/utils/requestHandlerSingleton'
 import { getSensitiveStorage, getStorage } from '@/utils/storageWrapper'
 
