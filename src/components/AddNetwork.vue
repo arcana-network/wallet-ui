@@ -128,6 +128,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. Ethereum"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
@@ -149,6 +155,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://rpc.ankr.com/eth"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
@@ -170,6 +182,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. ETH"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
@@ -191,6 +209,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. 0x1"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
@@ -211,6 +235,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://etherscan.io"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex">

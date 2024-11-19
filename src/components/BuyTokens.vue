@@ -161,10 +161,23 @@ function handleDone() {
               name="provider"
               :disabled="!props.transakNetwork"
               class="radio"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
         </div>
-        <div class="flex space-x-3 bg-blue-dark-sky p-3 rounded-sm">
+        <div
+          class="flex space-x-3 p-3 rounded-sm"
+          :style="{
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+        >
           <img
             class="w-4 h-4 mt-1"
             :src="getImage('info-circle', undefined, 'svg')"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, ref, onMounted } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useAppStore } from '@/store/app'
@@ -206,7 +206,10 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+        class="flex space-x-2 p-2 rounded-sm mt-2"
+        :style="{
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
       >
         <img
           class="w-4 h-4 mt-1"

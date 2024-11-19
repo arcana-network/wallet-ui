@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -11,7 +11,7 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
@@ -262,6 +262,14 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -283,10 +291,18 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               type="text"
               placeholder="Eg. XAR"
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
-              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
               :disabled="isDisabled.symbol"
+              :class="[
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+                { 'cursor-not-allowed': isDisabled.symbol },
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -308,12 +324,20 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               type="number"
               placeholder="0"
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
-              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"
               required
               autocomplete="off"
               :disabled="isDisabled.decimals"
+              :class="[
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+                { 'cursor-not-allowed': isDisabled.symbol },
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <button

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref, reactive, watch, computed } from 'vue'
+import { computed, onMounted, reactive, ref, watch, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
@@ -164,6 +164,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           v-model="searchTerm"
           class="w-full py-3 px-0"
           placeholder="Search NFT"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
     </div>

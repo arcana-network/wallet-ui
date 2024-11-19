@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { type Ref, ref, watch, computed } from 'vue'
+import { computed, type Ref, ref, watch } from 'vue'
 
 import { useAppStore } from '@/store/app'
 import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
@@ -210,8 +210,16 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
-        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
+        :class="[
+          { 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction },
+          getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+        ]"
         placeholder="Enter total gas to be used"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         @input="handleCustomGasPriceInput()"
       />
     </div>
@@ -234,8 +242,16 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
-        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
         placeholder="Enter Max priority fee per gas"
+        :class="[
+          { 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction },
+          getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+        ]"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         @input="handleCustomGasPriceInput()"
       />
     </div>
@@ -258,8 +274,16 @@ function handleCustomGasPriceInput() {
         required
         type="text"
         class="input-field bg-gray-zinc"
-        :class="{ 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction }"
         placeholder="Enter Max fee per gas"
+        :class="[
+          { 'dark:bg-black-arsenic bg-gray-zinc-85': isSendTransaction },
+          getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+        ]"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
         @input="handleCustomGasPriceInput()"
       />
       <div class="flex justify-end gap-1">

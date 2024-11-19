@@ -154,6 +154,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
           placeholder="e.g. Ethereum"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="space-y-1">
@@ -175,6 +181,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
           placeholder="e.g. https://blockchain.dev.arcana.network"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="space-y-1">
@@ -196,6 +208,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
           placeholder="e.g. ETH"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="space-y-1">
@@ -217,6 +235,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
           placeholder="e.g. 40404"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="space-y-1">
@@ -237,11 +261,17 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           type="text"
           class="text-base sm:text-sm bg-gradient w-full p-2 sm:p-1 rounded-lg border-none outline-none"
           placeholder="e.g. https://explorer.dev.arcana.network/"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex justify-between">
         <button
-          class="text-sm sm:text-xs rounded-xl border-2 border-black dark:border-white bg-transparent text-black dark:text-white w-36 h-9 sm:w-20 sm:h-8"
+          class="text-sm sm:text-xs rounded-xl border-2 w-36 h-9 sm:w-20 sm:h-8"
           :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
           :style="{
             fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
@@ -255,7 +285,7 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           Cancel
         </button>
         <button
-          class="rounded-xl dark:bg-white bg-black w-36 h-9 sm:w-20 sm:h-8"
+          class="rounded-xl w-36 h-9 sm:w-20 sm:h-8"
           :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
           :style="{
             fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { Decimal } from 'decimal.js'
-import { computed, onMounted, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { useAppStore } from '@/store/app'
@@ -191,11 +191,32 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               v-else-if="!loader.show && transactionMode.length === 0"
               class="flex-col text-center items-baseline"
             >
-              <span class="text-lg font-medium"
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >{{ gasFee.slice(0, 9) }}&nbsp;</span
-              ><span v-if="gasFee !== 'Unknown'" class="text-sm">{{
-                rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
-              }}</span>
+              ><span
+                v-if="gasFee !== 'Unknown'"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+                >{{
+                  rpcStore.selectedRPCConfig?.nativeCurrency?.symbol || 'Units'
+                }}</span
+              >
             </div>
             <div
               v-if="gasFee !== 'Unknown' && gasFeeInCurrency"
@@ -280,7 +301,6 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               .primaryFontClass,
             color: appStore.theme_settings.font_color,
             borderColor: appStore.theme_settings.accent_color,
-            backgroundColor: appStore.theme_settings.accent_color,
           }"
           @click.stop="requestStore.skipRequest(request.request.id)"
         >

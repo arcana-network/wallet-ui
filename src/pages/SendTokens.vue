@@ -7,13 +7,13 @@ import {
 } from '@solana/web3.js'
 import { Decimal } from 'decimal.js'
 import {
+  computed,
+  onBeforeMount,
   onMounted,
   onUnmounted,
-  onBeforeMount,
   ref,
   Ref,
   watch,
-  computed,
 } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -785,8 +785,16 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
             required
             type="text"
             class="input-field"
-            :class="{ 'input-active': isWalletAddressFocused }"
             placeholder="Enter Recipient’s Wallet Address"
+            :class="[
+              { 'input-active': isWalletAddressFocused },
+              getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+            ]"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             @focus="isWalletAddressFocused = true"
             @blur="isWalletAddressFocused = false"
           />
@@ -817,6 +825,15 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
                 required
                 type="text"
                 placeholder="0.1"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 @focus="isAmountFocused = true"
                 @blur="isAmountFocused = false"
               />
@@ -930,7 +947,10 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
           v-else-if="
             !loader.show && transactionMode.length === 0 && rpcStore.useGasless
           "
-          class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+          class="flex space-x-2 p-2 rounded-sm mt-2"
+          :style="{
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
         >
           <img
             class="w-4 h-4 mt-1"

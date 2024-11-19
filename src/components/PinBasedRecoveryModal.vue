@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import { useAppStore } from '@/store/app'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
@@ -59,6 +59,12 @@ function handleProceed() {
             :type="passwordType"
             class="text-sm p-3 input-field text-ellipsis overflow-hidden whitespace-nowrap w-full focus:input-active bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           />
           <img
             v-if="passwordType === 'password'"

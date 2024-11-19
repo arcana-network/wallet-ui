@@ -141,6 +141,12 @@ function getChainType(chainType: ChainType) {
           :value="chain"
           name="chain"
           class="radio"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <button

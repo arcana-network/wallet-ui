@@ -72,6 +72,12 @@ const gasLimit = computed(() => props.gasLimit)
           :value="gasLimit"
           type="number"
           class="input-field flex-1"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           @input="onGasLimitChange"
         />
       </div>

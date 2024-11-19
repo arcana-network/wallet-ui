@@ -13,12 +13,12 @@ import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { errors, content } from '@/utils/content'
+import { content, errors } from '@/utils/content'
 import {
+  checkOwnership,
   getCollectionName,
   getERCStandard,
   getTokenUri,
-  checkOwnership,
 } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
 import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
@@ -266,6 +266,14 @@ watch(
               required
               disabled
               autocomplete="off"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
             <input
               v-else
@@ -276,6 +284,14 @@ watch(
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               @focus="showAddressOutline = true"
               @blur="showAddressOutline = false"
             />
@@ -302,6 +318,14 @@ watch(
               required
               autocomplete="off"
               disabled
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <div class="flex flex-col gap-1">
@@ -327,6 +351,14 @@ watch(
               step="1"
               required
               autocomplete="off"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <button

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onMounted, onBeforeMount, onUnmounted, ref, Ref, watch } from 'vue'
+import { onBeforeMount, onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -8,7 +8,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
-import { type NFTContractType, type NFT } from '@/models/NFT'
+import { type NFT, type NFTContractType } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
@@ -516,8 +516,16 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               required
               type="text"
               class="input-field"
-              :class="{ 'input-active': isWalletAddressFocused }"
               placeholder="Enter Recipient’s Wallet Address"
+              :class="[
+                { 'input-active': isWalletAddressFocused },
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               @focus="isWalletAddressFocused = true"
               @blur="isWalletAddressFocused = false"
             />
@@ -542,8 +550,16 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               required
               type="text"
               class="input-field"
-              :class="{ 'input-active': isQuantityFocused }"
               placeholder="Enter Recipient’s Wallet Address"
+              :class="[
+                { 'input-active': isQuantityFocused },
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               @focus="isQuantityFocused = true"
               @blur="isQuantityFocused = false"
             />
@@ -609,7 +625,10 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
               transactionMode.length === 0 &&
               rpcStore.useGasless
             "
-            class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+            class="flex space-x-2 p-2 rounded-sm mt-2"
+            :style="{
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
           >
             <img
               class="w-4 h-4 mt-1"

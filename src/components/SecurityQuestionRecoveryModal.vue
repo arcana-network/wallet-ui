@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, onBeforeMount, type Ref } from 'vue'
+import { computed, onBeforeMount, ref, type Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
 import SelectQuestion from '@/components/SelectQuestion.vue'
 import { useAppStore } from '@/store/app'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { getImage } from '@/utils/getImage'
 import { useSVGInjector } from '@/utils/useSvgInjector.ts'
 import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
@@ -141,6 +141,12 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
             v-model.trim="answers[n - 1].answer"
             :placeholder="customPlaceholders[n - 1]"
             class="text-sm p-2 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active bg-gray-zinc dark:bg-black-arsenic"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           />
         </div>
       </div>

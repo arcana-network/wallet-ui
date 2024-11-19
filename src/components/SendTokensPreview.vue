@@ -240,7 +240,10 @@ const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+        class="flex space-x-2 p-2 rounded-sm mt-2"
+        :style="{
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
       >
         <img
           class="w-4 h-4 mt-1"

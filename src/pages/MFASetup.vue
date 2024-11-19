@@ -390,6 +390,12 @@ function handlePinBack() {
             :type="passwordType"
             class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
           />
           <img
             v-if="passwordType === 'password'"
@@ -509,6 +515,12 @@ function handlePinBack() {
               class="dark:bg-black-arsenic bg-gray-zinc-85 text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
               :placeholder="customPlaceholders[i - 1]"
               :value="getAnswer(i)"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
               @input="addAnswer(i, $event.target?.value)"
             />
           </div>
