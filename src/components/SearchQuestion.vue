@@ -66,6 +66,21 @@ function displayValue() {
     return question?.[1].question as string
   }
 }
+
+const placeholderClasses = computed(() => {
+  const fontSizeClass = `placeholder:text-${getFontSizeStyle(
+    Number(appStore.theme_settings.font_size)
+  )}`
+  return fontSizeClass
+})
+
+const placeholderStyle = computed(() => {
+  return {
+    fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+      .primaryFontClass,
+    color: appStore.theme_settings.font_color,
+  }
+})
 </script>
 
 <template>
@@ -81,6 +96,16 @@ function displayValue() {
           class="flex-1 border-none text-sm text-left justify-between py-1 px-3 truncate"
           placeholder="Enter or select the question"
           :display-value="displayValue()"
+          :class="[
+            getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+            placeholderClasses,
+          ]"
+          :style="{
+            ...placeholderStyle,
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           @change="handleChange"
           @focus="isFocused = true"
           @blur="isFocused = false"
