@@ -10,6 +10,8 @@ import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getImage } from '@/utils/getImage'
 import { getMnemonicInShard } from '@/utils/multiversx/shard'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const showPreview = ref(false)
 const router = useRouter()
@@ -30,6 +32,13 @@ function hideLoader() {
   loader.value.show = false
   loader.value.message = ''
 }
+
+const backContainer = ref<HTMLElement | null>(null)
+const copyContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer, copyContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -40,14 +49,29 @@ function hideLoader() {
         title="Click to go back"
         @click.stop="router.push({ name: 'home' })"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <div ref="backContainer">
+          <img
+            :src="getImage('back-arrow.svg')"
+            class="w-6 h-6"
+            alt="Back Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
       <span class="font-Nohemi text-[20px] font-medium">Seed Phrase</span>
     </div>
 
     <form class="flex flex-col flex-grow justify-between mt-5">
       <div class="flex flex-col gap-6">
-        <span class="text-sm font-lighter text-center">
+        <span
+          class="text-center"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Please record the seed phrase shown below exactly in the order that it
           is shown. Take care to record this in a safe place offline for maximum
           safety.
@@ -70,12 +94,34 @@ function hideLoader() {
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
         >
-          <img :src="getImage('copy.svg')" alt="Copy wallet address" />
-          Copy
+          <div ref="copyContainer">
+            <img
+              :src="getImage('copy.svg')"
+              alt="copy Icon"
+              @load="(event) => fetchAndInjectSVG(event, 1)"
+            />
+          </div>
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+            >Copy
+          </span>
         </button>
 
         <button
           class="btn-tertiary flex items-center justify-center gap-2 py-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
         >
           <!-- <img :src="getImage('print.svg')" alt="Print wallet address" /> -->
           Print
@@ -83,7 +129,19 @@ function hideLoader() {
       </div>
 
       <div class="flex mt-2">
-        <button class="btn-primary py-[10px] text-center w-full">Verify</button>
+        <button
+          class="btn-primary py-[10px] text-center w-full"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+        >
+          Verify
+        </button>
       </div>
     </form>
   </div>

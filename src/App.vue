@@ -1,8 +1,24 @@
 <script setup lang="ts">
 import { AppMode } from '@arcana/auth'
 import { useMotions } from '@vueuse/motion'
-import { computed, toRefs, watch, defineAsyncComponent, onMounted } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  onMounted,
+  ref,
+  toRefs,
+  watch,
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+// eslint-disable-next-line no-restricted-imports
+import { useSVGInjector } from './utils/useSvgInjector.ts'
+// eslint-disable-next-line no-restricted-imports
+import {
+  getFontFaimly,
+  getFontSizeStyle,
+  getRadius,
+} from './utils/utilsFunction'
 
 import BaseModal from '@/components/BaseModal.vue'
 import type { Theme } from '@/models/Theme'
@@ -260,15 +276,40 @@ const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
     cancel()
   }
 }
+
+const expandContainer = ref<HTMLElement | null>(null)
+const collapseContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [expandContainer, collapseContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs, true)
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div
+    class="flex flex-col h-full"
+    :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+    :style="{
+      backgroundColor: app.theme === 'dark' ? '#13171A' : '#F7F7F7',
+      color: app.theme_settings.font_color,
+      borderRadius: `${getRadius(app.theme_settings.radius)}`,
+      fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+        .secondaryFontClass,
+    }"
+  >
     <div
       v-show="expandWallet || app.expandRestoreScreen"
       v-motion="'dragTarget'"
       v-drag="dragHandler"
-      class="flex flex-col h-full bg-white-200 dark:bg-black-eerie overflow-hidden rounded-md"
+      class="flex flex-col h-full overflow-hidden rounded-md"
+      :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+      :style="{
+        backgroundColor: app.theme === 'dark' ? '#13171A' : '#F7F7F7',
+        color: app.theme_settings.font_color,
+        borderRadius: `${getRadius(app.theme_settings.radius)}`,
+        fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+          .secondaryFontClass,
+      }"
     >
       <div
         v-if="AUTH_NETWORK !== 'mainnet'"
@@ -287,8 +328,26 @@ const dragHandler = ({ movement: [_, y], elapsedTime, cancel, dragging }) => {
           class="flex flex-grow justify-center"
           @click="onClickOfHeader"
         >
-          <img v-if="compactMode" :src="getImage('expand-arrow.svg')" />
-          <img v-else :src="getImage('collapse-arrow.svg')" />
+          <div v-if="compactMode" ref="expandContainer">
+            <img
+              :src="getImage('expand-arrow.svg')"
+              alt="Expand Arrow Icon"
+              :style="{
+                fill: app.theme_settings.font_color + '!important',
+              }"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
+          <div v-else ref="collapseContainer">
+            <img
+              :src="getImage('collapse-arrow.svg')"
+              alt="Collapse Arrow Icon"
+              :style="{
+                fill: app.theme_settings.font_color + '!important',
+              }"
+              @load="(event) => fetchAndInjectSVG(event, 1)"
+            />
+          </div>
         </button>
       </div>
       <WalletHeader v-if="showHeader" />
@@ -350,8 +409,8 @@ body {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
-  color: var(--fg-color);
-  background: var(--container-bg-color);
+  /* color: var(--fg-color);
+  background: var(--container-bg-color); */
 }
 
 .flow-container > *:not(:first-child) {
@@ -371,8 +430,8 @@ body {
   height: 110px;
   font-size: var(--fs-300);
   font-weight: 400;
-  color: #f9f9f9;
-  background-color: #101010;
+  /* color: #f9f9f9;
+  background-color: #101010; */
 }
 
 .fade-enter-active,

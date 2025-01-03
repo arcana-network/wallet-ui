@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import Decimal from 'decimal.js'
 
+import { useAppStore } from '@/store/app'
 import useCurrencyStore from '@/store/currencies'
 import { truncateMid } from '@/utils/stringUtils'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const currencyStore = useCurrencyStore()
 const props = defineProps<{ transaction: any }>()
+const appStore = useAppStore()
 
 const gasFeesUSD = new Decimal(props.transaction.gasLimit)
   .mul(new Decimal(props.transaction.gasPrice))
@@ -17,7 +20,13 @@ const gasFeesUSD = new Decimal(props.transaction.gasLimit)
 <template>
   <div class="flex flex-col gap-2 text-sm">
     <div
-      class="text-sm font-semibold uppercase text-black-arsenic dark:text-white-400"
+      class="uppercase"
+      :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: appStore.theme_settings.font_color,
+      }"
     >
       Transaction Details
     </div>
@@ -26,8 +35,25 @@ const gasFeesUSD = new Decimal(props.transaction.gasLimit)
       :key="key"
       class="flex justify-between gap-4"
     >
-      <span class="w-[120px] capitalize">{{ key }}</span>
-      <span :title="String(value)">
+      <span
+        class="w-[120px] capitalize"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ key }}</span
+      >
+      <span
+        :title="String(value)"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+      >
         {{
           key === 'sender' || key === 'receiver'
             ? truncateMid(value as string, 8)
@@ -36,8 +62,25 @@ const gasFeesUSD = new Decimal(props.transaction.gasLimit)
       </span>
     </div>
     <div class="flex justify-between gap-4 text-base">
-      <span class="w-[120px] capitalize">Gas Fees</span>
-      <span>{{ gasFeesUSD }} USD</span>
+      <span
+        class="w-[120px] capitalize"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >Gas Fees</span
+      >
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.font_color,
+        }"
+        >{{ gasFeesUSD }} USD</span
+      >
     </div>
   </div>
 </template>

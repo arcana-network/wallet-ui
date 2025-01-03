@@ -1,19 +1,28 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { getImage } from '@/utils/getImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
 
 const modalContainer = ref(null)
 
 const canModalCollapse = ref(false)
 const modalStore = useModalStore()
+const appStore = useAppStore()
 
 function handleCollapse() {
   canModalCollapse.value = true
   modalContainer.value.innerHTMl = ''
   setTimeout(() => modalStore.setShowModal(false), 300)
 }
+
+const collapseContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [collapseContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs, true)
 </script>
 
 <template>
@@ -26,7 +35,16 @@ function handleCollapse() {
     >
       <div class="flex justify-center">
         <button @click="handleCollapse">
-          <img :src="getImage('collapse-arrow.svg')" />
+          <div ref="collapseContainer">
+            <img
+              :src="getImage('collapse-arrow.svg')"
+              alt="Collapse Icon"
+              :style="{
+                fill: appStore.theme_settings.font_color + '!important',
+              }"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </button>
       </div>
       <div

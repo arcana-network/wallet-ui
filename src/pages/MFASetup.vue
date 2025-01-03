@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
   Core,
-  SecurityQuestionModule,
   utils as KeyHelperUtils,
+  SecurityQuestionModule,
 } from '@arcana/key-helper'
 import { connectToParent, type AsyncMethodReturns } from 'penpal'
-import { ref, onBeforeMount, type Ref } from 'vue'
+import { onBeforeMount, ref, type Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -13,8 +13,8 @@ import AppLoader from '@/components/AppLoader.vue'
 import SearchQuestion from '@/components/SearchQuestion.vue'
 import { RedirectParentConnectionApi } from '@/models/Connection'
 import { useAppStore } from '@/store/app'
-import { GATEWAY_URL, AUTH_NETWORK } from '@/utils/constants'
-import { content, errors } from '@/utils/content'
+import { AUTH_NETWORK, GATEWAY_URL } from '@/utils/constants'
+import { content } from '@/utils/content'
 import { devLogger } from '@/utils/devLogger'
 import { getImage } from '@/utils/getImage'
 import {
@@ -22,6 +22,7 @@ import {
   getStorage,
   initStorage,
 } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type CustomObject = {
   [key: string]: string
@@ -59,7 +60,7 @@ const storage = getStorage()
 
 app.curve = storage.local.getCurve()
 
-document.documentElement.classList.add('dark')
+// document.documentElement.classList.add('dark')
 
 let connectionToParent: AsyncMethodReturns<RedirectParentConnectionApi>
 let dkgShare
@@ -327,7 +328,15 @@ function handlePinBack() {
       </div>
       <div class="flex flex-col items-center mt-8 gap-4">
         <button
-          class="btn-primary p-2 text-sm font-medium w-40"
+          class="btn-primary p-2 w-40"
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+            borderColor: app.theme_settings.accent_color,
+            backgroundColor: app.theme_settings.accent_color,
+          }"
           @click.stop="handleDone"
         >
           Done
@@ -349,7 +358,15 @@ function handlePinBack() {
       RECOVERY METHOD 2: PIN
     </h2>
     <hr />
-    <div class="m-4 text-sm text-gray-spanish-light">
+    <div
+      class="m-4"
+      :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+      :style="{
+        fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+          .primaryFontClass,
+        color: app.theme_settings.font_color,
+      }"
+    >
       Enter a 6 digit, alphanumeric pin that you can use to retrieve your wallet
       if you move to a new device or browser.
     </div>
@@ -358,13 +375,27 @@ function handlePinBack() {
       @submit.prevent="handlePinProceed"
     >
       <div class="flex flex-col gap-1">
-        <label class="font-medium text-sm">Pin to use for encryption</label>
+        <label
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+          }"
+          >Pin to use for encryption</label
+        >
         <div class="relative">
           <input
             v-model.trim="pinToEncryptMFAShare"
             :type="passwordType"
             class="text-sm py-2 px-4 input-field focus:input-active focus-visible:input-active text-ellipsis overflow-hidden whitespace-nowrap w-full bg-gray-zinc dark:bg-black-arsenic"
             placeholder="Enter a alphanumberic pin, minimum 6 characters"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+            }"
           />
           <img
             v-if="passwordType === 'password'"
@@ -384,22 +415,46 @@ function handlePinBack() {
           />
         </div>
         <span
-          class="text-sm sm:text-xs pl-1 text-red-600"
-          :class="{ invisible: !showPinError }"
+          class="pl-1 text-red-600"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+          }"
+          :class="{
+            [getFontSizeStyle(Number(app.theme_settings.font_size))]: true,
+            invisible: !showPinError,
+          }"
           >{{ showPinError }}</span
         >
       </div>
       <div class="flex justify-end gap-4">
         <button
           type="reset"
-          class="btn-secondary text-sm font-medium p-2 w-[8rem]"
+          class="btn-secondary p-2 w-[8rem]"
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+            borderColor: app.theme_settings.accent_color,
+            backgroundColor: app.theme_settings.accent_color,
+          }"
           @click.stop="handlePinBack"
         >
           Back
         </button>
         <button
           type="submit"
-          class="btn-primary text-sm font-medium p-2 w-[8rem]"
+          class="btn-primary p-2 w-[8rem]"
+          :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: app.theme_settings.font_color,
+            borderColor: app.theme_settings.accent_color,
+            backgroundColor: app.theme_settings.accent_color,
+          }"
         >
           Proceed
         </button>
@@ -419,7 +474,15 @@ function handlePinBack() {
           class="flex flex-col gap-2"
         >
           <div class="flex flex-col gap-1">
-            <label class="text-sm">Question {{ i }}</label>
+            <label
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
+              >Question {{ i }}</label
+            >
             <SearchQuestion
               :questions="globalQuestions"
               :value="getSelectedQuestion(i)"
@@ -427,17 +490,37 @@ function handlePinBack() {
             />
             <div
               v-if="error[i - 1]"
-              class="mt-1 ml-2 text-red-500 text-xs font-medium"
+              class="mt-1 ml-2 text-red-500"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
             >
               Questions cannot be repeated
             </div>
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-sm">Answer {{ i }}</label>
+            <label
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
+              >Answer {{ i }}</label
+            >
             <input
               class="dark:bg-black-arsenic bg-gray-zinc-85 text-sm py-2 px-4 input-field text-ellipsis overflow-hidden whitespace-nowrap focus:input-active"
               :placeholder="customPlaceholders[i - 1]"
               :value="getAnswer(i)"
+              :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+              :style="{
+                fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: app.theme_settings.font_color,
+              }"
               @input="addAnswer(i, $event.target?.value)"
             />
           </div>
@@ -445,12 +528,31 @@ function handlePinBack() {
         <div class="flex justify-end gap-4">
           <button
             type="reset"
-            class="btn-secondary text-sm p-2 w-32"
+            class="btn-secondary p-2 w-32"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+              borderColor: app.theme_settings.accent_color,
+              backgroundColor: app.theme_settings.accent_color,
+            }"
             @click.stop="handleCancel"
           >
             Cancel
           </button>
-          <button type="submit" class="btn-primary text-sm p-2 w-32">
+          <button
+            type="submit"
+            class="btn-primary p-2 w-32"
+            :class="getFontSizeStyle(Number(app.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(app.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: app.theme_settings.font_color,
+              borderColor: app.theme_settings.accent_color,
+              backgroundColor: app.theme_settings.accent_color,
+            }"
+          >
             Proceed
           </button>
         </div>

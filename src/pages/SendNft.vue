@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onMounted, onBeforeMount, onUnmounted, ref, Ref, watch } from 'vue'
+import { onBeforeMount, onMounted, onUnmounted, ref, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -8,7 +8,7 @@ import AppLoader from '@/components/AppLoader.vue'
 import GasPrice from '@/components/GasPrice.vue'
 import GasPriceMVX from '@/components/GasPriceMVX.vue'
 import SendNftPreview from '@/components/SendNftPreview.vue'
-import { type NFTContractType, type NFT } from '@/models/NFT'
+import { type NFT, type NFTContractType } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
 import { useActivitiesStore } from '@/store/activities'
 import { useAppStore } from '@/store/app'
@@ -28,6 +28,8 @@ import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type SendNftProps = {
   type: NFTContractType
@@ -440,6 +442,12 @@ watch(
     }
   }
 )
+
+const backContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -469,7 +477,14 @@ watch(
           title="Click to go back"
           @click.stop="router.go(-1)"
         >
-          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          <div ref="backContainer">
+            <img
+              :src="getImage('back-arrow.svg')"
+              class="w-6 h-6"
+              alt="Back Icon"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </button>
         <span class="font-Nohemi text-[20px] font-medium">Send Token</span>
       </div>
@@ -482,7 +497,17 @@ watch(
       >
         <div class="flex flex-col gap-3">
           <div class="flex flex-col gap-1">
-            <label class="text-sm font-medium" for="recipientWalletAddress">
+            <label
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              for="recipientWalletAddress"
+            >
               Recipient’s Wallet Address
             </label>
             <input
@@ -491,28 +516,78 @@ watch(
               required
               type="text"
               class="input-field"
-              :class="{ 'input-active': isWalletAddressFocused }"
               placeholder="Enter Recipient’s Wallet Address"
+              :class="[
+                { 'input-active': isWalletAddressFocused },
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               @focus="isWalletAddressFocused = true"
               @blur="isWalletAddressFocused = false"
             />
           </div>
           <div v-if="props.type === 'erc1155'" class="flex flex-col gap-1">
-            <label class="text-sm font-medium" for="quantity"> Quantity </label>
+            <label
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+              for="quantity"
+            >
+              Quantity
+            </label>
             <input
               id="quantity"
               v-model="quantity"
               required
               type="text"
               class="input-field"
-              :class="{ 'input-active': isQuantityFocused }"
               placeholder="Enter Recipient’s Wallet Address"
+              :class="[
+                { 'input-active': isQuantityFocused },
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               @focus="isQuantityFocused = true"
               @blur="isQuantityFocused = false"
             />
             <div class="flex justify-end gap-1">
-              <span class="text-xs text-gray-100">Total:</span>
-              <span class="text-xs">{{ props.balance }} copies</span>
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+                >Total:</span
+              >
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+                >{{ props.balance }} copies</span
+              >
             </div>
           </div>
           <GasPrice
@@ -536,7 +611,12 @@ watch(
             v-else-if="
               transactionMode === 'SCW' || transactionMode === 'ARCANA'
             "
-            class="text-xs text-green-100 font-medium text-center w-full"
+            class="text-green-100 font-medium text-center w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+            }"
             >This is a Gasless Transaction. Click Below to Approve.
           </span>
           <div
@@ -545,20 +625,43 @@ watch(
               transactionMode.length === 0 &&
               rpcStore.useGasless
             "
-            class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+            class="flex space-x-2 p-2 rounded-sm mt-2"
+            :style="{
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
           >
             <img
               class="w-4 h-4 mt-1"
               :src="getIcon('info-circle', undefined, 'svg')"
             />
-            <p class="text-xs text-left text-white-200">
+            <p
+              class="text-left"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
+            >
               Limit exceeded for gasless transactions. You will be charged for
               this transaction.
             </p>
           </div>
         </div>
         <div class="flex">
-          <button class="btn-primary p-[10px] flex-grow text-center">
+          <button
+            class="btn-primary p-[10px] flex-grow text-center"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
+          >
             Preview
           </button>
         </div>

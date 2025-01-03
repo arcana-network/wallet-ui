@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Decimal } from 'decimal.js'
-import { onBeforeMount, ref, onMounted } from 'vue'
+import { onBeforeMount, onMounted, ref } from 'vue'
 
 import SwipeToAction from '@/components/SwipeToAction.vue'
 import { useAppStore } from '@/store/app'
@@ -10,6 +10,8 @@ import { ChainType } from '@/utils/chainType'
 import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const getIcon = useImage()
 
@@ -75,6 +77,12 @@ onMounted(() => {
 function truncateAddress(address: string) {
   return `${address.slice(0, 5)}....${address.slice(-5)}`
 }
+
+const backContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -86,7 +94,14 @@ function truncateAddress(address: string) {
           title="Click to go back"
           @click.stop="emits('close')"
         >
-          <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+          <div ref="backContainer">
+            <img
+              :src="getImage('back-arrow.svg')"
+              class="w-6 h-6"
+              alt="Back Icon"
+              @load="(event) => fetchAndInjectSVG(event, 0)"
+            />
+          </div>
         </button>
         <span class="font-Nohemi text-[20px] font-medium"
           >Confirm Transfer</span
@@ -103,19 +118,45 @@ function truncateAddress(address: string) {
       </div>
       <div class="flex justify-between items-center">
         <div class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Sender’s Address</span
           >
-          <span class="text-base">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ truncateAddress(props.previewData.senderWalletAddress) }}
           </span>
         </div>
         <img :src="getImage('forward-arrow.svg')" class="w-6 h-6" />
         <div class="flex flex-col gap-1">
-          <span class="text-sm font-medium text-gray-100"
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Recipient’s Address</span
           >
-          <span class="text-base">
+          <span
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
+          >
             {{ truncateAddress(props.previewData.recipientWalletAddress) }}
           </span>
         </div>
@@ -129,34 +170,59 @@ function truncateAddress(address: string) {
           <span class="text-base font-normal text-gray-100">Gas Fee</span>
           <span
             v-if="!rpcStore.useGasless || transactionMode.length === 0"
-            class="text-base"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >{{ txFees }} {{ nativeCurrency }}</span
           >
           <span
             v-else-if="
               transactionMode === 'SCW' || transactionMode === 'ARCANA'
             "
-            class="text-base"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
             >Sponsored</span
           >
         </div>
       </div>
       <span
         v-if="transactionMode === 'SCW' || transactionMode === 'ARCANA'"
-        class="text-xs text-green-100 font-medium text-center w-full"
+        class="text-green-100 font-medium text-center w-full"
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+        }"
         >This is a Gasless Transaction. Click Below to Approve.
       </span>
       <div
         v-else-if="
           !loader.show && transactionMode.length === 0 && rpcStore.useGasless
         "
-        class="flex space-x-2 bg-blue-dark-sky p-2 rounded-sm mt-2"
+        class="flex space-x-2 p-2 rounded-sm mt-2"
+        :style="{
+          backgroundColor: appStore.theme_settings.accent_color,
+        }"
       >
         <img
           class="w-4 h-4 mt-1"
           :src="getIcon('info-circle', undefined, 'svg')"
         />
-        <p class="text-xs text-left text-white-200">
+        <p
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+        >
           Limit exceeded for gasless transactions. You will be charged for this
           transaction.
         </p>

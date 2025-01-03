@@ -21,6 +21,8 @@ import { getImage } from '@/utils/getImage'
 import { getRequestHandler } from '@/utils/requestHandlerSingleton'
 import { getStorage } from '@/utils/storageWrapper'
 import { getIconAsset } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
@@ -223,6 +225,12 @@ watch(
 function handleFallbackLogo(event) {
   event.target.src = getImage('blockchain-icon.png')
 }
+
+const plusContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [plusContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -248,16 +256,30 @@ function handleFallbackLogo(event) {
               @error="handleFallbackLogo"
             />
             <span
-              class="font-normal text-base overflow-hidden whitespace-nowrap text-ellipsis w-[16ch]"
+              class="overflow-hidden whitespace-nowrap text-ellipsis w-[16ch]"
               :title="asset.name"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >{{ asset.name }}</span
             >
           </div>
           <div
-            class="gap-1 font-normal text-base leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis transition-all duration-200"
+            class="gap-1 leading-none text-right overflow-hidden whitespace-nowrap text-ellipsis transition-all duration-200"
             :title="`${
               isNative(asset) ? nativeAssetBalance.toString() : asset.balance
             } ${asset.symbol}`"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           >
             {{ new Decimal(asset.balance).toDecimalPlaces(4) }}
             {{ asset.symbol }}
@@ -271,10 +293,29 @@ function handleFallbackLogo(event) {
     <button
       v-if="appStore.chainType === ChainType.evm_secp256k1"
       class="flex items-center justify-center flex-grow btn-quaternery space-x-2"
+      :style="{
+        borderColor: appStore.theme_settings.accent_color,
+      }"
       @click.stop="handleAddToken"
     >
-      <img :src="getImage('plus.svg')" class="h-3 w-3" />
-      <span class="text-base">New Asset</span>
+      <div ref="plusContainer">
+        <img
+          :src="getImage('plus.svg')"
+          class="h-3 w-3"
+          alt="Plus Icon"
+          @load="(event) => fetchAndInjectSVG(event, 0)"
+        />
+      </div>
+
+      <span
+        :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+        :style="{
+          fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+            .primaryFontClass,
+          color: appStore.theme_settings.accent_color,
+        }"
+        >New Asset</span
+      >
     </button>
     <Teleport v-if="modalStore.show" to="#modal-container">
       <AddTokenScreen v-if="showModal" />

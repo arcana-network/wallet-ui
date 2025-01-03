@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, watch } from 'vue'
+import { toRefs, watch, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import Popper from 'vue3-popper'
 
@@ -13,6 +13,7 @@ import { useRequestStore } from '@/store/request'
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
 import { useImage } from '@/utils/useImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
 
 const getImage = useImage()
 const requestStore = useRequestStore()
@@ -61,6 +62,12 @@ watch(areRequestsPendingForApproval, () => {
     router.push({ name: 'home' })
   }
 })
+
+const infoContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [infoContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -92,10 +99,14 @@ watch(areRequestsPendingForApproval, () => {
             You are not going to be charged!
             <Popper arrow hover>
               <button>
-                <img
-                  class="sign__message-info-icon"
-                  :src="getImage('info-circle', undefined, 'svg')"
-                />
+                <div ref="infoContainer">
+                  <img
+                    class="sign__message-info-icon"
+                    :src="getImage('info-circle', undefined, 'svg')"
+                    alt="Info Icon"
+                    @load="(event) => fetchAndInjectSVG(event, 0)"
+                  />
+                </div>
               </button>
               <template #content>
                 <ChargeInfo />

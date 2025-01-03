@@ -1,13 +1,16 @@
 <script lang="ts" setup>
 import {
   Combobox,
-  ComboboxInput,
   ComboboxButton,
-  ComboboxOptions,
+  ComboboxInput,
   ComboboxOption,
+  ComboboxOptions,
   TransitionRoot,
 } from '@headlessui/vue'
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+
+import { useAppStore } from '@/store/app'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type SearchQuestionProps = {
   questions: {
@@ -19,7 +22,7 @@ type SearchQuestionProps = {
 const props = defineProps<SearchQuestionProps>()
 
 const emit = defineEmits(['change'])
-
+const appStore = useAppStore()
 const selectedQuestion = ref('')
 const isFocused = ref(false)
 const query = ref('')
@@ -63,6 +66,21 @@ function displayValue() {
     return question?.[1].question as string
   }
 }
+
+const placeholderClasses = computed(() => {
+  const fontSizeClass = `placeholder:text-${getFontSizeStyle(
+    Number(appStore.theme_settings.font_size)
+  )}`
+  return fontSizeClass
+})
+
+const placeholderStyle = computed(() => {
+  return {
+    fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+      .primaryFontClass,
+    color: appStore.theme_settings.font_color,
+  }
+})
 </script>
 
 <template>
@@ -78,6 +96,16 @@ function displayValue() {
           class="flex-1 border-none text-sm text-left justify-between py-1 px-3 truncate"
           placeholder="Enter or select the question"
           :display-value="displayValue()"
+          :class="[
+            getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+            placeholderClasses,
+          ]"
+          :style="{
+            ...placeholderStyle,
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
           @change="handleChange"
           @focus="isFocused = true"
           @blur="isFocused = false"
@@ -98,6 +126,11 @@ function displayValue() {
         <div v-show="open && filteredQuestions.length">
           <ComboboxOptions
             class="absolute max-h-48 w-full py-2 px-1 card text-sm overflow-auto rounded-t-none z-10"
+            :class="{
+              [appStore.theme === 'dark'
+                ? 'border border-[#13171A] rounded-md'
+                : 'border border-[#F7F7F7] rounded-md']: true,
+            }"
             static
           >
             <ComboboxOption
@@ -108,14 +141,40 @@ function displayValue() {
               :value="question"
             >
               <li
-                class="relative cursor-pointer select-none p-3 rounded-sm flex justify-between hover:bg-gray-200"
+                class="relative cursor-pointer select-none p-3 rounded-sm flex justify-between"
                 :class="{
-                  'bg-gray-200': active,
+                  [getFontSizeStyle(
+                    Number(appStore.theme_settings.font_size)
+                  )]: true,
+
+                  [appStore.theme === 'dark' ? 'bg-[#13171A]' : 'bg-[#F7F7F7]']:
+                    active,
+                  [appStore.theme === 'dark'
+                    ? 'hover:bg-[#13171A]'
+                    : 'hover:bg-[#F7F7F7]']: active,
+                }"
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
                 }"
               >
                 <span
                   class="block truncate"
-                  :class="{ 'font-medium': selected, 'font-normal': !selected }"
+                  :class="{
+                    [getFontSizeStyle(
+                      Number(appStore.theme_settings.font_size)
+                    )]: true,
+                    'font-medium': selected,
+                    'font-normal': !selected,
+                  }"
+                  :style="{
+                    fontFamily: getFontFaimly(
+                      appStore.theme_settings.font_pairing
+                    ).primaryFontClass,
+                    color: appStore.theme_settings.font_color,
+                  }"
                   :title="question[1]"
                 >
                   {{ question[1].question }}

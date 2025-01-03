@@ -2,16 +2,19 @@
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
+import { useAppStore } from '@/store/app'
 import { useRpcStore } from '@/store/rpc'
 import { content, errors } from '@/utils/content'
 import { produceProviderFromURLString } from '@/utils/evm/rpcURLToProvider'
 import { getImage } from '@/utils/getImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const emit = defineEmits(['close'])
 
 const rpcStore = useRpcStore()
 const toast = useToast()
-
+const appStore = useAppStore()
 const rpcConfig = ref({
   networkName: '',
   rpcUrl: '',
@@ -78,6 +81,12 @@ async function handleSubmit() {
     toast.error(errors.RPC.INVALID)
   }
 }
+
+const backContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [backContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -88,13 +97,28 @@ async function handleSubmit() {
         title="Click to go back"
         @click.stop="emit('close')"
       >
-        <img :src="getImage('back-arrow.svg')" class="w-6 h-6" />
+        <div ref="backContainer">
+          <img
+            :src="getImage('back-arrow.svg')"
+            class="w-6 h-6"
+            alt="Back Arrow Icon"
+            @load="(event) => fetchAndInjectSVG(event, 0)"
+          />
+        </div>
       </button>
       <span class="font-Nohemi text-[20px] font-medium">Add Network</span>
     </div>
     <form class="flex flex-col gap-6" @submit.prevent="handleSubmit">
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium" for="recipientWalletAddress">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="recipientWalletAddress"
+        >
           Network Name
         </label>
         <input
@@ -104,10 +128,26 @@ async function handleSubmit() {
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. Ethereum"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium" for="rpcUrl"> RPC URL </label>
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="rpcUrl"
+        >
+          RPC URL
+        </label>
         <input
           id="rpcUrl"
           v-model="rpcConfig.rpcUrl"
@@ -115,10 +155,24 @@ async function handleSubmit() {
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://rpc.ankr.com/eth"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium" for="currencySymbol">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="currencySymbol"
+        >
           Currency Symbol
         </label>
         <input
@@ -128,10 +182,26 @@ async function handleSubmit() {
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. ETH"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium" for="chainId"> Chain ID </label>
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="chainId"
+        >
+          Chain ID
+        </label>
         <input
           id="chainId"
           v-model="rpcConfig.chainId"
@@ -139,10 +209,24 @@ async function handleSubmit() {
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. 0x1"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-medium" for="explorerUrl">
+        <label
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
+          for="explorerUrl"
+        >
           Explorer URL (Optional)
         </label>
         <input
@@ -151,10 +235,28 @@ async function handleSubmit() {
           type="text"
           class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
           placeholder="e.g. https://etherscan.io"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+          }"
         />
       </div>
       <div class="flex">
-        <button class="btn-primary w-full p-2">Save</button>
+        <button
+          class="btn-primary w-full p-2"
+          :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+          :style="{
+            fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+              .primaryFontClass,
+            color: appStore.theme_settings.font_color,
+            borderColor: appStore.theme_settings.accent_color,
+            backgroundColor: appStore.theme_settings.accent_color,
+          }"
+        >
+          Save
+        </button>
       </div>
     </form>
   </div>

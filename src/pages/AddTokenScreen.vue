@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -7,13 +7,16 @@ import AppLoader from '@/components/AppLoader.vue'
 import SearchToken from '@/components/SearchToken.vue'
 import contractMap from '@/contract-map.json'
 import type { AssetContract, EthAssetContract } from '@/models/Asset'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
-import { content, errors } from '@/utils/content'
+import { content } from '@/utils/content'
 import { getTokenSymbolAndDecimals } from '@/utils/contractUtil'
 import { getImage } from '@/utils/getImage'
 import { getStorage } from '@/utils/storageWrapper'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 const storage = getStorage()
 const isDisabled = reactive({
@@ -22,6 +25,7 @@ const isDisabled = reactive({
 })
 const router = useRouter()
 const modalStore = useModalStore()
+const appStore = useAppStore()
 const ethMainnetTokens: EthAssetContract[] = Object.keys(contractMap)
   .map((address) => ({
     ...contractMap[address],
@@ -163,6 +167,12 @@ watch(
     router.replace({ name: 'home' })
   }
 )
+
+const arrowContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [arrowContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -180,7 +190,16 @@ watch(
       <form class="flex flex-col" @submit.prevent="addTokenContract">
         <div v-if="rpcStore.isEthereumMainnet">
           <div class="flex flex-col gap-1">
-            <label for="search-token" class="text-sm font-medium"
+            <label
+              for="search-token"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Search Token</label
             >
             <SearchToken
@@ -194,14 +213,27 @@ watch(
               type="button"
               @click.stop="expandSection = !expandSection"
             >
-              <span class="text-sm font-normal dark:text-white-100"
+              <span
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >Add Custom Token</span
               >
-              <img
-                :src="getImage('arrow-down.svg')"
-                class="w-xl h-xl transition-all will-change-transform duration-200"
-                :class="{ '-rotate-180': expandSection }"
-              />
+              <div ref="arrowContainer">
+                <img
+                  :src="getImage('arrow-down.svg')"
+                  class="w-xl h-xl transition-all will-change-transform duration-200"
+                  :class="{ '-rotate-180': expandSection }"
+                  alt="Arrow Down Icon"
+                  @load="(event) => fetchAndInjectSVG(event, 0)"
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -210,7 +242,16 @@ watch(
           class="flex flex-col gap-6"
         >
           <div class="flex flex-col gap-1">
-            <label for="token-contract-address" class="text-sm font-medium"
+            <label
+              for="token-contract-address"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Token Contract Address</label
             >
             <input
@@ -221,10 +262,27 @@ watch(
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
               required
               autocomplete="off"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-symbol" class="text-sm font-medium"
+            <label
+              for="token-symbol"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Token Symbol</label
             >
             <input
@@ -233,14 +291,31 @@ watch(
               type="text"
               placeholder="Eg. XAR"
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
-              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               required
               autocomplete="off"
               :disabled="isDisabled.symbol"
+              :class="[
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+                { 'cursor-not-allowed': isDisabled.symbol },
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label for="token-decimal" class="text-sm font-medium"
+            <label
+              for="token-decimal"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               >Token Decimal</label
             >
             <input
@@ -249,15 +324,36 @@ watch(
               type="number"
               placeholder="0"
               class="input-field focus:input-active bg-gray-zinc dark:bg-black-arsenic"
-              :class="{ 'cursor-not-allowed': isDisabled.symbol }"
               min="0"
               step="1"
               required
               autocomplete="off"
               :disabled="isDisabled.decimals"
+              :class="[
+                getFontSizeStyle(Number(appStore.theme_settings.font_size)),
+                { 'cursor-not-allowed': isDisabled.symbol },
+              ]"
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
             />
           </div>
-          <button type="submit" class="btn-primary p-2 w-full">Save</button>
+          <button
+            type="submit"
+            class="btn-primary p-2 w-full"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+              borderColor: appStore.theme_settings.accent_color,
+              backgroundColor: appStore.theme_settings.accent_color,
+            }"
+          >
+            Save
+          </button>
         </div>
       </form>
     </div>

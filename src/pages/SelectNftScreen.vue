@@ -4,17 +4,20 @@ import { useRouter } from 'vue-router'
 
 import type { NFT } from '@/models/NFT'
 import { NFTDB } from '@/services/nft.service'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { useUserStore } from '@/store/user'
 import { getDetailedNFTs } from '@/utils/nftUtils'
 import { getStorage } from '@/utils/storageWrapper'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type ModalState = 'send-nft' | false
 
 const userStore = useUserStore()
 const rpcStore = useRpcStore()
 const router = useRouter()
+const appStore = useAppStore()
 const nfts: Ref<NFT[]> = ref([])
 const selectedNft: Ref<NFT | null> = ref(null)
 const showModal: Ref<ModalState> = ref(false)
@@ -80,7 +83,14 @@ rpcStore.$subscribe(getNFTAssets)
           </div>
           <div v-if="nfts.length" class="space-y-1 px-4">
             <label
-              class="text-xs text-zinc-400 font-medium"
+              :class="
+                getFontSizeStyle(Number(appStore.theme_settings.font_size))
+              "
+              :style="{
+                fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                  .primaryFontClass,
+                color: appStore.theme_settings.font_color,
+              }"
               for="recipientWalletAddress"
             >
               Search Artwork
@@ -110,13 +120,35 @@ rpcStore.$subscribe(getNFTAssets)
                 ></div>
                 <div class="flex flex-col gap-1 p-[10px]">
                   <span
-                    class="nft-card-title font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                    class="nft-card-title overflow-hidden whitespace-nowrap text-ellipsis"
                     :title="nft.name"
+                    :class="
+                      getFontSizeStyle(
+                        Number(appStore.theme_settings.font_size)
+                      )
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(
+                        appStore.theme_settings.font_pairing
+                      ).primaryFontClass,
+                      color: appStore.theme_settings.font_color,
+                    }"
                     >{{ nft.name }}</span
                   >
                   <span
-                    class="nft-card-collection font-normal overflow-hidden whitespace-nowrap text-ellipsis"
+                    class="nft-card-collection overflow-hidden whitespace-nowrap text-ellipsis"
                     :title="nft.collectionName"
+                    :class="
+                      getFontSizeStyle(
+                        Number(appStore.theme_settings.font_size)
+                      )
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(
+                        appStore.theme_settings.font_pairing
+                      ).primaryFontClass,
+                      color: appStore.theme_settings.font_color,
+                    }"
                     >{{ nft.collectionName }}</span
                   >
                 </div>
@@ -125,12 +157,30 @@ rpcStore.$subscribe(getNFTAssets)
             <div v-else class="flex justify-between p-5">
               <span
                 v-if="nfts.length"
-                class="color-secondary m-auto font-medium text-sm sm:text-xs px-4"
+                class="m-auto px-4"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >No NFTs found</span
               >
               <span
                 v-else
-                class="color-secondary m-auto font-medium text-sm sm:text-xs px-4"
+                class="m-auto px-4"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
                 >No NFTs added</span
               >
             </div>

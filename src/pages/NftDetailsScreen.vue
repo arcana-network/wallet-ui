@@ -3,9 +3,12 @@ import { computed, ref, type ComputedRef, type Ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import type { NFTContractType } from '@/models/NFT'
+import { useAppStore } from '@/store/app'
 import { useModalStore } from '@/store/modal'
 import { useRpcStore } from '@/store/rpc'
 import { getImage } from '@/utils/getImage'
+import { useSVGInjector } from '@/utils/useSvgInjector.ts'
+import { getFontFaimly, getFontSizeStyle } from '@/utils/utilsFunction'
 
 type NftDetails = {
   type: NFTContractType
@@ -30,6 +33,7 @@ type ModalState = 'send-nft' | false
 
 const router = useRouter()
 const route = useRoute()
+const appStore = useAppStore()
 const showModal: Ref<ModalState> = ref(false)
 const modalStore = useModalStore()
 
@@ -58,6 +62,12 @@ watch(
     router.replace({ name: 'Nfts' })
   }
 )
+
+const sendContainer = ref<HTMLElement | null>(null)
+
+const svgRefs = [sendContainer]
+
+const { fetchAndInjectSVG } = useSVGInjector(svgRefs)
 </script>
 
 <template>
@@ -71,7 +81,13 @@ watch(
             @click.stop="router.back()"
           />
           <div
-            class="font-medium flex-grow text-center text-ellipsis overflow-hidden whitespace-nowrap"
+            class="flex-grow text-center text-ellipsis overflow-hidden whitespace-nowrap"
+            :class="getFontSizeStyle(Number(appStore.theme_settings.font_size))"
+            :style="{
+              fontFamily: getFontFaimly(appStore.theme_settings.font_pairing)
+                .primaryFontClass,
+              color: appStore.theme_settings.font_color,
+            }"
           >
             {{ props.collectionName }}
           </div>
@@ -104,6 +120,15 @@ watch(
               <div
                 class="overflow-hidden whitespace-nowrap text-ellipsis max-w-[16ch] font-medium text-xl"
                 :title="props.name"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
               >
                 {{ props.name }}
               </div>
@@ -112,24 +137,73 @@ watch(
                   title="Click to transfer this NFT"
                   @click.stop="openNftModal"
                 >
-                  <img :src="getImage('send.svg')" />
+                  <div ref="sendContainer">
+                    <img
+                      :src="getImage('send.svg')"
+                      alt="Send Icon"
+                      @load="(event) => fetchAndInjectSVG(event, 0)"
+                    />
+                  </div>
                 </button>
               </div>
             </div>
             <div class="mt-5 flex flex-col gap-1">
-              <div class="font-medium text-sm">Description</div>
+              <div
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+              >
+                Description
+              </div>
               <div
                 v-if="props.description"
-                class="text-xs text-gray-100 font-normal"
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
               >
                 {{ props.description }}
               </div>
-              <span v-else class="text-xs text-gray-100 font-normal">
+              <span
+                v-else
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+              >
                 No description provided
               </span>
             </div>
             <div class="mt-5 flex flex-col gap-1">
-              <div class="font-medium text-sm">Attributes</div>
+              <div
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+              >
+                Attributes
+              </div>
               <div v-if="props.attributes?.length" class="flex gap-2 flex-wrap">
                 <div
                   v-for="attribute in nftAttributes"
@@ -137,15 +211,50 @@ watch(
                   class="rounded-lg py-2 px-3 flex flex-col border border-solid border-gray-200 dark:bg-gray-200"
                   :title="JSON.stringify(attribute)"
                 >
-                  <div class="text-xs text-gray-100 font-normal">
+                  <div
+                    :class="
+                      getFontSizeStyle(
+                        Number(appStore.theme_settings.font_size)
+                      )
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(
+                        appStore.theme_settings.font_pairing
+                      ).primaryFontClass,
+                      color: appStore.theme_settings.font_color,
+                    }"
+                  >
                     {{ attribute.trait_type }}
                   </div>
-                  <div class="font-medium text-sm">
+                  <div
+                    :class="
+                      getFontSizeStyle(
+                        Number(appStore.theme_settings.font_size)
+                      )
+                    "
+                    :style="{
+                      fontFamily: getFontFaimly(
+                        appStore.theme_settings.font_pairing
+                      ).primaryFontClass,
+                      color: appStore.theme_settings.font_color,
+                    }"
+                  >
                     {{ attribute.value }}
                   </div>
                 </div>
               </div>
-              <div v-else class="text-xs text-gray-100 font-normal">
+              <div
+                v-else
+                :class="
+                  getFontSizeStyle(Number(appStore.theme_settings.font_size))
+                "
+                :style="{
+                  fontFamily: getFontFaimly(
+                    appStore.theme_settings.font_pairing
+                  ).primaryFontClass,
+                  color: appStore.theme_settings.font_color,
+                }"
+              >
                 No attributes provided
               </div>
             </div>
