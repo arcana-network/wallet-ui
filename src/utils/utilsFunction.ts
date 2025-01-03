@@ -13,12 +13,12 @@ const getFontSizeStyle = (font: number) => {
 
 const getFontFaimly = (font_pairing: string) => {
   if (!font_pairing) {
-    return { primaryFontClass: 'nohemi', secondaryFontClass: 'inter' }
+    return { primaryFontClass: 'Nohemi', secondaryFontClass: 'Inter' }
   }
 
   const [primaryFont, secondaryFont] = font_pairing.split(' + ')
-  const primaryFontClass = primaryFont?.toLowerCase()
-  const secondaryFontClass = secondaryFont?.toLowerCase()
+  const primaryFontClass = primaryFont
+  const secondaryFontClass = secondaryFont
   return { primaryFontClass, secondaryFontClass }
 }
 

@@ -6,6 +6,110 @@
 @tailwind utilities;
 
 @font-face {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/nunito/Nunito-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 600;
+  src: url('@/assets/fonts/nunito/Nunito-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/nunito/Nunito-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/nunito/Nunito-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/onest/Onest-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 600;
+  src: url('@/assets/fonts/onest/Onest-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/onest/Onest-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Onest;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/onest/Onest-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: PTSans;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/pt_sans/PTSans-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: PTSans;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/pt_sans/PTSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 800;
+  src: url('@/assets/fonts/syne/Syne-ExtraBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 700;
+  src: url('@/assets/fonts/syne/Syne-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 600;
+  src: url('@/assets/fonts/syne/Syne-SemiBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 500;
+  src: url('@/assets/fonts/syne/Syne-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: Syne;
+  font-style: normal;
+  font-weight: 400;
+  src: url('@/assets/fonts/syne/Syne-Regular.ttf') format('truetype');
+}
+
+@font-face {
   font-family: Nohemi;
   font-style: normal;
   font-weight: 300;
@@ -186,10 +290,10 @@
     width: 10px;
     height: 10px;
     content: '';
+    border: 1px solid red;
     border-radius: 50%;
     transition: 120ms transform ease-in-out;
     transform: scale(0);
-    border: 1px solid red;
   }
 }
 
