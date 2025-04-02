@@ -199,9 +199,7 @@ onMounted(async () => {
     await setMFABannerState()
     const requestHandler = getRequestHandler()
     if (requestHandler) {
-      const c = storage.local.getLastRPCConfig(
-        requestHandler.getAccountHandler().getAccount().address
-      )
+      const c = null
       requestHandler.setConnection(parentConnection)
       const { chainId, ...rpcConfig } =
         rpcStore.selectedRpcConfig as RpcConfigWallet
