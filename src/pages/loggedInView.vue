@@ -209,16 +209,20 @@ onMounted(async () => {
       if (c) {
         setRpcConfig(c)
         devLogger.log('last rpc config', c)
-        requestHandler
-          .setRpcConfig(c as RpcConfigWallet)
-          .then(() => requestHandler.sendConnect())
+        requestHandler.setRpcConfig(c as RpcConfigWallet).then(() => {
+          watchRequestQueue(requestHandler)
+          requestHandler.sendConnect()
+        })
       } else {
         requestHandler
           .setRpcConfig({
             chainId: selectedChainId,
             ...rpcConfig,
           })
-          .then(() => requestHandler.sendConnect())
+          .then(() => {
+            watchRequestQueue(requestHandler)
+            requestHandler.sendConnect()
+          })
       }
       if (
         rpcStore.isGaslessConfigured &&
@@ -226,7 +230,6 @@ onMounted(async () => {
       ) {
         await initScwSdk()
       }
-      watchRequestQueue(requestHandler)
     }
   } catch (e) {
     console.log(e)
